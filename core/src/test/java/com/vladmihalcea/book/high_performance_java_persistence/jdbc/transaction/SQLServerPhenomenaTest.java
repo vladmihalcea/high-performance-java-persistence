@@ -50,6 +50,10 @@ public class SQLServerPhenomenaTest extends AbstractPhenomenaTest {
         return "UPDATE post WITH(NOWAIT) SET title = ? WHERE id = 1";
     }
 
+    protected String updatePostDetailsAuthorParamSql() {
+        return "UPDATE post_details WITH(NOWAIT) SET created_by = ? WHERE id = 1";
+    }
+
     protected String insertCommentSql() {
         return "INSERT INTO post_comment WITH(NOWAIT) (post_id, review, version, id) VALUES (1, 'Phantom', 0, 1000)";
     }

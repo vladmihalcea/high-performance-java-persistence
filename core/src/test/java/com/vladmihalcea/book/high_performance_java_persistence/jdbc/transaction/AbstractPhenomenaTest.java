@@ -31,7 +31,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     public static final String INSERT_POST_COMMENT = "insert into post_comment (post_id, review, version, id) values (?, ?, ?, ?)";
 
-    public static final String INSERT_POST_DETAILS = "insert into post_details (id, created_on, version) values (?, ?, ?)";
+    public static final String INSERT_POST_DETAILS = "insert into post_details (id, created_by, version) values (?, ?, ?)";
 
     private final String isolationLevelName;
 
@@ -86,7 +86,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
                 index = 0;
                 postDetailsStatement.setInt(++index, 1);
-                postDetailsStatement.setTimestamp(++index, new Timestamp(System.currentTimeMillis()));
+                postDetailsStatement.setString(++index, "None");
                 postDetailsStatement.setInt(++index, 0);
                 postDetailsStatement.executeUpdate();
 
@@ -273,11 +273,50 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         });
     }
 
+    @Test
+    public void testReadSkew() {
+        AtomicReference<Boolean> lostUpdatePreventedByLocking = new AtomicReference<>();
+        try {
+            doInConnection(aliceConnection -> {
+                if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
+                    LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
+                    return;
+                }
+                prepareConnection(aliceConnection);
+                String title = selectStringColumn(aliceConnection, selectPostTitleSql());
+
+                executeSync(() -> {
+                    doInConnection(bobConnection -> {
+                        prepareConnection(bobConnection);
+                        try {
+                            update(bobConnection, updatePostTitleParamSql(), new Object[]{"Bob"});
+                            update(bobConnection, updatePostDetailsAuthorParamSql(), new Object[]{"Bob"});
+                        } catch (Exception e) {
+                            LOGGER.info("Exception thrown", e);
+                            lostUpdatePreventedByLocking.set(true);
+                        }
+                    });
+                });
+                String createdBy = selectStringColumn(aliceConnection, selectPostDetailsAuthorSql());
+                LOGGER.info("Isolation level {} {} Read Skew", isolationLevelName, "Bob".equals(createdBy) ? "allows" : "prevents");
+            });
+        } catch (Exception e) {
+            LOGGER.info("Exception thrown", e);
+            lostUpdatePreventedByLocking.set(true);
+        }
+        doInConnection(aliceConnection -> {
+            String title = selectStringColumn(aliceConnection, selectPostTitleSql());
+            if(Boolean.TRUE.equals(lostUpdatePreventedByLocking.get())) {
+                LOGGER.info("Isolation level {} Read Skew prevented by locking", isolationLevelName);
+            }
+        });
+    }
+
     protected void prepareConnection(Connection connection) throws SQLException {
         connection.setTransactionIsolation(isolationLevel);
         try {
             connection.setNetworkTimeout(Executors.newSingleThreadExecutor(), 1000);
-        } catch (SQLException e) {
+        } catch (Throwable e) {
             LOGGER.info("Unsupported operation", e);
         }
     }
@@ -286,12 +325,20 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         return "SELECT title FROM post WHERE id = 1";
     }
 
+    protected String selectPostDetailsAuthorSql() {
+        return "SELECT created_by FROM post_details WHERE id = 1";
+    }
+
     protected String updatePostTitleSql() {
         return "UPDATE post SET title = 'ACID' WHERE id = 1";
     }
 
     protected String updatePostTitleParamSql() {
         return "UPDATE post SET title = ? WHERE id = 1";
+    }
+
+    protected String updatePostDetailsAuthorParamSql() {
+        return "UPDATE post_details SET created_by = ? WHERE id = 1";
     }
 
     protected String countCommentsSql() {

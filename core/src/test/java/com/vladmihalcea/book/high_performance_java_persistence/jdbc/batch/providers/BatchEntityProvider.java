@@ -88,6 +88,9 @@ public class BatchEntityProvider implements EntityProvider {
         @Column(name = "created_on")
         private Date createdOn;
 
+        @Column(name = "created_by")
+        private String createdBy;
+
         @Version
         private int version;
 
@@ -106,6 +109,14 @@ public class BatchEntityProvider implements EntityProvider {
 
         public void setPost(Post post) {
             this.post = post;
+        }
+
+        public String getCreatedBy() {
+            return createdBy;
+        }
+
+        public void setCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
         }
     }
 
