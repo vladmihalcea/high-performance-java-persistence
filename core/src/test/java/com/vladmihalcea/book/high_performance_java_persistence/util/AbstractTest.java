@@ -20,10 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -667,6 +664,19 @@ public abstract class AbstractTest {
         try {
             try(Statement statement = connection.createStatement()) {
                 return statement.executeUpdate(sql);
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected int update(Connection connection, String sql, Object[] params) {
+        try {
+            try(PreparedStatement statement = connection.prepareStatement(sql)) {
+                for (int i = 0; i < params.length; i++) {
+                    statement.setObject(i + 1, params[i]);
+                }
+                return statement.executeUpdate();
             }
         } catch (SQLException e) {
             throw new IllegalStateException(e);

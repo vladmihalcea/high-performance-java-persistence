@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -103,6 +104,33 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     }
 
     @Test
+    public void testDirtyWrite() {
+        String firstTitle = "Alice";
+        doInConnection(aliceConnection -> {
+            if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
+                LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
+                return;
+            }
+            prepareConnection(aliceConnection);
+            update(aliceConnection, updatePostTitleParamSql(), new Object[]{firstTitle});
+            executeSync(() -> {
+                doInConnection(bobConnection -> {
+                    prepareConnection(bobConnection);
+                    try {
+                        update(bobConnection, updatePostTitleParamSql(), new Object[]{"Bob"});
+                    } catch (Exception e) {
+                        LOGGER.info("Exception thrown", e);
+                    }
+                });
+            });
+        });
+        doInConnection(aliceConnection -> {
+            String title = selectStringColumn(aliceConnection, selectPostTitleSql());
+            LOGGER.info("Isolation level {} {} Dirty Write", isolationLevelName, !title.equals(firstTitle) ? "allows" : "prevents");
+        });
+    }
+
+    @Test
     public void testDirtyRead() {
         final AtomicBoolean dirtyRead = new AtomicBoolean();
 
@@ -186,6 +214,43 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         });
     }
 
+    @Test
+    public void testLostUpdate() {
+        AtomicReference<Boolean> lostUpdatePreventedByLocking = new AtomicReference<>();
+        try {
+            doInConnection(aliceConnection -> {
+                if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
+                    LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
+                    return;
+                }
+                prepareConnection(aliceConnection);
+                String title = selectStringColumn(aliceConnection, selectPostTitleSql());
+                executeSync(() -> {
+                    doInConnection(bobConnection -> {
+                        prepareConnection(bobConnection);
+                        try {
+                            update(bobConnection, updatePostTitleParamSql(), new Object[]{"Bob"});
+                        } catch (Exception e) {
+                            LOGGER.info("Exception thrown", e);
+                            lostUpdatePreventedByLocking.set(true);
+                        }
+                    });
+                });
+                update(aliceConnection, updatePostTitleParamSql(), new Object[]{"Alice"});
+            });
+        } catch (Exception e) {
+            LOGGER.info("Exception thrown", e);
+        }
+        doInConnection(aliceConnection -> {
+            String title = selectStringColumn(aliceConnection, selectPostTitleSql());
+            if(Boolean.TRUE.equals(lostUpdatePreventedByLocking.get())) {
+                LOGGER.info("Isolation level {} Lost Update prevented by locking", isolationLevelName);
+            } else {
+                LOGGER.info("Isolation level {} {} Lost Update", isolationLevelName, "Alice".equals(title) ? "allows" : "prevents");
+            }
+        });
+    }
+
     protected void prepareConnection(Connection connection) throws SQLException {
         connection.setTransactionIsolation(isolationLevel);
     }
@@ -196,6 +261,10 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     protected String updatePostTitleSql() {
         return "UPDATE post SET title = 'ACID' WHERE id = 1";
+    }
+
+    protected String updatePostTitleParamSql() {
+        return "UPDATE post SET title = ? WHERE id = 1";
     }
 
     protected String countCommentsSql() {
