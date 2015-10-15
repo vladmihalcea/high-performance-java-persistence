@@ -11,8 +11,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -71,9 +72,9 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         super.init();
         doInConnection(connection -> {
             try (
-                    PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
-                    PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
-                    PreparedStatement postDetailsStatement = connection.prepareStatement(INSERT_POST_DETAILS);
+                PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
+                PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
+                PreparedStatement postDetailsStatement = connection.prepareStatement(INSERT_POST_DETAILS);
             ) {
                 int index = 0;
                 postStatement.setString(++index, "Transactions");
@@ -87,12 +88,14 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 postDetailsStatement.setInt(++index, 0);
                 postDetailsStatement.executeUpdate();
 
-                index = 0;
-                postCommentStatement.setLong(++index, 1);
-                postCommentStatement.setString(++index, String.format("Post comment %1$d", 1));
-                postCommentStatement.setInt(++index, (int) (Math.random() * 1000));
-                postCommentStatement.setLong(++index, 1);
-                postCommentStatement.addBatch();
+                for(int i = 0; i < 3; i++) {
+                    index = 0;
+                    postCommentStatement.setLong(++index, 1);
+                    postCommentStatement.setString(++index, String.format("Post comment %1$d", 1));
+                    postCommentStatement.setInt(++index, (int) (Math.random() * 1000));
+                    postCommentStatement.setLong(++index, i);
+                    postCommentStatement.executeUpdate();
+                }
             } catch (SQLException e) {
                 fail(e.getMessage());
             }
@@ -101,7 +104,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     @Test
     public void testDirtyRead() {
-        final AtomicReference<Boolean> dirtyRead = new AtomicReference<>(false);
+        final AtomicBoolean dirtyRead = new AtomicBoolean();
 
         doInConnection(aliceConnection -> {
             if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
@@ -109,15 +112,13 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 return;
             }
             prepareConnection(aliceConnection);
-            try (Statement postUpdate = aliceConnection.createStatement()) {
-                postUpdate.executeUpdate("UPDATE post SET title = 'ACID' WHERE id = 1");
-                executeAsync(() -> {
+            try (Statement aliceStatement = aliceConnection.createStatement()) {
+                aliceStatement.executeUpdate(updatePostTitleSql());
+                executeSync(() -> {
                     doInConnection(bobConnection -> {
                         prepareConnection(bobConnection);
-                        try (Statement postSelect = bobConnection.createStatement();
-                             ResultSet postResultSet = postSelect.executeQuery(dirtyReadSql())) {
-                            assertTrue(postResultSet.next());
-                            String title = postResultSet.getString(1);
+                        try {
+                            String title = selectStringColumn(bobConnection, selectPostTitleSql());
                             if ("Transactions".equals(title)) {
                                 LOGGER.info("No Dirty Read, uncommitted data is not viewable");
                             } else if ("ACID".equals(title)) {
@@ -125,16 +126,63 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                             } else {
                                 fail("Unknown title: " + title);
                             }
-                        } catch (SQLException e) {
-                            fail(e.getMessage());
-                        } finally {
-                            bobLatch.countDown();
+                        } catch (Exception e) {
+                            LOGGER.info("Exception thrown", e);
                         }
                     });
                 });
-                awaitOnLatch(bobLatch);
             }
             LOGGER.info("Isolation level {} {} Dirty Reads", isolationLevelName, dirtyRead.get() ? "allows" : "prevents");
+        });
+    }
+
+    @Test
+    public void testNonRepeatableRead() {
+        doInConnection(aliceConnection -> {
+            if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
+                LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
+                return;
+            }
+            prepareConnection(aliceConnection);
+            String firstTitle = selectStringColumn(aliceConnection, selectPostTitleSql());
+            executeSync(() -> {
+                doInConnection(bobConnection -> {
+                    prepareConnection(bobConnection);
+                    try {
+                        assertEquals(1, update(bobConnection, updatePostTitleSql()));
+                    } catch (Exception e) {
+                        LOGGER.info("Exception thrown", e);
+                    }
+                });
+            });
+            String secondTitle = selectStringColumn(aliceConnection, selectPostTitleSql());
+
+            LOGGER.info("Isolation level {} {} Non-Repeatable Reads", isolationLevelName, !firstTitle.equals(secondTitle) ? "allows" : "prevents");
+        });
+    }
+
+    @Test
+    public void testPhantomRead() {
+        doInConnection(aliceConnection -> {
+            if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
+                LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
+                return;
+            }
+            prepareConnection(aliceConnection);
+            int commentsCount = count(aliceConnection, countCommentsSql());
+            executeSync(() -> {
+                doInConnection(bobConnection -> {
+                    prepareConnection(bobConnection);
+                    try {
+                        assertEquals(1, update(bobConnection, insertCommentSql()));
+                    } catch (Exception e) {
+                        LOGGER.info("Exception thrown", e);
+                    }
+                });
+            });
+            int secondCommentsCount = count(aliceConnection, countCommentsSql());
+
+            LOGGER.info("Isolation level {} {} Phantom Reads", isolationLevelName, secondCommentsCount != commentsCount ? "allows" : "prevents");
         });
     }
 
@@ -142,8 +190,20 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         connection.setTransactionIsolation(isolationLevel);
     }
 
-    protected String dirtyReadSql() {
+    protected String selectPostTitleSql() {
         return "SELECT title FROM post WHERE id = 1";
+    }
+
+    protected String updatePostTitleSql() {
+        return "UPDATE post SET title = 'ACID' WHERE id = 1";
+    }
+
+    protected String countCommentsSql() {
+        return "SELECT COUNT(*) FROM post_comment";
+    }
+
+    protected String insertCommentSql() {
+        return "INSERT INTO post_comment (post_id, review, version, id) VALUES (1, 'Phantom', 0, 1000)";
     }
 
 }

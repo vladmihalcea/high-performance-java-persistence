@@ -21,10 +21,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.Assert.fail;
 
 public abstract class AbstractTest {
 
@@ -643,5 +647,43 @@ public abstract class AbstractTest {
             throw new IllegalStateException(e);
         }
         return result;
+    }
+
+    protected String selectStringColumn(Connection connection, String sql) {
+        try {
+            try(Statement statement = connection.createStatement()) {
+                ResultSet resultSet = statement.executeQuery(sql);
+                if(!resultSet.next()) {
+                    throw new IllegalArgumentException("There was no row to be selected!");
+                }
+                return resultSet.getString(1);
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected int update(Connection connection, String sql) {
+        try {
+            try(Statement statement = connection.createStatement()) {
+                return statement.executeUpdate(sql);
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected int count(Connection connection, String sql) {
+        try {
+            try(Statement statement = connection.createStatement()) {
+                ResultSet resultSet = statement.executeQuery(sql);
+                if(!resultSet.next()) {
+                    throw new IllegalArgumentException("There was no row to be selected!");
+                }
+                return ((Number) resultSet.getObject(1)).intValue();
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }
