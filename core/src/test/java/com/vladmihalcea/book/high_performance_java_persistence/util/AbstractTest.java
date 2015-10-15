@@ -649,6 +649,7 @@ public abstract class AbstractTest {
     protected String selectStringColumn(Connection connection, String sql) {
         try {
             try(Statement statement = connection.createStatement()) {
+                statement.setQueryTimeout(1);
                 ResultSet resultSet = statement.executeQuery(sql);
                 if(!resultSet.next()) {
                     throw new IllegalArgumentException("There was no row to be selected!");
@@ -663,6 +664,7 @@ public abstract class AbstractTest {
     protected int update(Connection connection, String sql) {
         try {
             try(Statement statement = connection.createStatement()) {
+                statement.setQueryTimeout(1);
                 return statement.executeUpdate(sql);
             }
         } catch (SQLException e) {
@@ -673,6 +675,7 @@ public abstract class AbstractTest {
     protected int update(Connection connection, String sql, Object[] params) {
         try {
             try(PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setQueryTimeout(1);
                 for (int i = 0; i < params.length; i++) {
                     statement.setObject(i + 1, params[i]);
                 }
@@ -686,6 +689,7 @@ public abstract class AbstractTest {
     protected int count(Connection connection, String sql) {
         try {
             try(Statement statement = connection.createStatement()) {
+                statement.setQueryTimeout(1);
                 ResultSet resultSet = statement.executeQuery(sql);
                 if(!resultSet.next()) {
                     throw new IllegalArgumentException("There was no row to be selected!");
