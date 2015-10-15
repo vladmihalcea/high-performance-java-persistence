@@ -237,7 +237,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     @Test
     public void testLostUpdate() {
-        AtomicReference<Boolean> lostUpdatePreventedByLocking = new AtomicReference<>();
+        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
         try {
             doInConnection(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
@@ -253,7 +253,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                             update(bobConnection, updatePostTitleParamSql(), new Object[]{"Bob"});
                         } catch (Exception e) {
                             LOGGER.info("Exception thrown", e);
-                            lostUpdatePreventedByLocking.set(true);
+                            preventedByLocking.set(true);
                         }
                     });
                 });
@@ -261,11 +261,11 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
             });
         } catch (Exception e) {
             LOGGER.info("Exception thrown", e);
-            lostUpdatePreventedByLocking.set(true);
+            preventedByLocking.set(true);
         }
         doInConnection(aliceConnection -> {
             String title = selectStringColumn(aliceConnection, selectPostTitleSql());
-            if(Boolean.TRUE.equals(lostUpdatePreventedByLocking.get())) {
+            if(Boolean.TRUE.equals(preventedByLocking.get())) {
                 LOGGER.info("Isolation level {} Lost Update prevented by locking", isolationLevelName);
             } else {
                 LOGGER.info("Isolation level {} {} Lost Update", isolationLevelName, "Alice".equals(title) ? "allows" : "prevents");
@@ -275,7 +275,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     @Test
     public void testReadSkew() {
-        AtomicReference<Boolean> lostUpdatePreventedByLocking = new AtomicReference<>();
+        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
         try {
             doInConnection(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
@@ -293,7 +293,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                             update(bobConnection, updatePostDetailsAuthorParamSql(), new Object[]{"Bob"});
                         } catch (Exception e) {
                             LOGGER.info("Exception thrown", e);
-                            lostUpdatePreventedByLocking.set(true);
+                            preventedByLocking.set(true);
                         }
                     });
                 });
@@ -302,14 +302,49 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
             });
         } catch (Exception e) {
             LOGGER.info("Exception thrown", e);
-            lostUpdatePreventedByLocking.set(true);
+            preventedByLocking.set(true);
         }
         doInConnection(aliceConnection -> {
             String title = selectStringColumn(aliceConnection, selectPostTitleSql());
-            if(Boolean.TRUE.equals(lostUpdatePreventedByLocking.get())) {
+            if(Boolean.TRUE.equals(preventedByLocking.get())) {
                 LOGGER.info("Isolation level {} Read Skew prevented by locking", isolationLevelName);
             }
         });
+    }
+
+    @Test
+    public void testWriteSkew() {
+        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
+        try {
+            doInConnection(aliceConnection -> {
+                if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
+                    LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
+                    return;
+                }
+                prepareConnection(aliceConnection);
+                String title = selectStringColumn(aliceConnection, selectPostTitleSql());
+                String createdBy = selectStringColumn(aliceConnection, selectPostDetailsAuthorSql());
+
+                executeSync(() -> {
+                    doInConnection(bobConnection -> {
+                        prepareConnection(bobConnection);
+                        try {
+                            String bobTitle = selectStringColumn(bobConnection, selectPostTitleSql());
+                            String bonCreatedBy = selectStringColumn(bobConnection, selectPostDetailsAuthorSql());
+                            update(bobConnection, updatePostTitleParamSql(), new Object[]{"Bob"});
+                        } catch (Exception e) {
+                            LOGGER.info("Exception thrown", e);
+                            preventedByLocking.set(true);
+                        }
+                    });
+                });
+                update(aliceConnection, updatePostDetailsAuthorParamSql(), new Object[]{"Alice"});
+            });
+        } catch (Exception e) {
+            LOGGER.info("Exception thrown", e);
+            preventedByLocking.set(true);
+        }
+        LOGGER.info("Isolation level {} {} Write Skew", isolationLevelName, !Boolean.TRUE.equals(preventedByLocking.get()) ? "allows" : "prevents");
     }
 
     protected void prepareConnection(Connection connection) throws SQLException {
