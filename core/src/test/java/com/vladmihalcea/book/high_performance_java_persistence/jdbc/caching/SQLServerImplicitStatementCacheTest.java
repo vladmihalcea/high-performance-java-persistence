@@ -1,13 +1,11 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.caching;
 
-import com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.providers.TaskEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.TaskEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractSQLServerIntegrationTest;
-import oracle.jdbc.OracleConnection;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 

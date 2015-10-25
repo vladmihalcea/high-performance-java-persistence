@@ -1,11 +1,8 @@
-package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.providers;
+package com.vladmihalcea.book.high_performance_java_persistence.util.providers;
 
 import com.vladmihalcea.book.high_performance_java_persistence.util.EntityProvider;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * <code>TaskEntityProvider</code> - Task Entity Provider

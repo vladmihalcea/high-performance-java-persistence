@@ -1,15 +1,10 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.generatedkeys.sequence;
 
-import com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.providers.SequenceBatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.SequenceBatchEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractTest;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**

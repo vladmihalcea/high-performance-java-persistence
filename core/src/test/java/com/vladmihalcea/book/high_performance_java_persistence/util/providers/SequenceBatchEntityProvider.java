@@ -1,23 +1,20 @@
-package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.providers;
+package com.vladmihalcea.book.high_performance_java_persistence.util.providers;
 
 import com.vladmihalcea.book.high_performance_java_persistence.util.EntityProvider;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
- * <code>BatchEntityProvider</code> - Batch Entity Provider
+ * <code>SequenceBatchEntityProvider</code> - SEQUENCE Batch Entity Provider
  *
  * @author Vlad Mihalcea
  */
-public class AutoIncrementBatchEntityProvider implements EntityProvider {
+public class SequenceBatchEntityProvider implements EntityProvider {
 
     @Override
     public Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class
+            Post.class,
         };
     }
 
@@ -25,7 +22,8 @@ public class AutoIncrementBatchEntityProvider implements EntityProvider {
     public static class Post {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_seq")
+        @SequenceGenerator(name="post_seq", sequenceName="post_seq")
         private Long id;
 
         private String title;

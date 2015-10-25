@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.transaction;
 
-import com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;

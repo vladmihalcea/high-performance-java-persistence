@@ -1,12 +1,8 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.index;
 
-import com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.providers.BatchEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.jdbc.index.providers.IndexEntityProvider;
-import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractPostgreSQLIntegrationTest;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.postgresql.PGStatement;
 
 import java.lang.reflect.InvocationHandler;
@@ -14,9 +10,6 @@ import java.lang.reflect.Proxy;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 

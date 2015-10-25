@@ -1,7 +1,5 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.generatedkeys.identity;
 
-import com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.providers.AutoIncrementBatchEntityProvider;
-import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractOracleXEIntegrationTest;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractPostgreSQLIntegrationTest;
 import org.junit.Test;
 

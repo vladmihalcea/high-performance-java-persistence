@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch;
 
-import com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractMySQLIntegrationTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -24,6 +24,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.fail;
 
@@ -55,6 +56,27 @@ public abstract class AbstractTest {
         List<IdentifierStrategy> identifierStrategies();
 
         Database database();
+    }
+
+    protected static class DataAccessException extends RuntimeException {
+        public DataAccessException() {
+        }
+
+        public DataAccessException(String message) {
+            super(message);
+        }
+
+        public DataAccessException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public DataAccessException(Throwable cause) {
+            super(cause);
+        }
+
+        public DataAccessException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+            super(message, cause, enableSuppression, writableStackTrace);
+        }
     }
 
     static {
@@ -476,7 +498,7 @@ public abstract class AbstractTest {
         return properties;
     }
 
-    private DataSource newDataSource() {
+    protected DataSource newDataSource() {
         if (proxyDataSource()) {
             ProxyDataSource proxyDataSource = new ProxyDataSource();
             proxyDataSource.setDataSource(getDataSourceProvider().dataSource());
@@ -614,6 +636,41 @@ public abstract class AbstractTest {
 
     protected Future<?> executeAsync(Runnable callable) {
         return executorService.submit(callable);
+    }
+
+    protected  void transact(Consumer<Connection> callback) {
+        transact(callback, null);
+    }
+
+    protected  void transact(Consumer<Connection> callback, Consumer<Connection> before) {
+        Connection connection = null;
+        try {
+            connection = newDataSource().getConnection();
+            if (before != null) {
+                before.accept(connection);
+            }
+            connection.setAutoCommit(false);
+            callback.accept(connection);
+            connection.commit();
+        } catch (Exception e) {
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    LOGGER.error("Transaction rollback failure", e);
+                }
+            }
+            throw (e instanceof DataAccessException ?
+                    (DataAccessException) e : new DataAccessException(e));
+        } finally {
+            if(connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    LOGGER.error("Connection cloase failure", e);
+                }
+            }
+        }
     }
 
     protected LockType lockType() {

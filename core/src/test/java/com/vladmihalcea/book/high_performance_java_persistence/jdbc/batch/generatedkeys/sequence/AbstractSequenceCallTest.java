@@ -3,7 +3,7 @@ package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.gener
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
-import com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.providers.SequenceBatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.SequenceBatchEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractTest;
 import org.junit.Test;
 import org.slf4j.Logger;

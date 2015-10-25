@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.providers;
+package com.vladmihalcea.book.high_performance_java_persistence.util.providers;
 
 import com.vladmihalcea.book.high_performance_java_persistence.util.EntityProvider;
 
