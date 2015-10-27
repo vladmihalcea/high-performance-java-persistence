@@ -139,7 +139,7 @@ public abstract class AbstractTest {
         @Override
         public DataSource dataSource() {
             PGSimpleDataSource dataSource = new PGSimpleDataSource();
-            dataSource.setDatabaseName("hibernate-master-class");
+            dataSource.setDatabaseName("high_performance_java_persistence");
             dataSource.setServerName("localhost");
             dataSource.setUser("postgres");
             dataSource.setPassword("admin");
@@ -154,7 +154,7 @@ public abstract class AbstractTest {
         @Override
         public Properties dataSourceProperties() {
             Properties properties = new Properties();
-            properties.setProperty("databaseName", "hibernate-master-class");
+            properties.setProperty("databaseName", "high_performance_java_persistence");
             properties.setProperty("serverName", "localhost");
             properties.setProperty("user", "postgres");
             properties.setProperty("password", "admin");
@@ -182,7 +182,7 @@ public abstract class AbstractTest {
         public DataSource dataSource() {
             try {
                 OracleDataSource dataSource = new OracleDataSource();
-                dataSource.setDatabaseName("hibernate-master-class");
+                dataSource.setDatabaseName("high_performance_java_persistence");
                 dataSource.setURL("jdbc:oracle:thin:@localhost:1521/xe");
                 dataSource.setUser("oracle");
                 dataSource.setPassword("admin");
@@ -200,7 +200,7 @@ public abstract class AbstractTest {
         @Override
         public Properties dataSourceProperties() {
             Properties properties = new Properties();
-            properties.setProperty("databaseName", "hibernate-master-class");
+            properties.setProperty("databaseName", "high_performance_java_persistence");
             properties.setProperty("URL", "jdbc:oracle:thin:@localhost:1521/xe");
             properties.setProperty("user", "oracle");
             properties.setProperty("password", "admin");
@@ -258,7 +258,7 @@ public abstract class AbstractTest {
         @Override
         public DataSource dataSource() {
             MysqlDataSource dataSource = new MysqlDataSource();
-            dataSource.setURL("jdbc:mysql://localhost/hibernate-master-class?user=mysql&password=admin" +
+            dataSource.setURL("jdbc:mysql://localhost/high_performance_java_persistence?user=mysql&password=admin" +
                     "&rewriteBatchedStatements=" + rewriteBatchedStatements +
                     "&cachePrepStmts=" + cachePrepStmts +
                     "&useServerPrepStmts=" + useServerPrepStmts
@@ -274,7 +274,7 @@ public abstract class AbstractTest {
         @Override
         public Properties dataSourceProperties() {
             Properties properties = new Properties();
-            properties.setProperty("url", "jdbc:mysql://localhost/hibernate-master-class?user=mysql&password=admin");
+            properties.setProperty("url", "jdbc:mysql://localhost/high_performance_java_persistence?user=mysql&password=admin");
             return properties;
         }
 
@@ -307,7 +307,7 @@ public abstract class AbstractTest {
         @Override
         public DataSource dataSource() {
             SQLServerDataSource dataSource = new SQLServerDataSource();
-            dataSource.setURL("jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=hibernate_master_class;user=sa;password=adm1n");
+            dataSource.setURL("jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence;user=sa;password=adm1n");
             return dataSource;
         }
 
@@ -319,7 +319,7 @@ public abstract class AbstractTest {
         @Override
         public Properties dataSourceProperties() {
             Properties properties = new Properties();
-            properties.setProperty("URL", "jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=hibernate_master_class;user=sa;password=adm1n");
+            properties.setProperty("URL", "jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence;user=sa;password=adm1n");
             return properties;
         }
 
@@ -344,7 +344,7 @@ public abstract class AbstractTest {
         public DataSource dataSource() {
             JtdsDataSource dataSource = new JtdsDataSource();
             dataSource.setServerName("localhost");
-            dataSource.setDatabaseName("hibernate_master_class");
+            dataSource.setDatabaseName("high_performance_java_persistence");
             dataSource.setInstance("SQLEXPRESS");
             dataSource.setUser("sa");
             dataSource.setPassword("adm1n");
@@ -359,7 +359,7 @@ public abstract class AbstractTest {
         @Override
         public Properties dataSourceProperties() {
             Properties properties = new Properties();
-            properties.setProperty("databaseName", "hibernate_master_class");
+            properties.setProperty("databaseName", "high_performance_java_persistence");
             properties.setProperty("serverName", "localhost");
             properties.setProperty("instance", "SQLEXPRESS");
             properties.setProperty("user", "sa");
