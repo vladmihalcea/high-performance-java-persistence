@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractMySQLIntegrationTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
 @RunWith(Parameterized.class)
 public class MySqlBatchPreparedStatementTest extends AbstractMySQLIntegrationTest {
 
-    private final BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private final BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     private boolean cachePrepStmts;
 
@@ -63,7 +63,7 @@ public class MySqlBatchPreparedStatementTest extends AbstractMySQLIntegrationTes
         LOGGER.info("Test MySQL batch insert with cachePrepStmts={}, useServerPrepStmts={}", cachePrepStmts, useServerPrepStmts);
         AtomicInteger statementCount = new AtomicInteger();
         long startNanos = System.nanoTime();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             AtomicInteger postStatementCount = new AtomicInteger();
             AtomicInteger postCommentStatementCount = new AtomicInteger();
 

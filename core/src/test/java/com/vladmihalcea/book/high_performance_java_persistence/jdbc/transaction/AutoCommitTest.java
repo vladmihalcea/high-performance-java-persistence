@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.transaction;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractTest;
 import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BankEntityProvider;
 import org.junit.Test;
@@ -9,10 +8,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -38,9 +33,9 @@ public class AutoCommitTest extends AbstractTest {
     @Override
     public void init() {
         super.init();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (
-                PreparedStatement accountStatement = connection.prepareStatement(INSERT_ACCOUNT);
+                    PreparedStatement accountStatement = connection.prepareStatement(INSERT_ACCOUNT);
             ) {
                 accountStatement.setLong(1, 1);
                 accountStatement.setLong(2, 100);

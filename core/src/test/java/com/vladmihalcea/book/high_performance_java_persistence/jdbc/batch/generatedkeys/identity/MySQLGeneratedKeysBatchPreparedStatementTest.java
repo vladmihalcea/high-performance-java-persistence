@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.generatedkeys.identity;
 
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractMySQLIntegrationTest;
-import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractPostgreSQLIntegrationTest;
 import org.junit.Test;
 
 import java.sql.*;
@@ -21,7 +20,7 @@ public class MySQLGeneratedKeysBatchPreparedStatementTest extends AbstractMySQLI
 
     @Test
     public void testBatch() {
-        doInConnection(this::batchInsert);
+        doInJDBC(this::batchInsert);
     }
 
     protected int getPostCount() {

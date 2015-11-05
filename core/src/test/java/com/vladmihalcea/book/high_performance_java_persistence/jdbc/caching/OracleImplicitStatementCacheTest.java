@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.caching;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractOracleXEIntegrationTest;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.pool.OracleDataSource;
@@ -25,7 +25,7 @@ public class OracleImplicitStatementCacheTest extends AbstractOracleXEIntegratio
 
     public static final String INSERT_POST_COMMENT = "insert into post_comment (post_id, review, version, id) values (?, ?, ?, ?)";
 
-    private BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     @Override
     protected DataSourceProvider getDataSourceProvider() {
@@ -56,7 +56,7 @@ public class OracleImplicitStatementCacheTest extends AbstractOracleXEIntegratio
     @Override
     public void init() {
         super.init();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (
                     PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
                     PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
@@ -102,7 +102,7 @@ public class OracleImplicitStatementCacheTest extends AbstractOracleXEIntegratio
 
     private void selectWhenCaching(boolean caching) {
         long startNanos = System.nanoTime();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             OracleConnection oracleConnection = (OracleConnection) connection;
             oracleConnection.setImplicitCachingEnabled(false);
             assertFalse(oracleConnection.getImplicitCachingEnabled());

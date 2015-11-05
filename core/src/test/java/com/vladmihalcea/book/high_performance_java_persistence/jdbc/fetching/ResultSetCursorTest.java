@@ -3,7 +3,7 @@ package com.vladmihalcea.book.high_performance_java_persistence.jdbc.fetching;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.DataSourceProviderIntegrationTest;
 import org.junit.Test;
 
@@ -43,7 +43,7 @@ public class ResultSetCursorTest extends DataSourceProviderIntegrationTest {
             .outputTo(LOGGER)
             .build();
 
-    private BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     public ResultSetCursorTest(DataSourceProvider dataSourceProvider) {
         super(dataSourceProvider);
@@ -57,7 +57,7 @@ public class ResultSetCursorTest extends DataSourceProviderIntegrationTest {
     @Override
     public void init() {
         super.init();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             LOGGER.info("{} supports TYPE_FORWARD_ONLY {}, CONCUR_READ_ONLY {}",
                     getDataSourceProvider().database(),
                     connection.getMetaData().supportsResultSetType(ResultSet.TYPE_FORWARD_ONLY),
@@ -155,7 +155,7 @@ public class ResultSetCursorTest extends DataSourceProviderIntegrationTest {
     }
 
     public void testInternal(int resultSetType, int resultSetConcurrency) {
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             for (int i = 0; i < runCount(); i++) {
                 long startNanos = System.nanoTime();
                 try (PreparedStatement statement = connection.prepareStatement(

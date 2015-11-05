@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.generatedkeys.identity;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractSQLServerIntegrationTest;
 import org.hibernate.exception.GenericJDBCException;
 import org.junit.Test;
@@ -22,7 +21,7 @@ public class SQLServerGeneratedKeysBatchPreparedStatementTest extends AbstractSQ
 
     @Test(expected = GenericJDBCException.class)
     public void testBatch() {
-        doInConnection(this::batchInsert);
+        doInJDBC(this::batchInsert);
     }
 
     protected int getPostCount() {

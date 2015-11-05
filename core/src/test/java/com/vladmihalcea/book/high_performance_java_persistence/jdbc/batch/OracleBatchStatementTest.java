@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractOracleXEIntegrationTest;
 import oracle.jdbc.pool.OracleDataSource;
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class OracleBatchStatementTest extends AbstractOracleXEIntegrationTest {
 
     public static final String INSERT_POST_COMMENT = "insert into post_comment (post_id, review, version, id) values (%1$d, 'Post comment %2$d', 0, %2$d)";
 
-    private BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     @Override
     protected DataSourceProvider getDataSourceProvider() {
@@ -56,14 +56,14 @@ public class OracleBatchStatementTest extends AbstractOracleXEIntegrationTest {
     public void testInsert() {
         LOGGER.info("Test batch insert");
         long startNanos = System.nanoTime();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (Statement statement = connection.createStatement()) {
                 int postCount = getPostCount();
                 int postCommentCount = getPostCommentCount();
 
-                for(int i = 0; i < postCount; i++) {
+                for (int i = 0; i < postCount; i++) {
                     statement.executeUpdate(String.format(INSERT_POST, i));
-                    for(int j = 0; j < postCommentCount; j++) {
+                    for (int j = 0; j < postCommentCount; j++) {
                         statement.executeUpdate(String.format(INSERT_POST_COMMENT, i, (postCommentCount * i) + j));
                     }
                 }

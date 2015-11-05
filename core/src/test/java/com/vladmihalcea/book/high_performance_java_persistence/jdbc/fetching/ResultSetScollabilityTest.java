@@ -3,7 +3,7 @@ package com.vladmihalcea.book.high_performance_java_persistence.jdbc.fetching;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.DataSourceProviderIntegrationTest;
 import org.junit.Test;
 
@@ -32,7 +32,7 @@ public class ResultSetScollabilityTest extends DataSourceProviderIntegrationTest
             .outputTo(LOGGER)
             .build();
 
-    private BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     public ResultSetScollabilityTest(DataSourceProvider dataSourceProvider) {
         super(dataSourceProvider);
@@ -46,7 +46,7 @@ public class ResultSetScollabilityTest extends DataSourceProviderIntegrationTest
     @Override
     public void init() {
         super.init();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             LOGGER.info("{} supports TYPE_FORWARD_ONLY {}", getDataSourceProvider().database(), connection.getMetaData().supportsResultSetType(ResultSet.TYPE_FORWARD_ONLY));
             LOGGER.info("{} supports TYPE_SCROLL_INSENSITIVE {}", getDataSourceProvider().database(), connection.getMetaData().supportsResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE));
             LOGGER.info("{} supports TYPE_SCROLL_SENSITIVE {}", getDataSourceProvider().database(), connection.getMetaData().supportsResultSetType(ResultSet.TYPE_SCROLL_SENSITIVE));
@@ -59,7 +59,7 @@ public class ResultSetScollabilityTest extends DataSourceProviderIntegrationTest
                 int index;
 
                 for (int i = 0; i < postCount; i++) {
-                    if(i > 0 && i % 100 == 0) {
+                    if (i > 0 && i % 100 == 0) {
                         postStatement.executeBatch();
                     }
                     index = 0;
@@ -87,7 +87,7 @@ public class ResultSetScollabilityTest extends DataSourceProviderIntegrationTest
 
     public void testInternal(int resultSetType, int resultSetConcurrency) {
         long startNanos = System.nanoTime();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (PreparedStatement statement = connection.prepareStatement(
                     "select * " +
                             "from Post p "

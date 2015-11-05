@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.DataSourceProviderIntegrationTest;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ import static org.junit.Assert.fail;
  */
 public abstract class AbstractBatchPreparedStatementTest extends DataSourceProviderIntegrationTest {
 
-    private BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     public AbstractBatchPreparedStatementTest(DataSourceProvider dataSourceProvider) {
         super(dataSourceProvider);
@@ -33,7 +33,7 @@ public abstract class AbstractBatchPreparedStatementTest extends DataSourceProvi
 
     @Test
     public void testBatch() {
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             batchInsert(connection);
             batchUpdate(connection);
             batchDelete(connection);

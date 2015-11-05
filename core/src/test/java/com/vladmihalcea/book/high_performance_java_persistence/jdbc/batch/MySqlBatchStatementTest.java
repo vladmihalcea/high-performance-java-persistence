@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractMySQLIntegrationTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +28,7 @@ public class MySqlBatchStatementTest extends AbstractMySQLIntegrationTest {
 
     public static final String INSERT_POST_COMMENT = "insert into post_comment (post_id, review, version, id) values (%1$d, 'Post comment %2$d', 0, %2$d)";
 
-    private final BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private final BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     private boolean rewriteBatchedStatements;
 
@@ -61,7 +61,7 @@ public class MySqlBatchStatementTest extends AbstractMySQLIntegrationTest {
         LOGGER.info("Test MySQL batch insert with rewriteBatchedStatements={}", rewriteBatchedStatements);
         AtomicInteger statementCount = new AtomicInteger();
         long startNanos = System.nanoTime();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (Statement statement = connection.createStatement()) {
                 int postCount = getPostCount();
                 int postCommentCount = getPostCommentCount();

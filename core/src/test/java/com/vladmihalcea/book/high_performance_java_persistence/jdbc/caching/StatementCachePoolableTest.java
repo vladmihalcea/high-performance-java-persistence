@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.caching;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.DataSourceProviderIntegrationTest;
 import net.sourceforge.jtds.jdbcx.JtdsDataSource;
 import oracle.jdbc.pool.OracleDataSource;
@@ -105,7 +105,7 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
 
     public static final String INSERT_POST_COMMENT = "insert into post_comment (post_id, review, version, id) values (?, ?, ?, ?)";
 
-    private BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     public StatementCachePoolableTest(DataSourceProvider dataSourceProvider) {
         super(dataSourceProvider);
@@ -140,7 +140,7 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
     @Override
     public void init() {
         super.init();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (
                     PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
                     PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
@@ -177,7 +177,7 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
     @Test
     public void selectWhenCaching() {
         AtomicInteger counter = new AtomicInteger();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             for (int i = 0; i < 2; i++) {
                 try (PreparedStatement statement = connection.prepareStatement(
                         "select p.title, pd.created_on " +

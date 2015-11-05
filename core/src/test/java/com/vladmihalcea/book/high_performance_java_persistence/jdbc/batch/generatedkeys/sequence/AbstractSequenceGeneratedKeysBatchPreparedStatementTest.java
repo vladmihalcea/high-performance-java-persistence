@@ -23,7 +23,7 @@ public abstract class AbstractSequenceGeneratedKeysBatchPreparedStatementTest ex
 
     @Test
     public void testBatch() {
-        doInConnection(this::batchInsert);
+        doInJDBC(this::batchInsert);
     }
 
     protected int getPostCount() {

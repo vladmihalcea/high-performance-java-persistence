@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractOracleXEIntegrationTest;
 import oracle.jdbc.pool.OracleDataSource;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOrac
 
     private final int defaultExecuteBatch;
 
-    private BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     public OracleDefaultExecuteBatchPreparedStatementTest(int defaultExecuteBatch) {
         this.defaultExecuteBatch = defaultExecuteBatch;
@@ -73,17 +73,17 @@ public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOrac
     public void testInsert() {
         LOGGER.info("Test batch insert for defaultExecuteBatch {}", defaultExecuteBatch);
         long startNanos = System.nanoTime();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (
-                PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
-                PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
+                    PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
+                    PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
             ) {
                 int postCount = getPostCount();
                 int postCommentCount = getPostCommentCount();
 
                 int index;
 
-                for(int i = 0; i < postCount; i++) {
+                for (int i = 0; i < postCount; i++) {
                     index = 0;
                     postStatement.setString(++index, String.format("Post no. %1$d", i));
                     postStatement.setInt(++index, 0);
@@ -91,8 +91,8 @@ public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOrac
                     postStatement.executeUpdate();
                 }
 
-                for(int i = 0; i < postCount; i++) {
-                    for(int j = 0; j < postCommentCount; j++) {
+                for (int i = 0; i < postCount; i++) {
+                    for (int j = 0; j < postCommentCount; j++) {
                         index = 0;
                         postCommentStatement.setLong(++index, i);
                         postCommentStatement.setString(++index, String.format("Post comment %1$d", j));

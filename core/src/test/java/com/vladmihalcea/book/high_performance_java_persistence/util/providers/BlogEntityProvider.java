@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author Vlad Mihalcea
  */
-public class BatchEntityProvider implements EntityProvider {
+public class BlogEntityProvider implements EntityProvider {
 
     @Override
     public Class<?>[] entities() {
@@ -111,6 +111,14 @@ public class BatchEntityProvider implements EntityProvider {
             this.post = post;
         }
 
+        public Date getCreatedOn() {
+            return createdOn;
+        }
+
+        public void setCreatedOn(Date createdOn) {
+            this.createdOn = createdOn;
+        }
+
         public String getCreatedBy() {
             return createdBy;
         }
@@ -146,8 +154,20 @@ public class BatchEntityProvider implements EntityProvider {
             return id;
         }
 
+        public Post getPost() {
+            return post;
+        }
+
         public void setPost(Post post) {
             this.post = post;
+        }
+
+        public String getReview() {
+            return review;
+        }
+
+        public void setReview(String review) {
+            this.review = review;
         }
     }
 }

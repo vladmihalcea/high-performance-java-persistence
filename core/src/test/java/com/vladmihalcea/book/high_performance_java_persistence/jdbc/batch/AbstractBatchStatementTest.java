@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.DataSourceProviderIntegrationTest;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public abstract class AbstractBatchStatementTest extends DataSourceProviderInteg
 
     public static final String INSERT_POST_COMMENT = "insert into post_comment (post_id, review, version, id) values (%1$d, 'Post comment %2$d', 0, %2$d)";
 
-    private final BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private final BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     public AbstractBatchStatementTest(DataSourceProvider dataSourceProvider) {
         super(dataSourceProvider);
@@ -38,26 +38,26 @@ public abstract class AbstractBatchStatementTest extends DataSourceProviderInteg
         LOGGER.info("Test batch insert");
         AtomicInteger statementCount = new AtomicInteger();
         long startNanos = System.nanoTime();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (Statement statement = connection.createStatement()) {
                 int postCount = getPostCount();
                 int postCommentCount = getPostCommentCount();
 
                 if (mix()) {
-                    for(int i = 0; i < postCount; i++) {
+                    for (int i = 0; i < postCount; i++) {
                         executeStatement(statement, String.format(INSERT_POST, i), statementCount);
-                        for(int j = 0; j < postCommentCount; j++) {
+                        for (int j = 0; j < postCommentCount; j++) {
                             executeStatement(statement, String.format(INSERT_POST_COMMENT, i, (postCommentCount * i) + j), statementCount);
                         }
                     }
                     onEnd(statement);
                 } else {
-                    for(int i = 0; i < postCount; i++) {
+                    for (int i = 0; i < postCount; i++) {
                         executeStatement(statement, String.format(INSERT_POST, i), statementCount);
                     }
                     onEnd(statement);
 
-                    for(int i = 0; i < postCount; i++) {
+                    for (int i = 0; i < postCount; i++) {
                         for (int j = 0; j < postCommentCount; j++) {
                             executeStatement(statement, String.format(INSERT_POST_COMMENT, i, (postCommentCount * i) + j), statementCount);
                         }

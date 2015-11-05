@@ -12,6 +12,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.jpa.internal.EntityManagerFactoryImpl;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -19,12 +20,17 @@ import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.junit.Assert.fail;
 
@@ -398,13 +404,47 @@ public abstract class AbstractTest {
     }
 
     @FunctionalInterface
-    protected interface SessionCallable<T> {
-        T execute(Session session);
+    protected interface HibernateTransactionFunction<T> extends Function<Session, T> {
+        default void beforeTransactionCompletion() {
+
+        }
+
+        default void afterTransactionCompletion() {
+
+        }
     }
 
     @FunctionalInterface
-    protected interface SessionVoidCallable {
-        void execute(Session session);
+    protected interface HibernateTransactionConsumer extends Consumer<Session> {
+        default void beforeTransactionCompletion() {
+
+        }
+
+        default void afterTransactionCompletion() {
+
+        }
+    }
+
+    @FunctionalInterface
+    protected interface JPATransactionFunction<T> extends Function<EntityManager, T> {
+        default void beforeTransactionCompletion() {
+
+        }
+
+        default void afterTransactionCompletion() {
+
+        }
+    }
+
+    @FunctionalInterface
+    protected interface JPATransactionVoidFunction extends Consumer<EntityManager> {
+        default void beforeTransactionCompletion() {
+
+        }
+
+        default void afterTransactionCompletion() {
+
+        }
     }
 
     @FunctionalInterface
@@ -417,42 +457,36 @@ public abstract class AbstractTest {
         void execute(Connection connection) throws SQLException;
     }
 
-    @FunctionalInterface
-    protected interface TransactionCallable<T> extends SessionCallable<T> {
-        default void beforeTransactionCompletion() {
-
-        }
-
-        default void afterTransactionCompletion() {
-
-        }
-    }
-
-    @FunctionalInterface
-    protected interface TransactionVoidCallable extends SessionVoidCallable {
-        default void beforeTransactionCompletion() {
-
-        }
-
-        default void afterTransactionCompletion() {
-
-        }
-    }
-
+    private EntityManagerFactory emf;
     private SessionFactory sf;
 
     @Before
     public void init() {
-        sf = newSessionFactory();
+        if(nativeHibernateSessionFactoryBootsrap()) {
+            sf = newSessionFactory();
+        } else {
+            emf = newEntityManagerFactory();
+        }
     }
 
     @After
     public void destroy() {
-        sf.close();
+        if(nativeHibernateSessionFactoryBootsrap()) {
+            sf.close();
+        } else {
+            emf.close();
+        }
+    }
+
+    public EntityManagerFactory getEntityManagerFactory() {
+        return emf;
     }
 
     public SessionFactory getSessionFactory() {
-        return sf;
+        return nativeHibernateSessionFactoryBootsrap() ? sf : emf.unwrap(SessionFactory.class);
+    }
+    protected boolean nativeHibernateSessionFactoryBootsrap() {
+        return false;
     }
 
     protected abstract Class<?>[] entities();
@@ -488,6 +522,35 @@ public abstract class AbstractTest {
         );
     }
 
+    protected EntityManagerFactory newEntityManagerFactory() {
+        Properties properties = getProperties();
+        Configuration configuration = new Configuration().addProperties(properties);
+        for(Class<?> entityClass : entities()) {
+            configuration.addAnnotatedClass(entityClass);
+        }
+        String[] packages = packages();
+        if(packages != null) {
+            for(String scannedPackage : packages) {
+                configuration.addPackage(scannedPackage);
+            }
+        }
+        Interceptor interceptor = interceptor();
+        if(interceptor != null) {
+            configuration.setInterceptor(interceptor);
+        }
+
+        return new EntityManagerFactoryImpl(
+                PersistenceUnitTransactionType.RESOURCE_LOCAL,
+                true,
+                null,
+                configuration,
+                new StandardServiceRegistryBuilder()
+                        .applySettings(properties)
+                        .build(),
+                null
+        );
+    }
+
     protected Properties getProperties() {
         Properties properties = new Properties();
         properties.put("hibernate.dialect", getDataSourceProvider().hibernateDialect());
@@ -517,16 +580,16 @@ public abstract class AbstractTest {
         return new HsqldbDataSourceProvider();
     }
 
-    protected <T> T doInTransaction(TransactionCallable<T> callable) {
+    protected <T> T doInHibernate(HibernateTransactionFunction<T> callable) {
         T result = null;
         Session session = null;
         Transaction txn = null;
         try {
-            session = sf.openSession();
+            session = getSessionFactory().openSession();
             callable.beforeTransactionCompletion();
             txn = session.beginTransaction();
 
-            result = callable.execute(session);
+            result = callable.apply(session);
             txn.commit();
         } catch (RuntimeException e) {
             if ( txn != null && txn.isActive() ) txn.rollback();
@@ -540,15 +603,15 @@ public abstract class AbstractTest {
         return result;
     }
 
-    protected void doInTransaction(TransactionVoidCallable callable) {
+    protected void doInHibernate(HibernateTransactionConsumer callable) {
         Session session = null;
         Transaction txn = null;
         try {
-            session = sf.openSession();
+            session = getSessionFactory().openSession();
             callable.beforeTransactionCompletion();
             txn = session.beginTransaction();
 
-            callable.execute(session);
+            callable.accept(session);
             txn.commit();
         } catch (RuntimeException e) {
             if ( txn != null && txn.isActive() ) txn.rollback();
@@ -561,12 +624,56 @@ public abstract class AbstractTest {
         }
     }
 
-    protected <T> T doInConnection(ConnectionCallable<T> callable) {
+    protected <T> T doInJPA(JPATransactionFunction<T> function) {
+        T result = null;
+        EntityManager entityManager = null;
+        EntityTransaction txn = null;
+        try {
+            entityManager = emf.createEntityManager();
+            function.beforeTransactionCompletion();
+            txn = entityManager.getTransaction();
+            txn.begin();
+            result = function.apply(entityManager);
+            txn.commit();
+        } catch (RuntimeException e) {
+            if ( txn != null && txn.isActive()) txn.rollback();
+            throw e;
+        } finally {
+            function.afterTransactionCompletion();
+            if (entityManager != null) {
+                entityManager.close();
+            }
+        }
+        return result;
+    }
+
+    protected void doInJPA(JPATransactionVoidFunction function) {
+        EntityManager entityManager = null;
+        EntityTransaction txn = null;
+        try {
+            entityManager = emf.createEntityManager();
+            function.beforeTransactionCompletion();
+            txn = entityManager.getTransaction();
+            txn.begin();
+            function.accept(entityManager);
+            txn.commit();
+        } catch (RuntimeException e) {
+            if ( txn != null && txn.isActive()) txn.rollback();
+            throw e;
+        } finally {
+            function.afterTransactionCompletion();
+            if (entityManager != null) {
+                entityManager.close();
+            }
+        }
+    }
+
+    protected <T> T doInJDBC(ConnectionCallable<T> callable) {
         AtomicReference<T> result = new AtomicReference<>();
         Session session = null;
         Transaction txn = null;
         try {
-            session = sf.openSession();
+            session = getSessionFactory().openSession();
             txn = session.beginTransaction();
             session.doWork(connection -> {
                 result.set(callable.execute(connection));
@@ -583,11 +690,11 @@ public abstract class AbstractTest {
         return result.get();
     }
 
-    protected void doInConnection(ConnectionVoidCallable callable) {
+    protected void doInJDBC(ConnectionVoidCallable callable) {
         Session session = null;
         Transaction txn = null;
         try {
-            session = sf.openSession();
+            session = getSessionFactory().openSession();
             txn = session.beginTransaction();
             session.doWork(callable::execute);
             txn.commit();
@@ -756,5 +863,39 @@ public abstract class AbstractTest {
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    protected EntityManagerFactory createEntityManagerFactory() {
+        Properties properties = getProperties();
+        properties.put("javax.persistence.provider", "org.hibernate.jpa.HibernatePersistenceProvider");
+        properties.put("javax.persistence.transactionType", "RESOURCE_LOCAL");
+        properties.put("packagesToScan", "RESOURCE_LOCAL");
+
+
+        Configuration configuration = new Configuration().addProperties(properties);
+        for(Class<?> entityClass : entities()) {
+            configuration.addAnnotatedClass(entityClass);
+        }
+        String[] packages = packages();
+        if(packages != null) {
+            for(String scannedPackage : packages) {
+                configuration.addPackage(scannedPackage);
+            }
+        }
+        Interceptor interceptor = interceptor();
+        if(interceptor != null) {
+            configuration.setInterceptor(interceptor);
+        }
+
+        return new EntityManagerFactoryImpl(
+                PersistenceUnitTransactionType.RESOURCE_LOCAL,
+                true,
+                null,
+                configuration,
+                new StandardServiceRegistryBuilder()
+                        .applySettings(properties)
+                        .build(),
+                null
+        );
     }
 }

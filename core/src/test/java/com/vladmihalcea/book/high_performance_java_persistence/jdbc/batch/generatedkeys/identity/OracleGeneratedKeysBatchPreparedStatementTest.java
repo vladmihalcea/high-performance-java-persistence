@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch.generatedkeys.identity;
 
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractOracleXEIntegrationTest;
-import org.hibernate.exception.GenericJDBCException;
 import org.junit.Test;
 
 import java.sql.*;
@@ -22,9 +21,9 @@ public class OracleGeneratedKeysBatchPreparedStatementTest extends AbstractOracl
         return new Class[]{};
     }
 
-    @Test(expected = GenericJDBCException.class)
+    @Test
     public void testBatch() throws SQLException {
-        doInConnection(this::batchInsert);
+        doInJDBC(this::batchInsert);
     }
 
     protected int getPostCount() {

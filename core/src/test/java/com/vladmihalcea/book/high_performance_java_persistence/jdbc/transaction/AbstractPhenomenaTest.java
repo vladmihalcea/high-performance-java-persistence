@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.transaction;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +39,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     private final CountDownLatch bobLatch = new CountDownLatch(1);
 
-    private BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     protected AbstractPhenomenaTest(String isolationLevelName, int isolationLevel) {
         this.isolationLevelName = isolationLevelName;
@@ -72,11 +72,11 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     @Override
     public void init() {
         super.init();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (
-                PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
-                PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
-                PreparedStatement postDetailsStatement = connection.prepareStatement(INSERT_POST_DETAILS);
+                    PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
+                    PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
+                    PreparedStatement postDetailsStatement = connection.prepareStatement(INSERT_POST_DETAILS);
             ) {
                 int index = 0;
                 postStatement.setString(++index, "Transactions");
@@ -90,7 +90,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 postDetailsStatement.setInt(++index, 0);
                 postDetailsStatement.executeUpdate();
 
-                for(int i = 0; i < 3; i++) {
+                for (int i = 0; i < 3; i++) {
                     index = 0;
                     postCommentStatement.setLong(++index, 1);
                     postCommentStatement.setString(++index, String.format("Post comment %1$d", 1));
@@ -108,7 +108,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     public void testDirtyWrite() {
         String firstTitle = "Alice";
         try {
-            doInConnection(aliceConnection -> {
+            doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
                     LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
                     return;
@@ -117,7 +117,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 update(aliceConnection, updatePostTitleParamSql(), new Object[]{firstTitle});
                 try {
                     executeSync(() -> {
-                        doInConnection(bobConnection -> {
+                        doInJDBC(bobConnection -> {
                             prepareConnection(bobConnection);
                             try {
                                 update(bobConnection, updatePostTitleParamSql(), new Object[]{"Bob"});
@@ -133,7 +133,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         } catch (Exception e) {
             LOGGER.info("Exception thrown", e);
         }
-        doInConnection(aliceConnection -> {
+        doInJDBC(aliceConnection -> {
             String title = selectStringColumn(aliceConnection, selectPostTitleSql());
             LOGGER.info("Isolation level {} {} Dirty Write", isolationLevelName, !title.equals(firstTitle) ? "allows" : "prevents");
         });
@@ -144,7 +144,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         final AtomicBoolean dirtyRead = new AtomicBoolean();
 
         try {
-            doInConnection(aliceConnection -> {
+            doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
                     LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
                     return;
@@ -153,7 +153,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 try (Statement aliceStatement = aliceConnection.createStatement()) {
                     aliceStatement.executeUpdate(updatePostTitleSql());
                     executeSync(() -> {
-                        doInConnection(bobConnection -> {
+                        doInJDBC(bobConnection -> {
                             prepareConnection(bobConnection);
                             try {
                                 String title = selectStringColumn(bobConnection, selectPostTitleSql());
@@ -179,7 +179,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     @Test
     public void testNonRepeatableRead() {
-        doInConnection(aliceConnection -> {
+        doInJDBC(aliceConnection -> {
             if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
                 LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
                 return;
@@ -188,7 +188,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
             String firstTitle = selectStringColumn(aliceConnection, selectPostTitleSql());
             try {
                 executeSync(() -> {
-                    doInConnection(bobConnection -> {
+                    doInJDBC(bobConnection -> {
                         prepareConnection(bobConnection);
                         try {
                             assertEquals(1, update(bobConnection, updatePostTitleSql()));
@@ -208,7 +208,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     @Test
     public void testPhantomRead() {
-        doInConnection(aliceConnection -> {
+        doInJDBC(aliceConnection -> {
             if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
                 LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
                 return;
@@ -217,7 +217,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
             int commentsCount = count(aliceConnection, countCommentsSql());
             try {
                 executeSync(() -> {
-                    doInConnection(bobConnection -> {
+                    doInJDBC(bobConnection -> {
                         prepareConnection(bobConnection);
                         try {
                             assertEquals(1, update(bobConnection, insertCommentSql()));
@@ -239,7 +239,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     public void testLostUpdate() {
         AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
         try {
-            doInConnection(aliceConnection -> {
+            doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
                     LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
                     return;
@@ -247,7 +247,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 prepareConnection(aliceConnection);
                 String title = selectStringColumn(aliceConnection, selectPostTitleSql());
                 executeSync(() -> {
-                    doInConnection(bobConnection -> {
+                    doInJDBC(bobConnection -> {
                         prepareConnection(bobConnection);
                         try {
                             update(bobConnection, updatePostTitleParamSql(), new Object[]{"Bob"});
@@ -263,9 +263,9 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
             LOGGER.info("Exception thrown", e);
             preventedByLocking.set(true);
         }
-        doInConnection(aliceConnection -> {
+        doInJDBC(aliceConnection -> {
             String title = selectStringColumn(aliceConnection, selectPostTitleSql());
-            if(Boolean.TRUE.equals(preventedByLocking.get())) {
+            if (Boolean.TRUE.equals(preventedByLocking.get())) {
                 LOGGER.info("Isolation level {} Lost Update prevented by locking", isolationLevelName);
             } else {
                 LOGGER.info("Isolation level {} {} Lost Update", isolationLevelName, "Alice".equals(title) ? "allows" : "prevents");
@@ -277,7 +277,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     public void testReadSkew() {
         AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
         try {
-            doInConnection(aliceConnection -> {
+            doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
                     LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
                     return;
@@ -286,7 +286,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 String title = selectStringColumn(aliceConnection, selectPostTitleSql());
 
                 executeSync(() -> {
-                    doInConnection(bobConnection -> {
+                    doInJDBC(bobConnection -> {
                         prepareConnection(bobConnection);
                         try {
                             update(bobConnection, updatePostTitleParamSql(), new Object[]{"Bob"});
@@ -304,9 +304,9 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
             LOGGER.info("Exception thrown", e);
             preventedByLocking.set(true);
         }
-        doInConnection(aliceConnection -> {
+        doInJDBC(aliceConnection -> {
             String title = selectStringColumn(aliceConnection, selectPostTitleSql());
-            if(Boolean.TRUE.equals(preventedByLocking.get())) {
+            if (Boolean.TRUE.equals(preventedByLocking.get())) {
                 LOGGER.info("Isolation level {} Read Skew prevented by locking", isolationLevelName);
             }
         });
@@ -316,7 +316,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     public void testWriteSkew() {
         AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
         try {
-            doInConnection(aliceConnection -> {
+            doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
                     LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
                     return;
@@ -326,7 +326,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 String createdBy = selectStringColumn(aliceConnection, selectPostDetailsAuthorSql());
 
                 executeSync(() -> {
-                    doInConnection(bobConnection -> {
+                    doInJDBC(bobConnection -> {
                         prepareConnection(bobConnection);
                         try {
                             String bobTitle = selectStringColumn(bobConnection, selectPostTitleSql());

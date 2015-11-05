@@ -28,7 +28,7 @@ public class SQLServerImplicitStatementCacheTest extends AbstractSQLServerIntegr
     @Override
     public void init() {
         super.init();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (
                     PreparedStatement postStatement = connection.prepareStatement(INSERT_TASK);
             ) {
@@ -39,9 +39,9 @@ public class SQLServerImplicitStatementCacheTest extends AbstractSQLServerIntegr
                 for (int i = 0; i < postCount; i++) {
                     index = 0;
                     TaskEntityProvider.StatusType statusType;
-                    if(i > postCount * 0.99) {
+                    if (i > postCount * 0.99) {
                         statusType = TaskEntityProvider.StatusType.FAILED;
-                    } else if(i > postCount * 0.95) {
+                    } else if (i > postCount * 0.95) {
                         statusType = TaskEntityProvider.StatusType.TO_D0;
                     } else {
                         statusType = TaskEntityProvider.StatusType.DONE;
@@ -58,13 +58,13 @@ public class SQLServerImplicitStatementCacheTest extends AbstractSQLServerIntegr
 
     @Test
     public void testStatementCaching() {
-        doInConnection(connection -> {
-                try (PreparedStatement statement = connection.prepareStatement(
+        doInJDBC(connection -> {
+            try (PreparedStatement statement = connection.prepareStatement(
                     "select * from task where status = ? OPTION(RECOMPILE)"
-                )) {
-                    statement.setString(1, TaskEntityProvider.StatusType.FAILED.name());
-                    statement.execute();
-                }
+            )) {
+                statement.setString(1, TaskEntityProvider.StatusType.FAILED.name());
+                statement.execute();
+            }
         });
     }
 

@@ -1,17 +1,12 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.transaction;
 
 import com.vladmihalcea.book.high_performance_java_persistence.util.DataSourceProviderIntegrationTest;
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
-import org.hibernate.dialect.pagination.LimitHandler;
-import org.hibernate.engine.spi.RowSelection;
-import org.hibernate.internal.SessionFactoryImpl;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -24,7 +19,7 @@ import static org.junit.Assert.fail;
 public class ConnectionReadyOnlyTransactionTest extends DataSourceProviderIntegrationTest {
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 
-    private BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     public ConnectionReadyOnlyTransactionTest(DataSourceProvider dataSourceProvider) {
         super(dataSourceProvider);

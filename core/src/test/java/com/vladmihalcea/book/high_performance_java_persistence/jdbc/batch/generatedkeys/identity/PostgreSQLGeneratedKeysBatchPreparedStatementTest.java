@@ -20,7 +20,7 @@ public class PostgreSQLGeneratedKeysBatchPreparedStatementTest extends AbstractP
 
     @Test
     public void testBatch() {
-        doInConnection(this::batchInsert);
+        doInJDBC(this::batchInsert);
     }
 
     protected int getPostCount() {

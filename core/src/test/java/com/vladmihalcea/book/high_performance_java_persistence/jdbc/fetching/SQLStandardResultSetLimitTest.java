@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.fetching;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.DataSourceProviderIntegrationTest;
 import org.hibernate.engine.spi.RowSelection;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class SQLStandardResultSetLimitTest extends DataSourceProviderIntegration
                     "OFFSET ? ROWS " +
                     "FETCH FIRST ? ROWS ONLY ";
 
-    private BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     public SQLStandardResultSetLimitTest(DataSourceProvider dataSourceProvider) {
         super(dataSourceProvider);
@@ -65,7 +65,7 @@ public class SQLStandardResultSetLimitTest extends DataSourceProviderIntegration
     @Override
     public void init() {
         super.init();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (
                     PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
                     PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
@@ -77,7 +77,7 @@ public class SQLStandardResultSetLimitTest extends DataSourceProviderIntegration
 
                 for (int i = 0; i < postCount; i++) {
                     index = 0;
-                    if(i > 0 && i % 100 == 0) {
+                    if (i > 0 && i % 100 == 0) {
                         postStatement.executeBatch();
                     }
                     postStatement.setString(++index, String.format("Post no. %1$d", i));
@@ -95,7 +95,7 @@ public class SQLStandardResultSetLimitTest extends DataSourceProviderIntegration
                         postCommentStatement.setInt(++index, (int) (Math.random() * 1000));
                         postCommentStatement.setLong(++index, (postCommentCount * i) + j);
                         postCommentStatement.addBatch();
-                        if(j % 100 == 0) {
+                        if (j % 100 == 0) {
                             postCommentStatement.executeBatch();
                         }
                     }
@@ -112,7 +112,7 @@ public class SQLStandardResultSetLimitTest extends DataSourceProviderIntegration
         RowSelection rowSelection = new RowSelection();
         rowSelection.setMaxRows(getMaxRows());
         long startNanos = System.nanoTime();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (PreparedStatement statement = connection.prepareStatement(SELECT_POST_COMMENT);
                  PreparedStatement noFixStatement = connection.prepareStatement(SELECT_POST_COMMENT_WITH_NO_FIX);
             ) {

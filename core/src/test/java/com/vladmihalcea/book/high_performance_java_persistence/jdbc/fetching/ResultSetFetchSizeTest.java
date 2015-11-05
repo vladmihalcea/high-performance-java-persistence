@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.fetching;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.DataSourceProviderIntegrationTest;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
@@ -24,7 +24,7 @@ public class ResultSetFetchSizeTest extends DataSourceProviderIntegrationTest {
 
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 
-    private BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     private final Integer fetchSize;
 
@@ -66,7 +66,7 @@ public class ResultSetFetchSizeTest extends DataSourceProviderIntegrationTest {
     @Override
     public void init() {
         super.init();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (
                     PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
             ) {
@@ -75,7 +75,7 @@ public class ResultSetFetchSizeTest extends DataSourceProviderIntegrationTest {
                 int index;
 
                 for (int i = 0; i < postCount; i++) {
-                    if(i > 0 && i % 100 == 0) {
+                    if (i > 0 && i % 100 == 0) {
                         postStatement.executeBatch();
                     }
                     index = 0;
@@ -94,7 +94,7 @@ public class ResultSetFetchSizeTest extends DataSourceProviderIntegrationTest {
     @Test
     public void testFetchSize() {
         long startNanos = System.nanoTime();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (PreparedStatement statement = connection.prepareStatement(
                     "select * from post"
             )) {

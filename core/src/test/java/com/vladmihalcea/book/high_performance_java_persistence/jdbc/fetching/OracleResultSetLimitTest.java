@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.fetching;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.DataSourceProviderIntegrationTest;
 import org.hibernate.engine.spi.RowSelection;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class OracleResultSetLimitTest extends DataSourceProviderIntegrationTest 
         "SELECT p.id AS p_id  " +
         "FROM post p ";
 
-    private BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     public OracleResultSetLimitTest(DataSourceProvider dataSourceProvider) {
         super(dataSourceProvider);
@@ -50,7 +50,7 @@ public class OracleResultSetLimitTest extends DataSourceProviderIntegrationTest 
     @Override
     public void init() {
         super.init();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (
                     PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
             ) {
@@ -59,7 +59,7 @@ public class OracleResultSetLimitTest extends DataSourceProviderIntegrationTest 
                 int index;
 
                 for (int i = 0; i < postCount; i++) {
-                    if(i > 0 && i % 100 == 0) {
+                    if (i > 0 && i % 100 == 0) {
                         postStatement.executeBatch();
                     }
                     index = 0;
@@ -80,7 +80,7 @@ public class OracleResultSetLimitTest extends DataSourceProviderIntegrationTest 
         RowSelection rowSelection = new RowSelection();
         rowSelection.setMaxRows(getMaxRows());
         long startNanos = System.nanoTime();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (PreparedStatement statement = connection.prepareStatement(SELECT_POST)
             ) {
                 statement.setMaxRows(getMaxRows());

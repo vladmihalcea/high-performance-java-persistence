@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractPostgreSQLIntegrationTest;
 import org.junit.Test;
 
@@ -16,29 +16,29 @@ import static org.junit.Assert.assertEquals;
  */
 public class SimpleBatchTest extends AbstractPostgreSQLIntegrationTest {
 
-    private BatchEntityProvider batchEntityProvider = new BatchEntityProvider();
+    private BlogEntityProvider blogEntityProvider = new BlogEntityProvider();
 
     @Override
     protected Class<?>[] entities() {
-        return batchEntityProvider.entities();
+        return blogEntityProvider.entities();
     }
 
     @Test
     public void testStatement() {
         LOGGER.info("Test Statement batch insert");
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (Statement statement = connection.createStatement()) {
 
                 statement.addBatch(
-                    "insert into post (title, version, id) " +
-                    "values ('Post no. 1', 0, 1)");
+                        "insert into post (title, version, id) " +
+                                "values ('Post no. 1', 0, 1)");
 
                 statement.addBatch(
-                    "insert into post_comment (post_id, review, version, id) " +
-                    "values (1, 'Post comment 1.1', 0, 1)");
+                        "insert into post_comment (post_id, review, version, id) " +
+                                "values (1, 'Post comment 1.1', 0, 1)");
                 statement.addBatch(
-                    "insert into post_comment (post_id, review, version, id) " +
-                    "values (1, 'Post comment 1.2', 0, 2)");
+                        "insert into post_comment (post_id, review, version, id) " +
+                                "values (1, 'Post comment 1.2', 0, 2)");
 
                 int[] updateCounts = statement.executeBatch();
 
@@ -50,10 +50,10 @@ public class SimpleBatchTest extends AbstractPostgreSQLIntegrationTest {
     @Test
     public void testPreparedStatement() {
         LOGGER.info("Test Statement batch insert");
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             PreparedStatement postStatement = connection.prepareStatement(
                     "insert into post (title, version, id) " +
-                    "values (?, ?, ?)");
+                            "values (?, ?, ?)");
 
             postStatement.setString(1, String.format("Post no. %1$d", 1));
             postStatement.setInt(2, 0);

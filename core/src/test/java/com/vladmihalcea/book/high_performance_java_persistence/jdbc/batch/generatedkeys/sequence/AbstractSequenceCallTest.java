@@ -48,7 +48,7 @@ public abstract class AbstractSequenceCallTest extends AbstractTest {
 
     @Test
     public void testBatch() {
-        doInConnection(this::callSequence);
+        doInJDBC(this::callSequence);
     }
 
     protected void callSequence(Connection connection) throws SQLException {

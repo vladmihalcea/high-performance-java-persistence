@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.caching;
 
-import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BatchEntityProvider;
+import com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractOracleXEIntegrationTest;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.OraclePreparedStatement;
@@ -32,7 +32,7 @@ public class OracleExplicitStatementCacheTest extends AbstractOracleXEIntegratio
 
     public static final String SELECT_POST_REVIEWS_KEY = "post_reviews";
 
-    private BatchEntityProvider entityProvider = new BatchEntityProvider();
+    private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     @Override
     protected Class<?>[] entities() {
@@ -42,7 +42,7 @@ public class OracleExplicitStatementCacheTest extends AbstractOracleXEIntegratio
     @Override
     public void init() {
         super.init();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (
                     PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
                     PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
@@ -78,7 +78,7 @@ public class OracleExplicitStatementCacheTest extends AbstractOracleXEIntegratio
 
     @Test
     public void testStatementCaching() {
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             for (int i = 0; i < 5; i++) {
                 OracleConnection oracleConnection = (OracleConnection) connection;
                 oracleConnection.setExplicitCachingEnabled(true);

@@ -37,15 +37,15 @@ public class PostgresIndexSelectivityTest extends AbstractPostgreSQLIntegrationT
     public void testInsert() {
         AtomicInteger statementCount = new AtomicInteger();
         long startNanos = System.nanoTime();
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (PreparedStatement statement = connection.prepareStatement(INSERT_TASK)) {
                 int taskCount = getPostCount();
 
                 for (int i = 0; i < taskCount; i++) {
                     String task = "DONE";
-                    if(i > 99000) {
+                    if (i > 99000) {
                         task = "TO_DO";
-                    } else if(i > 95000) {
+                    } else if (i > 95000) {
                         task = "FAILED";
                     }
                     statement.setLong(1, i);
@@ -60,7 +60,7 @@ public class PostgresIndexSelectivityTest extends AbstractPostgreSQLIntegrationT
         LOGGER.info("{}.testInsert took {} millis",
                 getClass().getSimpleName(),
                 TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
-        doInConnection(connection -> {
+        doInJDBC(connection -> {
             try (PreparedStatement statement = connection.prepareStatement(
                     "select * from task where id = ?"
             )) {
