@@ -8,16 +8,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static com.vladmihalcea.book.high_performance_java_persistence.util.providers.BlogEntityProvider.*;
 
 /**
- * ParameterBindingTest - Test parameter binding in PreparedStatement
+ * EntityGraphMapperTest - Test mapping to entity
  *
  * @author Vlad Mihalcea
  */
-public class ParameterBindingTest extends AbstractTest {
+public class EntityGraphMapperTest extends AbstractTest {
 
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 
@@ -27,8 +29,8 @@ public class ParameterBindingTest extends AbstractTest {
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
-    private int version = 5;
-    private long expectedCount = 40;
+    private int ref = 1;
+    private long expectedCount = 2;
 
     @Override
     protected Class<?>[] entities() {
@@ -92,24 +94,20 @@ public class ParameterBindingTest extends AbstractTest {
     }
 
     @Test
-    public void testJdbcParameterBinding() {
+    public void testJdbcOneToManyMapping() {
         doInJDBC(connection -> {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "SELECT COUNT(*)  " +
-                    "FROM post_comment pc " +
-                    "JOIN post p ON p.id = pc.post_id " +
-                    "JOIN post_details pd ON p.id = pd.id " +
+                    "SELECT * " +
+                    "FROM post AS p " +
+                    "JOIN post_comment AS pc ON p.id = pc.post_id " +
                     "WHERE " +
-                    "   pc.version > ? AND " +
-                    "   p.version > ? AND " +
-                    "   pd.version > ? "
+                    "   p.id BETWEEN ? AND ? + 1"
             )) {
-                statement.setInt(1, version);
-                statement.setInt(2, version);
-                statement.setInt(3, version);
+                statement.setInt(1, ref);
+                statement.setInt(2, ref);
                 try (ResultSet resultSet = statement.executeQuery()) {
-                    resultSet.next();
-                    assertEquals(expectedCount, resultSet.getLong(1));
+                    List<Post> posts = toPosts(resultSet);
+                    assertEquals(expectedCount, posts.size());
                 }
             } catch (SQLException e) {
                 throw new DataAccessException(e);
@@ -117,22 +115,39 @@ public class ParameterBindingTest extends AbstractTest {
         });
     }
 
+    private List<Post> toPosts(ResultSet resultSet) throws SQLException {
+        Map<Long, Post> postMap = new LinkedHashMap<>();
+        while (resultSet.next()) {
+            Long postId = resultSet.getLong(1);
+            Post post = postMap.get(postId);
+            if(post == null) {
+                post = new Post(postId);
+                postMap.put(postId, post);
+                post.setTitle(resultSet.getString(2));
+                post.setVersion(resultSet.getInt(3));
+            }
+            PostComment comment = new PostComment();
+            comment.setId(resultSet.getLong(4));
+            comment.setReview(resultSet.getString(5));
+            comment.setVersion(resultSet.getInt(6));
+            post.addComment(comment);
+        }
+        return new ArrayList<>(postMap.values());
+    }
+
     @Test
     public void testJPAParameterBinding() {
         doInJPA(entityManager -> {
-            long actualCount = entityManager.createQuery(
-                "select count(*) " +
-                "from PostComment pc " +
-                "join pc.post p " +
-                "join p.details pd " +
+            List<Post> posts = entityManager.createQuery(
+                "select distinct p " +
+                "from Post p " +
+                "join fetch p.comments " +
                 "where " +
-                "   pc.version > :version and " +
-                "   p.version > :version and " +
-                "   pd.version > :version ",
-                Long.class)
-                .setParameter("version", version)
-                .getSingleResult();
-            assertEquals(expectedCount, actualCount);
+                "   p.id BETWEEN :ref AND :ref + 1",
+                Post.class)
+                .setParameter("ref", ref)
+                .getResultList();
+            assertEquals(expectedCount, posts.size());
         });
     }
 

@@ -19,7 +19,7 @@ public class BlogEntityProvider implements EntityProvider {
         return new Class<?>[]{
                 Post.class,
                 PostDetails.class,
-                Comment.class
+                PostComment.class
         };
     }
 
@@ -35,7 +35,11 @@ public class BlogEntityProvider implements EntityProvider {
         @Version
         private int version;
 
-        private Post() {
+        public Post() {
+        }
+
+        public Post(Long id) {
+            this.id = id;
         }
 
         public Post(String title) {
@@ -44,17 +48,37 @@ public class BlogEntityProvider implements EntityProvider {
 
         @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
                 orphanRemoval = true)
-        private List<Comment> comments = new ArrayList<>();
+        private List<PostComment> comments = new ArrayList<>();
 
         @OneToOne(cascade = CascadeType.ALL, mappedBy = "post",
                 orphanRemoval = true, fetch = FetchType.LAZY)
         private PostDetails details;
 
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
         public void setTitle(String title) {
             this.title = title;
         }
 
-        public List<Comment> getComments() {
+        public int getVersion() {
+            return version;
+        }
+
+        public void setVersion(int version) {
+            this.version = version;
+        }
+
+        public List<PostComment> getComments() {
             return comments;
         }
 
@@ -62,7 +86,7 @@ public class BlogEntityProvider implements EntityProvider {
             return details;
         }
 
-        public void addComment(Comment comment) {
+        public void addComment(PostComment comment) {
             comments.add(comment);
             comment.setPost(this);
         }
@@ -107,6 +131,14 @@ public class BlogEntityProvider implements EntityProvider {
             return id;
         }
 
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public Post getPost() {
+            return post;
+        }
+
         public void setPost(Post post) {
             this.post = post;
         }
@@ -126,11 +158,19 @@ public class BlogEntityProvider implements EntityProvider {
         public void setCreatedBy(String createdBy) {
             this.createdBy = createdBy;
         }
+
+        public int getVersion() {
+            return version;
+        }
+
+        public void setVersion(int version) {
+            this.version = version;
+        }
     }
 
     @Entity(name = "PostComment")
     @Table(name = "post_comment")
-    public static class Comment {
+    public static class PostComment {
 
         @Id
         private Long id;
@@ -141,17 +181,22 @@ public class BlogEntityProvider implements EntityProvider {
         @Version
         private int version;
 
-        private Comment() {
+        private String review;
+
+        public PostComment() {
         }
 
-        public Comment(String review) {
+        public PostComment(String review) {
             this.review = review;
         }
 
-        private String review;
 
         public Long getId() {
             return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
         }
 
         public Post getPost() {
@@ -168,6 +213,14 @@ public class BlogEntityProvider implements EntityProvider {
 
         public void setReview(String review) {
             this.review = review;
+        }
+
+        public int getVersion() {
+            return version;
+        }
+
+        public void setVersion(int version) {
+            this.version = version;
         }
     }
 }
