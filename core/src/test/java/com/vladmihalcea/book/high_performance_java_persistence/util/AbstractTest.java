@@ -764,7 +764,7 @@ public abstract class AbstractTest {
                 try {
                     connection.rollback();
                 } catch (SQLException ex) {
-                    LOGGER.error("Transaction rollback failure", e);
+                    throw new DataAccessException(e);
                 }
             }
             throw (e instanceof DataAccessException ?
@@ -774,7 +774,7 @@ public abstract class AbstractTest {
                 try {
                     connection.close();
                 } catch (SQLException e) {
-                    LOGGER.error("Connection cloase failure", e);
+                    throw new DataAccessException(e);
                 }
             }
         }

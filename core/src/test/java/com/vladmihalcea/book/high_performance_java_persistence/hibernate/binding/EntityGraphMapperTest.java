@@ -29,7 +29,7 @@ public class EntityGraphMapperTest extends AbstractTest {
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
-    private int ref = 1;
+    private int id = 1;
     private long expectedCount = 2;
 
     @Override
@@ -103,8 +103,8 @@ public class EntityGraphMapperTest extends AbstractTest {
                     "WHERE " +
                     "   p.id BETWEEN ? AND ? + 1"
             )) {
-                statement.setInt(1, ref);
-                statement.setInt(2, ref);
+                statement.setInt(1, id);
+                statement.setInt(2, id);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     List<Post> posts = toPosts(resultSet);
                     assertEquals(expectedCount, posts.size());
@@ -143,9 +143,9 @@ public class EntityGraphMapperTest extends AbstractTest {
                 "from Post p " +
                 "join fetch p.comments " +
                 "where " +
-                "   p.id BETWEEN :ref AND :ref + 1",
+                "   p.id BETWEEN :id AND :id + 1",
                 Post.class)
-                .setParameter("ref", ref)
+                .setParameter("id", id)
                 .getResultList();
             assertEquals(expectedCount, posts.size());
         });
