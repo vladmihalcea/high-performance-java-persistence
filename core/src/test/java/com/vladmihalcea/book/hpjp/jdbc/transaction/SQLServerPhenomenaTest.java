@@ -62,8 +62,8 @@ public class SQLServerPhenomenaTest extends AbstractPhenomenaTest {
     protected void prepareConnection(Connection connection) throws SQLException {
         try(Statement statement = connection.createStatement()) {
             String snapshot = getIsolationLevelName().contains("Snapshot") ? "ON" : "OFF";
-            statement.executeUpdate("ALTER DATABASE hibernate_master_class SET READ_COMMITTED_SNAPSHOT " + snapshot);
-            statement.executeUpdate("ALTER DATABASE hibernate_master_class SET ALLOW_SNAPSHOT_ISOLATION " + snapshot);
+            statement.executeUpdate("ALTER DATABASE high_performance_java_persistence SET READ_COMMITTED_SNAPSHOT " + snapshot);
+            statement.executeUpdate("ALTER DATABASE high_performance_java_persistence SET ALLOW_SNAPSHOT_ISOLATION " + snapshot);
         }
         super.prepareConnection(connection);
     }

@@ -190,8 +190,8 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
                     statement.setPoolable(false);
                     statement.setInt(1, counter.incrementAndGet());
                     statement.execute();
-                } catch (SQLException e) {
-                    fail(e.getMessage());
+                } catch (Throwable e) {
+                    LOGGER.error("Failed test", e);
                 }
             }
         });

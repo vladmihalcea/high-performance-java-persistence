@@ -25,9 +25,9 @@ public class OracleExplicitStatementCacheTest extends AbstractOracleXEIntegratio
 
     public static final String SELECT_POST_REVIEWS =
             "select p.title, pc.review " +
-                    "from post p left join postcomment pc on p.id = pc.post_id " +
+                    "from post p left join post_comment pc on p.id = pc.post_id " +
                     "where EXISTS ( " +
-                    "   select 1 from postcomment where version = ? and id > p.id " +
+                    "   select 1 from post_comment where version = ? and id > p.id " +
                     ")";
 
     public static final String SELECT_POST_REVIEWS_KEY = "post_reviews";

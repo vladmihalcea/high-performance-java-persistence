@@ -110,10 +110,10 @@ public class OracleImplicitStatementCacheTest extends AbstractOracleXEIntegratio
 
             for (int i = 0; i < 1; i++) {
                 try (PreparedStatement statement = connection.prepareStatement(
-                        "select p.title, pc.review " +
-                                "from post p left join postcomment pc on p.id = pc.post_id " +
+                        "select p.OracleExplicitStatementCacheTesttitle, pc.review " +
+                                "from post p left join post_comment pc on p.id = pc.post_id " +
                                 "where EXISTS ( " +
-                                "   select 1 from postcomment where version = ? and id > p.id " +
+                                "   select 1 from post_comment where version = ? and id > p.id " +
                                 ")"
                 )) {
                     if (statement.isPoolable()) {
