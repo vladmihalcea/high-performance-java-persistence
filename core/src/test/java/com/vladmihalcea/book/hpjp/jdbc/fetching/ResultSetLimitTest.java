@@ -117,10 +117,11 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
         final RowSelection rowSelection = new RowSelection();
         rowSelection.setMaxRows(getMaxRows());
         LimitHandler limitHandler = ((SessionFactoryImpl) getSessionFactory()).getDialect().getLimitHandler();
+        String limitStatement = limitHandler.processSql(SELECT_POST_COMMENT, rowSelection);
         long startNanos = System.nanoTime();
         doInJDBC(connection -> {
-            try (PreparedStatement statement = connection.prepareStatement(SELECT_POST_COMMENT)) {
-                limitHandler.bindLimitParametersAtEndOfQuery(rowSelection, statement, 0);
+            try (PreparedStatement statement = connection.prepareStatement(limitStatement)) {
+                limitHandler.bindLimitParametersAtEndOfQuery(rowSelection, statement, 1);
                 statement.setInt(1, getMaxRows());
                 statement.execute();
                 int count = 0;
@@ -167,7 +168,8 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
     }
 
     protected int getPostCount() {
-        return 100000;
+        //return 100000;
+        return 100;
     }
 
     protected int getPostCommentCount() {
