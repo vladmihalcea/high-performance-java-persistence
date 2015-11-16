@@ -2,17 +2,49 @@ package com.vladmihalcea.book.high_performance_java_persistence.util;
 
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import com.p6spy.engine.spy.P6DataSource;
 import net.sourceforge.jtds.jdbcx.JtdsDataSource;
+import net.ttddyy.dsproxy.ExecutionInfo;
+import net.ttddyy.dsproxy.QueryInfo;
+import net.ttddyy.dsproxy.listener.DefaultQueryLogEntryCreator;
+import net.ttddyy.dsproxy.listener.QueryLogEntryCreator;
 import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
+import net.ttddyy.dsproxy.listener.SystemOutQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSource;
+import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import oracle.jdbc.pool.OracleDataSource;
 import org.hibernate.Interceptor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.boot.internal.*;
+import org.hibernate.boot.model.IdentifierGeneratorDefinition;
+import org.hibernate.boot.model.TypeDefinition;
+import org.hibernate.boot.model.relational.Database;
+import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.boot.spi.MetadataBuildingOptions;
+import org.hibernate.boot.spi.MetadataImplementor;
+import org.hibernate.boot.spi.SessionFactoryOptions;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.annotations.NamedEntityGraphDefinition;
+import org.hibernate.cfg.annotations.NamedProcedureCallDefinition;
+import org.hibernate.dialect.function.SQLFunction;
+import org.hibernate.engine.ResultSetMappingDefinition;
+import org.hibernate.engine.spi.FilterDefinition;
+import org.hibernate.engine.spi.NamedQueryDefinition;
+import org.hibernate.engine.spi.NamedSQLQueryDefinition;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory;
+import org.hibernate.id.factory.spi.MutableIdentifierGeneratorFactory;
+import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
+import org.hibernate.jpa.boot.internal.SettingsImpl;
 import org.hibernate.jpa.internal.EntityManagerFactoryImpl;
+import org.hibernate.mapping.*;
+import org.hibernate.type.BasicTypeRegistry;
+import org.hibernate.type.TypeFactory;
+import org.hibernate.type.TypeResolver;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -27,6 +59,9 @@ import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -93,6 +128,64 @@ public abstract class AbstractTest {
         LOCKS,
         MVLOCKS,
         MVCC
+    }
+
+    protected enum DataSourceProxyType {
+        DATA_SOURCE_PROXY {
+            @Override
+            DataSource dataSource(DataSource dataSource) {
+                QueryLogEntryCreator myLogEntryCreator= new DefaultQueryLogEntryCreator(){
+                    @Override
+                    protected void writeParamsEntry(StringBuilder sb, ExecutionInfo execInfo, List<QueryInfo> queryInfoList) {
+                        sb.append("Params:[");
+                        for (QueryInfo queryInfo : queryInfoList) {
+                            boolean firstArg = true;
+                            for (Map<String, Object> paramMap : queryInfo.getQueryArgsList()) {
+
+                                if(!firstArg) {
+                                    sb.append(", ");
+                                } else {
+                                    firstArg = false;
+                                }
+
+                                SortedMap<String, Object> sortedParamMap = new TreeMap<>(new StringAsIntegerComparator());
+                                sortedParamMap.putAll(paramMap);
+
+                                sb.append("(");
+                                boolean firstParam = true;
+                                for (Map.Entry<String, Object> paramEntry : sortedParamMap.entrySet()) {
+                                    if(!firstParam) {
+                                        sb.append(", ");
+                                    } else {
+                                        firstParam = false;
+                                    }
+                                    sb.append(paramEntry.getValue());
+
+                                }
+                                sb.append(")");
+                            }
+                        }
+                        sb.append("]");
+                    }
+                };
+                SLF4JQueryLoggingListener myLogListener = new SLF4JQueryLoggingListener();
+                myLogListener.setQueryLogEntryCreator(myLogEntryCreator);
+
+                return ProxyDataSourceBuilder
+                        .create(dataSource)
+                        .name(getClass().getName())
+                        .listener(myLogListener)
+                        .build();
+            }
+        },
+        P6SPY {
+            @Override
+            DataSource dataSource(DataSource dataSource) {
+                return new P6DataSource(dataSource);
+            }
+        };
+
+        abstract DataSource dataSource(DataSource dataSource);
     }
 
     public static class HsqldbDataSourceProvider implements DataSourceProvider {
@@ -539,15 +632,18 @@ public abstract class AbstractTest {
             configuration.setInterceptor(interceptor);
         }
 
+        StandardServiceRegistry standardServiceRegistry = new StandardServiceRegistryBuilder()
+                .applySettings(properties)
+                .build();
+
+        SessionFactory sessionFactory = newSessionFactory();
+
         return new EntityManagerFactoryImpl(
-                PersistenceUnitTransactionType.RESOURCE_LOCAL,
-                true,
-                null,
-                configuration,
-                new StandardServiceRegistryBuilder()
-                        .applySettings(properties)
-                        .build(),
-                null
+                "PU",
+                (SessionFactoryImplementor) sessionFactory,
+                new InFlightMetadataCollectorImpl(new MetadataBuilderImpl.MetadataBuildingOptionsImpl(standardServiceRegistry), new TypeResolver()),
+                new SettingsImpl(),
+                properties
         );
     }
 
@@ -558,15 +654,18 @@ public abstract class AbstractTest {
         properties.put("hibernate.hbm2ddl.auto", "create-drop");
         //data source settings
         properties.put("hibernate.connection.datasource", newDataSource());
+        properties.put("hibernate.ejb.metamodel.population", "disabled");
         return properties;
+    }
+
+    protected DataSourceProxyType dataSourceProxyType() {
+        return DataSourceProxyType.DATA_SOURCE_PROXY;
     }
 
     protected DataSource newDataSource() {
         if (proxyDataSource()) {
-            ProxyDataSource proxyDataSource = new ProxyDataSource();
-            proxyDataSource.setDataSource(getDataSourceProvider().dataSource());
-            proxyDataSource.setListener(new SLF4JQueryLoggingListener());
-            return proxyDataSource;
+            return dataSourceProxyType().dataSource(getDataSourceProvider().dataSource());
+
         } else {
             return getDataSourceProvider().dataSource();
         }
@@ -592,7 +691,7 @@ public abstract class AbstractTest {
             result = callable.apply(session);
             txn.commit();
         } catch (RuntimeException e) {
-            if ( txn != null && txn.isActive() ) txn.rollback();
+            if ( txn != null ) txn.rollback();
             throw e;
         } finally {
             callable.afterTransactionCompletion();
@@ -614,7 +713,7 @@ public abstract class AbstractTest {
             callable.accept(session);
             txn.commit();
         } catch (RuntimeException e) {
-            if ( txn != null && txn.isActive() ) txn.rollback();
+            if ( txn != null ) txn.rollback();
             throw e;
         } finally {
             callable.afterTransactionCompletion();
@@ -680,7 +779,7 @@ public abstract class AbstractTest {
             });
             txn.commit();
         } catch (RuntimeException e) {
-            if ( txn != null && txn.isActive() ) txn.rollback();
+            if ( txn != null ) txn.rollback();
             throw e;
         } finally {
             if (session != null) {
@@ -699,7 +798,7 @@ public abstract class AbstractTest {
             session.doWork(callable::execute);
             txn.commit();
         } catch (RuntimeException e) {
-            if ( txn != null && txn.isActive() ) txn.rollback();
+            if ( txn != null ) txn.rollback();
             throw e;
         } finally {
             if (session != null) {
@@ -863,39 +962,5 @@ public abstract class AbstractTest {
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    protected EntityManagerFactory createEntityManagerFactory() {
-        Properties properties = getProperties();
-        properties.put("javax.persistence.provider", "org.hibernate.jpa.HibernatePersistenceProvider");
-        properties.put("javax.persistence.transactionType", "RESOURCE_LOCAL");
-        properties.put("packagesToScan", "RESOURCE_LOCAL");
-
-
-        Configuration configuration = new Configuration().addProperties(properties);
-        for(Class<?> entityClass : entities()) {
-            configuration.addAnnotatedClass(entityClass);
-        }
-        String[] packages = packages();
-        if(packages != null) {
-            for(String scannedPackage : packages) {
-                configuration.addPackage(scannedPackage);
-            }
-        }
-        Interceptor interceptor = interceptor();
-        if(interceptor != null) {
-            configuration.setInterceptor(interceptor);
-        }
-
-        return new EntityManagerFactoryImpl(
-                PersistenceUnitTransactionType.RESOURCE_LOCAL,
-                true,
-                null,
-                configuration,
-                new StandardServiceRegistryBuilder()
-                        .applySettings(properties)
-                        .build(),
-                null
-        );
     }
 }

@@ -114,15 +114,13 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
 
     @Test
     public void testLimit() {
-        RowSelection rowSelection = new RowSelection();
+        final RowSelection rowSelection = new RowSelection();
         rowSelection.setMaxRows(getMaxRows());
-        LimitHandler limitHandler = ((SessionFactoryImpl) getSessionFactory()).getDialect().buildLimitHandler(SELECT_POST_COMMENT, rowSelection);
+        LimitHandler limitHandler = ((SessionFactoryImpl) getSessionFactory()).getDialect().getLimitHandler();
         long startNanos = System.nanoTime();
         doInJDBC(connection -> {
-            try (PreparedStatement statement = connection.prepareStatement(
-                    limitHandler.getProcessedSql()
-            )) {
-                LOGGER.info(limitHandler.getProcessedSql());
+            try (PreparedStatement statement = connection.prepareStatement(SELECT_POST_COMMENT)) {
+                limitHandler.bindLimitParametersAtEndOfQuery(rowSelection, statement, 0);
                 statement.setInt(1, getMaxRows());
                 statement.execute();
                 int count = 0;

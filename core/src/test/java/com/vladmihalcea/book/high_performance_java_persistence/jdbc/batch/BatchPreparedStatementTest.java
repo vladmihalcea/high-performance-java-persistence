@@ -1,5 +1,7 @@
 package com.vladmihalcea.book.high_performance_java_persistence.jdbc.batch;
 
+import com.vladmihalcea.book.high_performance_java_persistence.util.AbstractTest;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
