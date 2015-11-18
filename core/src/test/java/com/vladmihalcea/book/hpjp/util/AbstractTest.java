@@ -18,9 +18,14 @@ import org.hibernate.Transaction;
 import org.hibernate.boot.internal.*;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
+import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
+import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.hibernate.jpa.boot.internal.SettingsImpl;
+import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 import org.hibernate.jpa.internal.EntityManagerFactoryImpl;
 import org.hibernate.type.TypeResolver;
 import org.hsqldb.jdbc.JDBCDataSource;
@@ -30,10 +35,12 @@ import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
+import javax.persistence.*;
+import javax.persistence.spi.ClassTransformer;
+import javax.persistence.spi.PersistenceUnitInfo;
+import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
+import java.net.URL;
 import java.sql.*;
 import java.util.*;
 import java.util.Collection;
@@ -43,6 +50,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.fail;
 
@@ -561,6 +569,10 @@ public abstract class AbstractTest {
 
     protected abstract Class<?>[] entities();
 
+    protected List<String> entityClassNames() {
+        return Arrays.asList(entities()).stream().map(Class::getName).collect(Collectors.toList());
+    }
+
     protected String[] packages() {
         return null;
     }
@@ -594,34 +606,16 @@ public abstract class AbstractTest {
 
     protected EntityManagerFactory newEntityManagerFactory() {
         Properties properties = getProperties();
-        Configuration configuration = new Configuration().addProperties(properties);
-        for(Class<?> entityClass : entities()) {
-            configuration.addAnnotatedClass(entityClass);
-        }
-        String[] packages = packages();
-        if(packages != null) {
-            for(String scannedPackage : packages) {
-                configuration.addPackage(scannedPackage);
-            }
-        }
-        Interceptor interceptor = interceptor();
-        if(interceptor != null) {
-            configuration.setInterceptor(interceptor);
-        }
-
-        StandardServiceRegistry standardServiceRegistry = new StandardServiceRegistryBuilder()
-                .applySettings(properties)
-                .build();
-
-        SessionFactory sessionFactory = newSessionFactory();
-
-        return new EntityManagerFactoryImpl(
-                "PU",
-                (SessionFactoryImplementor) sessionFactory,
-                new InFlightMetadataCollectorImpl(new MetadataBuilderImpl.MetadataBuildingOptionsImpl(standardServiceRegistry), new TypeResolver()),
-                new SettingsImpl(),
-                properties
+        PersistenceUnitInfo persistenceUnitInfo = new PersistenceUnitInfoImpl(
+            getClass().getSimpleName(), entityClassNames(), properties
         );
+        Map<String, Object> configuration = new HashMap<>();
+        configuration.put(AvailableSettings.INTERCEPTOR, interceptor());
+
+        EntityManagerFactoryBuilderImpl entityManagerFactoryBuilder = new EntityManagerFactoryBuilderImpl(
+            new PersistenceUnitInfoDescriptor(persistenceUnitInfo), configuration
+        );
+        return entityManagerFactoryBuilder.build();
     }
 
     protected Properties getProperties() {

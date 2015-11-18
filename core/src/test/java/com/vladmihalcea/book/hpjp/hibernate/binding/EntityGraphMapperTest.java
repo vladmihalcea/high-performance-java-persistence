@@ -2,6 +2,9 @@ package com.vladmihalcea.book.hpjp.hibernate.binding;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import org.hibernate.EmptyInterceptor;
+import org.hibernate.Interceptor;
+import org.hibernate.Transaction;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
