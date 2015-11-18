@@ -102,7 +102,7 @@ public abstract class AbstractJtaTransactionManagerConfiguration {
         properties.setProperty("hibernate.archive.autodetection", "class");
         properties.setProperty("hibernate.transaction.jta.platform", BitronixJtaPlatform.class.getName());
         properties.setProperty("hibernate.dialect", hibernateDialect);
-        properties.setProperty("hibernate.hbm2ddl.auto", "update");
+        properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         properties.setProperty("hibernate.connection.release_mode", "after_transaction");
 
         return properties;

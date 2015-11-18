@@ -24,8 +24,8 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 //@ContextConfiguration(locations = {"classpath:spring/applicationContext-tx.xml"})
-@ContextConfiguration(classes = HsqldbJtaTransactionManagerConfiguration.class)
-//@ContextConfiguration(classes = PostgreSQLJtaTransactionManagerConfiguration.class)
+//@ContextConfiguration(classes = HsqldbJtaTransactionManagerConfiguration.class)
+@ContextConfiguration(classes = PostgreSQLJtaTransactionManagerConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class JtaConnectionReleaseTest {
 
