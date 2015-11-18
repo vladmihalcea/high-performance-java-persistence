@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.connection;
 
 import java.util.Properties;
 
-public class C3P0ConnectionProviderTest extends JPADriverConnectionProviderTest {
+public class C3P0JPAConnectionProviderTest extends DriverConnectionProviderTest {
 
     @Override
     protected void appendDriverProperties(Properties properties) {
