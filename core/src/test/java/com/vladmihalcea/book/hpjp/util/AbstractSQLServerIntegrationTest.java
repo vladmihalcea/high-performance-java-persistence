@@ -8,7 +8,7 @@ package com.vladmihalcea.book.hpjp.util;
 public abstract class AbstractSQLServerIntegrationTest extends AbstractTest {
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return new SQLServerDataSourceProvider();
     }
 }

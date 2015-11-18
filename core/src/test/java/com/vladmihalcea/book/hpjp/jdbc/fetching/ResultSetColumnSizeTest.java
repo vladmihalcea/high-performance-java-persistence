@@ -66,12 +66,12 @@ public class ResultSetColumnSizeTest extends DataSourceProviderIntegrationTest {
         super.init();
         doInJDBC(connection -> {
             LOGGER.info("{} supports CLOSE_CURSORS_AT_COMMIT {}",
-                    getDataSourceProvider().database(),
+                    dataSourceProvider().database(),
                     connection.getMetaData().supportsResultSetHoldability(ResultSet.CLOSE_CURSORS_AT_COMMIT)
             );
 
             LOGGER.info("{} supports HOLD_CURSORS_OVER_COMMIT {}",
-                    getDataSourceProvider().database(),
+                    dataSourceProvider().database(),
                     connection.getMetaData().supportsResultSetHoldability(ResultSet.HOLD_CURSORS_OVER_COMMIT)
             );
 
@@ -83,11 +83,11 @@ public class ResultSetColumnSizeTest extends DataSourceProviderIntegrationTest {
 
                 if (postStatement.getResultSetHoldability() == ResultSet.CLOSE_CURSORS_AT_COMMIT) {
                     LOGGER.info("{} default holdability CLOSE_CURSORS_AT_COMMIT",
-                            getDataSourceProvider().database()
+                            dataSourceProvider().database()
                     );
                 } else if (postStatement.getResultSetHoldability() == ResultSet.HOLD_CURSORS_OVER_COMMIT) {
                     LOGGER.info("{} default holdability HOLD_CURSORS_OVER_COMMIT",
-                            getDataSourceProvider().database()
+                            dataSourceProvider().database()
                     );
                 } else {
                     fail();
@@ -170,7 +170,7 @@ public class ResultSetColumnSizeTest extends DataSourceProviderIntegrationTest {
                 }
             }
         });
-        LOGGER.info("{} Result Set statement {}", getDataSourceProvider().database(), sql);
+        LOGGER.info("{} Result Set statement {}", dataSourceProvider().database(), sql);
         logReporter.report();
     }
 

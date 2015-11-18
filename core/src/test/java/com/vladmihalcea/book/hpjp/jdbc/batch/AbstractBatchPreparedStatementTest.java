@@ -105,7 +105,7 @@ public abstract class AbstractBatchPreparedStatementTest extends DataSourceProvi
 
             LOGGER.info("{}.testInsert for {} using batch size {} took {} millis",
                     getClass().getSimpleName(),
-                    getDataSourceProvider().getClass().getSimpleName(),
+                    dataSourceProvider().getClass().getSimpleName(),
                     getBatchSize(),
                     TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
 
@@ -151,7 +151,7 @@ public abstract class AbstractBatchPreparedStatementTest extends DataSourceProvi
 
             LOGGER.info("{}.testUpdate for {} took {} millis",
                     getClass().getSimpleName(),
-                    getDataSourceProvider().getClass().getSimpleName(),
+                    dataSourceProvider().getClass().getSimpleName(),
                     TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
 
             LOGGER.info("Test bulk update");
@@ -160,7 +160,7 @@ public abstract class AbstractBatchPreparedStatementTest extends DataSourceProvi
             bulkUpdateStatement.executeUpdate("update post_comment set version = version + 1");
             LOGGER.info("{}.testBulkUpdate for {} took {} millis",
                     getClass().getSimpleName(),
-                    getDataSourceProvider().getClass().getSimpleName(),
+                    dataSourceProvider().getClass().getSimpleName(),
                     TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
         }
     }
@@ -203,7 +203,7 @@ public abstract class AbstractBatchPreparedStatementTest extends DataSourceProvi
 
             LOGGER.info("{}.testDelete for {} took {} millis",
                     getClass().getSimpleName(),
-                    getDataSourceProvider().getClass().getSimpleName(),
+                    dataSourceProvider().getClass().getSimpleName(),
                     TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
 
             batchInsert(connection);
@@ -214,7 +214,7 @@ public abstract class AbstractBatchPreparedStatementTest extends DataSourceProvi
             bulkUpdateStatement.executeUpdate("delete from Post where version > 0");
             LOGGER.info("{}.testBulkDelete for {} took {} millis",
                     getClass().getSimpleName(),
-                    getDataSourceProvider().getClass().getSimpleName(),
+                    dataSourceProvider().getClass().getSimpleName(),
                     TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
         }
 

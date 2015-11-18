@@ -13,7 +13,7 @@ public class OracleSequenceGeneratedKeysBatchPreparedStatementTest extends Abstr
     }
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return new OracleDataSourceProvider();
     }
 }

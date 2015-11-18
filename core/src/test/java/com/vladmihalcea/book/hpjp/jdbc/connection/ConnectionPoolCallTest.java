@@ -49,13 +49,13 @@ public class ConnectionPoolCallTest extends DataSourceProviderIntegrationTest {
 
     @Test
     public void testNoPooling() throws SQLException {
-        LOGGER.info("Test without pooling for {}", getDataSourceProvider().database());
-        test(getDataSourceProvider().dataSource());
+        LOGGER.info("Test without pooling for {}", dataSourceProvider().database());
+        test(dataSourceProvider().dataSource());
     }
 
     @Test
     public void testPooling() throws SQLException {
-        LOGGER.info("Test with pooling for {}", getDataSourceProvider().database());
+        LOGGER.info("Test with pooling for {}", dataSourceProvider().database());
         test(poolingDataSource());
     }
 
@@ -71,8 +71,8 @@ public class ConnectionPoolCallTest extends DataSourceProviderIntegrationTest {
 
     protected HikariDataSource poolingDataSource() {
         Properties properties = new Properties();
-        properties.setProperty("dataSourceClassName", getDataSourceProvider().dataSourceClassName().getName());
-        properties.put("dataSourceProperties", getDataSourceProvider().dataSourceProperties());
+        properties.setProperty("dataSourceClassName", dataSourceProvider().dataSourceClassName().getName());
+        properties.put("dataSourceProperties", dataSourceProvider().dataSourceProperties());
         properties.setProperty("minimumPoolSize", String.valueOf(1));
         properties.setProperty("maximumPoolSize", String.valueOf(3));
         properties.setProperty("connectionTimeout", String.valueOf(100));

@@ -47,9 +47,9 @@ public class ResultSetScollabilityTest extends DataSourceProviderIntegrationTest
     public void init() {
         super.init();
         doInJDBC(connection -> {
-            LOGGER.info("{} supports TYPE_FORWARD_ONLY {}", getDataSourceProvider().database(), connection.getMetaData().supportsResultSetType(ResultSet.TYPE_FORWARD_ONLY));
-            LOGGER.info("{} supports TYPE_SCROLL_INSENSITIVE {}", getDataSourceProvider().database(), connection.getMetaData().supportsResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE));
-            LOGGER.info("{} supports TYPE_SCROLL_SENSITIVE {}", getDataSourceProvider().database(), connection.getMetaData().supportsResultSetType(ResultSet.TYPE_SCROLL_SENSITIVE));
+            LOGGER.info("{} supports TYPE_FORWARD_ONLY {}", dataSourceProvider().database(), connection.getMetaData().supportsResultSetType(ResultSet.TYPE_FORWARD_ONLY));
+            LOGGER.info("{} supports TYPE_SCROLL_INSENSITIVE {}", dataSourceProvider().database(), connection.getMetaData().supportsResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE));
+            LOGGER.info("{} supports TYPE_SCROLL_SENSITIVE {}", dataSourceProvider().database(), connection.getMetaData().supportsResultSetType(ResultSet.TYPE_SCROLL_SENSITIVE));
 
             try (
                     PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
@@ -107,7 +107,7 @@ public class ResultSetScollabilityTest extends DataSourceProviderIntegrationTest
             }
         });
         LOGGER.info("{} Result Set Type {} and Concurrency {}",
-                getDataSourceProvider().database(),
+                dataSourceProvider().database(),
                 resultSetType == ResultSet.TYPE_FORWARD_ONLY ? "ResultSet.TYPE_FORWARD_ONLY" : "ResultSet.TYPE_SCROLL_SENSITIVE",
                 resultSetConcurrency == ResultSet.CONCUR_READ_ONLY ? "ResultSet.CONCUR_READ_ONLY" : "ResultSet.CONCUR_UPDATABLE");
         logReporter.report();

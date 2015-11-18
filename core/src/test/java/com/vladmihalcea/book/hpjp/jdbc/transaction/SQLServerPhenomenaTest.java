@@ -22,7 +22,7 @@ public class SQLServerPhenomenaTest extends AbstractPhenomenaTest {
     }
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return new SQLServerDataSourceProvider();
     }
 

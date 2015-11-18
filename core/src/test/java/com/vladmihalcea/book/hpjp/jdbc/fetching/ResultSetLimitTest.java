@@ -108,7 +108,7 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
 
         });
         LOGGER.info("{} Result Set without limit took {} millis",
-                getDataSourceProvider().database(),
+                dataSourceProvider().database(),
                 TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
     }
 
@@ -116,7 +116,7 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
     public void testLimit() {
         final RowSelection rowSelection = new RowSelection();
         rowSelection.setMaxRows(getMaxRows());
-        LimitHandler limitHandler = ((SessionFactoryImpl) getSessionFactory()).getDialect().getLimitHandler();
+        LimitHandler limitHandler = ((SessionFactoryImpl) sessionFactory()).getDialect().getLimitHandler();
         String limitStatement = limitHandler.processSql(SELECT_POST_COMMENT, rowSelection);
         long startNanos = System.nanoTime();
         doInJDBC(connection -> {
@@ -137,7 +137,7 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
 
         });
         LOGGER.info("{} Result Set with limit took {} millis",
-                getDataSourceProvider().database(),
+                dataSourceProvider().database(),
                 TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
     }
 
@@ -163,7 +163,7 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
 
         });
         LOGGER.info("{} Result Set maxSize took {} millis",
-                getDataSourceProvider().database(),
+                dataSourceProvider().database(),
                 TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
     }
 

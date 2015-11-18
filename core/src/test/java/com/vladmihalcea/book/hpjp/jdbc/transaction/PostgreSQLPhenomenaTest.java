@@ -12,7 +12,7 @@ public class PostgreSQLPhenomenaTest extends AbstractPhenomenaTest {
     }
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return new PostgreSQLDataSourceProvider();
     }
 }

@@ -8,7 +8,7 @@ package com.vladmihalcea.book.hpjp.util;
 public abstract class AbstractMySQLIntegrationTest extends AbstractTest {
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return new MySQLDataSourceProvider();
     }
 }

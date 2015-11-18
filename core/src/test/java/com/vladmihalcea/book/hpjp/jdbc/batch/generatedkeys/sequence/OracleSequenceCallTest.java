@@ -13,7 +13,7 @@ public class OracleSequenceCallTest extends AbstractSequenceCallTest {
     }
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return new OracleDataSourceProvider();
     }
 }

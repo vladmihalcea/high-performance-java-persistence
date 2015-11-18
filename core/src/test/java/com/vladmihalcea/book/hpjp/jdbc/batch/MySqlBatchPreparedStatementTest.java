@@ -51,8 +51,8 @@ public class MySqlBatchPreparedStatementTest extends AbstractMySQLIntegrationTes
     }
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
-        MySQLDataSourceProvider dataSourceProvider = (MySQLDataSourceProvider) super.getDataSourceProvider();
+    protected DataSourceProvider dataSourceProvider() {
+        MySQLDataSourceProvider dataSourceProvider = (MySQLDataSourceProvider) super.dataSourceProvider();
         dataSourceProvider.setCachePrepStmts(cachePrepStmts);
         dataSourceProvider.setUseServerPrepStmts(useServerPrepStmts);
         return dataSourceProvider;

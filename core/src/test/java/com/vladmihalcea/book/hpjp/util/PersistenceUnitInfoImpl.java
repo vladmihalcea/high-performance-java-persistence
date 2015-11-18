@@ -20,17 +20,6 @@ import java.util.Properties;
  */
 public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
-    public static PersistenceUnitInfoImpl newJTAPersistenceUnitInfo(
-            String persistenceUnitName, List<String> mappingFileNames, Properties properties, DataSource jtaDataSource) {
-        PersistenceUnitInfoImpl persistenceUnitInfo = new PersistenceUnitInfoImpl(
-            persistenceUnitName, mappingFileNames, properties
-        );
-        persistenceUnitInfo.jtaDataSource = jtaDataSource;
-        persistenceUnitInfo.nonJtaDataSource = null;
-        persistenceUnitInfo.transactionType = PersistenceUnitTransactionType.JTA;
-        return persistenceUnitInfo;
-    }
-
     private final String persistenceUnitName;
 
     private PersistenceUnitTransactionType transactionType = PersistenceUnitTransactionType.RESOURCE_LOCAL;
@@ -69,9 +58,23 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
         return jtaDataSource;
     }
 
+    public PersistenceUnitInfoImpl setJtaDataSource(DataSource jtaDataSource) {
+        this.jtaDataSource = jtaDataSource;
+        this.nonJtaDataSource = null;
+        transactionType = PersistenceUnitTransactionType.JTA;
+        return this;
+    }
+
     @Override
     public DataSource getNonJtaDataSource() {
         return nonJtaDataSource;
+    }
+
+    public PersistenceUnitInfoImpl setNonJtaDataSource(DataSource nonJtaDataSource) {
+        this.nonJtaDataSource = nonJtaDataSource;
+        this.jtaDataSource = null;
+        transactionType = PersistenceUnitTransactionType.RESOURCE_LOCAL;
+        return this;
     }
 
     @Override

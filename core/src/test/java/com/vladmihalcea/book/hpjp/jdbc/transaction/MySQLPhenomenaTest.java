@@ -12,7 +12,7 @@ public class MySQLPhenomenaTest extends AbstractPhenomenaTest {
     }
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return new MySQLDataSourceProvider();
     }
 }

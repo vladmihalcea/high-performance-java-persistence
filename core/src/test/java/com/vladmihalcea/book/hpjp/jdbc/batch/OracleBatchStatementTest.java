@@ -27,7 +27,7 @@ public class OracleBatchStatementTest extends AbstractOracleXEIntegrationTest {
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return new OracleDataSourceProvider() {
             @Override
             public DataSource dataSource() {
@@ -73,7 +73,7 @@ public class OracleBatchStatementTest extends AbstractOracleXEIntegrationTest {
         });
         LOGGER.info("{}.testInsert for {} took {} millis",
                 getClass().getSimpleName(),
-                getDataSourceProvider().getClass().getSimpleName(),
+                dataSourceProvider().getClass().getSimpleName(),
                 TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
     }
 

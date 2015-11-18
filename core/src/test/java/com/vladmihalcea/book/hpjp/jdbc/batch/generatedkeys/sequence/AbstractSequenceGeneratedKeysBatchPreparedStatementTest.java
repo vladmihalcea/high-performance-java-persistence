@@ -40,7 +40,7 @@ public abstract class AbstractSequenceGeneratedKeysBatchPreparedStatementTest ex
 
     protected void batchInsert(Connection connection) throws SQLException {
         DatabaseMetaData databaseMetaData = connection.getMetaData();
-        LOGGER.info("{} Driver supportsGetGeneratedKeys: {}", getDataSourceProvider().database(), databaseMetaData.supportsGetGeneratedKeys());
+        LOGGER.info("{} Driver supportsGetGeneratedKeys: {}", dataSourceProvider().database(), databaseMetaData.supportsGetGeneratedKeys());
 
         dropSequence(connection);
         createSequence(connection);
@@ -64,7 +64,7 @@ public abstract class AbstractSequenceGeneratedKeysBatchPreparedStatementTest ex
 
         LOGGER.info("{}.testInsert for {} using allocation size {} took {} millis",
                 getClass().getSimpleName(),
-                getDataSourceProvider().getClass().getSimpleName(),
+                dataSourceProvider().getClass().getSimpleName(),
                 getAllocationSize(),
                 TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
     }

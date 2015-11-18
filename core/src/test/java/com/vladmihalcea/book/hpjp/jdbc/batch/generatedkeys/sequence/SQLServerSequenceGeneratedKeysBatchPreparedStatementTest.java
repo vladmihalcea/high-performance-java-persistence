@@ -13,7 +13,7 @@ public class SQLServerSequenceGeneratedKeysBatchPreparedStatementTest extends Ab
     }
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return new SQLServerDataSourceProvider();
     }
 }

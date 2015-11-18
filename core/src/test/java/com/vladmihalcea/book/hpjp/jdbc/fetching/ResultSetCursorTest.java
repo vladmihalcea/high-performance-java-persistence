@@ -59,37 +59,37 @@ public class ResultSetCursorTest extends DataSourceProviderIntegrationTest {
         super.init();
         doInJDBC(connection -> {
             LOGGER.info("{} supports TYPE_FORWARD_ONLY {}, CONCUR_READ_ONLY {}",
-                    getDataSourceProvider().database(),
+                    dataSourceProvider().database(),
                     connection.getMetaData().supportsResultSetType(ResultSet.TYPE_FORWARD_ONLY),
                     connection.getMetaData().supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)
             );
 
             LOGGER.info("{} supports TYPE_FORWARD_ONLY {}, CONCUR_UPDATABLE {}",
-                    getDataSourceProvider().database(),
+                    dataSourceProvider().database(),
                     connection.getMetaData().supportsResultSetType(ResultSet.TYPE_FORWARD_ONLY),
                     connection.getMetaData().supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE)
             );
 
             LOGGER.info("{} supports TYPE_SCROLL_INSENSITIVE {}, CONCUR_READ_ONLY {}",
-                    getDataSourceProvider().database(),
+                    dataSourceProvider().database(),
                     connection.getMetaData().supportsResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE),
                     connection.getMetaData().supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)
             );
 
             LOGGER.info("{} supports TYPE_SCROLL_INSENSITIVE {}, CONCUR_UPDATABLE {}",
-                    getDataSourceProvider().database(),
+                    dataSourceProvider().database(),
                     connection.getMetaData().supportsResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE),
                     connection.getMetaData().supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE)
             );
 
             LOGGER.info("{} supports TYPE_SCROLL_SENSITIVE {}, CONCUR_READ_ONLY {}",
-                    getDataSourceProvider().database(),
+                    dataSourceProvider().database(),
                     connection.getMetaData().supportsResultSetType(ResultSet.TYPE_SCROLL_SENSITIVE),
                     connection.getMetaData().supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY)
             );
 
             LOGGER.info("{} supports TYPE_SCROLL_SENSITIVE {}, CONCUR_UPDATABLE {}",
-                    getDataSourceProvider().database(),
+                    dataSourceProvider().database(),
                     connection.getMetaData().supportsResultSetType(ResultSet.TYPE_SCROLL_SENSITIVE),
                     connection.getMetaData().supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)
             );
@@ -176,7 +176,7 @@ public class ResultSetCursorTest extends DataSourceProviderIntegrationTest {
             }
         });
         LOGGER.info("{} Result Set Type {} and Concurrency {}",
-                getDataSourceProvider().database(),
+                dataSourceProvider().database(),
                 resultSetType == ResultSet.TYPE_FORWARD_ONLY ? "ResultSet.TYPE_FORWARD_ONLY" : "ResultSet.TYPE_SCROLL_SENSITIVE",
                 resultSetConcurrency == ResultSet.CONCUR_READ_ONLY ? "ResultSet.CONCUR_READ_ONLY" : "ResultSet.CONCUR_UPDATABLE");
         logReporter.report();

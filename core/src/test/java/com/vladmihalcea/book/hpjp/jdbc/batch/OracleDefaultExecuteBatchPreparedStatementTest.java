@@ -44,7 +44,7 @@ public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOrac
     }
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return new OracleDataSourceProvider() {
             @Override
             public DataSource dataSource() {

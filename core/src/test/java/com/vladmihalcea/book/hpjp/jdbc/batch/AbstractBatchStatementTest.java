@@ -70,7 +70,7 @@ public abstract class AbstractBatchStatementTest extends DataSourceProviderInteg
         });
         LOGGER.info("{}.testInsert for {} took {} millis",
                 getClass().getSimpleName(),
-                getDataSourceProvider().getClass().getSimpleName(),
+                dataSourceProvider().getClass().getSimpleName(),
                 TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
     }
 

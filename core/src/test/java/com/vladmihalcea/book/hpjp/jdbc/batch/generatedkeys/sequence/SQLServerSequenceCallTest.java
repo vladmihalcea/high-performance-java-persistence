@@ -13,7 +13,7 @@ public class SQLServerSequenceCallTest extends AbstractSequenceCallTest {
     }
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return new SQLServerDataSourceProvider();
     }
 }

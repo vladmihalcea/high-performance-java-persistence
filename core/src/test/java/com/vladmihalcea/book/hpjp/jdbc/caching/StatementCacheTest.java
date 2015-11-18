@@ -209,7 +209,7 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
                 }
         });
         LOGGER.info("When using {}, throughput is {} statements",
-                getDataSourceProvider(),
+                dataSourceProvider(),
                 counter.get());
     }
 

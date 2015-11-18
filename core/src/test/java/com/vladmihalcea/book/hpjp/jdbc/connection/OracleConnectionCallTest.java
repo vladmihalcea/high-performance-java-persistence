@@ -27,9 +27,9 @@ public class OracleConnectionCallTest extends AbstractOracleXEIntegrationTest {
 
     @Test
     public void testConnections() throws SQLException {
-        LOGGER.info("Test without pooling for {}", getDataSourceProvider().database());
-        simulateLowLatencyTransactions(getDataSourceProvider().dataSource(), 10);
-        simulateLowLatencyTransactions(getDataSourceProvider().dataSource(), 35);
+        LOGGER.info("Test without pooling for {}", dataSourceProvider().database());
+        simulateLowLatencyTransactions(dataSourceProvider().dataSource(), 10);
+        simulateLowLatencyTransactions(dataSourceProvider().dataSource(), 35);
     }
 
     private void simulateLowLatencyTransactions(

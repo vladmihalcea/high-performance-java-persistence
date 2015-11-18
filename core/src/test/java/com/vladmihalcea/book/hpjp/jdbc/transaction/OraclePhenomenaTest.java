@@ -12,7 +12,7 @@ public class OraclePhenomenaTest extends AbstractPhenomenaTest {
     }
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return new OracleDataSourceProvider();
     }
 }

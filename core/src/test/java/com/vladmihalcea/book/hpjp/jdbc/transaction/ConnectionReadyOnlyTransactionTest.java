@@ -41,15 +41,15 @@ public class ConnectionReadyOnlyTransactionTest extends DataSourceProviderIntegr
                 postStatement.setInt(++index, 0);
                 postStatement.setLong(++index, 1);
                 postStatement.executeUpdate();
-                LOGGER.info("Database {} allows writes in read-only connections", getDataSourceProvider().database());
+                LOGGER.info("Database {} allows writes in read-only connections", dataSourceProvider().database());
             } catch (SQLException e) {
-                LOGGER.info("Database {} prevents writes in read-only connections", getDataSourceProvider().database());
+                LOGGER.info("Database {} prevents writes in read-only connections", dataSourceProvider().database());
             }
         }, connection -> {
             try {
                 setReadOnly(connection);
             } catch (SQLException e) {
-                LOGGER.error("Database {} doesn't support read-only connections", getDataSourceProvider().database());
+                LOGGER.error("Database {} doesn't support read-only connections", dataSourceProvider().database());
             }
         });
     }

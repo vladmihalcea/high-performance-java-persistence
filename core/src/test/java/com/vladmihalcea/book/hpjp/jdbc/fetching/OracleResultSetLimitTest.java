@@ -91,7 +91,7 @@ public class OracleResultSetLimitTest extends DataSourceProviderIntegrationTest 
 
         });
         LOGGER.info("{} Result Set with limit took {} millis",
-                getDataSourceProvider().database(),
+                dataSourceProvider().database(),
                 TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
     }
 

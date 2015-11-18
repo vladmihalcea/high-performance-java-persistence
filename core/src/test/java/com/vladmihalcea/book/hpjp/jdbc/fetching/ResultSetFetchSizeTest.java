@@ -112,7 +112,7 @@ public class ResultSetFetchSizeTest extends DataSourceProviderIntegrationTest {
 
         });
         LOGGER.info("{} fetch size {} took {} millis",
-                getDataSourceProvider().database(),
+                dataSourceProvider().database(),
                 fetchSize != null ? fetchSize : "N/A",
                 TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
     }

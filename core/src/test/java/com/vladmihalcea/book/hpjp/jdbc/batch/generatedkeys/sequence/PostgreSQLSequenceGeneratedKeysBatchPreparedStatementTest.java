@@ -13,7 +13,7 @@ public class PostgreSQLSequenceGeneratedKeysBatchPreparedStatementTest extends A
     }
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return new PostgreSQLDataSourceProvider();
     }
 }

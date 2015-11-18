@@ -50,8 +50,8 @@ public class MySqlBatchStatementTest extends AbstractMySQLIntegrationTest {
     }
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
-        MySQLDataSourceProvider dataSourceProvider = (MySQLDataSourceProvider) super.getDataSourceProvider();
+    protected DataSourceProvider dataSourceProvider() {
+        MySQLDataSourceProvider dataSourceProvider = (MySQLDataSourceProvider) super.dataSourceProvider();
         dataSourceProvider.setRewriteBatchedStatements(rewriteBatchedStatements);
         return dataSourceProvider;
     }

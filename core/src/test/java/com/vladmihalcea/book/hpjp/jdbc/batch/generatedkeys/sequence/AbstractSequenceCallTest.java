@@ -52,7 +52,7 @@ public abstract class AbstractSequenceCallTest extends AbstractTest {
     }
 
     protected void callSequence(Connection connection) throws SQLException {
-        LOGGER.info("{} callSequence", getDataSourceProvider().database());
+        LOGGER.info("{} callSequence", dataSourceProvider().database());
 
         try (Statement statement = connection.createStatement()) {
             long startNanos = System.nanoTime();

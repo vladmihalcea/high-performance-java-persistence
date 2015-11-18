@@ -28,7 +28,7 @@ public class OracleImplicitStatementCacheTest extends AbstractOracleXEIntegratio
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return new OracleDataSourceProvider() {
             @Override
             public DataSource dataSource() {

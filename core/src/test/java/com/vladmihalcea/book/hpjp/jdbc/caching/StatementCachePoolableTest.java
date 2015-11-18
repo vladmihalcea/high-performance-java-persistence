@@ -196,7 +196,7 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
             }
         });
         LOGGER.info("When using {}, throughput is {} statements",
-                getDataSourceProvider(),
+                dataSourceProvider(),
                 counter.get());
     }
 

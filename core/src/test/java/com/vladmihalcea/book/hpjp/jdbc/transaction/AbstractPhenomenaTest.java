@@ -110,7 +110,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         try {
             doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
-                    LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
+                    LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
                     return;
                 }
                 prepareConnection(aliceConnection);
@@ -146,7 +146,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         try {
             doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
-                    LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
+                    LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
                     return;
                 }
                 prepareConnection(aliceConnection);
@@ -181,7 +181,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     public void testNonRepeatableRead() {
         doInJDBC(aliceConnection -> {
             if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
-                LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
+                LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
                 return;
             }
             prepareConnection(aliceConnection);
@@ -210,7 +210,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     public void testPhantomRead() {
         doInJDBC(aliceConnection -> {
             if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
-                LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
+                LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
                 return;
             }
             prepareConnection(aliceConnection);
@@ -241,7 +241,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         try {
             doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
-                    LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
+                    LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
                     return;
                 }
                 prepareConnection(aliceConnection);
@@ -279,7 +279,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         try {
             doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
-                    LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
+                    LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
                     return;
                 }
                 prepareConnection(aliceConnection);
@@ -318,7 +318,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         try {
             doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
-                    LOGGER.info("Database {} doesn't support {}", getDataSourceProvider().database(), isolationLevelName);
+                    LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
                     return;
                 }
                 prepareConnection(aliceConnection);

@@ -15,19 +15,11 @@ import org.hibernate.Interceptor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.boot.internal.*;
-import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
-import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
-import org.hibernate.jpa.boot.internal.SettingsImpl;
-import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
-import org.hibernate.jpa.internal.EntityManagerFactoryImpl;
-import org.hibernate.type.TypeResolver;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -36,11 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
-import javax.persistence.spi.ClassTransformer;
 import javax.persistence.spi.PersistenceUnitInfo;
-import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
-import java.net.URL;
 import java.sql.*;
 import java.util.*;
 import java.util.Collection;
@@ -78,6 +67,12 @@ public abstract class AbstractTest {
         Class<? extends DataSource> dataSourceClassName();
 
         Properties dataSourceProperties();
+
+        String url();
+
+        String username();
+
+        String password();
 
         List<IdentifierStrategy> identifierStrategies();
 
@@ -158,7 +153,7 @@ public abstract class AbstractTest {
 
                 return ProxyDataSourceBuilder
                         .create(dataSource)
-                        .name(getClass().getName())
+                        .name(getClass().getSimpleName())
                         .listener(myLogListener)
                         .build();
             }
@@ -197,10 +192,25 @@ public abstract class AbstractTest {
         @Override
         public Properties dataSourceProperties() {
             Properties properties = new Properties();
-            properties.setProperty("url", "jdbc:hsqldb:mem:test");
-            properties.setProperty("user", "sa");
-            properties.setProperty("password", "");
+            properties.setProperty("url", url());
+            properties.setProperty("user", username());
+            properties.setProperty("password", password());
             return properties;
+        }
+
+        @Override
+        public String url() {
+            return "jdbc:hsqldb:mem:test";
+        }
+
+        @Override
+        public String username() {
+            return "sa";
+        }
+
+        @Override
+        public String password() {
+            return "";
         }
 
         @Override
@@ -240,9 +250,24 @@ public abstract class AbstractTest {
             Properties properties = new Properties();
             properties.setProperty("databaseName", "high_performance_java_persistence");
             properties.setProperty("serverName", "localhost");
-            properties.setProperty("user", "postgres");
-            properties.setProperty("password", "admin");
+            properties.setProperty("user", username());
+            properties.setProperty("password", password());
             return properties;
+        }
+
+        @Override
+        public String url() {
+            return null;
+        }
+
+        @Override
+        public String username() {
+            return "postgres";
+        }
+
+        @Override
+        public String password() {
+            return "admin";
         }
 
         @Override
@@ -285,10 +310,25 @@ public abstract class AbstractTest {
         public Properties dataSourceProperties() {
             Properties properties = new Properties();
             properties.setProperty("databaseName", "high_performance_java_persistence");
-            properties.setProperty("URL", "jdbc:oracle:thin:@localhost:1521/xe");
-            properties.setProperty("user", "oracle");
-            properties.setProperty("password", "admin");
+            properties.setProperty("URL", url());
+            properties.setProperty("user", username());
+            properties.setProperty("password", password());
             return properties;
+        }
+
+        @Override
+        public String url() {
+            return "jdbc:oracle:thin:@localhost:1521/xe";
+        }
+
+        @Override
+        public String username() {
+            return "oracle";
+        }
+
+        @Override
+        public String password() {
+            return "admin";
         }
 
         @Override
@@ -358,8 +398,23 @@ public abstract class AbstractTest {
         @Override
         public Properties dataSourceProperties() {
             Properties properties = new Properties();
-            properties.setProperty("url", "jdbc:mysql://localhost/high_performance_java_persistence?user=mysql&password=admin");
+            properties.setProperty("url", url());
             return properties;
+        }
+
+        @Override
+        public String url() {
+            return "jdbc:mysql://localhost/high_performance_java_persistence?user=mysql&password=admin";
+        }
+
+        @Override
+        public String username() {
+            return null;
+        }
+
+        @Override
+        public String password() {
+            return null;
         }
 
         @Override
@@ -403,8 +458,23 @@ public abstract class AbstractTest {
         @Override
         public Properties dataSourceProperties() {
             Properties properties = new Properties();
-            properties.setProperty("URL", "jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence;user=sa;password=adm1n");
+            properties.setProperty("URL", url());
             return properties;
+        }
+
+        @Override
+        public String url() {
+            return "jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence;user=sa;password=adm1n";
+        }
+
+        @Override
+        public String username() {
+            return null;
+        }
+
+        @Override
+        public String password() {
+            return null;
         }
 
         @Override
@@ -446,9 +516,24 @@ public abstract class AbstractTest {
             properties.setProperty("databaseName", "high_performance_java_persistence");
             properties.setProperty("serverName", "localhost");
             properties.setProperty("instance", "SQLEXPRESS");
-            properties.setProperty("user", "sa");
-            properties.setProperty("password", "adm1n");
+            properties.setProperty("user", username());
+            properties.setProperty("password", password());
             return properties;
+        }
+
+        @Override
+        public String url() {
+            return null;
+        }
+
+        @Override
+        public String username() {
+            return "sa";
+        }
+
+        @Override
+        public String password() {
+            return "adm1n";
         }
 
         @Override
@@ -556,11 +641,11 @@ public abstract class AbstractTest {
         }
     }
 
-    public EntityManagerFactory getEntityManagerFactory() {
+    public EntityManagerFactory entityManagerFactory() {
         return emf;
     }
 
-    public SessionFactory getSessionFactory() {
+    public SessionFactory sessionFactory() {
         return nativeHibernateSessionFactoryBootsrap() ? sf : emf.unwrap(SessionFactory.class);
     }
     protected boolean nativeHibernateSessionFactoryBootsrap() {
@@ -582,7 +667,7 @@ public abstract class AbstractTest {
     }
 
     private SessionFactory newSessionFactory() {
-        Properties properties = getProperties();
+        Properties properties = properties();
         Configuration configuration = new Configuration().addProperties(properties);
         for(Class<?> entityClass : entities()) {
             configuration.addAnnotatedClass(entityClass);
@@ -605,10 +690,7 @@ public abstract class AbstractTest {
     }
 
     protected EntityManagerFactory newEntityManagerFactory() {
-        Properties properties = getProperties();
-        PersistenceUnitInfo persistenceUnitInfo = new PersistenceUnitInfoImpl(
-            getClass().getSimpleName(), entityClassNames(), properties
-        );
+        PersistenceUnitInfo persistenceUnitInfo = persistenceUnitInfo();
         Map<String, Object> configuration = new HashMap<>();
         configuration.put(AvailableSettings.INTERCEPTOR, interceptor());
 
@@ -618,13 +700,22 @@ public abstract class AbstractTest {
         return entityManagerFactoryBuilder.build();
     }
 
-    protected Properties getProperties() {
+    protected PersistenceUnitInfoImpl persistenceUnitInfo() {
+        return new PersistenceUnitInfoImpl(
+            getClass().getSimpleName(), entityClassNames(), properties()
+        );
+    }
+
+    protected Properties properties() {
         Properties properties = new Properties();
-        properties.put("hibernate.dialect", getDataSourceProvider().hibernateDialect());
+        properties.put("hibernate.dialect", dataSourceProvider().hibernateDialect());
         //log settings
         properties.put("hibernate.hbm2ddl.auto", "create-drop");
         //data source settings
-        properties.put("hibernate.connection.datasource", newDataSource());
+        DataSource dataSource = newDataSource();
+        if (dataSource != null) {
+            properties.put("hibernate.connection.datasource", dataSource);
+        }
         properties.put("hibernate.ejb.metamodel.population", "disabled");
         return properties;
     }
@@ -635,10 +726,10 @@ public abstract class AbstractTest {
 
     protected DataSource newDataSource() {
         if (proxyDataSource()) {
-            return dataSourceProxyType().dataSource(getDataSourceProvider().dataSource());
+            return dataSourceProxyType().dataSource(dataSourceProvider().dataSource());
 
         } else {
-            return getDataSourceProvider().dataSource();
+            return dataSourceProvider().dataSource();
         }
     }
 
@@ -646,7 +737,7 @@ public abstract class AbstractTest {
         return true;
     }
 
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return new HsqldbDataSourceProvider();
     }
 
@@ -655,7 +746,7 @@ public abstract class AbstractTest {
         Session session = null;
         Transaction txn = null;
         try {
-            session = getSessionFactory().openSession();
+            session = sessionFactory().openSession();
             callable.beforeTransactionCompletion();
             txn = session.beginTransaction();
 
@@ -677,7 +768,7 @@ public abstract class AbstractTest {
         Session session = null;
         Transaction txn = null;
         try {
-            session = getSessionFactory().openSession();
+            session = sessionFactory().openSession();
             callable.beforeTransactionCompletion();
             txn = session.beginTransaction();
 
@@ -743,7 +834,7 @@ public abstract class AbstractTest {
         Session session = null;
         Transaction txn = null;
         try {
-            session = getSessionFactory().openSession();
+            session = sessionFactory().openSession();
             txn = session.beginTransaction();
             session.doWork(connection -> {
                 result.set(callable.execute(connection));
@@ -764,7 +855,7 @@ public abstract class AbstractTest {
         Session session = null;
         Transaction txn = null;
         try {
-            session = getSessionFactory().openSession();
+            session = sessionFactory().openSession();
             txn = session.beginTransaction();
             session.doWork(callable::execute);
             txn.commit();

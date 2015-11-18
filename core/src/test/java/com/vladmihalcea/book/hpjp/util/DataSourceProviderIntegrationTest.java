@@ -32,7 +32,7 @@ public abstract class DataSourceProviderIntegrationTest extends AbstractTest {
     }
 
     @Override
-    protected DataSourceProvider getDataSourceProvider() {
+    protected DataSourceProvider dataSourceProvider() {
         return dataSourceProvider;
     }
 }
