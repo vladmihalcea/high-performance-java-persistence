@@ -13,9 +13,7 @@
 
     <context:annotation-config/>
 
-    <context:component-scan base-package="com.vladmihalcea"/>
-
-    <context:property-placeholder location="/META-INF/jdbc.properties"/>
+    <context:property-placeholder location="/META-INF/jdbc-hsqldb.properties"/>
 
     <bean id="btmConfig" factory-method="getConfiguration" class="bitronix.tm.TransactionManagerServices">
         <property name="serverId" value="spring-btm"/>

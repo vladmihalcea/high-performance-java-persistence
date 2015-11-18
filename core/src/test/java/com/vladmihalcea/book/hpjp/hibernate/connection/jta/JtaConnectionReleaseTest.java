@@ -3,7 +3,8 @@ package com.vladmihalcea.book.hpjp.hibernate.connection.jta;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
-import com.vladmihalcea.book.hpjp.util.spring.config.JtaTransactionManagerConfiguration;
+import com.vladmihalcea.book.hpjp.util.spring.config.HsqldbJtaTransactionManagerConfiguration;
+import com.vladmihalcea.book.hpjp.util.spring.config.PostgreSQLJtaTransactionManagerConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,8 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 //@ContextConfiguration(locations = {"classpath:spring/applicationContext-tx.xml"})
-@ContextConfiguration(classes = JtaTransactionManagerConfiguration.class)
+@ContextConfiguration(classes = HsqldbJtaTransactionManagerConfiguration.class)
+//@ContextConfiguration(classes = PostgreSQLJtaTransactionManagerConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class JtaConnectionReleaseTest {
 

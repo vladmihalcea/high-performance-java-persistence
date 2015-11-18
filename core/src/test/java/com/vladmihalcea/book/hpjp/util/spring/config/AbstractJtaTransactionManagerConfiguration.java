@@ -10,6 +10,7 @@ import org.hsqldb.jdbc.pool.JDBCXADataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.annotation.Order;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -25,24 +26,12 @@ import java.util.Properties;
  *
  * @author Vlad Mihalcea
  */
-@Configuration
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-@ComponentScan(basePackages = "com.vladmihalcea")
-@PropertySource({ "/META-INF/jdbc.properties" })
-public class JtaTransactionManagerConfiguration {
+public abstract class AbstractJtaTransactionManagerConfiguration {
 
     @Value("${btm.config.journal:disk}")
     private String btmJournal;
-
-    @Value("${jdbc.username}")
-    private String jdbcUser;
-
-    @Value("${jdbc.password}")
-    private String jdbcPassword;
-
-    @Value("${jdbc.url}")
-    private String jdbcUrl;
 
     @Value("${hibernate.dialect}")
     private String hibernateDialect;
@@ -62,31 +51,19 @@ public class JtaTransactionManagerConfiguration {
     }
 
     @Bean(initMethod = "init", destroyMethod = "close")
-    @DependsOn(value = "btmConfig")
-    public DataSource hsqldbDataSource() {
-        PoolingDataSource poolingDataSource = new PoolingDataSource();
-        poolingDataSource.setClassName(JDBCXADataSource.class.getName());
-        poolingDataSource.setUniqueName(getClass().getName());
-        poolingDataSource.setMinPoolSize(0);
-        poolingDataSource.setMaxPoolSize(5);
-        poolingDataSource.setAllowLocalTransactions(true);
-        poolingDataSource.setDriverProperties(new Properties());
-        poolingDataSource.getDriverProperties().put("user", jdbcUser);
-        poolingDataSource.getDriverProperties().put("password", jdbcPassword);
-        poolingDataSource.getDriverProperties().put("url", jdbcUrl);
-        return poolingDataSource;
-    }
+    public abstract DataSource actualDataSource();
 
-    @Bean
+    @DependsOn(value = "btmConfig, actualDataSource")
     public DataSource dataSource() {
         return ProxyDataSourceBuilder
-                .create(hsqldbDataSource())
+                .create(actualDataSource())
                 .name(getClass().getSimpleName())
                 .listener(new SLF4JQueryLoggingListener())
                 .build();
     }
 
     @Bean
+    @DependsOn("btmConfig")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         localContainerEntityManagerFactoryBean.setJtaDataSource(dataSource());
@@ -123,7 +100,6 @@ public class JtaTransactionManagerConfiguration {
         Properties properties = new Properties();
 
         properties.setProperty("hibernate.archive.autodetection", "class");
-        properties.setProperty("hibernate.transaction.jta.platform", BitronixJtaPlatform.class.getName());
         properties.setProperty("hibernate.transaction.jta.platform", BitronixJtaPlatform.class.getName());
         properties.setProperty("hibernate.dialect", hibernateDialect);
         properties.setProperty("hibernate.hbm2ddl.auto", "update");
