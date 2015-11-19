@@ -104,6 +104,7 @@ public abstract class AbstractJtaTransactionManagerConfiguration {
         properties.setProperty("hibernate.dialect", hibernateDialect);
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         properties.setProperty("hibernate.connection.release_mode", "after_transaction");
+        //properties.setProperty("hibernate.connection.release_mode", "after_statement");
 
         return properties;
     }
