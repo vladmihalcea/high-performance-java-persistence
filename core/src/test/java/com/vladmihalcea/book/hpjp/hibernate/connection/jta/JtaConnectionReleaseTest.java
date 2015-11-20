@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.connection.jta;
 
 import com.vladmihalcea.book.hpjp.util.spring.config.PostgreSQLJtaTransactionManagerConfiguration;
+import org.hibernate.Session;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,10 @@ public class JtaConnectionReleaseTest {
             });
             LOGGER.info("Transaction took {} millis", TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
         }
-
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            entityManager.unwrap(Session.class).getSessionFactory().getStatistics().logSummary();
+            return null;
+        });
     }
 
 }

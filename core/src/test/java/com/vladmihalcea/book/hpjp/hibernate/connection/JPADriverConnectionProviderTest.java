@@ -1,14 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.connection;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.PersistenceUnitInfoImpl;
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
-import org.junit.Test;
-
-import javax.persistence.spi.PersistenceUnitInfo;
-import javax.sql.DataSource;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class JPADriverConnectionProviderTest extends DriverConnectionProviderTest {
 

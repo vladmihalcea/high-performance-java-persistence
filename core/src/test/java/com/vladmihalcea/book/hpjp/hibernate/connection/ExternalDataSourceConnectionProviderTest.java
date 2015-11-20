@@ -1,14 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.connection;
 
-import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
-import net.ttddyy.dsproxy.support.ProxyDataSource;
-import org.hibernate.SessionFactory;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
-import org.hsqldb.jdbc.JDBCDataSource;
-
-import java.util.Properties;
-
 public class ExternalDataSourceConnectionProviderTest {
 
     /*protected Properties getProperties() {

@@ -2,15 +2,14 @@ package com.vladmihalcea.book.hpjp.util.spring.config;
 
 import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.TransactionManagerServices;
-import bitronix.tm.resource.jdbc.PoolingDataSource;
+import com.vladmihalcea.book.hpjp.hibernate.statistics.TransactionStatistics;
+import com.vladmihalcea.book.hpjp.hibernate.statistics.TransactionStatisticsFactory;
 import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.engine.transaction.jta.platform.internal.BitronixJtaPlatform;
-import org.hsqldb.jdbc.pool.JDBCXADataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.annotation.Order;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -103,8 +102,12 @@ public abstract class AbstractJtaTransactionManagerConfiguration {
         properties.setProperty("hibernate.transaction.jta.platform", BitronixJtaPlatform.class.getName());
         properties.setProperty("hibernate.dialect", hibernateDialect);
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-        properties.setProperty("hibernate.connection.release_mode", "after_transaction");
-        //properties.setProperty("hibernate.connection.release_mode", "after_statement");
+
+        properties.put("hibernate.generate_statistics", "true");
+        properties.put("hibernate.stats.factory", TransactionStatisticsFactory.class.getName());
+
+        //properties.setProperty("hibernate.connection.release_mode", "after_transaction");
+        properties.setProperty("hibernate.connection.release_mode", "after_statement");
 
         return properties;
     }

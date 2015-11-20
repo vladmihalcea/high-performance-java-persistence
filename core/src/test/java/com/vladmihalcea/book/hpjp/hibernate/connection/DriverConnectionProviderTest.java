@@ -6,9 +6,7 @@ import org.junit.Test;
 
 import javax.sql.DataSource;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class DriverConnectionProviderTest extends AbstractTest {
 

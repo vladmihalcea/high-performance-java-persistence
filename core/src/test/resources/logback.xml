@@ -22,7 +22,7 @@
 
     <logger name="org.springframework" level="warn"/>
 
-    <logger name="net.ttddyy.dsproxy.listener" level="info"/>
+    <logger name="net.ttddyy.dsproxy.listener" level="debug"/>
 
     <logger name="bitronix.tm" level="warn"/>
 
@@ -30,6 +30,7 @@
     <logger name="org.hibernate.event.internal" level="info"/>
     <logger name="org.hibernate.engine.transaction.internal" level="info"/>
     <logger name="org.hibernate.cache" level="debug"/>
+    <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="info"/>
 
     <logger name="net.sf.ehcache" level="info"/>
 
