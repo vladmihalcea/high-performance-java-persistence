@@ -110,52 +110,52 @@ public abstract class AbstractTest {
         MVCC
     }
 
+    protected static class InlineQueryLogEntryCreator extends DefaultQueryLogEntryCreator {
+        @Override
+        protected void writeParamsEntry(StringBuilder sb, ExecutionInfo execInfo, List<QueryInfo> queryInfoList) {
+            sb.append("Params:[");
+            for (QueryInfo queryInfo : queryInfoList) {
+                boolean firstArg = true;
+                for (Map<String, Object> paramMap : queryInfo.getQueryArgsList()) {
+
+                    if(!firstArg) {
+                        sb.append(", ");
+                    } else {
+                        firstArg = false;
+                    }
+
+                    SortedMap<String, Object> sortedParamMap = new TreeMap<>(new StringAsIntegerComparator());
+                    sortedParamMap.putAll(paramMap);
+
+                    sb.append("(");
+                    boolean firstParam = true;
+                    for (Map.Entry<String, Object> paramEntry : sortedParamMap.entrySet()) {
+                        if(!firstParam) {
+                            sb.append(", ");
+                        } else {
+                            firstParam = false;
+                        }
+                        sb.append(paramEntry.getValue());
+
+                    }
+                    sb.append(")");
+                }
+            }
+            sb.append("]");
+        }
+    };
+
     protected enum DataSourceProxyType {
         DATA_SOURCE_PROXY {
             @Override
             DataSource dataSource(DataSource dataSource) {
-                QueryLogEntryCreator myLogEntryCreator= new DefaultQueryLogEntryCreator(){
-                    @Override
-                    protected void writeParamsEntry(StringBuilder sb, ExecutionInfo execInfo, List<QueryInfo> queryInfoList) {
-                        sb.append("Params:[");
-                        for (QueryInfo queryInfo : queryInfoList) {
-                            boolean firstArg = true;
-                            for (Map<String, Object> paramMap : queryInfo.getQueryArgsList()) {
-
-                                if(!firstArg) {
-                                    sb.append(", ");
-                                } else {
-                                    firstArg = false;
-                                }
-
-                                SortedMap<String, Object> sortedParamMap = new TreeMap<>(new StringAsIntegerComparator());
-                                sortedParamMap.putAll(paramMap);
-
-                                sb.append("(");
-                                boolean firstParam = true;
-                                for (Map.Entry<String, Object> paramEntry : sortedParamMap.entrySet()) {
-                                    if(!firstParam) {
-                                        sb.append(", ");
-                                    } else {
-                                        firstParam = false;
-                                    }
-                                    sb.append(paramEntry.getValue());
-
-                                }
-                                sb.append(")");
-                            }
-                        }
-                        sb.append("]");
-                    }
-                };
-                SLF4JQueryLoggingListener myLogListener = new SLF4JQueryLoggingListener();
-                myLogListener.setQueryLogEntryCreator(myLogEntryCreator);
-
+                SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
+                loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
                 return ProxyDataSourceBuilder
-                        .create(dataSource)
-                        .name(getClass().getSimpleName())
-                        .listener(myLogListener)
-                        .build();
+                    .create(dataSource)
+                    .name(getClass().getSimpleName())
+                    .listener(loggingListener)
+                    .build();
             }
         },
         P6SPY {
