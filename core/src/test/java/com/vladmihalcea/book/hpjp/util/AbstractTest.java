@@ -110,7 +110,7 @@ public abstract class AbstractTest {
         MVCC
     }
 
-    protected static class InlineQueryLogEntryCreator extends DefaultQueryLogEntryCreator {
+    public static class InlineQueryLogEntryCreator extends DefaultQueryLogEntryCreator {
         @Override
         protected void writeParamsEntry(StringBuilder sb, ExecutionInfo execInfo, List<QueryInfo> queryInfoList) {
             sb.append("Params:[");

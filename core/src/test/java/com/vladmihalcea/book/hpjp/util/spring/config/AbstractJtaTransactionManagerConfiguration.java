@@ -20,6 +20,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.sql.DataSource;
 import java.util.Properties;
 
+import static com.vladmihalcea.book.hpjp.util.AbstractTest.InlineQueryLogEntryCreator;
+
 /**
  * <code>JPAConfig</code> - JPAConfig
  *
@@ -54,10 +56,12 @@ public abstract class AbstractJtaTransactionManagerConfiguration {
 
     @DependsOn(value = "btmConfig, actualDataSource")
     public DataSource dataSource() {
+        SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
+        loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
         return ProxyDataSourceBuilder
                 .create(actualDataSource())
                 .name(getClass().getSimpleName())
-                .listener(new SLF4JQueryLoggingListener())
+                .listener(loggingListener)
                 .build();
     }
 
