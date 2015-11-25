@@ -4,6 +4,7 @@ import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.TransactionManagerServices;
 import com.vladmihalcea.book.hpjp.hibernate.statistics.TransactionStatistics;
 import com.vladmihalcea.book.hpjp.hibernate.statistics.TransactionStatisticsFactory;
+import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.engine.transaction.jta.platform.internal.BitronixJtaPlatform;
@@ -30,6 +31,8 @@ import static com.vladmihalcea.book.hpjp.util.AbstractTest.InlineQueryLogEntryCr
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
 public abstract class AbstractJtaTransactionManagerConfiguration {
+
+    public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 
     @Value("${btm.config.journal:disk}")
     private String btmJournal;
@@ -60,7 +63,7 @@ public abstract class AbstractJtaTransactionManagerConfiguration {
         loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
         return ProxyDataSourceBuilder
                 .create(actualDataSource())
-                .name(getClass().getSimpleName())
+                .name(DATA_SOURCE_PROXY_NAME)
                 .listener(loggingListener)
                 .build();
     }

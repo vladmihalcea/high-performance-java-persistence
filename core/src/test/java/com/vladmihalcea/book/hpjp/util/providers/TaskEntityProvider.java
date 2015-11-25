@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.util.providers;
 import com.vladmihalcea.book.hpjp.util.EntityProvider;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * <code>TaskEntityProvider</code> - Task Entity Provider
@@ -32,5 +33,18 @@ public class TaskEntityProvider implements EntityProvider {
 
         @Enumerated(EnumType.STRING)
         private StatusType status;
+
+        @Embedded
+        private Change change;
+    }
+
+    @Embeddable
+    public static class Change {
+
+        @Column(name = "changed_on")
+        private Date changedOn;
+
+        @Column(name = "created_by")
+        private String changedBy;
     }
 }

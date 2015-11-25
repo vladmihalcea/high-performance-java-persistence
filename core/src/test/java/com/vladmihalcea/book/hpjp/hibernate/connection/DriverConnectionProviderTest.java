@@ -8,6 +8,8 @@ import javax.sql.DataSource;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.*;
+
 public class DriverConnectionProviderTest extends AbstractTest {
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
@@ -40,8 +42,19 @@ public class DriverConnectionProviderTest extends AbstractTest {
     public void testConnection() {
         for (final AtomicLong i = new AtomicLong(); i.get() < 5; i.incrementAndGet()) {
             doInJPA(em -> {
-                em.persist(new BlogEntityProvider.Post(i.get()));
+                em.persist(new Post(i.get()));
             });
         }
+
+        doInJPA(em -> {
+            Post post = em.find(Post.class, 1L);
+            PostComment comment = new PostComment("abc");
+            comment.setId(1L);
+            post.addComment(comment);
+            em.persist(comment);
+        });
+        doInJPA(em -> {
+            em.createQuery("select p from Post p join fetch p.comments", Post.class).getResultList();
+        });
     }
 }
