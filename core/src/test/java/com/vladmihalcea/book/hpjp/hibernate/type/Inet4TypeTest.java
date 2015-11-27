@@ -1,12 +1,15 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.annotations.Type;
 import org.junit.Test;
 
 import javax.persistence.*;
 
-import static org.junit.Assert.assertEquals;
+import java.sql.*;
+
+import static org.junit.Assert.*;
 
 /**
  * <code>Inet4TypeTest</code> -
@@ -22,14 +25,31 @@ public class Inet4TypeTest extends AbstractPostgreSQLIntegrationTest {
         };
     }
 
+    @Override
+    public void init() {
+        super.init();
+        doInJDBC(connection -> {
+            try (
+                    Statement statement = connection.createStatement();
+            ) {
+
+                statement.executeUpdate("CREATE INDEX ON Ipv4 USING gist (ip inet_ops)");
+            } catch (SQLException e) {
+                fail(e.getMessage());
+            }
+        });
+    }
+
     @Test
     public void test() {
         doInJPA(entityManager -> {
-            entityManager.persist(new Ipv4("127.0.0.1"));
+            entityManager.persist(new Ipv4("192.168.0.123"));
         });
         doInJPA(entityManager -> {
             Ipv4 inet4 = entityManager.createQuery("select ip from Ipv4 ip", Ipv4.class).getSingleResult();
-            assertEquals("127.0.0.1", inet4.getValue().getAddress());
+            assertEquals("192.168.0.123", inet4.getValue().getAddress());
+
+            assertTrue((Boolean) entityManager.createNativeQuery("select ip && inet '192.168.0.1/24' from Ipv4").getSingleResult());
         });
     }
 

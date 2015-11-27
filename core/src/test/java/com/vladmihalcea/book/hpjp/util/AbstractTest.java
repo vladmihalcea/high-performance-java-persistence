@@ -663,7 +663,7 @@ public abstract class AbstractTest {
     }
 
     protected EntityManagerFactory newEntityManagerFactory() {
-        PersistenceUnitInfo persistenceUnitInfo = persistenceUnitInfo();
+        PersistenceUnitInfo persistenceUnitInfo = persistenceUnitInfo(getClass().getSimpleName());
         Map<String, Object> configuration = new HashMap<>();
         configuration.put(AvailableSettings.INTERCEPTOR, interceptor());
 
@@ -673,9 +673,9 @@ public abstract class AbstractTest {
         return entityManagerFactoryBuilder.build();
     }
 
-    protected PersistenceUnitInfoImpl persistenceUnitInfo() {
+    protected PersistenceUnitInfoImpl persistenceUnitInfo(String name) {
         return new PersistenceUnitInfoImpl(
-            getClass().getSimpleName(), entityClassNames(), properties()
+            name, entityClassNames(), properties()
         );
     }
 
@@ -689,7 +689,7 @@ public abstract class AbstractTest {
         if (dataSource != null) {
             properties.put("hibernate.connection.datasource", dataSource);
         }
-        properties.put("hibernate.ejb.metamodel.population", "disabled");
+        //properties.put("hibernate.ejb.metamodel.population", "disabled");
         return properties;
     }
 

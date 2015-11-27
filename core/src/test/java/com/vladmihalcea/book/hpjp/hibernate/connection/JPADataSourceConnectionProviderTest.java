@@ -11,8 +11,8 @@ public class JPADataSourceConnectionProviderTest extends DriverConnectionProvide
     }
 
     @Override
-    protected PersistenceUnitInfoImpl persistenceUnitInfo() {
-        PersistenceUnitInfoImpl persistenceUnitInfo = super.persistenceUnitInfo();
+    protected PersistenceUnitInfoImpl persistenceUnitInfo(String name) {
+        PersistenceUnitInfoImpl persistenceUnitInfo = super.persistenceUnitInfo(name);
         return persistenceUnitInfo.setNonJtaDataSource(dataSourceProvider().dataSource());
     }
 
