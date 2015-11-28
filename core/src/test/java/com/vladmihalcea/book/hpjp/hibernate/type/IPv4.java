@@ -4,15 +4,15 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * <code>Inet4</code> - Inet4 Address
+ * <code>IPv4</code> - IPv4 Address
  *
  * @author Vlad Mihalcea
  */
-public class Inet4 implements Serializable {
+public class IPv4 implements Serializable {
 
     private final String address;
 
-    public Inet4(String address) {
+    public IPv4(String address) {
         this.address = address;
     }
 
@@ -24,8 +24,8 @@ public class Inet4 implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Inet4 inet4 = (Inet4) o;
-        return Objects.equals(address, inet4.address);
+        IPv4 IPv4 = (IPv4) o;
+        return Objects.equals(address, IPv4.address);
     }
 
     @Override

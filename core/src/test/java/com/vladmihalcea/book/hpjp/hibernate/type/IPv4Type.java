@@ -12,11 +12,11 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * <code>Inet4Type</code> - Inet4 Type
+ * <code>IPv4Type</code> - IPv4 Type
  *
  * @author Vlad Mihalcea
  */
-public class Inet4Type implements UserType {
+public class IPv4Type implements UserType {
 
     @Override
     public int[] sqlTypes() {
@@ -43,7 +43,7 @@ public class Inet4Type implements UserType {
                               SessionImplementor session, Object owner) throws SQLException {
         String ip = rs.getString(names[0]);
         if (ip != null) {
-            return new Inet4(ip);
+            return new IPv4(ip);
         }
         return null;
     }
@@ -56,7 +56,7 @@ public class Inet4Type implements UserType {
         } else {
             PGobject holder = new PGobject();
             holder.setType("inet");
-            holder.setValue(Inet4.class.cast(value).getAddress());
+            holder.setValue(IPv4.class.cast(value).getAddress());
             st.setObject(index, holder);
         }
     }
@@ -66,7 +66,7 @@ public class Inet4Type implements UserType {
         if (value == null)
             return null;
         else {
-            return new Inet4(Inet4.class.cast(value).getAddress());
+            return new IPv4(IPv4.class.cast(value).getAddress());
         }
     }
 
