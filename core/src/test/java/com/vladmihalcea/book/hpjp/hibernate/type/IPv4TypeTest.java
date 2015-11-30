@@ -7,7 +7,10 @@ import org.junit.Test;
 
 import javax.persistence.*;
 
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.sql.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
 
@@ -32,8 +35,7 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
             try (
                     Statement statement = connection.createStatement();
             ) {
-
-                statement.executeUpdate("CREATE INDEX ON Event USING gist (ip inet_ops)");
+                statement.executeUpdate("CREATE INDEX ON event USING gist (ip inet_ops)");
             } catch (SQLException e) {
                 fail(e.getMessage());
             }
@@ -42,12 +44,26 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
 
     @Test
     public void test() {
+        final AtomicReference<Event> eventHolder = new AtomicReference<>();
         doInJPA(entityManager -> {
-            entityManager.persist(new Event("192.168.0.123"));
+            entityManager.persist(new Event());
+            Event event = new Event("192.168.0.231");
+            entityManager.persist(event);
+            eventHolder.set(event);
         });
         doInJPA(entityManager -> {
-            Event event = entityManager.createQuery("select e from Event e", Event.class).getSingleResult();
+            Event event = entityManager.find(Event.class, eventHolder.get().getId());
+            event.setIp("192.168.0.123");
+        });
+        doInJPA(entityManager -> {
+            Event event = entityManager.createQuery("select e from Event e where ip is not null", Event.class).getSingleResult();
             assertEquals("192.168.0.123", event.getIp().getAddress());
+
+            try {
+                assertEquals("192.168.0.123", event.getIp().toInetAddress().getHostAddress());
+            } catch (UnknownHostException e) {
+                fail(e.getMessage());
+            }
 
             Session session = entityManager.unwrap(Session.class);
             session.doWork(connection -> {
@@ -69,18 +85,19 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
 
             Event matchingEvent = (Event) entityManager.
                     createNativeQuery(
-                        "select {e.*} " +
-                        "from Event e " +
-                        "where " +
+                        "SELECT {e.*} " +
+                        "FROM event e " +
+                        "WHERE " +
                         "   e.ip && CAST(:network AS inet) = TRUE"
                     , Event.class).
                     setParameter("network", "192.168.0.1/24").
                     getSingleResult();
-            assertSame(matchingEvent, event);
+            assertEquals("192.168.0.123", matchingEvent.getIp().getAddress());
         });
     }
 
     @Entity(name = "Event")
+    @Table(name = "event")
     public static class Event {
 
         @Id
@@ -97,8 +114,16 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
             this.ip = new IPv4(address);
         }
 
+        public Long getId() {
+            return id;
+        }
+
         public IPv4 getIp() {
             return ip;
+        }
+
+        public void setIp(String address) {
+            this.ip = new IPv4(address);
         }
     }
 }

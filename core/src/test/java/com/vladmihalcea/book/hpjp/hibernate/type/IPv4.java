@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
 import java.io.Serializable;
+import java.net.*;
 import java.util.Objects;
 
 /**
@@ -24,12 +25,15 @@ public class IPv4 implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        IPv4 IPv4 = (IPv4) o;
-        return Objects.equals(address, IPv4.address);
+        return Objects.equals(address, IPv4.class.cast(o).address);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(address);
+    }
+
+    public InetAddress toInetAddress() throws UnknownHostException {
+        return Inet4Address.getByName(address);
     }
 }
