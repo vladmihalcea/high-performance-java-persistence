@@ -131,13 +131,50 @@ public abstract class AbstractTest {
                         } else {
                             firstParam = false;
                         }
-                        sb.append(paramEntry.getValue());
-
+                        Object parameter = paramEntry.getValue();
+                        if(parameter != null && parameter.getClass().isArray()) {
+                            sb.append(arrayToString(parameter));
+                        } else {
+                            sb.append(parameter);
+                        }
                     }
                     sb.append(")");
                 }
             }
             sb.append("]");
+        }
+
+        private String arrayToString(Object object) {
+            if(object.getClass().isArray()) {
+                if(object instanceof byte[]) {
+                    return Arrays.toString((byte []) object);
+                }
+                if(object instanceof short[]) {
+                    return Arrays.toString((short []) object);
+                }
+                if(object instanceof char[]) {
+                    return Arrays.toString((char []) object);
+                }
+                if(object instanceof int[]) {
+                    return Arrays.toString((int []) object);
+                }
+                if(object instanceof long[]) {
+                    return Arrays.toString((long []) object);
+                }
+                if(object instanceof float[]) {
+                    return Arrays.toString((float []) object);
+                }
+                if(object instanceof double[]) {
+                    return Arrays.toString((double []) object);
+                }
+                if(object instanceof boolean[]) {
+                    return Arrays.toString((boolean []) object);
+                }
+                if(object instanceof Object[]) {
+                    return Arrays.toString((Object []) object);
+                }
+            }
+            throw new UnsupportedOperationException("Arrat type not supported: " + object.getClass());
         }
     };
 

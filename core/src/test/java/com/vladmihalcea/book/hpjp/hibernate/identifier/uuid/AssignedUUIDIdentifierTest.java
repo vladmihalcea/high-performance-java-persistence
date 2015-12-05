@@ -4,10 +4,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.GenericGenerator;
 import org.junit.Test;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.UUID;
 
 import static org.junit.Assert.assertNotNull;
@@ -40,17 +37,15 @@ public class AssignedUUIDIdentifierTest extends AbstractTest {
             entityManager.merge(new Post());
         });
     }
+
     @Entity(name = "Post")
+    @Table(name = "post")
     public static class Post {
 
         @Id
         @Column(columnDefinition = "BINARY(16)")
-        private UUID id;
+        private UUID id = UUID.randomUUID();
 
         public Post() {}
-
-        public Post(UUID id) {
-            this.id = id;
-        }
     }
 }

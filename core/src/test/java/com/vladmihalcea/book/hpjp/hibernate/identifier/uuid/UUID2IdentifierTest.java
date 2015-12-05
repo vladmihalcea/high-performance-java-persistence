@@ -4,10 +4,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.GenericGenerator;
 import org.junit.Test;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.UUID;
 
 import static org.junit.Assert.assertSame;
@@ -32,6 +29,7 @@ public class UUID2IdentifierTest extends AbstractTest {
     }
 
     @Entity(name = "Post")
+    @Table(name = "post")
     public static class Post {
 
         @Id
