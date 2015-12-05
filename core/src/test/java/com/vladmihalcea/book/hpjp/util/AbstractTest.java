@@ -598,7 +598,7 @@ public abstract class AbstractTest {
 
     @Before
     public void init() {
-        if(nativeHibernateSessionFactoryBootsrap()) {
+        if(nativeHibernateSessionFactoryBootstrap()) {
             sf = newSessionFactory();
         } else {
             emf = newEntityManagerFactory();
@@ -607,7 +607,7 @@ public abstract class AbstractTest {
 
     @After
     public void destroy() {
-        if(nativeHibernateSessionFactoryBootsrap()) {
+        if(nativeHibernateSessionFactoryBootstrap()) {
             sf.close();
         } else {
             emf.close();
@@ -619,9 +619,9 @@ public abstract class AbstractTest {
     }
 
     public SessionFactory sessionFactory() {
-        return nativeHibernateSessionFactoryBootsrap() ? sf : emf.unwrap(SessionFactory.class);
+        return nativeHibernateSessionFactoryBootstrap() ? sf : emf.unwrap(SessionFactory.class);
     }
-    protected boolean nativeHibernateSessionFactoryBootsrap() {
+    protected boolean nativeHibernateSessionFactoryBootstrap() {
         return false;
     }
 
