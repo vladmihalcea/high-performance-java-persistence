@@ -73,13 +73,21 @@ public abstract class AbstractJtaTransactionManagerConfiguration {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         localContainerEntityManagerFactoryBean.setJtaDataSource(dataSource());
-        localContainerEntityManagerFactoryBean.setPackagesToScan(new String[] { "com.vladmihalcea" });
+        localContainerEntityManagerFactoryBean.setPackagesToScan(packagesToScan());
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         localContainerEntityManagerFactoryBean.setJpaVendorAdapter(vendorAdapter);
         localContainerEntityManagerFactoryBean.setJpaProperties(additionalProperties());
         return localContainerEntityManagerFactoryBean;
     }
+
+    protected String[] packagesToScan() {
+        return new String[]{
+            entityClass().getPackage().getName()
+        };
+    }
+
+    protected abstract Class entityClass();
 
     @Bean(destroyMethod = "shutdown")
     @DependsOn(value = "btmConfig")
@@ -105,16 +113,9 @@ public abstract class AbstractJtaTransactionManagerConfiguration {
     protected Properties additionalProperties() {
         Properties properties = new Properties();
 
-        properties.setProperty("hibernate.archive.autodetection", "class");
         properties.setProperty("hibernate.transaction.jta.platform", BitronixJtaPlatform.class.getName());
         properties.setProperty("hibernate.dialect", hibernateDialect);
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-
-        properties.put("hibernate.generate_statistics", "true");
-        properties.put("hibernate.stats.factory", TransactionStatisticsFactory.class.getName());
-
-        //properties.setProperty("hibernate.connection.release_mode", "after_transaction");
-        properties.setProperty("hibernate.connection.release_mode", "after_statement");
 
         return properties;
     }

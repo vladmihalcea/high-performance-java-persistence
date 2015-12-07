@@ -1,15 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.connection.jta;
 
-import com.vladmihalcea.book.hpjp.util.spring.config.PostgreSQLJtaTransactionManagerConfiguration;
 import org.hibernate.Session;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -20,13 +19,11 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration(locations = {"classpath:spring/applicationContext-tx.xml"})
-//@ContextConfiguration(classes = HsqldbJtaTransactionManagerConfiguration.class)
-@ContextConfiguration(classes = PostgreSQLJtaTransactionManagerConfiguration.class)
+@ContextConfiguration(classes = JtaConnectionReleaseTestConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class JtaConnectionReleaseTest {
 
-    protected final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(getClass());
+    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -35,6 +32,7 @@ public class JtaConnectionReleaseTest {
     private TransactionTemplate transactionTemplate;
 
     private int[] batches = {10, 50, 100, 500, 1000, 5000, 10000};
+
     @Test
     public void test() {
         //Warming up

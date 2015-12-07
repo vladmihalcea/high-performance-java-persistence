@@ -16,7 +16,7 @@ import java.util.Properties;
  */
 @PropertySource({"/META-INF/jdbc-postgresql.properties"})
 @Configuration
-public class PostgreSQLJtaTransactionManagerConfiguration extends AbstractJtaTransactionManagerConfiguration{
+public abstract class PostgreSQLJtaTransactionManagerConfiguration extends AbstractJtaTransactionManagerConfiguration{
 
     @Value("${jdbc.dataSourceClassName}")
     private String dataSourceClassName;

@@ -14,7 +14,7 @@ import java.util.Properties;
  */
 @PropertySource({"/META-INF/jdbc-hsqldb.properties"})
 @Configuration
-public class HsqldbJtaTransactionManagerConfiguration extends AbstractJtaTransactionManagerConfiguration{
+public abstract class HsqldbJtaTransactionManagerConfiguration extends AbstractJtaTransactionManagerConfiguration{
 
     @Value("${jdbc.dataSourceClassName}")
     private String dataSourceClassName;

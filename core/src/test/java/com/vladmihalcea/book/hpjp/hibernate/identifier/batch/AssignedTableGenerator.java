@@ -1,5 +1,6 @@
-package com.vladmihalcea.book.hpjp.hibernate.identifier;
+package com.vladmihalcea.book.hpjp.hibernate.identifier.batch;
 
+import com.vladmihalcea.book.hpjp.hibernate.identifier.Identifiable;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.id.enhanced.TableGenerator;
 
