@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import javax.persistence.*;
 
-public class SequenceBatchIdentifierTest extends AbstractBatchIdentifierTest {
+public class SequenceAllocationSizeIdentifierTest extends AbstractBatchIdentifierTest {
 
     @Override
     protected Class<?>[] entities() {

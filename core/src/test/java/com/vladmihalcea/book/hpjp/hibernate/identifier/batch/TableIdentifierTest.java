@@ -1,11 +1,10 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier.batch;
 
-import org.hibernate.annotations.GenericGenerator;
 import org.junit.Test;
 
 import javax.persistence.*;
 
-public class TableBatchIdentifierTest extends AbstractBatchIdentifierTest {
+public class TableIdentifierTest extends AbstractBatchIdentifierTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -17,8 +16,9 @@ public class TableBatchIdentifierTest extends AbstractBatchIdentifierTest {
     @Test
     public void testTableIdentifierGenerator() {
         LOGGER.debug("testTableIdentifierGenerator");
+        int batchSize = 2;
         doInJPA(entityManager -> {
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < batchSize; i++) {
                 entityManager.persist(new Post());
             }
             LOGGER.debug("Flush is triggered at commit-time");
@@ -30,10 +30,7 @@ public class TableBatchIdentifierTest extends AbstractBatchIdentifierTest {
     public static class Post {
 
         @Id
-        @GenericGenerator(name = "table", strategy = "enhanced-table", parameters = {
-            @org.hibernate.annotations.Parameter(name = "table_name", value = "sequence_table")
-        })
-        @GeneratedValue(generator = "table", strategy=GenerationType.TABLE)
+        @GeneratedValue(strategy=GenerationType.TABLE)
         private Long id;
     }
 

@@ -8,7 +8,7 @@ import org.junit.Test;
 import javax.persistence.*;
 import java.util.Properties;
 
-public class IdentityBatchIdentifierTest extends AbstractBatchIdentifierTest {
+public class IdentityIdentifierTest extends AbstractBatchIdentifierTest {
 
     @Override
     protected Class<?>[] entities() {
