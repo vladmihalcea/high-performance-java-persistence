@@ -5,8 +5,10 @@ import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.book.hpjp.hibernate.identifier.batch.concurrent.providers.IdentityPostEntityProvider;
 import com.vladmihalcea.book.hpjp.hibernate.identifier.batch.concurrent.providers.PostEntityProvider;
+import com.vladmihalcea.book.hpjp.hibernate.identifier.batch.concurrent.providers.SequencePostEntityProvider;
 import com.vladmihalcea.book.hpjp.hibernate.identifier.batch.concurrent.providers.TablePostEntityProvider;
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -19,8 +21,9 @@ import java.util.Properties;
 import java.util.concurrent.*;
 
 @RunWith(Parameterized.class)
-public class ConcurrentBatchIdentifierTest<T> extends AbstractMySQLIntegrationTest {
+public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
 
+    private final DataSourceProvider dataSourceProvider;
     private final PostEntityProvider entityProvider;
     private final int threadCount;
 
@@ -39,7 +42,8 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractMySQLIntegrationTe
             .build();
 
 
-    public ConcurrentBatchIdentifierTest(PostEntityProvider entityProvider, int threadCount) {
+    public ConcurrentBatchIdentifierTest(DataSourceProvider dataSourceProvider, PostEntityProvider entityProvider, int threadCount) {
+        this.dataSourceProvider = dataSourceProvider;
         this.entityProvider = entityProvider;
         this.threadCount = threadCount;
         executorService = Executors.newFixedThreadPool(threadCount);
@@ -47,26 +51,45 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractMySQLIntegrationTe
 
     @Parameterized.Parameters
     public static Collection<Object[]> dataProvider() {
+        MySQLDataSourceProvider mySQLDataSourceProvider = new MySQLDataSourceProvider();
+        PostgreSQLDataSourceProvider postgreSQLDataSourceProvider = new PostgreSQLDataSourceProvider();
         IdentityPostEntityProvider identityPostEntityProvider = new IdentityPostEntityProvider();
+        SequencePostEntityProvider sequencePostEntityProvider = new SequencePostEntityProvider();
         TablePostEntityProvider tablePostEntityProvider = new TablePostEntityProvider();
 
         List<Object[]> providers = new ArrayList<>();
-        providers.add(new Object[]{identityPostEntityProvider, 1});
-        providers.add(new Object[]{identityPostEntityProvider, 2});
-        providers.add(new Object[]{identityPostEntityProvider, 4});
-        providers.add(new Object[]{identityPostEntityProvider, 8});
-        providers.add(new Object[]{identityPostEntityProvider, 16});
-        providers.add(new Object[]{tablePostEntityProvider, 1});
-        providers.add(new Object[]{tablePostEntityProvider, 2});
-        providers.add(new Object[]{tablePostEntityProvider, 4});
-        providers.add(new Object[]{tablePostEntityProvider, 8});
-        providers.add(new Object[]{tablePostEntityProvider, 16});
+        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 1});
+        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 2});
+        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 4});
+        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 8});
+        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 16});
+        providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 1});
+        providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 2});
+        providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 4});
+        providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 8});
+        providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 16});
+
+        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 1});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 2});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 4});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 8});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 16});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 1});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 2});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 4});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 8});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 16});
         return providers;
+    }
+
+    @Override
+    protected DataSourceProvider dataSourceProvider() {
+        return dataSourceProvider;
     }
 
     @Test
     public void testIdentifierGenerator() throws InterruptedException, ExecutionException {
-        LOGGER.debug("testIdentifierGenerator, entityProvider: {}, threadCount: {}", entityProvider.getClass().getSimpleName(), threadCount);
+        LOGGER.debug("testIdentifierGenerator, database: {}, entityProvider: {}, threadCount: {}", dataSourceProvider.database(), entityProvider.getClass().getSimpleName(), threadCount);
         //warming-up
         doInJPA(entityManager -> {
             for (int i = 0; i < insertCount; i++) {
@@ -79,11 +102,9 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractMySQLIntegrationTe
             workers.add(new Worker());
         }
         for (int i = 0; i < executionCount; i++) {
-            long startNanos = System.nanoTime();
             for(Future<Boolean> future : executorService.invokeAll(workers)) {
                 future.get();
             }
-            timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
         }
         logReporter.report();
     }
@@ -91,11 +112,13 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractMySQLIntegrationTe
     public class Worker implements Callable<Boolean> {
         @Override
         public Boolean call() throws Exception {
+            long startNanos = System.nanoTime();
             doInJPA(entityManager -> {
                 for (int i = 0; i < insertCount; i++) {
                     entityManager.persist(entityProvider.newPost());
                 }
             });
+            timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
             return true;
         }
     }
