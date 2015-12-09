@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.util;
 
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import com.zaxxer.hikari.HikariDataSource;
 import net.sourceforge.jtds.jdbcx.JtdsDataSource;
 import net.ttddyy.dsproxy.ExecutionInfo;
 import net.ttddyy.dsproxy.QueryInfo;

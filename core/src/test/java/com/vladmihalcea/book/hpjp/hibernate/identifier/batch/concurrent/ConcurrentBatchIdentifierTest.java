@@ -112,13 +112,15 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
     public class Worker implements Callable<Boolean> {
         @Override
         public Boolean call() throws Exception {
-            long startNanos = System.nanoTime();
             doInJPA(entityManager -> {
+                long startNanos = System.nanoTime();
                 for (int i = 0; i < insertCount; i++) {
                     entityManager.persist(entityProvider.newPost());
                 }
+                entityManager.flush();
+                timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
+                entityManager.clear();
             });
-            timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
             return true;
         }
     }
