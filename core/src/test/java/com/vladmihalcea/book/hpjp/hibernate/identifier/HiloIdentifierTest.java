@@ -15,41 +15,35 @@ public class HiloIdentifierTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
-                HiloIdentifierTest.Hilo.class
+            Post.class
         };
     }
 
     @Test
     public void testHiloIdentifierGenerator() {
         doInJPA(entityManager -> {
-            for(int i = 0; i < 8; i++) {
-                Hilo hilo = new Hilo();
-                entityManager.persist(hilo);
+            for(int i = 0; i < 4; i++) {
+                Post post = new Post();
+                entityManager.persist(post);
             }
         });
     }
 
-    /**
-     * Hilo - Hilo
-     *
-     * @author Vlad Mihalcea
-     */
-    @Entity(name = "hilo")
-    public static class Hilo {
+    @Entity(name = "Post")
+    public static class Post {
 
-        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hilo_sequence_generator")
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hilo")
         @GenericGenerator(
-                name = "hilo_sequence_generator",
-                strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
-                parameters = {
-                        @Parameter(name = "sequence_name", value = "hilo_seqeunce"),
-                        @Parameter(name = "initial_value", value = "1"),
-                        @Parameter(name = "increment_size", value = "3"),
-                        @Parameter(name = "optimizer", value = "hilo")
-                })
+            name = "hilo",
+            strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+            parameters = {
+                @Parameter(name = "sequence_name", value = "hilo_seqeunce"),
+                @Parameter(name = "initial_value", value = "1"),
+                @Parameter(name = "increment_size", value = "3"),
+                @Parameter(name = "optimizer", value = "hilo")
+            })
         @Id
         private Long id;
-
     }
 
 
