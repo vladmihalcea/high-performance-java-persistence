@@ -16,7 +16,6 @@ import static org.junit.Assert.assertEquals;
  */
 public class TwoMapsIdsTest extends AbstractTest {
 
-
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
@@ -27,7 +26,7 @@ public class TwoMapsIdsTest extends AbstractTest {
     }
 
     @Test
-    public void testScopeIdentity() {
+    public void test() {
         doInJPA(entityManager -> {
             Address address = new Address();
             address.id = 1L;
@@ -51,8 +50,6 @@ public class TwoMapsIdsTest extends AbstractTest {
             assertEquals(Long.valueOf(1L), person.location.id);
         });
     }
-
-
 
     @Entity(name = "Address")
     public static class Address {
