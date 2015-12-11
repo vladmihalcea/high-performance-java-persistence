@@ -1,0 +1,65 @@
+package com.vladmihalcea.book.hpjp.hibernate.identifier;
+
+import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
+import org.hibernate.Session;
+import org.hibernate.jdbc.Work;
+import org.junit.Test;
+
+import javax.persistence.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+/**
+ * <code>SQLServerScopeIdentity</code> - SQLServerScopeIdentity
+ *
+ * @author Vlad Mihalcea
+ */
+public class SQLServerScopeIdentity extends AbstractSQLServerIntegrationTest {
+
+    @Override
+    protected Class<?>[] entities() {
+        return new Class<?>[] {
+            Post.class
+        };
+    }
+
+    @Test
+    public void testScopeIdentity() {
+        doInJPA(entityManager -> {
+            Session session = entityManager.unwrap(Session.class);
+            final AtomicLong resultHolder = new AtomicLong();
+            session.doWork(connection -> {
+                try(PreparedStatement statement = connection.prepareStatement("INSERT INTO post VALUES (?) select scope_identity() ") ) {
+                    statement.setString(1, "abc");
+                    if ( !statement.execute() ) {
+                        while ( !statement.getMoreResults() && statement.getUpdateCount() != -1 ) {
+                            // do nothing until we hit the resultset
+                        }
+                    }
+                    try (ResultSet rs = statement.getResultSet()) {
+                        if(rs.next()) {
+                            resultHolder.set(rs.getLong(1));
+                        }
+                    }
+                }
+            });
+            assertNotNull(resultHolder.get());
+        });
+    }
+
+    @Entity(name = "Post")
+    public static class Post {
+
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+
+        private String name;
+    }
+}
