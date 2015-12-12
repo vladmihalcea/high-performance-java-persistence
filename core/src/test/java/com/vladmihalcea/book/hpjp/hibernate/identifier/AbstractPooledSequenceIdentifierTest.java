@@ -18,7 +18,7 @@ public abstract class AbstractPooledSequenceIdentifierTest extends AbstractTest 
 
     @Override
     protected Properties properties() {
-        Properties properties = properties();
+        Properties properties = super.properties();
         properties.put("hibernate.id.new_generator_mappings", "true");
         return properties;
     }
@@ -36,7 +36,7 @@ public abstract class AbstractPooledSequenceIdentifierTest extends AbstractTest 
             insertNewRow(session);
             insertNewRow(session);
             assertEquals(11, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM sequenceIdentifier").getSingleResult()).intValue());
-            List<Number> ids = entityManager.createNativeQuery("SELECT id FROM sequenceIdentifier", Number.class).getResultList();
+            List<Number> ids = entityManager.createNativeQuery("SELECT id FROM sequenceIdentifier").getResultList();
             for (Number id : ids) {
                 LOGGER.debug("Found id: {}", id);
             }

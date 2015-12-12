@@ -13,32 +13,32 @@ public class PooledLoSequenceIdentifierTest extends AbstractPooledSequenceIdenti
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
-                PooledLoSequenceIdentifier.class
+                Post.class
         };
     }
 
     @Override
     protected Object newEntityInstance() {
-        return new PooledLoSequenceIdentifier();
+        return new Post();
     }
 
     @Test
-    public void testPooledOptimizerSuccess() {
+    public void testOptimizer() {
         insertSequences();
     }
 
-    @Entity(name = "sequenceIdentifier")
-    public static class PooledLoSequenceIdentifier {
+    @Entity(name = "Post")
+    public static class Post {
 
         @Id
         @GenericGenerator(name = "sequenceGenerator", strategy = "enhanced-sequence",
-                parameters = {
-                        @org.hibernate.annotations.Parameter(name = "optimizer",
-                                value = "pooled-lo"
-                        ),
-                        @org.hibernate.annotations.Parameter(name = "initial_value", value = "1"),
-                        @org.hibernate.annotations.Parameter(name = "increment_size", value = "5")
-                }
+            parameters = {
+                @org.hibernate.annotations.Parameter(name = "optimizer",
+                        value = "pooled-lo"
+                ),
+                @org.hibernate.annotations.Parameter(name = "initial_value", value = "1"),
+                @org.hibernate.annotations.Parameter(name = "increment_size", value = "5")
+            }
         )
         @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
         private Long id;

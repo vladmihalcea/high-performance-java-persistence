@@ -17,37 +17,31 @@ public class PooledSequenceIdentifierTest extends AbstractPooledSequenceIdentifi
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
-                PooledSequenceIdentifier.class,
+                Post.class,
         };
     }
 
     protected Object newEntityInstance() {
-        return new PooledSequenceIdentifier();
+        return new Post();
     }
 
     @Test
-    public void testPooledOptimizerThrowsException() {
-        try {
-            insertSequences();
-            fail("Expecting ConstraintViolationException!");
-        } catch (Exception e) {
-            assertEquals(ConstraintViolationException.class, e.getClass());
-            LOGGER.error("Pooled optimizer threw", e);
-        }
+    public void testOptimizer() {
+        insertSequences();
     }
 
-    @Entity(name = "sequenceIdentifier")
-    public static class PooledSequenceIdentifier {
+    @Entity(name = "Post")
+    public static class Post {
 
         @Id
         @GenericGenerator(name = "sequenceGenerator", strategy = "enhanced-sequence",
-                parameters = {
-                        @org.hibernate.annotations.Parameter(name = "optimizer",
-                                value = "pooled"
-                        ),
-                        @org.hibernate.annotations.Parameter(name = "initial_value", value = "1"),
-                        @org.hibernate.annotations.Parameter(name = "increment_size", value = "5")
-                }
+            parameters = {
+                @org.hibernate.annotations.Parameter(name = "optimizer",
+                    value = "pooled"
+                ),
+                @org.hibernate.annotations.Parameter(name = "initial_value", value = "1"),
+                @org.hibernate.annotations.Parameter(name = "increment_size", value = "5")
+            }
         )
         @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
         private Long id;
