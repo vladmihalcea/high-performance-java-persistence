@@ -32,17 +32,18 @@ public class HiloIdentifierTest extends AbstractTest {
     @Entity(name = "Post")
     public static class Post {
 
+        @Id
         @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hilo")
         @GenericGenerator(
             name = "hilo",
             strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
             parameters = {
-                @Parameter(name = "sequence_name", value = "hilo_seqeunce"),
+                @Parameter(name = "sequence_name", value = "sequence"),
                 @Parameter(name = "initial_value", value = "1"),
                 @Parameter(name = "increment_size", value = "3"),
                 @Parameter(name = "optimizer", value = "hilo")
-            })
-        @Id
+            }
+        )
         private Long id;
     }
 

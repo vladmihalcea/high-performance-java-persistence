@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 import org.junit.Test;
 
 import javax.persistence.Entity;
@@ -31,16 +32,17 @@ public class PooledLoSequenceIdentifierTest extends AbstractPooledSequenceIdenti
     public static class Post {
 
         @Id
-        @GenericGenerator(name = "sequenceGenerator", strategy = "enhanced-sequence",
-            parameters = {
-                @org.hibernate.annotations.Parameter(name = "optimizer",
-                        value = "pooled-lo"
-                ),
-                @org.hibernate.annotations.Parameter(name = "initial_value", value = "1"),
-                @org.hibernate.annotations.Parameter(name = "increment_size", value = "5")
-            }
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pooled-lo")
+        @GenericGenerator(
+                name = "pooled-lo",
+                strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+                parameters = {
+                        @Parameter(name = "sequence_name", value = "sequence"),
+                        @Parameter(name = "initial_value", value = "1"),
+                        @Parameter(name = "increment_size", value = "3"),
+                        @Parameter(name = "optimizer", value = "pooled-lo")
+                }
         )
-        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
         private Long id;
     }
 }

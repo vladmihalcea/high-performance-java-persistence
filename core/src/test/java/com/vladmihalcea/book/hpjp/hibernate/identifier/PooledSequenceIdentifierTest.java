@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
 
@@ -34,16 +35,17 @@ public class PooledSequenceIdentifierTest extends AbstractPooledSequenceIdentifi
     public static class Post {
 
         @Id
-        @GenericGenerator(name = "sequenceGenerator", strategy = "enhanced-sequence",
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pooled")
+        @GenericGenerator(
+            name = "pooled",
+            strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
             parameters = {
-                @org.hibernate.annotations.Parameter(name = "optimizer",
-                    value = "pooled"
-                ),
-                @org.hibernate.annotations.Parameter(name = "initial_value", value = "1"),
-                @org.hibernate.annotations.Parameter(name = "increment_size", value = "5")
+                @Parameter(name = "sequence_name", value = "sequence"),
+                @Parameter(name = "initial_value", value = "1"),
+                @Parameter(name = "increment_size", value = "3"),
+                @Parameter(name = "optimizer", value = "pooled")
             }
         )
-        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
         private Long id;
     }
 }

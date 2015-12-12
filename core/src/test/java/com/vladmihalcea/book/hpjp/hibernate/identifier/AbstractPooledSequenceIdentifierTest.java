@@ -2,10 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.Session;
-import org.hibernate.jdbc.Work;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Properties;
@@ -26,31 +23,27 @@ public abstract class AbstractPooledSequenceIdentifierTest extends AbstractTest 
     protected void insertSequences() {
         LOGGER.debug("testSequenceIdentifierGenerator");
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < 5; i++) {
                 entityManager.persist(newEntityInstance());
+                entityManager.flush();
             }
             entityManager.flush();
-            assertEquals(8, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM sequenceIdentifier").getSingleResult()).intValue());
-            insertNewRow(session);
-            insertNewRow(session);
-            insertNewRow(session);
-            assertEquals(11, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM sequenceIdentifier").getSingleResult()).intValue());
-            List<Number> ids = entityManager.createNativeQuery("SELECT id FROM sequenceIdentifier").getResultList();
+            assertEquals(5, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM Post").getSingleResult()).intValue());
+
+            entityManager.unwrap(Session.class).doWork(connection -> {
+                try(Statement statement = connection.createStatement()) {
+                    statement.executeUpdate("INSERT INTO Post VALUES NEXT VALUE FOR sequence");
+                }
+            });
+
+            assertEquals(6, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM Post").getSingleResult()).intValue());
+            List<Number> ids = entityManager.createNativeQuery("SELECT id FROM Post").getResultList();
             for (Number id : ids) {
                 LOGGER.debug("Found id: {}", id);
             }
             for (int i = 0; i < 3; i++) {
                 entityManager.persist(newEntityInstance());
-            }
-            entityManager.flush();
-        });
-    }
-
-    private void insertNewRow(Session session) {
-        session.doWork(connection -> {
-            try(Statement statement = connection.createStatement()) {
-                statement.executeUpdate("INSERT INTO sequenceIdentifier VALUES NEXT VALUE FOR hibernate_sequence");
+                entityManager.flush();
             }
         });
     }
