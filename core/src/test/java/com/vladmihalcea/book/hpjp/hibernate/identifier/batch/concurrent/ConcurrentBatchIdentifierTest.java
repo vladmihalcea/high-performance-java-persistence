@@ -92,7 +92,7 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
         LOGGER.debug("testIdentifierGenerator, database: {}, entityProvider: {}, threadCount: {}", dataSourceProvider.database(), entityProvider.getClass().getSimpleName(), threadCount);
         //warming-up
         doInJPA(entityManager -> {
-            for (int i = 0; i < insertCount; i++) {
+            for (int i = 0; i < insertCount * 10; i++) {
                 entityManager.persist(entityProvider.newPost());
             }
         });
