@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.util;
 
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.sourceforge.jtds.jdbcx.JtdsDataSource;
 import net.ttddyy.dsproxy.ExecutionInfo;
@@ -24,21 +25,20 @@ import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.sql.DataSource;
+import java.io.Closeable;
+import java.io.IOException;
 import java.sql.*;
 import java.util.*;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static org.junit.Assert.fail;
 
 public abstract class AbstractTest {
 
@@ -632,7 +632,10 @@ public abstract class AbstractTest {
     }
 
     private EntityManagerFactory emf;
+
     private SessionFactory sf;
+
+    private List<Closeable> closeables = new ArrayList<>();
 
     @Before
     public void init() {
@@ -650,6 +653,14 @@ public abstract class AbstractTest {
         } else {
             emf.close();
         }
+        for(Closeable closeable : closeables) {
+            try {
+                closeable.close();
+            } catch (IOException e) {
+                LOGGER.error("Failure", e);
+            }
+        }
+        closeables.clear();
     }
 
     public EntityManagerFactory entityManagerFactory() {
@@ -736,16 +747,32 @@ public abstract class AbstractTest {
     }
 
     protected DataSource newDataSource() {
-        if (proxyDataSource()) {
-            return dataSourceProxyType().dataSource(dataSourceProvider().dataSource());
-
+        DataSource dataSource =
+        proxyDataSource()
+            ? dataSourceProxyType().dataSource(dataSourceProvider().dataSource())
+            : dataSourceProvider().dataSource();
+        if(connectionPooling()) {
+            HikariDataSource poolingDataSource = connectionPoolDataSource(dataSource);
+            closeables.add(poolingDataSource::close);
+            return poolingDataSource;
         } else {
-            return dataSourceProvider().dataSource();
+            return dataSource;
         }
     }
 
     protected boolean proxyDataSource() {
         return true;
+    }
+
+    protected HikariDataSource connectionPoolDataSource(DataSource dataSource) {
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setMaximumPoolSize(64);
+        hikariConfig.setDataSource(dataSource);
+        return new HikariDataSource(hikariConfig);
+    }
+
+    protected boolean connectionPooling() {
+        return false;
     }
 
     protected DataSourceProvider dataSourceProvider() {

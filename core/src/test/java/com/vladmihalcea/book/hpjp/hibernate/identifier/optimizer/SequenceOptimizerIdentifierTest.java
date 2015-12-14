@@ -23,7 +23,7 @@ public class SequenceOptimizerIdentifierTest extends AbstractTest {
     private final PostEntityProvider entityProvider;
 
     private int insertCount = 50;
-    private int executionCount = 10;
+    private int executionCount = 50;
 
     private MetricRegistry metricRegistry = new MetricRegistry();
 
@@ -108,5 +108,10 @@ public class SequenceOptimizerIdentifierTest extends AbstractTest {
         properties.put("hibernate.order_updates", "true");
         properties.put("hibernate.jdbc.batch_size", String.valueOf(insertCount));
         return properties;
+    }
+
+    @Override
+    protected boolean connectionPooling() {
+        return true;
     }
 }

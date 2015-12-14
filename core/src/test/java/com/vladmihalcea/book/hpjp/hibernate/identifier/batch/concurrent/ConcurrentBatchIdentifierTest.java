@@ -7,13 +7,11 @@ import com.vladmihalcea.book.hpjp.hibernate.identifier.batch.concurrent.provider
 import com.vladmihalcea.book.hpjp.hibernate.identifier.batch.concurrent.providers.PostEntityProvider;
 import com.vladmihalcea.book.hpjp.hibernate.identifier.batch.concurrent.providers.SequencePostEntityProvider;
 import com.vladmihalcea.book.hpjp.hibernate.identifier.batch.concurrent.providers.TablePostEntityProvider;
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -137,5 +135,10 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
         properties.put("hibernate.order_updates", "true");
         properties.put("hibernate.jdbc.batch_size", String.valueOf(insertCount));
         return properties;
+    }
+
+    @Override
+    protected boolean connectionPooling() {
+        return true;
     }
 }
