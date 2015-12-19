@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <code>UnidirectionalBag</code> - Unidirectional Bag Test
+ * <code>UnidirectionalOrderedListTest</code> - Unidirectional Ordered List Test
  *
  * @author Vlad Mihalcea
  */
-public class UnidirectionalBagTest extends AbstractTest {
+public class UnidirectionalOrderColumnListTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -49,6 +49,7 @@ public class UnidirectionalBagTest extends AbstractTest {
         }
 
         @OneToMany(cascade = CascadeType.ALL)
+        @OrderBy("number")
         private List<Phone> phones = new ArrayList<>();
 
         public List<Phone> getPhones() {

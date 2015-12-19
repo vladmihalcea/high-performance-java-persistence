@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.collection;
+package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <code>UnidirectionalBag</code> - Unidirectional Bag Test
+ * <code>ManyToOneTest</code> - @ManyToOne Test
  *
  * @author Vlad Mihalcea
  */
-public class UnidirectionalBagTest extends AbstractTest {
+public class UnidirectionalOneToManyTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -25,14 +25,16 @@ public class UnidirectionalBagTest extends AbstractTest {
     @Test
     public void testLifecycle() {
         doInJPA(entityManager -> {
-            Person person = new Person(1L);
-            person.getPhones().add(new Phone(1L, "landline", "028-234-9876"));
-            person.getPhones().add(new Phone(2L, "mobile", "072-122-9876"));
+            Person person = new Person();
+            Phone phone1 = new Phone("123-456-7890");
+            Phone phone2 = new Phone("321-654-0987");
+
+            person.getPhones().add(phone1);
+            person.getPhones().add(phone2);
             entityManager.persist(person);
-        });
-        doInJPA(entityManager -> {
-            Person person = entityManager.find(Person.class, 1L);
-            person.getPhones().remove(0);
+            entityManager.flush();
+
+            person.getPhones().remove(phone1);
         });
     }
 
@@ -40,15 +42,16 @@ public class UnidirectionalBagTest extends AbstractTest {
     public static class Person  {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         public Person() {}
 
-        public Person(Long id) {
-            this.id = id;
-        }
-
-        @OneToMany(cascade = CascadeType.ALL)
+        @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+        /*@JoinTable(name = "person_phone",
+            joinColumns = @JoinColumn(name = "person_id", foreignKey = @ForeignKey(name = "PERSON_ID_FK")),
+            inverseJoinColumns = @JoinColumn(name = "phone_id", foreignKey = @ForeignKey(name = "PHONE_ID_FK"))
+        )*/
         private List<Phone> phones = new ArrayList<>();
 
         public List<Phone> getPhones() {
@@ -60,27 +63,19 @@ public class UnidirectionalBagTest extends AbstractTest {
     public static class Phone  {
 
         @Id
+        @GeneratedValue
         private Long id;
-
-        private String type;
 
         private String number;
 
-        public Phone() {
-        }
+        public Phone() {}
 
-        public Phone(Long id, String type, String number) {
-            this.id = id;
-            this.type = type;
+        public Phone(String number) {
             this.number = number;
         }
 
         public Long getId() {
             return id;
-        }
-
-        public String getType() {
-            return type;
         }
 
         public String getNumber() {

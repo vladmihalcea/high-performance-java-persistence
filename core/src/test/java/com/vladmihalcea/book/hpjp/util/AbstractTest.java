@@ -18,6 +18,10 @@ import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
+import org.hibernate.type.BasicType;
+import org.hibernate.type.Type;
+import org.hibernate.usertype.CompositeUserType;
+import org.hibernate.usertype.UserType;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -704,6 +708,20 @@ public abstract class AbstractTest {
         if(interceptor != null) {
             configuration.setInterceptor(interceptor);
         }
+        final List<Type> additionalTypes = additionalTypes();
+        if (additionalTypes != null) {
+            configuration.registerTypeContributor((typeContributions, serviceRegistry) -> {
+                additionalTypes.stream().forEach(type -> {
+                    if(type instanceof BasicType) {
+                        typeContributions.contributeType((BasicType) type);
+                    } else if (type instanceof UserType ){
+                        typeContributions.contributeType((UserType) type);
+                    } else if (type instanceof CompositeUserType) {
+                        typeContributions.contributeType((CompositeUserType) type);
+                    }
+                });
+            });
+        }
         return configuration.buildSessionFactory(
                 new StandardServiceRegistryBuilder()
                         .applySettings(properties)
@@ -766,7 +784,8 @@ public abstract class AbstractTest {
 
     protected HikariDataSource connectionPoolDataSource(DataSource dataSource) {
         HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setMaximumPoolSize(64);
+        int cpuCores = Runtime.getRuntime().availableProcessors();
+        hikariConfig.setMaximumPoolSize(cpuCores * 4);
         hikariConfig.setDataSource(dataSource);
         return new HikariDataSource(hikariConfig);
     }
@@ -777,6 +796,10 @@ public abstract class AbstractTest {
 
     protected DataSourceProvider dataSourceProvider() {
         return new HsqldbDataSourceProvider();
+    }
+
+    protected List<Type> additionalTypes() {
+        return null;
     }
 
     protected <T> T doInHibernate(HibernateTransactionFunction<T> callable) {

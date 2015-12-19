@@ -26,7 +26,7 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
     private final int threadCount;
 
     private int insertCount = 100;
-    private int executionCount = 10;
+    private int executionCount = 50;
 
     private final ExecutorService executorService;
 
@@ -56,27 +56,27 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
         TablePostEntityProvider tablePostEntityProvider = new TablePostEntityProvider();
 
         List<Object[]> providers = new ArrayList<>();
-        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 1});
-        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 2});
-        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 4});
-        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 8});
-        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 16});
         providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 1});
         providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 2});
         providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 4});
         providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 8});
         providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 16});
+        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 1});
+        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 2});
+        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 4});
+        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 8});
+        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 16});
 
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 1});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 2});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 4});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 8});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 16});
         providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 1});
         providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 2});
         providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 4});
         providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 8});
         providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 16});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 1});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 2});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 4});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 8});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 16});
         return providers;
     }
 
@@ -90,7 +90,7 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
         LOGGER.debug("testIdentifierGenerator, database: {}, entityProvider: {}, threadCount: {}", dataSourceProvider.database(), entityProvider.getClass().getSimpleName(), threadCount);
         //warming-up
         doInJPA(entityManager -> {
-            for (int i = 0; i < insertCount * 10; i++) {
+            for (int i = 0; i < insertCount * executionCount; i++) {
                 entityManager.persist(entityProvider.newPost());
             }
         });
@@ -99,10 +99,9 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
         for (int i = 0; i < threadCount; i++) {
             workers.add(new Worker());
         }
-        for (int i = 0; i < executionCount; i++) {
-            for(Future<Boolean> future : executorService.invokeAll(workers)) {
-                future.get();
-            }
+        List<Future<Boolean>> futures = executorService.invokeAll(workers);
+        for(Future<Boolean> future : futures) {
+            future.get();
         }
         logReporter.report();
     }
@@ -110,15 +109,17 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
     public class Worker implements Callable<Boolean> {
         @Override
         public Boolean call() throws Exception {
-            doInJPA(entityManager -> {
-                long startNanos = System.nanoTime();
-                for (int i = 0; i < insertCount; i++) {
-                    entityManager.persist(entityProvider.newPost());
-                }
-                entityManager.flush();
-                timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
-                entityManager.clear();
-            });
+            for (int i = 0; i < executionCount; i++) {
+                doInJPA(entityManager -> {
+                    long startNanos = System.nanoTime();
+                    for (int j = 0; j < insertCount; j++) {
+                        entityManager.persist(entityProvider.newPost());
+                    }
+                    entityManager.flush();
+                    timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
+                    entityManager.clear();
+                });
+            }
             return true;
         }
     }

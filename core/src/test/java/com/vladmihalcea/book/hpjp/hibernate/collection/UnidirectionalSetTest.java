@@ -1,24 +1,31 @@
 package com.vladmihalcea.book.hpjp.hibernate.collection;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * <code>UnidirectionalBag</code> - Unidirectional Bag Test
  *
  * @author Vlad Mihalcea
  */
-public class UnidirectionalBagTest extends AbstractTest {
+public class UnidirectionalSetTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
-            Person.class,
-            Phone.class,
+        return new Class<?>[]{
+                Person.class,
+                Phone.class,
         };
     }
 
@@ -32,38 +39,48 @@ public class UnidirectionalBagTest extends AbstractTest {
         });
         doInJPA(entityManager -> {
             Person person = entityManager.find(Person.class, 1L);
-            person.getPhones().remove(0);
+            Set<Phone> phones = person.getPhones();
+            assertEquals(2, phones.size());
+            phones.remove(phones.iterator().next());
+            assertEquals(1, phones.size());
+        });
+        doInJPA(entityManager -> {
+            Person person = entityManager.find(Person.class, 1L);
+            Set<Phone> phones = person.getPhones();
+            assertEquals(1, phones.size());
         });
     }
 
     @Entity(name = "Person")
-    public static class Person  {
+    public static class Person {
 
         @Id
         private Long id;
 
-        public Person() {}
+        public Person() {
+        }
 
         public Person(Long id) {
             this.id = id;
         }
 
         @OneToMany(cascade = CascadeType.ALL)
-        private List<Phone> phones = new ArrayList<>();
+        private Set<Phone> phones = new HashSet<>();
 
-        public List<Phone> getPhones() {
+        public Set<Phone> getPhones() {
             return phones;
         }
     }
 
     @Entity(name = "Phone")
-    public static class Phone  {
+    public static class Phone {
 
         @Id
         private Long id;
 
         private String type;
 
+        @NaturalId
         private String number;
 
         public Phone() {
@@ -85,6 +102,19 @@ public class UnidirectionalBagTest extends AbstractTest {
 
         public String getNumber() {
             return number;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Phone phone = (Phone) o;
+            return Objects.equals(number, phone.number);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(number);
         }
     }
 }
