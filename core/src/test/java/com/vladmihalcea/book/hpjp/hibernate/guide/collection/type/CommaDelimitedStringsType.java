@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.collection.type;
+package com.vladmihalcea.book.hpjp.hibernate.guide.collection.type;
 
 import org.hibernate.type.AbstractSingleColumnStandardBasicType;
 import org.hibernate.type.descriptor.sql.VarcharTypeDescriptor;

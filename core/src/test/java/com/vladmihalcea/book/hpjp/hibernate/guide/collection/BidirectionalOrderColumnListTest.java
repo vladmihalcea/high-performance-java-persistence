@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.collection;
+package com.vladmihalcea.book.hpjp.hibernate.guide.collection;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.NaturalId;
@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,13 +14,13 @@ import java.util.Objects;
  *
  * @author Vlad Mihalcea
  */
-public class BidirectionalBagTest extends AbstractTest {
+public class BidirectionalOrderColumnListTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
             Person.class,
-                Phone.class,
+            Phone.class,
         };
     }
 
@@ -34,6 +33,9 @@ public class BidirectionalBagTest extends AbstractTest {
             person.addPhone(new Phone(2L, "mobile", "072-122-9876"));
             entityManager.flush();
             person.removePhone(person.getPhones().get(0));
+        });
+        doInJPA(entityManager -> {
+            entityManager.find(Person.class, 1L).getPhones().size();
         });
     }
 
@@ -50,6 +52,7 @@ public class BidirectionalBagTest extends AbstractTest {
         }
 
         @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
+        @OrderColumn(name = "order_id")
         private List<Phone> phones = new ArrayList<>();
 
         public List<Phone> getPhones() {

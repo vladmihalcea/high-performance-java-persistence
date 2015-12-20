@@ -1,22 +1,21 @@
-package com.vladmihalcea.book.hpjp.hibernate.collection;
+package com.vladmihalcea.book.hpjp.hibernate.guide.collection;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.SortComparator;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>BidirectionalSetTest</code> - Bidirectional Set Test
+ * <code>BidirectionalSortedSetTest</code> - Bidirectional SortedSet Test
  *
  * @author Vlad Mihalcea
  */
-public class BidirectionalSetTest extends AbstractTest {
+public class BidirectionalComparatorSortedSetTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -38,6 +37,7 @@ public class BidirectionalSetTest extends AbstractTest {
             Person person = entityManager.find(Person.class, 1L);
             Set<Phone> phones = person.getPhones();
             assertEquals(2, phones.size());
+            phones.stream().forEach(phone -> LOGGER.info("Phone number {}", phone.getNumber()));
             person.removePhone(phones.iterator().next());
             assertEquals(1, phones.size());
         });
@@ -61,7 +61,8 @@ public class BidirectionalSetTest extends AbstractTest {
         }
 
         @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
-        private Set<Phone> phones = new HashSet<>();
+        @SortComparator(ReverseComparator.class)
+        private SortedSet<Phone> phones = new TreeSet<>();
 
         public Set<Phone> getPhones() {
             return phones;
@@ -78,8 +79,15 @@ public class BidirectionalSetTest extends AbstractTest {
         }
     }
 
+    public static class ReverseComparator implements Comparator<Phone> {
+        @Override
+        public int compare(Phone o1, Phone o2) {
+            return o2.compareTo(o1);
+        }
+    }
+
     @Entity(name = "Phone")
-    public static class Phone {
+    public static class Phone implements Comparable<Phone> {
 
         @Id
         private Long id;
@@ -120,6 +128,11 @@ public class BidirectionalSetTest extends AbstractTest {
 
         public void setPerson(Person person) {
             this.person = person;
+        }
+
+        @Override
+        public int compareTo(Phone o) {
+            return number.compareTo(o.getNumber());
         }
 
         @Override

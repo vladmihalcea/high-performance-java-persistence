@@ -1,26 +1,29 @@
-package com.vladmihalcea.book.hpjp.hibernate.collection;
+package com.vladmihalcea.book.hpjp.hibernate.guide.collection;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.SortComparator;
 import org.junit.Test;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>BidirectionalSortedSetTest</code> - Bidirectional SortedSet Test
+ * <code>UnidirectionalBag</code> - Unidirectional Bag Test
  *
  * @author Vlad Mihalcea
  */
-public class BidirectionalComparatorSortedSetTest extends AbstractTest {
+public class UnidirectionalComparatorSortedSetTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
-            Person.class,
+        return new Class<?>[]{
+                Person.class,
                 Phone.class,
         };
     }
@@ -29,16 +32,16 @@ public class BidirectionalComparatorSortedSetTest extends AbstractTest {
     public void testLifecycle() {
         doInJPA(entityManager -> {
             Person person = new Person(1L);
+            person.getPhones().add(new Phone(1L, "landline", "028-234-9876"));
+            person.getPhones().add(new Phone(2L, "mobile", "072-122-9876"));
             entityManager.persist(person);
-            person.addPhone(new Phone(1L, "landline", "028-234-9876"));
-            person.addPhone(new Phone(2L, "mobile", "072-122-9876"));
         });
         doInJPA(entityManager -> {
             Person person = entityManager.find(Person.class, 1L);
             Set<Phone> phones = person.getPhones();
             assertEquals(2, phones.size());
             phones.stream().forEach(phone -> LOGGER.info("Phone number {}", phone.getNumber()));
-            person.removePhone(phones.iterator().next());
+            phones.remove(phones.iterator().next());
             assertEquals(1, phones.size());
         });
         doInJPA(entityManager -> {
@@ -49,33 +52,24 @@ public class BidirectionalComparatorSortedSetTest extends AbstractTest {
     }
 
     @Entity(name = "Person")
-    public static class Person  {
+    public static class Person {
 
         @Id
         private Long id;
 
-        public Person() {}
+        public Person() {
+        }
 
         public Person(Long id) {
             this.id = id;
         }
 
-        @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
+        @OneToMany(cascade = CascadeType.ALL)
         @SortComparator(ReverseComparator.class)
         private SortedSet<Phone> phones = new TreeSet<>();
 
         public Set<Phone> getPhones() {
             return phones;
-        }
-
-        public void addPhone(Phone phone) {
-            phones.add(phone);
-            phone.setPerson(this);
-        }
-
-        public void removePhone(Phone phone) {
-            phones.remove(phone);
-            phone.setPerson(null);
         }
     }
 
@@ -94,12 +88,8 @@ public class BidirectionalComparatorSortedSetTest extends AbstractTest {
 
         private String type;
 
-        @Column(unique = true)
         @NaturalId
         private String number;
-
-        @ManyToOne
-        private Person person;
 
         public Phone() {
         }
@@ -120,14 +110,6 @@ public class BidirectionalComparatorSortedSetTest extends AbstractTest {
 
         public String getNumber() {
             return number;
-        }
-
-        public Person getPerson() {
-            return person;
-        }
-
-        public void setPerson(Person person) {
-            this.person = person;
         }
 
         @Override

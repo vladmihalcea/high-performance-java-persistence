@@ -1,30 +1,25 @@
-package com.vladmihalcea.book.hpjp.hibernate.collection;
+package com.vladmihalcea.book.hpjp.hibernate.guide.collection;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import java.util.HashSet;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
 
 /**
- * <code>UnidirectionalBag</code> - Unidirectional Bag Test
+ * <code>BidirectionalBagTest</code> - Bidirectional Bag Test
  *
  * @author Vlad Mihalcea
  */
-public class UnidirectionalSetTest extends AbstractTest {
+public class BidirectionalBagTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[]{
-                Person.class,
+        return new Class<?>[] {
+            Person.class,
                 Phone.class,
         };
     }
@@ -33,55 +28,58 @@ public class UnidirectionalSetTest extends AbstractTest {
     public void testLifecycle() {
         doInJPA(entityManager -> {
             Person person = new Person(1L);
-            person.getPhones().add(new Phone(1L, "landline", "028-234-9876"));
-            person.getPhones().add(new Phone(2L, "mobile", "072-122-9876"));
             entityManager.persist(person);
-        });
-        doInJPA(entityManager -> {
-            Person person = entityManager.find(Person.class, 1L);
-            Set<Phone> phones = person.getPhones();
-            assertEquals(2, phones.size());
-            phones.remove(phones.iterator().next());
-            assertEquals(1, phones.size());
-        });
-        doInJPA(entityManager -> {
-            Person person = entityManager.find(Person.class, 1L);
-            Set<Phone> phones = person.getPhones();
-            assertEquals(1, phones.size());
+            person.addPhone(new Phone(1L, "landline", "028-234-9876"));
+            person.addPhone(new Phone(2L, "mobile", "072-122-9876"));
+            entityManager.flush();
+            person.removePhone(person.getPhones().get(0));
         });
     }
 
     @Entity(name = "Person")
-    public static class Person {
+    public static class Person  {
 
         @Id
         private Long id;
 
-        public Person() {
-        }
+        public Person() {}
 
         public Person(Long id) {
             this.id = id;
         }
 
-        @OneToMany(cascade = CascadeType.ALL)
-        private Set<Phone> phones = new HashSet<>();
+        @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
+        private List<Phone> phones = new ArrayList<>();
 
-        public Set<Phone> getPhones() {
+        public List<Phone> getPhones() {
             return phones;
+        }
+
+        public void addPhone(Phone phone) {
+            phones.add(phone);
+            phone.setPerson(this);
+        }
+
+        public void removePhone(Phone phone) {
+            phones.remove(phone);
+            phone.setPerson(null);
         }
     }
 
     @Entity(name = "Phone")
-    public static class Phone {
+    public static class Phone  {
 
         @Id
         private Long id;
 
         private String type;
 
+        @Column(unique = true)
         @NaturalId
         private String number;
+
+        @ManyToOne
+        private Person person;
 
         public Phone() {
         }
@@ -102,6 +100,14 @@ public class UnidirectionalSetTest extends AbstractTest {
 
         public String getNumber() {
             return number;
+        }
+
+        public Person getPerson() {
+            return person;
+        }
+
+        public void setPerson(Person person) {
+            this.person = person;
         }
 
         @Override

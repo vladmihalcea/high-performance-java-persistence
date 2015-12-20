@@ -1,20 +1,22 @@
-package com.vladmihalcea.book.hpjp.hibernate.collection;
+package com.vladmihalcea.book.hpjp.hibernate.guide.collection;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
 
 /**
- * <code>BidirectionalBagTest</code> - Bidirectional Bag Test
+ * <code>BidirectionalSetTest</code> - Bidirectional Set Test
  *
  * @author Vlad Mihalcea
  */
-public class BidirectionalBagOrphanRemovalTest extends AbstractTest {
+public class BidirectionalSetTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -31,8 +33,18 @@ public class BidirectionalBagOrphanRemovalTest extends AbstractTest {
             entityManager.persist(person);
             person.addPhone(new Phone(1L, "landline", "028-234-9876"));
             person.addPhone(new Phone(2L, "mobile", "072-122-9876"));
-            entityManager.flush();
-            person.removePhone(person.getPhones().get(0));
+        });
+        doInJPA(entityManager -> {
+            Person person = entityManager.find(Person.class, 1L);
+            Set<Phone> phones = person.getPhones();
+            assertEquals(2, phones.size());
+            person.removePhone(phones.iterator().next());
+            assertEquals(1, phones.size());
+        });
+        doInJPA(entityManager -> {
+            Person person = entityManager.find(Person.class, 1L);
+            Set<Phone> phones = person.getPhones();
+            assertEquals(1, phones.size());
         });
     }
 
@@ -48,10 +60,10 @@ public class BidirectionalBagOrphanRemovalTest extends AbstractTest {
             this.id = id;
         }
 
-        @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
-        private List<Phone> phones = new ArrayList<>();
+        @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
+        private Set<Phone> phones = new HashSet<>();
 
-        public List<Phone> getPhones() {
+        public Set<Phone> getPhones() {
             return phones;
         }
 
@@ -67,7 +79,7 @@ public class BidirectionalBagOrphanRemovalTest extends AbstractTest {
     }
 
     @Entity(name = "Phone")
-    public static class Phone  {
+    public static class Phone {
 
         @Id
         private Long id;

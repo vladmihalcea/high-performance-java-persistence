@@ -1,15 +1,16 @@
-package com.vladmihalcea.book.hpjp.hibernate.collection;
+package com.vladmihalcea.book.hpjp.hibernate.guide.collection;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.SortComparator;
 import org.junit.Test;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
@@ -18,7 +19,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Vlad Mihalcea
  */
-public class UnidirectionalComparatorSortedSetTest extends AbstractTest {
+public class UnidirectionalSetTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -40,7 +41,6 @@ public class UnidirectionalComparatorSortedSetTest extends AbstractTest {
             Person person = entityManager.find(Person.class, 1L);
             Set<Phone> phones = person.getPhones();
             assertEquals(2, phones.size());
-            phones.stream().forEach(phone -> LOGGER.info("Phone number {}", phone.getNumber()));
             phones.remove(phones.iterator().next());
             assertEquals(1, phones.size());
         });
@@ -65,23 +65,15 @@ public class UnidirectionalComparatorSortedSetTest extends AbstractTest {
         }
 
         @OneToMany(cascade = CascadeType.ALL)
-        @SortComparator(ReverseComparator.class)
-        private SortedSet<Phone> phones = new TreeSet<>();
+        private Set<Phone> phones = new HashSet<>();
 
         public Set<Phone> getPhones() {
             return phones;
         }
     }
 
-    public static class ReverseComparator implements Comparator<Phone> {
-        @Override
-        public int compare(Phone o1, Phone o2) {
-            return o2.compareTo(o1);
-        }
-    }
-
     @Entity(name = "Phone")
-    public static class Phone implements Comparable<Phone> {
+    public static class Phone {
 
         @Id
         private Long id;
@@ -110,11 +102,6 @@ public class UnidirectionalComparatorSortedSetTest extends AbstractTest {
 
         public String getNumber() {
             return number;
-        }
-
-        @Override
-        public int compareTo(Phone o) {
-            return number.compareTo(o.getNumber());
         }
 
         @Override
