@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.guide.collection;
+package com.vladmihalcea.guide.collection;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <code>UnidirectionalOrderedListTest</code> - Unidirectional Ordered List Test
+ * <code>UnidirectionalBag</code> - Unidirectional Bag Test
  *
  * @author Vlad Mihalcea
  */
-public class UnidirectionalOrderColumnListTest extends AbstractTest {
+public class UnidirectionalBagTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -49,7 +49,6 @@ public class UnidirectionalOrderColumnListTest extends AbstractTest {
         }
 
         @OneToMany(cascade = CascadeType.ALL)
-        @OrderBy("number")
         private List<Phone> phones = new ArrayList<>();
 
         public List<Phone> getPhones() {

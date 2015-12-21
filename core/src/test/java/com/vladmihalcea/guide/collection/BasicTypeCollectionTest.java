@@ -1,6 +1,6 @@
-package com.vladmihalcea.book.hpjp.hibernate.guide.collection;
+package com.vladmihalcea.guide.collection;
 
-import com.vladmihalcea.book.hpjp.hibernate.guide.collection.type.CommaDelimitedStringsType;
+import com.vladmihalcea.guide.collection.type.CommaDelimitedStringsType;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.Type;
 import org.junit.Test;

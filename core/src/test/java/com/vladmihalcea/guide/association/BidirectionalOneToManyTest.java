@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.guide.collection;
+package com.vladmihalcea.guide.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.NaturalId;
@@ -10,32 +10,33 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * <code>BidirectionalBagTest</code> - Bidirectional Bag Test
+ * <code>BidirectionalOneToManyMappedByTest</code> - Bidirectional OneToMany Test
  *
  * @author Vlad Mihalcea
  */
-public class BidirectionalOrderColumnListTest extends AbstractTest {
+public class BidirectionalOneToManyTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
             Person.class,
-            Phone.class,
+                Phone.class,
         };
     }
 
     @Test
     public void testLifecycle() {
         doInJPA(entityManager -> {
-            Person person = new Person(1L);
+            Person person = new Person();
+            Phone phone1 = new Phone("123-456-7890");
+            Phone phone2 = new Phone("321-654-0987");
+
+            person.addPhone(phone1);
+            person.addPhone(phone2);
             entityManager.persist(person);
-            person.addPhone(new Phone(1L, "landline", "028-234-9876"));
-            person.addPhone(new Phone(2L, "mobile", "072-122-9876"));
             entityManager.flush();
-            person.removePhone(person.getPhones().get(0));
-        });
-        doInJPA(entityManager -> {
-            entityManager.find(Person.class, 1L).getPhones().size();
+
+            person.removePhone(phone1);
         });
     }
 
@@ -43,6 +44,7 @@ public class BidirectionalOrderColumnListTest extends AbstractTest {
     public static class Person  {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         public Person() {}
@@ -51,8 +53,7 @@ public class BidirectionalOrderColumnListTest extends AbstractTest {
             this.id = id;
         }
 
-        @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
-        @OrderColumn(name = "order_id")
+        @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<Phone> phones = new ArrayList<>();
 
         public List<Phone> getPhones() {
@@ -74,32 +75,24 @@ public class BidirectionalOrderColumnListTest extends AbstractTest {
     public static class Phone  {
 
         @Id
+        @GeneratedValue
         private Long id;
 
-        private String type;
-
-        @Column(unique = true)
         @NaturalId
+        @Column(unique = true)
         private String number;
 
         @ManyToOne
         private Person person;
 
-        public Phone() {
-        }
+        public Phone() {}
 
-        public Phone(Long id, String type, String number) {
-            this.id = id;
-            this.type = type;
+        public Phone(String number) {
             this.number = number;
         }
 
         public Long getId() {
             return id;
-        }
-
-        public String getType() {
-            return type;
         }
 
         public String getNumber() {

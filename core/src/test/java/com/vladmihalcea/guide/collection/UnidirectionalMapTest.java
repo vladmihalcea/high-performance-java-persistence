@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.guide.collection;
+package com.vladmihalcea.guide.collection;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Vlad Mihalcea
  */
-public class BidirectionalMapTest extends AbstractTest {
+public class UnidirectionalMapTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -38,7 +38,7 @@ public class BidirectionalMapTest extends AbstractTest {
         });
         doInJPA(entityManager -> {
             Person person = entityManager.find(Person.class, 1L);
-            Map<PhoneType, Phone> phones = person.getPhoneRegister();
+            Map<Date, Phone> phones = person.getPhoneRegister();
             assertEquals(2, phones.size());
         });
     }
@@ -49,24 +49,28 @@ public class BidirectionalMapTest extends AbstractTest {
         @Id
         private Long id;
 
-        public Person() {}
+        public Person() {
+        }
 
         public Person(Long id) {
             this.id = id;
         }
 
-        @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
-        @MapKey(name="type")
-        @MapKeyEnumerated
-        private Map<PhoneType, Phone> phoneRegister = new HashMap<>();
+        @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+        @JoinTable(
+            name="phone_register",
+            joinColumns = @JoinColumn(name = "phone_id"),
+            inverseJoinColumns = @JoinColumn(name = "person_id"))
+        @MapKey(name="since")
+        @MapKeyTemporal(TemporalType.TIMESTAMP)
+        private Map<Date, Phone> phoneRegister = new HashMap<>();
 
-        public Map<PhoneType, Phone> getPhoneRegister() {
+        public Map<Date, Phone> getPhoneRegister() {
             return phoneRegister;
         }
 
         public void addPhone(Phone phone) {
-            phone.setPerson(this);
-            phoneRegister.put(phone.getType(), phone);
+            phoneRegister.put(phone.getSince(), phone);
         }
     }
 
@@ -88,10 +92,8 @@ public class BidirectionalMapTest extends AbstractTest {
 
         private Date since;
 
-        @ManyToOne
-        private Person person;
-
-        public Phone() {}
+        public Phone() {
+        }
 
         public Phone(PhoneType type, String number, Date since) {
             this.type = type;
@@ -109,14 +111,6 @@ public class BidirectionalMapTest extends AbstractTest {
 
         public Date getSince() {
             return since;
-        }
-
-        public Person getPerson() {
-            return person;
-        }
-
-        public void setPerson(Person person) {
-            this.person = person;
         }
     }
 }

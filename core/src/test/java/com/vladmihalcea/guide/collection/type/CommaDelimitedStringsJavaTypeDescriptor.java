@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.guide.collection.type;
+package com.vladmihalcea.guide.collection.type;
 
 import org.hibernate.type.descriptor.WrapperOptions;
 import org.hibernate.type.descriptor.java.AbstractTypeDescriptor;

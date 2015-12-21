@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.guide.collection;
+package com.vladmihalcea.guide.collection;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.NaturalId;
@@ -14,7 +14,7 @@ import java.util.Objects;
  *
  * @author Vlad Mihalcea
  */
-public class BidirectionalOrderByListTest extends AbstractTest {
+public class BidirectionalOrderColumnListTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -52,7 +52,7 @@ public class BidirectionalOrderByListTest extends AbstractTest {
         }
 
         @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
-        @OrderBy("number")
+        @OrderColumn(name = "order_id")
         private List<Phone> phones = new ArrayList<>();
 
         public List<Phone> getPhones() {

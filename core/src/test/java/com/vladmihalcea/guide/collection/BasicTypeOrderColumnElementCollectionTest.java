@@ -1,9 +1,12 @@
-package com.vladmihalcea.book.hpjp.hibernate.guide.collection;
+package com.vladmihalcea.guide.collection;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
-import javax.persistence.*;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OrderColumn;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +17,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Vlad Mihalcea
  */
-public class BasicTypeElementCollectionTest extends AbstractTest {
+public class BasicTypeOrderColumnElementCollectionTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -23,39 +26,14 @@ public class BasicTypeElementCollectionTest extends AbstractTest {
         };
     }
 
-    @Override
-    public void init() {
-        super.init();
-        doInJPA(entityManager -> {
-            Person person = new Person();
-            person.id = 1L;
-            person.phones.add("027-123-4567");
-            person.phones.add("028-234-9876");
-            entityManager.persist(person);
-        });
-    }
-
-    @Test
-    public void testProxies() {
-        doInJPA(entityManager -> {
-            Person person = entityManager.find(Person.class, 1L);
-            assertEquals(2, person.getPhones().size());
-            try {
-                ArrayList<String> phones = (ArrayList<String>) person.getPhones();
-            } catch (Exception expected) {
-                LOGGER.error("Failure", expected);
-            }
-        });
-    }
-
     @Test
     public void testLifecycle() {
         doInJPA(entityManager -> {
-            Person person = entityManager.find(Person.class, 1L);
-            LOGGER.info("Clear element collection and add element");
-            person.getPhones().clear();
+            Person person = new Person();
+            person.id = 1L;
             person.getPhones().add("123-456-7890");
             person.getPhones().add("456-000-1234");
+            entityManager.persist(person);
         });
         doInJPA(entityManager -> {
             Person person = entityManager.find(Person.class, 1L);
@@ -71,6 +49,7 @@ public class BasicTypeElementCollectionTest extends AbstractTest {
         private Long id;
 
         @ElementCollection
+        @OrderColumn(name = "order_id")
         private List<String> phones = new ArrayList<>();
 
         public List<String> getPhones() {
