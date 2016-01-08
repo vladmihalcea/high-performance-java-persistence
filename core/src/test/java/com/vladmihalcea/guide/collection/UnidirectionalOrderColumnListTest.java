@@ -49,7 +49,7 @@ public class UnidirectionalOrderColumnListTest extends AbstractTest {
         }
 
         @OneToMany(cascade = CascadeType.ALL)
-        @OrderBy("number")
+        @OrderColumn(name = "order_id")
         private List<Phone> phones = new ArrayList<>();
 
         public List<Phone> getPhones() {

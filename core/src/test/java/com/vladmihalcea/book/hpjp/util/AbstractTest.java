@@ -16,6 +16,7 @@ import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.dialect.PostgreSQL94Dialect;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.hibernate.type.BasicType;
@@ -242,7 +243,7 @@ public abstract class AbstractTest {
     public static class PostgreSQLDataSourceProvider implements DataSourceProvider {
         @Override
         public String hibernateDialect() {
-            return "org.hibernate.dialect.PostgreSQL9Dialect";
+            return PostgreSQL94Dialect.class.getName();
         }
 
         @Override

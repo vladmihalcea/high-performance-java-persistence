@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author Vlad Mihalcea
  */
-public class UnidirectionalOrderedByListTest extends AbstractTest {
+public class UnidirectionalOrderByListTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -49,7 +49,7 @@ public class UnidirectionalOrderedByListTest extends AbstractTest {
         }
 
         @OneToMany(cascade = CascadeType.ALL)
-        @OrderColumn(name = "order_id")
+        @OrderBy("number")
         private List<Phone> phones = new ArrayList<>();
 
         public List<Phone> getPhones() {
