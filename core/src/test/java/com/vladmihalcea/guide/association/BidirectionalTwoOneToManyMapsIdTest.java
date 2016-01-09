@@ -119,8 +119,7 @@ public class BidirectionalTwoOneToManyMapsIdTest extends AbstractTest {
 
         private Long addressId;
 
-        public PersonAddressId() {
-        }
+        public PersonAddressId() {}
 
         public PersonAddressId(Long personId, Long addressId) {
             this.personId = personId;

@@ -26,8 +26,8 @@ public class BidirectionalManyToManyTest extends AbstractTest {
     @Test
     public void testLifecycle() {
         doInJPA(entityManager -> {
-            Post post1 = new Post();
-            Post post2 = new Post();
+            Post post1 = new Post("JPA with Hibernate");
+            Post post2 = new Post("Native Hibernate");
 
             Tag tag1 = new Tag("Java");
             Tag tag2 = new Tag("Hibernate");
@@ -83,10 +83,6 @@ public class BidirectionalManyToManyTest extends AbstractTest {
         private String title;
 
         public Post() {}
-
-        public Post(Long id) {
-            this.id = id;
-        }
 
         public Post(String title) {
             this.title = title;
