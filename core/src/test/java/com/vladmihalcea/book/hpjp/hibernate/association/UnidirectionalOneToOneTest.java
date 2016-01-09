@@ -14,7 +14,7 @@ import static org.junit.Assert.assertNotNull;
  *
  * @author Vlad Mihalcea
  */
-public class OneToOneTest extends AbstractMySQLIntegrationTest {
+public class UnidirectionalOneToOneTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
