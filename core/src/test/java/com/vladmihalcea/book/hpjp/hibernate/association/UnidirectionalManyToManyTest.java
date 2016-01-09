@@ -25,8 +25,8 @@ public class UnidirectionalManyToManyTest extends AbstractTest {
     @Test
     public void testLifecycle() {
         doInJPA(entityManager -> {
-            Post post1 = new Post();
-            Post post2 = new Post();
+            Post post1 = new Post("JPA with Hibernate");
+            Post post2 = new Post("Native Hibernate");
 
             Tag tag1 = new Tag("Java");
             Tag tag2 = new Tag("Hibernate");
@@ -41,6 +41,8 @@ public class UnidirectionalManyToManyTest extends AbstractTest {
 
             entityManager.flush();
 
+            LOGGER.info("Remove");
+
             post1.getTags().remove(tag1);
         });
     }
@@ -48,8 +50,8 @@ public class UnidirectionalManyToManyTest extends AbstractTest {
     @Test
     public void testRemove() {
         final Long personId = doInJPA(entityManager -> {
-            Post post1 = new Post();
-            Post post2 = new Post();
+            Post post1 = new Post("JPA with Hibernate");
+            Post post2 = new Post("Native Hibernate");
 
             Tag tag1 = new Tag("Java");
             Tag tag2 = new Tag("Hibernate");
