@@ -20,7 +20,7 @@ public class BidirectionalTwoOneToManyMapsIdTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
+        return new Class<?>[]{
                 Person.class,
                 Address.class,
                 PersonAddress.class
@@ -49,12 +49,13 @@ public class BidirectionalTwoOneToManyMapsIdTest extends AbstractTest {
 
             entityManager.flush();
 
+            LOGGER.info("Delete");
             person1.removeAddress(address1);
         });
     }
 
     @Entity(name = "Person")
-    public static class Person  {
+    public static class Person {
 
         @Id
         @GeneratedValue
@@ -63,10 +64,11 @@ public class BidirectionalTwoOneToManyMapsIdTest extends AbstractTest {
         @NaturalId
         private String registrationNumber;
 
-        @OneToMany(mappedBy = "person", cascade = { CascadeType.PERSIST, CascadeType.MERGE} )
+        @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<PersonAddress> addresses = new ArrayList<>();
 
-        public Person() {}
+        public Person() {
+        }
 
         public Person(String registrationNumber) {
             this.registrationNumber = registrationNumber;
@@ -87,14 +89,15 @@ public class BidirectionalTwoOneToManyMapsIdTest extends AbstractTest {
         }
 
         public void removeAddress(Address address) {
-            for(Iterator<PersonAddress> iterator = addresses.iterator(); iterator.hasNext();) {
+            for (Iterator<PersonAddress> iterator = addresses.iterator(); iterator.hasNext(); ) {
                 PersonAddress personAddress = iterator.next();
-                if(personAddress.getPerson().equals(this) &&
+                if (personAddress.getPerson().equals(this) &&
                         personAddress.getAddress().equals(address)) {
                     iterator.remove();
+                    personAddress.getAddress().getOwners().remove(personAddress);
+                    personAddress.setPerson(null);
+                    personAddress.setAddress(null);
                 }
-                personAddress.setPerson(null);
-                personAddress.setAddress(null);
             }
         }
 
@@ -119,7 +122,8 @@ public class BidirectionalTwoOneToManyMapsIdTest extends AbstractTest {
 
         private Long addressId;
 
-        public PersonAddressId() {}
+        public PersonAddressId() {
+        }
 
         public PersonAddressId(Long personId, Long addressId) {
             this.personId = personId;
@@ -150,7 +154,7 @@ public class BidirectionalTwoOneToManyMapsIdTest extends AbstractTest {
     }
 
     @Entity(name = "PersonAddress")
-    public static class PersonAddress  {
+    public static class PersonAddress {
 
         @EmbeddedId
         private PersonAddressId id;
@@ -163,7 +167,8 @@ public class BidirectionalTwoOneToManyMapsIdTest extends AbstractTest {
         @MapsId("addressId")
         private Address address;
 
-        public PersonAddress() {}
+        public PersonAddress() {
+        }
 
         public PersonAddress(Person person, Address address) {
             this.person = person;
@@ -207,7 +212,7 @@ public class BidirectionalTwoOneToManyMapsIdTest extends AbstractTest {
     }
 
     @Entity(name = "Address")
-    public static class Address  {
+    public static class Address {
 
         @Id
         @GeneratedValue
@@ -219,10 +224,11 @@ public class BidirectionalTwoOneToManyMapsIdTest extends AbstractTest {
 
         private String postalCode;
 
-        @OneToMany(mappedBy = "address")
+        @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<PersonAddress> owners = new ArrayList<>();
 
-        public Address() {}
+        public Address() {
+        }
 
         public Address(String street, String number, String postalCode) {
             this.street = street;

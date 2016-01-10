@@ -5,14 +5,17 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 
 /**
- * <code>BidirectionalManyAsOneToManyTest</code> - Bidirectional @ManyToMany with @OneToMany Test
+ * <code>BidirectionalManyAsOneToManyOrderColumnTest</code> - Bidirectional @ManyToMany with @OneToMany Test
  *
  * @author Vlad Mihalcea
  */
-public class BidirectionalManyAsOneToManyTest extends AbstractTest {
+public class BidirectionalManyAsOneToManyOrderColumnTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -93,6 +96,7 @@ public class BidirectionalManyAsOneToManyTest extends AbstractTest {
         private String title;
 
         @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+        @OrderColumn(name = "entry_id")
         private List<PostTag> tags = new ArrayList<>();
 
         public Post() {

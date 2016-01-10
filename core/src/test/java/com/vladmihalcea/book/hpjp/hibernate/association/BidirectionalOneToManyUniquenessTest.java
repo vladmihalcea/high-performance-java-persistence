@@ -1,30 +1,26 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * <code>BidirectionalOneToManyTest</code> - Bidirectional OneToMany Test
  *
  * @author Vlad Mihalcea
  */
-public class BidirectionalOneToManyTest extends AbstractTest {
+public class BidirectionalOneToManyUniquenessTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
+        return new Class<?>[]{
                 Post.class,
                 PostComment.class,
         };
@@ -32,20 +28,55 @@ public class BidirectionalOneToManyTest extends AbstractTest {
 
     @Test
     public void testLifecycle() {
-        doInJPA(entityManager -> {
+        final PostComment comment = doInJPA(entityManager -> {
             Post post = new Post("First post");
             entityManager.persist(post);
 
             PostComment comment1 = new PostComment("My first review");
+            comment1.setCreatedBy("Vlad");
             post.addComment(comment1);
             PostComment comment2 = new PostComment("My second review");
+            comment2.setCreatedBy("Vlad");
             post.addComment(comment2);
 
             entityManager.persist(post);
             entityManager.flush();
 
-            post.removeComment(comment1);
+            return comment1;
+        });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+
+            post.removeComment(comment);
+            assertEquals(1, post.getComments().size());
+        });
+    }
+
+    @Test
+    public void testShuffle() {
+        final PostComment comment = doInJPA(entityManager -> {
+            Post post = new Post("First post");
+            entityManager.persist(post);
+
+            PostComment comment1 = new PostComment("My first review");
+            comment1.setCreatedBy("Vlad");
+            post.addComment(comment1);
+            PostComment comment2 = new PostComment("My second review");
+            comment2.setCreatedBy("Vlad");
+            post.addComment(comment2);
+
+            entityManager.persist(post);
             entityManager.flush();
+
+            return comment1;
+        });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+
+            post.removeComment(comment);
+            assertEquals(1, post.getComments().size());
         });
     }
 
@@ -62,7 +93,8 @@ public class BidirectionalOneToManyTest extends AbstractTest {
         @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<PostComment> comments = new ArrayList<>();
 
-        public Post() {}
+        public Post() {
+        }
 
         public Post(String title) {
             this.title = title;
@@ -109,11 +141,17 @@ public class BidirectionalOneToManyTest extends AbstractTest {
 
         private String review;
 
+        private String createdBy;
+
+        @Temporal(TemporalType.TIMESTAMP)
+        private Date createdOn = new Date();
+
         @ManyToOne
         @JoinColumn(name = "post_id")
         private Post post;
 
-        public PostComment() {}
+        public PostComment() {
+        }
 
         public PostComment(String review) {
             this.review = review;
@@ -135,12 +173,42 @@ public class BidirectionalOneToManyTest extends AbstractTest {
             this.review = review;
         }
 
+        public String getCreatedBy() {
+            return createdBy;
+        }
+
+        public void setCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
+        }
+
+        public Date getCreatedOn() {
+            return createdOn;
+        }
+
+        public void setCreatedOn(Date createdOn) {
+            this.createdOn = createdOn;
+        }
+
         public Post getPost() {
             return post;
         }
 
         public void setPost(Post post) {
             this.post = post;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PostComment that = (PostComment) o;
+            return Objects.equals(createdBy, that.createdBy) &&
+                    Objects.equals(createdOn, that.createdOn);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(createdBy, createdOn);
         }
     }
 }

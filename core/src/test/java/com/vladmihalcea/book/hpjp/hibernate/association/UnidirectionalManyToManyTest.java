@@ -49,7 +49,7 @@ public class UnidirectionalManyToManyTest extends AbstractTest {
 
     @Test
     public void testRemove() {
-        final Long personId = doInJPA(entityManager -> {
+        final Long postId = doInJPA(entityManager -> {
             Post post1 = new Post("JPA with Hibernate");
             Post post2 = new Post("Native Hibernate");
 
@@ -68,7 +68,7 @@ public class UnidirectionalManyToManyTest extends AbstractTest {
         });
         doInJPA(entityManager -> {
             LOGGER.info("Remove");
-            Post post1 = entityManager.find(Post.class, personId);
+            Post post1 = entityManager.find(Post.class, postId);
             entityManager.remove(post1);
         });
     }

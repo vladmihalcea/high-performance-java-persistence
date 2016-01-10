@@ -4,9 +4,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * <code>UnidirectionalManyToManyTest</code> - Unidirectional @ManyToMany Test
@@ -32,23 +30,23 @@ public class BidirectionalManyToManyTest extends AbstractTest {
             Tag tag1 = new Tag("Java");
             Tag tag2 = new Tag("Hibernate");
 
-            post1.getTags().add(tag1);
-            post1.getTags().add(tag2);
+            post1.addTag(tag1);
+            post1.addTag(tag2);
 
-            post2.getTags().add(tag1);
+            post2.addTag(tag1);
 
             entityManager.persist(post1);
             entityManager.persist(post2);
 
             entityManager.flush();
 
-            post1.getTags().remove(tag1);
+            post1.removeTag(tag1);
         });
     }
 
     @Test
     public void testRemove() {
-        final Long personId = doInJPA(entityManager -> {
+        final Long postId = doInJPA(entityManager -> {
             Post post1 = new Post("JPA with Hibernate");
             Post post2 = new Post("Native Hibernate");
 
@@ -67,8 +65,34 @@ public class BidirectionalManyToManyTest extends AbstractTest {
         });
         doInJPA(entityManager -> {
             LOGGER.info("Remove");
-            Post post1 = entityManager.find(Post.class, personId);
+            Post post1 = entityManager.find(Post.class, postId);
             entityManager.remove(post1);
+        });
+    }
+
+    @Test
+    public void testShuffle() {
+        final Long postId = doInJPA(entityManager -> {
+            Post post1 = new Post("JPA with Hibernate");
+            Post post2 = new Post("Native Hibernate");
+
+            Tag tag1 = new Tag("Java");
+            Tag tag2 = new Tag("Hibernate");
+
+            post1.addTag(tag1);
+            post1.addTag(tag2);
+
+            post2.addTag(tag1);
+
+            entityManager.persist(post1);
+            entityManager.persist(post2);
+
+            return post1.id;
+        });
+        doInJPA(entityManager -> {
+            LOGGER.info("Shuffle");
+            Post post1 = entityManager.find(Post.class, postId);
+            post1.getTags().sort(Collections.reverseOrder(Comparator.comparing(Tag::getId)));
         });
     }
 
