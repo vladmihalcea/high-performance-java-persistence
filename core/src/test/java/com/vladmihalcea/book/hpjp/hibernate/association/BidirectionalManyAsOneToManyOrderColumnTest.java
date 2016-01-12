@@ -96,7 +96,7 @@ public class BidirectionalManyAsOneToManyOrderColumnTest extends AbstractTest {
         private String title;
 
         @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-        @OrderColumn(name = "entry_id")
+        @OrderColumn(name = "entry")
         private List<PostTag> tags = new ArrayList<>();
 
         public Post() {
@@ -129,6 +129,7 @@ public class BidirectionalManyAsOneToManyOrderColumnTest extends AbstractTest {
                     postTag.getTag().getPosts().remove(postTag);
                     postTag.setPost(null);
                     postTag.setTag(null);
+                    break;
                 }
             }
         }
