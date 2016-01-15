@@ -25,12 +25,12 @@ public class Sequence1PostEntityProvider extends PostEntityProvider<Sequence1Pos
     public static class Post {
 
         @Id
-        @GenericGenerator(name = "table", strategy = "enhanced-sequence", parameters = {
-                @org.hibernate.annotations.Parameter(name = "table_name", value = "sequence_table"),
+        @GenericGenerator(name = "sequence", strategy = "enhanced-sequence", parameters = {
+                @org.hibernate.annotations.Parameter(name = "sequence_name", value = "sequence"),
                 @org.hibernate.annotations.Parameter(name = "increment_size", value = "1"),
                 @org.hibernate.annotations.Parameter(name = "optimizer", value = "pooled"),
         })
-        @GeneratedValue(generator = "table", strategy=GenerationType.TABLE)
+        @GeneratedValue(generator = "sequence", strategy=GenerationType.SEQUENCE)
         private Long id;
     }
 }

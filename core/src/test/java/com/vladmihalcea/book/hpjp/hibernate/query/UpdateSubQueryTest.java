@@ -5,6 +5,7 @@ import org.hibernate.Session;
 import org.junit.Test;
 
 import javax.persistence.*;
+import javax.persistence.criteria.Order;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -58,6 +59,15 @@ public class UpdateSubQueryTest extends AbstractTest {
                 .setParameter("summary", "summary")
                 .executeUpdate();
             assertEquals(1, count);
+
+            NccFailure failure = (NccFailure) session.createQuery(
+                "select o " +
+                        "from NccFailure o " +
+                        "where o.id = ( select max(id) from NccFailure where summary = :summary ) ")
+                .setParameter("summary", "summary")
+                .uniqueResult();
+            assertEquals("data2", failure.fileLinesData);
+
         });
     }
 

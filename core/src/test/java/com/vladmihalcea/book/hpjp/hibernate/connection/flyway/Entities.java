@@ -1,96 +1,24 @@
-package com.vladmihalcea.book.hpjp.hibernate.association;
-
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.junit.Test;
+package com.vladmihalcea.book.hpjp.hibernate.connection.flyway;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 /**
- * <code>AllAssociationTest</code> - All associations Test
+ * <code>Entities</code> - Entities
+ *
+ * drop table post;
+ * drop table post_comment;
+ * drop table post_details;
+ * drop table post_tag;
+ * drop table tag;
+ * drop table users;
+ * drop sequence hibernate_sequence;
  *
  * @author Vlad Mihalcea
  */
-public class AllAssociationTest extends AbstractTest {
-
-    @Override
-    protected Class<?>[] entities() {
-        return new Class<?>[] {
-            Post.class,
-            PostDetails.class,
-            PostComment.class,
-            Tag.class
-        };
-    }
-
-    @Test
-    public void test() {
-        doInJPA(entityManager -> {
-            Post post = new Post(1L);
-            post.title = "Postit";
-
-            PostComment comment1 = new PostComment();
-            comment1.id = 1L;
-            comment1.review = "Good";
-
-            PostComment comment2 = new PostComment();
-            comment2.id = 2L;
-            comment2.review = "Excellent";
-
-            post.addComment(comment1);
-            post.addComment(comment2);
-            entityManager.persist(post);
-
-            Session session = entityManager.unwrap(Session.class);
-            Criteria criteria = session.createCriteria(Post.class)
-                .add(Restrictions.eq("title", "post"));
-            LOGGER.info("Criteria: {}", criteria);
-        });
-
-        doInJPA(entityManager -> {
-            LOGGER.info("No alias");
-            Session session = entityManager.unwrap(Session.class);
-            List<Post> posts = session
-                    .createCriteria(Post.class)
-                    .setFetchMode("comments", FetchMode.JOIN)
-                    .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                    .add(Restrictions.eq("title", "Postit"))
-                    .list();
-            assertEquals(1, posts.size());
-        });
-
-        doInJPA(entityManager -> {
-            LOGGER.info("With alias");
-            Session session = entityManager.unwrap(Session.class);
-            List<Post> posts = session
-                    .createCriteria(Post.class, "post")
-                    .setFetchMode("post.comments", FetchMode.JOIN)
-                    .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                    .add(Restrictions.eq("post.title", "Postit"))
-                    .list();
-            assertEquals(1, posts.size());
-        });
-
-        doInJPA(entityManager -> {
-            LOGGER.info("With alias");
-            Session session = entityManager.unwrap(Session.class);
-            List<Post> posts = session
-                    .createCriteria(Post.class, "post")
-                    .setFetchMode("post.comments", FetchMode.JOIN)
-                    .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                    .add(Restrictions.eq("post.title", "Postit"))
-                    .list();
-            assertEquals(1, posts.size());
-        });
-    }
+public class Entities {
 
     @Entity(name = "Post")
     @Table(name = "post")
@@ -122,8 +50,8 @@ public class AllAssociationTest extends AbstractTest {
 
         @ManyToMany
         @JoinTable(name = "post_tag",
-            joinColumns = @JoinColumn(name = "post_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
+                joinColumns = @JoinColumn(name = "post_id"),
+                inverseJoinColumns = @JoinColumn(name = "tag_id")
         )
         private List<Tag> tags = new ArrayList<>();
 
@@ -176,6 +104,7 @@ public class AllAssociationTest extends AbstractTest {
     public static class PostDetails {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         @Column(name = "created_on")
@@ -231,6 +160,7 @@ public class AllAssociationTest extends AbstractTest {
     public static class PostComment {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         @ManyToOne
@@ -274,6 +204,26 @@ public class AllAssociationTest extends AbstractTest {
     public static class Tag {
 
         @Id
+        @GeneratedValue
+        private Long id;
+
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+    @Entity(name = "User")
+    @Table(name = "users")
+    public static class User {
+
+        @Id
+        @GeneratedValue
         private Long id;
 
         private String name;

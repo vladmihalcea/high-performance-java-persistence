@@ -1,19 +1,17 @@
 package com.vladmihalcea.book.hpjp.hibernate.connection.jta;
 
 import com.vladmihalcea.book.hpjp.hibernate.statistics.TransactionStatisticsFactory;
-import com.vladmihalcea.book.hpjp.util.spring.config.PostgreSQLJtaTransactionManagerConfiguration;
+import com.vladmihalcea.book.hpjp.util.spring.config.jta.PostgreSQLJtaTransactionManagerConfiguration;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Properties;
-
-import static org.junit.Assert.assertNotNull;
 
 @Configuration
 public class JtaConnectionReleaseTestConfiguration extends PostgreSQLJtaTransactionManagerConfiguration {
 
     @Override
-    protected Class entityClass() {
-        return JtaConnectionReleaseTestConfiguration.class;
+    protected Class configurationClass() {
+        return this.getClass();
     }
 
     @Override

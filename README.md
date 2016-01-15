@@ -11,7 +11,7 @@ The Integration Tests require some external configurations:
 
     You should install PostgreSQL 9.4 (or later) and the password for the postgres user should be admin
 
-    Now you need to create a high_performance_java_persistence database
+    Now you need to create a `high_performance_java_persistence` database
 
 - Oracle
 
@@ -40,7 +40,7 @@ The Integration Tests require some external configurations:
 
     You should install MySQL 5.6 (or later) and the password for the mysql user should be admin
 
-    Now you need to create a high_performance_java_persistence schema
+    Now you need to create a `high_performance_java_persistence` schema
 
 - SQL Server
 
@@ -54,4 +54,4 @@ The Integration Tests require some external configurations:
 
         $ mvn install:install-file -Dfile=sqljdbc4.jar -Dpackaging=jar -DgroupId=com.microsoft.sqlserver -DartifactId=sqljdbc4 -Dversion=4.0
         
-    Now you need to create a high_performance_java_persistence database
+    Now you need to create a `high_performance_java_persistence` database

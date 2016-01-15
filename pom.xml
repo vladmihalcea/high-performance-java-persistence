@@ -212,6 +212,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
@@ -252,6 +258,8 @@
 
         <aspectj.version>1.8.7</aspectj.version>
         <spring.version>4.2.3.RELEASE</spring.version>
+
+        <flyway.version>3.2.1</flyway.version>
 
         <junit.version>4.11</junit.version>
     </properties>

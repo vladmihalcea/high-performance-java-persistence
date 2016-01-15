@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier.batch;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -18,7 +19,7 @@ public class SequenceAllocationSizeIdentifierTest extends AbstractBatchIdentifie
     public void testSequenceIdentifierGenerator() {
         LOGGER.debug("testSequenceIdentifierGenerator");
         doInJPA(entityManager -> {
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 10; i++) {
                 entityManager.persist(new Post());
             }
             LOGGER.debug("Flush is triggered at commit-time");
@@ -30,11 +31,14 @@ public class SequenceAllocationSizeIdentifierTest extends AbstractBatchIdentifie
     public static class Post {
 
         @Id
-        @GenericGenerator(name = "sequence", strategy = "sequence", parameters = {
-            @org.hibernate.annotations.Parameter(name = "sequenceName", value = "sequence"),
-            @org.hibernate.annotations.Parameter(name = "allocationSize", value = "1"),
-        })
-        @GeneratedValue(generator = "sequence", strategy=GenerationType.SEQUENCE)
+        @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="pooledLo_seq")
+        @GenericGenerator(name="pooledLo_seq", strategy="enhanced-sequence",
+            parameters={
+                @Parameter(name="sequence_name", value="pooledLo_sequence"),
+                @Parameter(name="initial_value", value="1"),
+                @Parameter(name="increment_size",value="2"),
+                @Parameter(name="optimizer", value="pooled")
+            })
         private Long id;
     }
 

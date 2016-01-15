@@ -1,15 +1,15 @@
-package com.vladmihalcea.book.hpjp.util.spring.config;
+package com.vladmihalcea.book.hpjp.util.spring.config.jta;
 
 import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.TransactionManagerServices;
-import com.vladmihalcea.book.hpjp.hibernate.statistics.TransactionStatistics;
-import com.vladmihalcea.book.hpjp.hibernate.statistics.TransactionStatisticsFactory;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.engine.transaction.jta.platform.internal.BitronixJtaPlatform;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -24,7 +24,7 @@ import java.util.Properties;
 import static com.vladmihalcea.book.hpjp.util.AbstractTest.InlineQueryLogEntryCreator;
 
 /**
- * <code>JPAConfig</code> - JPAConfig
+ * <code>AbstractJtaTransactionManagerConfiguration</code> - Abstract JTA TransactionManagerConfiguration
  *
  * @author Vlad Mihalcea
  */
@@ -83,11 +83,11 @@ public abstract class AbstractJtaTransactionManagerConfiguration {
 
     protected String[] packagesToScan() {
         return new String[]{
-            entityClass().getPackage().getName()
+            configurationClass().getPackage().getName()
         };
     }
 
-    protected abstract Class entityClass();
+    protected abstract Class configurationClass();
 
     @Bean(destroyMethod = "shutdown")
     @DependsOn(value = "btmConfig")
