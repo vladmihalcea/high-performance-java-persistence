@@ -15,7 +15,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import static com.vladmihalcea.book.hpjp.hibernate.connection.flyway.Entities.Post;
+import static com.vladmihalcea.book.hpjp.hibernate.connection.flyway.FlywayEntities.Post;
 
 /**
  * <code>FlywayTest</code> - Flyway Test

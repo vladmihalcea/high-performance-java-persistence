@@ -18,16 +18,19 @@ public class FlexyPoolHibernateConnectionProvider
 
     private transient FlexyPoolDataSource<DataSource> flexyPoolDataSource;
 
-    @Override public void configure(Map props) {
+    @Override
+    public void configure(Map props) {
         super.configure(props);
         flexyPoolDataSource = new FlexyPoolDataSource<>(getDataSource());
     }
 
-    @Override public Connection getConnection() throws SQLException {
+    @Override
+    public Connection getConnection() throws SQLException {
         return flexyPoolDataSource.getConnection();
     }
 
-    @Override public boolean isUnwrappableAs(Class unwrapType) {
+    @Override
+    public boolean isUnwrappableAs(Class unwrapType) {
         return super.isUnwrappableAs(unwrapType) ||
             getClass().isAssignableFrom(unwrapType);
     }

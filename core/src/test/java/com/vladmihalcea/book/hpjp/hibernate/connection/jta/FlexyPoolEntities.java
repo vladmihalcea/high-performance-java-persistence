@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.connection.flyway;
+package com.vladmihalcea.book.hpjp.hibernate.connection.jta;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -6,19 +6,11 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * <code>Entities</code> - Entities
- *
- * drop table post;
- * drop table post_comment;
- * drop table post_details;
- * drop table post_tag;
- * drop table tag;
- * drop table users;
- * drop sequence hibernate_sequence;
+ * <code>FlexyPoolEntities</code> - Entities
  *
  * @author Vlad Mihalcea
  */
-public class Entities {
+public class FlexyPoolEntities {
 
     @Entity(name = "Post")
     @Table(name = "post")

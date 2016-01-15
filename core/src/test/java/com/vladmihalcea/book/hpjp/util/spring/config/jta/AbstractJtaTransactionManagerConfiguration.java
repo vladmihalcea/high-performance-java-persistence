@@ -54,7 +54,7 @@ public abstract class AbstractJtaTransactionManagerConfiguration {
         return configuration;
     }
 
-    @Bean(initMethod = "init", destroyMethod = "close")
+    @Bean
     public abstract DataSource actualDataSource();
 
     @DependsOn(value = "btmConfig, actualDataSource")
