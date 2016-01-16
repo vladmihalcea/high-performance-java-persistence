@@ -18,6 +18,7 @@ public class MappedSuperclassTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
+            Board.class,
             Post.class,
             Announcement.class,
         };
@@ -26,22 +27,55 @@ public class MappedSuperclassTest extends AbstractTest {
     @Test
     public void test() {
         doInJPA(entityManager -> {
+            Board board = new Board();
+            board.setId(1L);
+            board.setName("Hibernate");
+
+            entityManager.persist(board);
+
             Post post = new Post();
             post.setId(1L);
             post.setOwner("John Doe");
-            post.setTitle("First post");
-            post.setContent("Hello world!");
+            post.setTitle("Inheritance best practices");
+            post.setContent("Table, Joined and Table per concrete class");
+            post.setBoard(board);
 
             entityManager.persist(post);
 
             Announcement announcement = new Announcement();
-            announcement.setId(1L);
+            announcement.setId(2L);
             announcement.setOwner("John Doe");
-            announcement.setTitle("Release 1.0.Final");
+            announcement.setTitle("Latest release");
             announcement.setValidUntil(Timestamp.valueOf(LocalDateTime.now().plusMonths(1)));
+            announcement.setBoard(board);
 
             entityManager.persist(announcement);
         });
+    }
+
+    @Entity(name = "Board")
+    public static class Board {
+
+        @Id
+        private Long id;
+
+        private String name;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     @MappedSuperclass
@@ -53,6 +87,9 @@ public class MappedSuperclassTest extends AbstractTest {
 
         @Temporal(TemporalType.TIMESTAMP)
         private Date createdOn = new Date();
+
+        @ManyToOne
+        private Board board;
 
         public abstract Long getId();
 
@@ -80,6 +117,14 @@ public class MappedSuperclassTest extends AbstractTest {
 
         public void setCreatedOn(Date createdOn) {
             this.createdOn = createdOn;
+        }
+
+        public Board getBoard() {
+            return board;
+        }
+
+        public void setBoard(Board board) {
+            this.board = board;
         }
     }
 
