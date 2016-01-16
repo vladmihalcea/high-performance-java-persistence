@@ -14,7 +14,6 @@ import java.util.List;
  */
 public class SortIndexCollectionInheritance extends AbstractTest {
 
-
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {

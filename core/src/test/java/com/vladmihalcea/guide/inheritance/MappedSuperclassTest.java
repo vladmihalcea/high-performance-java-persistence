@@ -14,12 +14,11 @@ import java.math.BigDecimal;
  * @author Vlad Mihalcea
  */
 public class MappedSuperclassTest extends AbstractTest {
-
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
-            DebitAccount.class,
-            CreditAccount.class,
+                DebitAccount.class,
+                CreditAccount.class,
         };
     }
 
@@ -93,7 +92,7 @@ public class MappedSuperclassTest extends AbstractTest {
     @Entity(name = "DebitAccount")
     public static class DebitAccount extends Account {
 
-         private BigDecimal overdraftFee;
+        private BigDecimal overdraftFee;
 
         public BigDecimal getOverdraftFee() {
             return overdraftFee;
