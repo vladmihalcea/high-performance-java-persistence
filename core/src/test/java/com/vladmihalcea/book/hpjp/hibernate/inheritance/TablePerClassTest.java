@@ -4,7 +4,6 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -20,45 +19,65 @@ public class TablePerClassTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-            Board.class,
-            Topic.class,
-            Post.class,
-            Announcement.class,
+                Board.class,
+                Topic.class,
+                Post.class,
+                Announcement.class,
+                TopicStatistics.class
         };
     }
 
     @Test
     public void test() {
-        doInJPA(entityManager -> {
+        Topic topic = doInJPA(entityManager -> {
             Board board = new Board();
-            board.setId(1L);
             board.setName("Hibernate");
 
             entityManager.persist(board);
 
             Post post = new Post();
-            post.setId(1L);
             post.setOwner("John Doe");
-            post.setTitle("Inheritance best practices");
-            post.setContent("Table, Joined and Table per concrete class");
+            post.setTitle("Inheritance");
+            post.setContent("Best practices");
             post.setBoard(board);
 
             entityManager.persist(post);
 
             Announcement announcement = new Announcement();
-            announcement.setId(2L);
             announcement.setOwner("John Doe");
-            announcement.setTitle("Latest release");
+            announcement.setTitle("Release x.y.z.Final");
             announcement.setValidUntil(Timestamp.valueOf(LocalDateTime.now().plusMonths(1)));
             announcement.setBoard(board);
 
             entityManager.persist(announcement);
+
+            TopicStatistics postStatistics = new TopicStatistics(post);
+            postStatistics.incrementViews();
+            entityManager.persist(postStatistics);
+
+            TopicStatistics announcementStatistics = new TopicStatistics(announcement);
+            announcementStatistics.incrementViews();
+            entityManager.persist(announcementStatistics);
+
+            return post;
         });
 
         doInJPA(entityManager -> {
+            Board board = topic.getBoard();
+            LOGGER.info("Fetch Topics");
             List<Topic> topics = entityManager
-                    .createQuery("select s from Topic s", Topic.class)
+                    .createQuery("select t from Topic t where t.board = :board", Topic.class)
+                    .setParameter("board", board)
                     .getResultList();
+        });
+
+        doInJPA(entityManager -> {
+            Long topicId = topic.getId();
+            LOGGER.info("Fetch statistics");
+            TopicStatistics statistics = entityManager
+                    .createQuery("select s from TopicStatistics s join fetch s.topic t where t.id = :topicId", TopicStatistics.class)
+                    .setParameter("topicId", topicId)
+                    .getSingleResult();
         });
     }
 
@@ -66,6 +85,7 @@ public class TablePerClassTest extends AbstractTest {
     public static class Board {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         private String name;
@@ -92,6 +112,7 @@ public class TablePerClassTest extends AbstractTest {
     public static class Topic {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         private String title;
@@ -101,7 +122,7 @@ public class TablePerClassTest extends AbstractTest {
         @Temporal(TemporalType.TIMESTAMP)
         private Date createdOn = new Date();
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         private Board board;
 
         public Long getId() {
@@ -171,6 +192,42 @@ public class TablePerClassTest extends AbstractTest {
 
         public void setValidUntil(Date validUntil) {
             this.validUntil = validUntil;
+        }
+    }
+
+    @Entity(name = "TopicStatistics")
+    public static class TopicStatistics {
+
+        @Id
+        private Long id;
+
+        @OneToOne
+        @JoinColumn(name = "id")
+        @MapsId
+        private Topic topic;
+
+        private long views;
+
+        public TopicStatistics() {}
+
+        public TopicStatistics(Topic topic) {
+            this.topic = topic;
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public Topic getTopic() {
+            return topic;
+        }
+
+        public long getViews() {
+            return views;
+        }
+
+        public void incrementViews() {
+            this.views++;
         }
     }
 }

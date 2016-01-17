@@ -21,12 +21,14 @@ public class MappedSuperclassTest extends AbstractTest {
             Board.class,
             Post.class,
             Announcement.class,
+            PostStatistics.class,
+            AnnouncementStatistics.class
         };
     }
 
     @Test
     public void test() {
-        doInJPA(entityManager -> {
+        Topic topic = doInJPA(entityManager -> {
             Board board = new Board();
             board.setId(1L);
             board.setName("Hibernate");
@@ -36,8 +38,8 @@ public class MappedSuperclassTest extends AbstractTest {
             Post post = new Post();
             post.setId(1L);
             post.setOwner("John Doe");
-            post.setTitle("Inheritance best practices");
-            post.setContent("Table, Joined and Table per concrete class");
+            post.setTitle("Inheritance");
+            post.setContent("Best practices");
             post.setBoard(board);
 
             entityManager.persist(post);
@@ -45,11 +47,30 @@ public class MappedSuperclassTest extends AbstractTest {
             Announcement announcement = new Announcement();
             announcement.setId(2L);
             announcement.setOwner("John Doe");
-            announcement.setTitle("Latest release");
+            announcement.setTitle("Release x.y.z.Final");
             announcement.setValidUntil(Timestamp.valueOf(LocalDateTime.now().plusMonths(1)));
             announcement.setBoard(board);
 
             entityManager.persist(announcement);
+
+            TopicStatistics postStatistics = new PostStatistics(post);
+            postStatistics.incrementViews();
+            entityManager.persist(postStatistics);
+
+            TopicStatistics announcementStatistics = new AnnouncementStatistics(announcement);
+            announcementStatistics.incrementViews();
+            entityManager.persist(announcementStatistics);
+
+            return post;
+        });
+
+        doInJPA(entityManager -> {
+            Long postId = topic.getId();
+            LOGGER.info("Fetch statistics");
+            TopicStatistics statistics = entityManager
+                    .createQuery("select s from PostStatistics s join fetch s.topic t where t.id = :postId", TopicStatistics.class)
+                    .setParameter("postId", postId)
+                    .getSingleResult();
         });
     }
 
@@ -81,6 +102,9 @@ public class MappedSuperclassTest extends AbstractTest {
     @MappedSuperclass
     public static abstract class Topic {
 
+        @Id
+        private Long id;
+
         private String title;
 
         private String owner;
@@ -91,9 +115,13 @@ public class MappedSuperclassTest extends AbstractTest {
         @ManyToOne
         private Board board;
 
-        public abstract Long getId();
+        public Long getId() {
+            return id;
+        }
 
-        public abstract void setId(Long id);
+        public void setId(Long id) {
+            this.id = id;
+        }
 
         public String getTitle() {
             return title;
@@ -131,20 +159,7 @@ public class MappedSuperclassTest extends AbstractTest {
     @Entity(name = "Post")
     public static class Post extends Topic {
 
-        @Id
-        private Long id;
-
         private String content;
-
-        @Override
-        public Long getId() {
-            return id;
-        }
-
-        @Override
-        public void setId(Long id) {
-            this.id = id;
-        }
 
         public String getContent() {
             return content;
@@ -158,21 +173,8 @@ public class MappedSuperclassTest extends AbstractTest {
     @Entity(name = "Announcement")
     public static class Announcement extends Topic {
 
-        @Id
-        private Long id;
-
         @Temporal(TemporalType.TIMESTAMP)
         private Date validUntil;
-
-        @Override
-        public Long getId() {
-            return id;
-        }
-
-        @Override
-        public void setId(Long id) {
-            this.id = id;
-        }
 
         public Date getValidUntil() {
             return validUntil;
@@ -182,4 +184,68 @@ public class MappedSuperclassTest extends AbstractTest {
             this.validUntil = validUntil;
         }
     }
+
+    @MappedSuperclass
+    public abstract static class TopicStatistics<T extends Topic> {
+
+        @Id
+        private Long id;
+
+        private long views;
+
+        public Long getId() {
+            return id;
+        }
+
+        public abstract T getTopic();
+
+        public long getViews() {
+            return views;
+        }
+
+        public void incrementViews() {
+            this.views++;
+        }
+    }
+
+    @Entity(name = "PostStatistics")
+    public static class PostStatistics extends TopicStatistics<Post> {
+
+        @OneToOne
+        @JoinColumn(name = "id")
+        @MapsId
+        private Post topic;
+
+        public PostStatistics() {}
+
+        public PostStatistics(Post topic) {
+            this.topic = topic;
+        }
+
+        @Override
+        public Post getTopic() {
+            return topic;
+        }
+    }
+
+    @Entity(name = "AnnouncementStatistics")
+    public static class AnnouncementStatistics extends TopicStatistics<Announcement> {
+
+        @OneToOne
+        @JoinColumn(name = "id")
+        @MapsId
+        private Announcement topic;
+
+        public AnnouncementStatistics() {}
+
+        public AnnouncementStatistics(Announcement topic) {
+            this.topic = topic;
+        }
+
+        @Override
+        public Announcement getTopic() {
+            return topic;
+        }
+    }
 }
+
