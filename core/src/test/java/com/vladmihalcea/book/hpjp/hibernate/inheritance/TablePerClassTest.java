@@ -82,6 +82,7 @@ public class TablePerClassTest extends AbstractTest {
     }
 
     @Entity(name = "Board")
+    @Table(name = "board")
     public static class Board {
 
         @Id
@@ -108,6 +109,7 @@ public class TablePerClassTest extends AbstractTest {
     }
 
     @Entity(name = "Topic")
+    @Table(name = "topic")
     @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
     public static class Topic {
 
@@ -167,6 +169,7 @@ public class TablePerClassTest extends AbstractTest {
     }
 
     @Entity(name = "Post")
+    @Table(name = "post")
     public static class Post extends Topic {
 
         private String content;
@@ -181,6 +184,7 @@ public class TablePerClassTest extends AbstractTest {
     }
 
     @Entity(name = "Announcement")
+    @Table(name = "announcement")
     public static class Announcement extends Topic {
 
         @Temporal(TemporalType.TIMESTAMP)
@@ -196,9 +200,11 @@ public class TablePerClassTest extends AbstractTest {
     }
 
     @Entity(name = "TopicStatistics")
+    @Table(name = "topic_statistics")
     public static class TopicStatistics {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         @OneToOne

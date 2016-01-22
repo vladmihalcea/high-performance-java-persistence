@@ -97,7 +97,6 @@ public class AllAssociationTest extends AbstractTest {
     public static class Post {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         private String title;

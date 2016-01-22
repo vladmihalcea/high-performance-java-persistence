@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
@@ -75,6 +76,7 @@ public class MappedSuperclassTest extends AbstractTest {
     }
 
     @Entity(name = "Board")
+    @Table(name = "board")
     public static class Board {
 
         @Id
@@ -157,6 +159,7 @@ public class MappedSuperclassTest extends AbstractTest {
     }
 
     @Entity(name = "Post")
+    @Table(name = "post")
     public static class Post extends Topic {
 
         private String content;
@@ -171,6 +174,7 @@ public class MappedSuperclassTest extends AbstractTest {
     }
 
     @Entity(name = "Announcement")
+    @Table(name = "announcement")
     public static class Announcement extends Topic {
 
         @Temporal(TemporalType.TIMESTAMP)
@@ -209,6 +213,7 @@ public class MappedSuperclassTest extends AbstractTest {
     }
 
     @Entity(name = "PostStatistics")
+    @Table(name = "post_statistics")
     public static class PostStatistics extends TopicStatistics<Post> {
 
         @OneToOne
@@ -229,6 +234,7 @@ public class MappedSuperclassTest extends AbstractTest {
     }
 
     @Entity(name = "AnnouncementStatistics")
+    @Table(name = "announcement_statistics")
     public static class AnnouncementStatistics extends TopicStatistics<Announcement> {
 
         @OneToOne

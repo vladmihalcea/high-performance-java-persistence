@@ -17,9 +17,10 @@ public class BlogEntityProvider implements EntityProvider {
     @Override
     public Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostDetails.class,
-                PostComment.class
+            Post.class,
+            PostDetails.class,
+            PostComment.class,
+            Tag.class
         };
     }
 
@@ -35,8 +36,7 @@ public class BlogEntityProvider implements EntityProvider {
         @Version
         private int version;
 
-        public Post() {
-        }
+        public Post() {}
 
         public Post(Long id) {
             this.id = id;
@@ -53,6 +53,13 @@ public class BlogEntityProvider implements EntityProvider {
         @OneToOne(cascade = CascadeType.ALL, mappedBy = "post",
                 orphanRemoval = true, fetch = FetchType.LAZY)
         private PostDetails details;
+
+        @ManyToMany
+        @JoinTable(name = "post_tag",
+                joinColumns = @JoinColumn(name = "post_id"),
+                inverseJoinColumns = @JoinColumn(name = "tag_id")
+        )
+        private List<Tag> tags = new ArrayList<>();
 
         public Long getId() {
             return id;
@@ -84,6 +91,10 @@ public class BlogEntityProvider implements EntityProvider {
 
         public PostDetails getDetails() {
             return details;
+        }
+
+        public List<Tag> getTags() {
+            return tags;
         }
 
         public void addComment(PostComment comment) {
@@ -183,13 +194,11 @@ public class BlogEntityProvider implements EntityProvider {
 
         private String review;
 
-        public PostComment() {
-        }
+        public PostComment() {}
 
         public PostComment(String review) {
             this.review = review;
         }
-
 
         public Long getId() {
             return id;
@@ -213,6 +222,35 @@ public class BlogEntityProvider implements EntityProvider {
 
         public void setReview(String review) {
             this.review = review;
+        }
+
+        public int getVersion() {
+            return version;
+        }
+
+        public void setVersion(int version) {
+            this.version = version;
+        }
+    }
+
+    @Entity(name = "Tag")
+    @Table(name = "tag")
+    public static class Tag {
+
+        @Id
+        private Long id;
+
+        @Version
+        private int version;
+
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
         }
 
         public int getVersion() {

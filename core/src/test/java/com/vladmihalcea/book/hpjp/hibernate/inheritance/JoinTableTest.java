@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
@@ -82,9 +83,11 @@ public class JoinTableTest extends AbstractTest {
     }
 
     @Entity(name = "Board")
+    @Table(name = "board")
     public static class Board {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         private String name;
@@ -107,10 +110,12 @@ public class JoinTableTest extends AbstractTest {
     }
 
     @Entity(name = "Topic")
+    @Table(name = "topic")
     @Inheritance(strategy = InheritanceType.JOINED)
     public static class Topic {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         private String title;
@@ -165,6 +170,7 @@ public class JoinTableTest extends AbstractTest {
     }
 
     @Entity(name = "Post")
+    @Table(name = "post")
     public static class Post extends Topic {
 
         private String content;
@@ -179,6 +185,7 @@ public class JoinTableTest extends AbstractTest {
     }
 
     @Entity(name = "Announcement")
+    @Table(name = "announcement")
     public static class Announcement extends Topic {
 
         @Temporal(TemporalType.TIMESTAMP)
@@ -194,9 +201,11 @@ public class JoinTableTest extends AbstractTest {
     }
 
     @Entity(name = "TopicStatistics")
+    @Table(name = "topic_statistics")
     public static class TopicStatistics {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         @OneToOne
