@@ -54,7 +54,7 @@ public class CriteriaCountGroupByTest extends AbstractTest {
             CriteriaQuery<Tuple> cq = cb.createTupleQuery();
             Root<Book> book = cq.from(Book.class);
             cq.groupBy(book.get("name"));
-            cq.multiselect(book.get("name"), cb.count(book));  //using metamodel
+            cq.multiselect(book.get("name"), cb.count(book));
 
             List<Tuple> tupleResult = entityManager.createQuery(cq).getResultList();
             assertEquals("Java", tupleResult.get(0).get(0));
