@@ -7,6 +7,7 @@ import org.junit.Test;
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -73,6 +74,20 @@ public class SingleTableTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
+            LOGGER.info("Fetch Board topics");
+            entityManager.find(Board.class, topic.getBoard().getId()).getTopics().size();
+        });
+
+        doInJPA(entityManager -> {
+            LOGGER.info("Fetch Board topics eagerly");
+            Long id = topic.getBoard().getId();
+            Board board = entityManager.createQuery(
+                "select b from Board b join fetch b.topics where b.id = :id", Board.class)
+                .setParameter("id", id)
+                .getSingleResult();
+        });
+
+        doInJPA(entityManager -> {
             Long topicId = topic.getId();
             LOGGER.info("Fetch statistics");
             TopicStatistics statistics = entityManager
@@ -92,6 +107,10 @@ public class SingleTableTest extends AbstractTest {
 
         private String name;
 
+        //Only useful for the sake of seeing the queries being generated.
+        @OneToMany(mappedBy = "board")
+        private List<Topic> topics = new ArrayList<>();
+
         public Long getId() {
             return id;
         }
@@ -106,6 +125,10 @@ public class SingleTableTest extends AbstractTest {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        public List<Topic> getTopics() {
+            return topics;
         }
     }
 

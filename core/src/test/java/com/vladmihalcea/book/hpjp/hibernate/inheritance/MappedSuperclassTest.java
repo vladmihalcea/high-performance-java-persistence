@@ -1,13 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.Session;
 import org.junit.Test;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <code>MappedSuperclassTest</code> - MappedSuperclass Test
@@ -68,10 +69,10 @@ public class MappedSuperclassTest extends AbstractTest {
         doInJPA(entityManager -> {
             Long postId = topic.getId();
             LOGGER.info("Fetch statistics");
-            TopicStatistics statistics = entityManager
-                    .createQuery("select s from PostStatistics s join fetch s.topic t where t.id = :postId", TopicStatistics.class)
-                    .setParameter("postId", postId)
-                    .getSingleResult();
+            PostStatistics statistics = entityManager
+                .createQuery("select s from PostStatistics s join fetch s.topic t where t.id = :postId", PostStatistics.class)
+                .setParameter("postId", postId)
+                .getSingleResult();
         });
     }
 

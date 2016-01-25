@@ -19,9 +19,9 @@ public enum DataSourceProxyType {
         DataSource dataSource(DataSource dataSource) {
             ChainListener listener = new ChainListener();
             SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
-            listener.addListener(new SLF4JQueryLoggingListener());
-            listener.addListener(new DataSourceQueryCountListener());
             loggingListener.setQueryLogEntryCreator(new AbstractTest.InlineQueryLogEntryCreator());
+            listener.addListener(loggingListener);
+            listener.addListener(new DataSourceQueryCountListener());
             return ProxyDataSourceBuilder
                     .create(dataSource)
                     .name(name())

@@ -150,8 +150,7 @@ public class BidirectionalManyAsOneToManyTest extends AbstractTest {
 
         private Long tagId;
 
-        public PostTagId() {
-        }
+        public PostTagId() {}
 
         public PostTagId(Long postId, Long tagId) {
             this.postId = postId;
@@ -181,7 +180,7 @@ public class BidirectionalManyAsOneToManyTest extends AbstractTest {
         }
     }
 
-    @Entity(name = "PostTag")
+    @Entity(name = "PostTag") @Table(name = "post_tag")
     public static class PostTag {
 
         @EmbeddedId
@@ -195,8 +194,7 @@ public class BidirectionalManyAsOneToManyTest extends AbstractTest {
         @MapsId("tagId")
         private Tag tag;
 
-        public PostTag() {
-        }
+        private PostTag() {}
 
         public PostTag(Post post, Tag tag) {
             this.post = post;
