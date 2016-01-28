@@ -10,6 +10,7 @@ import org.junit.Test;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
@@ -49,6 +50,7 @@ public class CriteriaFetchAliasTest extends AbstractTest {
             Session session = entityManager.unwrap(Session.class);
             Criteria criteria = session.createCriteria(Post.class)
                 .add(Restrictions.eq("title", "post"));
+
             LOGGER.info("Criteria: {}", criteria);
         });
 
@@ -63,7 +65,7 @@ public class CriteriaFetchAliasTest extends AbstractTest {
             assertEquals(2, posts.size());
         });
 
-        doInJPA(entityManager -> {
+        /*doInJPA(entityManager -> {
             LOGGER.info("With alias");
             Session session = entityManager.unwrap(Session.class);
             List<Post> posts = session
@@ -72,6 +74,42 @@ public class CriteriaFetchAliasTest extends AbstractTest {
                     .add(Restrictions.eq("post.title", "Postit"))
                     .list();
             assertEquals(2, posts.size());
+        });*/
+
+        doInJPA(entityManager -> {
+            Post newPost = new Post(2L);
+            entityManager.persist(newPost);
+        });
+        doInJPA(entityManager -> {
+            LOGGER.info("In query");
+            Session session = entityManager.unwrap(Session.class);
+
+
+            List<PostComment> postComments = new ArrayList<>();
+            postComments.add(new PostComment());
+            postComments.get(0).setId(2L);
+            postComments.add(new PostComment());
+            postComments.get(1).setId(3L);
+
+
+            List<Long> ids = postComments.stream().map(PostComment::getId).collect(Collectors.toList());
+            List<Post> filtered = session.createCriteria(Post.class)
+                    .createAlias("comments", "c")
+                    .add( Restrictions.in( "c.id", ids ) )
+                    .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+                    .list();
+            assertEquals(1, filtered.size());
+
+            ids = new ArrayList<>();
+            ids.add(3L);
+            ids.add(4L);
+
+            filtered = session.createCriteria(Post.class)
+                    .createAlias("comments", "c")
+                    .add( Restrictions.in( "c.id", ids ) )
+                    .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+                    .list();
+            assertEquals(0, filtered.size());
         });
     }
 
