@@ -62,7 +62,9 @@ public class OrderTest extends AbstractTest {
         });
     }
 
-    @Entity(name = "Post") @Table(name = "post")
+    @Entity(name = "Post")
+    @Table(name = "post",
+        uniqueConstraints = @UniqueConstraint(name = "slug_uq", columnNames = "slug"))
     public static class Post {
 
         @Id
@@ -71,7 +73,6 @@ public class OrderTest extends AbstractTest {
 
         private String title;
 
-        @Column(unique = true)
         private String slug;
 
         public Long getId() {
