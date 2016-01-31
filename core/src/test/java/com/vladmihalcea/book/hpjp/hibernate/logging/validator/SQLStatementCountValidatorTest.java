@@ -1,19 +1,14 @@
-package com.vladmihalcea.book.hpjp.hibernate.validator;
+package com.vladmihalcea.book.hpjp.hibernate.logging.validator;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import com.vladmihalcea.sql.SQLStatementCountValidator;
 import com.vladmihalcea.sql.exception.SQLSelectCountMismatchException;
 import org.junit.Test;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
-import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostComment;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;

@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.connection.flyway;
+package com.vladmihalcea.book.hpjp.hibernate.schema.flyway;
 
 import javax.persistence.*;
 import java.util.ArrayList;

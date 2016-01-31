@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.connection.flyway;
+package com.vladmihalcea.book.hpjp.hibernate.schema.flyway;
 
 import com.vladmihalcea.book.hpjp.util.spring.config.jpa.AbstractPostgreSQLJpaConfiguration;
 import org.hibernate.Session;
