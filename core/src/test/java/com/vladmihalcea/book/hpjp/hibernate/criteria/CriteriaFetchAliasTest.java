@@ -65,16 +65,20 @@ public class CriteriaFetchAliasTest extends AbstractTest {
             assertEquals(2, posts.size());
         });
 
-        /*doInJPA(entityManager -> {
-            LOGGER.info("With alias");
-            Session session = entityManager.unwrap(Session.class);
-            List<Post> posts = session
+        try {
+            doInJPA(entityManager -> {
+                LOGGER.info("With alias");
+                Session session = entityManager.unwrap(Session.class);
+                List<Post> posts = session
                     .createCriteria(Post.class, "post")
                     .setFetchMode("post.comments", FetchMode.JOIN)
                     .add(Restrictions.eq("post.title", "Postit"))
                     .list();
-            assertEquals(2, posts.size());
-        });*/
+                assertEquals(2, posts.size());
+            });
+        } catch (Throwable e) {
+            LOGGER.error("Failure", e);
+        }
 
         doInJPA(entityManager -> {
             Post newPost = new Post(2L);

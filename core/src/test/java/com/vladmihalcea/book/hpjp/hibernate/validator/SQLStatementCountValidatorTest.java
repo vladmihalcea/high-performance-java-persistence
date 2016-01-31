@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.validator;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import com.vladmihalcea.sql.SQLStatementCountValidator;
 import com.vladmihalcea.sql.exception.SQLSelectCountMismatchException;
