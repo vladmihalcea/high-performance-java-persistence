@@ -1,12 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
-import com.sun.istack.internal.NotNull;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
