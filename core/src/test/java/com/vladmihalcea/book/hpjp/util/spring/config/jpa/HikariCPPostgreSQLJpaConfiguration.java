@@ -16,7 +16,7 @@ import java.util.Properties;
  */
 @Configuration
 @PropertySource({"/META-INF/jdbc-postgresql.properties"})
-public class AbstractPostgreSQLJpaConfiguration extends AbstractJpaConfiguration {
+public class HikariCPPostgreSQLJpaConfiguration extends AbstractJpaConfiguration {
 
     @Value("${jdbc.dataSourceClassName}")
     private String dataSourceClassName;
@@ -50,7 +50,7 @@ public class AbstractPostgreSQLJpaConfiguration extends AbstractJpaConfiguration
         properties.put("dataSourceProperties", driverProperties);
         properties.setProperty("minimumPoolSize", String.valueOf(1));
         properties.setProperty("maximumPoolSize", String.valueOf(3));
-        properties.setProperty("connectionTimeout", String.valueOf(100));
+        properties.setProperty("connectionTimeout", String.valueOf(5000));
         return new HikariDataSource(new HikariConfig(properties));
     }
 

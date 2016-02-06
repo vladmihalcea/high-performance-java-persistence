@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.schema.flyway;
 
-import com.vladmihalcea.book.hpjp.util.spring.config.jpa.AbstractPostgreSQLJpaConfiguration;
+import com.vladmihalcea.book.hpjp.util.spring.config.jpa.HikariCPPostgreSQLJpaConfiguration;
 import org.hibernate.Session;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +28,7 @@ import javax.persistence.PersistenceContext;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 //@ContextConfiguration(classes = AbstractHsqldbJpaConfiguration.class)
-@ContextConfiguration(classes = AbstractPostgreSQLJpaConfiguration.class)
+@ContextConfiguration(classes = HikariCPPostgreSQLJpaConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class DropFlywayDBTest {
 

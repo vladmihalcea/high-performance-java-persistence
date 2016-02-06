@@ -1,5 +1,9 @@
 package com.vladmihalcea.book.hpjp.util.spring.config.jpa;
 
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
+import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
+import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +29,8 @@ import java.util.Properties;
 @EnableAspectJAutoProxy
 public abstract class AbstractJpaConfiguration {
 
+    public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
+
     @Value("${hibernate.dialect}")
     private String hibernateDialect;
 
@@ -36,12 +42,22 @@ public abstract class AbstractJpaConfiguration {
     @Bean
     public abstract DataSource actualDataSource();
 
+    private DataSource dataSource() {
+        SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
+        loggingListener.setQueryLogEntryCreator(new AbstractTest.InlineQueryLogEntryCreator());
+        return ProxyDataSourceBuilder
+            .create(actualDataSource())
+            .name(DATA_SOURCE_PROXY_NAME)
+            .listener(loggingListener)
+            .build();
+    }
+
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         localContainerEntityManagerFactoryBean.setPersistenceUnitName(getClass().getSimpleName());
         localContainerEntityManagerFactoryBean.setPersistenceProvider(new HibernatePersistenceProvider());
-        localContainerEntityManagerFactoryBean.setDataSource(actualDataSource());
+        localContainerEntityManagerFactoryBean.setDataSource(dataSource());
         localContainerEntityManagerFactoryBean.setPackagesToScan(packagesToScan());
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();

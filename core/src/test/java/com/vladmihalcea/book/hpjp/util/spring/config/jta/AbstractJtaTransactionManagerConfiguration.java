@@ -34,7 +34,7 @@ public abstract class AbstractJtaTransactionManagerConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 
-    @Value("${btm.config.journal:disk}")
+    @Value("${btm.config.journal:null}")
     private String btmJournal;
 
     @Value("${hibernate.dialect}")

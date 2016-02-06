@@ -1,5 +1,6 @@
-package com.vladmihalcea.book.hpjp.hibernate.connection.jta;
+package com.vladmihalcea.book.hpjp.hibernate.connection;
 
+import com.vladmihalcea.book.hpjp.hibernate.connection.jta.FlexyPoolEntities;
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -22,9 +23,9 @@ import java.util.List;
 import java.util.concurrent.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = JtaFlexyPoolTestConfiguration.class)
+@ContextConfiguration(classes = FlexyPoolTestConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class JtaFlexyPoolTest {
+public class FlexyPoolTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
@@ -37,7 +38,7 @@ public class JtaFlexyPoolTest {
     @Autowired
     private DataSource dataSource;
 
-    private int threadCount = 10;
+    private int threadCount = 1;
     private int seconds = 60;
 
     private ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
