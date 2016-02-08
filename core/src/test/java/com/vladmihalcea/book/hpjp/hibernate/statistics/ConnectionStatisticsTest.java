@@ -5,16 +5,7 @@ import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import org.hibernate.cfg.AvailableSettings;
 import org.junit.Test;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.*;
-
-import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
-import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostComment;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import java.util.Properties;
 
 /**
  * ConnectionStatisticsTest - Test Hibernate statistics
@@ -44,6 +35,8 @@ public class ConnectionStatisticsTest extends AbstractTest {
     protected Properties properties() {
         Properties properties = super.properties();
         properties.put(AvailableSettings.GENERATE_STATISTICS, "true");
+        properties.put("hibernate.stats.factory",
+            TransactionStatisticsFactory.class.getName());
         return properties;
     }
 }

@@ -15,8 +15,10 @@ public class TransactionStatistics extends ConcurrentStatisticsImpl {
 
     private ConcurrentMap<Long, Long> transactionStartNanos =
         new ConcurrentHashMap<>();
+
     private ConcurrentMap<Long, AtomicLong> connectionCounter =
         new ConcurrentHashMap<>();
+
     private StatisticsReport report = new StatisticsReport();
 
     @Override public void connect() {
