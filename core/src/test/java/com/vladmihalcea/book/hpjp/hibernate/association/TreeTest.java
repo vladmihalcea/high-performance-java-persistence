@@ -25,8 +25,9 @@ public class TreeTest extends AbstractOracleXEIntegrationTest {
         };
     }
 
-    @Test
-    public void test() {
+    @Override
+    public void init() {
+        super.init();
         doInJPA(entityManager -> {
             Node root = new Node();
             Node child1 = new Node();
@@ -52,6 +53,10 @@ public class TreeTest extends AbstractOracleXEIntegrationTest {
             entityManager.persist(child12);
             entityManager.persist(child21);
         });
+    }
+
+    @Test
+    public void test() {
 
         Node root = (Node) doInHibernate(session -> {
             return session
@@ -79,6 +84,22 @@ public class TreeTest extends AbstractOracleXEIntegrationTest {
                 .uniqueResult();
         });
         assertNotNull(root);
+    }
+
+    @Test
+    public void testRecursion() {
+        Node node = doInJPA(entityManager -> {
+            Node root = entityManager.createQuery("select n from Node n where n.parent is null", Node.class).getSingleResult();
+            fetchChildren(root);
+            return root;
+        });
+        fetchChildren(node);
+    }
+
+    public void fetchChildren(Node node) {
+        for (Node _node : node.getChildren()) {
+            fetchChildren(_node);
+        }
     }
 
     @Entity(name = "Node")

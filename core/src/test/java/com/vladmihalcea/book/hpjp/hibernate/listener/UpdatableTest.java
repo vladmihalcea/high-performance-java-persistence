@@ -53,7 +53,6 @@ public class UpdatableTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
-            LOGGER.info("No alias");
             Post post = entityManager.find(Post.class, 1L);
             post.setTitle("Post");
             for(PostComment comment : post.getComments()) {
@@ -66,6 +65,7 @@ public class UpdatableTest extends AbstractTest {
     @EntityListeners(UpdatableListener.class)
     public static class BaseEntity implements Updatable {
 
+        @Column(name = "update_timestamp")
         private Date timestamp;
 
         @Override
