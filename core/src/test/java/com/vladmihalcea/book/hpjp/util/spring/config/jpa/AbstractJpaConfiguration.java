@@ -81,6 +81,7 @@ public abstract class AbstractJpaConfiguration {
     protected Properties additionalProperties() {
         Properties properties = new Properties();
         properties.setProperty("hibernate.dialect", hibernateDialect);
+        properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         return properties;
     }
 
