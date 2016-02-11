@@ -1,0 +1,157 @@
+package com.vladmihalcea.book.hpjp.hibernate.sp;
+
+import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import org.hibernate.Session;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.persistence.ParameterMode;
+import javax.persistence.StoredProcedureQuery;
+import java.sql.CallableStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
+
+import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
+import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostComment;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+/**
+ * <code>SQLServerStoredProcedureTest</code> - SQL Server StoredProcedure Test
+ *
+ * @author Vlad Mihalcea
+ */
+public class SQLServerStoredProcedureTest extends AbstractSQLServerIntegrationTest {
+
+    private BlogEntityProvider entityProvider = new BlogEntityProvider();
+
+    @Override
+    protected Class<?>[] entities() {
+        return entityProvider.entities();
+    }
+
+    @Before
+    public void init() {
+        super.init();
+        doInJDBC(connection -> {
+            try(Statement statement = connection.createStatement()) {
+                try {
+                    statement.executeUpdate("DROP PROCEDURE count_comments");
+                } catch (SQLException ignore) {
+
+                }
+                try {
+                    statement.executeUpdate("DROP FUNCTION fn_count_comments");
+                } catch (SQLException ignore) {
+
+                }
+                try {
+                    statement.executeUpdate("DROP PROCEDURE post_comments");
+                } catch (SQLException ignore) {
+
+                }
+                statement.executeUpdate(
+                    "CREATE PROCEDURE count_comments " +
+                    "   @postId INT, " +
+                    "   @commentCount INT OUTPUT " +
+                    "AS " +
+                    "BEGIN " +
+                    "   SELECT @commentCount = COUNT(*)  " +
+                    "   FROM post_comment  " +
+                    "   WHERE post_id = @postId " +
+                    "END"
+                );
+                statement.executeUpdate(
+                    "CREATE FUNCTION fn_count_comments (@postId INT)  " +
+                    "RETURNS INT  " +
+                    "AS  " +
+                    "BEGIN  " +
+                    "    DECLARE @commentCount int;  " +
+                    "    SELECT @commentCount = COUNT(*) " +
+                    "    FROM post_comment   " +
+                    "    WHERE post_id = @postId;  " +
+                    "    RETURN(@commentCount);  " +
+                    "END"
+                );
+                statement.executeUpdate(
+                    "CREATE PROCEDURE post_comments " +
+                    "    @postId INT, " +
+                    "    @postComments CURSOR VARYING OUTPUT " +
+                    "AS " +
+                    "    SET NOCOUNT ON; " +
+                    "    SET @postComments = CURSOR " +
+                    "    FORWARD_ONLY STATIC FOR " +
+                    "        SELECT *  " +
+                    "        FROM post_comment   " +
+                    "        WHERE post_id = @postId;  " +
+                    "    OPEN @postComments;"
+                );
+            }
+        });
+        doInJPA(entityManager -> {
+            Post post = new Post(1L);
+            post.setTitle("Post");
+
+            PostComment comment1 = new PostComment("Good");
+            comment1.setId(1L);
+            PostComment comment2 = new PostComment("Excellent");
+            comment2.setId(2L);
+
+            post.addComment(comment1);
+            post.addComment(comment2);
+            entityManager.persist(post);
+        });
+    }
+
+    @Test
+    public void testStoredProcedureOutParameter() {
+        doInJPA(entityManager -> {
+            StoredProcedureQuery query = entityManager.createStoredProcedureQuery("count_comments");
+            query.registerStoredProcedureParameter("postId", Long.class, ParameterMode.IN);
+            query.registerStoredProcedureParameter("commentCount", Long.class, ParameterMode.OUT);
+
+            query.setParameter("postId", 1L);
+
+            query.execute();
+            Long commentCount = (Long) query.getOutputParameterValue("commentCount");
+            assertEquals(Long.valueOf(2), commentCount);
+        });
+    }
+
+    @Test
+    public void testStoredProcedureRefCursor() {
+        try {
+            doInJPA(entityManager -> {
+                StoredProcedureQuery query = entityManager.createStoredProcedureQuery("post_comments");
+                query.registerStoredProcedureParameter(0, Long.class, ParameterMode.IN);
+                query.registerStoredProcedureParameter(1, Class.class, ParameterMode.REF_CURSOR);
+
+                query.setParameter(0, 1L);
+
+                query.execute();
+                Object postComments = query.getOutputParameterValue("postComments");
+                assertNotNull(postComments);
+            });
+        } catch (Exception e) {
+            assertEquals("Dialect [org.hibernate.dialect.SQLServer2012Dialect] not known to support REF_CURSOR parameters", e.getCause().getMessage());
+        }
+    }
+
+    @Test
+    public void testStoredProcedureReturnValue() {
+        doInJPA(entityManager -> {
+            Session session = entityManager.unwrap(Session.class);
+            session.doWork(connection -> {
+                try (CallableStatement function = connection.prepareCall("{ ? = call fn_count_comments(?) }")) {
+                    function.registerOutParameter(1, Types.INTEGER);
+                    function.setInt(2, 1);
+                    function.execute();
+                    int commentCount = function.getInt(1);
+                    assertEquals(2, commentCount);
+                }
+            });
+        });
+    }
+}

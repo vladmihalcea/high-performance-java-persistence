@@ -28,6 +28,8 @@ The Integration Tests require some external configurations:
         alter system set processes=1000 scope=spfile;
 
         alter system set sessions=1000 scope=spfile;
+        
+        ALTER PROFILE DEFAULT LIMIT PASSWORD_LIFE_TIME UNLIMITED;
 
     You need to download the Orcale JDBC Driver (ojdbc6.jar and ojdbc7_g.jar), which is not available in the Maven Central Repository.
 
