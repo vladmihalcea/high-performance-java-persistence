@@ -83,15 +83,13 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
                 }
             });
 
-            Event matchingEvent = (Event) entityManager.
-                    createNativeQuery(
-                        "SELECT {e.*} " +
-                        "FROM event e " +
-                        "WHERE " +
-                        "   e.ip && CAST(:network AS inet) = TRUE"
-                    , Event.class).
-                    setParameter("network", "192.168.0.1/24").
-                    getSingleResult();
+            Event matchingEvent = (Event) entityManager.createNativeQuery(
+                "SELECT {e.*} " +
+                "FROM event e " +
+                "WHERE " +
+                "   e.ip && CAST(:network AS inet) = TRUE", Event.class)
+            .setParameter("network", "192.168.0.1/24")
+            .getSingleResult();
             assertEquals("192.168.0.123", matchingEvent.getIp().getAddress());
         });
     }

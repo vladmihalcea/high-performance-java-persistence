@@ -27,7 +27,7 @@ public class OrderTest extends AbstractTest {
         postId = doInJPA(entityManager -> {
             Post post = new Post();
             post.setTitle("High-Performance Java Persistence");
-            post.setSlug("high-Performance-java-persistence");
+            post.setSlug("high-performance-java-persistence");
 
             entityManager.persist(post);
             entityManager.flush();
@@ -43,7 +43,7 @@ public class OrderTest extends AbstractTest {
 
             Post newPost = new Post();
             newPost.setTitle("High-Performance Java Persistence Book");
-            newPost.setSlug("high-Performance-java-persistence");
+            newPost.setSlug("high-performance-java-persistence");
             entityManager.persist(newPost);
         });
     }
@@ -57,7 +57,7 @@ public class OrderTest extends AbstractTest {
 
             Post newPost = new Post();
             newPost.setTitle("High-Performance Java Persistence Book");
-            newPost.setSlug("high-Performance-java-persistence");
+            newPost.setSlug("high-performance-java-persistence");
             entityManager.persist(newPost);
         });
     }

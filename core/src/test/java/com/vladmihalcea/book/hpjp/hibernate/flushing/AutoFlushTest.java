@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import org.hibernate.Session;
 import org.jboss.logging.Logger;
@@ -17,7 +18,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Vlad Mihalcea
  */
-public class AutoFlushTest extends AbstractPostgreSQLIntegrationTest {
+public class AutoFlushTest extends AbstractTest {
 
     private static final Logger log = Logger.getLogger(AutoFlushTest.class);
 

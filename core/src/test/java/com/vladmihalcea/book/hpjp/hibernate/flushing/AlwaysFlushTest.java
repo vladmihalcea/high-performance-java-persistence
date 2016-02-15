@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Vlad Mihalcea
  */
-public class AlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
+public class AlwaysFlushTest extends AbstractTest {
 
     private static final Logger log = Logger.getLogger(AlwaysFlushTest.class);
 

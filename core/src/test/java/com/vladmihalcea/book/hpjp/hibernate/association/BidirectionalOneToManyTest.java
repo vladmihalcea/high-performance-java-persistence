@@ -1,19 +1,11 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <code>BidirectionalOneToManyTest</code> - Bidirectional OneToMany Test
@@ -34,7 +26,6 @@ public class BidirectionalOneToManyTest extends AbstractTest {
     public void testLifecycle() {
         doInJPA(entityManager -> {
             Post post = new Post("First post");
-            entityManager.persist(post);
 
             PostComment comment1 = new PostComment("My first review");
             post.addComment(comment1);
