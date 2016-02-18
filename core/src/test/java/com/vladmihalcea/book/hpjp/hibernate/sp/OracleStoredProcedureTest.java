@@ -2,19 +2,30 @@ package com.vladmihalcea.book.hpjp.hibernate.sp;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import oracle.jdbc.OracleTypes;
+import org.hibernate.Session;
+import org.hibernate.annotations.NamedNativeQueries;
+import org.hibernate.annotations.NamedNativeQuery;
+import org.hibernate.procedure.ProcedureCall;
+import org.hibernate.result.Output;
+import org.hibernate.result.ResultSetOutput;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.persistence.ParameterMode;
-import javax.persistence.StoredProcedureQuery;
+import javax.persistence.*;
 import java.math.BigDecimal;
+import java.sql.CallableStatement;
+import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
 import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostComment;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * <code>OracleStoredProcedureTest</code> - Oracle StoredProcedure Test
@@ -27,7 +38,9 @@ public class OracleStoredProcedureTest extends AbstractOracleXEIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
-        return entityProvider.entities();
+        List<Class> entities = new ArrayList<>(Arrays.asList(entityProvider.entities()));
+        entities.add(QueryHolder.class);
+        return entities.toArray(new Class[]{});
     }
 
     @Before
@@ -71,6 +84,28 @@ public class OracleStoredProcedureTest extends AbstractOracleXEIntegrationTest {
                     "    RETURN( commentCount ); " +
                     "END;"
                 );
+                statement.executeUpdate(
+                    "CREATE OR REPLACE FUNCTION fn_post_and_comments ( " +
+                    "    postId IN NUMBER ) " +
+                    "    RETURN SYS_REFCURSOR " +
+                    "IS " +
+                    "    postAndComments SYS_REFCURSOR; " +
+                    "BEGIN " +
+                    "   OPEN postAndComments FOR " +
+                    "        SELECT " +
+                    "            p.id AS \"p.id\", " +
+                    "            p.title AS \"p.title\", " +
+                    "            p.version AS \"p.version\", " +
+                    "            c.id AS \"c.id\", " +
+                    "            c.post_id AS \"c.post_id\", " +
+                    "            c.version AS \"c.version\", " +
+                    "            c.review AS \"c.review\" " +
+                    "       FROM post p " +
+                    "       JOIN post_comment c ON p.id = c.post_id " +
+                    "       WHERE p.id = postId; " +
+                    "   RETURN postAndComments; " +
+                    "END;"
+                );
             }
         });
         doInJPA(entityManager -> {
@@ -92,34 +127,49 @@ public class OracleStoredProcedureTest extends AbstractOracleXEIntegrationTest {
     public void testStoredProcedureOutParameter() {
         doInJPA(entityManager -> {
             StoredProcedureQuery query = entityManager.createStoredProcedureQuery("count_comments");
-            query.registerStoredProcedureParameter("postId", Long.class, ParameterMode.IN);
-            query.registerStoredProcedureParameter("commentCount", Long.class, ParameterMode.OUT);
+            query.registerStoredProcedureParameter(1, Long.class, ParameterMode.IN);
+            query.registerStoredProcedureParameter(2, Long.class, ParameterMode.OUT);
 
-            query.setParameter("postId", 1L);
+            query.setParameter(1, 1L);
 
             query.execute();
-            Long commentCount = (Long) query.getOutputParameterValue("commentCount");
+            Long commentCount = (Long) query.getOutputParameterValue(2);
             assertEquals(Long.valueOf(2), commentCount);
         });
     }
 
-    @Test @Ignore("https://hibernate.atlassian.net/browse/HHH-9286")
+    @Test
     public void testStoredProcedureRefCursor() {
         doInJPA(entityManager -> {
             StoredProcedureQuery query = entityManager.createStoredProcedureQuery("post_comments");
-            query.registerStoredProcedureParameter(0, Long.class, ParameterMode.IN);
-            query.registerStoredProcedureParameter(1, Class.class, ParameterMode.REF_CURSOR);
-
-            query.setParameter(0, 1L);
+            query.registerStoredProcedureParameter(1, Long.class, ParameterMode.IN);
+            query.registerStoredProcedureParameter(2, Class.class, ParameterMode.REF_CURSOR);
+            query.setParameter(1, 1L);
 
             query.execute();
-            Object postComments = query.getOutputParameterValue("postComments");
-            assertNotNull(postComments);
+            List<Object[]> postComments = query.getResultList();
+            assertEquals(2, postComments.size());
         });
     }
 
     @Test
-    public void testStoredProcedureReturnValue() {
+    public void testHibernateProcedureCallRefCursor() {
+        doInJPA(entityManager -> {
+            Session session = entityManager.unwrap(Session.class);
+            ProcedureCall call = session.createStoredProcedureCall("post_comments");
+            call.registerParameter(1, Long.class, ParameterMode.IN).bindValue(1L);
+            call.registerParameter(2, Class.class, ParameterMode.REF_CURSOR);
+
+            Output output = call.getOutputs().getCurrent();
+            if (output.isResultSet()) {
+                List<Object[]> postComments = ((ResultSetOutput) output).getResultList();
+                assertEquals(2, postComments.size());
+            }
+        });
+    }
+
+    @Test
+    public void testFunction() {
         doInJPA(entityManager -> {
             BigDecimal commentCount = (BigDecimal) entityManager
                 .createNativeQuery("SELECT fn_count_comments(:postId) FROM DUAL")
@@ -127,5 +177,114 @@ public class OracleStoredProcedureTest extends AbstractOracleXEIntegrationTest {
                 .getSingleResult();
             assertEquals(BigDecimal.valueOf(2), commentCount);
         });
+    }
+
+    @Test
+    public void testFunctionWithJDBC() {
+        doInJPA(entityManager -> {
+            final AtomicReference<Integer> commentCount = new AtomicReference<>();
+            Session session = entityManager.unwrap( Session.class );
+            session.doWork( connection -> {
+                try (CallableStatement function = connection.prepareCall(
+                        "{ ? = call fn_count_comments(?) }" )) {
+                    function.registerOutParameter( 1, Types.INTEGER );
+                    function.setInt( 2, 1 );
+                    function.execute();
+                    commentCount.set( function.getInt( 1 ) );
+                }
+            } );
+            assertEquals(Integer.valueOf(2), commentCount.get());
+        });
+    }
+
+    @Test
+    public void testStoredProcedureRefCursorWithJDBC() {
+        doInJPA(entityManager -> {
+            Session session = entityManager.unwrap( Session.class );
+            session.doWork( connection -> {
+                try (CallableStatement function = connection.prepareCall(
+                        "{ call post_comments(?, ?) }" )) {
+                    function.setInt( 1, 1 );
+                    function.registerOutParameter( 2, OracleTypes.CURSOR );
+                    function.execute();
+                    try (ResultSet resultSet = (ResultSet) function.getObject(2);) {
+                        while (resultSet.next()) {
+                            Long postCommentId = resultSet.getLong(1);
+                            String review = resultSet.getString(2);
+                        }
+                    }
+                }
+            } );
+        });
+    }
+
+    @Test
+    public void testNamedNativeQueryStoredProcedureRefCursor() {
+        doInJPA(entityManager -> {
+            List<?> posts = entityManager
+            .createNamedQuery(
+                "fn_post_and_comments")
+            .setParameter(1, 1L)
+            .getResultList();
+            assertEquals(2, posts.size());
+        });
+    }
+
+    @Test
+    public void testNamedNativeQueryStoredProcedureRefCursorWithJDBC() {
+        doInJPA(entityManager -> {
+            Session session = entityManager.unwrap( Session.class );
+            session.doWork( connection -> {
+                try (CallableStatement function = connection.prepareCall(
+                        "{ ? = call fn_post_and_comments( ? ) }" )) {
+                    function.registerOutParameter( 1, OracleTypes.CURSOR );
+                    function.setInt( 2, 1 );
+                    function.execute();
+                    try (ResultSet resultSet = (ResultSet) function.getObject(1);) {
+                        while (resultSet.next()) {
+                            Long postCommentId = resultSet.getLong(1);
+                            String review = resultSet.getString(2);
+                        }
+                    }
+                }
+            } );
+        });
+    }
+
+    @Entity(name = "QueryHolder")
+    @NamedNativeQueries({
+        @NamedNativeQuery(
+            name = "fn_post_and_comments",
+            query = "{ ? = call fn_post_and_comments( ? ) }",
+            callable = true,
+            resultSetMapping = "post_and_comments"
+        )
+    })
+    @SqlResultSetMappings({
+        @SqlResultSetMapping(
+            name = "post_and_comments",
+            entities = {
+                @EntityResult(
+                    entityClass = Post.class,
+                    fields = {
+                        @FieldResult( name = "id", column = "p.id" ),
+                        @FieldResult( name = "title", column = "p.title" ),
+                        @FieldResult( name = "version", column = "p.version" ),
+                    }
+                ),
+                @EntityResult(
+                    entityClass = PostComment.class,
+                    fields = {
+                        @FieldResult( name = "id", column = "c.id" ),
+                        @FieldResult( name = "post", column = "c.post_id" ),
+                        @FieldResult( name = "version", column = "c.version" ),
+                        @FieldResult( name = "review", column = "c.review" ),
+                    }
+                )
+            }
+        ),
+    })
+    public static class QueryHolder {
+        @Id private Long id;
     }
 }

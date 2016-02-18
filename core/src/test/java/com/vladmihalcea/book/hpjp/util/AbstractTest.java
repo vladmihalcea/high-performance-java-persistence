@@ -814,7 +814,7 @@ public abstract class AbstractTest {
 
             result = callable.apply(session);
             txn.commit();
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             if ( txn != null ) txn.rollback();
             throw e;
         } finally {
@@ -836,7 +836,7 @@ public abstract class AbstractTest {
 
             callable.accept(session);
             txn.commit();
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             if ( txn != null ) txn.rollback();
             throw e;
         } finally {
@@ -858,7 +858,7 @@ public abstract class AbstractTest {
             txn.begin();
             result = function.apply(entityManager);
             txn.commit();
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             if ( txn != null && txn.isActive()) txn.rollback();
             throw e;
         } finally {
@@ -880,7 +880,7 @@ public abstract class AbstractTest {
             txn.begin();
             function.accept(entityManager);
             txn.commit();
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             if ( txn != null && txn.isActive()) txn.rollback();
             throw e;
         } finally {
@@ -902,7 +902,7 @@ public abstract class AbstractTest {
                 result.set(callable.execute(connection));
             });
             txn.commit();
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             if ( txn != null ) txn.rollback();
             throw e;
         } finally {
@@ -921,7 +921,7 @@ public abstract class AbstractTest {
             txn = session.beginTransaction();
             session.doWork(callable::execute);
             txn.commit();
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             if ( txn != null ) txn.rollback();
             throw e;
         } finally {

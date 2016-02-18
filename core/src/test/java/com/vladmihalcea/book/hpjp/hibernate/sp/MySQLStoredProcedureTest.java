@@ -2,19 +2,27 @@ package com.vladmihalcea.book.hpjp.hibernate.sp;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import org.hibernate.Session;
+import org.hibernate.procedure.ProcedureCall;
+import org.hibernate.result.Output;
+import org.hibernate.result.ResultSetOutput;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureQuery;
+import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
 import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostComment;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -50,6 +58,13 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
         });
         doInJDBC(connection -> {
             try(Statement statement = connection.createStatement()) {
+                statement.executeUpdate("DROP FUNCTION IF EXISTS fn_count_comments");
+            }
+            catch (SQLException ignore) {
+            }
+        });
+        doInJDBC(connection -> {
+            try(Statement statement = connection.createStatement()) {
                 statement.executeUpdate(
                     "CREATE PROCEDURE count_comments (" +
                     "   IN postId INT, " +
@@ -61,13 +76,25 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
                     "    WHERE post_comment.post_id = postId; " +
                     "END"
                 );
-
                 statement.executeUpdate(
-                    "CREATE  PROCEDURE post_comments(IN postId INT) " +
+                    "CREATE PROCEDURE post_comments(IN postId INT) " +
                     "BEGIN " +
                     "    SELECT *  " +
                     "    FROM post_comment   " +
                     "    WHERE post_id = postId;  " +
+                    "END"
+                );
+                statement.executeUpdate(
+                    "CREATE FUNCTION fn_count_comments(postId integer)  " +
+                    "RETURNS integer " +
+                    "DETERMINISTIC " +
+                    "READS SQL DATA " +
+                    "BEGIN " +
+                    "    DECLARE commentCount integer; " +
+                    "    SELECT COUNT(*) INTO commentCount " +
+                    "    FROM post_comment  " +
+                    "    WHERE post_comment.post_id = postId; " +
+                    "    RETURN commentCount; " +
                     "END"
                 );
             }
@@ -102,19 +129,31 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
         });
     }
 
+    @Test
+    public void testHibernateProcedureCallOutParameter() {
+        doInJPA(entityManager -> {
+            Session session = entityManager.unwrap(Session.class);
+            ProcedureCall call = session.createStoredProcedureCall("count_comments");
+            call.registerParameter("postId", Long.class, ParameterMode.IN).bindValue(1L);
+            call.registerParameter("commentCount", Long.class, ParameterMode.OUT);
+
+            Long commentCount = (Long) call.getOutputs().getOutputParameterValue("commentCount");
+            assertEquals(Long.valueOf(2), commentCount);
+        });
+    }
 
     @Test
     public void testStoredProcedureRefCursor() {
         try {
             doInJPA(entityManager -> {
                 StoredProcedureQuery query = entityManager.createStoredProcedureQuery("post_comments");
-                query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-                query.registerStoredProcedureParameter(2, Long.class, ParameterMode.IN);
+                query.registerStoredProcedureParameter(1, Long.class, ParameterMode.IN);
+                query.registerStoredProcedureParameter(2, Class.class, ParameterMode.REF_CURSOR);
+                query.setParameter(1, 1L);
 
-                query.setParameter(2, 1L);
-
+                query.execute();
                 List<Object[]> postComments = query.getResultList();
-                assertEquals(2, postComments.size());
+                assertNotNull(postComments);
             });
         } catch (Exception e) {
             assertTrue(Pattern.compile("Dialect .*? not known to support REF_CURSOR parameters").matcher(e.getCause().getMessage()).matches());
@@ -123,18 +162,82 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
 
     @Test
     public void testStoredProcedureReturnValue() {
+        doInJPA(entityManager -> {
+            StoredProcedureQuery query = entityManager.createStoredProcedureQuery("post_comments");
+            query.registerStoredProcedureParameter(1, Long.class, ParameterMode.IN);
+
+            query.setParameter(1, 1L);
+
+            List<Object[]> postComments = query.getResultList();
+            assertEquals(2, postComments.size());
+        });
+    }
+
+    @Test
+    public void testHibernateProcedureCallReturnValueParameter() {
+        doInJPA(entityManager -> {
+            Session session = entityManager.unwrap(Session.class);
+            ProcedureCall call = session.createStoredProcedureCall("post_comments");
+            call.registerParameter(1, Long.class, ParameterMode.IN).bindValue(1L);
+
+            Output output = call.getOutputs().getCurrent();
+            if (output.isResultSet()) {
+                List<Object[]> postComments = ((ResultSetOutput) output).getResultList();
+                assertEquals(2, postComments.size());
+            }
+        });
+    }
+
+    @Test
+    public void testFunction() {
         try {
             doInJPA(entityManager -> {
-                StoredProcedureQuery query = entityManager.createStoredProcedureQuery("post_comments");
-                query.registerStoredProcedureParameter(1, Long.class, ParameterMode.IN);
+                StoredProcedureQuery query = entityManager.createStoredProcedureQuery("fn_count_comments");
+                query.registerStoredProcedureParameter("postId", Long.class, ParameterMode.IN);
 
-                query.setParameter(1, 1L);
+                query.setParameter("postId", 1L);
 
-                List<Object[]> postComments = query.getResultList();
-                assertEquals(2, postComments.size());
+                Long commentCount = (Long) query.getSingleResult();
+                assertEquals(Long.valueOf(2), commentCount);
             });
         } catch (Exception e) {
-            assertEquals("Dialect [org.hibernate.dialect.MySQL5Dialect] not known to support REF_CURSOR parameters", e.getCause().getMessage());
+            assertTrue(Pattern.compile("PROCEDURE high_performance_java_persistence.fn_count_comments does not exist").matcher(e.getCause().getCause().getMessage()).matches());
         }
     }
+
+    @Test
+    public void testFunctionWithJDBC() {
+        doInJPA(entityManager -> {
+            final AtomicReference<Integer> commentCount = new AtomicReference<>();
+            Session session = entityManager.unwrap( Session.class );
+            session.doWork( connection -> {
+                try (CallableStatement function = connection.prepareCall(
+                        "{ ? = call fn_count_comments(?) }" )) {
+                    function.registerOutParameter( 1, Types.INTEGER );
+                    function.setInt( 2, 1 );
+                    function.execute();
+                    commentCount.set( function.getInt( 1 ) );
+                }
+            } );
+            assertEquals(Integer.valueOf(2), commentCount.get());
+        });
+    }
+
+    /*@Test
+    public void testFunctionWithJDBCByName() {
+        doInJPA(entityManager -> {
+            final AtomicReference<Integer> commentCount = new AtomicReference<>();
+            Session session = entityManager.unwrap( Session.class );
+            session.doWork( connection -> {
+                try (CallableStatement function = connection.prepareCall(
+                        "{ ? = call fn_count_comments(?) }" )) {
+                    function.registerOutParameter( "", Types.INTEGER );
+                    function.setInt( "postId", 1 );
+                    function.execute();
+                    commentCount.set( function.getInt( 1 ) );
+                }
+            } );
+            assertEquals(Integer.valueOf(2), commentCount.get());
+        });
+    }*/
 }

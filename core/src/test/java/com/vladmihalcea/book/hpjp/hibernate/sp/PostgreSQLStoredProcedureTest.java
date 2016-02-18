@@ -2,14 +2,18 @@ package com.vladmihalcea.book.hpjp.hibernate.sp;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import org.hibernate.Session;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureQuery;
+import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
 import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostComment;
@@ -123,6 +127,55 @@ public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegration
 
             List<Object[]> postComments = query.getResultList();
             assertEquals(2, postComments.size());
+        });
+    }
+
+    @Test
+    public void testFunctionWithJDBC() {
+        doInJPA(entityManager -> {
+            final AtomicReference<Long> commentCount = new AtomicReference<>();
+            Session session = entityManager.unwrap( Session.class );
+            session.doWork( connection -> {
+                try (CallableStatement function = connection.prepareCall(
+                        "{ ? = call count_comments(?) }" )) {
+                    function.registerOutParameter( 1, Types.BIGINT );
+                    function.setLong( 2, 1L );
+                    function.execute();
+                    commentCount.set( function.getLong( 1 ) );
+                }
+            } );
+            assertEquals(Long.valueOf(2), commentCount.get());
+        });
+    }
+
+    @Test
+    public void testFunctionWithJDBCByName() {
+        doInJPA(entityManager -> {
+            final AtomicReference<Long> commentCount = new AtomicReference<>();
+            Session session = entityManager.unwrap( Session.class );
+            session.doWork( connection -> {
+                try (CallableStatement function = connection.prepareCall(
+                        "{ ? = call count_comments(?) }" )) {
+                    function.registerOutParameter( "commentCount", Types.BIGINT );
+                    function.setLong( "postId", 1L );
+                    function.execute();
+                    commentCount.set( function.getLong( 1 ) );
+                }
+            } );
+            assertEquals(Long.valueOf(2), commentCount.get());
+        });
+    }
+
+    @Test
+    public void test_hql_bit_length_function_example() {
+        doInJPA(entityManager -> {
+            //tag::hql-bit-length-function-example[]
+            List<Number> bits = entityManager.createQuery(
+                    "select bit_length( c.title ) " +
+                            "from Post c ", Number.class )
+                    .getResultList();
+            //end::hql-bit-length-function-example[]
+            assertEquals(2, bits.size());
         });
     }
 }

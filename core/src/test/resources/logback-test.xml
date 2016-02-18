@@ -26,13 +26,14 @@
 
     <logger name="bitronix.tm" level="warn"/>
 
-    <logger name="org.hibernate" level="warn"/>
+    <logger name="org.hibernate" level="info"/>
+    <logger name="org.hibernate.hql" level="info"/>
     <logger name="org.hibernate.event.internal" level="info"/>
     <logger name="org.hibernate.engine.transaction.internal" level="info"/>
     <logger name="org.hibernate.cache" level="debug"/>
     <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="info"/>
 
-    <!--<logger name="org.hibernate.SQL" level="debug"/>-->
+    <logger name="org.hibernate.SQL" level="debug"/>
 
     <logger name="net.sf.ehcache" level="info"/>
 

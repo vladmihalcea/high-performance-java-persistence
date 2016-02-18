@@ -12,11 +12,14 @@ import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
 import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostComment;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <code>SQLServerStoredProcedureTest</code> - SQL Server StoredProcedure Test
@@ -125,17 +128,16 @@ public class SQLServerStoredProcedureTest extends AbstractSQLServerIntegrationTe
         try {
             doInJPA(entityManager -> {
                 StoredProcedureQuery query = entityManager.createStoredProcedureQuery("post_comments");
-                query.registerStoredProcedureParameter(0, Long.class, ParameterMode.IN);
-                query.registerStoredProcedureParameter(1, Class.class, ParameterMode.REF_CURSOR);
-
-                query.setParameter(0, 1L);
+                query.registerStoredProcedureParameter(1, Long.class, ParameterMode.IN);
+                query.registerStoredProcedureParameter(2, Class.class, ParameterMode.REF_CURSOR);
+                query.setParameter(1, 1L);
 
                 query.execute();
-                Object postComments = query.getOutputParameterValue("postComments");
+                List<Object[]> postComments = query.getResultList();
                 assertNotNull(postComments);
             });
         } catch (Exception e) {
-            assertEquals("Dialect [org.hibernate.dialect.SQLServer2012Dialect] not known to support REF_CURSOR parameters", e.getCause().getMessage());
+            assertTrue(Pattern.compile("Dialect .*? not known to support REF_CURSOR parameters").matcher(e.getCause().getMessage()).matches());
         }
     }
 
