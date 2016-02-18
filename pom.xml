@@ -273,10 +273,10 @@
         <datasource-proxy.version>1.3.3</datasource-proxy.version>
         <p6spy.version>2.1.4</p6spy.version>
         <hsqldb.version>2.3.2</hsqldb.version>
-        <postgresql.version>9.4-1202-jdbc41</postgresql.version>
+        <postgresql.version>9.4-1207</postgresql.version>
         <oracle.version>12.1.0.1</oracle.version>
         <!--<oracle.version>11.2.0.4</oracle.version>-->
-        <mysql.version>5.1.36</mysql.version>
+        <mysql.version>5.1.38</mysql.version>
         <mssql.version>4.0</mssql.version>
         <jtds.version>1.3.1</jtds.version>
 
