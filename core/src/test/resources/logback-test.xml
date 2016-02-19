@@ -33,7 +33,7 @@
     <logger name="org.hibernate.cache" level="debug"/>
     <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="info"/>
 
-    <logger name="org.hibernate.SQL" level="debug"/>
+    <logger name="org.hibernate.SQL" level="error"/>
 
     <logger name="net.sf.ehcache" level="info"/>
 
