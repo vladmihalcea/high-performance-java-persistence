@@ -5,16 +5,15 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
 /**
- * BatchingTest - Test to check the JDBC batch support
+ * DeletingWithoutCascadeBatchingTest - Test to check the JDBC batch support for delete
  *
  * @author Vlad Mihalcea
  */
-public class BatchingTest extends AbstractTest {
+public class DeletingWithoutCascadeBatchingTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -35,113 +34,24 @@ public class BatchingTest extends AbstractTest {
     }
 
     @Test
-    public void testInsertPosts() {
-        LOGGER.info("testInsertPosts");
-        insertPosts();
-    }
-
-    @Test
-    public void testInsertPostsAndComments() {
-        LOGGER.info("testInsertPostsAndComments");
+    public void testDeletePostsAndCommentsWithBulkDelete() {
         insertPostsAndComments();
-    }
 
-    @Test
-    public void testUpdatePosts() {
-        insertPosts();
-
-        LOGGER.info("testUpdatePosts");
+        LOGGER.info("testDeletePostsAndCommentsWithBulkDelete");
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery(
                 "select p " +
                 "from Post p ", Post.class)
             .getResultList();
 
-            posts.forEach(post -> post.setTitle(post.getTitle().replaceAll("no", "nr")));
-        });
-    }
-
-    @Test
-    public void testUpdatePostsAndComments() {
-        insertPostsAndComments();
-
-        LOGGER.info("testUpdatePostsAndComments");
-        doInJPA(entityManager -> {
-            List<PostComment> comments = entityManager.createQuery(
-                "select c " +
+            entityManager.createQuery(
+                "delete " +
                 "from PostComment c " +
-                "join fetch c.post ", PostComment.class)
-            .getResultList();
-
-            comments.forEach(comment -> {
-                comment.setReview(comment.getReview().replaceAll("Good", "Very good"));
-                Post post = comment.getPost();
-                post.setTitle(post.getTitle().replaceAll("no", "nr"));
-            });
-        });
-    }
-
-    @Test
-    public void testDeletePosts() {
-        insertPosts();
-
-        LOGGER.info("testDeletePosts");
-        doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p ", Post.class)
-            .getResultList();
+                "where c.post in :posts")
+            .setParameter("posts", posts)
+            .executeUpdate();
 
             posts.forEach(entityManager::remove);
-        });
-    }
-
-    @Test
-    public void testDeletePostsAndComments() {
-        insertPostsAndComments();
-
-        LOGGER.info("testDeletePostsAndComments");
-        doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments ", Post.class)
-            .getResultList();
-
-            posts.forEach(entityManager::remove);
-        });
-    }
-
-    @Test
-    public void testDeletePostsAndCommentsWithManualChildRemoval() {
-        insertPostsAndComments();
-
-        LOGGER.info("testDeletePostsAndCommentsWithManualChildRemoval");
-        doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments ", Post.class)
-            .getResultList();
-
-            for (Post post : posts) {
-                for (Iterator<PostComment> commentIterator = post.getComments().iterator();
-                        commentIterator.hasNext(); ) {
-                    PostComment comment = commentIterator.next();
-                    comment.setPost(null);
-                    commentIterator.remove();
-                }
-            }
-            entityManager.flush();
-            posts.forEach(entityManager::remove);
-        });
-    }
-
-    private void insertPosts() {
-        doInJPA(entityManager -> {
-            for (int i = 0; i < 3; i++) {
-                entityManager.persist(new Post(String.format("Post no. %d", i + 1)));
-            }
         });
     }
 
@@ -175,8 +85,7 @@ public class BatchingTest extends AbstractTest {
             this.title = title;
         }
 
-        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
-                orphanRemoval = true)
+        @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "post")
         private List<PostComment> comments = new ArrayList<>();
 
         public Long getId() {

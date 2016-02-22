@@ -33,9 +33,9 @@ public class ElementCollectionTest extends AbstractMySQLIntegrationTest {
             entityManager.persist(post);
             entityManager.flush();
 
-            /*LOGGER.info("Remove tail");
             post.getComments().remove(2);
-            entityManager.flush();*/
+            entityManager.flush();
+
             LOGGER.info("Remove head");
             post.getComments().remove(0);
         });

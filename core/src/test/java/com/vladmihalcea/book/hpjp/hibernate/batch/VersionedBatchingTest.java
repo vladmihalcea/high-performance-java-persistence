@@ -5,16 +5,15 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
 /**
- * BatchingTest - Test to check the JDBC batch support
+ * VersionedBatchingTest - Test to check the JDBC batch support for versioned entities
  *
  * @author Vlad Mihalcea
  */
-public class BatchingTest extends AbstractTest {
+public class VersionedBatchingTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -30,7 +29,7 @@ public class BatchingTest extends AbstractTest {
         properties.put("hibernate.jdbc.batch_size", "5");
         properties.put("hibernate.order_inserts", "true");
         properties.put("hibernate.order_updates", "true");
-        properties.put("hibernate.jdbc.batch_versioned_data", "true");
+        properties.put("hibernate.jdbc.batch_versioned_data", "false");
         return properties;
     }
 
@@ -112,31 +111,6 @@ public class BatchingTest extends AbstractTest {
         });
     }
 
-    @Test
-    public void testDeletePostsAndCommentsWithManualChildRemoval() {
-        insertPostsAndComments();
-
-        LOGGER.info("testDeletePostsAndCommentsWithManualChildRemoval");
-        doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments ", Post.class)
-            .getResultList();
-
-            for (Post post : posts) {
-                for (Iterator<PostComment> commentIterator = post.getComments().iterator();
-                        commentIterator.hasNext(); ) {
-                    PostComment comment = commentIterator.next();
-                    comment.setPost(null);
-                    commentIterator.remove();
-                }
-            }
-            entityManager.flush();
-            posts.forEach(entityManager::remove);
-        });
-    }
-
     private void insertPosts() {
         doInJPA(entityManager -> {
             for (int i = 0; i < 3; i++) {
@@ -164,6 +138,9 @@ public class BatchingTest extends AbstractTest {
         private Long id;
 
         private String title;
+
+        @Version
+        private int version;
 
         public Post() {}
 
@@ -217,6 +194,9 @@ public class BatchingTest extends AbstractTest {
         private Post post;
 
         private String review;
+
+        @Version
+        private int version;
 
         public PostComment() {}
 
