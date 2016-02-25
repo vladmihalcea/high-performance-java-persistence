@@ -9,10 +9,13 @@ The Integration Tests require some external configurations:
 
 - PostgreSQL
 
-    You should install PostgreSQL 9.4 (or later) and the password for the postgres user should be admin
+    You should install PostgreSQL 9.5 (or later) and the password for the postgres user should be admin
 
     Now you need to create a `high_performance_java_persistence` database
-
+    Open pgAdmin III and executed the following query:
+    
+        CREATE EXTENSION postgis;
+    
 - Oracle
 
     You need to download and install Oracle XE

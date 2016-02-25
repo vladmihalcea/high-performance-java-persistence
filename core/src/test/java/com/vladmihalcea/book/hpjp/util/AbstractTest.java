@@ -241,6 +241,7 @@ public abstract class AbstractTest {
     }
 
     public static class PostgreSQLDataSourceProvider implements DataSourceProvider {
+
         @Override
         public String hibernateDialect() {
             return PostgreSQL94Dialect.class.getName();

@@ -68,6 +68,18 @@
 
         <dependency>
             <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-hikaricp</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-spatial</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>${hibernate.validator.version}</version>
         </dependency>
@@ -81,12 +93,6 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-ehcache</artifactId>
-            <version>${hibernate.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-hikaricp</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
 
