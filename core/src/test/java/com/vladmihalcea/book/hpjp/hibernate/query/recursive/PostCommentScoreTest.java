@@ -1,0 +1,421 @@
+package com.vladmihalcea.book.hpjp.hibernate.query.recursive;
+
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import org.junit.Test;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Objects;
+
+/**
+ * <code>TreeTest</code> - Tree Test
+ *
+ * @author Vlad Mihalcea
+ */
+public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
+
+    @Override
+    protected Class<?>[] entities() {
+        return new Class<?>[] {
+            Post.class,
+            PostComment.class,
+            User.class,
+            PostCommentVote.class,
+        };
+    }
+
+    @Override
+    public void init() {
+        super.init();
+        doInJPA(entityManager -> {
+            User user1 = new User();
+            user1.setUsername("JohnDoe");
+            entityManager.persist(user1);
+
+            User user2 = new User();
+            user2.setUsername("JohnDoeJr");
+            entityManager.persist(user2);
+
+            Post post = new Post();
+            post.setId(1L);
+            post.setTitle("High-Performance Java Persistence");
+            entityManager.persist(post);
+
+            PostComment comment1 = new PostComment();
+            comment1.setPost(post);
+            comment1.setReview("Comment 1");
+            entityManager.persist(comment1);
+
+            PostCommentVote user1Comment1 = new PostCommentVote(user1, comment1);
+            user1Comment1.setUp(true);
+            entityManager.persist(user1Comment1);
+
+            PostComment comment1_1 = new PostComment();
+            comment1_1.setParent(comment1);
+            comment1_1.setPost(post);
+            comment1_1.setReview("Comment 1_1");
+            entityManager.persist(comment1_1);
+
+            PostCommentVote user1Comment1_1 = new PostCommentVote(user1, comment1_1);
+            user1Comment1_1.setUp(true);
+            entityManager.persist(user1Comment1_1);
+
+            PostCommentVote user2Comment1_1 = new PostCommentVote(user2, comment1_1);
+            user2Comment1_1.setUp(true);
+            entityManager.persist(user2Comment1_1);
+
+            PostComment comment1_2 = new PostComment();
+            comment1_2.setParent(comment1);
+            comment1_2.setPost(post);
+            comment1_2.setReview("Comment 1_2");
+            entityManager.persist(comment1_2);
+
+            PostCommentVote user1Comment1_2 = new PostCommentVote(user1, comment1_2);
+            user1Comment1_2.setUp(true);
+            entityManager.persist(user1Comment1_2);
+
+            PostCommentVote user2Comment1_3 = new PostCommentVote(user2, comment1_2);
+            user2Comment1_3.setUp(true);
+            entityManager.persist(user2Comment1_3);
+
+            PostComment comment1_2_1 = new PostComment();
+            comment1_2_1.setParent(comment1_2);
+            comment1_2_1.setPost(post);
+            comment1_2_1.setReview("Comment 1_2_1");
+            entityManager.persist(comment1_2_1);
+
+            PostCommentVote user1Comment1_2_1 = new PostCommentVote(user1, comment1_2_1);
+            user1Comment1_2_1.setUp(true);
+            entityManager.persist(user1Comment1_2_1);
+
+            PostComment comment2 = new PostComment();
+            comment2.setPost(post);
+            comment2.setReview("Comment 2");
+            entityManager.persist(comment2);
+
+            PostCommentVote user1Comment2 = new PostCommentVote(user1, comment2);
+            user1Comment2.setUp(true);
+            entityManager.persist(user1Comment2);
+
+            PostComment comment2_1 = new PostComment();
+            comment2_1.setParent(comment2);
+            comment2_1.setPost(post);
+            comment2_1.setReview("Comment 2_1");
+            entityManager.persist(comment2_1);
+
+            PostCommentVote user1Comment2_1 = new PostCommentVote(user1, comment2_1);
+            user1Comment2_1.setUp(true);
+            entityManager.persist(user1Comment2_1);
+
+            PostCommentVote user2Comment2_1 = new PostCommentVote(user2, comment2_1);
+            user2Comment2_1.setUp(true);
+            entityManager.persist(user2Comment2_1);
+
+            PostComment comment2_2 = new PostComment();
+            comment2_2.setParent(comment2);
+            comment2_2.setPost(post);
+            comment2_2.setReview("Comment 2_2");
+            entityManager.persist(comment2_2);
+
+            PostCommentVote user1Comment2_2 = new PostCommentVote(user1, comment2_2);
+            user1Comment2_2.setUp(true);
+            entityManager.persist(user1Comment2_2);
+
+            PostComment comment3 = new PostComment();
+            comment3.setPost(post);
+            comment3.setReview("Comment 3");
+            entityManager.persist(comment3);
+
+            PostCommentVote user1Comment3 = new PostCommentVote(user1, comment3);
+            user1Comment3.setUp(true);
+            entityManager.persist(user1Comment3);
+
+            PostComment comment3_1 = new PostComment();
+            comment3_1.setParent(comment3);
+            comment3_1.setPost(post);
+            comment3_1.setReview("Comment 3_1");
+            entityManager.persist(comment3_1);
+
+            PostCommentVote user1Comment3_1 = new PostCommentVote(user1, comment3_1);
+            user1Comment3_1.setUp(true);
+            entityManager.persist(user1Comment3_1);
+
+            PostCommentVote user2Comment3_1 = new PostCommentVote(user2, comment3_1);
+            user2Comment3_1.setUp(false);
+            entityManager.persist(user2Comment3_1);
+
+            PostComment comment3_2 = new PostComment();
+            comment3_2.setParent(comment3);
+            comment3_2.setPost(post);
+            comment3_2.setReview("Comment 3_2");
+            entityManager.persist(comment3_2);
+
+            PostCommentVote user1Comment3_2 = new PostCommentVote(user1, comment3_2);
+            user1Comment3_2.setUp(true);
+            entityManager.persist(user1Comment3_2);
+
+            PostComment comment4 = new PostComment();
+            comment4.setPost(post);
+            comment4.setReview("Comment 4");
+            entityManager.persist(comment4);
+
+            PostCommentVote user1Comment4 = new PostCommentVote(user1, comment4);
+            user1Comment4.setUp(true);
+            entityManager.persist(user1Comment4);
+
+            PostComment comment5 = new PostComment();
+            comment5.setPost(post);
+            comment5.setReview("Comment 5");
+            entityManager.persist(comment5);
+
+            entityManager.flush();
+
+        });
+    }
+
+    @Test
+    public void test() {
+        LOGGER.info("Recursive CTE");
+
+        /**
+         *
+         */
+
+    }
+
+    @Entity(name = "Post")
+    @Table(name = "post")
+    public static class Post {
+
+        @Id
+        private Long id;
+
+        private String title;
+
+        public Post() {}
+
+        public Post(Long id) {
+            this.id = id;
+        }
+
+        public Post(String title) {
+            this.title = title;
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+    }
+
+    @Entity(name = "PostComment")
+    @Table(name = "post_comment")
+    public static class PostComment {
+
+        @Id
+        @GeneratedValue
+        private Long id;
+
+        @ManyToOne
+        @JoinColumn(name = "post_id")
+        private Post post;
+
+        @ManyToOne
+        @JoinColumn(name = "parent_id")
+        private PostComment parent;
+
+        @Temporal(TemporalType.TIMESTAMP)
+        private Date created_on = new Date();
+
+        private String review;
+
+        public PostComment() {}
+
+        public PostComment(String review) {
+            this.review = review;
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public Post getPost() {
+            return post;
+        }
+
+        public void setPost(Post post) {
+            this.post = post;
+        }
+
+        public PostComment getParent() {
+            return parent;
+        }
+
+        public void setParent(PostComment parent) {
+            this.parent = parent;
+        }
+
+        public String getReview() {
+            return review;
+        }
+
+        public void setReview(String review) {
+            this.review = review;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PostComment that = (PostComment) o;
+            return Objects.equals(getPost(), that.getPost()) &&
+                    Objects.equals(getParent(), that.getParent()) &&
+                    Objects.equals(getReview(), that.getReview());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(getPost(), getParent(), getReview());
+        }
+
+        @Override
+        public String toString() {
+            return "PostComment{" +
+                    "review='" + review + '\'' +
+                    ", post=" + post +
+                    '}';
+        }
+    }
+
+    @Entity(name = "User")
+    @Table(name = "forum_user")
+    public static class User {
+
+        @Id
+        @GeneratedValue
+        private Long id;
+
+        private String username;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            User user = (User) o;
+            return Objects.equals(getUsername(), user.getUsername());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(getUsername());
+        }
+
+        @Override
+        public String toString() {
+            return "User{" +
+                    "username='" + username + '\'' +
+                    '}';
+        }
+    }
+
+    @Entity(name = "PostCommentVote")
+    @Table(name = "post_comment_vote")
+    public static class PostCommentVote implements Serializable {
+
+        @Id
+        @ManyToOne
+        private User user;
+
+        @Id
+        @ManyToOne
+        private PostComment comment;
+
+        private boolean up;
+
+        public PostCommentVote() {
+        }
+
+        public PostCommentVote(User user, PostComment comment) {
+            this.user = user;
+            this.comment = comment;
+        }
+
+        public User getUser() {
+            return user;
+        }
+
+        public void setUser(User user) {
+            this.user = user;
+        }
+
+        public PostComment getComment() {
+            return comment;
+        }
+
+        public void setComment(PostComment comment) {
+            this.comment = comment;
+        }
+
+        public boolean isUp() {
+            return up;
+        }
+
+        public void setUp(boolean up) {
+            this.up = up;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PostCommentVote that = (PostCommentVote) o;
+            return Objects.equals(getUser(), that.getUser()) &&
+                    Objects.equals(getComment(), that.getComment());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(getUser(), getComment());
+        }
+
+        @Override
+        public String toString() {
+            return "PostCommentVote{" +
+                    "user=" + user +
+                    ", comment=" + comment +
+                    '}';
+        }
+    }
+}
