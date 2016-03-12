@@ -16,16 +16,18 @@ public class PostCommentScore {
     private final Number rootId;
     private final String review;
     private final Date createdOn;
+    private final Number score;
     private final Number totalScore;
 
     private List<PostCommentScore> children = new ArrayList<>();
 
-    public PostCommentScore(Number id, Number parentId, Number rootId, String review, Date createdOn, Number totalScore) {
+    public PostCommentScore(Number id, Number parentId, Number rootId, String review, Date createdOn, Number score, Number totalScore) {
         this.id = id;
         this.parentId = parentId;
         this.rootId = rootId;
         this.review = review;
         this.createdOn = createdOn;
+        this.score = score;
         this.totalScore = totalScore;
     }
 
@@ -47,6 +49,10 @@ public class PostCommentScore {
 
     public Date getCreatedOn() {
         return createdOn;
+    }
+
+    public Number getScore() {
+        return score;
     }
 
     public Number getTotalScore() {
