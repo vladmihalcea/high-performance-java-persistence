@@ -1,12 +1,16 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.recursive;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import org.hibernate.SQLQuery;
+import org.hibernate.transform.ResultTransformer;
 import org.junit.Test;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * <code>TreeTest</code> - Tree Test
@@ -176,11 +180,66 @@ public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
 
     @Test
     public void test() {
-        LOGGER.info("Recursive CTE");
+        LOGGER.info("Recursive CTE and Window Functions");
+        doInJPA(entityManager -> {
+            List result = entityManager.createNativeQuery(
+                "SELECT DISTINCT id, parent_id, root_id, review, created_on, total_score " +
+                "FROM ( " +
+                "    WITH RECURSIVE post_comment_score(id, root_id, post_id, parent_id, review, created_on, score) AS ( " +
+                "        SELECT id, id, post_id, parent_id, review, created_on, 0 AS score " +
+                "        FROM post_comment " +
+                "        WHERE parent_id IS NULL " +
+                "        UNION ALL " +
+                "        SELECT pc.id, pcs.root_id, pc.post_id, pc.parent_id, pc.review, pc.created_on, ( " +
+                "            CASE " +
+                "            WHEN pcv.up IS NULL " +
+                "            THEN 0 " +
+                "            ELSE ( " +
+                "                CASE " +
+                "                WHEN pcv.up = true " +
+                "                THEN 1 " +
+                "                ELSE - 1 " +
+                "                END " +
+                "            ) " +
+                "            END " +
+                "        ) AS score " +
+                "        FROM post_comment pc " +
+                "        LEFT JOIN post_comment_vote pcv ON pcv.comment_id = pc.id " +
+                "        INNER JOIN post_comment_score pcs ON pc.parent_id = pcs.id " +
+                "    ) " +
+                "    SELECT id, parent_id, root_id, review, created_on, score, sum(score) OVER w AS total_score " +
+                "    FROM post_comment_score " +
+                "    WHERE post_id = 1 WINDOW w AS (PARTITION BY root_id) " +
+                "    ORDER BY total_score DESC, created_on ASC " +
+                "    ) AS total_scores " +
+                "WHERE total_score > 0", "PostCommentScore")
+            .unwrap(SQLQuery.class)
+            .setResultTransformer(new ResultTransformer() {
 
-        /**
-         *
-         */
+                private Map<Number, PostCommentScore> postCommentScoreMap = new HashMap<>();
+
+                @Override
+                public Object transformTuple(Object[] tuple, String[] aliases) {
+                    PostCommentScore postCommentScore = (PostCommentScore) tuple[0];
+                    PostCommentScore parent = postCommentScoreMap.get(postCommentScore.getParentId());
+                    if(parent != null) {
+                        parent.getChildren().add(postCommentScore);
+                    }
+                    postCommentScoreMap.putIfAbsent(postCommentScore.getId(), postCommentScore);
+                    return postCommentScore;
+                }
+
+                @Override
+                public List transformList(List collection) {
+                    List<PostCommentScore> scores = (List<PostCommentScore>) collection;
+                    return scores.stream()
+                        .filter(s -> s.getParentId() == null)
+                        .collect(Collectors.toList());
+                }
+            })
+            .list();
+            assertEquals(3, result.size());
+        });
 
     }
 
@@ -192,16 +251,6 @@ public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
         private Long id;
 
         private String title;
-
-        public Post() {}
-
-        public Post(Long id) {
-            this.id = id;
-        }
-
-        public Post(String title) {
-            this.title = title;
-        }
 
         public Long getId() {
             return id;
@@ -222,6 +271,20 @@ public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
 
     @Entity(name = "PostComment")
     @Table(name = "post_comment")
+    @SqlResultSetMapping(
+        name = "PostCommentScore",
+        classes = @ConstructorResult(
+            targetClass = PostCommentScore.class,
+            columns = {
+                @ColumnResult(name = "id"),
+                @ColumnResult(name = "parent_id"),
+                @ColumnResult(name = "root_id"),
+                @ColumnResult(name = "review"),
+                @ColumnResult(name = "created_on"),
+                @ColumnResult(name = "total_score"),
+            }
+        )
+    )
     public static class PostComment {
 
         @Id
@@ -237,15 +300,10 @@ public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
         private PostComment parent;
 
         @Temporal(TemporalType.TIMESTAMP)
-        private Date created_on = new Date();
+        @Column(name = "created_on")
+        private Date createdOn = new Date();
 
         private String review;
-
-        public PostComment() {}
-
-        public PostComment(String review) {
-            this.review = review;
-        }
 
         public Long getId() {
             return id;
@@ -277,6 +335,14 @@ public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
 
         public void setReview(String review) {
             this.review = review;
+        }
+
+        public Date getCreatedOn() {
+            return createdOn;
+        }
+
+        public void setCreatedOn(Date createdOn) {
+            this.createdOn = createdOn;
         }
 
         @Override
@@ -364,7 +430,7 @@ public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
 
         private boolean up;
 
-        public PostCommentVote() {
+        private PostCommentVote() {
         }
 
         public PostCommentVote(User user, PostComment comment) {
