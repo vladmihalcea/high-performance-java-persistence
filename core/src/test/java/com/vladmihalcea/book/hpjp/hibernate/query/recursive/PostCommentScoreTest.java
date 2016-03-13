@@ -183,77 +183,79 @@ public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
         LOGGER.info("Recursive CTE and Window Functions");
         doInJPA(entityManager -> {
             List<PostCommentScore> result = entityManager.createNativeQuery(
-                "SELECT DISTINCT id, parent_id, root_id, review, created_on, score, total_score " +
+                "SELECT id, parent_id, root_id, review, created_on, score " +
                 "FROM ( " +
-                "    WITH RECURSIVE post_comment_score(id, root_id, post_id, parent_id, " +
-                "       review, created_on, score) AS ( " +
-                "       SELECT " +
-                "           id, id, post_id, parent_id, review, created_on, " +
-                "           SUM(" +
-                "               CASE WHEN up IS NULL " +
-                "               THEN 0 " +
-                "               ELSE ( " +
-                "                   CASE WHEN up = true " +
-                "                   THEN 1 " +
-                "                   ELSE - 1 " +
+                "    SELECT id, parent_id, root_id, review, created_on, score, dense_rank() OVER (ORDER BY total_score DESC) rank " +
+                "    FROM ( " +
+                "        WITH RECURSIVE post_comment_score(id, root_id, post_id, parent_id, " +
+                "           review, created_on, score) AS ( " +
+                "           SELECT " +
+                "               id, id, post_id, parent_id, review, created_on, " +
+                "               SUM(" +
+                "                   CASE WHEN up IS NULL " +
+                "                   THEN 0 " +
+                "                   ELSE ( CASE WHEN up = true THEN 1 ELSE - 1 END ) " +
                 "                   END " +
-                "               ) " +
+                "               ) score " +
+                "           FROM post_comment " +
+                "           LEFT JOIN post_comment_vote ON comment_id = id " +
+                "           WHERE post_id = :postId AND parent_id IS NULL " +
+                "           GROUP BY id, id, post_id, parent_id, review, created_on " +
+                "           UNION ALL " +
+                "           SELECT " +
+                "               pc.id, pcs.root_id, pc.post_id, pc.parent_id, pc.review, " +
+                "               pc.created_on, ( " +
+                "               CASE WHEN pcv.up IS NULL " +
+                "               THEN 0 " +
+                "               ELSE ( CASE WHEN pcv.up = true THEN 1 ELSE - 1 END ) " +
                 "               END " +
                 "           ) score " +
-                "       FROM post_comment " +
-                "       LEFT JOIN post_comment_vote ON comment_id = id " +
-                "       WHERE parent_id IS NULL " +
-                "       GROUP BY id, id, post_id, parent_id, review, created_on " +
-                "       UNION ALL " +
-                "       SELECT " +
-                "           pc.id, pcs.root_id, pc.post_id, pc.parent_id, pc.review, " +
-                "           pc.created_on, ( " +
-                "           CASE WHEN pcv.up IS NULL " +
-                "           THEN 0 " +
-                "           ELSE ( " +
-                "               CASE WHEN pcv.up = true " +
-                "               THEN 1 " +
-                "               ELSE - 1 " +
-                "               END " +
-                "           ) " +
-                "           END " +
-                "       ) score " +
-                "       FROM post_comment pc " +
-                "       LEFT JOIN post_comment_vote pcv ON pcv.comment_id = pc.id " +
-                "       INNER JOIN post_comment_score pcs ON pc.parent_id = pcs.id " +
-                "    ) " +
-                "    SELECT " +
-                "        id, parent_id, root_id, review, created_on, score, " +
-                "        sum(score) OVER root_win total_score " +
-                "    FROM (" +
-                "       SELECT " +
-                "           id, parent_id, root_id, review, created_on, sum(score) score " +
-                "       FROM post_comment_score " +
-                "       WHERE post_id = 1 " +
-                "       GROUP BY id, parent_id, root_id, review, created_on " +
-                "    ) aggr " +
-                "    WINDOW root_win AS (PARTITION BY root_id) " +
-                ") total_scores " +
-                "WHERE total_score >= 0" +
-                "ORDER BY total_score DESC, created_on ASC ", "PostCommentScore")
+                "           FROM post_comment pc " +
+                "           LEFT JOIN post_comment_vote pcv ON pcv.comment_id = pc.id " +
+                "           INNER JOIN post_comment_score pcs ON pc.parent_id = pcs.id " +
+                "           WHERE pc.post_id = :postId " +
+                "        ) " +
+                "        SELECT " +
+                "            id, parent_id, root_id, review, created_on, score, " +
+                "            sum(score) OVER root_win total_score " +
+                "        FROM (" +
+                "           SELECT " +
+                "               id, parent_id, root_id, review, created_on, sum(score) score " +
+                "           FROM post_comment_score " +
+                "           GROUP BY id, parent_id, root_id, review, created_on " +
+                "        ) aggr " +
+                "        WINDOW root_win AS (PARTITION BY root_id ) " +
+                "    ) total_scores " +
+                "    ORDER BY total_score DESC, created_on ASC " +
+                ") total " +
+                "WHERE rank <= :rank", "PostCommentScore")
+            .setParameter("postId", 1L)
+            .setParameter("rank", 3)
             .unwrap(SQLQuery.class)
             .setResultTransformer(new PostCommentScoreResultTransformer())
             .list();
-            assertEquals(4, result.size());
+            assertEquals(3, result.size());
+            result.get(0).getTotalScore();
         });
 
     }
 
     public static class PostCommentScoreResultTransformer implements ResultTransformer {
 
-        private Map<Number, PostCommentScore> postCommentScoreMap = new HashMap<>();
+        private Map<Long, PostCommentScore> postCommentScoreMap = new HashMap<>();
+
+        private List<PostCommentScore> roots = new ArrayList<>();
 
         @Override
         public Object transformTuple(Object[] tuple, String[] aliases) {
             PostCommentScore postCommentScore = (PostCommentScore) tuple[0];
-            PostCommentScore parent = postCommentScoreMap.get(postCommentScore.getParentId());
-            if(parent != null) {
-                parent.getChildren().add(postCommentScore);
+            if(postCommentScore.getParentId() == null) {
+                roots.add(postCommentScore);
+            } else {
+                PostCommentScore parent = postCommentScoreMap.get(postCommentScore.getParentId());
+                if(parent != null) {
+                    parent.addChild(postCommentScore);
+                }
             }
             postCommentScoreMap.putIfAbsent(postCommentScore.getId(), postCommentScore);
             return postCommentScore;
@@ -261,10 +263,7 @@ public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
 
         @Override
         public List transformList(List collection) {
-            List<PostCommentScore> scores = (List<PostCommentScore>) collection;
-            return scores.stream()
-                    .filter(s -> s.getParentId() == null)
-                    .collect(Collectors.toList());
+            return roots;
         }
     }
 
@@ -306,8 +305,7 @@ public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
                 @ColumnResult(name = "root_id"),
                 @ColumnResult(name = "review"),
                 @ColumnResult(name = "created_on"),
-                @ColumnResult(name = "score"),
-                @ColumnResult(name = "total_score"),
+                @ColumnResult(name = "score")
             }
         )
     )
