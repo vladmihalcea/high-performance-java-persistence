@@ -12,12 +12,12 @@ import java.util.List;
  */
 public class PostCommentScore {
 
-    private final Long id;
-    private final Long parentId;
-    private final Long rootId;
-    private final String review;
-    private final Date createdOn;
-    private final long score;
+    private Long id;
+    private Long parentId;
+    private Long rootId;
+    private String review;
+    private Date createdOn;
+    private long score;
 
     private List<PostCommentScore> children = new ArrayList<>();
 
@@ -30,28 +30,55 @@ public class PostCommentScore {
         this.score = score.longValue();
     }
 
+    public PostCommentScore() {
+    }
+
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getParentId() {
         return parentId;
     }
 
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
     public Long getRootId() {
         return rootId;
+    }
+
+    public void setRootId(Long rootId) {
+        this.rootId = rootId;
     }
 
     public String getReview() {
         return review;
     }
 
+    public void setReview(String review) {
+        this.review = review;
+    }
+
     public Date getCreatedOn() {
         return createdOn;
     }
 
+    public void setCreatedOn(Date createdOn) {
+        this.createdOn = createdOn;
+    }
+
     public long getScore() {
         return score;
+    }
+
+    public void setScore(long score) {
+        this.score = score;
     }
 
     public long getTotalScore() {
