@@ -8,9 +8,9 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Vlad Mihalcea
  */
-public class PostCommentScoreFetchAllPerformanceTest extends AbstractPostCommentScorePerformanceTest {
+public class PostCommentScoreFetchAllProjectionPerformanceTest extends AbstractPostCommentScorePerformanceTest {
 
-    public PostCommentScoreFetchAllPerformanceTest(int postCount, int commentCount) {
+    public PostCommentScoreFetchAllProjectionPerformanceTest(int postCount, int commentCount) {
         super(postCount, commentCount);
     }
 
