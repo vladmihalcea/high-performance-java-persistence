@@ -58,6 +58,8 @@ public abstract class AbstractPostCommentScorePerformanceTest extends AbstractPo
         List<Integer[]> postCountSizes = new ArrayList<>();
         int postCount = 10;
         postCountSizes.add(new Integer[] {postCount, 4});
+        postCountSizes.add(new Integer[] {postCount, 4});
+        postCountSizes.add(new Integer[] {postCount, 4});
         postCountSizes.add(new Integer[] {postCount, 8});
         postCountSizes.add(new Integer[] {postCount, 16});
         postCountSizes.add(new Integer[] {postCount, 32});

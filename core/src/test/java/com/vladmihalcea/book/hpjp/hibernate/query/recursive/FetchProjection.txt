@@ -20,7 +20,7 @@ Caused by: org.postgresql.util.PSQLException: ERROR: relation "post_comment_vote
 	at org.postgresql.jdbc2.AbstractJdbc2Statement.execute(AbstractJdbc2Statement.java:615) ~[postgresql-9.4-1202-jdbc41.jar:9.4]
 	at org.postgresql.jdbc2.AbstractJdbc2Statement.executeWithFlags(AbstractJdbc2Statement.java:451) ~[postgresql-9.4-1202-jdbc41.jar:9.4]
 	at org.postgresql.jdbc2.AbstractJdbc2Statement.execute(AbstractJdbc2Statement.java:443) ~[postgresql-9.4-1202-jdbc41.jar:9.4]
-	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source) ~[na:na]
+	at sun.reflect.GeneratedMethodAccessor1.invoke(Unknown Source) ~[na:na]
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:1.8.0_71]
 	at java.lang.reflect.Method.invoke(Method.java:497) ~[na:1.8.0_71]
 	at net.ttddyy.dsproxy.proxy.StatementProxyLogic.invoke(StatementProxyLogic.java:147) ~[datasource-proxy-1.3.3.jar:na]
@@ -95,7 +95,7 @@ Caused by: org.postgresql.util.PSQLException: ERROR: sequence "hibernate_sequenc
 	at org.postgresql.jdbc2.AbstractJdbc2Statement.execute(AbstractJdbc2Statement.java:615) ~[postgresql-9.4-1202-jdbc41.jar:9.4]
 	at org.postgresql.jdbc2.AbstractJdbc2Statement.executeWithFlags(AbstractJdbc2Statement.java:451) ~[postgresql-9.4-1202-jdbc41.jar:9.4]
 	at org.postgresql.jdbc2.AbstractJdbc2Statement.execute(AbstractJdbc2Statement.java:443) ~[postgresql-9.4-1202-jdbc41.jar:9.4]
-	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source) ~[na:na]
+	at sun.reflect.GeneratedMethodAccessor1.invoke(Unknown Source) ~[na:na]
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:1.8.0_71]
 	at java.lang.reflect.Method.invoke(Method.java:497) ~[na:1.8.0_71]
 	at net.ttddyy.dsproxy.proxy.StatementProxyLogic.invoke(StatementProxyLogic.java:147) ~[datasource-proxy-1.3.3.jar:na]
@@ -103,6 +103,7 @@ Caused by: org.postgresql.util.PSQLException: ERROR: sequence "hibernate_sequenc
 	at com.sun.proxy.$Proxy24.execute(Unknown Source) ~[na:na]
 	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:51) ~[hibernate-core-5.1.0.Final.jar:5.1.0.Final]
 	... 49 common frames omitted
-INFO  [Alice]: o.h.t.s.i.SchemaCreatorImpl - HHH000476: Executing import script 'org.hibernate.tool.schema.internal.exec.ScriptSourceInputNonExistentImpl@5bb8f9e2'
-INFO  [Alice]: c.v.b.h.h.q.r.PostCommentScoreRecursiveCTEPerformanceTest - type=TIMER, name=PostCommentScoreRecursiveCTEPerformanceTest, count=10, min=4.029108, max=5.807598, mean=4.7722803, stddev=0.4667245716032208, median=4.701994, p75=4.9113739999999995, p95=5.807598, p98=5.807598, p99=5.807598, p999=5.807598, mean_rate=6.686894835599447, m1=0.0, m5=0.0, m15=0.0, rate_unit=events/second, duration_unit=milliseconds
+INFO  [Alice]: o.h.t.s.i.SchemaCreatorImpl - HHH000476: Executing import script 'org.hibernate.tool.schema.internal.exec.ScriptSourceInputNonExistentImpl@516ebdf8'
+INFO  [Alice]: o.h.h.i.QueryTranslatorFactoryInitiator - HHH000397: Using ASTQueryTranslatorFactory
+INFO  [Alice]: c.v.b.h.h.q.r.PostCommentScoreFetchProjectionPerformanceTest - type=TIMER, name=PostCommentScoreFetchProjectionPerformanceTest, count=10, min=265.403414, max=294.037832, mean=272.3029225894536, stddev=8.694684107714316, median=268.413544, p75=271.111248, p95=294.037832, p98=294.037832, p99=294.037832, p999=294.037832, mean_rate=0.06071957957279824, m1=0.0, m5=0.0, m15=0.0, rate_unit=events/second, duration_unit=milliseconds
 INFO  [Alice]: o.h.t.s.i.SchemaDropperImpl$DelayedDropActionImpl - HHH000477: Starting delayed drop of schema as part of SessionFactory shut-down'
