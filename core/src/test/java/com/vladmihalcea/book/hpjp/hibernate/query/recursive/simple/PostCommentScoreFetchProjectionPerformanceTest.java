@@ -1,6 +1,11 @@
-package com.vladmihalcea.book.hpjp.hibernate.query.recursive;
+package com.vladmihalcea.book.hpjp.hibernate.query.recursive.simple;
 
-import java.util.*;
+import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -20,13 +25,11 @@ public class PostCommentScoreFetchProjectionPerformanceTest extends AbstractPost
         return doInJPA(entityManager -> {
             long startNanos = System.nanoTime();
             List<PostCommentScore> postCommentScores = entityManager.createQuery(
-                "select new com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore(" +
-                "   pc.id, pc.parent.id, 0, pc.review, pc.createdOn, sum( case when pcv.up is null then 0 when pcv.up = true then 1 else -1 end ) " +
-                ") " +
+                "select new " +
+                "   com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore(" +
+                "   pc.id, pc.parent.id, pc.review, pc.createdOn, pc.score ) " +
                 "from PostComment pc " +
-                "left join PostCommentVote pcv on pc.id = pcv.comment " +
-                "where pc.post.id = :postId " +
-                "group by pc.id, pc.parent.id, pc.review, pc.createdOn ")
+                "where pc.post.id = :postId ")
             .setParameter("postId", postId)
             .getResultList();
 

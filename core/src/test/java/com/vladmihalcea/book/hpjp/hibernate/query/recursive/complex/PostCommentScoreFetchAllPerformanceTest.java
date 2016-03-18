@@ -1,4 +1,6 @@
-package com.vladmihalcea.book.hpjp.hibernate.query.recursive;
+package com.vladmihalcea.book.hpjp.hibernate.query.recursive.complex;
+
+import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;

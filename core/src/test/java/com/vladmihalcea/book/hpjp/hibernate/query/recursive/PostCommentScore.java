@@ -14,17 +14,15 @@ public class PostCommentScore {
 
     private Long id;
     private Long parentId;
-    private Long rootId;
     private String review;
     private Date createdOn;
     private long score;
 
     private List<PostCommentScore> children = new ArrayList<>();
 
-    public PostCommentScore(Number id, Number parentId, Number rootId, String review, Date createdOn, Number score) {
+    public PostCommentScore(Number id, Number parentId, String review, Date createdOn, Number score) {
         this.id = id.longValue();
         this.parentId = parentId != null ? parentId.longValue() : null;
-        this.rootId = rootId.longValue();
         this.review = review;
         this.createdOn = createdOn;
         this.score = score.longValue();
@@ -47,14 +45,6 @@ public class PostCommentScore {
 
     public void setParentId(Long parentId) {
         this.parentId = parentId;
-    }
-
-    public Long getRootId() {
-        return rootId;
-    }
-
-    public void setRootId(Long rootId) {
-        this.rootId = rootId;
     }
 
     public String getReview() {
@@ -90,11 +80,12 @@ public class PostCommentScore {
     }
 
     public List<PostCommentScore> getChildren() {
-        return children;
+        List<PostCommentScore> copy = new ArrayList<>(children);
+        copy.sort(Comparator.comparing(PostCommentScore::getCreatedOn));
+        return copy;
     }
 
     public void addChild(PostCommentScore child) {
         children.add(child);
-        children.sort(Comparator.comparing(PostCommentScore::getCreatedOn));
     }
 }

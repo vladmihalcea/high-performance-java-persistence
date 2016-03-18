@@ -1,7 +1,8 @@
-package com.vladmihalcea.book.hpjp.hibernate.query.recursive;
+package com.vladmihalcea.book.hpjp.hibernate.query.recursive.complex;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
+import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
