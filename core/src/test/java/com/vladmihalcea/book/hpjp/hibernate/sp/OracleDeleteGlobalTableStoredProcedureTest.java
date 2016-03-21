@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * @author Vlad Mihalcea
  */
 @RunWith(Parameterized.class)
-public class OracleDeleteStoredProcedureTest extends AbstractOracleXEIntegrationTest {
+public class OracleDeleteGlobalTableStoredProcedureTest extends AbstractOracleXEIntegrationTest {
 
     private final int infoEntryCount;
     private final int errorEntryCount;
@@ -32,7 +32,7 @@ public class OracleDeleteStoredProcedureTest extends AbstractOracleXEIntegration
 
     private int batchSize = 50;
 
-    public OracleDeleteStoredProcedureTest(int multiplier) {
+    public OracleDeleteGlobalTableStoredProcedureTest(int multiplier) {
         infoEntryCount = 100 * multiplier;
         errorEntryCount = 50 * multiplier;
         warnEntryCount = 100 * multiplier;
@@ -44,13 +44,13 @@ public class OracleDeleteStoredProcedureTest extends AbstractOracleXEIntegration
     @Parameterized.Parameters
     public static Collection<Integer[]> parameters() {
         List<Integer[]> multipliers = new ArrayList<>();
-        multipliers.add(new Integer[] {1});
+ /*       multipliers.add(new Integer[] {1});
         multipliers.add(new Integer[] {10});
         multipliers.add(new Integer[] {50});
-        multipliers.add(new Integer[] {100});
+        multipliers.add(new Integer[] {100});*/
         multipliers.add(new Integer[] {500});
-        multipliers.add(new Integer[] {1000});
-        multipliers.add(new Integer[] {2000});
+/*        multipliers.add(new Integer[] {1000});
+        multipliers.add(new Integer[] {2000});*/
         return multipliers;
     }
 
@@ -67,34 +67,40 @@ public class OracleDeleteStoredProcedureTest extends AbstractOracleXEIntegration
         doInJDBC(connection -> {
             try(Statement statement = connection.createStatement()) {
                 statement.executeUpdate(
+                    "drop table deletable_rowid"
+                );
+                statement.executeUpdate(
+                    "create global temporary table deletable_rowid(rid urowid) on commit preserve rows "
+                );
+            }
+        });
+
+        doInJDBC(connection -> {
+            try(Statement statement = connection.createStatement()) {
+                statement.executeUpdate(
                     "CREATE OR REPLACE PROCEDURE delete_log_entries ( " +
-                    "    logLevel IN VARCHAR2, " +
-                    "    daysOld IN NUMBER, " +
-                    "    batchSize IN NUMBER, " +
-                    "    deletedCount OUT NUMBER     " +
+                    "    logLevel IN VARCHAR2,  " +
+                    "    daysOld IN NUMBER,  " +
+                    "    batchSize IN NUMBER,  " +
+                    "    deletedCount OUT NUMBER      " +
                     ") AS  " +
-                    "    TYPE ARRAY_NUMBER IS TABLE OF NUMBER; " +
-                    "    ids ARRAY_NUMBER;     " +
-                    "    CURSOR select_cursor IS " +
-                    "        SELECT id  " +
-                    "        FROM log_entry  " +
-                    "        WHERE log_level = logLevel AND created_on < (SELECT sysdate - daysOld FROM dual); " +
-                    "BEGIN " +
-                    "    deletedCount := 0; " +
-                    "    OPEN select_cursor; " +
-                    "    LOOP " +
-                    "        FETCH select_cursor BULK COLLECT INTO ids LIMIT batchSize; " +
-                    "        FORALL i IN 1 .. ids.COUNT " +
-                    "        DELETE FROM log_entry WHERE id = ids(i); " +
-                    "        deletedCount := deletedCount + sql%rowcount; " +
-                    "        COMMIT; " +
-                    "        EXIT WHEN select_cursor%NOTFOUND; " +
-                    "    END LOOP; " +
-                    "CLOSE select_cursor; " +
-                    "EXCEPTION " +
-                    "    WHEN NO_DATA_FOUND THEN NULL; " +
-                    "    WHEN OTHERS THEN RAISE; " +
-                    "END delete_log_entries;"
+                    "    v_row deletable_rowid%rowtype;  " +
+                    "BEGIN      " +
+                    "     insert into deletable_rowid SELECT rowid FROM log_entry WHERE log_level = 'INFO' AND created_on < (SELECT sysdate - 30 FROM dual); " +
+                    "     commit; " +
+                    "      " +
+                    "     deletedCount:=0; " +
+                    "      " +
+                    "     for v_row in (select * from deletable_rowid x) " +
+                    "     loop " +
+                    "        deletedCount:=deletedCount+1; " +
+                    "        delete from log_entry where rowid=v_row.rid; " +
+                    "        if mod(deletedCount,batchSize)=0 then " +
+                    "          commit; " +
+                    "        end if; " +
+                    "     end loop; " +
+                    "     commit; " +
+                    "END; "
                 );
             }
         });
