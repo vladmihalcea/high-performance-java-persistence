@@ -1,15 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.recursive.simple;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Slf4jReporter;
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
+import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScoreResultTransformer;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.SQLQuery;
 import org.junit.Test;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 

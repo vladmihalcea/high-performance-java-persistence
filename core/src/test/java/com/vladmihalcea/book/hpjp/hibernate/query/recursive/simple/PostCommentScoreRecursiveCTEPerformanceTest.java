@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.recursive.simple;
 
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
+import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScoreResultTransformer;
 import org.hibernate.SQLQuery;
 
 import java.util.List;

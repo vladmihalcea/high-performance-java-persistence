@@ -1,14 +1,18 @@
 package com.vladmihalcea.book.hpjp.hibernate.sp;
 
+import ch.qos.logback.core.db.dialect.OracleDialect;
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import oracle.jdbc.OracleTypes;
 import org.hibernate.Session;
-import org.hibernate.annotations.NamedNativeQueries;
 import org.hibernate.annotations.NamedNativeQuery;
+import org.hibernate.dialect.Oracle12cDialect;
+import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.procedure.ProcedureCall;
 import org.hibernate.result.Output;
 import org.hibernate.result.ResultSetOutput;
+import org.hibernate.type.StandardBasicTypes;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -123,14 +127,24 @@ public class OracleStoredProcedureTest extends AbstractOracleXEIntegrationTest {
         });
     }
 
+    @Override
+    protected DataSourceProvider dataSourceProvider() {
+        return new OracleDataSourceProvider() {
+            @Override
+            public String hibernateDialect() {
+                return OracleDialect.class.getName();
+            }
+        };
+    }
+
     @Test
     public void testStoredProcedureOutParameter() {
         doInJPA(entityManager -> {
-            StoredProcedureQuery query = entityManager.createStoredProcedureQuery("count_comments");
-            query.registerStoredProcedureParameter(1, Long.class, ParameterMode.IN);
-            query.registerStoredProcedureParameter(2, Long.class, ParameterMode.OUT);
-
-            query.setParameter(1, 1L);
+            StoredProcedureQuery query = entityManager
+                .createStoredProcedureQuery("count_comments")
+                .registerStoredProcedureParameter(1, Long.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(2, Long.class, ParameterMode.OUT)
+                .setParameter(1, 1L);
 
             query.execute();
             Long commentCount = (Long) query.getOutputParameterValue(2);
@@ -141,10 +155,11 @@ public class OracleStoredProcedureTest extends AbstractOracleXEIntegrationTest {
     @Test
     public void testStoredProcedureRefCursor() {
         doInJPA(entityManager -> {
-            StoredProcedureQuery query = entityManager.createStoredProcedureQuery("post_comments");
-            query.registerStoredProcedureParameter(1, Long.class, ParameterMode.IN);
-            query.registerStoredProcedureParameter(2, Class.class, ParameterMode.REF_CURSOR);
-            query.setParameter(1, 1L);
+            StoredProcedureQuery query = entityManager
+                .createStoredProcedureQuery("post_comments")
+                .registerStoredProcedureParameter(1, Long.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(2, Class.class, ParameterMode.REF_CURSOR)
+                .setParameter(1, 1L);
 
             query.execute();
             List<Object[]> postComments = query.getResultList();
@@ -176,6 +191,17 @@ public class OracleStoredProcedureTest extends AbstractOracleXEIntegrationTest {
                 .setParameter("postId", 1L)
                 .getSingleResult();
             assertEquals(BigDecimal.valueOf(2), commentCount);
+        });
+    }
+
+    @Test
+    public void testFunctionCallAfterRegistration() {
+        doInJPA(entityManager -> {
+            Integer commentCount = (Integer) entityManager
+                .createQuery("select fn_count_comments(:postId) from Post where id = :posdtId")
+                .setParameter("postId", 1L)
+                .getSingleResult();
+            assertEquals(Integer.valueOf(2), commentCount);
         });
     }
 
@@ -221,12 +247,15 @@ public class OracleStoredProcedureTest extends AbstractOracleXEIntegrationTest {
     @Test
     public void testNamedNativeQueryStoredProcedureRefCursor() {
         doInJPA(entityManager -> {
-            List<?> posts = entityManager
+            List<Object[]> postAndComments = entityManager
             .createNamedQuery(
                 "fn_post_and_comments")
             .setParameter(1, 1L)
             .getResultList();
-            assertEquals(2, posts.size());
+            Object[] postAndComment = postAndComments.get(0);
+            Post post = (Post) postAndComment[0];
+            PostComment comment = (PostComment) postAndComment[1];
+            assertEquals(2, postAndComments.size());
         });
     }
 
@@ -252,39 +281,45 @@ public class OracleStoredProcedureTest extends AbstractOracleXEIntegrationTest {
     }
 
     @Entity(name = "QueryHolder")
-    @NamedNativeQueries({
-        @NamedNativeQuery(
-            name = "fn_post_and_comments",
-            query = "{ ? = call fn_post_and_comments( ? ) }",
-            callable = true,
-            resultSetMapping = "post_and_comments"
-        )
-    })
-    @SqlResultSetMappings({
-        @SqlResultSetMapping(
-            name = "post_and_comments",
-            entities = {
-                @EntityResult(
-                    entityClass = Post.class,
-                    fields = {
-                        @FieldResult( name = "id", column = "p.id" ),
-                        @FieldResult( name = "title", column = "p.title" ),
-                        @FieldResult( name = "version", column = "p.version" ),
-                    }
-                ),
-                @EntityResult(
-                    entityClass = PostComment.class,
-                    fields = {
-                        @FieldResult( name = "id", column = "c.id" ),
-                        @FieldResult( name = "post", column = "c.post_id" ),
-                        @FieldResult( name = "version", column = "c.version" ),
-                        @FieldResult( name = "review", column = "c.review" ),
-                    }
-                )
-            }
-        ),
-    })
+    @NamedNativeQuery(
+        name = "fn_post_and_comments",
+        query = "{ ? = call fn_post_and_comments( ? ) }",
+        callable = true,
+        resultSetMapping = "post_and_comments"
+    )
+    @SqlResultSetMapping(
+        name = "post_and_comments",
+        entities = {
+            @EntityResult(
+                entityClass = Post.class,
+                fields = {
+                    @FieldResult( name = "id", column = "p.id" ),
+                    @FieldResult( name = "title", column = "p.title" ),
+                    @FieldResult( name = "version", column = "p.version" ),
+                }
+            ),
+            @EntityResult(
+                entityClass = PostComment.class,
+                fields = {
+                    @FieldResult( name = "id", column = "c.id" ),
+                    @FieldResult( name = "post", column = "c.post_id" ),
+                    @FieldResult( name = "version", column = "c.version" ),
+                    @FieldResult( name = "review", column = "c.review" ),
+                }
+            )
+        }
+    )
     public static class QueryHolder {
         @Id private Long id;
     }
+
+    public static class OracleDialect extends Oracle12cDialect {
+
+        @Override
+        protected void registerFunctions() {
+            super.registerFunctions();
+            registerFunction( "fn_count_comments", new SQLFunctionTemplate( StandardBasicTypes.INTEGER, "fn_count_comments(?1)" ) );
+        }
+    }
+
 }

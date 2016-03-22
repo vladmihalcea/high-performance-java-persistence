@@ -1,21 +1,22 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.recursive.simple;
 
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
+import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScoreResultTransformer;
+import org.hibernate.SQLQuery;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * <code>PostCommentScoreTest</code> - PostCommentScore Test
  *
  * @author Vlad Mihalcea
  */
-public class PostCommentScoreFetchProjectionPerformanceTest extends AbstractPostCommentScorePerformanceTest {
+public class PostCommentScoreFetchProjectionOrderByPerformanceTest extends AbstractPostCommentScorePerformanceTest {
 
     protected com.codahale.metrics.Timer inMemoryProcessingTimer = metricRegistry.timer("In-memory processing timer");
 
-    public PostCommentScoreFetchProjectionPerformanceTest(int postCount, int commentCount) {
+    public PostCommentScoreFetchProjectionOrderByPerformanceTest(int postCount, int commentCount) {
         super(postCount, commentCount);
     }
 
@@ -28,7 +29,8 @@ public class PostCommentScoreFetchProjectionPerformanceTest extends AbstractPost
                 "   com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore(" +
                 "   pc.id, pc.parent.id, pc.review, pc.createdOn, pc.score ) " +
                 "from PostComment pc " +
-                "where pc.post.id = :postId ")
+                "where pc.post.id = :postId " +
+                "order by pc.id ")
             .setParameter("postId", postId)
             .getResultList();
 
@@ -42,9 +44,7 @@ public class PostCommentScoreFetchProjectionPerformanceTest extends AbstractPost
                     if (!postCommentScoreMap.containsKey(id)) {
                         postCommentScoreMap.put(id, postCommentScore);
                     }
-                }
 
-                for(PostCommentScore postCommentScore : postCommentScores) {
                     Long parentId = postCommentScore.getParentId();
                     if(parentId == null) {
                         roots.add(postCommentScore);
@@ -62,10 +62,11 @@ public class PostCommentScoreFetchProjectionPerformanceTest extends AbstractPost
                     roots = roots.subList(0, rank);
                 }
             }
+
             long endNanos = System.nanoTime();
             timer.update(endNanos - startNanos, TimeUnit.NANOSECONDS);
             inMemoryProcessingTimer.update(endNanos - startInMemoryProcessingNanos, TimeUnit.MICROSECONDS);
-            return  roots;
+            return postCommentScores;
         });
     }
 }

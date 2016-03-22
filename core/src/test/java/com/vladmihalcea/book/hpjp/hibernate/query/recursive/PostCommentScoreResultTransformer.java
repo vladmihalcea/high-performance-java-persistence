@@ -1,6 +1,5 @@
-package com.vladmihalcea.book.hpjp.hibernate.query.recursive.simple;
+package com.vladmihalcea.book.hpjp.hibernate.query.recursive;
 
-import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 import org.hibernate.transform.ResultTransformer;
 
 import java.util.ArrayList;
@@ -19,17 +18,18 @@ public class PostCommentScoreResultTransformer implements ResultTransformer {
 
     @Override
     public Object transformTuple(Object[] tuple, String[] aliases) {
-        PostCommentScore postCommentScore = (PostCommentScore) tuple[0];
-        if (postCommentScore.getParentId() == null) {
-            roots.add(postCommentScore);
+        PostCommentScore commentScore = (PostCommentScore) tuple[0];
+        Long parentId = commentScore.getParentId();
+        if (parentId == null) {
+            roots.add(commentScore);
         } else {
-            PostCommentScore parent = postCommentScoreMap.get(postCommentScore.getParentId());
+            PostCommentScore parent = postCommentScoreMap.get(parentId);
             if (parent != null) {
-                parent.addChild(postCommentScore);
+                parent.addChild(commentScore);
             }
         }
-        postCommentScoreMap.putIfAbsent(postCommentScore.getId(), postCommentScore);
-        return postCommentScore;
+        postCommentScoreMap.putIfAbsent(commentScore.getId(), commentScore);
+        return commentScore;
     }
 
     @Override
