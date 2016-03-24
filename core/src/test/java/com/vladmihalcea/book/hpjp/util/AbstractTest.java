@@ -399,11 +399,13 @@ public abstract class AbstractTest {
         @Override
         public DataSource dataSource() {
             MysqlDataSource dataSource = new MysqlDataSource();
-            dataSource.setURL("jdbc:mysql://localhost/high_performance_java_persistence?user=mysql&password=admin" +
-                    "&rewriteBatchedStatements=" + rewriteBatchedStatements +
+            dataSource.setURL("jdbc:mysql://localhost/high_performance_java_persistence?" +
+                    "rewriteBatchedStatements=" + rewriteBatchedStatements +
                     "&cachePrepStmts=" + cachePrepStmts +
                     "&useServerPrepStmts=" + useServerPrepStmts
             );
+            dataSource.setUser("mysql");
+            dataSource.setPassword("admin");
             return dataSource;
         }
 

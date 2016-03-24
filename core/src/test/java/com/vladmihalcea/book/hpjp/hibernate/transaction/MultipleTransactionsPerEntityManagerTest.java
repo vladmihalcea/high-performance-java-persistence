@@ -12,7 +12,7 @@ import javax.persistence.EntityTransaction;
  *
  * @author Vlad Mihalcea
  */
-public class MultipleTransactionsPerEntityManager extends AbstractTest {
+public class MultipleTransactionsPerEntityManagerTest extends AbstractTest {
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
     @Override
