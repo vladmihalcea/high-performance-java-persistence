@@ -1,8 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.logging.validator;
 
+import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
+import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.exception.SQLStatementCountMismatchException;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.sql.SQLStatementCountValidator;
-import com.vladmihalcea.sql.exception.SQLSelectCountMismatchException;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -11,7 +11,6 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 /**
  * <code>SQLStatementCountValidatorTest</code> - SQLStatementCountValidator Test
@@ -55,16 +54,16 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
             LOGGER.info("Detect N+1");
             try {
                 SQLStatementCountValidator.reset();
-                List<PostComment> postComments = entityManager
-                    .createQuery("select pc from PostComment pc", PostComment.class)
-                    .getResultList();
+                List<PostComment> postComments = entityManager.createQuery(
+                    "select pc " +
+                    "from PostComment pc", PostComment.class)
+                .getResultList();
 
                 for(PostComment postComment : postComments) {
-                    assertNotNull(postComment.getPost());
+                    assertNotNull(postComment.getPost().getTitle());
                 }
-
                 SQLStatementCountValidator.assertSelectCount(1);
-            } catch (SQLSelectCountMismatchException e) {
+            } catch (SQLStatementCountMismatchException e) {
                 assertEquals(3, e.getRecorded());
             }
         });

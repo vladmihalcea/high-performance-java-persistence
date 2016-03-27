@@ -1,20 +1,20 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.Session;
 import org.junit.Test;
 
 import javax.persistence.*;
 
+import java.util.Collections;
+
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 /**
  * <code>FindEntityTest</code> - Find entity Test
  *
  * @author Vlad Mihalcea
  */
-public class FindEntityTest extends AbstractPostgreSQLIntegrationTest {
+public class EagerFetchingManyToOneFindEntityTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -30,90 +30,65 @@ public class FindEntityTest extends AbstractPostgreSQLIntegrationTest {
         super.init();
         doInJPA(entityManager -> {
             Post post = new Post();
+            post.setId(1L);
             post.setTitle(String.format("Post nr. %d", 1));
+            PostComment comment = new PostComment();
+            comment.setId(1L);
+            comment.setPost(post);
+            comment.setReview("Excellent!");
             entityManager.persist(post);
+            entityManager.persist(comment);
         });
     }
 
     @Test
     public void testFind() {
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
-            assertNotNull(post);
-        });
-    }
-
-    @Test
-    public void testGet() {
-        doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            Post post = session.get(Post.class, 1L);
-            assertNotNull(post);
+            PostComment comment = entityManager.find(PostComment.class, 1L);
+            assertNotNull(comment);
         });
     }
 
     @Test
     public void testFindWithQuery() {
         doInJPA(entityManager -> {
-            Long postId =  1L;
-            Post post = entityManager.createQuery(
-                "select p from Post p where p.id = :id", Post.class)
-            .setParameter("id", postId)
+            Long commentId =  1L;
+            PostComment comment = entityManager.createQuery(
+                "select pc " +
+                "from PostComment pc " +
+                "where pc.id = :id", PostComment.class)
+            .setParameter("id", commentId)
             .getSingleResult();
-            assertNotNull(post);
+            assertNotNull(comment);
         });
     }
 
     @Test
-    public void testGetReference() {
+    public void testFindWithQueryAndFetch() {
         doInJPA(entityManager -> {
-            Post post = entityManager.getReference(Post.class, 1L);
-            LOGGER.info("Loaded post entity");
-            LOGGER.info("The post title is '{}'", post.getTitle());
+            Long commentId =  1L;
+            PostComment comment = entityManager.createQuery(
+                "select pc " +
+                "from PostComment pc " +
+                "left join fetch pc.post p " +
+                "where pc.id = :id", PostComment.class)
+            .setParameter("id", commentId)
+            .getSingleResult();
+            assertNotNull(comment);
         });
     }
 
     @Test
-    public void testByIdGetReference() {
+    public void testFindWithNamedEntityGraph() {
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            Post post = session.byId(Post.class).getReference(1L);
-            LOGGER.info("Loaded post entity");
-            LOGGER.info("The post title is '{}'", post.getTitle());
-        });
-    }
-
-    @Test
-    public void testLoad() {
-        doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            Post post = session.load(Post.class, 1L);
-            LOGGER.info("Loaded post entity");
-            LOGGER.info("The post title is '{}'", post.getTitle());
-        });
-    }
-
-    @Test
-    public void testGetReferenceAndPersist() {
-        doInJPA(entityManager -> {
-            LOGGER.info("Persisting a post comment");
-            Post post = entityManager.getReference(Post.class, 1L);
-            PostComment postComment = new PostComment("Excellent reading!");
-            postComment.setPost(post);
-            entityManager.persist(postComment);
-        });
-    }
-
-    @Test
-    public void testTransientAndPersist() {
-        doInJPA(entityManager -> {
-            LOGGER.info("Persisting a post comment");
-            Post post = new Post();
-            post.setId(1L);
-            PostComment postComment = new PostComment("Excellent reading!");
-            postComment.setPost(post);
-            entityManager.persist(postComment);
-            assertNull(postComment.getPost().getTitle());
+            PostComment comment = entityManager.find(PostComment.class, 1L,
+                Collections.singletonMap(
+                    "javax.persistence.fetchgraph",
+                    entityManager.getEntityGraph("PostComment.post")
+                )
+            );
+            LOGGER.info("Fetch entity graph");
+            assertNotNull(comment);
         });
     }
 
@@ -122,7 +97,6 @@ public class FindEntityTest extends AbstractPostgreSQLIntegrationTest {
     public static class Post {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
         private Long id;
 
         private String title;
@@ -157,10 +131,10 @@ public class FindEntityTest extends AbstractPostgreSQLIntegrationTest {
 
     @Entity(name = "PostComment")
     @Table(name = "post_comment")
+    @NamedEntityGraph(name = "PostComment.post", attributeNodes = {})
     public static class PostComment {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
         private Long id;
 
         @ManyToOne

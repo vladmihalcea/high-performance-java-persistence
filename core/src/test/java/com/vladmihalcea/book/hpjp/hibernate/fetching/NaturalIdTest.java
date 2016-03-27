@@ -6,8 +6,11 @@ import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
 import javax.persistence.*;
+import java.util.List;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <code>FindEntityTest</code> - Find entity Test
@@ -48,12 +51,12 @@ public class NaturalIdTest extends AbstractPostgreSQLIntegrationTest {
     @Test
     public void testFindWithQuery() {
         doInJPA(entityManager -> {
-            String slug =  "high-performance-java-persistence";
-            Post post = entityManager.createQuery(
-                "select p from Post p where p.slug = :slug", Post.class)
-            .setParameter("slug", slug)
-            .getSingleResult();
-            assertNotNull(post);
+            List<Post> posts = entityManager.createQuery(
+                "select p " +
+                "from Post p " +
+                "where p.slug is not null", Post.class)
+            .getResultList();
+            assertFalse(posts.isEmpty());
         });
     }
 

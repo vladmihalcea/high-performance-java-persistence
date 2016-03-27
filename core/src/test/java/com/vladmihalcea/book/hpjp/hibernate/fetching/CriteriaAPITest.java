@@ -4,11 +4,15 @@ import com.vladmihalcea.book.hpjp.hibernate.forum.*;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.junit.Test;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <code>FindEntityTest</code> - Find entity Test
@@ -42,12 +46,27 @@ public class CriteriaAPITest extends AbstractPostgreSQLIntegrationTest {
     @Test
     public void testFind() {
         doInJPA(entityManager -> {
-            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-            CriteriaQuery<Post> criteria = builder.createQuery(Post.class);
-            Root<Post> fromPost = criteria.from(Post.class);
-            criteria.where(builder.like(fromPost.get(Post_.title), "high-performance%"));
-            Post post = entityManager.createQuery(criteria).getSingleResult();
-            assertNotNull(post);
+            List<Post> posts = filterPosts(entityManager, "high-performance%");
+            assertFalse(posts.isEmpty());
         });
+        doInJPA(entityManager -> {
+            List<Post> posts = filterPosts(entityManager, null);
+            assertTrue(posts.isEmpty());
+        });
+    }
+
+    private List<Post> filterPosts(EntityManager entityManager, String titlePattern) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Post> criteria = builder.createQuery(Post.class);
+        Root<Post> fromPost = criteria.from(Post.class);
+
+        Predicate titlePredicate = titlePattern == null ?
+            builder.isNull(fromPost.get(Post_.title)) :
+            builder.like(fromPost.get(Post_.title), titlePattern);
+
+        criteria.where(titlePredicate);
+        List<Post> posts = entityManager.createQuery(criteria).getResultList();
+
+        return posts;
     }
 }

@@ -1,9 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.forum;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author Vlad Mihalcea
@@ -15,7 +12,7 @@ public class PostComment {
     @Id
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
 
     private String review;
