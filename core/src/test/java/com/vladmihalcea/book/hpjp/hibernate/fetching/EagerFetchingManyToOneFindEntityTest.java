@@ -1,11 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
+import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.junit.Test;
 
 import javax.persistence.*;
-
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -90,6 +91,27 @@ public class EagerFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInte
             LOGGER.info("Fetch entity graph");
             assertNotNull(comment);
         });
+    }
+
+    @Test
+    public void testNPlusOneDetection() {
+        try {
+            String review = "Excellent!";
+
+            doInJPA(entityManager -> {
+                LOGGER.info("Detect N+1");
+                SQLStatementCountValidator.reset();
+                List<PostComment> comments = entityManager.createQuery(
+                    "select pc " +
+                    "from PostComment pc " +
+                    "where pc.review = :review", PostComment.class)
+                .setParameter("review", review)
+                .getResultList();
+                SQLStatementCountValidator.assertSelectCount(1);
+            });
+        } catch (Exception expected) {
+            LOGGER.error("Exception", expected);
+        }
     }
 
     @Entity(name = "Post")

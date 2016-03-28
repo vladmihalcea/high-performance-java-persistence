@@ -1,11 +1,9 @@
-package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.hibernate;
+package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa;
 
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Tag;
-import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.hibernate.config.HibernateTransactionManagerConfiguration;
-import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.hibernate.service.ForumService;
-import org.hibernate.SessionFactory;
-import org.junit.Before;
+import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config.JPATransactionManagerConfiguration;
+import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.service.ForumService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -18,50 +16,49 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import static org.junit.Assert.assertNotNull;
 
 /**
- * <code>HibernateTransactionManagerTest</code> - HibernateTransactionManager Test
+ * <code>JpaTransactionManagerTest</code> - JpaTransactionManager Test
  *
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = HibernateTransactionManagerConfiguration.class)
+@ContextConfiguration(classes = JPATransactionManagerConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class HibernateTransactionManagerTest {
+public class JPATransactionManagerTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private TransactionTemplate transactionTemplate;
 
-    @Autowired
-    private SessionFactory sessionFactory;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     private ForumService forumService;
 
-    @Before
-    public void init() {
+    @Test
+    public void test() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 Tag hibernate = new Tag();
                 hibernate.setName("hibernate");
-                sessionFactory.getCurrentSession().persist(hibernate);
+                entityManager.persist(hibernate);
 
                 Tag jpa = new Tag();
                 jpa.setName("jpa");
-                sessionFactory.getCurrentSession().persist(jpa);
+                entityManager.persist(jpa);
                 return null;
             });
         } catch (TransactionException e) {
             LOGGER.error("Failure", e);
         }
 
-    }
-
-    @Test
-    public void test() {
         Post post = forumService.newPost("High-Performance Java Persistence", "hibernate", "jpa");
         assertNotNull(post.getId());
     }

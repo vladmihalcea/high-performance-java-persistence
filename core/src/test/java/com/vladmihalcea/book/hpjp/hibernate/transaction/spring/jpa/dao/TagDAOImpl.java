@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao;
 
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Tag;
+import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
@@ -23,6 +24,8 @@ public class TagDAOImpl extends GenericDAOImpl<Tag, Long> implements TagDAO {
         if(tags.length == 0) {
             throw new IllegalArgumentException("There's no tag name to search for!");
         }
+        Session session =  getEntityManager().unwrap(Session.class);
+
         return getEntityManager().createQuery(
                 "select t " +
                         "from Tag t " +

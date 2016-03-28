@@ -2,9 +2,12 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.hibernate.forum.*;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import org.hibernate.LazyInitializationException;
 import org.junit.Test;
 
 import javax.persistence.EntityGraph;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import java.util.Collections;
 import java.util.List;
 
@@ -125,5 +128,44 @@ public class LazyFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInteg
                 LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
             }
         });
+    }
+
+    @Test(expected = LazyInitializationException.class)
+    public void testSessionIsClosed() {
+        doInJPA(entityManager -> {
+            Post post = new Post();
+            post.setId(1L);
+            post.setTitle(String.format("Post nr. %d", 1));
+            PostComment comment = new PostComment();
+            comment.setId(1L);
+            comment.setPost(post);
+            comment.setReview("Excellent!");
+            entityManager.persist(post);
+            entityManager.persist(comment);
+        });
+
+        PostComment comment = null;
+
+        EntityManager entityManager = null;
+        EntityTransaction transaction = null;
+        try {
+            entityManager = entityManagerFactory().createEntityManager();
+            transaction = entityManager.getTransaction();
+            transaction.begin();
+
+            comment = entityManager.find(PostComment.class, 1L);
+
+            transaction.commit();
+        } catch (Throwable e) {
+            if ( transaction != null && transaction.isActive())
+                transaction.rollback();
+            throw e;
+        } finally {
+            if (entityManager != null) {
+                entityManager.close();
+            }
+        }
+
+        LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
     }
 }
