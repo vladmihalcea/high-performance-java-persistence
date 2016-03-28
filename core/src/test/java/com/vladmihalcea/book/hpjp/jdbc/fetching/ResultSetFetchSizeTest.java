@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.jdbc.fetching;
 
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 

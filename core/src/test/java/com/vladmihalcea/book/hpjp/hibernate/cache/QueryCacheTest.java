@@ -3,7 +3,6 @@ package com.vladmihalcea.book.hpjp.hibernate.cache;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.Session;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.jpa.AvailableSettings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

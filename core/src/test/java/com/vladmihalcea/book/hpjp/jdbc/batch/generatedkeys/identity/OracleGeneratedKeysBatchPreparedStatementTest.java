@@ -6,9 +6,6 @@ import org.junit.Test;
 import java.sql.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 /**
  * GeneratedKeysBatchPreparedStatementTest - Base class for testing JDBC PreparedStatement generated keys
  *

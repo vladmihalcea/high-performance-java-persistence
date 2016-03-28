@@ -1,8 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.SQLQuery;
-import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.junit.Test;
 
 import javax.persistence.*;

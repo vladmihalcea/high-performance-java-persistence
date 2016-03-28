@@ -4,7 +4,6 @@ import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * <code>PostCommentScoreTest</code> - PostCommentScore Test

@@ -2,16 +2,12 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
-import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class PooledSequenceIdentifierTest extends AbstractPooledSequenceIdentifierTest {
 

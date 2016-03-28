@@ -2,13 +2,11 @@ package com.vladmihalcea.book.hpjp.hibernate.type;
 
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
-import org.postgresql.util.PGobject;
 
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.Objects;
 
 /**

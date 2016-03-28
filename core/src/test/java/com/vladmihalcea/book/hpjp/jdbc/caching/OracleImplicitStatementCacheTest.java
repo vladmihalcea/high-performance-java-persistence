@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.jdbc.caching;
 
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.pool.OracleDataSource;
 import org.junit.Test;

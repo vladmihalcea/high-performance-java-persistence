@@ -1,10 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier.uuid;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.annotations.GenericGenerator;
 import org.junit.Test;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.UUID;
 
 import static org.junit.Assert.assertNotNull;

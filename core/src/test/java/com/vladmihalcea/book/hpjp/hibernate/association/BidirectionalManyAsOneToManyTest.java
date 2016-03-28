@@ -5,7 +5,10 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * <code>BidirectionalManyAsOneToManyTest</code> - Bidirectional @ManyToMany with @OneToMany Test

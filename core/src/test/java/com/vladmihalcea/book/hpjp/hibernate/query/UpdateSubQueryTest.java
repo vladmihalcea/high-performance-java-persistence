@@ -5,7 +5,6 @@ import org.hibernate.Session;
 import org.junit.Test;
 
 import javax.persistence.*;
-import javax.persistence.criteria.Order;
 import java.util.HashSet;
 import java.util.Set;
 

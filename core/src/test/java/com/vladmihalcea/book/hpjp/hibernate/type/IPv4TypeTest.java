@@ -6,13 +6,15 @@ import org.hibernate.annotations.Type;
 import org.junit.Test;
 
 import javax.persistence.*;
-
-import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * <code>Inet4TypeTest</code> -

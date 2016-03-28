@@ -8,7 +8,8 @@ import javax.sql.DataSource;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.*;
+import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
+import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostComment;
 
 public class DriverConnectionProviderTest extends AbstractTest {
 

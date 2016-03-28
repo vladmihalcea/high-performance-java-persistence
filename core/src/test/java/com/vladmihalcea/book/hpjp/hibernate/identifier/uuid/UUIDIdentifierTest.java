@@ -5,9 +5,6 @@ import org.hibernate.annotations.GenericGenerator;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.UUID;
-
-import static org.junit.Assert.assertSame;
 
 public class UUIDIdentifierTest extends AbstractTest {
 

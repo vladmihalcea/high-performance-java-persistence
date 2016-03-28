@@ -3,8 +3,6 @@ package com.vladmihalcea.book.hpjp.jdbc.batch;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * BatchPreparedStatementTest - Test batching with PreparedStatements
  *

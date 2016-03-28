@@ -1,8 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.sp;
 
-import ch.qos.logback.core.db.dialect.OracleDialect;
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import oracle.jdbc.OracleTypes;
 import org.hibernate.Session;

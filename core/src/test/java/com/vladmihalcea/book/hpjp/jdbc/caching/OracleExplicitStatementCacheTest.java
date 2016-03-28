@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.jdbc.caching;
 
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.OraclePreparedStatement;
 import org.junit.Test;
@@ -9,7 +9,6 @@ import org.junit.Test;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 /**

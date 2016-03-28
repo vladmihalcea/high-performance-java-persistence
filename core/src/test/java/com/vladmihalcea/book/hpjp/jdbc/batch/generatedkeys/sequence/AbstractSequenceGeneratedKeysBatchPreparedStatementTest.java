@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.jdbc.batch.generatedkeys.sequence;
 
-import com.vladmihalcea.book.hpjp.util.providers.SequenceBatchEntityProvider;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.SequenceBatchEntityProvider;
 import org.junit.Test;
 
 import java.sql.*;

@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import org.hibernate.Session;

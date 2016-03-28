@@ -17,9 +17,7 @@ import java.util.regex.Pattern;
 
 import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
 import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostComment;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * <code>SQLServerStoredProcedureTest</code> - SQL Server StoredProcedure Test

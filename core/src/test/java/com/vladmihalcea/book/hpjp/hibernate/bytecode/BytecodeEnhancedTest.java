@@ -1,6 +1,9 @@
 package com.vladmihalcea.book.hpjp.hibernate.bytecode;
 
-import com.vladmihalcea.book.hpjp.hibernate.forum.*;
+import com.vladmihalcea.book.hpjp.hibernate.forum.Post;
+import com.vladmihalcea.book.hpjp.hibernate.forum.PostComment;
+import com.vladmihalcea.book.hpjp.hibernate.forum.PostDetails;
+import com.vladmihalcea.book.hpjp.hibernate.forum.Tag;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 

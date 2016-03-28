@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.jdbc.batch;
 
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -10,8 +10,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.Assert.fail;
 
 /**
  * AbstractBatchPreparedStatementTest - Base class for testing JDBC PreparedStatement  batching

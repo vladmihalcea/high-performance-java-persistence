@@ -1,7 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier.batch;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.annotations.GenericGenerator;
 import org.junit.Test;
 
 import javax.persistence.*;

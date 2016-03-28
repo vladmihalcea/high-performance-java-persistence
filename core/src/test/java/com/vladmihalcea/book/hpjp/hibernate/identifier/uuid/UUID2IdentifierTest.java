@@ -7,8 +7,6 @@ import org.junit.Test;
 import javax.persistence.*;
 import java.util.UUID;
 
-import static org.junit.Assert.assertSame;
-
 public class UUID2IdentifierTest extends AbstractTest {
 
     @Override

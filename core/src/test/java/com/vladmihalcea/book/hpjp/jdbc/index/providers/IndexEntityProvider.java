@@ -2,7 +2,10 @@ package com.vladmihalcea.book.hpjp.jdbc.index.providers;
 
 import com.vladmihalcea.book.hpjp.util.EntityProvider;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 /**
  * <code>BatchEntityProvider</code> - Batch Entity Provider

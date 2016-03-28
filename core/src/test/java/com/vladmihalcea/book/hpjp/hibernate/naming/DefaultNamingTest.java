@@ -3,7 +3,9 @@ package com.vladmihalcea.book.hpjp.hibernate.naming;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import static org.junit.Assert.assertEquals;
 

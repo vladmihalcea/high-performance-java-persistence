@@ -2,20 +2,21 @@ package com.vladmihalcea.book.hpjp.hibernate.binding;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
-import org.hibernate.EmptyInterceptor;
-import org.hibernate.Interceptor;
-import org.hibernate.Transaction;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
+import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
+import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostComment;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.*;
 
 /**
  * EntityGraphMapperTest - Test mapping to entity

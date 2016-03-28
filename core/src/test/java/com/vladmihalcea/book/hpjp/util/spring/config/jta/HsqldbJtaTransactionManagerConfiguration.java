@@ -2,7 +2,8 @@ package com.vladmihalcea.book.hpjp.util.spring.config.jta;
 
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 import javax.sql.DataSource;
 import java.util.Properties;

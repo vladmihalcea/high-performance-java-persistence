@@ -1,13 +1,13 @@
 package com.vladmihalcea.book.hpjp.jdbc.caching;
 
-import com.vladmihalcea.book.hpjp.util.providers.TaskEntityProvider;
 import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.TaskEntityProvider;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 /**
  * SQLServerImplicitStatementCacheTest - Test SQL Server implicit Statement cache
