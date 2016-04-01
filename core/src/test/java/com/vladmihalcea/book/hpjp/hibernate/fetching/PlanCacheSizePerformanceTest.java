@@ -3,7 +3,8 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.codahale.metrics.UniformReservoir;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.jpa.QueryHints;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,21 +21,21 @@ import java.util.stream.LongStream;
  * @author Vlad Mihalcea
  */
 @RunWith(Parameterized.class)
-public class CreateQueryPerformanceTest extends AbstractPostgreSQLIntegrationTest {
+public class PlanCacheSizePerformanceTest extends AbstractTest {
 
     private MetricRegistry metricRegistry = new MetricRegistry();
 
-    private Timer timer = metricRegistry.timer(getClass().getSimpleName());
+    private Timer timer = new Timer(new UniformReservoir(10000));
 
     private Slf4jReporter logReporter = Slf4jReporter
             .forRegistry(metricRegistry)
             .outputTo(LOGGER)
-            .convertDurationsTo(TimeUnit.MICROSECONDS)
+            .convertDurationsTo(TimeUnit.MILLISECONDS)
             .build();
 
     private final int planCacheMaxSize;
 
-    public CreateQueryPerformanceTest(int planCacheMaxSize) {
+    public PlanCacheSizePerformanceTest(int planCacheMaxSize) {
         this.planCacheMaxSize = planCacheMaxSize;
     }
 
@@ -59,6 +60,7 @@ public class CreateQueryPerformanceTest extends AbstractPostgreSQLIntegrationTes
 
     @Override
     public void init() {
+        metricRegistry.register(getClass().getSimpleName(), timer);
         super.init();
         int commentsSize = 5;
         doInJPA(entityManager -> {
@@ -90,16 +92,19 @@ public class CreateQueryPerformanceTest extends AbstractPostgreSQLIntegrationTes
         //warming up
         LOGGER.info("Warming up");
         doInJPA(entityManager -> {
-            for (int i = 0; i < 1000; i++) {
+            for (int i = 0; i < 10000; i++) {
                 getQuery1(entityManager);
                 getQuery2(entityManager);
             }
         });
         LOGGER.info("Create queries for plan cache size {}", planCacheMaxSize);
+        int iterations = 2500;
         doInJPA(entityManager -> {
-            for (int i = 0; i < 1_000; i++) {
+            for (int i = 0; i < iterations; i++) {
                 long startNanos = System.nanoTime();
                 getQuery1(entityManager);
+                timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
+                startNanos = System.nanoTime();
                 getQuery2(entityManager);
                 timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
             }
@@ -131,11 +136,18 @@ public class CreateQueryPerformanceTest extends AbstractPostgreSQLIntegrationTes
         return entityManager.createQuery(
             "select c " +
             "from PostComment c " +
-            "join fetch c.post p");
+            "join fetch c.post p " +
+            "where p.title like :title");
     }
 
     @Entity(name = "Post")
     @Table(name = "post")
+    @NamedNativeQuery(
+        name = "findPostCommentsByPostTitle",
+        query = "select c.review " +
+                "from post_comment c " +
+                "where c.id > :id "
+    )
     public static class Post {
 
         @Id

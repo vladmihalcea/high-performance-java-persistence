@@ -26,7 +26,7 @@ public class PostCommentScoreFetchProjectionPerformanceTest extends AbstractPost
             long startNanos = System.nanoTime();
             List<PostCommentScore> postCommentScores = entityManager.createQuery(
                 "select new com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore(" +
-                "   pc.id, pc.parent.id, 0, pc.review, pc.createdOn, sum( case when pcv.up is null then 0 when pcv.up = true then 1 else -1 end ) " +
+                "   pc.id, pc.parent.id, pc.review, pc.createdOn, sum( case when pcv.up is null then 0 when pcv.up = true then 1 else -1 end ) " +
                 ") " +
                 "from PostComment pc " +
                 "left join PostCommentVote pcv on pc.id = pcv.comment " +

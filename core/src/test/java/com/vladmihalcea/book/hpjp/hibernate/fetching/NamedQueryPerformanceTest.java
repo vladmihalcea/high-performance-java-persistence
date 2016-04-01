@@ -9,7 +9,7 @@ import javax.persistence.EntityManager;
  *
  * @author Vlad Mihalcea
  */
-public class NamedQueryPerformanceTest extends CreateQueryPerformanceTest {
+public class NamedQueryPerformanceTest extends PlanCacheSizePerformanceTest {
 
     public static final String QUERY_NAME_1 = "findPostCommentSummary";
     public static final String QUERY_NAME_2 = "findPostComments";
