@@ -7,15 +7,17 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching;
  */
 public class PostCommentSummary {
 
-    private final Number id;
-    private final String title;
-    private final String review;
+    private Number id;
+    private String title;
+    private String review;
 
     public PostCommentSummary(Number id, String title, String review) {
         this.id = id;
         this.title = title;
         this.review = review;
     }
+
+    public PostCommentSummary() {}
 
     public Number getId() {
         return id;

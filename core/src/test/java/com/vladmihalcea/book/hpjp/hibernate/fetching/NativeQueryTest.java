@@ -1,6 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import org.hibernate.Session;
+import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -55,6 +57,19 @@ public class NativeQueryTest extends AbstractPostgreSQLIntegrationTest {
             .setMaxResults(pageSize)
             .getResultList();
             assertEquals(10, summaries.size());
+        });
+
+        doInJPA(entityManager -> {
+            Session session = entityManager.unwrap(Session.class);
+            List<PostCommentSummary> summaries = session.createSQLQuery(
+                "SELECT p.id as id, p.title as title, c.review as review " +
+                "FROM post_comment c " +
+                "JOIN post p ON c.post_id = p.id ")
+            .setFirstResult(pageStart)
+            .setMaxResults(pageSize)
+            .setResultTransformer(new AliasToBeanResultTransformer(PostCommentSummary.class))
+            .list();
+            assertEquals(pageSize, summaries.size());
         });
     }
 
