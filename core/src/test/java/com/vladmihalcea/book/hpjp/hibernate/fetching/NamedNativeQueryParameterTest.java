@@ -7,6 +7,9 @@ import org.junit.Test;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.LongStream;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * <code>NamedNativeQueryParameterTest</code> - Named Query Test
@@ -26,8 +29,24 @@ public class NamedNativeQueryParameterTest extends AbstractTest {
     @Test
     public void testWithParameters() {
         doInJPA(entityManager -> {
+            LongStream.range(0, 5).forEach(i -> {
+                Post post = new Post(i);
+                post.setTitle(String.format("Post nr. %d", i));
+
+                LongStream.range(0, 5).forEach(j -> {
+                    PostComment comment = new PostComment();
+                    comment.setId((i * 5) + j);
+                    comment.setReview(String.format("Good review nr. %d", comment.getId()));
+                    comment.setPost(post);
+                    entityManager.persist(comment);
+                });
+                entityManager.persist(post);
+            });
+        });
+        doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
-            session.getNamedQuery("findPostCommentsByPostTitle").setParameter("id", 0).list();
+            List<PostComment> comments = session.getNamedQuery("findPostCommentsByPostTitle").setParameter("id", 0).list();
+            assertTrue(!comments.isEmpty());
         });
     }
 
@@ -35,9 +54,10 @@ public class NamedNativeQueryParameterTest extends AbstractTest {
     @Table(name = "post")
     @NamedNativeQuery(
             name = "findPostCommentsByPostTitle",
-            query = "select c.review " +
+            query = "select c.* " +
                     "from post_comment c " +
-                    "where c.id > :id "
+                    "where c.id > :id ",
+            resultClass = PostComment.class
     )
     public static class Post {
 

@@ -12,7 +12,7 @@ public class SQLStatementCountMismatchException extends RuntimeException {
     private final int recorded;
 
     public SQLStatementCountMismatchException(int expected, int recorded) {
-        super(String.format("Expected %d statements but recorded %d instead!",
+        super(String.format("Expected %d statement(s) but recorded %d instead!",
             expected, recorded));
         this.expected = expected;
         this.recorded = recorded;

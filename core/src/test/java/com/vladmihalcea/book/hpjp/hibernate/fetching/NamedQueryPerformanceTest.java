@@ -22,19 +22,19 @@ public class NamedQueryPerformanceTest extends PlanCacheSizePerformanceTest {
     public void init() {
         super.init();
         doInJPA(entityManager -> {
-            entityManagerFactory().addNamedQuery(QUERY_NAME_1, createQuery1(entityManager));
-            entityManagerFactory().addNamedQuery(QUERY_NAME_2, createQuery2(entityManager));
+            entityManagerFactory().addNamedQuery(QUERY_NAME_1, createEntityQuery1(entityManager));
+            entityManagerFactory().addNamedQuery(QUERY_NAME_2, createEntityQuery2(entityManager));
         });
     }
 
     @Override
-    protected Object getQuery1(EntityManager entityManager) {
+    protected Object getEntityQuery1(EntityManager entityManager) {
         Session session = entityManager.unwrap(Session.class);
         return session.getNamedQuery(QUERY_NAME_1);
     }
 
     @Override
-    protected Object getQuery2(EntityManager entityManager) {
+    protected Object getEntityQuery2(EntityManager entityManager) {
         Session session = entityManager.unwrap(Session.class);
         return session.getNamedQuery(QUERY_NAME_2);
     }

@@ -5,6 +5,7 @@ import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.UniformReservoir;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.SQLQuery;
 import org.hibernate.jpa.QueryHints;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -88,39 +89,72 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
     }
 
     @Test
-    public void test() {
+    public void testEntityQueries() {
         //warming up
         LOGGER.info("Warming up");
         doInJPA(entityManager -> {
             for (int i = 0; i < 10000; i++) {
-                getQuery1(entityManager);
-                getQuery2(entityManager);
+                getEntityQuery1(entityManager);
+                getEntityQuery2(entityManager);
             }
         });
-        LOGGER.info("Create queries for plan cache size {}", planCacheMaxSize);
+        LOGGER.info("Create entity queries for plan cache size {}", planCacheMaxSize);
         int iterations = 2500;
         doInJPA(entityManager -> {
             for (int i = 0; i < iterations; i++) {
                 long startNanos = System.nanoTime();
-                getQuery1(entityManager);
+                getEntityQuery1(entityManager);
                 timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
                 startNanos = System.nanoTime();
-                getQuery2(entityManager);
+                getEntityQuery2(entityManager);
                 timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
             }
         });
         logReporter.report();
     }
 
-    protected Object getQuery1(EntityManager entityManager) {
-        return createQuery1(entityManager);
+    @Test
+    public void testNativeQueries() {
+        //warming up
+        LOGGER.info("Warming up");
+        doInJPA(entityManager -> {
+            for (int i = 0; i < 10000; i++) {
+                getNativeQuery1(entityManager);
+                getNativeQuery2(entityManager);
+            }
+        });
+        LOGGER.info("Create native queries for plan cache size {}", planCacheMaxSize);
+        int iterations = 2500;
+        doInJPA(entityManager -> {
+            for (int i = 0; i < iterations; i++) {
+                long startNanos = System.nanoTime();
+                getNativeQuery1(entityManager);
+                timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
+                startNanos = System.nanoTime();
+                getNativeQuery2(entityManager);
+                timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
+            }
+        });
+        logReporter.report();
     }
 
-    protected Object getQuery2(EntityManager entityManager) {
-        return createQuery2(entityManager);
+    protected Object getEntityQuery1(EntityManager entityManager) {
+        return createEntityQuery1(entityManager);
     }
 
-    protected Query createQuery1(EntityManager entityManager) {
+    protected Object getEntityQuery2(EntityManager entityManager) {
+        return createEntityQuery2(entityManager);
+    }
+
+    protected Object getNativeQuery1(EntityManager entityManager) {
+        return createNativeQuery1(entityManager);
+    }
+
+    protected Object getNativeQuery2(EntityManager entityManager) {
+        return createNativeQuery2(entityManager);
+    }
+
+    protected Query createEntityQuery1(EntityManager entityManager) {
         return entityManager.createQuery(
             "select new " +
             "   com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary( " +
@@ -132,12 +166,33 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
         .setHint(QueryHints.HINT_FETCH_SIZE, 20);
     }
 
-    protected Query createQuery2(EntityManager entityManager) {
+    protected Query createEntityQuery2(EntityManager entityManager) {
         return entityManager.createQuery(
             "select c " +
             "from PostComment c " +
             "join fetch c.post p " +
             "where p.title like :title");
+    }
+
+    protected Query createNativeQuery1(EntityManager entityManager) {
+        return entityManager.createNativeQuery(
+            "select p.id, p.title, c.review * " +
+            "from post_comment c " +
+            "join post p on p.id = c.post_id ")
+        .setFirstResult(10)
+        .setMaxResults(20)
+        .setHint(QueryHints.HINT_FETCH_SIZE, 20);
+    }
+
+    protected org.hibernate.Query createNativeQuery2(EntityManager entityManager) {
+        return entityManager.createNativeQuery(
+            "select c.*, p.* " +
+            "from post_comment c " +
+            "join post p on p.id = c.post_id " +
+            "where p.title like :title")
+        .unwrap(SQLQuery.class)
+        .addEntity(PostComment.class)
+        .addEntity(Post.class);
     }
 
     @Entity(name = "Post")
