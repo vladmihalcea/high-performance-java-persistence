@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <code>BidirectionalOneToOneMapsIdTest</code> - Bidirectional @OneToOne Test
@@ -39,6 +40,26 @@ public class BidirectionalOneToOneMapsIdTest extends AbstractTest {
                             "where p.id = :id", Post.class)
                     .setParameter("id", 1L)
                     .getSingleResult();*/
+        });
+    }
+
+    @Test
+    public void testNPlusOne() {
+        doInJPA(entityManager -> {
+            Post post1 = new Post("First post");
+            PostDetails details1 = new PostDetails("John Doe");
+            post1.setDetails(details1);
+            Post post2 = new Post("Second post");
+            PostDetails details2 = new PostDetails("John Doe");
+            post2.setDetails(details2);
+            entityManager.persist(post1);
+            entityManager.persist(post2);
+        });
+        doInJPA(entityManager -> {
+            List<Post> posts = entityManager.createQuery(
+                "select p " +
+                "from Post p ", Post.class)
+            .getResultList();
         });
     }
 

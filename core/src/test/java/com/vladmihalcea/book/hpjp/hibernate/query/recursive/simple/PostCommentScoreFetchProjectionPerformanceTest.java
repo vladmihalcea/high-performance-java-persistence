@@ -61,9 +61,8 @@ public class PostCommentScoreFetchProjectionPerformanceTest extends AbstractPost
                     roots = roots.subList(0, rank);
                 }
             }
-            long endNanos = System.nanoTime();
-            timer.update(endNanos - startNanos, TimeUnit.NANOSECONDS);
-            inMemoryProcessingTimer.update(endNanos - startInMemoryProcessingNanos, TimeUnit.MICROSECONDS);
+            inMemoryProcessingTimer.update(System.nanoTime() - startInMemoryProcessingNanos, TimeUnit.NANOSECONDS);
+            timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
             return  roots;
         });
     }

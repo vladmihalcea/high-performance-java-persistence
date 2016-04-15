@@ -31,7 +31,7 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
     private Slf4jReporter logReporter = Slf4jReporter
             .forRegistry(metricRegistry)
             .outputTo(LOGGER)
-            .convertDurationsTo(TimeUnit.MILLISECONDS)
+            .convertDurationsTo(TimeUnit.MICROSECONDS)
             .build();
 
     private final int planCacheMaxSize;
@@ -85,6 +85,7 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
     protected Properties properties() {
         Properties properties = super.properties();
         properties.put("hibernate.query.plan_cache_max_size", planCacheMaxSize);
+        properties.put("hibernate.query.plan_parameter_metadata_max_size", planCacheMaxSize);
         return properties;
     }
 

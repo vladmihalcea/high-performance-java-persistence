@@ -32,7 +32,7 @@ public class Post {
     private List<PostComment> comments = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "post",
-            orphanRemoval = true, fetch = FetchType.LAZY)
+            orphanRemoval = true, fetch = FetchType.LAZY, optional = false)
     private PostDetails details;
 
     @ManyToMany

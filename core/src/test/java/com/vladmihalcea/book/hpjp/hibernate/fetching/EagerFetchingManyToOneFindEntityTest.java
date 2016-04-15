@@ -104,6 +104,7 @@ public class EagerFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInte
                 List<PostComment> comments = entityManager.createQuery(
                     "select pc " +
                     "from PostComment pc " +
+                    "join fetch pc.post " +
                     "where pc.review = :review", PostComment.class)
                 .setParameter("review", review)
                 .getResultList();

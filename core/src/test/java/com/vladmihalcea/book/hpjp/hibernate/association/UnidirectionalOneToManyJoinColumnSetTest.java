@@ -4,13 +4,13 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.ByteBuffer;
+import java.util.*;
 
 /**
  * @author Vlad Mihalcea
  */
-public class UnidirectionalOneToManyJoinColumnNotNullTest extends AbstractTest {
+public class UnidirectionalOneToManyJoinColumnSetTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -21,7 +21,7 @@ public class UnidirectionalOneToManyJoinColumnNotNullTest extends AbstractTest {
     }
 
     @Test
-    public void testRemoveTail() {
+    public void testLifecycle() {
         doInJPA(entityManager -> {
             Post post = new Post("First post");
 
@@ -32,26 +32,9 @@ public class UnidirectionalOneToManyJoinColumnNotNullTest extends AbstractTest {
             entityManager.persist(post);
             entityManager.flush();
 
-            LOGGER.info("Remove tail");
-            post.getComments().remove(2);
-        });
-    }
-
-    @Test
-    public void testRemoveHead() {
-        doInJPA(entityManager -> {
-            Post post = new Post("First post");
-
-            post.getComments().add(new PostComment("My first review"));
-            post.getComments().add(new PostComment("My second review"));
-            post.getComments().add(new PostComment("My third review"));
-
-            entityManager.persist(post);
-            entityManager.flush();
-
-            entityManager.flush();
-            LOGGER.info("Remove head");
-            post.getComments().remove(0);
+            for(PostComment comment: new ArrayList<>(post.getComments())) {
+                post.getComments().remove(comment);
+            }
         });
     }
 
@@ -72,8 +55,8 @@ public class UnidirectionalOneToManyJoinColumnNotNullTest extends AbstractTest {
         }
 
         @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-        @JoinColumn(name = "post_id", nullable = false)
-        private List<PostComment> comments = new ArrayList<>();
+        @JoinColumn(name = "post_id")
+        private Set<PostComment> comments = new HashSet<>();
 
         public Long getId() {
             return id;
@@ -91,7 +74,7 @@ public class UnidirectionalOneToManyJoinColumnNotNullTest extends AbstractTest {
             this.title = title;
         }
 
-        public List<PostComment> getComments() {
+        public Set<PostComment> getComments() {
             return comments;
         }
     }
@@ -104,20 +87,27 @@ public class UnidirectionalOneToManyJoinColumnNotNullTest extends AbstractTest {
         @GeneratedValue
         private Long id;
 
+        private String slug;
+
         private String review;
 
-        public PostComment() {}
+        public PostComment() {
+            byte[] bytes = new byte[8];
+            ByteBuffer.wrap(bytes).putDouble(Math.random());
+            slug = Base64.getEncoder().encodeToString(bytes);
+        }
 
         public PostComment(String review) {
+            this();
             this.review = review;
         }
 
-        public Long getId() {
-            return id;
+        public String getSlug() {
+            return slug;
         }
 
-        public void setId(Long id) {
-            this.id = id;
+        public void setSlug(String slug) {
+            this.slug = slug;
         }
 
         public String getReview() {
@@ -126,6 +116,19 @@ public class UnidirectionalOneToManyJoinColumnNotNullTest extends AbstractTest {
 
         public void setReview(String review) {
             this.review = review;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PostComment comment = (PostComment) o;
+            return Objects.equals(slug, comment.slug);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(slug);
         }
     }
 }
