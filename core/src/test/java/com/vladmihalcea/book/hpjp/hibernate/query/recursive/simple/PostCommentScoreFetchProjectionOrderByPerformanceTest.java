@@ -63,7 +63,7 @@ public class PostCommentScoreFetchProjectionOrderByPerformanceTest extends Abstr
 
             long endNanos = System.nanoTime();
             timer.update(endNanos - startNanos, TimeUnit.NANOSECONDS);
-            inMemoryProcessingTimer.update(endNanos - startInMemoryProcessingNanos, TimeUnit.MICROSECONDS);
+            inMemoryProcessingTimer.update(endNanos - startInMemoryProcessingNanos, TimeUnit.NANOSECONDS);
             return postCommentScores;
         });
     }
