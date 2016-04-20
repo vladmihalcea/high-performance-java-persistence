@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.Session;
+import org.hibernate.*;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.junit.After;
 import org.junit.Before;
@@ -81,9 +81,9 @@ public class QueryCacheTest extends AbstractTest {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Post> getLatestPostsByAuthor(Session session) {
-        Author author = (Author) session.get(Author.class, 1L);
-        return (List<Post>) session.createQuery(
+    private List<Post> getLatestPostsByAuthor(EntityManager entityManager) {
+        Author author = (Author) entityManager.find(Author.class, 1L);
+        return (List<Post>) entityManager.createQuery(
                 "select p " +
                 "from Post p " +
                 "join p.author a " +
@@ -91,6 +91,7 @@ public class QueryCacheTest extends AbstractTest {
                 "order by p.createdOn desc")
                 .setParameter("author", author)
                 .setMaxResults(10)
+                .unwrap(org.hibernate.Query.class)
                 .setCacheable(true)
                 .list();
     }
@@ -100,7 +101,7 @@ public class QueryCacheTest extends AbstractTest {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
             LOGGER.info("Evict regions and run query");
-            session.getSessionFactory().getCache().evictAllRegions();
+            sessionFactory().getCache().evictAllRegions();
         });
 
         doInJPA(entityManager -> {
@@ -127,7 +128,7 @@ public class QueryCacheTest extends AbstractTest {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
             LOGGER.info("Evict regions and run query");
-            session.getSessionFactory().getCache().evictAllRegions();
+            sessionFactory().getCache().evictAllRegions();
             assertEquals(1, getLatestPosts(session).size());
         });
 
@@ -152,9 +153,8 @@ public class QueryCacheTest extends AbstractTest {
             assertEquals(1, posts.size());
         });
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
             LOGGER.info("Query cache with entity type parameter");
-            List<Post> posts = getLatestPostsByAuthor(session);
+            List<Post> posts = getLatestPostsByAuthor(entityManager);
             assertEquals(1, posts.size());
         });
     }

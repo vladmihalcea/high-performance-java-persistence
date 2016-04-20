@@ -61,17 +61,17 @@ public class ReadWriteCacheConcurrencyStrategyWithLockTimeoutTest extends Abstra
     @Before
     public void init() {
         super.init();
-        doInHibernate(session -> {
+        doInJPA(entityManager -> {
             Repository repository = new Repository("Hibernate-Master-Class");
-            session.persist(repository);
+            entityManager.persist(repository);
         });
     }
 
     @Test
     public void testRepositoryEntityUpdate() {
         try {
-            doInHibernate(session -> {
-                Repository repository = (Repository) session.get(Repository.class, 1L);
+            doInJPA(entityManager -> {
+                Repository repository = (Repository) entityManager.find(Repository.class, 1L);
                 repository.setName("High-Performance Hibernate");
                 applyInterceptor.set(true);
             });
@@ -84,9 +84,9 @@ public class ReadWriteCacheConcurrencyStrategyWithLockTimeoutTest extends Abstra
         AtomicBoolean cacheEntryChanged = new AtomicBoolean();
 
         while (!cacheEntryChanged.get()) {
-            doInHibernate(session -> {
+            doInJPA(entityManager -> {
                 boolean entryChange;
-                session.get(Repository.class, 1L);
+                entityManager.find(Repository.class, 1L);
                 try {
                     Object previousCacheEntry = previousCacheEntryReference.get();
                     Object cacheEntry = getCacheEntry(Repository.class, 1L);

@@ -6,10 +6,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,12 +41,12 @@ public class NonStrictReadWriteCacheConcurrencyStrategyWithConcurrentUpdateTest 
                 assertFalse(sessionFactory().getCache()
                     .containsEntity(Repository.class, 1L));
                 executeSync(() -> {
-                    Session _session = sessionFactory().openSession();
-                    Repository repository = (Repository)
-                        _session.get(Repository.class, 1L);
+                    EntityManager _entityManager = entityManagerFactory().createEntityManager();
+                    Repository repository =
+                        _entityManager.find(Repository.class, 1L);
                     LOGGER.info("Cached Repository from Bob's transaction {}",
                         repository);
-                    _session.close();
+                    _entityManager.close();
                     endLatch.countDown();
                 });
                 assertTrue(sessionFactory().getCache()
@@ -74,18 +71,18 @@ public class NonStrictReadWriteCacheConcurrencyStrategyWithConcurrentUpdateTest 
     @Before
     public void init() {
         super.init();
-        doInHibernate(session -> {
+        doInJPA(entityManager -> {
             Repository repository = new Repository("Hibernate-Master-Class");
-            session.persist(repository);
+            entityManager.persist(repository);
         });
     }
 
     @Test
     public void testRepositoryEntityUpdate() throws InterruptedException {
-        doInHibernate(session -> {
+        doInJPA(entityManager -> {
             LOGGER.info("Load and modify Repository");
             Repository repository = (Repository)
-                session.get(Repository.class, 1L);
+                entityManager.find(Repository.class, 1L);
             assertTrue(sessionFactory().getCache()
                 .containsEntity(Repository.class, 1L));
             repository.setName("High-Performance Hibernate");
@@ -94,10 +91,10 @@ public class NonStrictReadWriteCacheConcurrencyStrategyWithConcurrentUpdateTest 
         endLatch.await();
         assertFalse(sessionFactory().getCache()
             .containsEntity(Repository.class, 1L));
-        doInHibernate(session -> {
+        doInJPA(entityManager -> {
             applyInterceptor.set(false);
             Repository repository = (Repository)
-                session.get(Repository.class, 1L);
+                entityManager.find(Repository.class, 1L);
             LOGGER.info("Cached Repository {}", repository);
         });
     }
@@ -105,14 +102,14 @@ public class NonStrictReadWriteCacheConcurrencyStrategyWithConcurrentUpdateTest 
     @Test
     public void testOptimisticLocking() {
         LOGGER.info("testOptimisticLocking");
-        doInHibernate(session -> {
+        doInJPA(entityManager -> {
             LOGGER.info("Load Repository");
-            Repository repository = session.get(Repository.class, 1L);
-            session.buildLockRequest(new LockOptions().setLockMode(LockMode.OPTIMISTIC)).lock(repository);
+            Repository repository = entityManager.find(Repository.class, 1L);
+            entityManager.unwrap(Session.class).buildLockRequest(new LockOptions().setLockMode(LockMode.OPTIMISTIC)).lock(repository);
         });
-        doInHibernate(session -> {
+        doInJPA(entityManager -> {
             LOGGER.info("Load Repository again");
-            Repository repository = session.get(Repository.class, 1L);
+            Repository repository = entityManager.find(Repository.class, 1L);
         });
     }
 

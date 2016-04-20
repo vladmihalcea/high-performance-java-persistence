@@ -1,9 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
-import org.hibernate.Session;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Immutable;
 import org.junit.Before;
@@ -14,15 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 
 /**
- * NonStrictReadWriteCacheConcurrencyStrategyTest - Test to check CacheConcurrencyStrategy.READ_WRITE
+ * ReadOnlyCacheConcurrencyStrategyTest - Test to check CacheConcurrencyStrategy.READ_ONLY
  *
  * @author Vlad Mihalcea
  */
-public class ReadWriteCacheConcurrencyStrategyTest extends AbstractTest {
+public class ReadOnlyCacheConcurrencyStrategyCollectionsTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -40,70 +37,42 @@ public class ReadWriteCacheConcurrencyStrategyTest extends AbstractTest {
         return properties;
     }
 
-    private Repository repositoryReference;
-
     @Before
     public void init() {
         super.init();
-        repositoryReference = doInJPA(entityManager -> {
-            LOGGER.info("Read-write entities are write-through on persisting");
+        doInJPA(entityManager -> {
             Repository repository = new Repository("Hibernate-Master-Class");
+            repository.id = 1L;
+            entityManager.persist(repository);
+        });
+    }
+
+    @Test
+    public void testCollectionCache() {
+        LOGGER.info("Collections require separate caching");
+        doInJPA(entityManager -> {
+            Repository repository = entityManager.find(Repository.class, 1L);
             Commit commit = new Commit(repository);
+            commit.id = 1L;
             commit.getChanges().add(
                     new Change("README.txt", "0a1,5...")
             );
             commit.getChanges().add(
                     new Change("web.xml", "17c17...")
             );
-            repository.addCommit(commit);
-            entityManager.persist(repository);
-            return repository;
-        });
-    }
-
-    @Test
-    public void testRepositoryEntityUpdate() {
-        LOGGER.info("Read-write entities are write-through on updating");
-        doInJPA(entityManager -> {
-            Repository repository = (Repository) entityManager.find(Repository.class, repositoryReference.getId());
-            repository.setName("High-Performance Hibernate");
-            for(Commit commit : repository.commits) {
-                for(Change change : commit.changes) {
-                    assertNotNull(change.getDiff());
-                }
-            }
+            entityManager.persist(commit);
         });
         doInJPA(entityManager -> {
-            LOGGER.info("Reload entity after updating");
-            Repository repository = (Repository) entityManager.find(Repository.class, repositoryReference.getId());
-            assertEquals("High-Performance Hibernate", repository.getName());
-        });
-    }
-
-    @Test
-    public void testRepositoryEntityDelete() {
-        LOGGER.info("Read-write entities are deletable");
-        doInJPA(entityManager -> {
-            Repository repository = (Repository) entityManager.find(Repository.class, repositoryReference.getId());
-            entityManager.remove(repository);
+            LOGGER.info("Load Commit from database ");
+            Commit commit = (Commit)
+                    entityManager.find(Commit.class, 1L);
+            assertEquals(2, commit.getChanges().size());
         });
         doInJPA(entityManager -> {
-            assertNull(entityManager.find(Repository.class, repositoryReference.getId()));
-        });
-    }
-
-    @Test
-    public void testOptimisticLocking() {
-        LOGGER.info("testOptimisticLocking");
-        doInJPA(entityManager -> {
-            LOGGER.info("Load Repository");
-            Repository repository = entityManager.find(Repository.class, 1L);
-            entityManager.unwrap(Session.class).buildLockRequest(new LockOptions().setLockMode(LockMode.OPTIMISTIC)).lock(repository);
-        });
-        doInJPA(entityManager -> {
-            LOGGER.info("Load Repository again");
-            Repository repository = entityManager.find(Repository.class, 1L);
-            LOGGER.info("After load Repository again");
+            LOGGER.info("Load Commit from cache");
+            Commit commit = (Commit)
+                    entityManager.find(Commit.class, 1L);
+            assertEquals(2, commit.getChanges().size());
         });
     }
 
@@ -113,21 +82,13 @@ public class ReadWriteCacheConcurrencyStrategyTest extends AbstractTest {
      * @author Vlad Mihalcea
      */
     @Entity(name = "repository")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
     public static class Repository {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private Long id;
 
         private String name;
-
-        @Version
-        private int version;
-
-        @OneToMany(mappedBy = "repository", cascade = CascadeType.ALL)
-        @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-        private List<Commit> commits = new ArrayList<>();
 
         public Repository() {
         }
@@ -151,11 +112,6 @@ public class ReadWriteCacheConcurrencyStrategyTest extends AbstractTest {
         public void setId(Long id) {
             this.id = id;
         }
-
-        public void addCommit(Commit commit) {
-            commits.add(commit);
-            commit.repository = this;
-        }
     }
 
     /**
@@ -165,12 +121,11 @@ public class ReadWriteCacheConcurrencyStrategyTest extends AbstractTest {
      */
     @Entity(name = "Commit")
     @Table(name = "commit")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
     @Immutable
     public static class Commit {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private Long id;
 
         @ManyToOne(fetch = FetchType.LAZY)
@@ -181,7 +136,7 @@ public class ReadWriteCacheConcurrencyStrategyTest extends AbstractTest {
                 name="commit_change",
                 joinColumns=@JoinColumn(name="commit_id")
         )
-        @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+        @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
         private List<Change> changes = new ArrayList<>();
 
         public Commit() {

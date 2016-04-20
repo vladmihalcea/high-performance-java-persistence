@@ -19,6 +19,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.PostgreSQL94Dialect;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
+import org.hibernate.stat.SecondLevelCacheStatistics;
 import org.hibernate.type.BasicType;
 import org.hibernate.type.Type;
 import org.hibernate.usertype.CompositeUserType;
@@ -1088,6 +1089,42 @@ public abstract class AbstractTest {
             }
         } catch (SQLException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    protected void printEntityCacheStats(String region, boolean printEntries) {
+        SecondLevelCacheStatistics stats = getCacheStats(region);
+        LOGGER.info(region + " Stats:  \n\n\t" + stats + "\n");
+        if (printEntries) {
+            @SuppressWarnings("rawtypes")
+            Map cacheEntries = stats.getEntries();
+            LOGGER.info(Arrays.toString(cacheEntries.entrySet().toArray()));
+        }
+    }
+
+    protected void printEntityCacheStats(String region) {
+        printEntityCacheStats(region, false);
+    }
+
+    protected void printQueryCacheStats(String region) {
+        SecondLevelCacheStatistics stats = getCacheStats(region);
+        LOGGER.info(region + " Stats:  \n\n\t" + stats + "\n");
+    }
+
+    protected SecondLevelCacheStatistics getCacheStats(String region) {
+        SecondLevelCacheStatistics stats = sessionFactory().getStatistics().getSecondLevelCacheStatistics(region);
+        if (stats == null){
+            LOGGER.warn("No such cache:  " + region);
+        }
+        return stats;
+    }
+
+    protected void print2LCRegionNames(){
+        String[] arr = sessionFactory().getStatistics().getSecondLevelCacheRegionNames();
+
+        LOGGER.info("2LC Region names:");
+        for (String rn : arr) {
+            LOGGER.info("\t --->" + rn);
         }
     }
 }
