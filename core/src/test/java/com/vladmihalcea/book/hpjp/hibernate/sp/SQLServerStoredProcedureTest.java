@@ -109,13 +109,16 @@ public class SQLServerStoredProcedureTest extends AbstractSQLServerIntegrationTe
     @Test
     public void testStoredProcedureOutParameter() {
         doInJPA(entityManager -> {
-            StoredProcedureQuery query = entityManager.createStoredProcedureQuery("count_comments");
-            query.registerStoredProcedureParameter("postId", Long.class, ParameterMode.IN);
-            query.registerStoredProcedureParameter("commentCount", Long.class, ParameterMode.OUT);
-
-            query.setParameter("postId", 1L);
+            StoredProcedureQuery query = entityManager
+                .createStoredProcedureQuery("count_comments")
+                .registerStoredProcedureParameter(
+                    "postId", Long.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(
+                    "commentCount", Long.class, ParameterMode.OUT)
+                .setParameter("postId", 1L);
 
             query.execute();
+
             Long commentCount = (Long) query.getOutputParameterValue("commentCount");
             assertEquals(Long.valueOf(2), commentCount);
         });
@@ -125,10 +128,11 @@ public class SQLServerStoredProcedureTest extends AbstractSQLServerIntegrationTe
     public void testStoredProcedureRefCursor() {
         try {
             doInJPA(entityManager -> {
-                StoredProcedureQuery query = entityManager.createStoredProcedureQuery("post_comments");
-                query.registerStoredProcedureParameter(1, Long.class, ParameterMode.IN);
-                query.registerStoredProcedureParameter(2, Class.class, ParameterMode.REF_CURSOR);
-                query.setParameter(1, 1L);
+                StoredProcedureQuery query = entityManager
+                    .createStoredProcedureQuery("post_comments")
+                .registerStoredProcedureParameter(1, Long.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(2, Class.class, ParameterMode.REF_CURSOR)
+                .setParameter(1, 1L);
 
                 query.execute();
                 List<Object[]> postComments = query.getResultList();
@@ -143,15 +147,15 @@ public class SQLServerStoredProcedureTest extends AbstractSQLServerIntegrationTe
     public void testStoredProcedureReturnValue() {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
-            session.doWork(connection -> {
+            int commentCount = session.doReturningWork(connection -> {
                 try (CallableStatement function = connection.prepareCall("{ ? = call fn_count_comments(?) }")) {
                     function.registerOutParameter(1, Types.INTEGER);
                     function.setInt(2, 1);
                     function.execute();
-                    int commentCount = function.getInt(1);
-                    assertEquals(2, commentCount);
+                    return function.getInt(1);
                 }
             });
+            assertEquals(2, commentCount);
         });
     }
 }
