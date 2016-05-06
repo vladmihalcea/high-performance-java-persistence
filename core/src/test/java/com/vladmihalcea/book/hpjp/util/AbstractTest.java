@@ -1094,11 +1094,10 @@ public abstract class AbstractTest {
 
     protected void printEntityCacheStats(String region, boolean printEntries) {
         SecondLevelCacheStatistics stats = getCacheStats(region);
-        LOGGER.info(region + " Stats:  \n\n\t" + stats + "\n");
+        LOGGER.info("Stats for region {}:  {}", region, stats);
         if (printEntries) {
-            @SuppressWarnings("rawtypes")
-            Map cacheEntries = stats.getEntries();
-            LOGGER.info(Arrays.toString(cacheEntries.entrySet().toArray()));
+            Object[] cachedEntities = stats.getEntries().entrySet().toArray();
+            LOGGER.info(Arrays.toString(cachedEntities));
         }
     }
 
