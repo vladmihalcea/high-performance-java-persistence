@@ -15,7 +15,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vlad Mihalcea
  */
-public class HidratedEntityStateTest extends AbstractTest {
+public class EntityHydratedStateTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -78,7 +78,7 @@ public class HidratedEntityStateTest extends AbstractTest {
         printEntityCacheStats(Post.class.getName(), true);
 
         doInJPA(entityManager -> {
-            LOGGER.info("Load Repository from cache");
+            LOGGER.info("Load from cache");
             Post post = entityManager.find(Post.class, 1L);
             assertNotNull(post);
             PostDetails details = entityManager.find(PostDetails.class, 1L);
