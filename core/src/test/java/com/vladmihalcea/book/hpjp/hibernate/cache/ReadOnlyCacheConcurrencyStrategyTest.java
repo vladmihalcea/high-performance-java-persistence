@@ -1,8 +1,10 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Slf4jReporter;
+import com.codahale.metrics.Timer;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Immutable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,11 +23,20 @@ import static org.junit.Assert.*;
  */
 public class ReadOnlyCacheConcurrencyStrategyTest extends AbstractTest {
 
+    private MetricRegistry metricRegistry = new MetricRegistry();
+
+    private Timer timer = metricRegistry.timer(getClass().getSimpleName());
+
+    private Slf4jReporter logReporter = Slf4jReporter
+            .forRegistry(metricRegistry)
+            .outputTo(LOGGER)
+            .build();
+
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
-                Repository.class,
-                Commit.class
+            Post.class,
+            PostComment.class
         };
     }
 
@@ -43,30 +54,32 @@ public class ReadOnlyCacheConcurrencyStrategyTest extends AbstractTest {
     public void init() {
         super.init();
         doInJPA(entityManager -> {
-            Repository repository = new Repository("Hibernate-Master-Class");
-            repository.id = 1L;
-            entityManager.persist(repository);
+            Post post = new Post();
+            post.setId(1L);
+            post.setTitle("High-Performance Java Persistence");
+
+            entityManager.persist(post);
         });
     }
 
     @Test
-    public void testRepositoryEntityLoad() {
+    public void testPostEntityLoad() {
 
         LOGGER.info("Read-only entities are read-through");
 
         doInJPA(entityManager -> {
-            Repository repository = (Repository) entityManager.find(Repository.class, 1L);
-            assertNotNull(repository);
+            Post post = entityManager.find(Post.class, 1L);
+            assertNotNull(post);
         });
 
-        printEntityCacheStats(Repository.class.getName(), true);
+        printEntityCacheStats(Post.class.getName(), true);
 
         doInJPA(entityManager -> {
-            LOGGER.info("Load Repository from cache");
-            entityManager.find(Repository.class, 1L);
+            LOGGER.info("Load Post from cache");
+            entityManager.find(Post.class, 1L);
         });
         
-        printEntityCacheStats(Repository.class.getName(), true);
+        printEntityCacheStats(Post.class.getName(), true);
 
     }
 
@@ -74,42 +87,47 @@ public class ReadOnlyCacheConcurrencyStrategyTest extends AbstractTest {
     public void testCollectionCache() {
         LOGGER.info("Collections require separate caching");
         doInJPA(entityManager -> {
-            Repository repository = (Repository)
-                    entityManager.find(Repository.class, 1L);
-            Commit commit = new Commit(repository);
-            commit.id = 1L;
-            commit.getChanges().add(
-                    new Change("README.txt", "0a1,5...")
-            );
-            commit.getChanges().add(
-                    new Change("web.xml", "17c17...")
-            );
-            entityManager.persist(commit);
+
+            Post post = entityManager.find(Post.class, 1L);
+            
+            PostComment comment1 = new PostComment();
+            comment1.setId(1L);
+            comment1.setReview("JDBC part review");
+            post.addComment(comment1);
+
+            PostComment comment2 = new PostComment();
+            comment2.setId(2L);
+            comment2.setReview("Hibernate part review");
+            post.addComment(comment2);
         });
         
-        printEntityCacheStats(Repository.class.getName());
-        printEntityCacheStats(Commit.class.getName());
+        printEntityCacheStats(Post.class.getName());
 
         doInJPA(entityManager -> {
-            LOGGER.info("Load Commit from database ");
-            Commit commit = (Commit)
-                    entityManager.find(Commit.class, 1L);
-            assertEquals(2, commit.getChanges().size());
+            LOGGER.info("Load PostComment from database ");
+            Post post = entityManager.find(Post.class, 1L);
+            assertEquals(2, post.getComments().size());
         });
 
-        printEntityCacheStats(Repository.class.getName());
-        printEntityCacheStats(Commit.class.getName());
+        printEntityCacheStats(Post.class.getName());
+        printEntityCacheStats(PostComment.class.getName());
 
         doInJPA(entityManager -> {
-            LOGGER.info("Load Commit from cache");
-            Commit commit = (Commit)
-                    entityManager.find(Commit.class, 1L);
-            assertEquals(2, commit.getChanges().size());
+            LOGGER.info("Load PostComment from cache");
+            Post post = entityManager.find(Post.class, 1L);
+            assertEquals(2, post.getComments().size());
         });
 
-        printEntityCacheStats(Repository.class.getName());
-        printEntityCacheStats(Commit.class.getName());
-        
+        try {
+            doInJPA(entityManager -> {
+                LOGGER.info("Read-only collection cache entries cannot be updated");
+                Post post = entityManager.find(Post.class, 1L);
+                PostComment comment = post.getComments().remove(0);
+                comment.setPost(null);
+            });
+        } catch (Exception e) {
+            LOGGER.error("Expected", e);
+        }
     }
 
     @Test
@@ -117,11 +135,9 @@ public class ReadOnlyCacheConcurrencyStrategyTest extends AbstractTest {
         try {
             LOGGER.info("Read-only cache entries cannot be updated");
             doInJPA(entityManager -> {
-                Repository repository = (Repository) entityManager.find(Repository.class, 1L);
-
-                printEntityCacheStats(Repository.class.getName());
-                
-                repository.setName("High-Performance Hibernate");
+                Post post = entityManager.find(Post.class, 1L);
+                printEntityCacheStats(Post.class.getName());
+                post.setTitle("High-Performance Hibernate");
             });
         } catch (Exception e) {
             LOGGER.error("Expected", e);
@@ -132,49 +148,35 @@ public class ReadOnlyCacheConcurrencyStrategyTest extends AbstractTest {
     public void testReadOnlyEntityDelete() {
         LOGGER.info("Read-only cache entries can be deleted");
         doInJPA(entityManager -> {
-            Repository repository = (Repository) entityManager.find(Repository.class, 1L);
-            assertNotNull(repository);
-            entityManager.remove(repository);
+            Post post = entityManager.find(Post.class, 1L);
+            assertNotNull(post);
+            entityManager.remove(post);
         });
         
-        printEntityCacheStats(Repository.class.getName());
+        printEntityCacheStats(Post.class.getName());
         
         doInJPA(entityManager -> {
-            Repository repository = (Repository) entityManager.find(Repository.class, 1L);
-            printEntityCacheStats(Repository.class.getName());
-            assertNull(repository);
+            Post post = entityManager.find(Post.class, 1L);
+            printEntityCacheStats(Post.class.getName());
+            assertNull(post);
         });
     }
 
-
-    /**
-     * Repository - Repository
-     *
-     * @author Vlad Mihalcea
-     */
-    @Entity(name = "repository")
+    @Entity(name = "Post")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-    public static class Repository {
+    public static class Post {
 
         @Id
         private Long id;
 
-        private String name;
+        private String title;
 
-        public Repository() {
-        }
+        @Version
+        private int version;
 
-        public Repository(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
+        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
+        @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+        private List<PostComment> comments = new ArrayList<>();
 
         public Long getId() {
             return id;
@@ -183,74 +185,59 @@ public class ReadOnlyCacheConcurrencyStrategyTest extends AbstractTest {
         public void setId(Long id) {
             this.id = id;
         }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public List<PostComment> getComments() {
+            return comments;
+        }
+
+        public void addComment(PostComment comment) {
+            comments.add(comment);
+            comment.setPost(this);
+        }
     }
 
-    /**
-     * Commit - Commit
-     *
-     * @author Vlad Mihalcea
-     */
-    @Entity(name = "Commit")
-    @Table(name = "commit")
+    @Entity(name = "PostComment")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-    @Immutable
-    public static class Commit {
+    public static class PostComment {
 
         @Id
         private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        private Repository repository;
+        @ManyToOne
+        private Post post;
 
-        @ElementCollection
-        @CollectionTable(
-                name="commit_change",
-                joinColumns=@JoinColumn(name="commit_id")
-        )
-        private List<Change> changes = new ArrayList<>();
+        private String review;
 
-        public Commit() {
+        public Long getId() {
+            return id;
         }
 
-        public Commit(Repository repository) {
-            this.repository = repository;
+        public void setId(Long id) {
+            this.id = id;
         }
 
-        public Repository getRepository() {
-            return repository;
+        public Post getPost() {
+            return post;
         }
 
-        public List<Change> getChanges() {
-            return changes;
-        }
-    }
-
-    /**
-     * Change - Change
-     *
-     * @author Vlad Mihalcea
-     */
-    @Embeddable
-    public static class Change {
-
-        private String path;
-
-        private String diff;
-
-        public Change() {
+        public void setPost(Post post) {
+            this.post = post;
         }
 
-        public Change(String path, String diff) {
-            this.path = path;
-            this.diff = diff;
+        public String getReview() {
+            return review;
         }
 
-        public String getPath() {
-            return path;
-        }
-
-        public String getDiff() {
-            return diff;
+        public void setReview(String review) {
+            this.review = review;
         }
     }
 }

@@ -82,6 +82,9 @@ public class CollectionHydratedStateTest extends AbstractTest {
 
         private String title;
 
+        @Version
+        private int version;
+
         @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
         @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
         private List<PostComment> comments = new ArrayList<>();

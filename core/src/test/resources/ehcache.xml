@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="ehcache.xsd"
+         updateCheck="true" monitoring="autodetect"
+         dynamicConfig="true">
+
+    <defaultCache
+            maxElementsInMemory="100000"
+            eternal="true">
+        <persistence strategy="none"/>
+    </defaultCache>
+</ehcache>
