@@ -23,7 +23,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Vlad Mihalcea
  */
 @RunWith(Parameterized.class)
-public class ReadOnlyCacheConcurrencyStrategyBenchmarkTest extends AbstractTest {
+public class HydratedStateBenchmarkTest extends AbstractTest {
 
     private MetricRegistry metricRegistry = new MetricRegistry();
 
@@ -36,13 +36,14 @@ public class ReadOnlyCacheConcurrencyStrategyBenchmarkTest extends AbstractTest 
 
     private int insertCount;
 
-    public ReadOnlyCacheConcurrencyStrategyBenchmarkTest(int insertCount) {
+    public HydratedStateBenchmarkTest(int insertCount) {
         this.insertCount = insertCount;
     }
 
     @Parameterized.Parameters
     public static Collection<Object[]> dataProvider() {
         List<Object[]> providers = new ArrayList<>();
+        providers.add(new Object[]{1});
         providers.add(new Object[]{100});
         providers.add(new Object[]{500});
         providers.add(new Object[]{1000});
@@ -79,12 +80,12 @@ public class ReadOnlyCacheConcurrencyStrategyBenchmarkTest extends AbstractTest 
                 post.setId(i);
                 post.setTitle("High-Performance Java Persistence");
                 entityManager.persist(post);
-
+/*
                 PostDetails details = new PostDetails();
                 details.setCreatedBy("Vlad Mihalcea");
                 details.setCreatedOn(new Date());
                 details.setPost(post);
-                entityManager.persist(details);
+                entityManager.persist(details);*/
             }
         });
     }
@@ -95,7 +96,7 @@ public class ReadOnlyCacheConcurrencyStrategyBenchmarkTest extends AbstractTest 
         doInJPA(entityManager -> {
             for (long i = 0; i < 10000; i++) {
                 Post post = entityManager.find(Post.class, i % insertCount);
-                PostDetails details = entityManager.find(PostDetails.class, i);
+                //PostDetails details = entityManager.find(PostDetails.class, i);
                 assertNotNull(post);
             }
         });
@@ -103,7 +104,7 @@ public class ReadOnlyCacheConcurrencyStrategyBenchmarkTest extends AbstractTest 
             long startNanos = System.nanoTime();
             for (long i = 0; i < insertCount; i++) {
                 Post post = entityManager.find(Post.class, i);
-                PostDetails details = entityManager.find(PostDetails.class, i);
+                //PostDetails details = entityManager.find(PostDetails.class, i);
             }
             timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
         });
@@ -112,7 +113,7 @@ public class ReadOnlyCacheConcurrencyStrategyBenchmarkTest extends AbstractTest 
 
 
     @Entity(name = "Post")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @Immutable
     public static class Post implements Serializable {
 
@@ -144,6 +145,7 @@ public class ReadOnlyCacheConcurrencyStrategyBenchmarkTest extends AbstractTest 
     @Entity(name = "PostDetails")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @Immutable
+    //This does not work since it features an association type
     public static class PostDetails implements Serializable {
 
         @Id

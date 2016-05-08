@@ -9,9 +9,9 @@ import java.util.Properties;
  *
  * @author Vlad Mihalcea
  */
-public class ReadOnlyCacheConcurrencyStrategyReferenceEntitiesTest extends ReadOnlyCacheConcurrencyStrategyBenchmarkTest {
+public class HydratedStateReferenceEntitiesTest extends HydratedStateBenchmarkTest {
 
-    public ReadOnlyCacheConcurrencyStrategyReferenceEntitiesTest(int insertCount) {
+    public HydratedStateReferenceEntitiesTest(int insertCount) {
         super(insertCount);
     }
 
