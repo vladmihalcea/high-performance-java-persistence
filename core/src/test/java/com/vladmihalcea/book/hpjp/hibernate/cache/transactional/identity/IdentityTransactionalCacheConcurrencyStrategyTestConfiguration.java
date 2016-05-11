@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.cache.transactional;
+package com.vladmihalcea.book.hpjp.hibernate.cache.transactional.identity;
 
 import com.vladmihalcea.book.hpjp.util.spring.config.jta.HsqldbJtaTransactionManagerConfiguration;
 import org.springframework.context.annotation.Configuration;
@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Properties;
 
 @Configuration
-public class TransactionalCacheConcurrencyStrategyTestConfiguration extends HsqldbJtaTransactionManagerConfiguration {
+public class IdentityTransactionalCacheConcurrencyStrategyTestConfiguration extends HsqldbJtaTransactionManagerConfiguration {
 
     @Override
     protected Properties additionalProperties() {
@@ -18,6 +18,6 @@ public class TransactionalCacheConcurrencyStrategyTestConfiguration extends Hsql
 
     @Override
     protected Class configurationClass() {
-        return TransactionalEntities.class;
+        return IdentityTransactionalEntities.class;
     }
 }

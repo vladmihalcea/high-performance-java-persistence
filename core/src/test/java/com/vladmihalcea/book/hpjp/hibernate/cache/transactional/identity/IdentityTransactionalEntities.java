@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.cache.transactional;
+package com.vladmihalcea.book.hpjp.hibernate.cache.transactional.identity;
 
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * @author Vlad Mihalcea
  */
-public class TransactionalEntities {
+public class IdentityTransactionalEntities {
 
     @Entity(name = "Post")
     @Table(name = "post")
@@ -17,6 +17,7 @@ public class TransactionalEntities {
     public static class Post {
 
         @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
         private String title;
@@ -60,6 +61,7 @@ public class TransactionalEntities {
     public static class PostComment {
 
         @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
         @ManyToOne(fetch = FetchType.LAZY)

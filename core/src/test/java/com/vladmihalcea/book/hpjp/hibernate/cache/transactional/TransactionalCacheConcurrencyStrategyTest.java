@@ -69,7 +69,7 @@ public class TransactionalCacheConcurrencyStrategyTest extends AbstractTest {
 
     @Override
     public void destroy() {
-        
+
     }
 
     @Override

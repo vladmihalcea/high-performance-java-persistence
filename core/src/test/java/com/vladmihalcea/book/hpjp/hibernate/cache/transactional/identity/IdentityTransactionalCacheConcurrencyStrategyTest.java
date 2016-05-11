@@ -1,55 +1,59 @@
-package com.vladmihalcea.book.hpjp.hibernate.cache.nonstrictreadwrite;
+package com.vladmihalcea.book.hpjp.hibernate.cache.transactional.identity;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
 
+import static com.vladmihalcea.book.hpjp.hibernate.cache.transactional.identity.IdentityTransactionalEntities.Post;
+import static com.vladmihalcea.book.hpjp.hibernate.cache.transactional.identity.IdentityTransactionalEntities.PostComment;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = IdentityTransactionalCacheConcurrencyStrategyTestConfiguration.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractTest {
 
-/**
- * @author Vlad Mihalcea
- */
-public class NonStrictReadWriteCacheConcurrencyStrategyTest extends AbstractTest {
+    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
     @Override
-    protected Class<?>[] entities() {
-        return new Class<?>[] {
-            Post.class,
-            PostComment.class
-        };
-    }
-
-    @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
-        properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
-        properties.put("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
-        return properties;
+    protected void doInJPA(JPATransactionVoidFunction function) {
+        transactionTemplate.execute((TransactionCallback<Void>) status -> {
+            function.accept(entityManager);
+            return null;
+        });
     }
 
     @Before
     public void init() {
-        super.init();
         doInJPA(entityManager -> {
             Post post = new Post();
-            post.setId(1L);
             post.setTitle("High-Performance Java Persistence");
 
             PostComment comment1 = new PostComment();
-            comment1.setId(1L);
             comment1.setReview("JDBC part review");
             post.addComment(comment1);
 
             PostComment comment2 = new PostComment();
-            comment2.setId(2L);
             comment2.setReview("Hibernate part review");
             post.addComment(comment2);
 
@@ -60,11 +64,25 @@ public class NonStrictReadWriteCacheConcurrencyStrategyTest extends AbstractTest
         LOGGER.info("Post entity inserted");
     }
 
+    @Override
+    public void destroy() {
+
+    }
+
+    @Override
+    protected Class<?>[] entities() {
+        return new Class<?>[0];
+    }
+
+    @Override
+    public EntityManagerFactory entityManagerFactory() {
+        return entityManager.getEntityManagerFactory();
+    }
+
     @Test
     public void testPostEntityLoad() {
 
         LOGGER.info("Load entity from cache");
-
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             assertEquals(2, post.getComments().size());
@@ -96,14 +114,17 @@ public class NonStrictReadWriteCacheConcurrencyStrategyTest extends AbstractTest
     public void testEntityUpdate() {
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
-            assertEquals(2, post.getComments().size());
-        });
-
-        doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
             post.setTitle("High-Performance Hibernate");
             PostComment comment = post.getComments().remove(0);
             comment.setPost(null);
+
+            entityManager.flush();
+
+            printCacheRegionStatistics(Post.class.getName());
+            printCacheRegionStatistics(Post.class.getName() + ".comments");
+            printCacheRegionStatistics(PostComment.class.getName());
+
+            LOGGER.debug("Before commit");
         });
         printCacheRegionStatistics(Post.class.getName());
         printCacheRegionStatistics(Post.class.getName() + ".comments");
@@ -140,95 +161,14 @@ public class NonStrictReadWriteCacheConcurrencyStrategyTest extends AbstractTest
             Post post = entityManager.find(Post.class, 1L);
             entityManager.remove(post);
         });
-        
+
         printCacheRegionStatistics(Post.class.getName());
         printCacheRegionStatistics(Post.class.getName() + ".comments");
         printCacheRegionStatistics(PostComment.class.getName());
-        
+
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             assertNull(post);
         });
-    }
-
-    @Entity(name = "Post")
-    @Table(name = "post")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    public static class Post {
-
-        @Id
-        private Long id;
-
-        private String title;
-
-        @Version
-        private int version;
-
-        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
-        @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-        private List<PostComment> comments = new ArrayList<>();
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public List<PostComment> getComments() {
-            return comments;
-        }
-
-        public void addComment(PostComment comment) {
-            comments.add(comment);
-            comment.setPost(this);
-        }
-    }
-
-    @Entity(name = "PostComment")
-    @Table(name = "post_comment")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    public static class PostComment {
-
-        @Id
-        private Long id;
-
-        @ManyToOne(fetch = FetchType.LAZY)
-        private Post post;
-
-        private String review;
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public Post getPost() {
-            return post;
-        }
-
-        public void setPost(Post post) {
-            this.post = post;
-        }
-
-        public String getReview() {
-            return review;
-        }
-
-        public void setReview(String review) {
-            this.review = review;
-        }
     }
 }
