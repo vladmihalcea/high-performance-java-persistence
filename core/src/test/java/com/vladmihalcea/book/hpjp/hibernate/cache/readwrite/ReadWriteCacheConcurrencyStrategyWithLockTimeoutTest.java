@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.cache;
+package com.vladmihalcea.book.hpjp.hibernate.cache.readwrite;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.apache.commons.lang3.builder.ToStringBuilder;

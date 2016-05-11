@@ -1,7 +1,6 @@
-package com.vladmihalcea.book.hpjp.hibernate.cache;
+package com.vladmihalcea.book.hpjp.hibernate.cache.readwrite;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,12 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class CollectionHydratedStateTest extends AbstractTest {
+public class IdentityReadWriteCacheConcurrencyStrategyTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -29,8 +27,8 @@ public class CollectionHydratedStateTest extends AbstractTest {
     @Override
     protected Properties properties() {
         Properties properties = super.properties();
+        properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
         properties.put("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
-        properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
         return properties;
     }
 
@@ -39,45 +37,30 @@ public class CollectionHydratedStateTest extends AbstractTest {
         super.init();
         doInJPA(entityManager -> {
             Post post = new Post();
-            post.setId(1L);
             post.setTitle("High-Performance Java Persistence");
-
-            PostComment comment1 = new PostComment();
-            comment1.setId(1L);
-            comment1.setReview("JDBC part review");
-            post.addComment(comment1);
-
-            PostComment comment2 = new PostComment();
-            comment2.setId(2L);
-            comment2.setReview("Hibernate part review");
-            post.addComment(comment2);
-
             entityManager.persist(post);
         });
+        printCacheRegionStatistics(Post.class.getName());
+        LOGGER.info("Post entity inserted");
     }
 
     @Test
-    public void testEntityLoad() {
+    public void testPostEntityLoad() {
 
+        LOGGER.info("Load entity from cache");
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
-            assertEquals(2, post.getComments().size());
+            printCacheRegionStatistics(post.getClass().getName());
         });
-
-        doInJPA(entityManager -> {
-            LOGGER.info("Load from cache");
-            Post post = entityManager.find(Post.class, 1L);
-            assertEquals(2, post.getComments().size());
-        });
-
-        printCacheRegionStatistics(Post.class.getName() + ".comments");
     }
 
     @Entity(name = "Post")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @Table(name = "post")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     public static class Post {
 
         @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
         private String title;
@@ -86,7 +69,7 @@ public class CollectionHydratedStateTest extends AbstractTest {
         private int version;
 
         @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
-        @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+        @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
         private List<PostComment> comments = new ArrayList<>();
 
         public Long getId() {
@@ -116,13 +99,15 @@ public class CollectionHydratedStateTest extends AbstractTest {
     }
 
     @Entity(name = "PostComment")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @Table(name = "post_comment")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     public static class PostComment {
 
         @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         private Post post;
 
         private String review;

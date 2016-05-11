@@ -75,7 +75,7 @@ public class EntityHydratedStateTest extends AbstractTest {
             assertNotNull(comment);
         });
 
-        printEntityCacheStats(Post.class.getName(), true);
+        printCacheRegionStatistics(Post.class.getName());
 
         doInJPA(entityManager -> {
             LOGGER.info("Load from cache");
@@ -87,7 +87,7 @@ public class EntityHydratedStateTest extends AbstractTest {
             assertNotNull(comment);
         });
 
-        printEntityCacheStats(Post.class.getName(), true);
+        printCacheRegionStatistics(Post.class.getName());
 
     }
 

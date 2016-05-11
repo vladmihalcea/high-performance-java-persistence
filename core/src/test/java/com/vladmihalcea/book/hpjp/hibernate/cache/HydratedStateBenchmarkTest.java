@@ -43,7 +43,6 @@ public class HydratedStateBenchmarkTest extends AbstractTest {
     @Parameterized.Parameters
     public static Collection<Object[]> dataProvider() {
         List<Object[]> providers = new ArrayList<>();
-        providers.add(new Object[]{1});
         providers.add(new Object[]{100});
         providers.add(new Object[]{500});
         providers.add(new Object[]{1000});
@@ -114,7 +113,7 @@ public class HydratedStateBenchmarkTest extends AbstractTest {
 
     @Entity(name = "Post")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @Immutable
+    @org.hibernate.annotations.Immutable
     public static class Post implements Serializable {
 
         @Id

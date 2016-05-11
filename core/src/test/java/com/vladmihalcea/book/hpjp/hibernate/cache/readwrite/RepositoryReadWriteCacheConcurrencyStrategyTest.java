@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.cache;
+package com.vladmihalcea.book.hpjp.hibernate.cache.readwrite;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.LockMode;
@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
  *
  * @author Vlad Mihalcea
  */
-public class ReadWriteCacheConcurrencyStrategyTest extends AbstractTest {
+public class RepositoryReadWriteCacheConcurrencyStrategyTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {

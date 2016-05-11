@@ -1,8 +1,8 @@
-package com.vladmihalcea.book.hpjp.hibernate.cache;
+package com.vladmihalcea.book.hpjp.hibernate.cache.readonly;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Immutable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,12 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class CollectionHydratedStateTest extends AbstractTest {
+public class ReadOnlyCacheConcurrencyStrategyImmutableTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -29,8 +28,8 @@ public class CollectionHydratedStateTest extends AbstractTest {
     @Override
     protected Properties properties() {
         Properties properties = super.properties();
+        properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
         properties.put("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
-        properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
         return properties;
     }
 
@@ -54,27 +53,38 @@ public class CollectionHydratedStateTest extends AbstractTest {
 
             entityManager.persist(post);
         });
+        printCacheRegionStatistics(Post.class.getName());
+        LOGGER.info("Post entity inserted");
     }
 
     @Test
-    public void testEntityLoad() {
-
+    public void testReadOnlyEntityUpdate() {
+        LOGGER.info("Read-only cache entries cannot be updated");
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
-            assertEquals(2, post.getComments().size());
+            post.setTitle("High-Performance Hibernate");
         });
+    }
 
-        doInJPA(entityManager -> {
-            LOGGER.info("Load from cache");
-            Post post = entityManager.find(Post.class, 1L);
-            assertEquals(2, post.getComments().size());
-        });
+    @Test
+    public void testCollectionCacheUpdate() {
 
-        printCacheRegionStatistics(Post.class.getName() + ".comments");
+        LOGGER.info("Read-only collection cache entries cannot be updated");
+
+        try {
+            doInJPA(entityManager -> {
+                Post post = entityManager.find(Post.class, 1L);
+                PostComment comment = post.getComments().remove(0);
+                comment.setPost(null);
+            });
+        } catch (Exception e) {
+            LOGGER.error("Expected", e);
+        }
     }
 
     @Entity(name = "Post")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+    @Immutable
     public static class Post {
 
         @Id
@@ -85,8 +95,9 @@ public class CollectionHydratedStateTest extends AbstractTest {
         @Version
         private int version;
 
-        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
-        @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+        @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "post")
+        @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+        @Immutable
         private List<PostComment> comments = new ArrayList<>();
 
         public Long getId() {
@@ -116,13 +127,15 @@ public class CollectionHydratedStateTest extends AbstractTest {
     }
 
     @Entity(name = "PostComment")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @Table(name = "post_comment")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+    @Immutable
     public static class PostComment {
 
         @Id
         private Long id;
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         private Post post;
 
         private String review;

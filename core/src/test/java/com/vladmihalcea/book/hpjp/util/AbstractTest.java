@@ -677,7 +677,7 @@ public abstract class AbstractTest {
     }
 
     public SessionFactory sessionFactory() {
-        return nativeHibernateSessionFactoryBootstrap() ? sf : emf.unwrap(SessionFactory.class);
+        return nativeHibernateSessionFactoryBootstrap() ? sf : entityManagerFactory().unwrap(SessionFactory.class);
     }
     protected boolean nativeHibernateSessionFactoryBootstrap() {
         return false;
@@ -761,6 +761,7 @@ public abstract class AbstractTest {
         if (dataSource != null) {
             properties.put("hibernate.connection.datasource", dataSource);
         }
+        properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
         //properties.put("hibernate.ejb.metamodel.population", "disabled");
         return properties;
     }
@@ -856,7 +857,7 @@ public abstract class AbstractTest {
         EntityManager entityManager = null;
         EntityTransaction txn = null;
         try {
-            entityManager = emf.createEntityManager();
+            entityManager = entityManagerFactory().createEntityManager();
             function.beforeTransactionCompletion();
             txn = entityManager.getTransaction();
             txn.begin();
@@ -878,7 +879,7 @@ public abstract class AbstractTest {
         EntityManager entityManager = null;
         EntityTransaction txn = null;
         try {
-            entityManager = emf.createEntityManager();
+            entityManager = entityManagerFactory().createEntityManager();
             function.beforeTransactionCompletion();
             txn = entityManager.getTransaction();
             txn.begin();
@@ -1092,38 +1093,8 @@ public abstract class AbstractTest {
         }
     }
 
-    protected void printEntityCacheStats(String region, boolean printEntries) {
-        SecondLevelCacheStatistics stats = getCacheStats(region);
-        LOGGER.info("Stats for region {}:  {}", region, stats);
-        if (printEntries) {
-            Object[] cachedEntities = stats.getEntries().entrySet().toArray();
-            LOGGER.info(Arrays.toString(cachedEntities));
-        }
-    }
-
-    protected void printEntityCacheStats(String region) {
-        printEntityCacheStats(region, false);
-    }
-
-    protected void printQueryCacheStats(String region) {
-        SecondLevelCacheStatistics stats = getCacheStats(region);
-        LOGGER.info(region + " Stats:  \n\n\t" + stats + "\n");
-    }
-
-    protected SecondLevelCacheStatistics getCacheStats(String region) {
-        SecondLevelCacheStatistics stats = sessionFactory().getStatistics().getSecondLevelCacheStatistics(region);
-        if (stats == null){
-            LOGGER.warn("No such cache:  " + region);
-        }
-        return stats;
-    }
-
-    protected void print2LCRegionNames(){
-        String[] arr = sessionFactory().getStatistics().getSecondLevelCacheRegionNames();
-
-        LOGGER.info("2LC Region names:");
-        for (String rn : arr) {
-            LOGGER.info("\t --->" + rn);
-        }
+    protected void printCacheRegionStatistics(String region) {
+        SecondLevelCacheStatistics statistics = sessionFactory().getStatistics().getSecondLevelCacheStatistics(region);
+        LOGGER.debug("\nRegion: {},\nStatistics: {},\nEntries: {}", region, statistics, statistics.getEntries());
     }
 }
