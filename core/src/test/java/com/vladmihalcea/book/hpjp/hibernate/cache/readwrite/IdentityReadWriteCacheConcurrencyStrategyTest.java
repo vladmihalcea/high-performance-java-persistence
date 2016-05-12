@@ -47,7 +47,7 @@ public class IdentityReadWriteCacheConcurrencyStrategyTest extends AbstractTest 
     @Test
     public void testPostEntityLoad() {
 
-        LOGGER.info("Load entity from cache");
+        LOGGER.info("Load Post entity and comments collection");
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             printCacheRegionStatistics(post.getClass().getName());

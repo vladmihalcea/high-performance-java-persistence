@@ -59,7 +59,7 @@ public class SequenceReadWriteCacheConcurrencyStrategyTest extends AbstractTest 
     @Test
     public void testPostEntityLoad() {
 
-        LOGGER.info("Load entity from cache");
+        LOGGER.info("Load Post entity and comments collection");
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             assertEquals(2, post.getComments().size());

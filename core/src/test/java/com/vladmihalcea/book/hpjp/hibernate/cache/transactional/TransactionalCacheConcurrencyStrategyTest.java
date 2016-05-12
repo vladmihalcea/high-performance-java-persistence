@@ -85,7 +85,7 @@ public class TransactionalCacheConcurrencyStrategyTest extends AbstractTest {
     @Test
     public void testPostEntityLoad() {
 
-        LOGGER.info("Load entity from cache");
+        LOGGER.info("Load Post entity and comments collection");
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             assertEquals(2, post.getComments().size());
@@ -115,7 +115,18 @@ public class TransactionalCacheConcurrencyStrategyTest extends AbstractTest {
 
     @Test
     public void testEntityUpdate() {
+        LOGGER.debug("testEntityUpdate");
+
         doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            assertEquals(2, post.getComments().size());
+        });
+
+        doInJPA(entityManager -> {
+            printCacheRegionStatistics(Post.class.getName());
+            printCacheRegionStatistics(Post.class.getName() + ".comments");
+            printCacheRegionStatistics(PostComment.class.getName());
+
             Post post = entityManager.find(Post.class, 1L);
             post.setTitle("High-Performance Hibernate");
             PostComment comment = post.getComments().remove(0);
@@ -127,8 +138,46 @@ public class TransactionalCacheConcurrencyStrategyTest extends AbstractTest {
             printCacheRegionStatistics(Post.class.getName() + ".comments");
             printCacheRegionStatistics(PostComment.class.getName());
 
-            LOGGER.debug("Before commit");
+            LOGGER.debug("Commit after flush");
         });
+        printCacheRegionStatistics(Post.class.getName());
+        printCacheRegionStatistics(Post.class.getName() + ".comments");
+        printCacheRegionStatistics(PostComment.class.getName());
+    }
+
+    @Test
+    public void testEntityUpdateWithRollback() {
+        LOGGER.debug("testEntityUpdate");
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            assertEquals(2, post.getComments().size());
+        });
+
+        try {
+            doInJPA(entityManager -> {
+                printCacheRegionStatistics(Post.class.getName());
+                printCacheRegionStatistics(Post.class.getName() + ".comments");
+                printCacheRegionStatistics(PostComment.class.getName());
+
+                Post post = entityManager.find(Post.class, 1L);
+                post.setTitle("High-Performance Hibernate");
+                PostComment comment = post.getComments().remove(0);
+                comment.setPost(null);
+
+                entityManager.flush();
+
+                printCacheRegionStatistics(Post.class.getName());
+                printCacheRegionStatistics(Post.class.getName() + ".comments");
+                printCacheRegionStatistics(PostComment.class.getName());
+
+                if(comment.getId() != null) {
+                    throw new IllegalStateException("Intentional roll back!");
+                }
+            });
+        } catch (Exception expected) {
+            LOGGER.info("Expected", expected);
+        }
         printCacheRegionStatistics(Post.class.getName());
         printCacheRegionStatistics(Post.class.getName() + ".comments");
         printCacheRegionStatistics(PostComment.class.getName());

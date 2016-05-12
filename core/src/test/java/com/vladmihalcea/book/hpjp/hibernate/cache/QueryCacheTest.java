@@ -1,14 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.*;
+import org.hibernate.SQLQuery;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -25,7 +25,7 @@ public class QueryCacheTest extends AbstractTest {
     protected Class<?>[] entities() {
         return new Class<?>[]{
             Post.class,
-            Author.class,
+            PostComment.class,
         };
     }
 
@@ -42,94 +42,88 @@ public class QueryCacheTest extends AbstractTest {
     public void init() {
         super.init();
         doInJPA(entityManager -> {
-            Author author = new Author("Vlad");
-            entityManager.persist(author);
-            Post post = new Post("Hibernate Master Class", author);
-            entityManager.persist(post);
+            Post post1 = new Post();
+            post1.setId(1L);
+            post1.setTitle("High-Performance Java Persistence");
+
+            PostComment comment1 = new PostComment();
+            comment1.setId(1L);
+            comment1.setReview("JDBC part review");
+            post1.addComment(comment1);
+
+            entityManager.persist(post1);
         });
     }
 
     @After
     public void destroy() {
-        sessionFactory().getCache().evictAllRegions();
+        entityManagerFactory().getCache().evictAll();
         super.destroy();
     }
-
-    @SuppressWarnings("unchecked")
-    private List<Post> getLatestPosts(Session session) {
-        return (List<Post>) session.createQuery(
-            "select p " +
-            "from Post p " +
-            "order by p.createdOn desc")
-            .setMaxResults(10)
-            .setCacheable(true)
-            .list();
+    
+    private List<PostComment> getLatestPostComments(EntityManager entityManager) {
+        return entityManager.createQuery(
+            "select pc " +
+            "from PostComment pc " +
+            "order by pc.post.id desc", PostComment.class)
+        .setMaxResults(10)
+        .setHint("org.hibernate.cacheable", true)
+        .getResultList();
     }
-
-    @SuppressWarnings("unchecked")
-    private List<Post> getLatestPostsByAuthorId(Session session) {
-        return (List<Post>) session.createQuery(
-            "select p " +
-            "from Post p " +
-            "join p.author a " +
-            "where a.id = :authorId " +
-            "order by p.createdOn desc")
-            .setParameter("authorId", 1L)
-            .setMaxResults(10)
-            .setCacheable(true)
-            .list();
+    
+    private List<PostComment> getLatestPostCommentsByPostId(EntityManager entityManager) {
+        return entityManager.createQuery(
+            "select pc " +
+            "from PostComment pc " +
+            "where pc.post.id = :postId", PostComment.class)
+        .setParameter("postId", 1L)
+        .setMaxResults(10)
+        .setHint("org.hibernate.cacheable", true)
+        .getResultList();
     }
-
-    @SuppressWarnings("unchecked")
-    private List<Post> getLatestPostsByAuthor(EntityManager entityManager) {
-        Author author = (Author) entityManager.find(Author.class, 1L);
-        return (List<Post>) entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join p.author a " +
-                "where a = :author " +
-                "order by p.createdOn desc")
-                .setParameter("author", author)
-                .setMaxResults(10)
-                .unwrap(org.hibernate.Query.class)
-                .setCacheable(true)
-                .list();
+    
+    private List<PostComment> getLatestPostCommentsByPost(EntityManager entityManager) {
+        Post post = entityManager.find(Post.class, 1L);
+        return entityManager.createQuery(
+            "select pc " +
+            "from PostComment pc " +
+            "where pc.post = :post ", PostComment.class)
+            .setParameter("post", post)
+        .setMaxResults(10)
+        .setHint("org.hibernate.cacheable", true)
+        .getResultList();
     }
 
     @Test
     public void testFindById() {
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
             LOGGER.info("Evict regions and run query");
-            sessionFactory().getCache().evictAllRegions();
+            entityManagerFactory().getCache().evictAll();
         });
 
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            List<Post> post = session
-                .createQuery("select p from Post p where p.id = :id")
+            List<Post> posts = entityManager
+                .createQuery("select p from Post p where p.id = :id", Post.class)
                 .setParameter("id", 1L)
-                .setCacheable(true)
-                .list();
+                .setHint("org.hibernate.cacheable", true)
+                .getResultList();
         });
 
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            List<Post> post = session
-                .createQuery("select p from Post p where p.id = :id")
+            List<Post> posts = entityManager
+                .createQuery("select p from Post p where p.id = :id", Post.class)
                 .setParameter("id", 1L)
-                .setCacheable(true)
-                .list();
+                .setHint("org.hibernate.cacheable", true)
+                .getResultList();
         });
     }
 
     @Test
     public void test2ndLevelCacheWithQuery() {
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
             LOGGER.info("Evict regions and run query");
-            sessionFactory().getCache().evictAllRegions();
-            assertEquals(1, getLatestPosts(session).size());
+            entityManagerFactory().getCache().evictAll();
+            assertEquals(1, getLatestPostComments(entityManager).size());
         });
 
         doInJPA(entityManager -> {
@@ -138,145 +132,161 @@ public class QueryCacheTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
             LOGGER.info("Check query is cached");
-            assertEquals(1, getLatestPosts(session).size());
+            assertEquals(1, getLatestPostComments(entityManager).size());
         });
     }
 
     @Test
     public void test2ndLevelCacheWithParameters() {
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
             LOGGER.info("Query cache with basic type parameter");
-            List<Post> posts = getLatestPostsByAuthorId(session);
-            assertEquals(1, posts.size());
+            List<PostComment> comments = getLatestPostCommentsByPostId(entityManager);
+            assertEquals(1, comments.size());
         });
         doInJPA(entityManager -> {
             LOGGER.info("Query cache with entity type parameter");
-            List<Post> posts = getLatestPostsByAuthor(entityManager);
-            assertEquals(1, posts.size());
+            List<PostComment> comments = getLatestPostCommentsByPost(entityManager);
+            assertEquals(1, comments.size());
         });
     }
 
     @Test
     public void test2ndLevelCacheWithQueryInvalidation() {
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            Author author = (Author)
-                entityManager.find(Author.class, 1L);
-            assertEquals(1, getLatestPosts(session).size());
+            Post post = entityManager.find(Post.class, 1L);
+            assertEquals(1, getLatestPostComments(entityManager).size());
 
             LOGGER.info("Insert a new Post");
-            Post newPost = new Post("Hibernate Book", author);
-            entityManager.persist(newPost);
+            PostComment newComment = new PostComment();
+            newComment.setId(2L);
+            newComment.setReview("JDBC part review");
+            post.addComment(newComment);
+
+            entityManager.persist(newComment);
             entityManager.flush();
 
             LOGGER.info("Query cache is invalidated");
-            assertEquals(2, getLatestPosts(session).size());
+            assertEquals(2, getLatestPostComments(entityManager).size());
         });
 
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
             LOGGER.info("Check Query cache");
-            assertEquals(2, getLatestPosts(session).size());
+            assertEquals(2, getLatestPostComments(entityManager).size());
         });
     }
 
     @Test
     public void test2ndLevelCacheWithNativeQueryInvalidation() {
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            assertEquals(1, getLatestPosts(session).size());
+            assertEquals(1, getLatestPostComments(entityManager).size());
 
             LOGGER.info("Execute native query");
-            assertEquals(1, session.createSQLQuery(
-                "update Author set name = '\"'||name||'\"' "
+            assertEquals(1, entityManager.createNativeQuery(
+                "UPDATE post SET title = '\"'||title||'\"' "
             ).executeUpdate());
 
             LOGGER.info("Check query cache is invalidated");
-            assertEquals(1, getLatestPosts(session).size());
+            assertEquals(1, getLatestPostComments(entityManager).size());
         });
     }
 
     @Test
     public void test2ndLevelCacheWithNativeQuerySynchronization() {
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            assertEquals(1, getLatestPosts(session).size());
+            assertEquals(1, getLatestPostComments(entityManager).size());
 
             LOGGER.info("Execute native query with synchronization");
-            assertEquals(1, session.createSQLQuery(
-                    "update Author set name = '\"'||name||'\"' "
-            ).addSynchronizedEntityClass(Author.class)
+            assertEquals(1, entityManager.createNativeQuery(
+                    "UPDATE post SET title = '\"'||title||'\"' "
+            )
+            .unwrap(SQLQuery.class)
+            .addSynchronizedEntityClass(Post.class)
             .executeUpdate());
 
             LOGGER.info("Check query cache is not invalidated");
-            assertEquals(1, getLatestPosts(session).size());
+            assertEquals(1, getLatestPostComments(entityManager).size());
         });
     }
 
-    @Entity(name = "Author")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    public static class Author {
-
-        @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        private Long id;
-
-        private String name;
-
-        public Author() {
-        }
-
-        public Author(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
-
     @Entity(name = "Post")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @Table(name = "post")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     public static class Post {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
         private Long id;
 
-        private String name;
+        private String title;
 
-        @Column(name = "created_on")
-        @Temporal(TemporalType.TIMESTAMP)
-        private Date createdOn = new Date();
+        @Version
+        private int version;
+
+        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
+        @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+        private List<PostComment> comments = new ArrayList<>();
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public List<PostComment> getComments() {
+            return comments;
+        }
+
+        public void addComment(PostComment comment) {
+            comments.add(comment);
+            comment.setPost(this);
+        }
+    }
+
+    @Entity(name = "PostComment")
+    @Table(name = "post_comment")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    public static class PostComment {
+
+        @Id
+        private Long id;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        private Author author;
+        private Post post;
 
-        public Post() {
+        private String review;
+
+        public Long getId() {
+            return id;
         }
 
-        public Post(String name, Author author) {
-            this.name = name;
-            this.author = author;
+        public void setId(Long id) {
+            this.id = id;
         }
 
-        public Date getCreatedOn() {
-            return createdOn;
+        public Post getPost() {
+            return post;
         }
 
-        public String getName() {
-            return name;
+        public void setPost(Post post) {
+            this.post = post;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public String getReview() {
+            return review;
         }
 
-        public Author getAuthor() {
-            return author;
+        public void setReview(String review) {
+            this.review = review;
         }
     }
 }

@@ -82,7 +82,7 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
     @Test
     public void testPostEntityLoad() {
 
-        LOGGER.info("Load entity from cache");
+        LOGGER.info("Load Post entity and comments collection");
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             assertEquals(2, post.getComments().size());
@@ -124,7 +124,7 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
             printCacheRegionStatistics(Post.class.getName() + ".comments");
             printCacheRegionStatistics(PostComment.class.getName());
 
-            LOGGER.debug("Before commit");
+            LOGGER.debug("Commit after flush");
         });
         printCacheRegionStatistics(Post.class.getName());
         printCacheRegionStatistics(Post.class.getName() + ".comments");
