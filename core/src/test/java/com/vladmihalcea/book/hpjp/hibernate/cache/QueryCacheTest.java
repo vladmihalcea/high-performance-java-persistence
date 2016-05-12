@@ -3,6 +3,8 @@ package com.vladmihalcea.book.hpjp.hibernate.cache;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.SQLQuery;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.cache.internal.StandardQueryCache;
+import org.hibernate.jpa.QueryHints;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,16 +44,16 @@ public class QueryCacheTest extends AbstractTest {
     public void init() {
         super.init();
         doInJPA(entityManager -> {
-            Post post1 = new Post();
-            post1.setId(1L);
-            post1.setTitle("High-Performance Java Persistence");
+            Post post = new Post();
+            post.setId(1L);
+            post.setTitle("High-Performance Java Persistence");
 
-            PostComment comment1 = new PostComment();
-            comment1.setId(1L);
-            comment1.setReview("JDBC part review");
-            post1.addComment(comment1);
+            PostComment comment = new PostComment();
+            comment.setId(1L);
+            comment.setReview("JDBC part review");
+            post.addComment(comment);
 
-            entityManager.persist(post1);
+            entityManager.persist(post);
         });
     }
 
@@ -60,14 +62,14 @@ public class QueryCacheTest extends AbstractTest {
         entityManagerFactory().getCache().evictAll();
         super.destroy();
     }
-    
-    private List<PostComment> getLatestPostComments(EntityManager entityManager) {
+
+    public List<PostComment> getLatestPostComments(EntityManager entityManager) {
         return entityManager.createQuery(
             "select pc " +
             "from PostComment pc " +
             "order by pc.post.id desc", PostComment.class)
         .setMaxResults(10)
-        .setHint("org.hibernate.cacheable", true)
+        .setHint(QueryHints.HINT_CACHEABLE, true)
         .getResultList();
     }
     
@@ -78,7 +80,7 @@ public class QueryCacheTest extends AbstractTest {
             "where pc.post.id = :postId", PostComment.class)
         .setParameter("postId", 1L)
         .setMaxResults(10)
-        .setHint("org.hibernate.cacheable", true)
+        .setHint(QueryHints.HINT_CACHEABLE, true)
         .getResultList();
     }
     
@@ -90,50 +92,16 @@ public class QueryCacheTest extends AbstractTest {
             "where pc.post = :post ", PostComment.class)
             .setParameter("post", post)
         .setMaxResults(10)
-        .setHint("org.hibernate.cacheable", true)
+        .setHint(QueryHints.HINT_CACHEABLE, true)
         .getResultList();
-    }
-
-    @Test
-    public void testFindById() {
-        doInJPA(entityManager -> {
-            LOGGER.info("Evict regions and run query");
-            entityManagerFactory().getCache().evictAll();
-        });
-
-        doInJPA(entityManager -> {
-            List<Post> posts = entityManager
-                .createQuery("select p from Post p where p.id = :id", Post.class)
-                .setParameter("id", 1L)
-                .setHint("org.hibernate.cacheable", true)
-                .getResultList();
-        });
-
-        doInJPA(entityManager -> {
-            List<Post> posts = entityManager
-                .createQuery("select p from Post p where p.id = :id", Post.class)
-                .setParameter("id", 1L)
-                .setHint("org.hibernate.cacheable", true)
-                .getResultList();
-        });
     }
 
     @Test
     public void test2ndLevelCacheWithQuery() {
         doInJPA(entityManager -> {
-            LOGGER.info("Evict regions and run query");
-            entityManagerFactory().getCache().evictAll();
+            printCacheRegionStatistics(StandardQueryCache.class.getName());
             assertEquals(1, getLatestPostComments(entityManager).size());
-        });
-
-        doInJPA(entityManager -> {
-            LOGGER.info("Check get entity is cached");
-            Post post = (Post) entityManager.find(Post.class, 1L);
-        });
-
-        doInJPA(entityManager -> {
-            LOGGER.info("Check query is cached");
-            assertEquals(1, getLatestPostComments(entityManager).size());
+            printCacheRegionStatistics(StandardQueryCache.class.getName());
         });
     }
 
@@ -155,7 +123,9 @@ public class QueryCacheTest extends AbstractTest {
     public void test2ndLevelCacheWithQueryInvalidation() {
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
+
             assertEquals(1, getLatestPostComments(entityManager).size());
+            printCacheRegionStatistics(StandardQueryCache.class.getName());
 
             LOGGER.info("Insert a new Post");
             PostComment newComment = new PostComment();
@@ -166,28 +136,32 @@ public class QueryCacheTest extends AbstractTest {
             entityManager.persist(newComment);
             entityManager.flush();
 
-            LOGGER.info("Query cache is invalidated");
             assertEquals(2, getLatestPostComments(entityManager).size());
+            printCacheRegionStatistics(StandardQueryCache.class.getName());
         });
 
+        LOGGER.info("After transaction commit");
+        printCacheRegionStatistics(StandardQueryCache.class.getName());
+
         doInJPA(entityManager -> {
-            LOGGER.info("Check Query cache");
+            LOGGER.info("Check query cache");
             assertEquals(2, getLatestPostComments(entityManager).size());
         });
+        printCacheRegionStatistics(StandardQueryCache.class.getName());
     }
 
     @Test
     public void test2ndLevelCacheWithNativeQueryInvalidation() {
         doInJPA(entityManager -> {
             assertEquals(1, getLatestPostComments(entityManager).size());
+            printCacheRegionStatistics(StandardQueryCache.class.getName());
 
-            LOGGER.info("Execute native query");
-            assertEquals(1, entityManager.createNativeQuery(
-                "UPDATE post SET title = '\"'||title||'\"' "
-            ).executeUpdate());
+            entityManager.createNativeQuery(
+                "UPDATE post SET title = '\"'||title||'\"' ")
+            .executeUpdate();
 
-            LOGGER.info("Check query cache is invalidated");
             assertEquals(1, getLatestPostComments(entityManager).size());
+            printCacheRegionStatistics(StandardQueryCache.class.getName());
         });
     }
 
@@ -195,17 +169,17 @@ public class QueryCacheTest extends AbstractTest {
     public void test2ndLevelCacheWithNativeQuerySynchronization() {
         doInJPA(entityManager -> {
             assertEquals(1, getLatestPostComments(entityManager).size());
+            printCacheRegionStatistics(StandardQueryCache.class.getName());
 
             LOGGER.info("Execute native query with synchronization");
-            assertEquals(1, entityManager.createNativeQuery(
-                    "UPDATE post SET title = '\"'||title||'\"' "
-            )
+            entityManager.createNativeQuery(
+                "UPDATE post SET title = '\"'||title||'\"' ")
             .unwrap(SQLQuery.class)
             .addSynchronizedEntityClass(Post.class)
-            .executeUpdate());
+            .executeUpdate();
 
-            LOGGER.info("Check query cache is not invalidated");
             assertEquals(1, getLatestPostComments(entityManager).size());
+            printCacheRegionStatistics(StandardQueryCache.class.getName());
         });
     }
 
