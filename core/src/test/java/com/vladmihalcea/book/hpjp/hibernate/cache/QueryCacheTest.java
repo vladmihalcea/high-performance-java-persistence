@@ -122,18 +122,16 @@ public class QueryCacheTest extends AbstractTest {
     @Test
     public void test2ndLevelCacheWithQueryInvalidation() {
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
 
             assertEquals(1, getLatestPostComments(entityManager).size());
             printCacheRegionStatistics(StandardQueryCache.class.getName());
 
-            LOGGER.info("Insert a new Post");
+            LOGGER.info("Insert a new PostComment");
             PostComment newComment = new PostComment();
             newComment.setId(2L);
             newComment.setReview("JDBC part review");
+            Post post = entityManager.find(Post.class, 1L);
             post.addComment(newComment);
-
-            entityManager.persist(newComment);
             entityManager.flush();
 
             assertEquals(2, getLatestPostComments(entityManager).size());
@@ -156,6 +154,21 @@ public class QueryCacheTest extends AbstractTest {
             assertEquals(1, getLatestPostComments(entityManager).size());
             printCacheRegionStatistics(StandardQueryCache.class.getName());
 
+            int postCount = ((Number) entityManager.createNativeQuery(
+                "SELECT count(*) FROM post")
+                .getSingleResult()).intValue();
+
+            assertEquals(postCount, getLatestPostComments(entityManager).size());
+            printCacheRegionStatistics(StandardQueryCache.class.getName());
+        });
+    }
+
+    @Test
+    public void test2ndLevelCacheWithNativeUpdateStatementInvalidation() {
+        doInJPA(entityManager -> {
+            assertEquals(1, getLatestPostComments(entityManager).size());
+            printCacheRegionStatistics(StandardQueryCache.class.getName());
+
             entityManager.createNativeQuery(
                 "UPDATE post SET title = '\"'||title||'\"' ")
             .executeUpdate();
@@ -166,7 +179,7 @@ public class QueryCacheTest extends AbstractTest {
     }
 
     @Test
-    public void test2ndLevelCacheWithNativeQuerySynchronization() {
+    public void test2ndLevelCacheWithNativeUpdateStatementSynchronization() {
         doInJPA(entityManager -> {
             assertEquals(1, getLatestPostComments(entityManager).size());
             printCacheRegionStatistics(StandardQueryCache.class.getName());
