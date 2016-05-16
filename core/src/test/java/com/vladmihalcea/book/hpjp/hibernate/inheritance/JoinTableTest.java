@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * <code>JoinTableTest</code> - Join Table Test
  *
@@ -93,6 +95,66 @@ public class JoinTableTest extends AbstractTest {
                     .createQuery("select s from TopicStatistics s join fetch s.topic t where t.id = :topicId", TopicStatistics.class)
                     .setParameter("topicId", topicId)
                     .getSingleResult();
+        });
+    }
+
+    @Test
+    public void testQueryUsingAll() {
+        doInJPA(entityManager -> {
+            Board board1 = new Board();
+            board1.setName("Hibernate");
+
+            entityManager.persist(board1);
+
+            Post post1 = new Post();
+            post1.setOwner("John Doe");
+            post1.setTitle("Inheritance");
+            post1.setContent("Best practices");
+            post1.setBoard(board1);
+
+            entityManager.persist(post1);
+
+            Announcement announcement1 = new Announcement();
+            announcement1.setOwner("John Doe");
+            announcement1.setTitle("Release x.y.z.Final");
+            announcement1.setValidUntil(Timestamp.valueOf(LocalDateTime.now().plusMonths(1)));
+            announcement1.setBoard(board1);
+
+            entityManager.persist(announcement1);
+
+            Board board2 = new Board();
+            board2.setName("JPA");
+
+            entityManager.persist(board2);
+
+            Post post2 = new Post();
+            post2.setOwner("John Doe");
+            post2.setTitle("Inheritance");
+            post2.setContent("Best practices");
+            post2.setBoard(board2);
+
+            entityManager.persist(post2);
+
+            Post post3 = new Post();
+            post3.setOwner("John Doe");
+            post3.setTitle("Inheritance");
+            post3.setContent("More best practices");
+            post3.setBoard(board2);
+
+            entityManager.persist(post3);
+        });
+
+        doInJPA(entityManager -> {
+            List<Board> postOnlyBoards = entityManager
+            .createQuery(
+                "select distinct b " +
+                "from Board b " +
+                "where Post = all (" +
+                "   select type(t) from Topic t where t.board = b" +
+                ")", Board.class)
+            .getResultList();
+            assertEquals(1, postOnlyBoards.size());
+            assertEquals("JPA", postOnlyBoards.get(0).getName());
         });
     }
 
