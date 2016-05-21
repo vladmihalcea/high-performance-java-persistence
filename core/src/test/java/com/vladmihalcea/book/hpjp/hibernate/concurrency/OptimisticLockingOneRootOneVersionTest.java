@@ -10,7 +10,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * OptimisticLockingOneRootOneVersionTest - Test to check optimistic checking on a single entity being updated by many threads
  *
- * @author Carol Mihalcea
+ * @author Vlad Mihalcea
  */
 public class OptimisticLockingOneRootOneVersionTest extends AbstractTest {
 

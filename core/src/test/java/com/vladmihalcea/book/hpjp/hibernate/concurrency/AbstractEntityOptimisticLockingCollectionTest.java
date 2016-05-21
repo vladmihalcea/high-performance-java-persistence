@@ -10,7 +10,7 @@ import static org.junit.Assert.assertNotSame;
 /**
  * AbstractEntityOptimisticLockingCollectionTest - Abstract Test to check optimistic locking collection versioning
  *
- * @author Carol Mihalcea
+ * @author Vlad Mihalcea
  */
 public abstract class AbstractEntityOptimisticLockingCollectionTest<P extends AbstractEntityOptimisticLockingCollectionTest.IPost<C>, C extends AbstractEntityOptimisticLockingCollectionTest.IComment<P>> extends AbstractTest {
 

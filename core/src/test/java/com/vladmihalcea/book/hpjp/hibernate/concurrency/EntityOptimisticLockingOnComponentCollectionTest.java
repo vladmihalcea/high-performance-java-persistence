@@ -12,7 +12,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * EntityOptimisticLockingOnComponentCollectionTest - Test to check optimistic locking on component collections
  *
- * @author Carol Mihalcea
+ * @author Vlad Mihalcea
  */
 public class EntityOptimisticLockingOnComponentCollectionTest
         extends AbstractEntityOptimisticLockingCollectionTest

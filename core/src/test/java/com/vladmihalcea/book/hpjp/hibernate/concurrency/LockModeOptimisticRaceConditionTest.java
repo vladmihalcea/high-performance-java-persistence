@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * LockModeOptimisticWithPessimisticLockUpgradeTest - Test to check LockMode.OPTIMISTIC with pessimistic lock upgrade
  *
- * @author Carol Mihalcea
+ * @author Vlad Mihalcea
  */
 public class LockModeOptimisticRaceConditionTest extends AbstractLockModeOptimisticTest {
 

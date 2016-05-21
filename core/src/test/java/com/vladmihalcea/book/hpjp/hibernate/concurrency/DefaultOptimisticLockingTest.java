@@ -9,7 +9,7 @@ import javax.persistence.*;
 import static org.junit.Assert.assertEquals;
 
 /**
- * @author Carol Mihalcea
+ * @author Vlad Mihalcea
  */
 public class DefaultOptimisticLockingTest extends AbstractTest {
 

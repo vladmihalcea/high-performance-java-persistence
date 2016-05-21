@@ -18,7 +18,7 @@ import java.util.concurrent.CountDownLatch;
  * OptimisticLockingOneRootDirtyVersioningTest - Test to check optimistic checking on a single entity being updated by many threads
  * using the dirty properties instead of a synthetic version column
  *
- * @author Carol Mihalcea
+ * @author Vlad Mihalcea
  */
 public class OptimisticLockingOneRootDirtyVersioningTest extends AbstractTest {
 
@@ -127,7 +127,7 @@ public class OptimisticLockingOneRootDirtyVersioningTest extends AbstractTest {
     /**
      * Product - Product
      *
-     * @author Carol Mihalcea
+     * @author Vlad Mihalcea
      */
     @Entity(name = "product")
     @Table(name = "product")

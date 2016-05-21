@@ -7,7 +7,7 @@ import org.hibernate.Session;
 /**
  * LockModeOptimisticWithPessimisticLockUpgradeTest - Test to check LockMode.OPTIMISTIC with pessimistic lock upgrade
  *
- * @author Carol Mihalcea
+ * @author Vlad Mihalcea
  */
 public class LockModeOptimisticWithPessimisticLockUpgradeTest extends LockModeOptimisticRaceConditionTest {
 

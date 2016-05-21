@@ -9,7 +9,6 @@ import org.junit.internal.matchers.ThrowableCauseMatcher;
 import org.junit.rules.ExpectedException;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -21,81 +20,78 @@ import static org.hamcrest.core.IsEqual.equalTo;
 /**
  * EntityOptimisticLockingHighUpdateRateSingleEntityTest - Test to check optimistic checking on a single entity being updated by many threads
  *
- * @author Carol Mihalcea
+ * @author Vlad Mihalcea
  */
 public class OptimisticLockingOneRootEntityMultipleVersionsTest extends AbstractTest {
 
     private ExecutorService executorService = Executors.newFixedThreadPool(10);
-    private Product originalProduct;
+    private Post originalPost;
 
     @Before
-    public void addProduct() {
-        originalProduct = doInJPA(entityManager -> {
-            Product product = Product.newInstance();
-            product.setId(1L);
-            product.setName("TV");
-            product.setDescription("Plasma TV");
-            product.setPrice(BigDecimal.valueOf(199.99));
-            product.setQuantity(7L);
-            entityManager.persist(product);
-            return product;
+    public void addPost() {
+        originalPost = doInJPA(entityManager -> {
+            Post post = Post.newInstance();
+            post.setId(1L);
+            post.setTitle("JDBC");
+            entityManager.persist(post);
+            return post;
         });
     }
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    static interface DoWithProduct {
-        void with(Product product);
+    static interface DoWithPost {
+        void with(Post post);
     }
 
-    public static class ModifyQuantity implements DoWithProduct {
-        private final Long newQuantity;
+    public static class ModifyViews implements DoWithPost {
+        private final Long views;
 
-        public ModifyQuantity(Long newQuantity) {
-            this.newQuantity = newQuantity;
+        public ModifyViews(Long views) {
+            this.views = views;
         }
 
-        public void with(Product product) {
-            product.setQuantity(newQuantity);
-        }
-    }
-
-    public static class ModifyDescription implements DoWithProduct {
-        private final String newDesc;
-
-        public ModifyDescription(String newDesc) {
-            this.newDesc = newDesc;
-        }
-
-
-        public void with(Product product) {
-            product.setDescription(newDesc);
+        public void with(Post post) {
+            post.setViews(views);
         }
     }
 
-    public static class IncLikes implements DoWithProduct {
+    public static class ModifyTitle implements DoWithPost {
+        private final String title;
 
-        public void with(Product product) {
-            product.incrementLikes();
+        public ModifyTitle(String title) {
+            this.title = title;
+        }
+
+
+        public void with(Post post) {
+            post.setTitle(title);
+        }
+    }
+
+    public static class IncrementLikes implements DoWithPost {
+
+        public void with(Post post) {
+            post.incrementLikes();
         }
     }
 
     public class TransactionTemplate implements VoidCallable {
-        private final DoWithProduct doWithProduct;
+        private final DoWithPost doWithPost;
         private CyclicBarrier barrier;
 
-        public TransactionTemplate(DoWithProduct doWithProduct, CyclicBarrier barrier) {
-            this.doWithProduct = doWithProduct;
+        public TransactionTemplate(DoWithPost doWithPost, CyclicBarrier barrier) {
+            this.doWithPost = doWithPost;
             this.barrier = barrier;
         }
 
         public void execute() {
             doInJPA(entityManager -> {
                 try {
-                    Product product = (Product) entityManager.find(Product.class, 1L);
+                    Post post = entityManager.find(Post.class, 1L);
                     barrier.await();
-                    doWithProduct.with(product);
+                    doWithPost.with(post);
                     return null;
                 } catch (InterruptedException | BrokenBarrierException e) {
                     throw new IllegalStateException(e);
@@ -105,45 +101,45 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
     }
 
 
-    public Product getProductById(final long productId) {
-        return doInJPA(entityManager -> (Product) entityManager.find(Product.class, productId));
+    public Post getPostById(final long postId) {
+        return doInJPA(entityManager -> (Post) entityManager.find(Post.class, postId));
     }
 
     @Test
     public void canConcurrentlyModifyEachOfSubEntities() throws InterruptedException, ExecutionException {
         executeOperations(
-                new IncLikes(),
-                new ModifyDescription("Plasma HDTV"),
-                new ModifyQuantity(1000L));
+                new IncrementLikes(),
+                new ModifyTitle("JPA"),
+                new ModifyViews(15L));
 
-        Product modifiedProduct = getProductById(originalProduct.getId());
+        Post modifiedPost = getPostById(originalPost.getId());
 
-        assertThat(modifiedProduct.getDescription(), equalTo("Plasma HDTV"));
-        assertThat(modifiedProduct.getQuantity(), equalTo(1000L));
-        assertThat(modifiedProduct.getLikes(), equalTo(originalProduct.getLikes() + 1));
+        assertThat(modifiedPost.getTitle(), equalTo("JPA"));
+        assertThat(modifiedPost.getViews(), equalTo(15L));
+        assertThat(modifiedPost.getLikes(), equalTo(originalPost.getLikes() + 1));
     }
 
 
     @Test
-    public void optimisticLockingViolationForConcurrentStockModifications() throws InterruptedException, ExecutionException {
+    public void optimisticLockingViolationForConcurrentViewsModifications() throws InterruptedException, ExecutionException {
         expectedException.expectCause(new ThrowableCauseMatcher<>(IsInstanceOf.<Throwable>instanceOf(OptimisticLockException.class)));
 
         executeOperations(
-                new IncLikes(),
-                new ModifyQuantity(100L),
-                new ModifyDescription("Plasma HDTV"),
-                new ModifyQuantity(1000L));
+                new IncrementLikes(),
+                new ModifyViews(100L),
+                new ModifyTitle("JPA"),
+                new ModifyViews(1000L));
     }
 
     @Test
-    public void optimisticLockingViolationForConcurrentProductModifications() throws InterruptedException, ExecutionException {
+    public void optimisticLockingViolationForConcurrentPostModifications() throws InterruptedException, ExecutionException {
         expectedException.expectCause(new ThrowableCauseMatcher<>(IsInstanceOf.<Throwable>instanceOf(OptimisticLockException.class)));
 
         executeOperations(
-                new IncLikes(),
-                new ModifyDescription("LCD TV"),
-                new ModifyDescription("Plasma HDTV"),
-                new ModifyQuantity(1L));
+                new IncrementLikes(),
+                new ModifyTitle("Hibernate"),
+                new ModifyTitle("JPA"),
+                new ModifyViews(1L));
     }
 
 
@@ -152,17 +148,17 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
         expectedException.expectCause(new ThrowableCauseMatcher<>(IsInstanceOf.<Throwable>instanceOf(OptimisticLockException.class)));
 
         executeOperations(
-                new IncLikes(),
-                new IncLikes(),
-                new ModifyDescription("Plasma HDTV"),
-                new ModifyQuantity(2L));
+                new IncrementLikes(),
+                new IncrementLikes(),
+                new ModifyTitle("JPA"),
+                new ModifyViews(2L));
 
     }
 
-    private void executeOperations(DoWithProduct... operations) throws InterruptedException, ExecutionException {
+    private void executeOperations(DoWithPost... operations) throws InterruptedException, ExecutionException {
         CyclicBarrier cyclicBarrier = new CyclicBarrier(operations.length);
-        List<TransactionTemplate> tasks = new LinkedList<TransactionTemplate>();
-        for (DoWithProduct operation : operations) {
+        List<TransactionTemplate> tasks = new LinkedList<>();
+        for (DoWithPost operation : operations) {
             tasks.add(new TransactionTemplate(operation, cyclicBarrier));
         }
 
@@ -176,29 +172,24 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Product.class,
-                ProductStock.class,
-                ProductLiking.class
+                Post.class,
+                PostViews.class,
+                PostLikes.class
         };
     }
-
-    /**
-     * ProductStock - Product Stock
-     *
-     * @author Carol Mihalcea
-     */
-    @Entity(name = "ProductStock")
-    @Table(name = "product_stock")
-    public static class ProductStock {
+    
+    @Entity(name = "PostViews")
+    @Table(name = "post_views")
+    public static class PostViews {
 
         @Id
         private Long id;
 
         @MapsId
         @OneToOne
-        private Product product;
+        private Post post;
 
-        private long quantity;
+        private long views;
 
         @Version
         private int version;
@@ -207,38 +198,33 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
             return id;
         }
 
-        public Product getProduct() {
-            return product;
+        public Post getPost() {
+            return post;
         }
 
-        public void setProduct(Product product) {
-            this.product = product;
+        public void setPost(Post post) {
+            this.post = post;
         }
 
-        public long getQuantity() {
-            return quantity;
+        public long getViews() {
+            return views;
         }
 
-        public void setQuantity(long quantity) {
-            this.quantity = quantity;
+        public void setViews(long views) {
+            this.views = views;
         }
     }
 
-    /**
-     * ProductStock - Product Stock
-     *
-     * @author Carol Mihalcea
-     */
-    @Entity(name = "ProductLiking")
-    @Table(name = "product_liking")
-    public static class ProductLiking {
+    @Entity(name = "PostLikes")
+    @Table(name = "post_liking")
+    public static class PostLikes {
 
         @Id
         private Long id;
 
         @MapsId
         @OneToOne
-        private Product product;
+        private Post post;
 
         private int likes;
 
@@ -249,12 +235,12 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
             return id;
         }
 
-        public Product getProduct() {
-            return product;
+        public Post getPost() {
+            return post;
         }
 
-        public void setProduct(Product product) {
-            this.product = product;
+        public void setPost(Post post) {
+            this.post = post;
         }
 
         public int getLikes() {
@@ -266,51 +252,33 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
         }
     }
 
-    /**
-     * Product - Product
-     *
-     * @author Carol Mihalcea
-     */
-    @Entity(name = "Product")
-    @Table(name = "product")
-    public static class Product {
+    @Entity(name = "Post") @Table(name = "post")
+    public static class Post {
 
-        public static Product newInstance() {
-            Product product = new Product();
-            ProductStock stock = new ProductStock();
-            stock.setProduct(product);
-            product.stock = stock;
-            ProductLiking liking = new ProductLiking();
-            liking.setProduct(product);
-            product.liking = liking;
-            return product;
+        public static Post newInstance() {
+            Post post = new Post();
+            PostViews views = new PostViews();
+            views.setPost(post);
+            post.views = views;
+            PostLikes likes = new PostLikes();
+            likes.setPost(post);
+            post.likes = likes;
+            return post;
         }
 
         @Id
         private Long id;
+        
+        private String title;
 
-        @Column(unique = true, nullable = false)
-        private String name;
+        @OneToOne(optional = false, mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+        private PostViews views;
 
-        @Column(nullable = false)
-        private String description;
-
-        @Column(nullable = false)
-        private BigDecimal price;
-
-        @OneToOne(optional = false, mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-        @PrimaryKeyJoinColumn
-        private ProductStock stock;
-
-        @OneToOne(optional = false, mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-        @PrimaryKeyJoinColumn
-        private ProductLiking liking;
+        @OneToOne(optional = false, mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+        private PostLikes likes;
 
         @Version
         private int version;
-
-        public Product() {
-        }
 
         public Long getId() {
             return id;
@@ -320,44 +288,28 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
             this.id = id;
         }
 
-        public String getName() {
-            return name;
+        public String getTitle() {
+            return title;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setTitle(String title) {
+            this.title = title;
         }
 
-        public String getDescription() {
-            return description;
+        public long getViews() {
+            return views.getViews();
         }
 
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public BigDecimal getPrice() {
-            return price;
-        }
-
-        public void setPrice(BigDecimal price) {
-            this.price = price;
-        }
-
-        public long getQuantity() {
-            return stock.getQuantity();
-        }
-
-        public void setQuantity(long quantity) {
-            stock.setQuantity(quantity);
+        public void setViews(long views) {
+            this.views.setViews(views);
         }
 
         public int getLikes() {
-            return liking.getLikes();
+            return likes.getLikes();
         }
 
         public int incrementLikes() {
-            return liking.incrementLikes();
+            return likes.incrementLikes();
         }
     }
 }

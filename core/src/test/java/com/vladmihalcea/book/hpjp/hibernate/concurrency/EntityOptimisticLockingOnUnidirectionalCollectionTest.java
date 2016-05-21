@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * EntityOptimisticLockingOnUnidirectionalCollectionTest - Test to check optimistic locking on unidirectional collections
  *
- * @author Carol Mihalcea
+ * @author Vlad Mihalcea
  */
 public class EntityOptimisticLockingOnUnidirectionalCollectionTest
         extends AbstractEntityOptimisticLockingCollectionTest

@@ -20,7 +20,7 @@ import static org.junit.Assert.fail;
 /**
  * LockModePessimisticForceIncrementTest - Test to check LockMode.PESSIMISTIC_FORCE_INCREMENT
  *
- * @author Carol Mihalcea
+ * @author Vlad Mihalcea
  */
 public class LockModePessimisticForceIncrementTest extends AbstractTest {
 
@@ -124,7 +124,7 @@ public class LockModePessimisticForceIncrementTest extends AbstractTest {
     /**
      * Repository - Repository
      *
-     * @author Carol Mihalcea
+     * @author Vlad Mihalcea
      */
     @Entity(name = "repository")
     @Table(name = "repository")
@@ -158,7 +158,7 @@ public class LockModePessimisticForceIncrementTest extends AbstractTest {
     /**
      * OrderLine - Order Line
      *
-     * @author Carol Mihalcea
+     * @author Vlad Mihalcea
      */
     @Entity(name = "Commit")
     @Table(name = "commit")
@@ -198,7 +198,7 @@ public class LockModePessimisticForceIncrementTest extends AbstractTest {
     /**
      * OrderLine - Order Line
      *
-     * @author Carol Mihalcea
+     * @author Vlad Mihalcea
      */
     @Embeddable
     public static class Change {
