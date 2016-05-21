@@ -21,7 +21,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 /**
  * EntityOptimisticLockingHighUpdateRateSingleEntityTest - Test to check optimistic checking on a single entity being updated by many threads
  *
- * @author Vlad Mihalcea
+ * @author Carol Mihalcea
  */
 public class OptimisticLockingOneRootEntityMultipleVersionsTest extends AbstractTest {
 
@@ -185,7 +185,7 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
     /**
      * ProductStock - Product Stock
      *
-     * @author Vlad Mihalcea
+     * @author Carol Mihalcea
      */
     @Entity(name = "ProductStock")
     @Table(name = "product_stock")
@@ -227,7 +227,7 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
     /**
      * ProductStock - Product Stock
      *
-     * @author Vlad Mihalcea
+     * @author Carol Mihalcea
      */
     @Entity(name = "ProductLiking")
     @Table(name = "product_liking")
@@ -269,7 +269,7 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
     /**
      * Product - Product
      *
-     * @author Vlad Mihalcea
+     * @author Carol Mihalcea
      */
     @Entity(name = "Product")
     @Table(name = "product")

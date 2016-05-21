@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 /**
  * OptimisticLockingTest - Test to check optimistic checking
  *
- * @author Vlad Mihalcea
+ * @author Carol Mihalcea
  */
 public class EntityFirstLevelCacheReuseTest extends AbstractTest {
 
@@ -58,7 +58,7 @@ public class EntityFirstLevelCacheReuseTest extends AbstractTest {
     /**
      * Product - Product
      *
-     * @author Vlad Mihalcea
+     * @author Carol Mihalcea
      */
     @Entity(name = "Product")
     @Table(name = "product")

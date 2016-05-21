@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * EntityOptimisticLockingOnBidirectionalParentOwningCollectionTest - Test to check optimistic locking on bidirectional parent owning collections
  *
- * @author Vlad Mihalcea
+ * @author Carol Mihalcea
  */
 public class EntityOptimisticLockingOnBidirectionalParentOwningCollectionTest
         extends AbstractEntityOptimisticLockingCollectionTest

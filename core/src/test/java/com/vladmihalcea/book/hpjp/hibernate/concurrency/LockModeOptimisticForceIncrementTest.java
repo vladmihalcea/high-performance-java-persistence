@@ -19,7 +19,7 @@ import static org.junit.Assert.fail;
 /**
  * LockModeOptimisticForceIncrementTest - Test to check LockMode.OPTIMISTIC_FORCE_INCREMENT
  *
- * @author Vlad Mihalcea
+ * @author Carol Mihalcea
  */
 public class LockModeOptimisticForceIncrementTest extends AbstractTest {
 
@@ -91,7 +91,7 @@ public class LockModeOptimisticForceIncrementTest extends AbstractTest {
     /**
      * Repository - Repository
      *
-     * @author Vlad Mihalcea
+     * @author Carol Mihalcea
      */
     @Entity(name = "repository")
     @Table(name = "repository")
@@ -125,7 +125,7 @@ public class LockModeOptimisticForceIncrementTest extends AbstractTest {
     /**
      * Commit - Commit
      *
-     * @author Vlad Mihalcea
+     * @author Carol Mihalcea
      */
     @Entity(name = "Commit")
     @Table(name = "commit")
@@ -165,7 +165,7 @@ public class LockModeOptimisticForceIncrementTest extends AbstractTest {
     /**
      * OrderLine - Order Line
      *
-     * @author Vlad Mihalcea
+     * @author Carol Mihalcea
      */
     @Embeddable
     public static class Change {

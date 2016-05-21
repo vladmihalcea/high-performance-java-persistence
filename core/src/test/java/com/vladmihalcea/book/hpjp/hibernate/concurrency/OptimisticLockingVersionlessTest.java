@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 /**
  * OptimisticLockingVersionlessTest - Test to check optimistic checking using the dirty properties instead of a synthetic version column
  *
- * @author Vlad Mihalcea
+ * @author Carol Mihalcea
  */
 public class OptimisticLockingVersionlessTest extends AbstractTest {
 

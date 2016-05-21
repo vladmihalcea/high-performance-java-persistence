@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * EntityOptimisticLockingOnBidirectionalChildOwningCollectionTest - Test to check optimistic locking on bidirectional child owning collections
  *
- * @author Vlad Mihalcea
+ * @author Carol Mihalcea
  */
 public class EntityOptimisticLockingOnBidirectionalChildOwningCollectionTest
         extends AbstractEntityOptimisticLockingCollectionTest

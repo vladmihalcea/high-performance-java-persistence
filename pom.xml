@@ -140,7 +140,7 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -148,21 +148,21 @@
             <artifactId>ojdbc7_g</artifactId>
             <!--<artifactId>ojdbc6</artifactId>-->
             <version>${oracle.version}</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysql.version}</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>sqljdbc4</artifactId>
             <version>${mssql.version}</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>

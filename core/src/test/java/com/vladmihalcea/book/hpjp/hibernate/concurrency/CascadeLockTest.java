@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * CascadeLockTest - Test to check CascadeType.LOCK
  *
- * @author Vlad Mihalcea
+ * @author Carol Mihalcea
  */
 public class CascadeLockTest extends AbstractTest {
 

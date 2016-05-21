@@ -19,7 +19,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * LockModePessimisticReadWriteIntegrationTest - Test to check LockMode.PESSIMISTIC_READ and LockMode.PESSIMISTIC_WRITE
  *
- * @author Vlad Mihalcea
+ * @author Carol Mihalcea
  */
 public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgreSQLIntegrationTest {
 
@@ -153,7 +153,7 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
     /**
      * Product - Product
      *
-     * @author Vlad Mihalcea
+     * @author Carol Mihalcea
      */
     @Entity(name = "Product")
     @Table(name = "product")

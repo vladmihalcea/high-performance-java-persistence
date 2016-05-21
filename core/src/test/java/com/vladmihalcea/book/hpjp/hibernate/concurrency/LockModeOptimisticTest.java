@@ -15,7 +15,7 @@ import static org.junit.Assert.fail;
 /**
  * LockModeOptimisticTest - Test to check LockMode.OPTIMISTIC
  *
- * @author Vlad Mihalcea
+ * @author Carol Mihalcea
  */
 public class LockModeOptimisticTest extends AbstractLockModeOptimisticTest {
 

@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 /**
  * AbstractLockModeOptimisticTest - Base Test to check LockMode.OPTIMISTIC
  *
- * @author Vlad Mihalcea
+ * @author Carol Mihalcea
  */
 public abstract class AbstractLockModeOptimisticTest extends AbstractTest {
 
@@ -36,7 +36,7 @@ public abstract class AbstractLockModeOptimisticTest extends AbstractTest {
     /**
      * Product - Product
      *
-     * @author Vlad Mihalcea
+     * @author Carol Mihalcea
      */
     @Entity(name = "product")
     @Table(name = "product")
@@ -80,7 +80,7 @@ public abstract class AbstractLockModeOptimisticTest extends AbstractTest {
     /**
      * OrderLine - Order Line
      *
-     * @author Vlad Mihalcea
+     * @author Carol Mihalcea
      */
     @Entity(name = "OrderLine")
     @Table(name = "order_line")
