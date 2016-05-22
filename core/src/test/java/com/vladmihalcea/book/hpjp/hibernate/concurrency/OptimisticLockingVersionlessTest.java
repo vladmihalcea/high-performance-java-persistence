@@ -43,7 +43,7 @@ public class OptimisticLockingVersionlessTest extends AbstractTest {
     public void testVersionlessOptimisticLockingWhenMerging() {
 
         doInJPA(entityManager -> {
-            Product _product = (Product) entityManager.find(Product.class, 1L);
+            Product _product = entityManager.find(Product.class, 1L);
             _product.setPrice(BigDecimal.valueOf(21.22));
             LOGGER.info("Updating product price to {}", _product.getPrice());
         });
@@ -60,7 +60,7 @@ public class OptimisticLockingVersionlessTest extends AbstractTest {
     public void testVersionlessOptimisticLockingWhenReattaching() {
 
         doInJPA(entityManager -> {
-            Product _product = (Product) entityManager.find(Product.class, 1L);
+            Product _product = entityManager.find(Product.class, 1L);
             _product.setPrice(BigDecimal.valueOf(21.22));
             LOGGER.info("Updating product price to {}", _product.getPrice());
         });
@@ -69,7 +69,7 @@ public class OptimisticLockingVersionlessTest extends AbstractTest {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
             LOGGER.info("Reattaching product, price to be saved is {}", product.getPrice());
-            session.saveOrUpdate(product);
+            session.update(product);
             entityManager.flush();
         });
     }
@@ -84,7 +84,7 @@ public class OptimisticLockingVersionlessTest extends AbstractTest {
     @Entity(name = "Product")
     @OptimisticLocking(type = OptimisticLockType.DIRTY)
     @DynamicUpdate
-    @SelectBeforeUpdate(value = false)
+    @SelectBeforeUpdate
     public static class Product {
 
         @Id

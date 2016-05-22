@@ -7,11 +7,9 @@ import org.hibernate.annotations.OptimisticLockType;
 import org.hibernate.annotations.OptimisticLocking;
 import org.junit.Test;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -22,8 +20,15 @@ import java.util.concurrent.CountDownLatch;
  */
 public class OptimisticLockingOneRootDirtyVersioningTest extends AbstractTest {
 
-    private final CountDownLatch loadProductsLatch = new CountDownLatch(3);
+    private final CountDownLatch loadPostLatch = new CountDownLatch(3);
     private final CountDownLatch aliceLatch = new CountDownLatch(1);
+
+    @Override
+    protected Class<?>[] entities() {
+        return new Class<?>[]{
+                Post.class
+        };
+    }
 
     public class AliceTransaction implements Runnable {
 
@@ -32,10 +37,10 @@ public class OptimisticLockingOneRootDirtyVersioningTest extends AbstractTest {
             try {
                 doInJPA(entityManager -> {
                     try {
-                        Product product = (Product) entityManager.find(Product.class, 1L);
-                        loadProductsLatch.countDown();
-                        loadProductsLatch.await();
-                        product.setQuantity(6L);
+                        Post post = entityManager.find(Post.class, 1L);
+                        loadPostLatch.countDown();
+                        loadPostLatch.await();
+                        post.setTitle("JPA");
                     } catch (InterruptedException e) {
                         throw new IllegalStateException(e);
                     }
@@ -54,11 +59,11 @@ public class OptimisticLockingOneRootDirtyVersioningTest extends AbstractTest {
             try {
                 doInJPA(entityManager -> {
                     try {
-                        Product product = (Product) entityManager.find(Product.class, 1L);
-                        loadProductsLatch.countDown();
-                        loadProductsLatch.await();
+                        Post post = entityManager.find(Post.class, 1L);
+                        loadPostLatch.countDown();
+                        loadPostLatch.await();
                         aliceLatch.await();
-                        product.incrementLikes();
+                        post.incrementLikes();
                     } catch (InterruptedException e) {
                         throw new IllegalStateException(e);
                     }
@@ -76,11 +81,11 @@ public class OptimisticLockingOneRootDirtyVersioningTest extends AbstractTest {
             try {
                 doInJPA(entityManager -> {
                     try {
-                        Product product = (Product) entityManager.find(Product.class, 1L);
-                        loadProductsLatch.countDown();
-                        loadProductsLatch.await();
+                        Post post = entityManager.find(Post.class, 1L);
+                        loadPostLatch.countDown();
+                        loadPostLatch.await();
                         aliceLatch.await();
-                        product.setDescription("Plasma HDTV");
+                        post.setViews(15);
                     } catch (InterruptedException e) {
                         throw new IllegalStateException(e);
                     }
@@ -95,13 +100,10 @@ public class OptimisticLockingOneRootDirtyVersioningTest extends AbstractTest {
     public void testOptimisticLocking() throws InterruptedException {
 
         doInJPA(entityManager -> {
-            Product product = new Product();
-            product.setId(1L);
-            product.setName("TV");
-            product.setDescription("Plasma TV");
-            product.setPrice(BigDecimal.valueOf(199.99));
-            product.setQuantity(7L);
-            entityManager.persist(product);
+            Post post = new Post();
+            post.setId(1L);
+            post.setTitle("JDBC");
+            entityManager.persist(post);
         });
 
         Thread alice = new Thread(new AliceTransaction());
@@ -116,43 +118,20 @@ public class OptimisticLockingOneRootDirtyVersioningTest extends AbstractTest {
         bob.join();
         carol.join();
     }
-
-    @Override
-    protected Class<?>[] entities() {
-        return new Class<?>[]{
-                Product.class
-        };
-    }
-
-    /**
-     * Product - Product
-     *
-     * @author Vlad Mihalcea
-     */
-    @Entity(name = "product")
-    @Table(name = "product")
+    
+    @Entity(name = "Post") @Table(name = "post")
     @OptimisticLocking(type = OptimisticLockType.DIRTY)
     @DynamicUpdate
-    public static class Product {
+    public static class Post {
 
         @Id
         private Long id;
 
-        @Column(unique = true, nullable = false)
-        private String name;
+        private String title;
 
-        @Column(nullable = false)
-        private String description;
-
-        @Column(nullable = false)
-        private BigDecimal price;
-
-        private long quantity;
+        private long views;
 
         private int likes;
-
-        public Product() {
-        }
 
         public Long getId() {
             return id;
@@ -162,36 +141,16 @@ public class OptimisticLockingOneRootDirtyVersioningTest extends AbstractTest {
             this.id = id;
         }
 
-        public String getName() {
-            return name;
+        public String getTitle() {
+            return title;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setTitle(String title) {
+            this.title = title;
         }
 
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public BigDecimal getPrice() {
-            return price;
-        }
-
-        public void setPrice(BigDecimal price) {
-            this.price = price;
-        }
-
-        public long getQuantity() {
-            return quantity;
-        }
-
-        public void setQuantity(long quantity) {
-            this.quantity = quantity;
+        public long getViews() {
+            return views;
         }
 
         public int getLikes() {
@@ -200,6 +159,10 @@ public class OptimisticLockingOneRootDirtyVersioningTest extends AbstractTest {
 
         public int incrementLikes() {
             return ++likes;
+        }
+
+        public void setViews(long views) {
+            this.views = views;
         }
     }
 }

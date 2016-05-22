@@ -30,13 +30,21 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
     @Before
     public void addPost() {
         originalPost = doInJPA(entityManager -> {
-            Post post = Post.newInstance();
+            Post post = new Post();
+            PostViews views = new PostViews();
+            views.setPost(post);
+            post.views = views;
+            PostLikes likes = new PostLikes();
+            likes.setPost(post);
+            post.likes = likes;
+
             post.setId(1L);
             post.setTitle("JDBC");
             entityManager.persist(post);
             return post;
         });
     }
+
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -254,17 +262,6 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
 
     @Entity(name = "Post") @Table(name = "post")
     public static class Post {
-
-        public static Post newInstance() {
-            Post post = new Post();
-            PostViews views = new PostViews();
-            views.setPost(post);
-            post.views = views;
-            PostLikes likes = new PostLikes();
-            likes.setPost(post);
-            post.likes = likes;
-            return post;
-        }
 
         @Id
         private Long id;
