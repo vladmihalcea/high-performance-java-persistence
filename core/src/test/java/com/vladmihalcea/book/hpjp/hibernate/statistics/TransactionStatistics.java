@@ -2,8 +2,6 @@ package com.vladmihalcea.book.hpjp.hibernate.statistics;
 
 import org.hibernate.stat.internal.ConcurrentStatisticsImpl;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -13,35 +11,34 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class TransactionStatistics extends ConcurrentStatisticsImpl {
 
-    private ConcurrentMap<Long, Long> transactionStartNanos =
-        new ConcurrentHashMap<>();
+    private static final ThreadLocal<AtomicLong> transactionStartNanos = new ThreadLocal<AtomicLong>() {
+        @Override
+        protected AtomicLong initialValue() {
+            return new AtomicLong();
+        }
+    };
 
-    private ConcurrentMap<Long, AtomicLong> connectionCounter =
-        new ConcurrentHashMap<>();
+    private static final ThreadLocal<AtomicLong> connectionCounter = new ThreadLocal<AtomicLong>() {
+        @Override
+        protected AtomicLong initialValue() {
+            return new AtomicLong();
+        }
+    };
 
     private StatisticsReport report = new StatisticsReport();
 
     @Override public void connect() {
-        long threadId = Thread.currentThread().getId();
-        AtomicLong counter = connectionCounter.get(threadId);
-        if(counter == null) {
-            counter = new AtomicLong();
-            connectionCounter.put(threadId, counter);
-        }
-        counter.incrementAndGet();
-        transactionStartNanos.putIfAbsent(threadId, System.nanoTime());
+        connectionCounter.get().incrementAndGet();
+        transactionStartNanos.get().compareAndSet(System.nanoTime(), 0);
         super.connect();
     }
 
     @Override public void endTransaction(boolean success) {
-        long threadId = Thread.currentThread().getId();
-        Long startNanos = transactionStartNanos.remove(threadId);
-        if (startNanos != null)
-            report.transactionTime(System.nanoTime() - startNanos);
-        AtomicLong connectionCounter = this.connectionCounter.remove(threadId);
-        if (connectionCounter != null)
-            report.connectionsCount(connectionCounter.longValue());
+        report.transactionTime(System.nanoTime() - transactionStartNanos.get().longValue());
+        report.connectionsCount(connectionCounter.get().longValue());
         report.generate();
+        transactionStartNanos.remove();
+        connectionCounter.remove();
         super.endTransaction(success);
     }
 }
