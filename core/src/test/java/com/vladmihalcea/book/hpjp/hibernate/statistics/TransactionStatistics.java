@@ -27,7 +27,7 @@ public class TransactionStatistics extends ConcurrentStatisticsImpl {
 
     @Override public void connect() {
         connectionCounter.get().incrementAndGet();
-        startNanos.get().compareAndSet(System.nanoTime(), 0);
+        startNanos.get().compareAndSet(0, System.nanoTime());
         super.connect();
     }
 
