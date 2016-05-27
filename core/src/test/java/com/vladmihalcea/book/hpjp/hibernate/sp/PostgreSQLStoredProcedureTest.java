@@ -3,6 +3,9 @@ package com.vladmihalcea.book.hpjp.hibernate.sp;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
 import org.hibernate.Session;
+import org.hibernate.procedure.ProcedureCall;
+import org.hibernate.result.Output;
+import org.hibernate.result.ResultSetOutput;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -102,12 +105,11 @@ public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegration
     @Test
     public void testStoredProcedureOutParameter() {
         doInJPA(entityManager -> {
-            StoredProcedureQuery query = entityManager.createStoredProcedureQuery("count_comments");
-            query.registerStoredProcedureParameter("postId", Long.class, ParameterMode.IN);
-            query.registerStoredProcedureParameter("commentCount", Long.class, ParameterMode.OUT);
-
-            query.setParameter("postId", 1L);
-
+            StoredProcedureQuery query = entityManager
+                .createStoredProcedureQuery("count_comments")
+                .registerStoredProcedureParameter("postId", Long.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("commentCount", Long.class, ParameterMode.OUT)
+                .setParameter("postId", 1L);
             query.execute();
             Long commentCount = (Long) query.getOutputParameterValue("commentCount");
             assertEquals(Long.valueOf(2), commentCount);
@@ -118,11 +120,11 @@ public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegration
     @Test
     public void testStoredProcedureRefCursor() {
         doInJPA(entityManager -> {
-            StoredProcedureQuery query = entityManager.createStoredProcedureQuery("post_comments");
-            query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-            query.registerStoredProcedureParameter(2, Long.class, ParameterMode.IN);
-
-            query.setParameter(2, 1L);
+            StoredProcedureQuery query = entityManager
+                .createStoredProcedureQuery("post_comments")
+                .registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR)
+                .registerStoredProcedureParameter(2, Long.class, ParameterMode.IN)
+                .setParameter(2, 1L);
 
             List<Object[]> postComments = query.getResultList();
             assertEquals(2, postComments.size());
@@ -130,20 +132,36 @@ public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegration
     }
 
     @Test
+    public void testHibernateProcedureCallRefCursor() {
+        doInJPA(entityManager -> {
+            Session session = entityManager.unwrap(Session.class);
+            ProcedureCall call = session
+                .createStoredProcedureCall("post_comments");
+            call.registerParameter(1, void.class, ParameterMode.REF_CURSOR);
+            call.registerParameter(2, Long.class, ParameterMode.IN).bindValue(1L);
+
+            Output output = call.getOutputs().getCurrent();
+            if (output.isResultSet()) {
+                List<Object[]> postComments = ((ResultSetOutput) output).getResultList();
+                assertEquals(2, postComments.size());
+            }
+        });
+    }
+
+    @Test
     public void testFunctionWithJDBC() {
         doInJPA(entityManager -> {
-            final AtomicReference<Long> commentCount = new AtomicReference<>();
             Session session = entityManager.unwrap( Session.class );
-            session.doWork( connection -> {
+            Long commentCount = session.doReturningWork( connection -> {
                 try (CallableStatement function = connection.prepareCall(
                         "{ ? = call count_comments(?) }" )) {
                     function.registerOutParameter( 1, Types.BIGINT );
                     function.setLong( 2, 1L );
                     function.execute();
-                    commentCount.set( function.getLong( 1 ) );
+                    return function.getLong( 1 );
                 }
             } );
-            assertEquals(Long.valueOf(2), commentCount.get());
+            assertEquals(Long.valueOf(2), commentCount);
         });
     }
 

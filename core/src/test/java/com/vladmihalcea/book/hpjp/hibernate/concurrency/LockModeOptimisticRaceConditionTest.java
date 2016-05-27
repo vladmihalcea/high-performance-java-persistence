@@ -4,7 +4,8 @@ import org.hibernate.*;
 import org.hibernate.dialect.lock.OptimisticEntityLockException;
 import org.junit.Test;
 
-import java.sql.PreparedStatement;
+import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -27,13 +28,12 @@ public class LockModeOptimisticRaceConditionTest extends AbstractLockModeOptimis
                     LOGGER.info("Overwrite product price asynchronously");
 
                     executeAsync(() -> {
-                        Session _session = entityManagerFactory().unwrap(SessionFactory.class).openSession();
-                        _session.doWork(connection -> {
-                            try (PreparedStatement ps = connection.prepareStatement("UPDATE product set price = 14.49 WHERE id = 1")) {
-                                ps.executeUpdate();
-                            }
+                        doInJPA(entityManager -> {
+                            entityManager.createNativeQuery(
+                                "UPDATE post set title = 'High-performance JDBC' WHERE id = :id")
+                            .setParameter("id", 1L)
+                            .executeUpdate();
                         });
-                        _session.close();
                         endLatch.countDown();
                     });
                     try {
@@ -52,11 +52,12 @@ public class LockModeOptimisticRaceConditionTest extends AbstractLockModeOptimis
         try {
             doInJPA(entityManager -> {
                 try {
-                    Session session = entityManager.unwrap(Session.class);
-                    final Product product = (Product) session.get(Product.class, 1L, new LockOptions(LockMode.OPTIMISTIC));
-                    OrderLine orderLine = new OrderLine(product);
-                    entityManager.persist(orderLine);
-                    lockUpgrade(session, product);
+                    final Post post = entityManager.find(Post.class, 1L, LockModeType.OPTIMISTIC);
+                    PostComment comment = new PostComment();
+                    comment.setId(1L);
+                    comment.setReview("Good one.");
+                    comment.setPost(post);
+                    lockUpgrade(entityManager, post);
                     ready.set(true);
                 } catch (Exception e) {
                     throw new IllegalStateException(e);
@@ -68,5 +69,5 @@ public class LockModeOptimisticRaceConditionTest extends AbstractLockModeOptimis
         endLatch.await();
     }
 
-    protected void lockUpgrade(Session session, Product product) {}
+    protected void lockUpgrade(EntityManager entityManager, Post post) {}
 }

@@ -1,16 +1,11 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
-import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
-import org.hibernate.Session;
 import org.junit.Test;
 
+import javax.persistence.LockModeType;
 import javax.persistence.OptimisticLockException;
-import java.math.BigDecimal;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * LockModeOptimisticTest - Test to check LockMode.OPTIMISTIC
@@ -20,42 +15,24 @@ import static org.junit.Assert.fail;
 public class LockModeOptimisticTest extends AbstractLockModeOptimisticTest {
 
     @Test
-    public void testImplicitOptimisticLocking() {
-
-        doInJPA(entityManager -> {
-            final Product product = (Product) entityManager.find(Product.class, 1L);
-            try {
-                executeSync(() -> doInJPA(_entityManager -> {
-                    Product _product = (Product) _entityManager.find(Product.class, 1L);
-                    assertNotSame(product, _product);
-                    _product.setPrice(BigDecimal.valueOf(14.49));
-                }));
-            } catch (Exception e) {
-                fail(e.getMessage());
-            }
-            OrderLine orderLine = new OrderLine(product);
-            entityManager.persist(orderLine);
-        });
-    }
-
-    @Test
     public void testExplicitOptimisticLocking() {
 
         try {
             doInJPA(entityManager -> {
-                Session session = entityManager.unwrap(Session.class);
-                final Product product = (Product) session.get(Product.class, 1L, new LockOptions(LockMode.OPTIMISTIC));
+                final Post post = entityManager.find(Post.class, 1L, LockModeType.OPTIMISTIC);
 
                 executeSync(() -> {
                     doInJPA(_entityManager -> {
-                        Product _product = (Product) _entityManager.find(Product.class, 1L);
-                        assertNotSame(product, _product);
-                        _product.setPrice(BigDecimal.valueOf(14.49));
+                        Post _post = _entityManager.find(Post.class, 1L);
+                        assertNotSame(post, _post);
+                        _post.setTitle("High-performance JDBC");
                     });
                 });
 
-                OrderLine orderLine = new OrderLine(product);
-                entityManager.persist(orderLine);
+                PostComment comment = new PostComment();
+                comment.setId(1L);
+                comment.setReview("Good one.");
+                comment.setPost(post);
             });
             fail("It should have thrown OptimisticEntityLockException!");
         } catch (Exception expected) {

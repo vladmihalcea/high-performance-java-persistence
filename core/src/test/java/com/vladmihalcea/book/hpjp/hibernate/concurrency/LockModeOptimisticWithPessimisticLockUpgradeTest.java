@@ -1,8 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
-import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
-import org.hibernate.Session;
+import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 
 /**
  * LockModeOptimisticWithPessimisticLockUpgradeTest - Test to check LockMode.OPTIMISTIC with pessimistic lock upgrade
@@ -12,8 +11,8 @@ import org.hibernate.Session;
 public class LockModeOptimisticWithPessimisticLockUpgradeTest extends LockModeOptimisticRaceConditionTest {
 
     @Override
-    protected void lockUpgrade(Session session, Product product) {
-        session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(product);
+    protected void lockUpgrade(EntityManager entityManager, Post post) {
+        entityManager.lock(post, LockModeType.PESSIMISTIC_READ);
     }
 
 }

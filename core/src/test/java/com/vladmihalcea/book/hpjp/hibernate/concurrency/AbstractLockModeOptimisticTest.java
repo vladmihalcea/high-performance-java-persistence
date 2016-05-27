@@ -4,7 +4,6 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Before;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 
 /**
  * AbstractLockModeOptimisticTest - Base Test to check LockMode.OPTIMISTIC
@@ -16,8 +15,8 @@ public abstract class AbstractLockModeOptimisticTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
-            Product.class,
-            OrderLine.class
+            Post.class,
+            PostComment.class
         };
     }
 
@@ -25,29 +24,21 @@ public abstract class AbstractLockModeOptimisticTest extends AbstractTest {
     public void init() {
         super.init();
         doInJPA(entityManager -> {
-            Product product = new Product();
-            product.setId(1L);
-            product.setDescription("USB Flash Drive");
-            product.setPrice(BigDecimal.valueOf(12.99));
-            entityManager.persist(product);
+            Post post = new Post();
+            post.setId(1L);
+            post.setTitle("High-Performance Java Persistence");
+            entityManager.persist(post);
         });
     }
 
-    /**
-     * Product - Product
-     *
-     * @author Vlad Mihalcea
-     */
-    @Entity(name = "product")
-    @Table(name = "product")
-    public static class Product {
+    @Entity(name = "Post")
+    @Table(name = "post")
+    public static class Post {
 
         @Id
         private Long id;
 
-        private String description;
-
-        private BigDecimal price;
+        private String title;
 
         @Version
         private int version;
@@ -60,59 +51,52 @@ public abstract class AbstractLockModeOptimisticTest extends AbstractTest {
             this.id = id;
         }
 
-        public String getDescription() {
-            return description;
+        public String getTitle() {
+            return title;
         }
 
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public BigDecimal getPrice() {
-            return price;
-        }
-
-        public void setPrice(BigDecimal price) {
-            this.price = price;
+        public void setTitle(String title) {
+            this.title = title;
         }
     }
 
-    /**
-     * OrderLine - Order Line
-     *
-     * @author Vlad Mihalcea
-     */
-    @Entity(name = "OrderLine")
-    @Table(name = "order_line")
-    public static class OrderLine {
+    @Entity(name = "PostComment")
+    @Table(name = "post_comment")
+    public static class PostComment {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
         private Long id;
 
-        @ManyToOne
-        private Product product;
+        @ManyToOne(fetch = FetchType.LAZY)
+        private Post post;
 
-        private BigDecimal unitPrice;
+        private String review;
 
         @Version
         private int version;
-
-        public OrderLine(Product product) {
-            this.product = product;
-            this.unitPrice = product.getPrice();
-        }
 
         public Long getId() {
             return id;
         }
 
-        public Product getProduct() {
-            return product;
+        public void setId(Long id) {
+            this.id = id;
         }
 
-        public BigDecimal getUnitPrice() {
-            return unitPrice;
+        public Post getPost() {
+            return post;
+        }
+
+        public void setPost(Post post) {
+            this.post = post;
+        }
+
+        public String getReview() {
+            return review;
+        }
+
+        public void setReview(String review) {
+            this.review = review;
         }
     }
 }
