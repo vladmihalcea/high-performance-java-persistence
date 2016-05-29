@@ -8,12 +8,10 @@ import org.hibernate.StaleObjectStateException;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Version;
-import java.math.BigDecimal;
+import javax.persistence.*;
 import java.util.concurrent.CountDownLatch;
+
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -25,8 +23,8 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
 
     public static final int WAIT_MILLIS = 500;
 
-    private static interface ProductLockRequestCallable {
-        void lock(Session session, Product product);
+    private interface LockRequestCallable {
+        void lock(Session session, Post post);
     }
 
     private final CountDownLatch endLatch = new CountDownLatch(1);
@@ -34,7 +32,7 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Product.class
+                Post.class
         };
     }
 
@@ -42,26 +40,26 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
     public void init() {
         super.init();
         doInJPA(entityManager -> {
-            Product product = new Product();
-            product.setId(1L);
-            product.setDescription("USB Flash Drive");
-            product.setPrice(BigDecimal.valueOf(12.99));
-            entityManager.persist(product);
+            Post post = new Post();
+            post.setId(1L);
+            post.setTitle("High-Performance Java Persistence");
+            post.setBody("Chapter 17 summary");
+            entityManager.persist(post);
         });
     }
 
-    private void testPessimisticLocking(ProductLockRequestCallable primaryLockRequestCallable, ProductLockRequestCallable secondaryLockRequestCallable) {
+    private void testPessimisticLocking(LockRequestCallable primaryLockRequestCallable, LockRequestCallable secondaryLockRequestCallable) {
         doInJPA(entityManager -> {
             try {
                 Session session = entityManager.unwrap(Session.class);
-                Product product = (Product) entityManager.find(Product.class, 1L);
-                primaryLockRequestCallable.lock(session, product);
+                Post post = entityManager.find(Post.class, 1L);
+                primaryLockRequestCallable.lock(session, post);
                 executeAsync(
                         () -> {
                             doInJPA(_entityManager -> {
                                 Session _session = _entityManager.unwrap(Session.class);
-                                Product _product = (Product) _entityManager.find(Product.class, 1L);
-                                secondaryLockRequestCallable.lock(_session, _product);
+                                Post _post = _entityManager.find(Post.class, 1L);
+                                secondaryLockRequestCallable.lock(_session, _post);
                             });
                         },
                         endLatch::countDown
@@ -75,15 +73,66 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
     }
 
     @Test
+    public void testPessimisticRead() {
+        LOGGER.info("Test PESSIMISTIC_READ");
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L, LockModeType.PESSIMISTIC_READ);
+        });
+    }
+
+    @Test
+    public void testPessimisticWrite() {
+        LOGGER.info("Test PESSIMISTIC_WRITE");
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L, LockModeType.PESSIMISTIC_WRITE);
+        });
+    }
+
+    @Test
+    public void testPessimisticWriteAfterFetch() {
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE);
+        });
+    }
+
+    @Test
+    public void testPessimisticWriteAfterFetchWithDetachedForJPA() {
+        Post post = doInJPA(entityManager -> {
+            return entityManager.find(Post.class, 1L);
+        });
+        try {
+            doInJPA(entityManager -> {
+                entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE);
+            });
+        } catch (IllegalArgumentException e) {
+            assertEquals("entity not in the persistence context", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPessimisticWriteAfterFetchWithDetachedForHibernate() {
+        Post post = doInJPA(entityManager -> {
+            return entityManager.find(Post.class, 1L);
+        });
+        doInJPA(entityManager -> {
+            LOGGER.info("Lock and reattach");
+            Session session = entityManager.unwrap(Session.class);
+            session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(post);
+            post.setTitle("High-Performance Hibernate");
+        });
+    }
+
+    @Test
     public void testPessimisticReadDoesNotBlockPessimisticRead() throws InterruptedException {
         LOGGER.info("Test PESSIMISTIC_READ doesn't block PESSIMISTIC_READ");
         testPessimisticLocking(
-                (session, product) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(product);
+                (session, post) -> {
+                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(post);
                     LOGGER.info("PESSIMISTIC_READ acquired");
                 },
-                (session, product) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(product);
+                (session, post) -> {
+                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(post);
                     LOGGER.info("PESSIMISTIC_READ acquired");
                 }
         );
@@ -93,12 +142,12 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
     public void testPessimisticReadBlocksUpdate() throws InterruptedException {
         LOGGER.info("Test PESSIMISTIC_READ blocks UPDATE");
         testPessimisticLocking(
-                (session, product) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(product);
+                (session, post) -> {
+                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(post);
                     LOGGER.info("PESSIMISTIC_READ acquired");
                 },
-                (session, product) -> {
-                    product.setDescription("USB Flash Memory Stick");
+                (session, post) -> {
+                    post.setBody("Chapter 16 summary");
                     session.flush();
                     LOGGER.info("Implicit lock acquired");
                 }
@@ -109,12 +158,12 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
     public void testPessimisticReadWithPessimisticWriteNoWait() throws InterruptedException {
         LOGGER.info("Test PESSIMISTIC_READ blocks PESSIMISTIC_WRITE, NO WAIT fails fast");
         testPessimisticLocking(
-                (session, product) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(product);
+                (session, post) -> {
+                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(post);
                     LOGGER.info("PESSIMISTIC_READ acquired");
                 },
-                (session, product) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).setTimeOut(Session.LockRequest.PESSIMISTIC_NO_WAIT).lock(product);
+                (session, post) -> {
+                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).setTimeOut(Session.LockRequest.PESSIMISTIC_NO_WAIT).lock(post);
                     LOGGER.info("PESSIMISTIC_WRITE acquired");
                 }
         );
@@ -124,12 +173,12 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
     public void testPessimisticWriteBlocksPessimisticRead() throws InterruptedException {
         LOGGER.info("Test PESSIMISTIC_WRITE blocks PESSIMISTIC_READ");
         testPessimisticLocking(
-                (session, product) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(product);
+                (session, post) -> {
+                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(post);
                     LOGGER.info("PESSIMISTIC_WRITE acquired");
                 },
-                (session, product) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(product);
+                (session, post) -> {
+                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(post);
                     LOGGER.info("PESSIMISTIC_READ acquired");
                 }
         );
@@ -139,32 +188,27 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
     public void testPessimisticWriteBlocksPessimisticWrite() throws InterruptedException {
         LOGGER.info("Test PESSIMISTIC_WRITE blocks PESSIMISTIC_WRITE");
         testPessimisticLocking(
-                (session, product) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(product);
+                (session, post) -> {
+                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(post);
                     LOGGER.info("PESSIMISTIC_WRITE acquired");
                 },
-                (session, product) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(product);
+                (session, post) -> {
+                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(post);
                     LOGGER.info("PESSIMISTIC_WRITE acquired");
                 }
         );
     }
 
-    /**
-     * Product - Product
-     *
-     * @author Vlad Mihalcea
-     */
-    @Entity(name = "Product")
-    @Table(name = "product")
-    public static class Product {
+    @Entity(name = "Post")
+    @Table(name = "post")
+    public static class Post {
 
         @Id
         private Long id;
 
-        private String description;
+        private String title;
 
-        private BigDecimal price;
+        private String body;
 
         @Version
         private int version;
@@ -177,20 +221,20 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
             this.id = id;
         }
 
-        public String getDescription() {
-            return description;
+        public String getTitle() {
+            return title;
         }
 
-        public void setDescription(String description) {
-            this.description = description;
+        public void setTitle(String title) {
+            this.title = title;
         }
 
-        public BigDecimal getPrice() {
-            return price;
+        public String getBody() {
+            return body;
         }
 
-        public void setPrice(BigDecimal price) {
-            this.price = price;
+        public void setBody(String body) {
+            this.body = body;
         }
     }
 }

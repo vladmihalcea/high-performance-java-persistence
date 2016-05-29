@@ -27,6 +27,7 @@ public abstract class AbstractLockModeOptimisticTest extends AbstractTest {
             Post post = new Post();
             post.setId(1L);
             post.setTitle("High-Performance Java Persistence");
+            post.setBody("Chapter 16 summary");
             entityManager.persist(post);
         });
     }
@@ -39,6 +40,8 @@ public abstract class AbstractLockModeOptimisticTest extends AbstractTest {
         private Long id;
 
         private String title;
+
+        private String body;
 
         @Version
         private int version;
@@ -57,6 +60,14 @@ public abstract class AbstractLockModeOptimisticTest extends AbstractTest {
 
         public void setTitle(String title) {
             this.title = title;
+        }
+
+        public String getBody() {
+            return body;
+        }
+
+        public void setBody(String body) {
+            this.body = body;
         }
     }
 
