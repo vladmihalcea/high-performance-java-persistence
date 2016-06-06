@@ -43,6 +43,9 @@ public class HibernateTransactionManagerConfiguration {
     @Value("${jdbc.password}")
     private String jdbcPassword;
 
+    @Value("${hibernate.dialect}")
+    private String hibernateDialect;
+
     @Bean(destroyMethod = "close")
     public DataSource actualDataSource() {
         Properties driverProperties = new Properties();
@@ -56,9 +59,6 @@ public class HibernateTransactionManagerConfiguration {
         properties.setProperty("maximumPoolSize", String.valueOf(3));
         return new HikariDataSource(new HikariConfig(properties));
     }
-
-    @Value("${hibernate.dialect}")
-    private String hibernateDialect;
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties() {

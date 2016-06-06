@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Vlad Mihalcea
  */
-public class CascadeLockTest extends AbstractTest {
+public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -173,16 +173,14 @@ public class CascadeLockTest extends AbstractTest {
         LOGGER.info("Test lock cascade for detached entity with scope");
 
         //Load the Post entity, which will become detached
-        Post post = doInJPA(entityManager -> {
-            return entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.details " +
-                "join fetch p.comments " +
-                "where p.id = :id", Post.class)
-            .setParameter("id", 1L)
-            .getSingleResult();
-        });
+        Post post = doInJPA(entityManager -> (Post) entityManager.createQuery(
+            "select p " +
+            "from Post p " +
+            "join fetch p.details " +
+            "join fetch p.comments " +
+            "where p.id = :id", Post.class)
+        .setParameter("id", 1L)
+        .getSingleResult());
 
         doInJPA(entityManager -> {
             LOGGER.info("Reattach and lock");
@@ -297,7 +295,7 @@ public class CascadeLockTest extends AbstractTest {
             this.title = title;
         }
 
-        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
+        @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
         private List<PostComment> comments = new ArrayList<>();
 
         @OneToOne(cascade = CascadeType.ALL, mappedBy = "post",
@@ -330,7 +328,6 @@ public class CascadeLockTest extends AbstractTest {
 
         public void addComment(PostComment comment) {
             comments.add(comment);
-            comment.setPost(this);
         }
 
         public void addDetails(PostDetails details) {
@@ -410,9 +407,6 @@ public class CascadeLockTest extends AbstractTest {
         @GeneratedValue
         private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        private Post post;
-
         private String review;
 
         @Version
@@ -430,14 +424,6 @@ public class CascadeLockTest extends AbstractTest {
 
         public void setId(Long id) {
             this.id = id;
-        }
-
-        public Post getPost() {
-            return post;
-        }
-
-        public void setPost(Post post) {
-            this.post = post;
         }
 
         public String getReview() {

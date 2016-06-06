@@ -9,7 +9,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.*;
+import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
@@ -117,8 +119,10 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
         });
         doInJPA(entityManager -> {
             LOGGER.info("Lock and reattach");
-            Session session = entityManager.unwrap(Session.class);
-            session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(post);
+            entityManager.unwrap(Session.class)
+            .buildLockRequest(
+                new LockOptions(LockMode.PESSIMISTIC_WRITE))
+            .lock(post);
             post.setTitle("High-Performance Hibernate");
         });
     }
@@ -197,6 +201,53 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
                     LOGGER.info("PESSIMISTIC_WRITE acquired");
                 }
         );
+    }
+
+    @Test
+    public void testPessimisticNoWait() throws InterruptedException {
+        LOGGER.info("Test PESSIMISTIC_READ blocks PESSIMISTIC_WRITE, NO WAIT fails fast");
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            entityManager.unwrap(Session.class)
+            .buildLockRequest(
+                new LockOptions(LockMode.PESSIMISTIC_WRITE)
+                .setTimeOut(LockOptions.NO_WAIT))
+            .lock(post);
+        });
+    }
+
+    @Test
+    public void testPessimisticNoWaitJPA() throws InterruptedException {
+        LOGGER.info("Test PESSIMISTIC_READ blocks PESSIMISTIC_WRITE, NO WAIT fails fast");
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE,
+                Collections.singletonMap("javax.persistence.lock.timeout", 0)
+            );
+        });
+    }
+
+    @Test
+    public void testPessimisticTimeout() throws InterruptedException {
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            entityManager.unwrap(Session.class)
+            .buildLockRequest(
+                new LockOptions(LockMode.PESSIMISTIC_WRITE)
+                .setTimeOut((int) TimeUnit.SECONDS.toMillis(3)))
+            .lock(post);
+        });
+    }
+
+    @Test
+    public void testPessimisticTimeoutJPA() throws InterruptedException {
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE,
+                Collections.singletonMap("javax.persistence.lock.timeout",
+                    TimeUnit.SECONDS.toMillis(3))
+            );
+        });
     }
 
     @Entity(name = "Post")

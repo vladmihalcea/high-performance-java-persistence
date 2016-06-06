@@ -22,14 +22,13 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Vlad Mihalcea
  */
-public class CascadeLockTest extends AbstractTest {
+public class CascadeLockElementCollectionTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
                 Post.class,
-                PostDetails.class,
-                PostComment.class
+                PostDetails.class
         };
     }
 
@@ -122,12 +121,20 @@ public class CascadeLockTest extends AbstractTest {
         });
     }
 
+    @Test
+    public void testCascadeLockOnManagedEntityWithAssociationsUninitializedAndJpa() throws InterruptedException {
+        LOGGER.info("Test lock cascade for managed entity");
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE, Collections.singletonMap(
+                AvailableSettings.LOCK_SCOPE, PessimisticLockScope.EXTENDED
+            ));
+        });
+    }
+
     private void containsPost(EntityManager entityManager, Post post, boolean expected) {
         assertEquals(expected, entityManager.contains(post));
         assertEquals(expected, (entityManager.contains(post.getDetails())));
-        for(PostComment comment : post.getComments()) {
-            assertEquals(expected, (entityManager.contains(comment)));
-        }
     }
 
     @Test
@@ -173,16 +180,14 @@ public class CascadeLockTest extends AbstractTest {
         LOGGER.info("Test lock cascade for detached entity with scope");
 
         //Load the Post entity, which will become detached
-        Post post = doInJPA(entityManager -> {
-            return entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.details " +
-                "join fetch p.comments " +
-                "where p.id = :id", Post.class)
-            .setParameter("id", 1L)
-            .getSingleResult();
-        });
+        Post post = doInJPA(entityManager -> (Post) entityManager.createQuery(
+            "select p " +
+            "from Post p " +
+            "join fetch p.details " +
+            "join fetch p.comments " +
+            "where p.id = :id", Post.class)
+        .setParameter("id", 1L)
+        .getSingleResult());
 
         doInJPA(entityManager -> {
             LOGGER.info("Reattach and lock");
@@ -220,22 +225,6 @@ public class CascadeLockTest extends AbstractTest {
             LOGGER.info("Check entities are reattached");
             //The Post entity graph is attached
             containsPost(entityManager, post, true);
-        });
-    }
-
-    @Test
-    public void testCascadeLockOnDetachedChildEntityUninitializedWithScope() {
-        LOGGER.info("Test lock cascade for detached entity with scope");
-
-        //Load the Post entity, which will become detached
-        PostComment postComment = doInJPA(entityManager -> (PostComment) entityManager.find(PostComment.class, 3L));
-
-        doInJPA(entityManager -> {
-            LOGGER.info("Reattach and lock entity with associations not initialized");
-            entityManager.unwrap(Session.class)
-                    .buildLockRequest(
-                            new LockOptions(LockMode.PESSIMISTIC_WRITE))
-                    .lock(postComment);
         });
     }
 
@@ -297,7 +286,7 @@ public class CascadeLockTest extends AbstractTest {
             this.title = title;
         }
 
-        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
+        @ElementCollection
         private List<PostComment> comments = new ArrayList<>();
 
         @OneToOne(cascade = CascadeType.ALL, mappedBy = "post",
@@ -330,7 +319,6 @@ public class CascadeLockTest extends AbstractTest {
 
         public void addComment(PostComment comment) {
             comments.add(comment);
-            comment.setPost(this);
         }
 
         public void addDetails(PostDetails details) {
@@ -402,42 +390,15 @@ public class CascadeLockTest extends AbstractTest {
         }
     }
 
-    @Entity(name = "PostComment")
-    @Table(name = "post_comment")
+    @Embeddable
     public static class PostComment {
 
-        @Id
-        @GeneratedValue
-        private Long id;
-
-        @ManyToOne(fetch = FetchType.LAZY)
-        private Post post;
-
         private String review;
-
-        @Version
-        private int version;
 
         public PostComment() {}
 
         public PostComment(String review) {
             this.review = review;
-        }
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public Post getPost() {
-            return post;
-        }
-
-        public void setPost(Post post) {
-            this.post = post;
         }
 
         public String getReview() {
