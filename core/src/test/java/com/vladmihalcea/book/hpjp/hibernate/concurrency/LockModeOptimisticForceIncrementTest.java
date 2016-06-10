@@ -86,7 +86,6 @@ public class LockModeOptimisticForceIncrementTest extends AbstractTest {
         }
     }
 
-
     @Entity(name = "Repository")
     @Table(name = "repository")
     public static class Repository {
