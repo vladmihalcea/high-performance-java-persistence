@@ -1,9 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
-import org.hibernate.Session;
 import org.hibernate.annotations.Immutable;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,8 +23,8 @@ public class LockModeOptimisticForceIncrementTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
-                Repository.class,
-                Commit.class
+            Repository.class,
+            Commit.class
         };
     }
 
@@ -45,12 +42,13 @@ public class LockModeOptimisticForceIncrementTest extends AbstractTest {
     public void testOptimisticForceIncrementLocking() throws InterruptedException {
         LOGGER.info("Test Single OPTIMISTIC_FORCE_INCREMENT Lock Mode ");
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            Repository repository = (Repository) entityManager.find(Repository.class, 1L);
-            session.buildLockRequest(new LockOptions(LockMode.OPTIMISTIC_FORCE_INCREMENT)).lock(repository);
+            Repository repository = entityManager.find(Repository.class, 1L,
+                LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+
             Commit commit = new Commit(repository);
-            commit.getChanges().add(new Change("README.txt", "0a1,5..."));
-            commit.getChanges().add(new Change("web.xml", "17c17..."));
+            commit.getChanges().add(new Change("FrontMatter.md", "0a1,5..."));
+            commit.getChanges().add(new Change("HibernateIntro.md", "17c17..."));
+
             entityManager.persist(commit);
         });
     }
@@ -60,24 +58,25 @@ public class LockModeOptimisticForceIncrementTest extends AbstractTest {
         LOGGER.info("Test Concurrent OPTIMISTIC_FORCE_INCREMENT Lock Mode ");
         try {
             doInJPA(entityManager -> {
-                Session session = entityManager.unwrap(Session.class);
-                Repository repository = (Repository) entityManager.find(Repository.class, 1L);
-                session.buildLockRequest(new LockOptions(LockMode.OPTIMISTIC_FORCE_INCREMENT)).lock(repository);
+                Repository repository = entityManager.find(Repository.class, 1L,
+                    LockModeType.OPTIMISTIC_FORCE_INCREMENT);
 
                 executeSync(() -> {
                     doInJPA(_entityManager -> {
-                        Session _session = _entityManager.unwrap(Session.class);
-                        Repository _repository = (Repository) _entityManager.find(Repository.class, 1L);
-                        _session.buildLockRequest(new LockOptions(LockMode.OPTIMISTIC_FORCE_INCREMENT)).lock(_repository);
+                        Repository _repository = _entityManager.find(Repository.class, 1L,
+                            LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+
                         Commit _commit = new Commit(_repository);
-                        _commit.getChanges().add(new Change("index.html", "0a1,2..."));
+                        _commit.getChanges().add(new Change("Intro.md", "0a1,2..."));
+
                         _entityManager.persist(_commit);
                     });
                 });
 
                 Commit commit = new Commit(repository);
-                commit.getChanges().add(new Change("README.txt", "0a1,5..."));
-                commit.getChanges().add(new Change("web.xml", "17c17..."));
+                commit.getChanges().add(new Change("FrontMatter.md", "0a1,5..."));
+                commit.getChanges().add(new Change("HibernateIntro.md", "17c17..."));
+
                 entityManager.persist(commit);
             });
             fail("Should have thrown StaleObjectStateException!");
@@ -88,12 +87,7 @@ public class LockModeOptimisticForceIncrementTest extends AbstractTest {
     }
 
 
-    /**
-     * Repository - Repository
-     *
-     * @author Vlad Mihalcea
-     */
-    @Entity(name = "repository")
+    @Entity(name = "Repository")
     @Table(name = "repository")
     public static class Repository {
 
@@ -122,11 +116,6 @@ public class LockModeOptimisticForceIncrementTest extends AbstractTest {
         }
     }
 
-    /**
-     * Commit - Commit
-     *
-     * @author Vlad Mihalcea
-     */
     @Entity(name = "Commit")
     @Table(name = "commit")
     @Immutable
@@ -141,13 +130,12 @@ public class LockModeOptimisticForceIncrementTest extends AbstractTest {
 
         @ElementCollection
         @CollectionTable(
-                name="commit_change",
-                joinColumns=@JoinColumn(name="commit_id")
+            name="commit_change",
+            joinColumns=@JoinColumn(name="commit_id")
         )
         private List<Change> changes = new ArrayList<>();
 
-        public Commit() {
-        }
+        public Commit() {}
 
         public Commit(Repository repository) {
             this.repository = repository;
@@ -157,16 +145,15 @@ public class LockModeOptimisticForceIncrementTest extends AbstractTest {
             return repository;
         }
 
+        public void setRepository(Repository repository) {
+            this.repository = repository;
+        }
+
         public List<Change> getChanges() {
             return changes;
         }
     }
 
-    /**
-     * OrderLine - Order Line
-     *
-     * @author Vlad Mihalcea
-     */
     @Embeddable
     public static class Change {
 
@@ -174,8 +161,7 @@ public class LockModeOptimisticForceIncrementTest extends AbstractTest {
 
         private String diff;
 
-        public Change() {
-        }
+        public Change() {}
 
         public Change(String path, String diff) {
             this.path = path;
