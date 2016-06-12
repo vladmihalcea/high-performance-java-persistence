@@ -79,7 +79,7 @@ public class LockModeOptimisticForceIncrementTest extends AbstractTest {
 
                 entityManager.persist(commit);
             });
-            fail("Should have thrown StaleObjectStateException!");
+            fail("Should have thrown OptimisticLockException!");
         } catch (Exception expected) {
             assertEquals(OptimisticLockException.class, expected.getCause().getClass());
             LOGGER.info("Failure: ", expected);

@@ -1,9 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
-import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.annotations.Immutable;
 import org.junit.Before;
@@ -14,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
@@ -63,62 +61,56 @@ public class LockModePessimisticForceIncrementTest extends AbstractTest {
     public void testConcurrentPessimisticForceIncrementLockingWithLockWaiting() throws InterruptedException {
         LOGGER.info("Test Concurrent PESSIMISTIC_FORCE_INCREMENT Lock Mode With Lock Waiting");
         doInJPA(entityManager -> {
-            try {
-                Session session = entityManager.unwrap(Session.class);
-                Repository repository = entityManager.find(Repository.class, 1L);
-                session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT)).lock(repository);
+            Repository repository = entityManager.find(Repository.class, 1L, LockModeType.PESSIMISTIC_FORCE_INCREMENT);
 
-                executeAsync(() -> doInJPA(_entityManager -> {
-                    LOGGER.info("Try to get the Repository row");
-                    startLatch.countDown();
-                    Session _session = _entityManager.unwrap(Session.class);
-                    Repository _repository = _entityManager.find(Repository.class, 1L);
-                    _session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT)).lock(_repository);
-                    Commit _commit = new Commit(_repository);
-                    _commit.getChanges().add(new Change("index.html", "0a1,2..."));
-                    _entityManager.persist(_commit);
-                    _entityManager.flush();
-                    endLatch.countDown();
-                }));
-                startLatch.await();
-                LOGGER.info("Sleep for 500ms to delay the other transaction PESSIMISTIC_FORCE_INCREMENT Lock Mode acquisition");
-                Thread.sleep(500);
-                Commit commit = new Commit(repository);
-                commit.getChanges().add(new Change("README.txt", "0a1,5..."));
-                commit.getChanges().add(new Change("web.xml", "17c17..."));
-                entityManager.persist(commit);
-            } catch (InterruptedException e) {
-                fail("Unexpected failure");
-            }
+            executeAsync(() -> doInJPA(_entityManager -> {
+                startLatch.countDown();
+                Repository _repository = _entityManager.find(Repository.class, 1L, LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+
+                Commit _commit = new Commit(_repository);
+                _commit.getChanges().add(new Change("Intro.md", "0a1,2..."));
+                _entityManager.persist(_commit);
+                _entityManager.flush();
+                endLatch.countDown();
+            }));
+            awaitOnLatch(startLatch);
+            LOGGER.info("Sleep for 500ms to delay the other transaction");
+            sleep(500);
+
+            Commit commit = new Commit(repository);
+            commit.getChanges().add(new Change("FrontMatter.md", "0a1,5..."));
+            commit.getChanges().add(new Change("HibernateIntro.md", "17c17..."));
+
+            entityManager.persist(commit);
         });
         endLatch.await();
     }
 
     @Test
-    public void testConcurrentPessimisticForceIncrementLockingFailFast() throws InterruptedException {
-        LOGGER.info("Test Concurrent PESSIMISTIC_FORCE_INCREMENT Lock Mode fail fast");
-        doInJPA(entityManager -> {
-            try {
-                Session session = entityManager.unwrap(Session.class);
+    public void testConcurrentPessimisticForceIncrementLockingFailFast() {
+        try {
+            doInJPA(entityManager -> {
                 Repository repository = entityManager.find(Repository.class, 1L);
 
                 executeSync(() -> {
                     doInJPA(_entityManager -> {
-                        Session _session = _entityManager.unwrap(Session.class);
-                        Repository _repository = _entityManager.find(Repository.class, 1L);
-                        _session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT)).lock(_repository);
+                        Repository _repository = _entityManager.find(Repository.class, 1L,
+                            LockModeType.PESSIMISTIC_FORCE_INCREMENT);
+
                         Commit _commit = new Commit(_repository);
-                        _commit.getChanges().add(new Change("index.html", "0a1,2..."));
+                        _commit.getChanges().add(new Change("Intro.md", "0a1,2..."));
+
                         _entityManager.persist(_commit);
-                        _entityManager.flush();
                     });
                 });
-                session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT)).lock(repository);
+
+                entityManager.lock(repository, LockModeType.PESSIMISTIC_FORCE_INCREMENT);
                 fail("Should have thrown StaleObjectStateException!");
-            } catch (StaleObjectStateException expected) {
-                LOGGER.info("Failure: ", expected);
-            }
-        });
+            });
+        } catch (OptimisticLockException expected) {
+            assertEquals(StaleObjectStateException.class, expected.getCause().getClass());
+            LOGGER.info("Failure: ", expected);
+        }
     }
 
     @Entity(name = "Repository")

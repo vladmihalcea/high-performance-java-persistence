@@ -1021,13 +1021,16 @@ public abstract class AbstractTest {
     }
 
     protected void sleep(int millis) {
-        sleep(millis, null);
+        try {
+            Thread.sleep(millis);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     protected <V> V sleep(int millis, Callable<V> callable) {
         V result = null;
         try {
-            //LOGGER.debug("Wait {} ms!", millis);
             if (callable != null) {
                 result = callable.call();
             }
