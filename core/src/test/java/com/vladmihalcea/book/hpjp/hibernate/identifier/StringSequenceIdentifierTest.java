@@ -1,12 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
 import org.hibernate.annotations.GenericGenerator;
 import org.junit.Test;
 
 import javax.persistence.*;
 
-public class StringSequenceIdentifierTest extends AbstractPostgreSQLIntegrationTest {
+public class StringSequenceIdentifierTest extends AbstractOracleXEIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -24,6 +24,8 @@ public class StringSequenceIdentifierTest extends AbstractPostgreSQLIntegrationT
             entityManager.persist(new Post("ABC"));
             entityManager.persist(new Post());
             entityManager.persist(new Post("DEF"));
+            entityManager.persist(new Post());
+            entityManager.persist(new Post());
         });
     }
 
@@ -35,7 +37,12 @@ public class StringSequenceIdentifierTest extends AbstractPostgreSQLIntegrationT
         @GenericGenerator(
             name = "assigned-sequence",
             strategy = "com.vladmihalcea.book.hpjp.hibernate.identifier.StringSequenceIdentifier",
-            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "hibernate_sequence")
+            parameters = {
+                @org.hibernate.annotations.Parameter(
+                        name = "sequence_name", value = "hibernate_sequence"),
+                @org.hibernate.annotations.Parameter(
+                        name = "sequence_prefix", value = "CTC_"),
+            }
         )
         @GeneratedValue(generator = "assigned-sequence", strategy = GenerationType.SEQUENCE)
         private String id;

@@ -7,6 +7,7 @@ import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.id.Configurable;
 import org.hibernate.id.IdentifierGenerator;
+import org.hibernate.id.enhanced.SequenceStyleGenerator;
 import org.hibernate.internal.util.config.ConfigurationHelper;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.Type;
@@ -14,27 +15,49 @@ import org.hibernate.type.Type;
 import java.io.Serializable;
 import java.util.Properties;
 
-import static org.hibernate.id.enhanced.SequenceStyleGenerator.*;
 
 /**
  * @author Vlad Mihalcea
  */
-public class StringSequenceIdentifier implements IdentifierGenerator, Configurable {
+public class StringSequenceIdentifier
+        implements IdentifierGenerator, Configurable {
+
+    public static final String SEQUENCE_PREFIX = "sequence_prefix";
+
+    private String sequencePrefix;
 
     private String sequenceCallSyntax;
 
     @Override
-    public void configure(Type type, Properties params, ServiceRegistry serviceRegistry) throws MappingException {
-        final JdbcEnvironment jdbcEnvironment = serviceRegistry.getService(JdbcEnvironment.class);
+    public void configure(
+            Type type, Properties params, ServiceRegistry serviceRegistry)
+            throws MappingException {
+        final JdbcEnvironment jdbcEnvironment =
+                serviceRegistry.getService(JdbcEnvironment.class);
         final Dialect dialect = jdbcEnvironment.getDialect();
 
-        final String sequencePerEntitySuffix = ConfigurationHelper.getString(CONFIG_SEQUENCE_PER_ENTITY_SUFFIX, params, DEF_SEQUENCE_SUFFIX);
+        sequencePrefix = ConfigurationHelper.getString(
+                SEQUENCE_PREFIX,
+                params,
+                "SEQ_");
 
-        final String defaultSequenceName = ConfigurationHelper.getBoolean(CONFIG_PREFER_SEQUENCE_PER_ENTITY, params, false)
+        final String sequencePerEntitySuffix = ConfigurationHelper.getString(
+                SequenceStyleGenerator.CONFIG_SEQUENCE_PER_ENTITY_SUFFIX,
+                params,
+                SequenceStyleGenerator.DEF_SEQUENCE_SUFFIX);
+
+        final String defaultSequenceName = ConfigurationHelper.getBoolean(
+                SequenceStyleGenerator.CONFIG_PREFER_SEQUENCE_PER_ENTITY,
+                params,
+                false)
                 ? params.getProperty(JPA_ENTITY_NAME) + sequencePerEntitySuffix
-                : DEF_SEQUENCE_NAME;
+                : SequenceStyleGenerator.DEF_SEQUENCE_NAME;
 
-        sequenceCallSyntax = dialect.getSequenceNextValString(ConfigurationHelper.getString(SEQUENCE_PARAM, params, defaultSequenceName));
+        sequenceCallSyntax = dialect.getSequenceNextValString(
+                ConfigurationHelper.getString(
+                        SequenceStyleGenerator.SEQUENCE_PARAM,
+                        params,
+                        defaultSequenceName));
     }
 
     @Override
@@ -50,6 +73,6 @@ public class StringSequenceIdentifier implements IdentifierGenerator, Configurab
             .createSQLQuery(sequenceCallSyntax)
             .uniqueResult()).longValue();
 
-        return "CTC" + seqValue;
+        return sequencePrefix + String.format("%011d%s", 0 ,seqValue);
     }
 }
