@@ -73,9 +73,9 @@ public class ConnectionPoolCallTest extends DataSourceProviderIntegrationTest {
         Properties properties = new Properties();
         properties.setProperty("dataSourceClassName", dataSourceProvider().dataSourceClassName().getName());
         properties.put("dataSourceProperties", dataSourceProvider().dataSourceProperties());
-        properties.setProperty("minimumPoolSize", String.valueOf(1));
+        //properties.setProperty("minimumPoolSize", String.valueOf(1));
         properties.setProperty("maximumPoolSize", String.valueOf(3));
-        properties.setProperty("connectionTimeout", String.valueOf(100));
+        properties.setProperty("connectionTimeout", String.valueOf(5000));
         return new HikariDataSource(new HikariConfig(properties));
     }
 }

@@ -48,7 +48,7 @@ public class HikariCPPostgreSQLJpaConfiguration extends AbstractJpaConfiguration
         Properties properties = new Properties();
         properties.put("dataSourceClassName", dataSourceClassName);
         properties.put("dataSourceProperties", driverProperties);
-        properties.setProperty("minimumPoolSize", String.valueOf(1));
+        //properties.setProperty("minimumPoolSize", String.valueOf(1));
         properties.setProperty("maximumPoolSize", String.valueOf(3));
         properties.setProperty("connectionTimeout", String.valueOf(5000));
         return new HikariDataSource(new HikariConfig(properties));
