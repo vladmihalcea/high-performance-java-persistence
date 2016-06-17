@@ -16,12 +16,12 @@ import org.hibernate.type.AbstractSingleColumnStandardBasicType;
  * @author Vlad MIhalcea
  *
  */
-public class JsonType extends AbstractSingleColumnStandardBasicType<ObjectNode> {
+public class PostgreSQLJsonType extends AbstractSingleColumnStandardBasicType<ObjectNode> {
 
-	public static final JsonType INSTANCE = new JsonType();
+	public static final PostgreSQLJsonType INSTANCE = new PostgreSQLJsonType();
 
-	public JsonType() {
-		super( JsonSqlTypeDescriptor.INSTANCE, JsonJavaTypeDescriptor.INSTANCE );
+	public PostgreSQLJsonType() {
+		super( JsonObjectSqlTypeDescriptor.INSTANCE, JsonJavaTypeDescriptor.INSTANCE );
 	}
 
 	public String getName() {

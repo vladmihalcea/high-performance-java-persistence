@@ -3,14 +3,13 @@ package com.vladmihalcea.book.hpjp.hibernate.type.json;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.junit.Test;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -19,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class JsonTypeTest extends AbstractPostgreSQLIntegrationTest {
+public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -27,10 +26,6 @@ public class JsonTypeTest extends AbstractPostgreSQLIntegrationTest {
             Event.class,
             Participant.class
         };
-    }
-
-    protected List<org.hibernate.type.Type> additionalTypes() {
-        return Arrays.asList(JsonType.INSTANCE);
     }
 
     @Test
@@ -67,9 +62,9 @@ public class JsonTypeTest extends AbstractPostgreSQLIntegrationTest {
             assertEquals("ABC123", participant.getTicket().getRegistrationCode());
 
             List<String> participants = entityManager.createNativeQuery(
-                "select jsonb_pretty(p.ticket) " +
+                "select p.ticket -> \"$.registrationCode\" " +
                 "from participant p " +
-                "where p.ticket ->> 'price' > '10'")
+                "where JSON_EXTRACT(p.ticket, \"$.price\") > 1 ")
             .getResultList();
 
             assertEquals(1, participants.size());
@@ -131,7 +126,7 @@ public class JsonTypeTest extends AbstractPostgreSQLIntegrationTest {
         private Long id;
 
         @Type(type = "json")
-        @Column(columnDefinition = "jsonb")
+        @Column(columnDefinition = "json")
         protected ObjectNode location;
 
         public Event() {}
@@ -158,7 +153,7 @@ public class JsonTypeTest extends AbstractPostgreSQLIntegrationTest {
         private Long id;
 
         @Type(type = "json")
-        @Column(columnDefinition = "jsonb")
+        @Column(columnDefinition = "json")
         protected ObjectNode ticket;
 
         public Long getId() {
@@ -174,7 +169,7 @@ public class JsonTypeTest extends AbstractPostgreSQLIntegrationTest {
         }
     }
 
-    @TypeDef(name = "json", typeClass = JsonType.class)
+    @TypeDef(name = "json", typeClass = MySQLJsonType.class)
     @MappedSuperclass
     public static class BaseEntity {
 
