@@ -7,7 +7,7 @@
 
 package com.vladmihalcea.book.hpjp.hibernate.type.json;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hibernate.type.AbstractSingleColumnStandardBasicType;
 
 /**
@@ -16,16 +16,16 @@ import org.hibernate.type.AbstractSingleColumnStandardBasicType;
  * @author Vlad MIhalcea
  *
  */
-public class JsonNodeType extends AbstractSingleColumnStandardBasicType<JsonNode> {
+public class JsonType extends AbstractSingleColumnStandardBasicType<ObjectNode> {
 
-	public static final JsonNodeType INSTANCE = new JsonNodeType();
+	public static final JsonType INSTANCE = new JsonType();
 
-	public JsonNodeType() {
-		super( JsonNodeSqlTypeDescriptor.INSTANCE, JsonNodeJavaTypeDescriptor.INSTANCE );
+	public JsonType() {
+		super( JsonSqlTypeDescriptor.INSTANCE, JsonJavaTypeDescriptor.INSTANCE );
 	}
 
 	public String getName() {
-		return "json-node";
+		return "json";
 	}
 
 	@Override

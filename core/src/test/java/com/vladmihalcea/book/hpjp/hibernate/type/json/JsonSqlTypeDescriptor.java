@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.json;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hibernate.type.descriptor.ValueBinder;
 import org.hibernate.type.descriptor.ValueExtractor;
 import org.hibernate.type.descriptor.WrapperOptions;
@@ -14,9 +14,9 @@ import java.sql.*;
 /**
  * @author Vlad Mihalcea
  */
-public class JsonNodeSqlTypeDescriptor implements SqlTypeDescriptor {
+public class JsonSqlTypeDescriptor implements SqlTypeDescriptor {
 
-    public static final JsonNodeSqlTypeDescriptor INSTANCE = new JsonNodeSqlTypeDescriptor();
+    public static final JsonSqlTypeDescriptor INSTANCE = new JsonSqlTypeDescriptor();
 
     @Override
     public int getSqlType() {
@@ -33,13 +33,13 @@ public class JsonNodeSqlTypeDescriptor implements SqlTypeDescriptor {
         return new BasicBinder<X>(javaTypeDescriptor, this) {
             @Override
             protected void doBind(PreparedStatement st, X value, int index, WrapperOptions options) throws SQLException {
-                st.setObject(index, javaTypeDescriptor.unwrap(value, JsonNode.class, options), getSqlType());
+                st.setObject(index, javaTypeDescriptor.unwrap(value, ObjectNode.class, options), getSqlType());
             }
 
             @Override
             protected void doBind(CallableStatement st, X value, String name, WrapperOptions options)
                     throws SQLException {
-                st.setObject(name, javaTypeDescriptor.unwrap(value, JsonNode.class, options), getSqlType());
+                st.setObject(name, javaTypeDescriptor.unwrap(value, ObjectNode.class, options), getSqlType());
             }
         };
     }

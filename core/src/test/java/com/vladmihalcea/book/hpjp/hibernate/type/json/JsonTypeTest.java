@@ -1,8 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class JsonNodeTypeTest extends AbstractPostgreSQLIntegrationTest {
+public class JsonTypeTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -30,7 +30,7 @@ public class JsonNodeTypeTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     protected List<org.hibernate.type.Type> additionalTypes() {
-        return Arrays.asList(JsonNodeType.INSTANCE);
+        return Arrays.asList(JsonType.INSTANCE);
     }
 
     @Test
@@ -122,9 +122,9 @@ public class JsonNodeTypeTest extends AbstractPostgreSQLIntegrationTest {
         @GeneratedValue
         private Long id;
 
-        @Type(type = "json-node")
+        @Type(type = "json")
         @Column(columnDefinition = "json")
-        protected JsonNode location;
+        protected ObjectNode location;
 
         public Event() {}
 
@@ -137,7 +137,7 @@ public class JsonNodeTypeTest extends AbstractPostgreSQLIntegrationTest {
         }
 
         public void setValue(Object location) {
-            this.location = toJsonNode(location);
+            this.location = toJson(location);
         }
     }
 
@@ -149,9 +149,9 @@ public class JsonNodeTypeTest extends AbstractPostgreSQLIntegrationTest {
         @GeneratedValue
         private Long id;
 
-        @Type(type = "json-node")
+        @Type(type = "json")
         @Column(columnDefinition = "json")
-        protected JsonNode ticket;
+        protected ObjectNode ticket;
 
         public Long getId() {
             return id;
@@ -162,25 +162,25 @@ public class JsonNodeTypeTest extends AbstractPostgreSQLIntegrationTest {
         }
 
         public void setTicket(Ticket ticket) {
-            this.ticket = toJsonNode(ticket);
+            this.ticket = toJson(ticket);
         }
     }
 
-    @TypeDef(name = "json-node", typeClass = JsonNodeType.class)
+    @TypeDef(name = "json", typeClass = JsonType.class)
     @MappedSuperclass
     public static class BaseEntity {
 
         private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-        protected <T> T toPojo(JsonNode jsonNode, Class<T> clazz) {
+        protected <T> T toPojo(ObjectNode json, Class<T> clazz) {
             try {
-                return OBJECT_MAPPER.treeToValue(jsonNode, clazz);
+                return OBJECT_MAPPER.treeToValue(json, clazz);
             } catch (JsonProcessingException e) {
-                throw new IllegalArgumentException("JsonNode " + jsonNode + " cannot be transformed to POJO");
+                throw new IllegalArgumentException("Json object " + json + " cannot be transformed to a " + clazz + " object type");
             }
         }
 
-        protected JsonNode toJsonNode(Object value) {
+        protected ObjectNode toJson(Object value) {
             return OBJECT_MAPPER.valueToTree(value);
         }
     }
