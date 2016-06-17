@@ -267,6 +267,12 @@
             <version>${spring.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
         <!-- Testing -->
 
         <dependency>
@@ -313,6 +319,8 @@
 
         <aspectj.version>1.8.7</aspectj.version>
         <spring.version>4.2.3.RELEASE</spring.version>
+
+        <jackson.version>2.7.4</jackson.version>
 
         <flyway.version>3.2.1</flyway.version>
         <db-util.version>0.0.1</db-util.version>
