@@ -65,6 +65,14 @@ public class JsonTypeTest extends AbstractPostgreSQLIntegrationTest {
 
             Participant participant = entityManager.find(Participant.class, participantHolder.get().getId());
             assertEquals("ABC123", participant.getTicket().getRegistrationCode());
+
+            List<String> participants = entityManager.createNativeQuery(
+                "select jsonb_pretty(p.ticket) " +
+                "from participant p " +
+                "where p.ticket ->> 'price' > '10'")
+            .getResultList();
+
+            assertEquals(1, participants.size());
         });
     }
 
@@ -123,7 +131,7 @@ public class JsonTypeTest extends AbstractPostgreSQLIntegrationTest {
         private Long id;
 
         @Type(type = "json")
-        @Column(columnDefinition = "json")
+        @Column(columnDefinition = "jsonb")
         protected ObjectNode location;
 
         public Event() {}
@@ -150,7 +158,7 @@ public class JsonTypeTest extends AbstractPostgreSQLIntegrationTest {
         private Long id;
 
         @Type(type = "json")
-        @Column(columnDefinition = "json")
+        @Column(columnDefinition = "jsonb")
         protected ObjectNode ticket;
 
         public Long getId() {
