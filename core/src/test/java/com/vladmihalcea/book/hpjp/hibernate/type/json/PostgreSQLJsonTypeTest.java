@@ -169,7 +169,7 @@ public class PostgreSQLJsonTypeTest extends AbstractPostgreSQLIntegrationTest {
         }
     }
 
-    @TypeDef(name = "json", typeClass = PostgreSQLJsonType.class)
+    @TypeDef(name = "json", typeClass = JsonObjectType.class)
     @MappedSuperclass
     public static class BaseEntity {
 

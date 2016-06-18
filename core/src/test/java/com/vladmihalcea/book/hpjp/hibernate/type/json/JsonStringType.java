@@ -16,11 +16,11 @@ import org.hibernate.type.AbstractSingleColumnStandardBasicType;
  * @author Vlad MIhalcea
  *
  */
-public class MySQLJsonType extends AbstractSingleColumnStandardBasicType<ObjectNode> {
+public class JsonStringType extends AbstractSingleColumnStandardBasicType<ObjectNode> {
 
-	public static final MySQLJsonType INSTANCE = new MySQLJsonType();
+	public static final JsonStringType INSTANCE = new JsonStringType();
 
-	public MySQLJsonType() {
+	public JsonStringType() {
 		super( JsonStringSqlTypeDescriptor.INSTANCE, JsonJavaTypeDescriptor.INSTANCE );
 	}
 

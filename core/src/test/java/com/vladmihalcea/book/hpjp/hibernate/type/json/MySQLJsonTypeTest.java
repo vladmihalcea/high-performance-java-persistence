@@ -169,7 +169,7 @@ public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
         }
     }
 
-    @TypeDef(name = "json", typeClass = MySQLJsonType.class)
+    @TypeDef(name = "json", typeClass = JsonStringType.class)
     @MappedSuperclass
     public static class BaseEntity {
 
