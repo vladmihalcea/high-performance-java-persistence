@@ -5,6 +5,7 @@ import com.vladmihalcea.book.hpjp.hibernate.type.json.JsonStringType;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
+import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 /**
@@ -17,4 +18,14 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public class BaseEntity {
 
+    @Id
+    private Long id;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

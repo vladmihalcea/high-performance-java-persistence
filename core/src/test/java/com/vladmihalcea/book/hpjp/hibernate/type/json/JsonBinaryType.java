@@ -22,7 +22,7 @@ public class JsonBinaryType
 	extends AbstractSingleColumnStandardBasicType<Object> implements DynamicParameterizedType {
 
 	public JsonBinaryType() {
-		super( JsonObjectSqlTypeDescriptor.INSTANCE, new JsonTypeDescriptor());
+		super( JsonBinarySqlTypeDescriptor.INSTANCE, new JsonTypeDescriptor());
 	}
 
 	public String getName() {

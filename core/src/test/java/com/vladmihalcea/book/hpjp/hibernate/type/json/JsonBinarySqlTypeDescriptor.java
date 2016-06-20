@@ -13,9 +13,9 @@ import java.sql.SQLException;
 /**
  * @author Vlad Mihalcea
  */
-public class JsonObjectSqlTypeDescriptor extends AbstractJsonSqlTypeDescriptor {
+public class JsonBinarySqlTypeDescriptor extends AbstractJsonSqlTypeDescriptor {
 
-    public static final JsonObjectSqlTypeDescriptor INSTANCE = new JsonObjectSqlTypeDescriptor();
+    public static final JsonBinarySqlTypeDescriptor INSTANCE = new JsonBinarySqlTypeDescriptor();
 
     @Override
     public <X> ValueBinder<X> getBinder(final JavaTypeDescriptor<X> javaTypeDescriptor) {

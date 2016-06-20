@@ -32,13 +32,16 @@ public class PostgreSQLJsonStringTypeTest extends AbstractPostgreSQLIntegrationT
         final AtomicReference<Participant> participantHolder = new AtomicReference<>();
 
         doInJPA(entityManager -> {
-            entityManager.persist(new Event());
+            Event nullEvent = new Event();
+            nullEvent.setId(0L);
+            entityManager.persist(nullEvent);
 
             Location location = new Location();
             location.setCountry("Romania");
             location.setCity("Cluj-Napoca");
 
             Event event = new Event();
+            event.setId(1L);
             event.setLocation(location);
             entityManager.persist(event);
 
@@ -47,6 +50,7 @@ public class PostgreSQLJsonStringTypeTest extends AbstractPostgreSQLIntegrationT
             ticket.setRegistrationCode("ABC123");
 
             Participant participant = new Participant();
+            participant.setId(1L);
             participant.setTicket(ticket);
             participant.setEvent(event);
 
@@ -62,13 +66,13 @@ public class PostgreSQLJsonStringTypeTest extends AbstractPostgreSQLIntegrationT
             Participant participant = entityManager.find(Participant.class, participantHolder.get().getId());
             assertEquals("ABC123", participant.getTicket().getRegistrationCode());
 
-            List<Object> participants = entityManager.createNativeQuery(
+            List<String> participants = entityManager.createNativeQuery(
                 "select p.ticket ->>'registrationCode' " +
                 "from participant p " +
                 "where p.ticket ->> 'price' > '10'")
             .getResultList();
 
-            event.getLocation().setCity("Constanta");
+            event.getLocation().setCity("Constanța");
             entityManager.flush();
 
             assertEquals(1, participants.size());
@@ -79,19 +83,9 @@ public class PostgreSQLJsonStringTypeTest extends AbstractPostgreSQLIntegrationT
     @Table(name = "event")
     public static class Event extends BaseEntity {
 
-        @Id
-        @GeneratedValue
-        private Long id;
-
         @Type(type = "jsonb")
         @Column(columnDefinition = "json")
         private Location location;
-
-        public Event() {}
-
-        public Long getId() {
-            return id;
-        }
 
         public Location getLocation() {
             return location;
@@ -106,20 +100,12 @@ public class PostgreSQLJsonStringTypeTest extends AbstractPostgreSQLIntegrationT
     @Table(name = "participant")
     public static class Participant extends BaseEntity {
 
-        @Id
-        @GeneratedValue
-        private Long id;
-
         @Type(type = "jsonb")
         @Column(columnDefinition = "json")
         private Ticket ticket;
 
         @ManyToOne
         private Event event;
-
-        public Long getId() {
-            return id;
-        }
 
         public Ticket getTicket() {
             return ticket;

@@ -26,19 +26,29 @@ public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
         };
     }
 
+    @Override
+    protected String[] packages() {
+        return new String[] {
+            Location.class.getPackage().getName()
+        };
+    }
+
     @Test
     public void test() {
         final AtomicReference<Event> eventHolder = new AtomicReference<>();
         final AtomicReference<Participant> participantHolder = new AtomicReference<>();
 
         doInJPA(entityManager -> {
-            entityManager.persist(new Event());
+            Event nullEvent = new Event();
+            nullEvent.setId(0L);
+            entityManager.persist(nullEvent);
 
             Location location = new Location();
             location.setCountry("Romania");
             location.setCity("Cluj-Napoca");
 
             Event event = new Event();
+            event.setId(1L);
             event.setLocation(location);
             entityManager.persist(event);
 
@@ -47,6 +57,7 @@ public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
             ticket.setRegistrationCode("ABC123");
 
             Participant participant = new Participant();
+            participant.setId(1L);
             participant.setTicket(ticket);
             participant.setEvent(event);
 
@@ -68,30 +79,19 @@ public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
                 "where JSON_EXTRACT(p.ticket, \"$.price\") > 1 ")
             .getResultList();
 
-            event.getLocation().setCity("Constanta");
+            event.getLocation().setCity("Constanța");
             entityManager.flush();
 
             assertEquals(1, participants.size());
         });
     }
 
-    @Entity(name = "Event")
-    @Table(name = "event")
+    @Entity(name = "Event") @Table(name = "event")
     public static class Event extends BaseEntity {
-
-        @Id
-        @GeneratedValue
-        private Long id;
 
         @Type(type = "json")
         @Column(columnDefinition = "json")
         private Location location;
-
-        public Event() {}
-
-        public Long getId() {
-            return id;
-        }
 
         public Location getLocation() {
             return location;
@@ -102,13 +102,8 @@ public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
         }
     }
 
-    @Entity(name = "Participant")
-    @Table(name = "participant")
+    @Entity(name = "Participant") @Table(name = "participant")
     public static class Participant extends BaseEntity {
-
-        @Id
-        @GeneratedValue
-        private Long id;
 
         @Type(type = "json")
         @Column(columnDefinition = "json")
@@ -116,10 +111,6 @@ public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
 
         @ManyToOne
         private Event event;
-
-        public Long getId() {
-            return id;
-        }
 
         public Ticket getTicket() {
             return ticket;
