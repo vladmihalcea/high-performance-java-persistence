@@ -37,16 +37,19 @@ public class PostgreSQLJsonStringTypeTest extends AbstractPostgreSQLIntegrationT
             Location location = new Location();
             location.setCountry("Romania");
             location.setCity("Cluj-Napoca");
+
             Event event = new Event();
-            event.setValue(location);
+            event.setLocation(location);
+            entityManager.persist(event);
 
             Ticket ticket = new Ticket();
             ticket.setPrice(12.34d);
             ticket.setRegistrationCode("ABC123");
+
             Participant participant = new Participant();
             participant.setTicket(ticket);
+            participant.setEvent(event);
 
-            entityManager.persist(event);
             entityManager.persist(participant);
 
             eventHolder.set(event);
@@ -82,7 +85,7 @@ public class PostgreSQLJsonStringTypeTest extends AbstractPostgreSQLIntegrationT
 
         @Type(type = "jsonb")
         @Column(columnDefinition = "json")
-        protected Location location;
+        private Location location;
 
         public Event() {}
 
@@ -94,7 +97,7 @@ public class PostgreSQLJsonStringTypeTest extends AbstractPostgreSQLIntegrationT
             return location;
         }
 
-        public void setValue(Location location) {
+        public void setLocation(Location location) {
             this.location = location;
         }
     }
@@ -109,7 +112,10 @@ public class PostgreSQLJsonStringTypeTest extends AbstractPostgreSQLIntegrationT
 
         @Type(type = "jsonb")
         @Column(columnDefinition = "json")
-        protected Ticket ticket;
+        private Ticket ticket;
+
+        @ManyToOne
+        private Event event;
 
         public Long getId() {
             return id;
@@ -121,6 +127,14 @@ public class PostgreSQLJsonStringTypeTest extends AbstractPostgreSQLIntegrationT
 
         public void setTicket(Ticket ticket) {
             this.ticket = ticket;
+        }
+
+        public Event getEvent() {
+            return event;
+        }
+
+        public void setEvent(Event event) {
+            this.event = event;
         }
     }
 
