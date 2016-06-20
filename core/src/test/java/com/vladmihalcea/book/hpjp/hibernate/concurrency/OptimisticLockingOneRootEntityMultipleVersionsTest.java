@@ -224,7 +224,7 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
     }
 
     @Entity(name = "PostLikes")
-    @Table(name = "post_liking")
+    @Table(name = "post_likes")
     public static class PostLikes {
 
         @Id

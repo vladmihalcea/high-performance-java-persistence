@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.type.json;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.model.BaseEntity;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.model.Location;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.model.Ticket;
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.annotations.Type;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
+public class PostgreSQLJsonStringTypeTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -38,7 +38,7 @@ public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
             location.setCountry("Romania");
             location.setCity("Cluj-Napoca");
             Event event = new Event();
-            event.setLocation(location);
+            event.setValue(location);
 
             Ticket ticket = new Ticket();
             ticket.setPrice(12.34d);
@@ -59,10 +59,10 @@ public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
             Participant participant = entityManager.find(Participant.class, participantHolder.get().getId());
             assertEquals("ABC123", participant.getTicket().getRegistrationCode());
 
-            List<String> participants = entityManager.createNativeQuery(
-                "select p.ticket -> \"$.registrationCode\" " +
+            List<Object> participants = entityManager.createNativeQuery(
+                "select p.ticket ->>'registrationCode' " +
                 "from participant p " +
-                "where JSON_EXTRACT(p.ticket, \"$.price\") > 1 ")
+                "where p.ticket ->> 'price' > '10'")
             .getResultList();
 
             event.getLocation().setCity("Constanta");
@@ -80,7 +80,7 @@ public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
         @GeneratedValue
         private Long id;
 
-        @Type(type = "json")
+        @Type(type = "jsonb")
         @Column(columnDefinition = "json")
         protected Location location;
 
@@ -94,7 +94,7 @@ public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
             return location;
         }
 
-        public void setLocation(Location location) {
+        public void setValue(Location location) {
             this.location = location;
         }
     }
@@ -107,7 +107,7 @@ public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
         @GeneratedValue
         private Long id;
 
-        @Type(type = "json")
+        @Type(type = "jsonb")
         @Column(columnDefinition = "json")
         protected Ticket ticket;
 
@@ -123,4 +123,5 @@ public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
             this.ticket = ticket;
         }
     }
+
 }

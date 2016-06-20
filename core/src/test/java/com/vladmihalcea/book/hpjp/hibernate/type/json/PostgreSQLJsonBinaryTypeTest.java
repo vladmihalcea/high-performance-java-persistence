@@ -1,15 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vladmihalcea.book.hpjp.hibernate.type.json.model.BaseEntity;
+import com.vladmihalcea.book.hpjp.hibernate.type.json.model.Location;
+import com.vladmihalcea.book.hpjp.hibernate.type.json.model.Ticket;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -18,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class PostgreSQLJsonTypeTest extends AbstractPostgreSQLIntegrationTest {
+public class PostgreSQLJsonBinaryTypeTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -67,54 +65,11 @@ public class PostgreSQLJsonTypeTest extends AbstractPostgreSQLIntegrationTest {
                 "where p.ticket ->> 'price' > '10'")
             .getResultList();
 
+            event.getLocation().setCity("Constanta");
+            entityManager.flush();
+
             assertEquals(1, participants.size());
         });
-    }
-
-    public static class Location implements Serializable {
-
-        private String country;
-
-        private String city;
-
-        public String getCountry() {
-            return country;
-        }
-
-        public void setCountry(String country) {
-            this.country = country;
-        }
-
-        public String getCity() {
-            return city;
-        }
-
-        public void setCity(String city) {
-            this.city = city;
-        }
-    }
-
-    public static class Ticket implements Serializable {
-
-        private String registrationCode;
-
-        private double price;
-
-        public String getRegistrationCode() {
-            return registrationCode;
-        }
-
-        public void setRegistrationCode(String registrationCode) {
-            this.registrationCode = registrationCode;
-        }
-
-        public double getPrice() {
-            return price;
-        }
-
-        public void setPrice(double price) {
-            this.price = price;
-        }
     }
 
     @Entity(name = "Event")
@@ -125,9 +80,9 @@ public class PostgreSQLJsonTypeTest extends AbstractPostgreSQLIntegrationTest {
         @GeneratedValue
         private Long id;
 
-        @Type(type = "json")
+        @Type(type = "jsonb")
         @Column(columnDefinition = "jsonb")
-        protected ObjectNode location;
+        protected Location location;
 
         public Event() {}
 
@@ -136,11 +91,11 @@ public class PostgreSQLJsonTypeTest extends AbstractPostgreSQLIntegrationTest {
         }
 
         public Location getLocation() {
-            return toPojo(location, Location.class);
+            return location;
         }
 
-        public void setValue(Object location) {
-            this.location = toJson(location);
+        public void setValue(Location location) {
+            this.location = location;
         }
     }
 
@@ -152,39 +107,20 @@ public class PostgreSQLJsonTypeTest extends AbstractPostgreSQLIntegrationTest {
         @GeneratedValue
         private Long id;
 
-        @Type(type = "json")
+        @Type(type = "jsonb")
         @Column(columnDefinition = "jsonb")
-        protected ObjectNode ticket;
+        protected Ticket ticket;
 
         public Long getId() {
             return id;
         }
 
         public Ticket getTicket() {
-            return toPojo(ticket, Ticket.class);
+            return ticket;
         }
 
         public void setTicket(Ticket ticket) {
-            this.ticket = toJson(ticket);
-        }
-    }
-
-    @TypeDef(name = "json", typeClass = JsonObjectType.class)
-    @MappedSuperclass
-    public static class BaseEntity {
-
-        private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-        protected <T> T toPojo(ObjectNode json, Class<T> clazz) {
-            try {
-                return OBJECT_MAPPER.treeToValue(json, clazz);
-            } catch (JsonProcessingException e) {
-                throw new IllegalArgumentException("Json object " + json + " cannot be transformed to a " + clazz + " object type");
-            }
-        }
-
-        protected ObjectNode toJson(Object value) {
-            return OBJECT_MAPPER.valueToTree(value);
+            this.ticket = ticket;
         }
     }
 }

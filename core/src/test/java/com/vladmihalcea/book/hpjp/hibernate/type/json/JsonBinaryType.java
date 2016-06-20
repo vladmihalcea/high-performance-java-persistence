@@ -7,8 +7,10 @@
 
 package com.vladmihalcea.book.hpjp.hibernate.type.json;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hibernate.type.AbstractSingleColumnStandardBasicType;
+import org.hibernate.usertype.DynamicParameterizedType;
+
+import java.util.Properties;
 
 /**
  * Descriptor for a Json type.
@@ -16,21 +18,20 @@ import org.hibernate.type.AbstractSingleColumnStandardBasicType;
  * @author Vlad MIhalcea
  *
  */
-public class JsonObjectType extends AbstractSingleColumnStandardBasicType<ObjectNode> {
+public class JsonBinaryType
+	extends AbstractSingleColumnStandardBasicType<Object> implements DynamicParameterizedType {
 
-	public static final JsonObjectType INSTANCE = new JsonObjectType();
-
-	public JsonObjectType() {
-		super( JsonObjectSqlTypeDescriptor.INSTANCE, JsonJavaTypeDescriptor.INSTANCE );
+	public JsonBinaryType() {
+		super( JsonObjectSqlTypeDescriptor.INSTANCE, new JsonTypeDescriptor());
 	}
 
 	public String getName() {
-		return "json";
+		return "jsonb";
 	}
 
 	@Override
-	protected boolean registerUnderJavaType() {
-		return true;
+	public void setParameterValues(Properties parameters) {
+		((JsonTypeDescriptor) getJavaTypeDescriptor()).setParameterValues(parameters);
 	}
 
 }
