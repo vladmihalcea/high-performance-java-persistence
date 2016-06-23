@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
-import org.hibernate.*;
+import org.hibernate.SQLQuery;
 import org.hibernate.transform.ResultTransformer;
 import org.junit.Test;
 
@@ -13,11 +13,9 @@ import java.util.List;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * <code>TreeTest</code> - Tree Test
- *
  * @author Vlad Mihalcea
  */
-public class TreeTest extends AbstractOracleXEIntegrationTest {
+public class TreeConnectByTest extends AbstractOracleXEIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -63,13 +61,15 @@ public class TreeTest extends AbstractOracleXEIntegrationTest {
     public void test() {
 
         Node root = (Node) doInJPA(entityManager -> {
-            return entityManager
-                .unwrap(Session.class)
-                .createQuery(
-                    "SELECT n " +
+            return entityManager.createNativeQuery(
+                    "SELECT * " +
                     "FROM Node n " +
-                    "WHERE n.val = :val")
+                    "WHERE n.val = :val " +
+                    "CONNECT BY PRIOR n.id = n.parent_id " +
+                    "START WITH n.parent_id IS NULL ")
                 .setParameter("val", "x")
+                .unwrap(SQLQuery.class)
+                .addEntity(Node.class)
                 .setResultTransformer(new ResultTransformer() {
                     @Override
                     public Object transformTuple(Object[] tuple, String[] aliases) {

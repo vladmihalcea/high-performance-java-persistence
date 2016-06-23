@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
-import org.hibernate.*;
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import org.hibernate.SQLQuery;
 import org.hibernate.transform.ResultTransformer;
 import org.junit.Test;
 
@@ -13,11 +13,9 @@ import java.util.List;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * <code>TreeTest</code> - Tree Test
- *
  * @author Vlad Mihalcea
  */
-public class TreeTest extends AbstractOracleXEIntegrationTest {
+public class TreeCTETest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -63,13 +61,22 @@ public class TreeTest extends AbstractOracleXEIntegrationTest {
     public void test() {
 
         Node root = (Node) doInJPA(entityManager -> {
-            return entityManager
-                .unwrap(Session.class)
-                .createQuery(
-                    "SELECT n " +
-                    "FROM Node n " +
-                    "WHERE n.val = :val")
+            return entityManager.createNativeQuery(
+                    "WITH RECURSIVE node_tree(id, parent_id, val) AS ( " +
+                    "    select n.id, n.parent_id, n.val " +
+                    "    from node n " +
+                    "    where n.val = :val and parent_id is null     " +
+                    "    UNION ALL " +
+                    "    select n.id, n.parent_id, n.val " +
+                    "    from node n " +
+                    "    inner join node_tree nt on nt.id = n.parent_id " +
+                    "    where n.val = :val " +
+                    ") " +
+                    "SELECT id, parent_id, val " +
+                    "FROM node_tree ")
                 .setParameter("val", "x")
+                .unwrap(SQLQuery.class)
+                .addEntity(Node.class)
                 .setResultTransformer(new ResultTransformer() {
                     @Override
                     public Object transformTuple(Object[] tuple, String[] aliases) {
