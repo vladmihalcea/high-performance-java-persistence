@@ -1,6 +1,7 @@
-package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao;
+package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao.tmp;
 
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Tag;
+import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao.GenericDAOImpl;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 

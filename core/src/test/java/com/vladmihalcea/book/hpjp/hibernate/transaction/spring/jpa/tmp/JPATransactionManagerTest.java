@@ -1,8 +1,8 @@
-package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa;
+package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.tmp;
 
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Tag;
-import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config.JPATransactionManagerConfiguration;
+import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config.tmp.JPATransactionManagerConfiguration;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.service.ForumService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
