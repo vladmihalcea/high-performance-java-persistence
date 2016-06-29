@@ -1,8 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.service;
 
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
-import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao.tmp.PostDAO;
-import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao.tmp.TagDAO;
+import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao.PostDAO;
+import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao.TagDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;

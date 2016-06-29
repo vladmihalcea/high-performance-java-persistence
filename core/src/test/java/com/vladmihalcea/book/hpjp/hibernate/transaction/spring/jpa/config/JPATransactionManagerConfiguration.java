@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config.tmp;
+package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;

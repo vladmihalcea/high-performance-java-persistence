@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao.tmp;
+package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao;
 
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao.GenericDAO;

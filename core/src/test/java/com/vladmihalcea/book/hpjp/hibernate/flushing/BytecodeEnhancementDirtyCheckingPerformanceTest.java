@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.flushing.temp;
+package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;

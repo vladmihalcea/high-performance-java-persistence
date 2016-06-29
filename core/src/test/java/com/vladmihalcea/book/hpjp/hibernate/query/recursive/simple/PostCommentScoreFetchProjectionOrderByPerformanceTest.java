@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.query.recursive.simple.tmp;
+package com.vladmihalcea.book.hpjp.hibernate.query.recursive.simple;
 
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.simple.AbstractPostCommentScorePerformanceTest;
