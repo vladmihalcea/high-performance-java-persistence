@@ -40,8 +40,8 @@
                     <execution>
                         <configuration>
                             <failOnError>true</failOnError>
-                            <enableLazyInitialization>false</enableLazyInitialization>
-                            <enableDirtyTracking>true</enableDirtyTracking>
+                            <enableLazyInitialization>true</enableLazyInitialization>
+                            <enableDirtyTracking>false</enableDirtyTracking>
                             <enableAssociationManagement>false</enableAssociationManagement>
                         </configuration>
                         <goals>

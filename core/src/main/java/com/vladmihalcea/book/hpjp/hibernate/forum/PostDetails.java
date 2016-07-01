@@ -11,6 +11,7 @@ import java.util.Date;
 public class PostDetails {
 
     @Id
+    @GeneratedValue
     private Long id;
 
     @Column(name = "created_on")
@@ -24,8 +25,7 @@ public class PostDetails {
     }
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
-    @MapsId
+    @JoinColumn(name = "post_id")
     private Post post;
 
     public Long getId() {

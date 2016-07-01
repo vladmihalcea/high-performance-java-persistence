@@ -1,5 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.forum;
 
+import org.hibernate.annotations.LazyToOne;
+import org.hibernate.annotations.LazyToOneOption;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +34,8 @@ public class Post {
             orphanRemoval = true)
     private List<PostComment> comments = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "post",
-            orphanRemoval = true, fetch = FetchType.LAZY, optional = false)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "post", fetch = FetchType.LAZY, optional = true)
+    @LazyToOne(LazyToOneOption.NO_PROXY)
     private PostDetails details;
 
     @ManyToMany

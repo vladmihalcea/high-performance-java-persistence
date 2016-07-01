@@ -27,13 +27,9 @@ public class BytecodeEnhancedOneToOneTest extends AbstractTest {
         doInJPA(entityManager -> {
             Post post = new Post("First post");
             post.setId(1L);
-            entityManager.persist(post);
-        });
-        doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
             PostDetails details = new PostDetails();
-            details.setPost(post);
-            entityManager.persist(details);
+            post.addDetails(details);
+            entityManager.persist(post);
         });
 
         doInJPA(entityManager -> {
