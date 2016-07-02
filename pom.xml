@@ -103,6 +103,12 @@
         </dependency>
 
         <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>jta</artifactId>
+            <version>${javax.transaction.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-ehcache</artifactId>
             <version>${hibernate.version}</version>
@@ -296,7 +302,7 @@
         <slf4j.version>1.7.7</slf4j.version>
         <logback.version>1.1.2</logback.version>
         <commons-lang.version>3.3.2</commons-lang.version>
-        <hibernate.version>5.1.0.Final</hibernate.version>
+        <hibernate.version>5.2.1.Final</hibernate.version>
         <hibernate.validator.version>5.2.3.Final</hibernate.validator.version>
         <javassist.version>3.18.1-GA</javassist.version>
         <ehcache.version>2.6.9</ehcache.version>
@@ -311,6 +317,7 @@
         <jtds.version>1.3.1</jtds.version>
 
         <javax.el.version>2.2.4</javax.el.version>
+        <javax.transaction.version>1.1</javax.transaction.version>
 
         <codahale.metrics.version>3.1.0</codahale.metrics.version>
         <hikari.version>1.3.3</hikari.version>

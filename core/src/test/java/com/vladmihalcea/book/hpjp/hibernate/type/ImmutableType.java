@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
@@ -24,21 +24,21 @@ public abstract class ImmutableType<T> implements UserType {
 
     @Override
     public Object nullSafeGet(ResultSet rs, String[] names,
-                              SessionImplementor session, Object owner) throws SQLException {
+                              SharedSessionContractImplementor session, Object owner) throws SQLException {
         return get(rs, names, session, owner);
     }
 
     @Override
     public void nullSafeSet(PreparedStatement st, Object value, int index,
-                            SessionImplementor session) throws SQLException {
+                            SharedSessionContractImplementor session) throws SQLException {
         set(st, clazz.cast(value), index, session);
     }
 
     protected abstract T get(ResultSet rs, String[] names,
-                              SessionImplementor session, Object owner) throws SQLException;
+                             SharedSessionContractImplementor session, Object owner) throws SQLException;
 
     protected abstract void set(PreparedStatement st, T value, int index,
-                            SessionImplementor session) throws SQLException;
+                                SharedSessionContractImplementor session) throws SQLException;
 
 
     @Override

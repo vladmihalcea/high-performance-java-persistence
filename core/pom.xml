@@ -49,6 +49,13 @@
                         </goals>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>javax.transaction</groupId>
+                        <artifactId>jta</artifactId>
+                        <version>${javax.transaction.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <plugin>
