@@ -86,6 +86,23 @@ public class ProjectionTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
+    public void testPaginationEntityQuery() {
+        int pageStart = 20;
+        int pageSize = 10;
+
+        doInJPA(entityManager -> {
+            List<Post> posts = entityManager.createQuery(
+                "select p " +
+                "from Post p " +
+                "join fetch p.comments")
+            .setFirstResult(pageStart)
+            .setMaxResults(pageSize)
+            .getResultList();
+            assertEquals(pageSize, posts.size());
+        });
+    }
+
+    @Test
     public void testFetchSize() {
         int pageStart = 20;
         int pageSize = 50;
