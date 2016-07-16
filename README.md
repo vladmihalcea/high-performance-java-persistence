@@ -1,5 +1,9 @@
 # High-Performance Java Persistence
-The [High-Performance Java Persistence](https://leanpub.com/high-performance-java-persistence) book code examples
+The [High-Performance Java Persistence](https://leanpub.com/high-performance-java-persistence) book code examples.
+
+<a href="https://leanpub.com/high-performance-java-persistence">
+<img src="https://vladmihalcea.files.wordpress.com/2015/11/hpjp_small.jpg" alt="High-Performance Java Persistence">
+</a>
 
 All examples require at least Java 1.8.
 
