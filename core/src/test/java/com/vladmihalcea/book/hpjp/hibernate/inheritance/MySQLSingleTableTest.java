@@ -1,13 +1,11 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
-import com.vladmihalcea.book.hpjp.util.*;
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
-import org.hibernate.jdbc.Work;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -17,14 +15,13 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * <code>SingleTableTest</code> - Single Table Test
  *
  * @author Vlad Mihalcea
  */
-public class SingleTableTest extends AbstractPostgreSQLIntegrationTest {
+public class MySQLSingleTableTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -44,34 +41,36 @@ public class SingleTableTest extends AbstractPostgreSQLIntegrationTest {
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try(Statement st = connection.createStatement()) {
                     st.executeUpdate(
-                        "ALTER TABLE Topic " +
-                        "ADD CONSTRAINT post_content_check CHECK " +
-                        "( " +
-                        "    CASE " +
-                        "        WHEN DTYPE = 'Post' THEN " +
-                        "        CASE " +
-                        "           WHEN content IS NOT NULL " +
-                        "           THEN 1 " +
-                        "           ELSE 0 " +
-                        "           END " +
-                        "        ELSE 1 " +
-                        "    END = 1 " +
-                        ")"
+                        "CREATE " +
+                        "TRIGGER post_content_check BEFORE INSERT " +
+                        "ON Topic " +
+                        "FOR EACH ROW " +
+                        "BEGIN " +
+                        "   IF NEW.DTYPE = 'Post' " +
+                        "   THEN " +
+                        "       IF NEW.content IS NULL " +
+                        "       THEN " +
+                        "           signal sqlstate '45000' " +
+                        "           set message_text = 'Post content cannot be NULL'; " +
+                        "       END IF; " +
+                        "   END IF; " +
+                        "END;"
                     );
                     st.executeUpdate(
-                        "ALTER TABLE Topic " +
-                        "ADD CONSTRAINT announcement_validUntil_check CHECK " +
-                        "( " +
-                        "    CASE " +
-                        "        WHEN DTYPE = 'Announcement' THEN " +
-                        "        CASE " +
-                        "           WHEN validUntil IS NOT NULL " +
-                        "           THEN 1 " +
-                        "           ELSE 0 " +
-                        "           END " +
-                        "        ELSE 1 " +
-                        "    END = 1 " +
-                        ")"
+                        "CREATE " +
+                        "TRIGGER announcement_validUntil_check BEFORE INSERT " +
+                        "ON Topic " +
+                        "FOR EACH ROW " +
+                        "BEGIN " +
+                        "   IF NEW.DTYPE = 'Announcement' " +
+                        "   THEN " +
+                        "       IF NEW.validUntil IS NULL " +
+                        "       THEN " +
+                        "           signal sqlstate '45000' " +
+                        "           set message_text = 'Announcement validUntil cannot be NULL'; " +
+                        "       END IF; " +
+                        "   END IF; " +
+                        "END;"
                     );
                 }
             });
@@ -142,7 +141,9 @@ public class SingleTableTest extends AbstractPostgreSQLIntegrationTest {
 
         try {
             doInJPA(entityManager -> {
-                entityManager.persist(new Post());
+                Post post = new Post();
+                post.setCreatedOn(new Date());
+                entityManager.persist(post);
             });
             fail("content_check should fail");
         } catch (Exception expected) {
@@ -151,9 +152,10 @@ public class SingleTableTest extends AbstractPostgreSQLIntegrationTest {
 
         try {
             doInJPA(entityManager -> {
-                entityManager.persist(new Announcement());
+                Announcement announcement = new Announcement();
+                entityManager.persist(announcement);
             });
-            fail("announcement_validUntil_check should fail");
+            fail("content_check should fail");
         } catch (Exception expected) {
             assertEquals(PersistenceException.class, expected.getCause().getClass());
         }
