@@ -12,7 +12,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>mysql</module>
+        <module>jooq-core</module>
+        <module>jooq-mysql</module>
     </modules>
 
     <dependencies>

@@ -11,6 +11,16 @@
 
     <artifactId>jooq-mysql</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.vladmihalcea.book</groupId>
+            <artifactId>jooq-core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
