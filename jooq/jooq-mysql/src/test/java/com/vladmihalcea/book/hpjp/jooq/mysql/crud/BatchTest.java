@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.jooq.mysql.batch;
+package com.vladmihalcea.book.hpjp.jooq.mysql.crud;
 
 import org.jooq.BatchBindStep;
 import org.jooq.Record;

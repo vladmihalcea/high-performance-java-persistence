@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.jooq.mysql.batch;
+package com.vladmihalcea.book.hpjp.jooq.mysql.crud;
 
 import com.vladmihalcea.book.hpjp.jooq.AbstractJOOQIntegrationTest;
 import org.jooq.SQLDialect;

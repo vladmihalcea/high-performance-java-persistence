@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.jooq.pgsql.batch;
+package com.vladmihalcea.book.hpjp.jooq.pgsql.crud;
 
 import org.jooq.BatchBindStep;
 import org.jooq.Record;
