@@ -12,7 +12,6 @@ import java.util.stream.IntStream;
 import static com.vladmihalcea.book.hpjp.jooq.mysql.schema.Tables.POST;
 import static org.junit.Assert.assertEquals;
 
-
 /**
  * @author Vlad Mihalcea
  */

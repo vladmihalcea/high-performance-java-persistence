@@ -354,6 +354,11 @@
                 <version>2.19.1</version>
                 <configuration>
                     <argLine>-Xms1024m -Xmx1024m</argLine>
+
+                    <systemPropertyVariables>
+                        <bitronix.tm.journal.disk.logPart1Filename>${project.build.directory}/btm1.log</bitronix.tm.journal.disk.logPart1Filename>
+                        <bitronix.tm.journal.disk.logPart2Filename>${project.build.directory}/btm2.log</bitronix.tm.journal.disk.logPart2Filename>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>
