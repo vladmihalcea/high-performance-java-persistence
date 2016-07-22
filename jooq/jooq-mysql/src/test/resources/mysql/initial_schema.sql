@@ -4,11 +4,11 @@ drop table if exists post_tag;
 drop table if exists post;
 drop table if exists tag;
 
-create table post (id bigint not null, title varchar(255), primary key (id));
-create table post_comment (id bigint not null, review varchar(255), post_id bigint, primary key (id));
+create table post (id bigint not null AUTO_INCREMENT, title varchar(255), primary key (id));
+create table post_comment (id bigint not null AUTO_INCREMENT, review varchar(255), post_id bigint, primary key (id));
 create table post_details (id bigint not null, created_by varchar(255), created_on datetime, primary key (id));
 create table post_tag (post_id bigint not null, tag_id bigint not null);
-create table tag (id bigint not null, name varchar(255), primary key (id));
+create table tag (id bigint not null AUTO_INCREMENT, name varchar(255), primary key (id));
 
 alter table post_comment add constraint FKna4y825fdc5hw8aow65ijexm0 foreign key (post_id) references post (id);
 alter table post_details add constraint FKkl5eik513p1xiudk2kxb0v92u foreign key (id) references post (id);
