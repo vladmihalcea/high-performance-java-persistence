@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.naming;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
 import org.junit.Test;
 
 import javax.persistence.Entity;
@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Vlad Mihalcea
  */
-public class DefaultNamingTest extends AbstractTest {
+public class DefaultNamingTest extends AbstractOracleXEIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -36,7 +36,7 @@ public class DefaultNamingTest extends AbstractTest {
 
             Person person = new Person();
             person.personId = 1L;
-            person.address = address;
+            person.addressIsAVeryLongColumnThatExceedsThirtyCharacters = address;
             person.location = location;
 
             entityManager.persist(address);
@@ -46,7 +46,7 @@ public class DefaultNamingTest extends AbstractTest {
 
         doInJPA(entityManager -> {
             Person person = entityManager.find(Person.class, 1L);
-            assertEquals(Long.valueOf(1L), person.address.id);
+            assertEquals(Long.valueOf(1L), person.addressIsAVeryLongColumnThatExceedsThirtyCharacters.id);
             assertEquals(Long.valueOf(1L), person.location.id);
         });
     }
@@ -72,7 +72,7 @@ public class DefaultNamingTest extends AbstractTest {
         private Long personId;
 
         @ManyToOne
-        private PersonAddress address;
+        private PersonAddress addressIsAVeryLongColumnThatExceedsThirtyCharacters;
 
         @ManyToOne
         private PersonLocation location;
