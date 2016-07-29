@@ -9,11 +9,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jooq-pgsql</artifactId>
+    <artifactId>jooq-oracle</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>org.jooq</groupId>
+            <groupId>org.jooq.pro</groupId>
             <artifactId>jooq</artifactId>
             <version>${jooq.version}</version>
         </dependency>
@@ -34,18 +34,19 @@
                 <artifactId>sql-maven-plugin</artifactId>
                 <dependencies>
                     <dependency>
-                        <groupId>org.postgresql</groupId>
-                        <artifactId>postgresql</artifactId>
-                        <version>${postgresql.version}</version>
+                        <groupId>com.oracle</groupId>
+                        <artifactId>ojdbc7_g</artifactId>
+                        <version>${oracle.version}</version>
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <driver>org.postgresql.Driver</driver>
-                    <url>jdbc:postgresql:high_performance_java_persistence</url>
-                    <username>postgres</username>
+                    <driver>oracle.jdbc.OracleDriver</driver>
+                    <url>jdbc:oracle:thin:@localhost:1521/xe</url>
+                    <username>oracle</username>
                     <password>admin</password>
                     <autocommit>true</autocommit>
-                    <settingsKey>postgres-db-test</settingsKey>
+                    <onError>continue</onError>
+                    <settingsKey>oracle-db-test</settingsKey>
                 </configuration>
                 <executions>
                     <execution>
@@ -60,7 +61,7 @@
                             <fileset>
                                 <basedir>${basedir}/</basedir>
                                 <includes>
-                                    <include>src/test/resources/pgsql/initial_schema.sql</include>
+                                    <include>src/test/resources/oracle/initial_schema.sql</include>
                                 </includes>
                             </fileset>
                             <autocommit>true</autocommit>
@@ -70,7 +71,7 @@
             </plugin>
 
             <plugin>
-                <groupId>org.jooq</groupId>
+                <groupId>org.jooq.pro</groupId>
                 <artifactId>jooq-codegen-maven</artifactId>
                 <version>${jooq.version}</version>
                 <executions>
@@ -83,30 +84,30 @@
                 </executions>
                 <dependencies>
                     <dependency>
-                        <groupId>org.postgresql</groupId>
-                        <artifactId>postgresql</artifactId>
-                        <version>${postgresql.version}</version>
+                        <groupId>com.oracle</groupId>
+                        <artifactId>ojdbc7_g</artifactId>
+                        <version>${oracle.version}</version>
                     </dependency>
                 </dependencies>
 
                 <configuration>
                     <jdbc>
-                        <driver>org.postgresql.Driver</driver>
-                        <url>jdbc:postgresql:high_performance_java_persistence</url>
-                        <username>postgres</username>
+                        <driver>oracle.jdbc.OracleDriver</driver>
+                        <url>jdbc:oracle:thin:@localhost:1521/xe</url>
+                        <username>oracle</username>
                         <password>admin</password>
                     </jdbc>
                     <generator>
                         <name>org.jooq.util.JavaGenerator</name>
                         <database>
-                            <name>org.jooq.util.postgres.PostgresDatabase</name>
+                            <name>org.jooq.util.oracle.OracleDatabase</name>
                             <includes>.*</includes>
                             <excludes></excludes>
-                            <inputSchema>public</inputSchema>
+                            <inputSchema>oracle</inputSchema>
                         </database>
                         <generate></generate>
                         <target>
-                            <packageName>com.vladmihalcea.book.hpjp.jooq.pgsql.schema</packageName>
+                            <packageName>com.vladmihalcea.book.hpjp.jooq.oracle.schema</packageName>
                             <directory>${project.build.directory}/generated-sources/java</directory>
                         </target>
                     </generator>

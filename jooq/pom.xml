@@ -15,15 +15,10 @@
         <module>jooq-core</module>
         <module>jooq-mysql</module>
         <module>jooq-pgsql</module>
+        <module>jooq-oracle</module>
     </modules>
 
     <dependencies>
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq</artifactId>
-            <version>${jooq.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>com.vladmihalcea.book</groupId>
             <artifactId>high-performance-java-persistence-core</artifactId>

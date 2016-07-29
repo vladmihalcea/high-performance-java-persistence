@@ -17,20 +17,20 @@ public class UpsertTest extends AbstractJOOQPostgreSQLIntegrationTest {
 
     @Test
     public void testUpsert() {
-        doInJOOQ(context -> {
-            context.delete(POST).execute();
-            upsert(context);
-            upsert(context);
+        doInJOOQ(sql -> {
+            sql.delete(POST).execute();
+            upsert(sql);
+            upsert(sql);
         });
     }
 
-   private void upsert(DSLContext context) {
-       context
+   private void upsert(DSLContext sql) {
+       sql
            .insertInto(POST)
            .columns(POST.ID, POST.TITLE)
            .values(1L, "High-Performance Java Persistence")
            .onDuplicateKeyUpdate()
-           .set(POST.TITLE, "High-Performance Java Persistence 2nd Edition")
+           .set(POST.TITLE, "High-Performance Java Persistence Book")
            .execute();
    }
 }

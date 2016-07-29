@@ -64,8 +64,8 @@ public abstract class AbstractJOOQIntegrationTest extends AbstractTest {
             session = sessionFactory().openSession();
             txn = session.beginTransaction();
             session.doWork(connection -> {
-                DSLContext context = DSL.using(connection, sqlDialect());
-                callable.execute(context);
+                DSLContext sql = DSL.using(connection, sqlDialect());
+                callable.execute(sql);
             });
             txn.commit();
         } catch (Throwable e) {
@@ -80,11 +80,11 @@ public abstract class AbstractJOOQIntegrationTest extends AbstractTest {
 
     @FunctionalInterface
     protected interface DSLContextCallable<T> {
-        T execute(DSLContext context) throws SQLException;
+        T execute(DSLContext sql) throws SQLException;
     }
 
     @FunctionalInterface
     protected interface DSLContextVoidCallable {
-        void execute(DSLContext context) throws SQLException;
+        void execute(DSLContext sql) throws SQLException;
     }
 }

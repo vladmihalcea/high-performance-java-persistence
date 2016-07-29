@@ -153,7 +153,6 @@
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc7_g</artifactId>
-            <!--<artifactId>ojdbc6</artifactId>-->
             <version>${oracle.version}</version>
             <scope>test</scope>
         </dependency>

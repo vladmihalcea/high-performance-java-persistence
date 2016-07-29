@@ -13,6 +13,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>${jooq.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.vladmihalcea.book</groupId>
             <artifactId>jooq-core</artifactId>
             <version>1.0-SNAPSHOT</version>
