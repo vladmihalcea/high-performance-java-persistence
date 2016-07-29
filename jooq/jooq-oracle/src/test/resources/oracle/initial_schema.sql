@@ -6,7 +6,7 @@ drop table tag cascade constraints;
 
 create table post (id number(19,0) not null, title varchar2(255 char), primary key (id));
 create table post_comment (id number(19,0) not null, review varchar2(255 char), post_id number(19,0), primary key (id));
-create table post_details (id number(19,0) not null, created_by varchar2(255 char), created_on timestamp, primary key (id));
+create table post_details (id number(19,0) not null, created_by varchar2(255 char), created_on timestamp, updated_by varchar2(255 char), updated_on timestamp, primary key (id));
 create table post_tag (post_id number(19,0) not null, tag_id number(19,0) not null);
 create table tag (id number(19,0) not null, name varchar2(255 char), primary key (id));
 alter table post_comment add constraint FKna4y825fdc5hw8aow65ijexm0 foreign key (post_id) references post;

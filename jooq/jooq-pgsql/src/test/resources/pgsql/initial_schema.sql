@@ -6,7 +6,7 @@ drop table if exists tag;
 
 create table post (id int8 not null, title varchar(255), primary key (id));
 create table post_comment (id int8 not null, review varchar(255), post_id int8, primary key (id));
-create table post_details (id int8 not null, created_by varchar(255), created_on timestamp, primary key (id));
+create table post_details (id int8 not null, created_by varchar(255), created_on timestamp, updated_by varchar(255), updated_on timestamp, primary key (id));
 create table post_tag (post_id int8 not null, tag_id int8 not null);
 create table tag (id int8 not null, name varchar(255), primary key (id));
 

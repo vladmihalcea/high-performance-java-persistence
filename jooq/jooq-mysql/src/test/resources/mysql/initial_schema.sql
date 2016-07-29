@@ -6,7 +6,7 @@ drop table if exists tag;
 
 create table post (id bigint not null AUTO_INCREMENT, title varchar(255), primary key (id));
 create table post_comment (id bigint not null AUTO_INCREMENT, review varchar(255), post_id bigint, primary key (id));
-create table post_details (id bigint not null, created_by varchar(255), created_on datetime, primary key (id));
+create table post_details (id bigint not null, created_by varchar(255), created_on datetime, updated_by varchar(255), updated_on datetime, primary key (id));
 create table post_tag (post_id bigint not null, tag_id bigint not null);
 create table tag (id bigint not null AUTO_INCREMENT, name varchar(255), primary key (id));
 
