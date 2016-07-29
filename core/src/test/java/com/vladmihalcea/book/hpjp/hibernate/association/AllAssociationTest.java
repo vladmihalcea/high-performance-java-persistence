@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.Session;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Vlad Mihalcea
  */
-public class AllAssociationTest extends AbstractTest {
+public class AllAssociationTest extends AbstractSQLServerIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
