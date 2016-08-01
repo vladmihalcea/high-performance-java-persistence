@@ -40,6 +40,10 @@ public class CompositeIdOneToOneTest extends AbstractTest {
             EmployeeDetails employeeDetails = entityManager.find(EmployeeDetails.class, new EmployeeId(1L, 100L));
             assertNotNull(employeeDetails);
         });
+        doInJPA(entityManager -> {
+            Employee employee = entityManager.find(Employee.class, new EmployeeId(1L, 100L));
+            assertNotNull(employee.getDetails());
+        });
     }
 
     @Entity(name = "Employee")
@@ -49,6 +53,9 @@ public class CompositeIdOneToOneTest extends AbstractTest {
         private EmployeeId id;
 
         private String name;
+
+        @OneToOne(mappedBy = "employee")
+        private EmployeeDetails details;
 
         public EmployeeId getId() {
             return id;
@@ -64,6 +71,14 @@ public class CompositeIdOneToOneTest extends AbstractTest {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        public EmployeeDetails getDetails() {
+            return details;
+        }
+
+        public void setDetails(EmployeeDetails details) {
+            this.details = details;
         }
     }
 
