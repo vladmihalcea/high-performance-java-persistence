@@ -1,11 +1,9 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -18,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class FluentSettersTest extends AbstractTest {
+public class JPAFluentInterfaceTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -32,32 +30,27 @@ public class FluentSettersTest extends AbstractTest {
     public void testLifecycle() {
         doInJPA(entityManager -> {
             Post post = new Post()
-            .setId(1L)
-            .setTitle("High-Performance Java Persistence")
-            .addComment(new PostComment().setReview("Awesome book")
-                .setCreatedOn(Timestamp.from(
+            .id(1L)
+            .title("High-Performance Java Persistence")
+            .addComment(new PostComment()
+                .review("Awesome book")
+                .createdOn(Timestamp.from(
                     LocalDateTime.now().minusDays(1).toInstant(ZoneOffset.UTC))
                 )
             )
-            .addComment(new PostComment().setReview("High-Performance Rocks!")
-                .setCreatedOn(Timestamp.from(
+            .addComment(new PostComment()
+                .review("High-Performance Rocks!")
+                .createdOn(Timestamp.from(
                     LocalDateTime.now().minusDays(2).toInstant(ZoneOffset.UTC))
                 )
             )
-            .addComment(new PostComment().setReview("Database essentials to the rescue!")
-                .setCreatedOn(Timestamp.from(
+            .addComment(new PostComment()
+                .review("Database essentials to the rescue!")
+                .createdOn(Timestamp.from(
                     LocalDateTime.now().minusDays(3).toInstant(ZoneOffset.UTC))
                 )
             );
             entityManager.persist(post);
-
-            Post clone = SerializationUtils.clone(post);
-            assertEquals(post.getId(), clone.getId());
-            assertEquals(post.getTitle(), clone.getTitle());
-            assertEquals(post.getComments().size(), clone.getComments().size());
-            assertEquals(post.getComments().get(0).getId(), clone.getComments().get(0).getId());
-            assertEquals(post.getComments().get(0).getCreatedOn(), clone.getComments().get(0).getCreatedOn());
-            assertEquals(post.getComments().get(0).getReview(), clone.getComments().get(0).getReview());
         });
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
@@ -67,7 +60,7 @@ public class FluentSettersTest extends AbstractTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
-    public static class Post implements Serializable {
+    public static class Post {
 
         @Id
         private Long id;
@@ -87,7 +80,11 @@ public class FluentSettersTest extends AbstractTest {
             return id;
         }
 
-        public Post setId(Long id) {
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public Post id(Long id) {
             this.id = id;
             return this;
         }
@@ -96,7 +93,11 @@ public class FluentSettersTest extends AbstractTest {
             return title;
         }
 
-        public Post setTitle(String title) {
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public Post title(String title) {
             this.title = title;
             return this;
         }
@@ -106,15 +107,14 @@ public class FluentSettersTest extends AbstractTest {
         }
 
         public Post addComment(PostComment comment) {
-            comment.setPost(this);
-            comments.add(comment);
+            comments.add(comment.post(this));
             return this;
         }
     }
 
     @Entity(name = "PostComment")
     @Table(name = "post_comment")
-    public static class PostComment implements Serializable {
+    public static class PostComment {
 
         @Id
         @GeneratedValue
@@ -140,7 +140,11 @@ public class FluentSettersTest extends AbstractTest {
             return review;
         }
 
-        public PostComment setReview(String review) {
+        public void setReview(String review) {
+            this.review = review;
+        }
+
+        public PostComment review(String review) {
             this.review = review;
             return this;
         }
@@ -149,7 +153,11 @@ public class FluentSettersTest extends AbstractTest {
             return createdOn;
         }
 
-        public PostComment setCreatedOn(Date createdOn) {
+        public void setCreatedOn(Date createdOn) {
+            this.createdOn = createdOn;
+        }
+
+        public PostComment createdOn(Date createdOn) {
             this.createdOn = createdOn;
             return this;
         }
@@ -158,7 +166,11 @@ public class FluentSettersTest extends AbstractTest {
             return post;
         }
 
-        public PostComment setPost(Post post) {
+        public void setPost(Post post) {
+            this.post = post;
+        }
+
+        public PostComment post(Post post) {
             this.post = post;
             return this;
         }
