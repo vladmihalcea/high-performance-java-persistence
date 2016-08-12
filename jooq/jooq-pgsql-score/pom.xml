@@ -57,11 +57,13 @@
                             <goal>execute</goal>
                         </goals>
                         <configuration>
+                            <delimiterType>row</delimiterType>
                             <orderFile>ascending</orderFile>
                             <fileset>
                                 <basedir>${basedir}/</basedir>
                                 <includes>
                                     <include>src/test/resources/pgsql/initial_schema.sql</include>
+                                    <include>src/test/resources/pgsql/stored_procedures.sql</include>
                                 </includes>
                             </fileset>
                             <autocommit>true</autocommit>
