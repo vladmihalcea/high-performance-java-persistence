@@ -8,7 +8,6 @@ import static org.junit.Assert.assertEquals;
 
 import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Tables.POST;
 
-
 /**
  * @author Vlad Mihalcea
  */
