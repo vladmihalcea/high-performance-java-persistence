@@ -4,9 +4,7 @@ import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScoreResultTransformer;
 import org.hibernate.SQLQuery;
 import org.jooq.CommonTableExpression;
-import org.jooq.Record5;
 import org.jooq.Record7;
-import org.jooq.Result;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -138,7 +136,7 @@ public class PostCommentScoreTest extends AbstractJOOQPostgreSQLIntegrationTest 
         Long postId = 1L;
         int rank = 3;
         List<PostCommentScore> postCommentScoresJPA = postCommentScoresCTEJoin(postId, rank);
-        List<PostCommentScore> postCommentScoresJOOQ = PostCommentScoreRootTransformer.INSTANCE.transform(postCommentScoresCTEJOOQ(postId, rank));
+        List<PostCommentScore> postCommentScoresJOOQ = PostCommentScoreRootTransformer.INSTANCE.transform(postCommentScoresJOOQ(postId, rank));
         assertEquals(3, postCommentScoresJPA.size());
         assertEquals(3, postCommentScoresJOOQ.size());
     }
@@ -185,7 +183,7 @@ public class PostCommentScoreTest extends AbstractJOOQPostgreSQLIntegrationTest 
         });
     }
 
-    protected List<PostCommentScore> postCommentScoresCTEJOOQ(Long postId, int rank) {
+    protected List<PostCommentScore> postCommentScoresJOOQ(Long postId, int rank) {
         return doInJOOQ(sql -> {
             String POST_COMMENT_SCORE = "post_comment_score";
             CommonTableExpression<Record7<Long, Long, Long, Long, String, Timestamp, Integer>> postCommentScore =

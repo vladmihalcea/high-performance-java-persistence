@@ -132,7 +132,7 @@ public class PostCommentScoreStoredProcedureTest extends AbstractJOOQPostgreSQLI
         Long postId = 1L;
         int rank = 3;
         List<PostCommentScore> postCommentScoresJPA = postCommentScoresCTEJoin(postId, rank);
-        List<PostCommentScore> postCommentScoresJOOQ = PostCommentScoreRootTransformer.INSTANCE.transform(postCommentScoresCTEJOOQ(postId, rank));
+        List<PostCommentScore> postCommentScoresJOOQ = PostCommentScoreRootTransformer.INSTANCE.transform(postCommentScoresJOOQ(postId, rank));
         assertEquals(3, postCommentScoresJPA.size());
         assertEquals(3, postCommentScoresJOOQ.size());
     }
@@ -179,7 +179,7 @@ public class PostCommentScoreStoredProcedureTest extends AbstractJOOQPostgreSQLI
         });
     }
 
-    protected List<PostCommentScore> postCommentScoresCTEJOOQ(Long postId, int rank) {
+    protected List<PostCommentScore> postCommentScoresJOOQ(Long postId, int rank) {
         return doInJOOQ(sql -> {
             PostCommentScores postCommentScores = new PostCommentScores();
             postCommentScores.setPostid(postId);
