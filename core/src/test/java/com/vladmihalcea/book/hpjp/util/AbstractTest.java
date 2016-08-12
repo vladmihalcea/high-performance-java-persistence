@@ -567,7 +567,7 @@ public abstract class AbstractTest {
         }
     }
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor(r -> {
+    protected final ExecutorService executorService = Executors.newSingleThreadExecutor(r -> {
         Thread bob = new Thread(r);
         bob.setName("Bob");
         return bob;
@@ -1039,6 +1039,14 @@ public abstract class AbstractTest {
             throw new IllegalStateException(e);
         }
         return result;
+    }
+
+    protected void awaitTermination(long timeout, TimeUnit unit) {
+        try {
+            executorService.awaitTermination(1, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     protected String selectStringColumn(Connection connection, String sql) {

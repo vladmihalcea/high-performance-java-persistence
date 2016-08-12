@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 
-import static com.vladmihalcea.book.hpjp.jooq.mssql.schema.high_performance_java_persistence.dbo.Tables.POST;
+import static com.vladmihalcea.book.hpjp.jooq.mssql.schema.crud.high_performance_java_persistence.dbo.Tables.POST;
 import static org.junit.Assert.assertEquals;
 
 /**

@@ -17,6 +17,7 @@
         <module>jooq-pgsql</module>
         <module>jooq-oracle</module>
         <module>jooq-mssql</module>
+        <module>jooq-pgsql-score</module>
     </modules>
 
     <dependencies>

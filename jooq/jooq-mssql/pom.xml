@@ -107,7 +107,7 @@
                         </database>
                         <generate></generate>
                         <target>
-                            <packageName>com.vladmihalcea.book.hpjp.jooq.mssql.schema</packageName>
+                            <packageName>com.vladmihalcea.book.hpjp.jooq.mssql.schema.crud</packageName>
                             <directory>${project.build.directory}/generated-sources/java</directory>
                         </target>
                     </generator>

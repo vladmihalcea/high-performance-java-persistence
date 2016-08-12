@@ -6,6 +6,9 @@ import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
 import static org.junit.Assert.assertEquals;
 
+import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Tables.POST;
+
+
 /**
  * @author Vlad Mihalcea
  */
@@ -45,6 +48,41 @@ public class CrudTest extends AbstractJOOQPostgreSQLIntegrationTest {
                     .from(table("post"))
                     .where(field("id").eq(1))
                     .fetch().getValue(0, "title"));
+        });
+    }
+
+    @Test
+    public void testCrudJavaSchema() {
+        doInJOOQ(sql -> {
+            sql
+            .deleteFrom(POST)
+            .execute();
+
+            assertEquals(1, sql
+                .insertInto(POST).columns(POST.ID, POST.TITLE)
+                .values(1L, "High-Performance Java Persistence")
+                .execute()
+            );
+
+            assertEquals("High-Performance Java Persistence", sql
+                .select(POST.TITLE)
+                .from(POST)
+                .where(POST.ID.eq(1L))
+                .fetch().getValue(0, POST.TITLE)
+            );
+
+            sql
+            .update(POST)
+            .set(POST.TITLE, "High-Performance Java Persistence Book")
+            .where(POST.ID.eq(1L))
+            .execute();
+
+            assertEquals("High-Performance Java Persistence Book", sql
+                .select(POST.TITLE)
+                .from(POST)
+                .where(POST.ID.eq(1L))
+                .fetch().getValue(0, POST.TITLE)
+            );
         });
     }
 }

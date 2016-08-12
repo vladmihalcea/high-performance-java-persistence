@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jooq-mysql</artifactId>
+    <artifactId>jooq-pgsql-score</artifactId>
 
     <dependencies>
         <dependency>
@@ -34,18 +34,19 @@
                 <artifactId>sql-maven-plugin</artifactId>
                 <dependencies>
                     <dependency>
-                        <groupId>mysql</groupId>
-                        <artifactId>mysql-connector-java</artifactId>
-                        <version>${mysql.version}</version>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>${postgresql.version}</version>
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <driver>com.mysql.jdbc.Driver</driver>
-                    <url>jdbc:mysql://localhost/high_performance_java_persistence</url>
-                    <username>mysql</username>
+                    <driver>org.postgresql.Driver</driver>
+                    <url>jdbc:postgresql:high_performance_java_persistence</url>
+                    <username>postgres</username>
                     <password>admin</password>
                     <autocommit>true</autocommit>
-                    <settingsKey>mysql-db-test</settingsKey>
+                    <onError>continue</onError>
+                    <settingsKey>postgres-db-test</settingsKey>
                 </configuration>
                 <executions>
                     <execution>
@@ -60,7 +61,7 @@
                             <fileset>
                                 <basedir>${basedir}/</basedir>
                                 <includes>
-                                    <include>src/test/resources/mysql/initial_schema.sql</include>
+                                    <include>src/test/resources/pgsql/initial_schema.sql</include>
                                 </includes>
                             </fileset>
                             <autocommit>true</autocommit>
@@ -83,30 +84,30 @@
                 </executions>
                 <dependencies>
                     <dependency>
-                        <groupId>mysql</groupId>
-                        <artifactId>mysql-connector-java</artifactId>
-                        <version>${mysql.version}</version>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>${postgresql.version}</version>
                     </dependency>
                 </dependencies>
 
                 <configuration>
                     <jdbc>
-                        <driver>com.mysql.jdbc.Driver</driver>
-                        <url>jdbc:mysql://localhost/high_performance_java_persistence</url>
-                        <username>mysql</username>
+                        <driver>org.postgresql.Driver</driver>
+                        <url>jdbc:postgresql:high_performance_java_persistence</url>
+                        <username>postgres</username>
                         <password>admin</password>
                     </jdbc>
                     <generator>
                         <name>org.jooq.util.JavaGenerator</name>
                         <database>
-                            <name>org.jooq.util.mysql.MySQLDatabase</name>
+                            <name>org.jooq.util.postgres.PostgresDatabase</name>
                             <includes>.*</includes>
                             <excludes></excludes>
-                            <inputSchema>high_performance_java_persistence</inputSchema>
+                            <inputSchema>public</inputSchema>
                         </database>
                         <generate></generate>
                         <target>
-                            <packageName>com.vladmihalcea.book.hpjp.jooq.mysql.schema.crud</packageName>
+                            <packageName>com.vladmihalcea.book.hpjp.jooq.pgsql.schema.score</packageName>
                             <directory>${project.build.directory}/generated-sources/java</directory>
                         </target>
                     </generator>

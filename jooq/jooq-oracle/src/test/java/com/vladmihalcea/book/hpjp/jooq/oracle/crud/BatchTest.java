@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 
-import static com.vladmihalcea.book.hpjp.jooq.oracle.schema.Tables.POST;
+import static com.vladmihalcea.book.hpjp.jooq.oracle.schema.crud.Tables.POST;
 import static org.junit.Assert.assertEquals;
 
 /**

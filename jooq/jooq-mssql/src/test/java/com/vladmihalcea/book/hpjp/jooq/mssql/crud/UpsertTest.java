@@ -6,9 +6,10 @@ import org.junit.Test;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.concurrent.TimeUnit;
 
-import static com.vladmihalcea.book.hpjp.jooq.mssql.schema.high_performance_java_persistence.dbo.Tables.POST;
-import static com.vladmihalcea.book.hpjp.jooq.mssql.schema.high_performance_java_persistence.dbo.Tables.POST_DETAILS;
+import static com.vladmihalcea.book.hpjp.jooq.mssql.schema.crud.high_performance_java_persistence.dbo.Tables.POST;
+import static com.vladmihalcea.book.hpjp.jooq.mssql.schema.crud.high_performance_java_persistence.dbo.Tables.POST_DETAILS;
 
 /**
  * @author Vlad Mihalcea
@@ -30,12 +31,20 @@ public class UpsertTest extends AbstractJOOQSQLServerSQLIntegrationTest {
             .values(1L, "High-Performance Java Persistence")
             .execute();
 
-            upsert(sql, 1L, "Vlad Mihalcea", Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
-            upsert(sql, 1L, "Vlad Mihalcea", Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
+            executeAsync(() -> {
+                upsertPostDetails(sql, 1L, "Alice",
+                        Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
+            });
+            executeAsync(() -> {
+                upsertPostDetails(sql, 1L, "Bob",
+                        Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
+            });
+
+            awaitTermination(1, TimeUnit.SECONDS);
         });
     }
 
-    private void upsert(DSLContext sql, Long id, String owner, Timestamp timestamp) {
+    private void upsertPostDetails(DSLContext sql, Long id, String owner, Timestamp timestamp) {
         sql
         .insertInto(POST_DETAILS)
         .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)
