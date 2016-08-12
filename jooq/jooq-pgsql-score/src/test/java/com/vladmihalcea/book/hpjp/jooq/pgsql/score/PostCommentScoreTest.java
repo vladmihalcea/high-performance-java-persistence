@@ -4,9 +4,9 @@ import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScoreResultTransformer;
 import org.hibernate.SQLQuery;
 import org.jooq.CommonTableExpression;
+import org.jooq.Record5;
 import org.jooq.Record7;
 import org.jooq.Result;
-import org.jooq.SelectJoinStep;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -186,46 +186,80 @@ public class PostCommentScoreTest extends AbstractJOOQPostgreSQLIntegrationTest 
 
     protected void postCommentScoresCTEJOOQ(Long postId, int rank) {
         doInJOOQ(sql -> {
-
             String POST_COMMENT_SCORE = "post_comment_score";
-            
             CommonTableExpression<Record7<Long, Long, Long, Long, String, Timestamp, Integer>> postCommentScore =
-            name(POST_COMMENT_SCORE).fields("id", "root_id", "post_id", "parent_id", "review", "created_on", "score").as(
-                sql.select(POST_COMMENT.ID, POST_COMMENT.ID, POST_COMMENT.POST_ID, POST_COMMENT.PARENT_ID, POST_COMMENT.REVIEW, POST_COMMENT.CREATED_ON, POST_COMMENT.SCORE)
+            name(POST_COMMENT_SCORE)
+            .fields("id", "root_id", "post_id", "parent_id", "review", "created_on", "score").as(
+                sql.select(
+                    POST_COMMENT.ID,
+                    POST_COMMENT.ID,
+                    POST_COMMENT.POST_ID,
+                    POST_COMMENT.PARENT_ID,
+                    POST_COMMENT.REVIEW,
+                    POST_COMMENT.CREATED_ON,
+                    POST_COMMENT.SCORE)
                     .from(POST_COMMENT)
                     .where(POST_COMMENT.POST_ID.eq(postId).and(POST_COMMENT.PARENT_ID.isNull()))
                     .unionAll(
-                        sql.select(POST_COMMENT.ID, field(name("post_comment_score", "root_id"), Long.class), POST_COMMENT.POST_ID, POST_COMMENT.PARENT_ID, POST_COMMENT.REVIEW, POST_COMMENT.CREATED_ON, POST_COMMENT.SCORE)
-                            .from(POST_COMMENT)
-                            .innerJoin(table(name(POST_COMMENT_SCORE))).on(POST_COMMENT.PARENT_ID.eq(field(name(POST_COMMENT_SCORE, "id"), Long.class)))
-                            .where(POST_COMMENT.PARENT_ID.eq(field(name(POST_COMMENT_SCORE, "id"), Long.class)))
+                        sql
+                        .select(
+                            POST_COMMENT.ID,
+                            field(name("post_comment_score", "root_id"), Long.class),
+                            POST_COMMENT.POST_ID, POST_COMMENT.PARENT_ID,
+                            POST_COMMENT.REVIEW,
+                            POST_COMMENT.CREATED_ON,
+                            POST_COMMENT.SCORE)
+                        .from(POST_COMMENT)
+                        .innerJoin(table(name(POST_COMMENT_SCORE)))
+                        .on(POST_COMMENT.PARENT_ID.eq(field(name(POST_COMMENT_SCORE, "id"), Long.class)))
+                        .where(POST_COMMENT.PARENT_ID.eq(field(name(POST_COMMENT_SCORE, "id"), Long.class)))
                     )
             );
 
-            sql.select(
-                field(name("score_total", "id")),
-                field(name("score_total", "parent_id")),
-                field(name("score_total", "review")),
-                field(name("score_total", "created_on")),
-                field(name("score_total", "score")),
-                denseRank().over(orderBy(field(name("score_total", "total_score")).desc())).as("rank")
+            Result<Record5<Long, Long, String, Timestamp, Integer>> result = sql.select(
+                field(name("total_score_group", "id"), Long.class),
+                field(name("total_score_group", "parent_id"), Long.class),
+                field(name("total_score_group", "review"), String.class),
+                field(name("total_score_group", "created_on"), Timestamp.class),
+                field(name("total_score_group", "score"), Integer.class)
             ).from(
                 sql.select(
-                    field(name("score_by_comment", "id")),
-                    field(name("score_by_comment", "parent_id")),
-                    field(name("score_by_comment", "review")),
-                    field(name("score_by_comment", "created_on")),
-                    field(name("score_by_comment", "score")),
-                    sum(field(name("score_by_comment", "score"), Integer.class)).over(partitionBy(field(name("score_by_comment", "root_id")))).as("total_score")
+                    field(name("score_total", "id")),
+                    field(name("score_total", "parent_id")),
+                    field(name("score_total", "review")),
+                    field(name("score_total", "created_on")),
+                    field(name("score_total", "score")),
+                    denseRank().over(orderBy(field(name("score_total", "total_score")).desc())).as("rank")
                 ).from(
-                sql.withRecursive(postCommentScore)
-                .select(field(name(POST_COMMENT_SCORE, "id")), field(name(POST_COMMENT_SCORE, "parent_id")), field(name(POST_COMMENT_SCORE, "root_id")), field(name(POST_COMMENT_SCORE, "review")), field(name(POST_COMMENT_SCORE, "created_on")), field(name(POST_COMMENT_SCORE, "score")))
-                .from(table(POST_COMMENT_SCORE))
-                .asTable("score_by_comment"))
-            .asTable("score_total"))
+                    sql.select(
+                        field(name("score_by_comment", "id")),
+                        field(name("score_by_comment", "parent_id")),
+                        field(name("score_by_comment", "review")),
+                        field(name("score_by_comment", "created_on")),
+                        field(name("score_by_comment", "score")),
+                        sum(field(name("score_by_comment", "score"), Integer.class))
+                            .over(partitionBy(field(name("score_by_comment", "root_id")))
+                        ).as("total_score")
+                    ).from(
+                        sql.withRecursive(postCommentScore)
+                        .select(
+                            field(name(POST_COMMENT_SCORE, "id")),
+                            field(name(POST_COMMENT_SCORE, "parent_id")),
+                            field(name(POST_COMMENT_SCORE, "root_id")),
+                            field(name(POST_COMMENT_SCORE, "review")),
+                            field(name(POST_COMMENT_SCORE, "created_on")),
+                            field(name(POST_COMMENT_SCORE, "score")))
+                        .from(table(POST_COMMENT_SCORE))
+                        .asTable("score_by_comment")
+                    )
+                    .asTable("score_total"))
+                    .orderBy(field(name("score_total", "total_score")).desc(), field(name("score_total", "id")).asc()
+                ).asTable("total_score_group")
+            )
+            .where(field(name("total_score_group", "rank"), Integer.class).le(rank))
             .fetch();
 
-            //table.fetch().size();
+           assertEquals(10, result.size());
         });
 
         /*return doInJPA(entityManager -> {
