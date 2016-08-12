@@ -137,45 +137,46 @@ public class PostCommentScoreTest extends AbstractJOOQPostgreSQLIntegrationTest 
         LOGGER.info("Recursive CTE and Window Functions");
         Long postId = 1L;
         int rank = 3;
-        List<PostCommentScore> resultCTEJoin = postCommentScoresCTEJoin(postId, rank);
-        postCommentScoresCTEJOOQ(postId, rank);
-        assertEquals(3, resultCTEJoin.size());
+        List<PostCommentScore> postCommentScoresJPA = postCommentScoresCTEJoin(postId, rank);
+        List<PostCommentScore> postCommentScoresJOOQ = PostCommentScoreRootTransformer.INSTANCE.transform(postCommentScoresCTEJOOQ(postId, rank));
+        assertEquals(3, postCommentScoresJPA.size());
+        assertEquals(3, postCommentScoresJOOQ.size());
     }
 
     protected List<PostCommentScore> postCommentScoresCTEJoin(Long postId, int rank) {
         return doInJPA(entityManager -> {
             List<PostCommentScore> postCommentScores = entityManager.createNativeQuery(
                 "SELECT id, parent_id, review, created_on, score " +
-                "FROM ( " +
-                "    SELECT " +
-                "        id, parent_id, review, created_on, score, " +
-                "        dense_rank() OVER (ORDER BY total_score DESC) rank " +
-                "    FROM ( " +
-                "       SELECT " +
-                "           id, parent_id, review, created_on, score, " +
-                "           SUM(score) OVER (PARTITION BY root_id) total_score " +
-                "       FROM (" +
-                "          WITH RECURSIVE post_comment_score(id, root_id, post_id, " +
-                "              parent_id, review, created_on, score) AS (" +
-                "              SELECT " +
-                "                  id, id, post_id, parent_id, review, created_on, score" +
-                "              FROM post_comment " +
-                "              WHERE post_id = :postId AND parent_id IS NULL " +
-                "              UNION ALL " +
-                "              SELECT pc.id, pcs.root_id, pc.post_id, pc.parent_id, " +
-                "                  pc.review, pc.created_on, pc.score " +
-                "              FROM post_comment pc " +
-                "              INNER JOIN post_comment_score pcs " +
-                "              ON pc.parent_id = pcs.id " +
-                "              WHERE pc.parent_id = pcs.id " +
-                "          ) " +
-                "          SELECT id, parent_id, root_id, review, created_on, score " +
-                "          FROM post_comment_score " +
-                "       ) score_by_comment " +
-                "    ) score_total " +
-                "    ORDER BY total_score DESC, id ASC " +
-                ") total_score_group " +
-                "WHERE rank <= :rank", "PostCommentScore").unwrap(SQLQuery.class)
+                    "FROM ( " +
+                    "    SELECT " +
+                    "        id, parent_id, review, created_on, score, " +
+                    "        dense_rank() OVER (ORDER BY total_score DESC) rank " +
+                    "    FROM ( " +
+                    "       SELECT " +
+                    "           id, parent_id, review, created_on, score, " +
+                    "           SUM(score) OVER (PARTITION BY root_id) total_score " +
+                    "       FROM (" +
+                    "          WITH RECURSIVE post_comment_score(id, root_id, post_id, " +
+                    "              parent_id, review, created_on, score) AS (" +
+                    "              SELECT " +
+                    "                  id, id, post_id, parent_id, review, created_on, score" +
+                    "              FROM post_comment " +
+                    "              WHERE post_id = :postId AND parent_id IS NULL " +
+                    "              UNION ALL " +
+                    "              SELECT pc.id, pcs.root_id, pc.post_id, pc.parent_id, " +
+                    "                  pc.review, pc.created_on, pc.score " +
+                     "              FROM post_comment pc " +
+                    "              INNER JOIN post_comment_score pcs " +
+                    "              ON pc.parent_id = pcs.id " +
+                    "              WHERE pc.parent_id = pcs.id " +
+                    "          ) " +
+                    "          SELECT id, parent_id, root_id, review, created_on, score " +
+                    "          FROM post_comment_score " +
+                    "       ) score_by_comment " +
+                    "    ) score_total " +
+                    "    ORDER BY total_score DESC, id ASC " +
+                    ") total_score_group " +
+                    "WHERE rank <= :rank", "PostCommentScore").unwrap(SQLQuery.class)
             .setParameter("postId", postId)
             .setParameter("rank", rank)
             .setResultTransformer(new PostCommentScoreResultTransformer())
@@ -184,8 +185,8 @@ public class PostCommentScoreTest extends AbstractJOOQPostgreSQLIntegrationTest 
         });
     }
 
-    protected void postCommentScoresCTEJOOQ(Long postId, int rank) {
-        doInJOOQ(sql -> {
+    protected List<PostCommentScore> postCommentScoresCTEJOOQ(Long postId, int rank) {
+        return doInJOOQ(sql -> {
             String POST_COMMENT_SCORE = "post_comment_score";
             CommonTableExpression<Record7<Long, Long, Long, Long, String, Timestamp, Integer>> postCommentScore =
             name(POST_COMMENT_SCORE)
@@ -216,7 +217,7 @@ public class PostCommentScoreTest extends AbstractJOOQPostgreSQLIntegrationTest 
                     )
             );
 
-            Result<Record5<Long, Long, String, Timestamp, Integer>> result = sql.select(
+            return sql.select(
                 field(name("total_score_group", "id"), Long.class),
                 field(name("total_score_group", "parent_id"), Long.class),
                 field(name("total_score_group", "review"), String.class),
@@ -257,50 +258,8 @@ public class PostCommentScoreTest extends AbstractJOOQPostgreSQLIntegrationTest 
                 ).asTable("total_score_group")
             )
             .where(field(name("total_score_group", "rank"), Integer.class).le(rank))
-            .fetch();
-
-           assertEquals(10, result.size());
+            .fetchInto(PostCommentScore.class);
         });
-
-        /*return doInJPA(entityManager -> {
-            List<PostCommentScore> postCommentScores = entityManager.createNativeQuery(
-                "SELECT id, parent_id, review, created_on, score " +
-                "FROM ( " +
-                "    SELECT " +
-                "        id, parent_id, review, created_on, score, " +
-                "        dense_rank() OVER (ORDER BY total_score DESC) rank " +
-                "    FROM ( " +
-                "       SELECT " +
-                "           id, parent_id, review, created_on, score, " +
-                "           SUM(score) OVER (PARTITION BY root_id) total_score " +
-                "       FROM (" +
-                "          WITH RECURSIVE post_comment_score(id, root_id, post_id, " +
-                "              parent_id, review, created_on, score) AS (" +
-                "              SELECT " +
-                "                  id, id, post_id, parent_id, review, created_on, score" +
-                "              FROM post_comment " +
-                "              WHERE post_id = :postId AND parent_id IS NULL " +
-                "              UNION ALL " +
-                "              SELECT pc.id, pcs.root_id, pc.post_id, pc.parent_id, " +
-                "                  pc.review, pc.created_on, pc.score " +
-                "              FROM post_comment pc " +
-                "              INNER JOIN post_comment_score pcs " +
-                "              ON pc.parent_id = pcs.id " +
-                "              WHERE pc.parent_id = pcs.id " +
-                "          ) " +
-                "          SELECT id, parent_id, root_id, review, created_on, score " +
-                "          FROM post_comment_score " +
-                "       ) score_by_comment " +
-                "    ) score_total " +
-                "    ORDER BY total_score DESC, id ASC " +
-                ") total_score_group " +
-                "WHERE rank <= :rank", "PostCommentScore").unwrap(SQLQuery.class)
-            .setParameter("postId", postId)
-            .setParameter("rank", rank)
-            .setResultTransformer(new PostCommentScoreResultTransformer())
-            .list();
-            return postCommentScores;
-        });*/
     }
 
     @Entity(name = "Post")
