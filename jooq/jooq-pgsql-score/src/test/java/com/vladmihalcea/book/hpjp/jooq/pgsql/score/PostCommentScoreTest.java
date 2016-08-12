@@ -6,6 +6,7 @@ import org.hibernate.SQLQuery;
 import org.jooq.CommonTableExpression;
 import org.jooq.Record7;
 import org.jooq.Result;
+import org.jooq.SelectJoinStep;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -201,13 +202,30 @@ public class PostCommentScoreTest extends AbstractJOOQPostgreSQLIntegrationTest 
                     )
             );
 
-            Result result = sql
-            .withRecursive(postCommentScore)
-            .select(field(name(POST_COMMENT_SCORE, "id")), field(name(POST_COMMENT_SCORE, "parent_id")), field(name(POST_COMMENT_SCORE, "root_id")), field(name(POST_COMMENT_SCORE, "review")), field(name(POST_COMMENT_SCORE, "created_on")), field(name(POST_COMMENT_SCORE, "score")))
-            .from(table(POST_COMMENT_SCORE))
+            sql.select(
+                field(name("score_total", "id")),
+                field(name("score_total", "parent_id")),
+                field(name("score_total", "review")),
+                field(name("score_total", "created_on")),
+                field(name("score_total", "score")),
+                denseRank().over(orderBy(field(name("score_total", "total_score")).desc())).as("rank")
+            ).from(
+                sql.select(
+                    field(name("score_by_comment", "id")),
+                    field(name("score_by_comment", "parent_id")),
+                    field(name("score_by_comment", "review")),
+                    field(name("score_by_comment", "created_on")),
+                    field(name("score_by_comment", "score")),
+                    sum(field(name("score_by_comment", "score"), Integer.class)).over(partitionBy(field(name("score_by_comment", "root_id")))).as("total_score")
+                ).from(
+                sql.withRecursive(postCommentScore)
+                .select(field(name(POST_COMMENT_SCORE, "id")), field(name(POST_COMMENT_SCORE, "parent_id")), field(name(POST_COMMENT_SCORE, "root_id")), field(name(POST_COMMENT_SCORE, "review")), field(name(POST_COMMENT_SCORE, "created_on")), field(name(POST_COMMENT_SCORE, "score")))
+                .from(table(POST_COMMENT_SCORE))
+                .asTable("score_by_comment"))
+            .asTable("score_total"))
             .fetch();
 
-            result.size();
+            //table.fetch().size();
         });
 
         /*return doInJPA(entityManager -> {
