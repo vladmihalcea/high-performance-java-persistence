@@ -48,12 +48,11 @@ public class StreamTest extends AbstractJOOQPostgreSQLIntegrationTest {
 
             Long lastProcessedId = 1L;
 
-            Map<Long, Map<IpFingerprint, List<Long>>> registryMap = new MaxSizeHashMap<>(100);
+            Map<Long, Map<IpFingerprint, List<Long>>> registryMap = new MaxSizeHashMap<>(1000);
 
             try (Stream<PostCommentDetailsRecord> stream = sql
                 .selectFrom(POST_COMMENT_DETAILS)
                 .where(POST_COMMENT_DETAILS.ID.gt(lastProcessedId))
-                .orderBy(POST_COMMENT_DETAILS.ID)
                 .stream()) {
                 stream.forEach(pcd -> {
                     Long postId = pcd.get(POST_COMMENT_DETAILS.POST_ID);
