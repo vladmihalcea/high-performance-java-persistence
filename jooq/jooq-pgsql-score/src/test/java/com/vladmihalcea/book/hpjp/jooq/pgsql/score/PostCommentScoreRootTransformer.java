@@ -16,7 +16,6 @@ public class PostCommentScoreRootTransformer {
 
     public List<PostCommentScore> transform(List<PostCommentScore> postCommentScores) {
         Map<Long, PostCommentScore> postCommentScoreMap = new HashMap<>();
-
         List<PostCommentScore> roots = new ArrayList<>();
 
         for (PostCommentScore postCommentScore : postCommentScores) {
@@ -31,7 +30,6 @@ public class PostCommentScoreRootTransformer {
             }
             postCommentScoreMap.putIfAbsent(postCommentScore.getId(), postCommentScore);
         }
-
         return roots;
     }
 }

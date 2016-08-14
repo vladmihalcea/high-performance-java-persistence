@@ -2,11 +2,10 @@ package com.vladmihalcea.book.hpjp.jooq.pgsql.crud;
 
 import org.junit.Test;
 
+import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Tables.POST;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
 import static org.junit.Assert.assertEquals;
-
-import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Tables.POST;
 
 /**
  * @author Vlad Mihalcea

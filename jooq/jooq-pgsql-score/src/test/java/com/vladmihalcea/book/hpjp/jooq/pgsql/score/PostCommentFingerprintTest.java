@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class PostCommentScoreTest extends AbstractJOOQPostgreSQLIntegrationTest {
+public class PostCommentFingerprintTest extends AbstractJOOQPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
