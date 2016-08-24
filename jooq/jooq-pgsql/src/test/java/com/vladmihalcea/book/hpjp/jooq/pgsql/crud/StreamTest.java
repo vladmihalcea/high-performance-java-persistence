@@ -1,6 +1,8 @@
 package com.vladmihalcea.book.hpjp.jooq.pgsql.crud;
 
 import com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.tables.records.PostCommentDetailsRecord;
+import org.hibernate.Session;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
@@ -19,8 +21,10 @@ public class StreamTest extends AbstractJOOQPostgreSQLIntegrationTest {
         return "initial_schema.sql";
     }
 
-    @Test
-    public void testStream() {
+    @Before
+    public void init() {
+        super.init();
+
         doInJOOQ(sql -> {
             sql
             .deleteFrom(POST)
@@ -45,45 +49,99 @@ public class StreamTest extends AbstractJOOQPostgreSQLIntegrationTest {
             .values(++id, 2L, 4L, "192.168.0.3", "ABC456")
             .values(++id, 2L, 5L, "192.168.0.3", "ABC456")
             .execute();
+        });
+    }
+
+    @Test
+    public void testStream() {
+        doInJOOQ(sql -> {
 
             Long lastProcessedId = 1L;
-
-            Map<Long, Map<IpFingerprint, List<Long>>> registryMap = new MaxSizeHashMap<>(1000);
 
             try (Stream<PostCommentDetailsRecord> stream = sql
                 .selectFrom(POST_COMMENT_DETAILS)
                 .where(POST_COMMENT_DETAILS.ID.gt(lastProcessedId))
                 .stream()) {
-                stream.forEach(pcd -> {
-                    Long postId = pcd.get(POST_COMMENT_DETAILS.POST_ID);
-                    Map<IpFingerprint, List<Long>> fingerprintsToIpMap = registryMap.get(postId);
-                    if(fingerprintsToIpMap == null) {
-                        fingerprintsToIpMap = new HashMap<>();
-                        registryMap.put(postId, fingerprintsToIpMap);
-                    }
-
-                    String ip = pcd.get(POST_COMMENT_DETAILS.IP);
-                    String fingerprint = pcd.get(POST_COMMENT_DETAILS.FINGERPRINT);
-                    IpFingerprint ipFingerprint = new IpFingerprint(ip, fingerprint);
-
-                    List<Long> userIds = fingerprintsToIpMap.get(ipFingerprint);
-                    if(userIds == null) {
-                        userIds = new ArrayList<>();
-                        fingerprintsToIpMap.put(ipFingerprint, userIds);
-                    }
-                    Long userId = pcd.get(POST_COMMENT_DETAILS.USER_ID);
-                    if(!userIds.contains(userId)) {
-                        userIds.add(userId);
-                    }
-                    if(userIds.size() > 1) {
-                        notifyPossibleFraud(postId, userIds);
-                    }
-                });
+                processStream(stream);
             }
         });
     }
 
-    private void notifyPossibleFraud(Long postId, List<Long> userIds) {
+    private void processStream(Stream<PostCommentDetailsRecord> stream) {
+        Map<Long, Map<IpFingerprint, List<Long>>> registryMap = new MaxSizeHashMap<>(25);
+
+        stream.forEach(postCommentDetails -> {
+            Long postId = postCommentDetails.get(POST_COMMENT_DETAILS.POST_ID);
+            String ip = postCommentDetails.get(POST_COMMENT_DETAILS.IP);
+            String fingerprint = postCommentDetails.get(POST_COMMENT_DETAILS.FINGERPRINT);
+            Long userId = postCommentDetails.get(POST_COMMENT_DETAILS.USER_ID);
+
+            Map<IpFingerprint, List<Long>> fingerprintsToPostMap = registryMap.get(postId);
+            if(fingerprintsToPostMap == null) {
+                fingerprintsToPostMap = new HashMap<>();
+                registryMap.put(postId, fingerprintsToPostMap);
+            }
+
+            IpFingerprint ipFingerprint = new IpFingerprint(ip, fingerprint);
+
+            List<Long> userIds = fingerprintsToPostMap.get(ipFingerprint);
+            if(userIds == null) {
+                userIds = new ArrayList<>();
+                fingerprintsToPostMap.put(ipFingerprint, userIds);
+            }
+
+            if(!userIds.contains(userId)) {
+                userIds.add(userId);
+                if(userIds.size() > 1) {
+                    notifyPossibleMultipleAccountFraud(postId, userIds);
+                }
+            }
+        });
+    }
+
+    @Test
+    public void testHibernateStream() {
+        doInJPA(entityManager -> {
+            Map<Long, Map<IpFingerprint, List<Long>>> registryMap = new MaxSizeHashMap<>(1000);
+            Long lastProcessedId = 1L;
+
+            Stream<Object[]> stream = entityManager.unwrap(Session.class).createNativeQuery(
+                "select post_id, user_id, ip, fingerprint " +
+                "from post_comment_details " +
+                "where id > :id")
+            .setParameter("id", lastProcessedId)
+            .stream();
+
+            stream.forEach(pcd -> {
+                Long postId = ((Number) pcd[0]).longValue();
+                Long userId = ((Number) pcd[1]).longValue();
+                String ip = (String) pcd[2];
+                String fingerprint = (String) pcd[3];
+
+                Map<IpFingerprint, List<Long>> fingerprintsToIpMap = registryMap.get(postId);
+                if(fingerprintsToIpMap == null) {
+                    fingerprintsToIpMap = new HashMap<>();
+                    registryMap.put(postId, fingerprintsToIpMap);
+                }
+
+                IpFingerprint ipFingerprint = new IpFingerprint(ip, fingerprint);
+
+                List<Long> userIds = fingerprintsToIpMap.get(ipFingerprint);
+                if(userIds == null) {
+                    userIds = new ArrayList<>();
+                    fingerprintsToIpMap.put(ipFingerprint, userIds);
+                }
+                if(!userIds.contains(userId)) {
+                    userIds.add(userId);
+                }
+                if(userIds.size() > 1) {
+                    notifyPossibleMultipleAccountFraud(postId, userIds);
+                }
+            });
+        });
+    }
+
+    private void notifyPossibleMultipleAccountFraud(Long postId, List<Long> userIds) {
         LOGGER.info("Post id {} possible fraud with user ids {}", postId, userIds);
     }
 
@@ -104,8 +162,7 @@ public class StreamTest extends AbstractJOOQPostgreSQLIntegrationTest {
             return fingerprint;
         }
 
-        @Override
-        public boolean equals(Object o) {
+        @Override public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             IpFingerprint that = (IpFingerprint) o;
@@ -113,8 +170,7 @@ public class StreamTest extends AbstractJOOQPostgreSQLIntegrationTest {
                     Objects.equals(fingerprint, that.fingerprint);
         }
 
-        @Override
-        public int hashCode() {
+        @Override public int hashCode() {
             return Objects.hash(ip, fingerprint);
         }
     }

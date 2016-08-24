@@ -6,7 +6,6 @@ import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
 import static org.junit.Assert.assertEquals;
 
-
 /**
  * @author Vlad Mihalcea
  */
