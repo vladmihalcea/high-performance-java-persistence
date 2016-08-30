@@ -132,6 +132,21 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
 
             postComment.setReview("Brilliant!");
         });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.getReference(Post.class, 1L);
+
+            PostComment postComment = new PostComment();
+            postComment.setId(3L);
+            postComment.setReview("Worth it!");
+            postComment.setPost(post);
+            entityManager.persist(postComment);
+        });
+
+        doInJPA(entityManager -> {
+            PostComment postComment = entityManager.getReference(PostComment.class, 3l);
+            entityManager.remove(postComment);
+        });
     }
 
     public interface RootAware<T> {
@@ -219,7 +234,7 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
         @Id
         private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY)
+        @OneToOne(fetch = FetchType.LAZY)
         @MapsId
         private PostComment comment;
 
@@ -251,7 +266,7 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
 
         @Override
         public Post root() {
-            return comment.getPost();
+            return comment.root();
         }
     }
 }
