@@ -6,24 +6,28 @@ import org.hibernate.LockMode;
 import org.hibernate.boot.Metadata;
 import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.Status;
 import org.hibernate.event.service.spi.EventListenerRegistry;
-import org.hibernate.event.spi.EventType;
-import org.hibernate.event.spi.FlushEntityEvent;
-import org.hibernate.event.spi.FlushEntityEventListener;
+import org.hibernate.event.spi.*;
 import org.hibernate.integrator.spi.Integrator;
+import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.service.spi.SessionFactoryServiceRegistry;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
+import java.util.Map;
 
 /**
  * @author Vlad Mihalcea
  */
 public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
 
-    public static class RootAwareFlushEntityEventListenerIntegrator implements org.hibernate.integrator.spi.Integrator {
+    public static class RootAwareEventListenerIntegrator implements org.hibernate.integrator.spi.Integrator {
 
-        public static final RootAwareFlushEntityEventListenerIntegrator INSTANCE = new RootAwareFlushEntityEventListenerIntegrator();
+        public static final RootAwareEventListenerIntegrator INSTANCE = new RootAwareEventListenerIntegrator();
 
         @Override
         public void integrate(
@@ -34,7 +38,8 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
             final EventListenerRegistry eventListenerRegistry =
                     serviceRegistry.getService( EventListenerRegistry.class );
 
-            eventListenerRegistry.appendListeners(EventType.FLUSH_ENTITY, RootAwareFlushEntityEventListener.INSTANCE);
+            eventListenerRegistry.appendListeners(EventType.PERSIST, RootAwareInsertEventListener.INSTANCE);
+            eventListenerRegistry.appendListeners(EventType.FLUSH_ENTITY, RootAwareUpdateAndDeleteEventListener.INSTANCE);
         }
 
         @Override
@@ -45,9 +50,36 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
         }
     }
 
-    public static class RootAwareFlushEntityEventListener implements FlushEntityEventListener {
+    public static class RootAwareInsertEventListener implements PersistEventListener {
 
-        public static final RootAwareFlushEntityEventListener INSTANCE = new RootAwareFlushEntityEventListener();
+        private static final Logger LOGGER = LoggerFactory.getLogger(RootAwareInsertEventListener.class);
+
+        public static final RootAwareInsertEventListener INSTANCE = new RootAwareInsertEventListener();
+
+        @Override
+        public void onPersist(PersistEvent event) throws HibernateException {
+            final Object entity = event.getObject();
+
+            if(entity instanceof RootAware) {
+                RootAware rootAware = (RootAware) entity;
+                Object root = rootAware.root();
+                event.getSession().lock(root, LockMode.OPTIMISTIC_FORCE_INCREMENT);
+
+                LOGGER.info("Incrementing {} entity version because a {} child entity has been inserted", root, entity);
+            }
+        }
+
+        @Override
+        public void onPersist(PersistEvent event, Map createdAlready) throws HibernateException {
+            onPersist(event);
+        }
+    }
+
+    public static class RootAwareUpdateAndDeleteEventListener implements FlushEntityEventListener {
+
+        private static final Logger LOGGER = LoggerFactory.getLogger(RootAwareUpdateAndDeleteEventListener.class);
+
+        public static final RootAwareUpdateAndDeleteEventListener INSTANCE = new RootAwareUpdateAndDeleteEventListener();
 
         @Override
         public void onFlushEntity(FlushEntityEvent event) throws HibernateException {
@@ -57,8 +89,44 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
 
             if(mightBeDirty && entity instanceof RootAware) {
                 RootAware rootAware = (RootAware) entity;
-                event.getSession().lock(rootAware.root(), LockMode.OPTIMISTIC_FORCE_INCREMENT);
+                if(updated(event)) {
+                    Object root = rootAware.root();
+                    LOGGER.info("Incrementing {} entity version because a {} child entity has been updated", root, entity);
+                    incrementRootVersion(event, root);
+                }
+                else if (deleted(event)) {
+                    Object root = rootAware.root();
+                    LOGGER.info("Incrementing {} entity version because a {} child entity has been deleted", root, entity);
+                    incrementRootVersion(event, root);
+                }
             }
+        }
+
+        private void incrementRootVersion(FlushEntityEvent event, Object root) {
+            event.getSession().lock(root, LockMode.OPTIMISTIC_FORCE_INCREMENT);
+        }
+
+        private boolean deleted(FlushEntityEvent event) {
+            return event.getEntityEntry().getStatus() == Status.DELETED;
+        }
+
+        private boolean updated(FlushEntityEvent event) {
+            final EntityEntry entry = event.getEntityEntry();
+            final Object entity = event.getEntity();
+
+            int[] dirtyProperties;
+            EntityPersister persister = entry.getPersister();
+            final Object[] values = event.getPropertyValues();
+            SessionImplementor session = event.getSession();
+
+            if ( event.hasDatabaseSnapshot() ) {
+                dirtyProperties = persister.findModified( event.getDatabaseSnapshot(), values, entity, session );
+            }
+            else {
+                dirtyProperties = persister.findDirty( values, entry.getLoadedState(), entity, session );
+            }
+
+            return dirtyProperties != null;
         }
     }
 
@@ -73,7 +141,7 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
 
     @Override
     protected Integrator integrator() {
-        return RootAwareFlushEntityEventListenerIntegrator.INSTANCE;
+        return RootAwareEventListenerIntegrator.INSTANCE;
     }
 
     @Test
@@ -162,7 +230,7 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
         private String title;
 
         @Version
-        private int version;
+        private Integer version;
 
         public Long getId() {
             return id;
@@ -178,10 +246,6 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
 
         public void setTitle(String title) {
             this.title = title;
-        }
-
-        public int getVersion() {
-            return version;
         }
     }
 
