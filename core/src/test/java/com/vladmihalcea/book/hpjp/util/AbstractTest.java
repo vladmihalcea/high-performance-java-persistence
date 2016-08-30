@@ -785,7 +785,7 @@ public abstract class AbstractTest {
         configuration.put(AvailableSettings.INTERCEPTOR, interceptor());
         Integrator integrator = integrator();
         if (integrator != null) {
-            configuration.put("hibernate.integrator_provider", (IntegratorProvider) () -> Arrays.asList(integrator));
+            configuration.put("hibernate.integrator_provider", (IntegratorProvider) () -> Collections.singletonList(integrator));
         }
 
         EntityManagerFactoryBuilderImpl entityManagerFactoryBuilder = new EntityManagerFactoryBuilderImpl(

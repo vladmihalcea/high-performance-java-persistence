@@ -21,9 +21,9 @@ import javax.persistence.*;
  */
 public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
 
-    public static class EventListenerIntegrator implements org.hibernate.integrator.spi.Integrator {
+    public static class RootAwareFlushEntityEventListenerIntegrator implements org.hibernate.integrator.spi.Integrator {
 
-        public static final EventListenerIntegrator INSTANCE = new EventListenerIntegrator();
+        public static final RootAwareFlushEntityEventListenerIntegrator INSTANCE = new RootAwareFlushEntityEventListenerIntegrator();
 
         @Override
         public void integrate(
@@ -34,7 +34,7 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
             final EventListenerRegistry eventListenerRegistry =
                     serviceRegistry.getService( EventListenerRegistry.class );
 
-            eventListenerRegistry.appendListeners(EventType.FLUSH_ENTITY, CustomFlushEntityEventListener.INSTANCE);
+            eventListenerRegistry.appendListeners(EventType.FLUSH_ENTITY, RootAwareFlushEntityEventListener.INSTANCE);
         }
 
         @Override
@@ -45,9 +45,9 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
         }
     }
 
-    public static class CustomFlushEntityEventListener implements FlushEntityEventListener {
+    public static class RootAwareFlushEntityEventListener implements FlushEntityEventListener {
 
-        public static final CustomFlushEntityEventListener INSTANCE = new CustomFlushEntityEventListener();
+        public static final RootAwareFlushEntityEventListener INSTANCE = new RootAwareFlushEntityEventListener();
 
         @Override
         public void onFlushEntity(FlushEntityEvent event) throws HibernateException {
@@ -73,7 +73,7 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
 
     @Override
     protected Integrator integrator() {
-        return EventListenerIntegrator.INSTANCE;
+        return RootAwareFlushEntityEventListenerIntegrator.INSTANCE;
     }
 
     @Test
@@ -109,18 +109,32 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
-            PostCommentDetails postCommentDetails = entityManager.find(PostCommentDetails.class, 2L);
+            PostCommentDetails postCommentDetails = entityManager.createQuery(
+                "select pcd " +
+                "from PostCommentDetails pcd " +
+                "join fetch pcd.comment pc " +
+                "join fetch pc.post p " +
+                "where pcd.id = :id", PostCommentDetails.class)
+            .setParameter("id", 2L)
+            .getSingleResult();
+
             postCommentDetails.setVotes(15);
         });
 
         doInJPA(entityManager -> {
-            PostComment postComment = entityManager.find(PostComment.class, 2L);
+            PostComment postComment = entityManager.createQuery(
+                "select pc " +
+                "from PostComment pc " +
+                "join fetch pc.post p " +
+                "where pc.id = :id", PostComment.class)
+            .setParameter("id", 2L)
+            .getSingleResult();
+
             postComment.setReview("Brilliant!");
         });
     }
 
     public interface RootAware<T> {
-
         T root();
     }
 
@@ -163,16 +177,10 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
         @Id
         private Long id;
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         private Post post;
 
         private String review;
-
-        public PostComment() {}
-
-        public PostComment(String review) {
-            this.review = review;
-        }
 
         public Long getId() {
             return id;
@@ -211,7 +219,7 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
         @Id
         private Long id;
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         @MapsId
         private PostComment comment;
 
