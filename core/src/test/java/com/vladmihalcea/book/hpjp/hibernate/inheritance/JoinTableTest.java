@@ -75,6 +75,16 @@ public class JoinTableTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
+            Board board = topic.getBoard();
+            LOGGER.info("Fetch Topic projection");
+            List<String> titles = entityManager
+            .createQuery("select t.title from Topic t where t.board = :board", String.class)
+            .setParameter("board", board)
+            .getResultList();
+            assertEquals(2, titles.size());
+        });
+
+        doInJPA(entityManager -> {
             LOGGER.info("Fetch Board topics");
             entityManager.find(Board.class, topic.getBoard().getId()).getTopics().size();
         });

@@ -91,7 +91,7 @@ public class KeysetPaginationTest extends AbstractJOOQPostgreSQLIntegrationTest 
             SelectSeekStep2<Record3<Long, String, Timestamp>, Timestamp, Long> selectStep = sql
             .select(POST.ID, POST.TITLE, POST_DETAILS.CREATED_ON)
             .from(POST)
-            .join(POST_DETAILS).using(POST.ID)
+            .join(POST_DETAILS).on(POST.ID.eq(POST_DETAILS.ID))
             .orderBy(POST_DETAILS.CREATED_ON.desc(), POST.ID.desc());
 
             return (offsetPostSummary != null)

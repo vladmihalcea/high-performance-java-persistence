@@ -41,7 +41,8 @@ public class DeletingWithoutCascadeBatchingTest extends AbstractTest {
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery(
                 "select p " +
-                "from Post p ", Post.class)
+                "from Post p " +
+                "where p.title like 'Post no%'", Post.class)
             .getResultList();
 
             entityManager.createQuery(

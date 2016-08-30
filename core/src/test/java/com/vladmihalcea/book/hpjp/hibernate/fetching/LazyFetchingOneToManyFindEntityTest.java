@@ -53,7 +53,8 @@ public class LazyFetchingOneToManyFindEntityTest extends AbstractPostgreSQLInteg
                 "select p " +
                 "from Post p " +
                 "left join fetch p.comments " +
-                "where p.title like :title", Post.class)
+                "where p.title like :title " +
+                "order by p.id", Post.class)
             .setParameter("title", titlePattern)
             .setMaxResults(maxResults)
             .getResultList();

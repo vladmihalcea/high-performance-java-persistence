@@ -64,7 +64,8 @@ public class NativeQueryTest extends AbstractPostgreSQLIntegrationTest {
             List<PostCommentSummary> summaries = session.createSQLQuery(
                 "SELECT p.id as id, p.title as title, c.review as review " +
                 "FROM post_comment c " +
-                "JOIN post p ON c.post_id = p.id ")
+                "JOIN post p ON c.post_id = p.id " +
+                "ORDER BY p.id")
             .setFirstResult(pageStart)
             .setMaxResults(pageSize)
             .setResultTransformer(new AliasToBeanResultTransformer(PostCommentSummary.class))
@@ -78,7 +79,8 @@ public class NativeQueryTest extends AbstractPostgreSQLIntegrationTest {
         query =
             "SELECT p.id as id, p.title as title, c.review as review " +
             "FROM post_comment c " +
-            "JOIN post p ON c.post_id = p.id ",
+            "JOIN post p ON c.post_id = p.id " +
+            "ORDER BY p.id",
         resultSetMapping = "PostCommentSummary"
     )
     @SqlResultSetMapping(

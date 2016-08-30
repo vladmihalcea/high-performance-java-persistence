@@ -60,7 +60,8 @@ public class ProjectionTest extends AbstractPostgreSQLIntegrationTest {
                 "   com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary( " +
                 "       p.id, p.title, c.review ) " +
                 "from PostComment c " +
-                "join c.post p")
+                "join c.post p " +
+                "order by p.id")
             .getResultList();
             assertFalse(summaries.isEmpty());
         });
@@ -77,7 +78,8 @@ public class ProjectionTest extends AbstractPostgreSQLIntegrationTest {
                 "   com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary( " +
                 "       p.id, p.title, c.review ) " +
                 "from PostComment c " +
-                "join c.post p")
+                "join c.post p " +
+                "order by p.id")
             .setFirstResult(pageStart)
             .setMaxResults(pageSize)
             .getResultList();

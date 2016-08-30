@@ -13,12 +13,22 @@ import org.hibernate.Interceptor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.boot.MetadataBuilder;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.SessionFactoryBuilder;
+import org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl;
+import org.hibernate.boot.registry.BootstrapServiceRegistry;
+import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
+import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.PostgreSQL94Dialect;
+import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
+import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.hibernate.stat.SecondLevelCacheStatistics;
 import org.hibernate.type.BasicType;
 import org.hibernate.type.Type;
@@ -698,6 +708,41 @@ public abstract class AbstractTest {
     }
 
     private SessionFactory newSessionFactory() {
+        final BootstrapServiceRegistryBuilder bsrb = new BootstrapServiceRegistryBuilder();
+        bsrb.enableAutoClose();
+
+        final BootstrapServiceRegistry bsr = bsrb.build();
+
+        final StandardServiceRegistryBuilder ssrb = new StandardServiceRegistryBuilder(bsr);
+        ssrb.applySettings(properties());
+
+        StandardServiceRegistry serviceRegistry = ssrb.build();
+
+        final MetadataSources metadataSources = new MetadataSources(serviceRegistry);
+
+        for (Class annotatedClass : entities()) {
+            metadataSources.addAnnotatedClass(annotatedClass);
+        }
+
+        String[] packages = packages();
+        if (packages != null) {
+            for (String annotatedPackage : packages) {
+                metadataSources.addPackage(annotatedPackage);
+            }
+        }
+
+        final MetadataBuilder metadataBuilder = metadataSources.getMetadataBuilder();
+        metadataBuilder.enableNewIdentifierGeneratorSupport(true);
+        metadataBuilder.applyImplicitNamingStrategy(ImplicitNamingStrategyLegacyJpaImpl.INSTANCE);
+
+        MetadataImplementor metadata = (MetadataImplementor) metadataBuilder.build();
+
+        final SessionFactoryBuilder sfb = metadata.getSessionFactoryBuilder();
+
+        return sfb.build();
+    }
+
+    private SessionFactory newLegacySessionFactory() {
         Properties properties = properties();
         Configuration configuration = new Configuration().addProperties(properties);
         for(Class<?> entityClass : entities()) {
@@ -738,11 +783,19 @@ public abstract class AbstractTest {
         PersistenceUnitInfo persistenceUnitInfo = persistenceUnitInfo(getClass().getSimpleName());
         Map<String, Object> configuration = new HashMap<>();
         configuration.put(AvailableSettings.INTERCEPTOR, interceptor());
+        Integrator integrator = integrator();
+        if (integrator != null) {
+            configuration.put("hibernate.integrator_provider", (IntegratorProvider) () -> Arrays.asList(integrator));
+        }
 
         EntityManagerFactoryBuilderImpl entityManagerFactoryBuilder = new EntityManagerFactoryBuilderImpl(
             new PersistenceUnitInfoDescriptor(persistenceUnitInfo), configuration
         );
         return entityManagerFactoryBuilder.build();
+    }
+
+    protected Integrator integrator() {
+        return null;
     }
 
     protected PersistenceUnitInfoImpl persistenceUnitInfo(String name) {
