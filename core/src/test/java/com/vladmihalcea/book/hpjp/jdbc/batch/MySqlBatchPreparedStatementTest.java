@@ -39,9 +39,9 @@ public class MySqlBatchPreparedStatementTest extends AbstractMySQLIntegrationTes
     public static Collection<Boolean[]> rdbmsDataSourceProvider() {
         List<Boolean[]> providers = new ArrayList<>();
         providers.add(new Boolean[]{Boolean.FALSE, Boolean.FALSE});
-        providers.add(new Boolean[]{Boolean.FALSE, Boolean.TRUE});
+        /*providers.add(new Boolean[]{Boolean.FALSE, Boolean.TRUE});
         providers.add(new Boolean[]{Boolean.TRUE, Boolean.FALSE});
-        providers.add(new Boolean[]{Boolean.TRUE, Boolean.TRUE});
+        providers.add(new Boolean[]{Boolean.TRUE, Boolean.TRUE});*/
         return providers;
     }
 
@@ -115,11 +115,11 @@ public class MySqlBatchPreparedStatementTest extends AbstractMySQLIntegrationTes
     }
 
     protected int getPostCount() {
-        return 1000;
+        return 5000;
     }
 
     protected int getPostCommentCount() {
-        return 4;
+        return 1;
     }
 
     protected int getBatchSize() {

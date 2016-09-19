@@ -95,8 +95,8 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 for (int i = 0; i < 3; i++) {
                     index = 0;
                     postCommentStatement.setLong(++index, 1);
-                    postCommentStatement.setString(++index, String.format("Post comment %1$d", 1));
-                    postCommentStatement.setInt(++index, (int) (Math.random() * 1000));
+                    postCommentStatement.setString(++index, String.format("Post comment %1$d", i));
+                    postCommentStatement.setInt(++index, 0);
                     postCommentStatement.setLong(++index, i);
                     postCommentStatement.executeUpdate();
                 }
@@ -210,31 +210,40 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     @Test
     public void testPhantomRead() {
-        doInJDBC(aliceConnection -> {
-            if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
-                LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
-                return;
-            }
-            prepareConnection(aliceConnection);
-            int commentsCount = count(aliceConnection, countCommentsSql());
-            try {
-                executeSync(() -> {
-                    doInJDBC(bobConnection -> {
-                        prepareConnection(bobConnection);
-                        try {
-                            assertEquals(1, update(bobConnection, insertCommentSql()));
-                        } catch (Exception e) {
-                            LOGGER.info("Exception thrown", e);
-                        }
+        try {
+            doInJDBC(aliceConnection -> {
+                if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
+                    LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
+                    return;
+                }
+                prepareConnection(aliceConnection);
+                int commentsCount = count(aliceConnection, countCommentsSql());
+                assertEquals(3, commentsCount);
+                update(aliceConnection, updateCommentsSql());
+                try {
+                    executeSync(() -> {
+                        doInJDBC(bobConnection -> {
+                            prepareConnection(bobConnection);
+                            try {
+                                //FOR MVCC
+                                int _commentsCount = count(bobConnection, countCommentsSqlForInitialVersion());
+                                assertEquals(3, _commentsCount);
+                                assertEquals(1, update(bobConnection, insertCommentSql()));
+                            } catch (Exception e) {
+                                LOGGER.info("Exception thrown", e);
+                            }
+                        });
                     });
-                });
-            } catch (Exception e) {
-                LOGGER.info("Exception thrown", e);
-            }
-            int secondCommentsCount = count(aliceConnection, countCommentsSql());
+                } catch (Exception e) {
+                    LOGGER.info("Exception thrown", e);
+                }
+                int secondCommentsCount = count(aliceConnection, countCommentsSql());
 
-            LOGGER.info("Isolation level {} {} Phantom Reads", isolationLevelName, secondCommentsCount != commentsCount ? "allows" : "prevents");
-        });
+                LOGGER.info("Isolation level {} {} Phantom Reads", isolationLevelName, secondCommentsCount != commentsCount ? "allows" : "prevents");
+            });
+        } catch (Exception e) {
+            LOGGER.info("Exception thrown due to MVCC anomaly detection", e);
+        }
     }
 
     @Test
@@ -379,11 +388,21 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     }
 
     protected String countCommentsSql() {
-        return "SELECT COUNT(*) FROM post_comment";
+        return "SELECT COUNT(*) FROM post_comment where post_id = 1";
     }
 
+    protected String countCommentsSqlForInitialVersion() {
+        return "SELECT COUNT(*) FROM post_comment where post_id = 1 and version = 0";
+    }
+
+    protected String updateCommentsSql() {
+        return "UPDATE post_comment SET version = 100 WHERE post_id = 1";
+    }
+
+    int nextId = 100;
+
     protected String insertCommentSql() {
-        return "INSERT INTO post_comment (post_id, review, version, id) VALUES (1, 'Phantom', 0, 1000)";
+        return String.format("INSERT INTO post_comment (post_id, review, version, id) VALUES (1, 'Phantom', 0, %d)", nextId++);
     }
 
 }
