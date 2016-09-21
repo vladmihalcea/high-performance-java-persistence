@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * @author Vlad Mihalcea
  */
-public class CriteriaAPIMemberOfITest extends AbstractTest {
+public class CriteriaAPIMemberOfTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
