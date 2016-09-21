@@ -15,8 +15,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * <code>FindEntityTest</code> - Find entity Test
- *
  * @author Vlad Mihalcea
  */
 public class CriteriaAPITest extends AbstractPostgreSQLIntegrationTest {
