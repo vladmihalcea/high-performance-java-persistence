@@ -11,14 +11,17 @@ import org.hibernate.Session;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Id;
 
 /**
  * @author Vlad Mihalcea
  */
-public class BatchTest extends AbstractTest {
+public class PersistenceContextExtendedBatchTest extends AbstractTest {
 
-	private static final Logger log = Logger.getLogger( BatchTest.class );
+	private static final Logger log = Logger.getLogger( PersistenceContextExtendedBatchTest.class );
 
 	@Override
 	protected Class<?>[] entities() {

@@ -145,7 +145,13 @@ public class SkipLockJobQueueTest extends AbstractOracleXEIntegrationTest {
         .setParameter("status", PostStatus.PENDING)
         .setMaxResults(maxResults)
         .unwrap(org.hibernate.Query.class)
-        .setLockOptions(new LockOptions(LockMode.UPGRADE_SKIPLOCKED))
+        //Legacy hack - UPGRADE_SKIPLOCKED bypasses follow-on-locking
+        //.setLockOptions(new LockOptions(LockMode.UPGRADE_SKIPLOCKED))
+        .setLockOptions(new LockOptions(LockMode.PESSIMISTIC_WRITE)
+            .setTimeOut(LockOptions.SKIP_LOCKED)
+            //This is not really needed for this query but showsthat you can control the follow-on locking mechanism
+            .setFollowOnLocking(false)
+        )
         .list();
 
         if(posts.isEmpty()) {

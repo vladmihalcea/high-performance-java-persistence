@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Tag;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config.JPATransactionManagerConfiguration;
+import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao.PostBatchDAO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.service.ForumService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +43,9 @@ public class JPATransactionManagerTest {
     @Autowired
     private ForumService forumService;
 
+    @Autowired
+    private PostBatchDAO postBatchDAO;
+
     @Test
     public void test() {
         try {
@@ -53,6 +57,15 @@ public class JPATransactionManagerTest {
                 Tag jpa = new Tag();
                 jpa.setName("jpa");
                 entityManager.persist(jpa);
+                return null;
+            });
+        } catch (TransactionException e) {
+            LOGGER.error("Failure", e);
+        }
+
+        try {
+            transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+                postBatchDAO.savePosts();
                 return null;
             });
         } catch (TransactionException e) {
