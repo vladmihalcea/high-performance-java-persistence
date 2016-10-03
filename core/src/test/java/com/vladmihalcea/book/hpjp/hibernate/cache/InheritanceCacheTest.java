@@ -1,12 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.*;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
 import java.util.Date;
 import java.util.Properties;
 
@@ -63,11 +63,17 @@ public class InheritanceCacheTest extends AbstractTest {
             LOGGER.info("Second access");
             entityManager.find(Post.class, 1L);
             entityManager.find(Announcement.class, 2L);
+            entityManager.find(Post.class, 2L);
+        });
+        doInJPA(entityManager -> {
+            LOGGER.info("Third access");
+            entityManager.find(Post.class, 2L);
         });
     }
 
     @Entity(name = "Post")
     @Inheritance
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     public static class Post {
 
         @Id
@@ -96,7 +102,6 @@ public class InheritanceCacheTest extends AbstractTest {
     }
 
     @Entity(name = "Announcement")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     public static class Announcement extends Post {
 
         @Temporal(TemporalType.DATE)
