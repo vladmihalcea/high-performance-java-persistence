@@ -18,22 +18,22 @@ public class NaturalIdEqualityTest extends AbstractEqualityCheckTest {
     @Override
     protected Class<?>[] entities() {
         return new Class[] {
-            Book.class
+            Post.class
         };
     }
 
     @Test
     public void testEquality() {
-        Book book = new Book();
-        book.setTitle("High-PerformanceJava Persistence");
-        book.setIsbn("123-456-7890");
+        Post post = new Post();
+        post.setTitle("High-PerformanceJava Persistence");
+        post.setIsbn("123-456-7890");
 
-        assertEqualityConstraints(Book.class, book);
+        assertEqualityConstraints(Post.class, post);
     }
 
-    @Entity(name = "Book")
-    @Table(name = "book")
-    public static class Book implements Identifiable<Long> {
+    @Entity(name = "Post")
+    @Table(name = "post")
+    public static class Post implements Identifiable<Long> {
 
         @Id
         @GeneratedValue
@@ -47,9 +47,9 @@ public class NaturalIdEqualityTest extends AbstractEqualityCheckTest {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof Book)) return false;
-            Book book = (Book) o;
-            return Objects.equals(getIsbn(), book.getIsbn());
+            if (!(o instanceof Post)) return false;
+            Post post = (Post) o;
+            return Objects.equals(getIsbn(), post.getIsbn());
         }
 
         @Override

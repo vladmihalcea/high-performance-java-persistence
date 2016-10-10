@@ -16,21 +16,21 @@ public class DefaultEqualityTest extends AbstractEqualityCheckTest {
     @Override
     protected Class<?>[] entities() {
         return new Class[]{
-            Book.class
+            Post.class
         };
     }
 
     @Test
     public void testEquality() {
-        Book book = new Book();
-        book.setTitle("High-PerformanceJava Persistence");
+        Post post = new Post();
+        post.setTitle("High-PerformanceJava Persistence");
 
-        assertEqualityConstraints(Book.class, book);
+        assertEqualityConstraints(Post.class, post);
     }
 
-    @Entity(name = "Book")
-    @Table(name = "book")
-    public static class Book implements Identifiable<Long> {
+    @Entity(name = "Post")
+    @Table(name = "post")
+    public static class Post implements Identifiable<Long> {
 
         @Id
         @GeneratedValue

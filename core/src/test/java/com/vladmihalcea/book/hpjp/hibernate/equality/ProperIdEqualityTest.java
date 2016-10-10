@@ -7,31 +7,30 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Objects;
 
 /**
  * @author Vlad Mihalcea
  */
-public class ReworkedIdEqualityTest extends AbstractEqualityCheckTest {
+public class ProperIdEqualityTest extends AbstractEqualityCheckTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class[] {
-            Book.class
+            Post.class
         };
     }
 
     @Test
     public void testEquality() {
-        Book book = new Book();
-        book.setTitle("High-PerformanceJava Persistence");
+        Post post = new Post();
+        post.setTitle("High-PerformanceJava Persistence");
 
-        assertEqualityConstraints(Book.class, book);
+        assertEqualityConstraints(Post.class, post);
     }
 
-    @Entity(name = "Book")
-    @Table(name = "book")
-    public static class Book implements Identifiable<Long> {
+    @Entity(name = "Post")
+    @Table(name = "post")
+    public static class Post implements Identifiable<Long> {
 
         @Id
         @GeneratedValue
@@ -39,16 +38,14 @@ public class ReworkedIdEqualityTest extends AbstractEqualityCheckTest {
 
         private String title;
 
-        public Book() {}
+        public Post() {}
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof Book)) return false;
-            Book book = (Book) o;
-            return Objects.equals(getId(), book.getId());
+            if (!(o instanceof Post)) return false;
+            return id != null && id.equals(((Post) o).id);
         }
-
         @Override
         public int hashCode() {
             return 31;

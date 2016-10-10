@@ -17,21 +17,21 @@ public class DefaultIdEqualityTest extends AbstractEqualityCheckTest {
     @Override
     protected Class<?>[] entities() {
         return new Class[] {
-            Book.class
+            Post.class
         };
     }
 
     @Test
     public void testEquality() {
-        Book book = new Book();
-        book.setTitle("High-PerformanceJava Persistence");
+        Post post = new Post();
+        post.setTitle("High-PerformanceJava Persistence");
 
-        assertEqualityConstraints(Book.class, book);
+        assertEqualityConstraints(Post.class, post);
     }
 
-    @Entity(name = "Book")
-    @Table(name = "book")
-    public static class Book implements Identifiable<Long> {
+    @Entity(name = "Post")
+    @Table(name = "post")
+    public static class Post implements Identifiable<Long> {
 
         @Id
         @GeneratedValue
@@ -42,14 +42,12 @@ public class DefaultIdEqualityTest extends AbstractEqualityCheckTest {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof Book)) return false;
-            Book book = (Book) o;
-            return Objects.equals(getId(), book.getId());
+            if (!(o instanceof Post)) return false;
+            return Objects.equals(id, ((Post) o).id);
         }
-
         @Override
         public int hashCode() {
-            return Objects.hash(getId());
+            return Objects.hash(id);
         }
 
         public Long getId() {
