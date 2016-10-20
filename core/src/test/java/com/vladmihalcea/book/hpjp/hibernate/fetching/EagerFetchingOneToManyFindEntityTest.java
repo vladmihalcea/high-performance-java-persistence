@@ -5,8 +5,10 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -33,12 +35,26 @@ public class EagerFetchingOneToManyFindEntityTest extends AbstractPostgreSQLInte
             Post post = new Post();
             post.setId(1L);
             post.setTitle(String.format("Post nr. %d", 1));
-            PostComment comment = new PostComment();
-            comment.setId(1L);
-            comment.setPost(post);
-            comment.setReview("Excellent!");
+
+            for (long i = 0; i < 20; i++) {
+                PostComment comment = new PostComment();
+                comment.setId(i);
+                post.addComment(comment);
+                comment.setReview("Excellent!");
+
+                entityManager.persist(comment);
+            }
+
+            for (long i = 0; i < 10; i++) {
+                Tag tag = new Tag();
+                tag.setId(i);
+                tag.setName("My tag");
+
+                entityManager.persist(tag);
+                post.getTags().add(tag);
+            }
+
             entityManager.persist(post);
-            entityManager.persist(comment);
         });
     }
 
@@ -59,6 +75,20 @@ public class EagerFetchingOneToManyFindEntityTest extends AbstractPostgreSQLInte
                     .setParameter("id", postId)
                     .getSingleResult();
             assertNotNull(post);
+        });
+    }
+
+    @Test
+    public void testFindWithJoinFetchQuery() {
+        doInJPA(entityManager -> {
+            Long postId =  1L;
+            List<Post> posts = entityManager.createQuery(
+                "select p " +
+                "from Post p " +
+                "left join fetch p.comments " +
+                "left join fetch p.tags", Post.class)
+                .getResultList();
+            assertEquals(200, posts.size());
         });
     }
 
@@ -106,6 +136,15 @@ public class EagerFetchingOneToManyFindEntityTest extends AbstractPostgreSQLInte
 
         public void setTitle(String title) {
             this.title = title;
+        }
+
+        public Set<PostComment> getComments() {
+            return comments;
+        }
+
+        public void addComment(PostComment comment) {
+            comments.add(comment);
+            comment.setPost(this);
         }
 
         public Set<Tag> getTags() {

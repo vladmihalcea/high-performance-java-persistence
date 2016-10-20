@@ -52,6 +52,13 @@ public abstract class AbstractEqualityCheckTest extends AbstractTest {
                 tuples.contains(_entity));
         });
 
+        doInJPA(entityManager -> {
+            T _entity = entityManager.getReference(clazz, entity.getId());
+            assertTrue("The entity is found after it's loaded as a Proxy " +
+                            "in an other Persistence Context",
+            tuples.contains(_entity));
+        });
+
         executeSync(() -> {
             doInJPA(entityManager -> {
                 T _entity = entityManager.find(clazz, entity.getId());
