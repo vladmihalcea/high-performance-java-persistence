@@ -10,8 +10,6 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 /**
- * <code>ImmutableType</code> - Immutable Type
- *
  * @author Vlad Mihalcea
  */
 public abstract class ImmutableType<T> implements UserType {

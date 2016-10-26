@@ -6,8 +6,6 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * <code>PostCommentScore</code> - PostComment Score
- *
  * @author Vlad Mihalcea
  */
 public class PostCommentScore {

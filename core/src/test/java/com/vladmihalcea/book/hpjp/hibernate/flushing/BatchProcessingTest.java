@@ -6,8 +6,6 @@ import org.junit.Test;
 import javax.persistence.*;
 
 /**
- * <code>BatchProcessingTest</code> - Batch processing test
- *
  * @author Vlad Mihalcea
  */
 public class BatchProcessingTest extends AbstractTest {

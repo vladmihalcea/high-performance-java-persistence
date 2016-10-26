@@ -4,8 +4,6 @@ import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import org.springframework.stereotype.Repository;
 
 /**
- * <code>PostDAOImpl</code> - Post DAO Impl
- *
  * @author Vlad Mihalcea
  */
 @Repository

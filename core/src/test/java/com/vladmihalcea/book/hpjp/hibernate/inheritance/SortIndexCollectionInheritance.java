@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <code>SortIndexCollectionInheritance</code> -
- *
  * @author Vlad Mihalcea
  */
 public class SortIndexCollectionInheritance extends AbstractTest {

@@ -9,8 +9,6 @@ import java.util.Date;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * <code>BidirectionalOneToOneTest</code> - Bidirectional @OneToOne Test
- *
  * @author Vlad Mihalcea
  */
 public class BidirectionalOneToOneTest extends AbstractTest {

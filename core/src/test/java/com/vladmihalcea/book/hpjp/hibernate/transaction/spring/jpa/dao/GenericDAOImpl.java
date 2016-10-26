@@ -8,8 +8,6 @@ import javax.persistence.PersistenceContext;
 import java.io.Serializable;
 
 /**
- * <code>GenericDAOImpl</code> - Generic DAO Impl
- *
  * @author Vlad Mihalcea
  */
 @Repository

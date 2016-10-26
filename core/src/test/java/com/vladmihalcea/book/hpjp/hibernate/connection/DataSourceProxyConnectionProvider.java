@@ -8,8 +8,6 @@ import javax.sql.DataSource;
 import java.util.Map;
 
 /**
- * <code>DataSourceProxyConnectionProvider</code> - datasource-proxy ConnectionProvider
- *
  * @author Vlad Mihalcea
  */
 public class DataSourceProxyConnectionProvider extends DatasourceConnectionProviderImpl {

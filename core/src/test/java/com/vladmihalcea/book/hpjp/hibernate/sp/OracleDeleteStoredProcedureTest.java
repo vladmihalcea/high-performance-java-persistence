@@ -14,8 +14,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <code>OracleDeleteStoredProcedureTest</code> - Oracle Delete StoredProcedure Test
- *
  * @author Vlad Mihalcea
  */
 @RunWith(Parameterized.class)

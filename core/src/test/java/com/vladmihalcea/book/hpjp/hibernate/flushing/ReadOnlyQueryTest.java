@@ -12,8 +12,6 @@ import javax.persistence.Table;
 import java.util.List;
 
 /**
- * <code>ReadOnlyQueryTest</code> - Read-only query test
- *
  * @author Vlad Mihalcea
  */
 public class ReadOnlyQueryTest extends AbstractTest {

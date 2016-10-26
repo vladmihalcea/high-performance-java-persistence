@@ -10,8 +10,6 @@ import java.sql.Statement;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>SimpleBatchStatementTest</code> - Simple Batch StatementTest
- *
  * @author Vlad Mihalcea
  */
 public class SimpleBatchTest extends AbstractPostgreSQLIntegrationTest {

@@ -24,8 +24,6 @@ import java.util.Properties;
 import static com.vladmihalcea.book.hpjp.util.AbstractTest.InlineQueryLogEntryCreator;
 
 /**
- * <code>AbstractJtaTransactionManagerConfiguration</code> - Abstract JTA TransactionManagerConfiguration
- *
  * @author Vlad Mihalcea
  */
 @EnableTransactionManagement

@@ -8,8 +8,6 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * <code>PostDetailsCommentsEntityProvider</code> - PostDetailsCommentsEntityProvider
- *
  * @author Vlad Mihalcea
  */
 public class PostDetailsCommentsEntityProvider implements EntityProvider {

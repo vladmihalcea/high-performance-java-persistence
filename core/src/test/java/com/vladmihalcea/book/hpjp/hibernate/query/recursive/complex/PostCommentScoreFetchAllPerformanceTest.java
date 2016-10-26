@@ -6,8 +6,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <code>PostCommentScoreTest</code> - PostCommentScore Test
- *
  * @author Vlad Mihalcea
  */
 public class PostCommentScoreFetchAllPerformanceTest extends AbstractPostCommentScorePerformanceTest {

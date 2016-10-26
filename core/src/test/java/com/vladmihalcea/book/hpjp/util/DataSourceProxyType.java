@@ -9,8 +9,6 @@ import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import javax.sql.DataSource;
 
 /**
- * <code>DataSourceProxyType</code> - DataSourceProxy Type
- *
  * @author Vlad Mihalcea
  */
 public enum DataSourceProxyType {

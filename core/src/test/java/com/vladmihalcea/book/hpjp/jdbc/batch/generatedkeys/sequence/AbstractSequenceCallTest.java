@@ -16,8 +16,6 @@ import java.sql.Statement;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <code>AbstractSequenceCallTest</code> - AbstractSequenceCallTest
- *
  * @author Vlad Mihalcea
  */
 public abstract class AbstractSequenceCallTest extends AbstractTest {

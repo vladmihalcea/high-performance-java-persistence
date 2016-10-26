@@ -5,8 +5,6 @@ import com.vladmihalcea.book.hpjp.util.EntityProvider;
 import javax.persistence.*;
 
 /**
- * <code>SequenceBatchEntityProvider</code> - SEQUENCE Batch Entity Provider
- *
  * @author Vlad Mihalcea
  */
 public class SequenceBatchEntityProvider implements EntityProvider {

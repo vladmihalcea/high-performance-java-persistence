@@ -5,8 +5,6 @@ import com.vladmihalcea.book.hpjp.util.EntityProvider;
 import javax.persistence.*;
 
 /**
- * <code>BatchEntityProvider</code> - Batch Entity Provider
- *
  * @author Vlad Mihalcea
  */
 public class AutoIncrementBatchEntityProvider implements EntityProvider {

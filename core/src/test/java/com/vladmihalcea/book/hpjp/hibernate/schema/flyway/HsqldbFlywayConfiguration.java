@@ -4,8 +4,6 @@ import com.vladmihalcea.book.hpjp.util.spring.config.flyway.AbstractHsqldbFlyway
 import org.springframework.context.annotation.Configuration;
 
 /**
- * <code>HsqldbFlywayConfiguration</code> - Hsqldb Flyway Configuration
- *
  * @author Vlad Mihalcea
  */
 @Configuration

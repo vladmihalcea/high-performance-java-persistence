@@ -8,8 +8,6 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * <code>BidirectionalOneToOneMapsIdTest</code> - Bidirectional @OneToOne Test
- *
  * @author Vlad Mihalcea
  */
 public class BidirectionalOneToOneMapsIdTest extends AbstractTest {

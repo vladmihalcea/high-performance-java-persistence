@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <code>ElementCollectionTest</code> - @ElementCollection Test
- *
  * @author Vlad Mihalcea
  */
 public class ElementCollectionTest extends AbstractMySQLIntegrationTest {

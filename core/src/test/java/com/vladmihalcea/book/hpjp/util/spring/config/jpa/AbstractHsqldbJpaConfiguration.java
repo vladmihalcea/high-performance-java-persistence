@@ -10,8 +10,6 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- * <code>AbstractHsqldbJpaConfiguration</code> - Hsqldb JPA Configuration
- *
  * @author Vlad Mihalcea
  */
 @Configuration

@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <code>UnidirectionalOneToManyJoinColumnTest</code> - @OneToMany Test
- *
  * @author Vlad Mihalcea
  */
 public class UnidirectionalOneToManyJoinColumnTest extends AbstractTest {

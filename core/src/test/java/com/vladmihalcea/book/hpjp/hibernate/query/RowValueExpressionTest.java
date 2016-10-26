@@ -9,8 +9,6 @@ import javax.persistence.Id;
 import java.util.List;
 
 /**
- * <code>RowValueExpressionTest</code> - Row-Value Expression Test
- *
  * @author Vlad Mihalcea
  */
 public class RowValueExpressionTest extends AbstractTest {

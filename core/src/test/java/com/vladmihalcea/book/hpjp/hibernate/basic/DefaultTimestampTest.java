@@ -9,8 +9,6 @@ import java.util.Date;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>DefaultTimestampTest</code> - Default Timestamp Test
- *
  * @author Vlad Mihalcea
  */
 public class DefaultTimestampTest extends AbstractMySQLIntegrationTest {

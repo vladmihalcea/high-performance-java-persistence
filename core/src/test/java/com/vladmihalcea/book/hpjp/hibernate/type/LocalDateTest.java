@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
@@ -14,8 +13,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>LocalDateTest</code> - LocalDate Test
- *
  * @author Vlad Mihalcea
  */
 public class LocalDateTest extends AbstractTest {

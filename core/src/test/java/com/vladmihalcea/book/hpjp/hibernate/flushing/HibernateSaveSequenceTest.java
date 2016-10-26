@@ -1,17 +1,14 @@
-package com.vladmihalcea.book.hpjp.hibernate.logging;
+package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import org.junit.Test;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author Vlad Mihalcea
  */
-public class P6spyTest extends AbstractTest {
+public class HibernateSaveSequenceTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -20,29 +17,33 @@ public class P6spyTest extends AbstractTest {
         };
     }
 
-    @Override
-    protected DataSourceProxyType dataSourceProxyType() {
-        return DataSourceProxyType.P6SPY;
-    }
 
     @Test
-    public void test() {
-        doInJPA(entityManager -> {
+    public void testId() {
+
+        doInHibernate(session -> {
             Post post = new Post();
-            post.id = 1L;
-            post.title = "Post it";
-            entityManager.persist(post);
+            post.setTitle("High-Performance Java Persistence");
+
+            Long identifier = (Long) session.save(post);
+            LOGGER.info("The post entity identifier is {}", identifier);
+
+            LOGGER.info("Flush Persistence Context");
+            session.flush();
         });
     }
 
-    @Entity(name = "Post")
-    @Table(name = "post")
+    @Entity(name = "Post") @Table(name = "post")
     public static class Post {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         private String title;
+
+        @Version
+        private Long version;
 
         public Long getId() {
             return id;

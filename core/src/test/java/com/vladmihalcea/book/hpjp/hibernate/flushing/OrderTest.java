@@ -6,8 +6,6 @@ import org.junit.Test;
 import javax.persistence.*;
 
 /**
- * <code>OrderTest</code> - Order Test
- *
  * @author Vlad Mihalcea
  */
 public class OrderTest extends AbstractTest {

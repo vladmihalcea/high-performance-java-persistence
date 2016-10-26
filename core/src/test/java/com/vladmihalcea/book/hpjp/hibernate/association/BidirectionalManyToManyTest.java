@@ -7,8 +7,6 @@ import javax.persistence.*;
 import java.util.*;
 
 /**
- * <code>UnidirectionalManyToManyTest</code> - Unidirectional @ManyToMany Test
- *
  * @author Vlad Mihalcea
  */
 public class BidirectionalManyToManyTest extends AbstractTest {

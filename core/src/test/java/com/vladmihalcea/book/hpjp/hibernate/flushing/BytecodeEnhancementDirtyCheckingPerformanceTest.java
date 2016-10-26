@@ -22,8 +22,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * <code>BytecodeEnhancementDirtyCheckingPerformanceTest</code> - Bytecode enhancement dirty checking performance Test
- *
  * @author Vlad Mihalcea
  */
 @RunWith(Parameterized.class)

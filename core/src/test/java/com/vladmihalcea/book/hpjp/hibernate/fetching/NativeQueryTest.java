@@ -13,8 +13,6 @@ import java.util.stream.LongStream;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>FindEntityTest</code> - Find entity Test
- *
  * @author Vlad Mihalcea
  */
 public class NativeQueryTest extends AbstractPostgreSQLIntegrationTest {

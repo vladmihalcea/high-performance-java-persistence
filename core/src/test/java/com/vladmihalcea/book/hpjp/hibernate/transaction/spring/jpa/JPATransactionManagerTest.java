@@ -23,8 +23,6 @@ import javax.persistence.PersistenceContext;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * <code>JpaTransactionManagerTest</code> - JpaTransactionManager Test
- *
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)

@@ -18,8 +18,6 @@ import javax.persistence.PersistenceContext;
 import static com.vladmihalcea.book.hpjp.hibernate.schema.flyway.FlywayEntities.Post;
 
 /**
- * <code>FlywayTest</code> - Flyway Test
- *
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)

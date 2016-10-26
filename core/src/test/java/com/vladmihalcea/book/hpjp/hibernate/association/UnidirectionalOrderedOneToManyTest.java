@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <code>UnidirectionalOrderedOneToManyTest</code> - @OneToMany Test with @OrderColumn
- *
  * @author Vlad Mihalcea
  */
 public class UnidirectionalOrderedOneToManyTest extends AbstractMySQLIntegrationTest {

@@ -6,8 +6,6 @@ import org.junit.Test;
 import javax.persistence.*;
 
 /**
- * <code>ManyToOneTest</code> - @ManyToOne Test
- *
  * @author Vlad Mihalcea
  */
 public class ManyToOneTest extends AbstractTest {

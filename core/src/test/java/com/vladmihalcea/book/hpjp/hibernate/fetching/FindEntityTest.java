@@ -10,8 +10,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 /**
- * <code>FindEntityTest</code> - Find entity Test
- *
  * @author Vlad Mihalcea
  */
 public class FindEntityTest extends AbstractPostgreSQLIntegrationTest {

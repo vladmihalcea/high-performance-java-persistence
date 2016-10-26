@@ -5,8 +5,6 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 
 /**
- * <code>Post</code> -
- *
  * @author Vlad Mihalcea
  */
 @Entity(name = "Post")

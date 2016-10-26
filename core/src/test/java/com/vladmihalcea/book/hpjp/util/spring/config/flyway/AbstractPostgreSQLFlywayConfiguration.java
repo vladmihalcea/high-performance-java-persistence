@@ -10,8 +10,6 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- * <code>AbstractPostgreSQLFlywayConfiguration</code> - PostgreSQL Flyway Configuration
- *
  * @author Vlad Mihalcea
  */
 @Configuration

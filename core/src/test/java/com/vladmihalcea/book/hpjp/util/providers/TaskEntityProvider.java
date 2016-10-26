@@ -6,8 +6,6 @@ import javax.persistence.*;
 import java.util.Date;
 
 /**
- * <code>TaskEntityProvider</code> - Task Entity Provider
- *
  * @author Vlad Mihalcea
  */
 public class TaskEntityProvider implements EntityProvider {

@@ -10,8 +10,6 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- * <code>AbstractPostgreSQLJpaConfiguration</code> - PostgreSQL Jpa Configuration
- *
  * @author Vlad Mihalcea
  */
 @Configuration

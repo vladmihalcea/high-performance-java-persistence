@@ -8,8 +8,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
- * <code>BatchEntityProvider</code> - Batch Entity Provider
- *
  * @author Vlad Mihalcea
  */
 public class IndexEntityProvider implements EntityProvider {

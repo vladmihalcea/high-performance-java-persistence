@@ -22,8 +22,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * <code>PostgreSQLStoredProcedureTest</code> - PostgreSQL StoredProcedure Test
- *
  * @author Vlad Mihalcea
  */
 public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegrationTest {

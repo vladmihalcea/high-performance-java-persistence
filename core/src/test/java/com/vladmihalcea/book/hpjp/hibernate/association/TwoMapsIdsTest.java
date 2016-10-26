@@ -8,8 +8,6 @@ import javax.persistence.*;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>SortIndexCollectionInheritance</code> -
- *
  * @author Vlad Mihalcea
  */
 public class TwoMapsIdsTest extends AbstractTest {

@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * <code>BidirectionalManyAsOneToManyTest</code> - Bidirectional @ManyToMany with @OneToMany Test
- *
  * @author Vlad Mihalcea
  */
 public class BidirectionalManyAsOneToManyTest extends AbstractTest {

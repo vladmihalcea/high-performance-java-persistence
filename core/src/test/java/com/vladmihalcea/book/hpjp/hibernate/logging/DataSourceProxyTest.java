@@ -9,8 +9,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * <code>DataSourceProxyTest</code> - datasource-proxy
- *
  * @author Vlad Mihalcea
  */
 public class DataSourceProxyTest extends AbstractTest {

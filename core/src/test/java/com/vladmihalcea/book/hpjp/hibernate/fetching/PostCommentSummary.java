@@ -1,8 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 /**
- * <code>PostCommentSummary</code> - PostCommentSummary
- *
  * @author Vlad Mihalcea
  */
 public class PostCommentSummary {

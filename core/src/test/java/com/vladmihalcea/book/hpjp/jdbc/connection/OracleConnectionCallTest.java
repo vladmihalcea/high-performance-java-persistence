@@ -10,8 +10,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * <code>ConnectionPoolCallTest</code> - Checks how connection pool decreases latency
- *
  * @author Vlad Mihalcea
  */
 public class OracleConnectionCallTest extends AbstractOracleXEIntegrationTest {

@@ -9,8 +9,6 @@ import java.sql.SQLException;
 import java.util.Map;
 
 /**
- * <code>FlexyPoolHibernateConnectionProvider</code> - FlexyPool HibernateConnectionProvider
- *
  * @author Vlad Mihalcea
  */
 public class FlexyPoolHibernateConnectionProvider

@@ -11,8 +11,6 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * <code>TablePerClassTest</code> - Table Per Class Test
- *
  * @author Vlad Mihalcea
  */
 public class TablePerClassTest extends AbstractTest {

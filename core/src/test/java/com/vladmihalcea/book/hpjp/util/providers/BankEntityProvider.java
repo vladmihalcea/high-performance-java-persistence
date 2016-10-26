@@ -6,8 +6,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 /**
- * <code>BankEntityProvider</code> - Bank Entity Provider
- *
  * @author Vlad Mihalcea
  */
 public class BankEntityProvider implements EntityProvider {

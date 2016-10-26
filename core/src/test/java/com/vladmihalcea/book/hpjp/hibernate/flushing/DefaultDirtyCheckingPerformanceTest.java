@@ -18,8 +18,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * <code>DefaultDirtyCheckingPerformanceTest</code> - Default dirty checking performance Test
- *
  * @author Vlad Mihalcea
  */
 @RunWith(Parameterized.class)

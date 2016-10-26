@@ -12,8 +12,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>WindowFunctionGroupingTest</code> - Window Function Grouping Test
- *
  * @author Vlad Mihalcea
  */
 public class WindowFunctionGroupingTest extends AbstractPostgreSQLIntegrationTest {

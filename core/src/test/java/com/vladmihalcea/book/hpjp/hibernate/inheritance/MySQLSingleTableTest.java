@@ -17,8 +17,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
- * <code>SingleTableTest</code> - Single Table Test
- *
  * @author Vlad Mihalcea
  */
 public class MySQLSingleTableTest extends AbstractMySQLIntegrationTest {

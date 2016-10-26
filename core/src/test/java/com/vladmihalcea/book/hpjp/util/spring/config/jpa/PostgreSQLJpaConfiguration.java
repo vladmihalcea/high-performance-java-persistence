@@ -8,8 +8,6 @@ import org.springframework.context.annotation.PropertySource;
 import javax.sql.DataSource;
 
 /**
- * <code>AbstractPostgreSQLJpaConfiguration</code> - PostgreSQL Jpa Configuration
- *
  * @author Vlad Mihalcea
  */
 @Configuration

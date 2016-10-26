@@ -20,8 +20,6 @@ import static org.junit.Assert.fail;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
- * <code>SingleTableTest</code> - Single Table Test
- *
  * @author Vlad Mihalcea
  */
 public class SingleTableTest extends AbstractPostgreSQLIntegrationTest {

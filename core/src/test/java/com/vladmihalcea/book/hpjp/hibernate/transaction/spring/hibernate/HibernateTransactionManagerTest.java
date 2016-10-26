@@ -21,8 +21,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * <code>HibernateTransactionManagerTest</code> - HibernateTransactionManager Test
- *
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)

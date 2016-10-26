@@ -5,8 +5,6 @@ import javax.persistence.PreUpdate;
 import java.util.Date;
 
 /**
- * <code>UpdatableListener</code> - Updatable Listener
- *
  * @author Vlad Mihalcea
  */
 public class UpdatableListener {

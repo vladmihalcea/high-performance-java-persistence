@@ -17,8 +17,6 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * <code>AbstractPostCommentScorePerformanceTest</code> - Abstract PostCommentScorePerformanceTest
- *
  * @author Vlad Mihalcea
  */
 @RunWith(Parameterized.class)

@@ -8,8 +8,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * <code>ForumServiceImpl</code> - Forum Service Impl
- *
  * @author Vlad Mihalcea
  */
 @Repository

@@ -5,8 +5,6 @@ import org.hibernate.stat.internal.ConcurrentStatisticsImpl;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * <code>TransactionStatistics</code> - Transaction Statistics
- *
  * @author Vlad Mihalcea
  */
 public class TransactionStatistics extends ConcurrentStatisticsImpl {

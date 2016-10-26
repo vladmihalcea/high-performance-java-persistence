@@ -16,8 +16,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>CriteriaFetchAliasTest</code> - Criteria fetch join Test
- *
  * @author Vlad Mihalcea
  */
 public class CriteriaNestedQueryTest extends AbstractTest {

@@ -4,8 +4,6 @@ import com.vladmihalcea.book.hpjp.util.spring.config.flyway.AbstractPostgreSQLFl
 import org.springframework.context.annotation.Configuration;
 
 /**
- * <code>PostgreSQLFlywayConfiguration</code> - PostgreSQL Flyway Configuration
- *
  * @author Vlad Mihalcea
  */
 @Configuration

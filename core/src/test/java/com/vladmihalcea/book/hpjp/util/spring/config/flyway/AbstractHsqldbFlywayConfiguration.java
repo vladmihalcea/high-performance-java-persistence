@@ -10,8 +10,6 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- * <code>AbstractHsqldbFlywayConfiguration</code> - Hsqldb Flyway Configuration
- *
  * @author Vlad Mihalcea
  */
 @Configuration

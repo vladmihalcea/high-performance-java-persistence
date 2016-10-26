@@ -6,8 +6,6 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * <code>FlywayEntities</code> - Entities
- *
  * @author Vlad Mihalcea
  */
 public class FlywayEntities {

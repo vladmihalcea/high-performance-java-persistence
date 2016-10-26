@@ -24,8 +24,6 @@ import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostC
 import static org.junit.Assert.*;
 
 /**
- * <code>MySQLStoredProcedureTest</code> - MySQL StoredProcedure Test
- *
  * @author Vlad Mihalcea
  */
 public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {

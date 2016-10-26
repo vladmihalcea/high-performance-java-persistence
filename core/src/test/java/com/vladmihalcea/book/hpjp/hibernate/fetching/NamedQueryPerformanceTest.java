@@ -5,8 +5,6 @@ import org.hibernate.Session;
 import javax.persistence.EntityManager;
 
 /**
- * <code>NamedQueryPerformanceTest</code> - Named Query Performance Test
- *
  * @author Vlad Mihalcea
  */
 public class NamedQueryPerformanceTest extends PlanCacheSizePerformanceTest {

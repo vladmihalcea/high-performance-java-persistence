@@ -21,8 +21,6 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- * <code>AbstractJpaConfiguration</code> - JPA Configuration
- *
  * @author Vlad Mihalcea
  */
 @EnableTransactionManagement

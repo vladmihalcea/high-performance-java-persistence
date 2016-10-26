@@ -13,8 +13,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>JoinTableBulkDeleteTest</code> - Join Table Bulk Delete Test
- *
  * @author Vlad Mihalcea
  */
 public class JoinTableBulkDeleteTest extends AbstractTest {

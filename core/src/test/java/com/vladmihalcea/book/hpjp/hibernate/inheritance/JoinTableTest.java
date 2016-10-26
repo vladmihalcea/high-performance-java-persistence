@@ -13,8 +13,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>JoinTableTest</code> - Join Table Test
- *
  * @author Vlad Mihalcea
  */
 public class JoinTableTest extends AbstractTest {

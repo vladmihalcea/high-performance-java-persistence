@@ -9,8 +9,6 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- * <code>HsqldbJtaTransactionManagerConfiguration</code> - Hsqldb JTA TransactionManagerConfiguration
- *
  * @author Vlad Mihalcea
  */
 @PropertySource({"/META-INF/jta-hsqldb.properties"})

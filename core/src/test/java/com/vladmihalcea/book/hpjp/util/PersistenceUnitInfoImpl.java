@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * <code>AbstractPersistenceUnitInfo</code> - Base PersistenceUnitInfo
- *
  * @author Vlad Mihalcea
  */
 public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {

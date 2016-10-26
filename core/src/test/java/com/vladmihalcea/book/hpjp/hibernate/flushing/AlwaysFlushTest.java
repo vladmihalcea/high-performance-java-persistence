@@ -14,8 +14,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>AlwaysFlushTest</code> - Always Flush Test
- *
  * @author Vlad Mihalcea
  */
 public class AlwaysFlushTest extends AbstractTest {

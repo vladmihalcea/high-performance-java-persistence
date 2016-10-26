@@ -9,8 +9,6 @@ import java.util.Date;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * <code>OneToOneTest</code> - @OneToOne Test
- *
  * @author Vlad Mihalcea
  */
 public class UnidirectionalOneToOneTest extends AbstractMySQLIntegrationTest {

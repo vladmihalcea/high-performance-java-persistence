@@ -15,8 +15,6 @@ import javax.persistence.Id;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>SpatialTest</code> - Hibernate Spatial Test
- *
  * @author Vlad Mihalcea
  */
 public class SpatialTest extends AbstractPostgreSQLIntegrationTest {

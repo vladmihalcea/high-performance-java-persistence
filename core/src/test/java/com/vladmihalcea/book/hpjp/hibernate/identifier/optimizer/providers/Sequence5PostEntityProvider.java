@@ -5,8 +5,6 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 
 /**
- * <code>Sequence5PostEntityProvider</code> - Sequence 5 PostEntityProvider
- *
  * @author Vlad Mihalcea
  */
 public class Sequence5PostEntityProvider extends PostEntityProvider<Sequence5PostEntityProvider.Post> {

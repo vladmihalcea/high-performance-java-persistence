@@ -8,8 +8,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
 /**
- * <code>MultipleTransactionsPerEntityManager</code> -
- *
  * @author Vlad Mihalcea
  */
 public class MultipleTransactionsPerEntityManagerTest extends AbstractTest {

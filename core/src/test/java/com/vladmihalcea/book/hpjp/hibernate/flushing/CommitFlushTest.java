@@ -11,8 +11,6 @@ import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
 import static org.junit.Assert.assertTrue;
 
 /**
- * <code>CommitFlushTest</code> - Commit Flush Test
- *
  * @author Vlad Mihalcea
  */
 public class CommitFlushTest extends AbstractTest {

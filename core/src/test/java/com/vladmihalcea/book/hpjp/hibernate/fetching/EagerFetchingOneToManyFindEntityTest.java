@@ -12,8 +12,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * <code>FindEntityTest</code> - Find entity Test
- *
  * @author Vlad Mihalcea
  */
 public class EagerFetchingOneToManyFindEntityTest extends AbstractPostgreSQLIntegrationTest {

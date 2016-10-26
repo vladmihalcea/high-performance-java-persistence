@@ -9,8 +9,6 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * <code>MySQLTextStringTest</code> - MySQL Text String Test
- *
  * @author Vlad Mihalcea
  */
 public class MySQLTextStringTest extends AbstractMySQLIntegrationTest {

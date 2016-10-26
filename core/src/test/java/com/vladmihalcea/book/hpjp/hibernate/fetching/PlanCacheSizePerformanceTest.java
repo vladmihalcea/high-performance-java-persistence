@@ -17,8 +17,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
 /**
- * <code>CreateQueryPerformanceTest</code> - Create new Query Performance Test
- *
  * @author Vlad Mihalcea
  */
 @RunWith(Parameterized.class)

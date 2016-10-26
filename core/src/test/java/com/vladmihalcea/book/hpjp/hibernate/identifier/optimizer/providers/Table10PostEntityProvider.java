@@ -5,8 +5,6 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 
 /**
- * <code>Table10PostEntityProvider</code> - Table 10 PostEntityProvider
- *
  * @author Vlad Mihalcea
  */
 public class Table10PostEntityProvider extends PostEntityProvider<Table10PostEntityProvider.Post> {

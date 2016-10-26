@@ -12,8 +12,6 @@ import java.util.stream.LongStream;
 import static org.junit.Assert.assertTrue;
 
 /**
- * <code>NamedNativeQueryParameterTest</code> - Named Query Test
- *
  * @author Vlad Mihalcea
  */
 public class NamedNativeQueryParameterTest extends AbstractTest {

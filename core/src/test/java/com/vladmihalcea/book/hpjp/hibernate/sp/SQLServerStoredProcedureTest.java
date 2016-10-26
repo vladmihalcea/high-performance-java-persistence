@@ -20,8 +20,6 @@ import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostC
 import static org.junit.Assert.*;
 
 /**
- * <code>SQLServerStoredProcedureTest</code> - SQL Server StoredProcedure Test
- *
  * @author Vlad Mihalcea
  */
 public class SQLServerStoredProcedureTest extends AbstractSQLServerIntegrationTest {

@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <code>FindEntityTest</code> - Find entity Test
- *
  * @author Vlad Mihalcea
  */
 public class DistinctTest extends AbstractPostgreSQLIntegrationTest {

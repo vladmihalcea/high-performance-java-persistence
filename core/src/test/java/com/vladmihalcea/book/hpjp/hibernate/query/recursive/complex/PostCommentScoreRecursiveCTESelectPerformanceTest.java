@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <code>PostCommentScoreRecursiveCTEPerformanceTest</code> - PostCommentScore RecursiveCTE PerformanceTest
- *
  * @author Vlad Mihalcea
  */
 public class PostCommentScoreRecursiveCTESelectPerformanceTest extends AbstractPostCommentScorePerformanceTest {

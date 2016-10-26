@@ -17,8 +17,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
- * <code>Inet4TypeTest</code> -
- *
  * @author Vlad Mihalcea
  */
 public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {

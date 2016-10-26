@@ -3,8 +3,6 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier.batch.concurrent.provide
 import com.vladmihalcea.book.hpjp.util.EntityProvider;
 
 /**
- * <code>PostEntityProvider</code> -
- *
  * @author Vlad Mihalcea
  */
 public abstract class PostEntityProvider<T> implements EntityProvider {

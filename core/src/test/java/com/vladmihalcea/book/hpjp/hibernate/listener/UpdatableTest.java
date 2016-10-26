@@ -12,8 +12,6 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * <code>AllAssociationTest</code> - All associations Test
- *
  * @author Vlad Mihalcea
  */
 public class UpdatableTest extends AbstractTest {

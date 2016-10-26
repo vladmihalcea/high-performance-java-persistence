@@ -9,8 +9,6 @@ import javax.persistence.Id;
 import java.util.Properties;
 
 /**
- * <code>JmxTest</code> - JMX Test
- *
  * @author Vlad Mihalcea
  */
 public class JmxTest extends AbstractTest {

@@ -1,8 +1,6 @@
 package com.vladmihalcea.book.hpjp.util;
 
 /**
- * <code>EntityProvider</code> - Entity Provider
- *
  * @author Vlad Mihalcea
  */
 public interface EntityProvider {

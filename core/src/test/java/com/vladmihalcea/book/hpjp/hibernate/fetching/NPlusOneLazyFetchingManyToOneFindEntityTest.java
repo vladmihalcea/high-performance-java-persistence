@@ -7,8 +7,6 @@ import javax.persistence.*;
 import java.util.List;
 
 /**
- * <code>FindEntityTest</code> - Find entity Test
- *
  * @author Vlad Mihalcea
  */
 public class NPlusOneLazyFetchingManyToOneFindEntityTest extends AbstractPostgreSQLIntegrationTest {

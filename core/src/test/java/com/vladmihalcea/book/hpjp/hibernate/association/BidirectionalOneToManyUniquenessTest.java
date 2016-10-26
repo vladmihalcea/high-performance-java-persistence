@@ -12,8 +12,6 @@ import java.util.Objects;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>BidirectionalOneToManyTest</code> - Bidirectional OneToMany Test
- *
  * @author Vlad Mihalcea
  */
 public class BidirectionalOneToManyUniquenessTest extends AbstractTest {

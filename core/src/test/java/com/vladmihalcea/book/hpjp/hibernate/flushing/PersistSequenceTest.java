@@ -82,6 +82,7 @@ public class PersistSequenceTest extends AbstractTest {
     public static class Post {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         private String title;

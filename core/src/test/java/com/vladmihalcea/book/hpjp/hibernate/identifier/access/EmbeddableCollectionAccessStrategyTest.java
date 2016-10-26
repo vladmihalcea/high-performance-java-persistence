@@ -10,8 +10,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>OverrideAccessStrategyTest</code> - Override access strategy
- *
  * @author Vlad Mihalcea
  */
 public class EmbeddableCollectionAccessStrategyTest extends AbstractTest {

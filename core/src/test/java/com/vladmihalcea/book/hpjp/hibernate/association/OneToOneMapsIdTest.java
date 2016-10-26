@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -9,11 +9,9 @@ import java.util.Date;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * <code>OneToOneMapsIdTest</code> - @OneToOne Test
- *
  * @author Vlad Mihalcea
  */
-public class OneToOneMapsIdTest extends AbstractTest {
+public class OneToOneMapsIdTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {

@@ -5,8 +5,6 @@ import org.hibernate.stat.spi.StatisticsFactory;
 import org.hibernate.stat.spi.StatisticsImplementor;
 
 /**
- * <code>TransactionStatisticsFactory</code> - Transaction Statistics Factory
- *
  * @author Vlad Mihalcea
  */
 public class TransactionStatisticsFactory implements StatisticsFactory {

@@ -11,8 +11,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * <code>PostgresUUIDTest</code> - PostgresUUID Test
- *
  * @author Vlad Mihalcea
  */
 public class PostgresUUIDTest extends AbstractPostgreSQLIntegrationTest {

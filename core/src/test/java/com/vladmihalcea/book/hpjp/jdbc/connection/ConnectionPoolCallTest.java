@@ -18,8 +18,6 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <code>ConnectionPoolCallTest</code> - Checks how connection pool decreases latency
- *
  * @author Vlad Mihalcea
  */
 @Ignore

@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <code>UnidirectionalOneToManyTest</code> - @OneToMany Test
- *
  * @author Vlad Mihalcea
  */
 public class UnidirectionalOneToManyTest extends AbstractTest {

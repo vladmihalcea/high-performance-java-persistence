@@ -11,8 +11,6 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>UpdateSubQueryTest</code> -
- *
  * @author Vlad Mihalcea
  */
 public class UpdateSubQueryTest extends AbstractTest {

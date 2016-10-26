@@ -19,8 +19,6 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- * <code>AbstractFlywayConfiguration</code> - Flyway Configuration
- *
  * @author Vlad Mihalcea
  */
 @EnableTransactionManagement

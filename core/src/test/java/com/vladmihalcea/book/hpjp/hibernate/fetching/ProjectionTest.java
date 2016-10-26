@@ -14,8 +14,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
- * <code>ProjectionTest</code> - Projection Test
- *
  * @author Vlad Mihalcea
  */
 public class ProjectionTest extends AbstractPostgreSQLIntegrationTest {

@@ -3,8 +3,6 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier.batch.concurrent.provide
 import javax.persistence.*;
 
 /**
- * <code>IdentityPostEntityProvider</code> - Identity PostEntityProvider
- *
  * @author Vlad Mihalcea
  */
 public class IdentityPostEntityProvider extends PostEntityProvider<IdentityPostEntityProvider.Post> {

@@ -15,8 +15,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>AllAssociationTest</code> - All associations Test
- *
  * @author Vlad Mihalcea
  */
 public class AllAssociationTest extends AbstractTest {

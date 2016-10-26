@@ -12,8 +12,6 @@ import java.sql.SQLException;
 import static org.junit.Assert.fail;
 
 /**
- * <code>AutoCommitTest</code> - Auto commit test
- *
  * @author Vlad Mihalcea
  */
 public class AutoCommitTest extends AbstractTest {

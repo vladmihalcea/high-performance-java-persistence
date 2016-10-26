@@ -11,8 +11,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * <code>TreeTest</code> - Tree Test
- *
  * @author Vlad Mihalcea
  */
 public class TreeTest extends AbstractTreeTest {

@@ -9,8 +9,6 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
- * <code>MappedSuperclassTest</code> - MappedSuperclass Test
- *
  * @author Vlad Mihalcea
  */
 public class MappedSuperclassTest extends AbstractTest {

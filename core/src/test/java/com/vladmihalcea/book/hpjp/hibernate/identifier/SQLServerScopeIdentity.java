@@ -15,8 +15,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * <code>SQLServerScopeIdentity</code> - SQLServerScopeIdentity
- *
  * @author Vlad Mihalcea
  */
 public class SQLServerScopeIdentity extends AbstractSQLServerIntegrationTest {

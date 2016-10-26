@@ -8,8 +8,6 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * <code>BatchEntityProvider</code> - Batch Entity Provider
- *
  * @author Vlad Mihalcea
  */
 public class BlogEntityProvider implements EntityProvider {

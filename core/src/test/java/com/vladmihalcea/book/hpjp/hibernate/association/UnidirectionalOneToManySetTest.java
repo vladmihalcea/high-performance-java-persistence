@@ -8,8 +8,6 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 /**
- * <code>UnidirectionalOneToManySetTest</code> - @OneToMany Test
- *
  * @author Vlad Mihalcea
  */
 public class UnidirectionalOneToManySetTest extends AbstractTest {

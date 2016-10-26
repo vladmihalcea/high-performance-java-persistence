@@ -6,8 +6,6 @@ import org.junit.Test;
 import javax.persistence.*;
 
 /**
- * <code>OverrideAccessStrategyTest</code> - Override access strategy
- *
  * @author Vlad Mihalcea
  */
 public class OverrideAccessStrategyTest extends AbstractTest {

@@ -11,8 +11,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>EscapeLikeTest</code> - Escape like Test
- *
  * @author Vlad Mihalcea
  */
 public class EscapeLikeTest extends AbstractTest {

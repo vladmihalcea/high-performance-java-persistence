@@ -9,8 +9,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * <code>IPv4Type</code> - IPv4 Type
- *
  * @author Vlad Mihalcea
  */
 public class IPv4Type extends ImmutableType<IPv4> {

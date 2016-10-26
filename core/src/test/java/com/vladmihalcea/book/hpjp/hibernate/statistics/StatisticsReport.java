@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <code>TransactionStatisticsReport</code> - TransactionStatistics Report
- *
  * @author Vlad Mihalcea
  */
 public class StatisticsReport {

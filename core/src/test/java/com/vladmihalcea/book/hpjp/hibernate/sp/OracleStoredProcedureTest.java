@@ -30,8 +30,6 @@ import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostC
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>OracleStoredProcedureTest</code> - Oracle StoredProcedure Test
- *
  * @author Vlad Mihalcea
  */
 public class OracleStoredProcedureTest extends AbstractOracleXEIntegrationTest {

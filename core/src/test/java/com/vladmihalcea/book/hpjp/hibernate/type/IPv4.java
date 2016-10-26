@@ -7,8 +7,6 @@ import java.net.UnknownHostException;
 import java.util.Objects;
 
 /**
- * <code>IPv4</code> - IPv4 Address
- *
  * @author Vlad Mihalcea
  */
 public class IPv4 implements Serializable {

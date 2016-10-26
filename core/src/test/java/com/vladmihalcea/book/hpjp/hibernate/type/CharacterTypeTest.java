@@ -13,8 +13,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.Assert.fail;
 
 /**
- * <code>Inet4TypeTest</code> -
- *
  * @author Vlad Mihalcea
  */
 public class CharacterTypeTest extends AbstractTest {

@@ -7,8 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * <code>TagDAOImpl</code> - Tag DAO Impl
- *
  * @author Vlad Mihalcea
  */
 @Repository

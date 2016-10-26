@@ -10,8 +10,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>LazyFetchingOneToManyFindEntityTest</code> - Find entity Test
- *
  * @author Vlad Mihalcea
  */
 public class LazyFetchingOneToManyFindEntityTest extends AbstractPostgreSQLIntegrationTest {

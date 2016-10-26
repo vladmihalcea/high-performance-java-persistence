@@ -11,8 +11,6 @@ import java.util.*;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>PostCommentScoreTest</code> - PostCommentScore Test
- *
  * @author Vlad Mihalcea
  */
 public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {

@@ -8,8 +8,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * <code>CharacterType</code> - CharacterType Type
- *
  * @author Vlad Mihalcea
  */
 public class CharacterType extends ImmutableType<Character> {

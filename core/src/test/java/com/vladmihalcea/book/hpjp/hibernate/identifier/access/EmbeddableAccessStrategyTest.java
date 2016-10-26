@@ -8,8 +8,6 @@ import javax.persistence.*;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>OverrideAccessStrategyTest</code> - Override access strategy
- *
  * @author Vlad Mihalcea
  */
 public class EmbeddableAccessStrategyTest extends AbstractTest {

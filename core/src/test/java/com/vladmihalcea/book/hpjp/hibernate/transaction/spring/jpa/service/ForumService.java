@@ -4,8 +4,6 @@ import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import org.springframework.stereotype.Service;
 
 /**
- * <code>ForumService</code> - Forum Service
- *
  * @author Vlad Mihalcea
  */
 @Service

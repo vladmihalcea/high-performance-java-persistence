@@ -13,8 +13,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * <code>SQLStatementCountValidatorTest</code> - SQLStatementCountValidator Test
- *
  * @author Vlad Mihalcea
  */
 public class SQLStatementCountValidatorTest extends AbstractTest {

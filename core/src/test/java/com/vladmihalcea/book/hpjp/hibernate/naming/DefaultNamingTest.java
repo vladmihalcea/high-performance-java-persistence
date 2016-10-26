@@ -10,8 +10,6 @@ import javax.persistence.ManyToOne;
 import static org.junit.Assert.assertEquals;
 
 /**
- * <code>DefaultNamingTest</code> - DefaultNaming Test
- *
  * @author Vlad Mihalcea
  */
 public class DefaultNamingTest extends AbstractOracleXEIntegrationTest {

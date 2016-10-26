@@ -9,8 +9,6 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- * <code>PostgreSQLJtaTransactionManagerConfiguration</code> - PostgreSQL JTA TransactionManagerConfiguration
- *
  * @author Vlad Mihalcea
  */
 @PropertySource({"/META-INF/jta-postgresql.properties"})

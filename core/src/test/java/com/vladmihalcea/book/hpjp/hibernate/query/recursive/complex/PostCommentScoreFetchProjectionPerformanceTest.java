@@ -10,8 +10,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * <code>PostCommentScoreTest</code> - PostCommentScore Test
- *
  * @author Vlad Mihalcea
  */
 public class PostCommentScoreFetchProjectionPerformanceTest extends AbstractPostCommentScorePerformanceTest {
