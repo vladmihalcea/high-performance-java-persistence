@@ -404,7 +404,7 @@ public abstract class AbstractTest {
 
         @Override
         public String hibernateDialect() {
-            return "org.hibernate.dialect.MySQL5Dialect";
+            return "org.hibernate.dialect.MySQL57InnoDBDialect";
         }
 
         @Override

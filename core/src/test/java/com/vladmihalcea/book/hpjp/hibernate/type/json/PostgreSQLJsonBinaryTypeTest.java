@@ -72,6 +72,13 @@ public class PostgreSQLJsonBinaryTypeTest extends AbstractPostgreSQLIntegrationT
                 "where p.ticket ->> 'price' > '10'")
             .getResultList();
 
+            participants = entityManager.createNativeQuery(
+                "select jsonb_pretty(p.ticket) " +
+                "from participant p " +
+                "where p.ticket ->> 'price' > :price")
+            .setParameter("price", "10")
+            .getResultList();
+
             event.getLocation().setCity("Constanța");
             entityManager.flush();
 

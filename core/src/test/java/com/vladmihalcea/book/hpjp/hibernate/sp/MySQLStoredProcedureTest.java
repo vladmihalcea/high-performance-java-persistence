@@ -16,7 +16,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
@@ -204,18 +203,17 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
     @Test
     public void testFunctionWithJDBC() {
         doInJPA(entityManager -> {
-            final AtomicReference<Integer> commentCount = new AtomicReference<>();
             Session session = entityManager.unwrap( Session.class );
-            session.doWork( connection -> {
+            Integer commentCount = session.doReturningWork( connection -> {
                 try (CallableStatement function = connection.prepareCall(
                         "{ ? = call fn_count_comments(?) }" )) {
                     function.registerOutParameter( 1, Types.INTEGER );
                     function.setInt( 2, 1 );
                     function.execute();
-                    commentCount.set( function.getInt( 1 ) );
+                    return function.getInt( 1 );
                 }
             } );
-            assertEquals(Integer.valueOf(2), commentCount.get());
+            assertEquals(Integer.valueOf(2), commentCount);
         });
     }
 
