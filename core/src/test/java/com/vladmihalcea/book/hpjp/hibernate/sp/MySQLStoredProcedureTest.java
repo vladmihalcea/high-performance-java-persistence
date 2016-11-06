@@ -60,6 +60,13 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
         });
         doInJDBC(connection -> {
             try(Statement statement = connection.createStatement()) {
+                statement.executeUpdate("DROP PROCEDURE IF EXISTS getStatistics");
+            }
+            catch (SQLException ignore) {
+            }
+        });
+        doInJDBC(connection -> {
+            try(Statement statement = connection.createStatement()) {
                 statement.executeUpdate(
                     "CREATE PROCEDURE count_comments (" +
                     "   IN postId INT, " +
@@ -90,6 +97,14 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
                     "    FROM post_comment  " +
                     "    WHERE post_comment.post_id = postId; " +
                     "    RETURN commentCount; " +
+                    "END"
+                );
+                statement.executeUpdate(
+                    "CREATE PROCEDURE getStatistics (OUT A BIGINT UNSIGNED, OUT B BIGINT UNSIGNED, OUT C BIGINT UNSIGNED) " +
+                    "BEGIN " +
+                    "    SELECT count(*) into A from post; " +
+                    "    SELECT count(*) into B from post_comment; " +
+                    "    SELECT count(*) into C from tag; " +
                     "END"
                 );
             }
@@ -128,12 +143,35 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
     public void testHibernateProcedureCallOutParameter() {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
-            ProcedureCall call = session.createStoredProcedureCall("count_comments");
+            ProcedureCall call = session.createStoredProcedureCall("getStatistics");
             call.registerParameter("postId", Long.class, ParameterMode.IN).bindValue(1L);
             call.registerParameter("commentCount", Long.class, ParameterMode.OUT);
 
             Long commentCount = (Long) call.getOutputs().getOutputParameterValue("commentCount");
             assertEquals(Long.valueOf(2), commentCount);
+        });
+    }
+
+    @Test
+    public void testHibernateProcedureCallMultipleOutParameter() {
+        doInJPA(entityManager -> {
+            StoredProcedureQuery query = entityManager
+                .createStoredProcedureQuery("getStatistics")
+                .registerStoredProcedureParameter(
+                        "A", Long.class, ParameterMode.OUT)
+                .registerStoredProcedureParameter(
+                        "B", Long.class, ParameterMode.OUT)
+                .registerStoredProcedureParameter(
+                        "C", Long.class, ParameterMode.OUT);
+
+            query.execute();
+
+            Long a = (Long) query
+                    .getOutputParameterValue("A");
+            Long b = (Long) query
+                    .getOutputParameterValue("B");
+            Long c = (Long) query
+                    .getOutputParameterValue("C");
         });
     }
 
