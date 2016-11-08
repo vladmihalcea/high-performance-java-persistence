@@ -8,9 +8,14 @@ import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
 import org.junit.Test;
 
+import javax.persistence.Tuple;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -59,7 +64,7 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
-    public void testSelectCutomFunction() {
+    public void testSelectCustomFunction() {
         /*doInJPA(entityManager -> {
             Post post = findPersonByFirstAndLastName("Vlad", "Mihalcea' and FUNCTION('current_database',) is not null and '' = '");
             LOGGER.info("Found entity {}", post);
@@ -80,7 +85,11 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
             assertEquals("Awesome", comment.getReview());
         });
 
-        updatePostCommentReviewUsingStatement(1L, "'; DROP TABLE post_comment; -- '");
+        try {
+            updatePostCommentReviewUsingStatement(1L, "'; DROP TABLE post_comment; -- '");
+        } catch (Exception e) {
+            LOGGER.error("Failure", e);
+        }
 
         doInJPA(entityManager -> {
             PostComment comment = entityManager.find(PostComment.class, 1L);
@@ -113,7 +122,11 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
             assertEquals("Awesome", comment.getReview());
         });
 
-        updatePostCommentReviewUsingPreparedStatement(1L, "'; DROP TABLE post_comment; -- '");
+        try {
+            updatePostCommentReviewUsingPreparedStatement(1L, "'; DROP TABLE post_comment; -- '");
+        } catch (Exception e) {
+            LOGGER.error("Failure", e);
+        }
 
         doInJPA(entityManager -> {
             PostComment comment = entityManager.find(PostComment.class, 1L);
@@ -133,10 +146,15 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
+    public void testGetPostCommentByReview() {
+        getPostCommentByReview("1 AND 1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(10) )");
+    }
+
+    @Test
     public void testPreparedStatementSelectAndWait() {
         assertEquals("Good", getPostCommentReviewUsingPreparedStatement("1"));
         try {
-            getPostCommentReviewUsingPreparedStatement("1 AND 1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(3) )");
+            getPostCommentReviewUsingPreparedStatement("1 AND 1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(10) )");
         } catch (Exception expected) {
             LOGGER.error("Failure", expected);
         }
@@ -148,7 +166,10 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
             Session session = entityManager.unwrap(Session.class);
             session.doWork(connection -> {
                 try(Statement statement = connection.createStatement()) {
-                    statement.executeUpdate("UPDATE post_comment SET review = '" + review + "' WHERE id = " + id);
+                    statement.executeUpdate(
+                        "UPDATE post_comment " +
+                        "SET review = '" + review + "' " +
+                        "WHERE id = " + id);
                 }
             });
         });
@@ -158,7 +179,10 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
             session.doWork(connection -> {
-                String sql = "UPDATE post_comment SET review = '" + review + "' WHERE id = " + id;
+                String sql =
+                    "UPDATE post_comment " +
+                    "SET review = '" + review + "' " +
+                    "WHERE id = " + id;
                 try(PreparedStatement statement = connection.prepareStatement(sql)) {
                     statement.executeUpdate();
                 }
@@ -170,7 +194,10 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
         return doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
             return session.doReturningWork(connection -> {
-                String sql = "SELECT review FROM post_comment WHERE id = " + id;
+                String sql =
+                    "SELECT review " +
+                    "FROM post_comment " +
+                    "WHERE id = " + id;
                 try(Statement statement = connection.createStatement()) {
                     try(ResultSet resultSet = statement.executeQuery(sql)) {
                         return resultSet.next() ? resultSet.getString(1) : null;
@@ -184,13 +211,27 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
         return doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
             return session.doReturningWork(connection -> {
-                String sql = "SELECT review FROM post_comment WHERE id = " + id;
+                String sql =
+                    "SELECT review " +
+                    "FROM post_comment " +
+                    "WHERE id = " + id;
                 try(PreparedStatement statement = connection.prepareStatement(sql)) {
                     try(ResultSet resultSet = statement.executeQuery()) {
                         return resultSet.next() ? resultSet.getString(1) : null;
                     }
                 }
             });
+        });
+    }
+
+    public PostComment getPostCommentByReview(String review) {
+        return doInJPA(entityManager -> {
+            return entityManager.createQuery(
+                "select p " +
+                "from PostComment p " +
+                "where p.review = :review", PostComment.class)
+            .setParameter("review", review)
+            .getSingleResult();
         });
     }
 
@@ -213,8 +254,19 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
     @Test
     public void testPostGetByTitleAndWait() {
         doInJPA(entityManager -> {
-            List<Post> posts = getPostsByTitle("High-Performance Java Persistence' and FUNCTION('1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(3) ) --',) is '");
+            List<Post> posts = getPostsByTitle(
+                "High-Performance Java Persistence' and " +
+                "FUNCTION('1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(10) ) --',) is '"
+            );
             assertEquals(1, posts.size());
+        });
+    }
+
+    @Test
+    public void testTuples() {
+        doInJPA(entityManager -> {
+            List<Tuple> tuples = getTuples();
+            assertEquals(1, tuples.size());
         });
     }
 
@@ -226,6 +278,23 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
                 "where" +
                 "   p.title = '" + title + "'", Post.class)
             .getResultList();
+        });
+    }
+
+    public List<Tuple> getTuples() {
+        return doInJPA(entityManager -> {
+            Class<Post> entityClass = Post.class;
+            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Tuple> query = cb.createTupleQuery();
+            Root<?> root = query.from(entityClass);
+            query.select(
+                cb.tuple(
+                    root.get("id"),
+                    cb.function("now", Date.class)
+                )
+            );
+
+            return entityManager.createQuery(query).getResultList();
         });
     }
 
