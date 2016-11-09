@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.jpa.QueryHints;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -76,7 +75,6 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
                 "left join fetch p.comments " +
                 "where p.title = :title", Post.class)
             .setParameter("title", "High-Performance Java Persistence")
-            .setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false)
             .getResultList();
 
             LOGGER.info("Fetched {} post entities: {}", posts.size(), posts);

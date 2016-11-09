@@ -4,7 +4,7 @@ import org.hibernate.MappingException;
 import org.hibernate.Session;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.id.Configurable;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.enhanced.SequenceStyleGenerator;
@@ -61,7 +61,7 @@ public class StringSequenceIdentifier
     }
 
     @Override
-    public Serializable generate(SharedSessionContractImplementor session, Object obj) {
+    public Serializable generate(SessionImplementor session, Object obj) {
         if (obj instanceof Identifiable) {
             Identifiable identifiable = (Identifiable) obj;
             Serializable id = identifiable.getId();

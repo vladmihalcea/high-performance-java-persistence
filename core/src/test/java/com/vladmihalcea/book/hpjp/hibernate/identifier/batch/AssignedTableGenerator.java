@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier.batch;
 
 import com.vladmihalcea.book.hpjp.hibernate.identifier.Identifiable;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.id.enhanced.TableGenerator;
 
 import java.io.Serializable;
@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class AssignedTableGenerator extends TableGenerator {
 
     @Override
-    public Serializable generate(SharedSessionContractImplementor session, Object obj) {
+    public Serializable generate(SessionImplementor session, Object obj) {
         if(obj instanceof Identifiable) {
             Identifiable identifiable = (Identifiable) obj;
             Serializable id = identifiable.getId();

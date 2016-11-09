@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.postgresql.util.PGobject;
 
 import java.sql.PreparedStatement;
@@ -22,14 +22,14 @@ public class IPv4Type extends ImmutableType<IPv4> {
 
     @Override
     public IPv4 get(ResultSet rs, String[] names,
-                    SharedSessionContractImplementor session, Object owner) throws SQLException {
+                    SessionImplementor session, Object owner) throws SQLException {
         String ip = rs.getString(names[0]);
         return (ip != null) ? new IPv4(ip) : null;
     }
 
     @Override
     public void set(PreparedStatement st, IPv4 value, int index,
-                    SharedSessionContractImplementor session) throws SQLException {
+                    SessionImplementor session) throws SQLException {
         if (value == null) {
             st.setNull(index, Types.OTHER);
         } else {

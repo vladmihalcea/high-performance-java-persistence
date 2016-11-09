@@ -84,8 +84,8 @@ public class SessionAlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
     @Test
     public void testSynchronizeSQL() {
         doInHibernate(session -> {
-            session.createNativeQuery("delete from Post").executeUpdate();
-            session.createNativeQuery("delete from Board").executeUpdate();
+            session.createSQLQuery("delete from Post").executeUpdate();
+            session.createSQLQuery("delete from Board").executeUpdate();
         });
         doInHibernate(session -> {
             log.info("testFlushSQL");

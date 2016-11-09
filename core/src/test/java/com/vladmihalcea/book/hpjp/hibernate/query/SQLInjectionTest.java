@@ -316,7 +316,7 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
                 return entityManager.unwrap(Session.class).createQuery(
                     "select e " +
                     "from " + Class.forName(entityName).getName() + " e ")
-                .getResultList();
+                .list();
             } catch (ClassNotFoundException e) {
                 throw new IllegalArgumentException(e);
             }

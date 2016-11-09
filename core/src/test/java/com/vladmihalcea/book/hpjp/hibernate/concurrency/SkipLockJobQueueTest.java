@@ -150,7 +150,6 @@ public class SkipLockJobQueueTest extends AbstractOracleXEIntegrationTest {
         .setLockOptions(new LockOptions(LockMode.PESSIMISTIC_WRITE)
             .setTimeOut(LockOptions.SKIP_LOCKED)
             //This is not really needed for this query but showsthat you can control the follow-on locking mechanism
-            .setFollowOnLocking(false)
         )
         .list();
 
