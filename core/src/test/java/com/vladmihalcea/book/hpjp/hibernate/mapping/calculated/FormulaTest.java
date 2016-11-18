@@ -61,7 +61,7 @@ public class FormulaTest extends AbstractPostgreSQLIntegrationTest {
         @Id
         private Long id;
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         private User owner;
 
         private String iban;

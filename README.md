@@ -58,9 +58,5 @@ The Integration Tests require some external configurations:
     Open SQL Server Management Studio and create the hibernate_master_class database
 
     Open SQL Server Configuration Manager -> SQL Server Network Configuration and enable Named Pipes and TCP
-
-    You need to download the SQL Server JDBC Driver and install the sqljdbc4.jar on your local Maven repository using the following command:
-
-        $ mvn install:install-file -Dfile=sqljdbc4.jar -Dpackaging=jar -DgroupId=com.microsoft.sqlserver -DartifactId=sqljdbc4 -Dversion=4.0
         
     Now you need to create a `high_performance_java_persistence` database
