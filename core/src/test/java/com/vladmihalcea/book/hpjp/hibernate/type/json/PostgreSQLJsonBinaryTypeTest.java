@@ -80,14 +80,25 @@ public class PostgreSQLJsonBinaryTypeTest extends AbstractPostgreSQLIntegrationT
             .getResultList();
 
             event.getLocation().setCity("Constanța");
+            assertEquals(Integer.valueOf(0), event.getVersion());
             entityManager.flush();
+            assertEquals(Integer.valueOf(1), event.getVersion());
 
             assertEquals(1, participants.size());
         });
         doInJPA(entityManager -> {
             Event event = entityManager.find(Event.class, eventHolder.get().getId());
-
+            event.getLocation().setCity(null);
+            assertEquals(Integer.valueOf(1), event.getVersion());
+            entityManager.flush();
+            assertEquals(Integer.valueOf(2), event.getVersion());
+        });
+        doInJPA(entityManager -> {
+            Event event = entityManager.find(Event.class, eventHolder.get().getId());
             event.setLocation(null);
+            assertEquals(Integer.valueOf(2), event.getVersion());
+            entityManager.flush();
+            assertEquals(Integer.valueOf(3), event.getVersion());
         });
     }
 
