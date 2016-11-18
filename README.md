@@ -45,8 +45,8 @@ The Integration Tests require some external configurations:
     2. You can also download the Oracle JDBC Driver (ojdbc6.jar and ojdbc7_g.jar), which is not available in the Maven Central Repository.
     and install the ojdbc6.jar and ojdbc7_g.jar on your local Maven repository using the following command:
 
-        $ mvn install:install-file -Dfile=ojdbc6.jar -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2.0.4 -Dpackaging=jar
-        $ mvn install:install-file -Dfile=ojdbc7_g.jar -DgroupId=com.oracle -DartifactId=ojdbc7_g -Dversion=12.1.0.1 -Dpackaging=jar 
+             $ mvn install:install-file -Dfile=ojdbc6.jar -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2.0.4 -Dpackaging=jar
+             $ mvn install:install-file -Dfile=ojdbc7_g.jar -DgroupId=com.oracle -DartifactId=ojdbc7_g -Dversion=12.1.0.1 -Dpackaging=jar 
 
 - MySQL
 
