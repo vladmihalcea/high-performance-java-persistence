@@ -21,6 +21,20 @@
         <module>jooq</module>
     </modules>
 
+    <repositories>
+        <repository>
+            <id>maven.oracle.com</id>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <url>https://maven.oracle.com</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+
     <dependencies>
 
         <dependency>
@@ -151,8 +165,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc7_g</artifactId>
+            <groupId>com.oracle.jdbc</groupId>
+            <artifactId>ojdbc7</artifactId>
             <version>${oracle.version}</version>
             <scope>test</scope>
         </dependency>
@@ -310,7 +324,7 @@
         <p6spy.version>2.1.4</p6spy.version>
         <hsqldb.version>2.3.2</hsqldb.version>
         <postgresql.version>9.4-1202-jdbc41</postgresql.version>
-        <oracle.version>12.1.0.1</oracle.version>
+        <oracle.version>12.1.0.2</oracle.version>
         <!--<oracle.version>11.2.0.4</oracle.version>-->
         <mysql.version>5.1.38</mysql.version>
         <mssql.version>6.1.0.jre8</mssql.version>
