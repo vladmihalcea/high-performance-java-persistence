@@ -84,6 +84,11 @@ public class PostgreSQLJsonBinaryTypeTest extends AbstractPostgreSQLIntegrationT
 
             assertEquals(1, participants.size());
         });
+        doInJPA(entityManager -> {
+            Event event = entityManager.find(Event.class, eventHolder.get().getId());
+
+            event.setLocation(null);
+        });
     }
 
     @Entity(name = "Event")

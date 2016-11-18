@@ -7,6 +7,7 @@ import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Version;
 
 /**
  * @author Vlad Mihalcea
@@ -20,6 +21,9 @@ public class BaseEntity {
 
     @Id
     private Long id;
+
+    @Version
+    private Integer version;
 
     public Long getId() {
         return id;
