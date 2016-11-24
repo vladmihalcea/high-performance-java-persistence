@@ -35,7 +35,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>com.microsoft.sqlserver</groupId>
-                        <artifactId>sqljdbc4</artifactId>
+                        <artifactId>mssql-jdbc</artifactId>
                         <version>${mssql.version}</version>
                     </dependency>
                 </dependencies>
@@ -85,7 +85,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>com.microsoft.sqlserver</groupId>
-                        <artifactId>sqljdbc4</artifactId>
+                        <artifactId>mssql-jdbc</artifactId>
                         <version>${mssql.version}</version>
                     </dependency>
                 </dependencies>

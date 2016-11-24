@@ -34,8 +34,8 @@
                 <artifactId>sql-maven-plugin</artifactId>
                 <dependencies>
                     <dependency>
-                        <groupId>com.oracle</groupId>
-                        <artifactId>ojdbc7_g</artifactId>
+                        <groupId>com.oracle.jdbc</groupId>
+                        <artifactId>ojdbc7</artifactId>
                         <version>${oracle.version}</version>
                     </dependency>
                 </dependencies>
@@ -84,8 +84,8 @@
                 </executions>
                 <dependencies>
                     <dependency>
-                        <groupId>com.oracle</groupId>
-                        <artifactId>ojdbc7_g</artifactId>
+                        <groupId>com.oracle.jdbc</groupId>
+                        <artifactId>ojdbc7</artifactId>
                         <version>${oracle.version}</version>
                     </dependency>
                 </dependencies>

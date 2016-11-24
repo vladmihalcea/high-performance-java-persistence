@@ -25,6 +25,7 @@ import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.PostgreSQL94Dialect;
+import org.hibernate.dialect.PostgreSQL95Dialect;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
@@ -255,7 +256,7 @@ public abstract class AbstractTest {
 
         @Override
         public String hibernateDialect() {
-            return PostgreSQL94Dialect.class.getName();
+            return PostgreSQL95Dialect.class.getName();
         }
 
         @Override
