@@ -1,10 +1,11 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.annotations.JoinFormula;
 import org.junit.Test;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import java.util.Locale;
@@ -15,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class JoinFormulaTest extends AbstractTest {
+public class JoinFormulaTest extends AbstractPostgreSQLIntegrationTest {
 
 	@Override
 	protected Class<?>[] entities() {
@@ -27,38 +28,42 @@ public class JoinFormulaTest extends AbstractTest {
 	}
 
 	@Test
-	public void testLifecycle() {
-		Country us = new Country();
-		us.setId( "US" );
-		us.setName( "United States" );
+	public void test() {
+		Country _US = new Country();
+		_US.setId( "US" );
+		_US.setName( "United States" );
+		_US.setVatRate(0.1);
 
-		Country uk = new Country();
-		uk.setId( "EK" );
-		uk.setName( "United Kingdom" );
+		Country _UK = new Country();
+		_UK.setId( "UK" );
+		_UK.setName( "United Kingdom" );
+		_UK.setVatRate(0.2);
 
-		Country spain = new Country();
-		spain.setId( "ES" );
-		spain.setName( "Spain" );
+		Country _Spain = new Country();
+		_Spain.setId( "ES" );
+		_Spain.setName( "Spain" );
+		_Spain.setVatRate(0.21);
 
-		Country mexico = new Country();
-		mexico.setId( "MX" );
-		mexico.setName( "Mexico" );
+		Country _Mexico = new Country();
+		_Mexico.setId( "MX" );
+		_Mexico.setName( "Mexico" );
+		_Mexico.setVatRate(0.16);
 
-		Language english = new Language();
-		english.setId( "en" );
-		english.setName( "English" );
+		Language _English = new Language();
+		_English.setId( "en" );
+		_English.setName( "English" );
 
-		Language spanish = new Language();
-		spanish.setId( "es" );
-		spanish.setName( "Spanish" );
+		Language _Spanish = new Language();
+		_Spanish.setId( "es" );
+		_Spanish.setName( "Spanish" );
 
 		doInJPA( entityManager -> {
-			entityManager.persist( us );
-			entityManager.persist( uk );
-			entityManager.persist( spain );
-			entityManager.persist( mexico );
-			entityManager.persist( english );
-			entityManager.persist( spanish );
+			entityManager.persist( _US );
+			entityManager.persist( _UK );
+			entityManager.persist( _Spain );
+			entityManager.persist( _Mexico );
+			entityManager.persist( _English );
+			entityManager.persist( _Spanish );
 		} );
 
 		doInJPA( entityManager -> {
@@ -78,9 +83,15 @@ public class JoinFormulaTest extends AbstractTest {
 		} );
 
 		doInJPA( entityManager -> {
-			Account account = entityManager.find( Account.class, 1L );
-			assertEquals( english, account.getLanguage());
-			assertEquals( us, account.getCountry());
+			LOGGER.info("Fetch first Account");
+			Account account1 = entityManager.find( Account.class, 1L );
+			assertEquals( _English, account1.getLanguage());
+			assertEquals( _US, account1.getCountry());
+
+			LOGGER.info("Fetch second Account");
+			Account account2 = entityManager.find( Account.class, 2L );
+			assertEquals( _Spanish, account2.getLanguage());
+			assertEquals( _Mexico, account2.getCountry());
 		} );
 	}
 
@@ -96,12 +107,12 @@ public class JoinFormulaTest extends AbstractTest {
 
 		private Locale locale;
 
-		@ManyToOne
-		@JoinFormula( "SUBSTRING(locale, 4)" )
+		@ManyToOne(fetch = FetchType.LAZY)
+		@JoinFormula( "REGEXP_REPLACE(locale, '\\w+_(\\w+)[_]?', '\\1')" )
 		private Country country;
 
-		@ManyToOne
-		@JoinFormula( "SUBSTRING(locale, 1, 2)" )
+		@ManyToOne(fetch = FetchType.LAZY)
+		@JoinFormula( "REGEXP_REPLACE(locale, '(\\w+)_.*', '\\1')" )
 		private Language language;
 		
 		public Long getId() {
@@ -196,6 +207,8 @@ public class JoinFormulaTest extends AbstractTest {
 
 		private String name;
 
+		private double vatRate;
+
 		public String getId() {
 			return id;
 		}
@@ -210,6 +223,14 @@ public class JoinFormulaTest extends AbstractTest {
 
 		public void setName(String name) {
 			this.name = name;
+		}
+
+		public double getVatRate() {
+			return vatRate;
+		}
+
+		public void setVatRate(double vatRate) {
+			this.vatRate = vatRate;
 		}
 
 		@Override

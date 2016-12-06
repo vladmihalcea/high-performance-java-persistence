@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
  * @author Vlad Mihalcea
  */
 public class JoinFormulaCollationManyToManyTest extends
-		AbstractMySQLIntegrationTest {
+		AbstractSQLServerIntegrationTest {
 
 	@Override
 	protected Class<?>[] entities() {
