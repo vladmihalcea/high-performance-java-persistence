@@ -8,10 +8,13 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import java.sql.Statement;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
@@ -29,6 +32,14 @@ public class JoinFormulaTest extends AbstractPostgreSQLIntegrationTest {
 
 	@Test
 	public void test() {
+
+		doInJDBC(connection -> {
+			try(Statement statement = connection.createStatement()) {
+				statement.executeUpdate("CREATE INDEX account_language_idx ON Account (REGEXP_REPLACE(locale, '(\\w+)_.*', '\\1'))");
+				statement.executeUpdate("CREATE INDEX account_country_idx ON Account (REGEXP_REPLACE(locale, '\\w+_(\\w+)[_]?', '\\1'))");
+			}
+		});
+
 		Country _US = new Country();
 		_US.setId( "US" );
 		_US.setName( "United States" );
@@ -92,6 +103,20 @@ public class JoinFormulaTest extends AbstractPostgreSQLIntegrationTest {
 			Account account2 = entityManager.find( Account.class, 2L );
 			assertEquals( _Spanish, account2.getLanguage());
 			assertEquals( _Mexico, account2.getCountry());
+		} );
+
+		doInJPA( entityManager -> {
+			Account account1 = entityManager.createQuery(
+				"select a " +
+				"from Account a " +
+				"join a.language l " +
+				"join a.country c " +
+				"where a.id = :accountId", Account.class )
+			.setParameter("accountId", 1L)
+			.getSingleResult();
+
+			assertEquals( _English, account1.getLanguage());
+			assertEquals( _US, account1.getCountry());
 		} );
 	}
 
