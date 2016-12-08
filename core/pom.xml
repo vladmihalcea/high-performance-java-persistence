@@ -15,6 +15,12 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>org.hibernate.orm.tooling</groupId>
+            <artifactId>hibernate-enhance-maven-plugin</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -39,6 +45,8 @@
                 <executions>
                     <execution>
                         <configuration>
+                            <!--This is ned for Byte Buddy-->
+                            <!--<dir>${project.build.outputDirectory}/com/vladmihalcea/book/hpjp/hibernate/forum</dir>-->
                             <failOnError>true</failOnError>
                             <enableLazyInitialization>true</enableLazyInitialization>
                             <enableDirtyTracking>false</enableDirtyTracking>

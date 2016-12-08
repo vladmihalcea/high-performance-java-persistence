@@ -133,7 +133,7 @@ public class ReadWriteCacheConcurrencyStrategyWithLockTimeoutTest extends Abstra
     }
 
     private Object cacheKey(Serializable identifier, EntityPersister p) {
-        return DefaultCacheKeysFactory.createEntityKey(
+        return DefaultCacheKeysFactory.INSTANCE.createEntityKey(
                 identifier, p, (SessionFactoryImplementor) sessionFactory(), null
         );
     }
