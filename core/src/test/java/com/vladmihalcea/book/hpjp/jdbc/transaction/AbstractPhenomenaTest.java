@@ -6,11 +6,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import javax.persistence.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -35,6 +37,10 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     public static final String INSERT_POST_DETAILS = "insert into post_details (id, created_by, version) values (?, ?, ?)";
 
+    public static final String INSERT_DEPARTMENT = "insert into department (name, budget, id) values (?, ?, ?)";
+
+    public static final String INSERT_EMPLOYEE = "insert into employee (department_id, first_name, last_name, salary, id) values (?, ?, ?, ?, ?)";
+
     private final String isolationLevelName;
 
     private final int isolationLevel;
@@ -58,7 +64,10 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
-        return entityProvider.entities();
+        List<Class<?>> classes = new ArrayList<>(Arrays.asList(entityProvider.entities()));
+        classes.add(Department.class);
+        classes.add(Employee.class);
+        return classes.toArray(new Class<?>[]{});
     }
 
     @Parameterized.Parameters
@@ -99,6 +108,30 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                     postCommentStatement.setInt(++index, 0);
                     postCommentStatement.setLong(++index, i);
                     postCommentStatement.executeUpdate();
+                }
+            } catch (SQLException e) {
+                fail(e.getMessage());
+            }
+        });
+        doInJDBC(connection -> {
+            try (
+                    PreparedStatement departmentStatement = connection.prepareStatement(INSERT_DEPARTMENT);
+                    PreparedStatement employeeStatement = connection.prepareStatement(INSERT_EMPLOYEE);
+            ) {
+                int index = 0;
+                departmentStatement.setString(++index, "Hypersistence");
+                departmentStatement.setLong(++index, 100_000);
+                departmentStatement.setLong(++index, 1);
+                departmentStatement.executeUpdate();
+
+                for (int i = 0; i < 3; i++) {
+                    index = 0;
+                    employeeStatement.setLong(++index, 1);
+                    employeeStatement.setString(++index, String.format("First name %1$d", i));
+                    employeeStatement.setString(++index, String.format("Last name %1$d", i));
+                    employeeStatement.setLong(++index, 30_000);
+                    employeeStatement.setLong(++index, i);
+                    employeeStatement.executeUpdate();
                 }
             } catch (SQLException e) {
                 fail(e.getMessage());
@@ -358,6 +391,66 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         LOGGER.info("Isolation level {} {} Write Skew", isolationLevelName, !Boolean.TRUE.equals(preventedByLocking.get()) ? "allows" : "prevents");
     }
 
+    @Test
+    public void testPhantomWriteWithTimeout() {
+        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
+        try {
+            doInJDBC(aliceConnection -> {
+                if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
+                    LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
+                    return;
+                }
+                prepareConnection(aliceConnection);
+                long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                assertEquals(90_000, salaryCount);
+
+                try {
+                    executeSync(() -> {
+                        doInJDBC(bobConnection -> {
+                            prepareConnection(bobConnection);
+                            try {
+                                long _salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                                assertEquals(90_000, salaryCount);
+
+                                try (
+                                        PreparedStatement employeeStatement = bobConnection.prepareStatement(insertEmployeeSql());
+                                ) {
+                                    int employeeId = 4;
+                                    int index = 0;
+                                    employeeStatement.setLong(++index, 1);
+                                    employeeStatement.setString(++index, String.format("First name %1$d", employeeId));
+                                    employeeStatement.setString(++index, String.format("Last name %1$d", employeeId));
+                                    employeeStatement.setLong(++index, 9_000);
+                                    employeeStatement.setLong(++index, employeeId);
+                                    employeeStatement.executeUpdate();
+                                }
+                            } catch (Exception e) {
+                                LOGGER.info("Exception thrown", e);
+                                preventedByLocking.set(true);
+                            }
+                        });
+                    });
+                } catch (Exception e) {
+                    LOGGER.info("Exception thrown", e);
+                    preventedByLocking.set(true);
+                }
+                update(aliceConnection, updateEmployeeSalarySql());
+            });
+        } catch (Exception e) {
+            LOGGER.info("Exception thrown", e);
+            preventedByLocking.set(true);
+        }
+        doInJDBC(aliceConnection -> {
+            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+            if(99_000 != salaryCount) {
+                LOGGER.info("Isolation level {} allows Phantom Write since the salary count is {} instead 99000", isolationLevelName, salaryCount);
+            }
+            else {
+                LOGGER.info("Isolation level {} prevents Phantom Write {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
+            }
+        });
+        }
+
     protected void prepareConnection(Connection connection) throws SQLException {
         connection.setTransactionIsolation(isolationLevel);
         try {
@@ -403,6 +496,113 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     protected String insertCommentSql() {
         return String.format("INSERT INTO post_comment (post_id, review, version, id) VALUES (1, 'Phantom', 0, %d)", nextId++);
+    }
+
+    protected String sumEmployeeSalarySql() {
+        return "SELECT SUM(salary) FROM employee where department_id = 1";
+    }
+
+    protected String insertEmployeeSql() {
+        return INSERT_EMPLOYEE;
+    }
+
+    protected String updateEmployeeSalarySql() {
+        return "UPDATE employee SET salary = salary * 1.1 WHERE department_id = 1";
+    }
+
+    @Entity(name = "Department")
+    @Table(name = "department")
+    public static class Department {
+
+        @Id
+        private Long id;
+
+        private String name;
+
+        private long budget;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public long getBudget() {
+            return budget;
+        }
+
+        public void setBudget(long budget) {
+            this.budget = budget;
+        }
+    }
+
+    @Entity(name = "Employee")
+    @Table(name = "employee")
+    public static class Employee {
+
+        @Id
+        private Long id;
+
+        @Column(name = "first_name")
+        private String firstName;
+
+        @Column(name = "last_name")
+        private String lastName;
+
+        @ManyToOne(fetch = FetchType.LAZY)
+        private Department department;
+
+        private long salary;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public void setFirstName(String firstName) {
+            this.firstName = firstName;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+
+        public void setLastName(String lastName) {
+            this.lastName = lastName;
+        }
+
+        public Department getDepartment() {
+            return department;
+        }
+
+        public void setDepartment(Department department) {
+            this.department = department;
+        }
+
+        public long getSalary() {
+            return salary;
+        }
+
+        public void setSalary(long salary) {
+            this.salary = salary;
+        }
     }
 
 }

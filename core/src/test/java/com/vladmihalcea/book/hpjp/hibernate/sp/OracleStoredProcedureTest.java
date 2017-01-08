@@ -204,18 +204,17 @@ public class OracleStoredProcedureTest extends AbstractOracleXEIntegrationTest {
     @Test
     public void testFunctionWithJDBC() {
         doInJPA(entityManager -> {
-            final AtomicReference<Integer> commentCount = new AtomicReference<>();
             Session session = entityManager.unwrap( Session.class );
-            session.doWork( connection -> {
+            Integer commentCount = session.doReturningWork( connection -> {
                 try (CallableStatement function = connection.prepareCall(
                         "{ ? = call fn_count_comments(?) }" )) {
                     function.registerOutParameter( 1, Types.INTEGER );
                     function.setInt( 2, 1 );
                     function.execute();
-                    commentCount.set( function.getInt( 1 ) );
+                    return function.getInt( 1 );
                 }
             } );
-            assertEquals(Integer.valueOf(2), commentCount.get());
+            assertEquals(Integer.valueOf(2), commentCount);
         });
     }
 

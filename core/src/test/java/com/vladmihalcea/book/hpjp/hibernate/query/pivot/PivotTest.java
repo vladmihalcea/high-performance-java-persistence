@@ -1,11 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.pivot;
 
-import com.vladmihalcea.book.hpjp.hibernate.flushing.AlwaysFlushTest;
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.query.Query;
-import org.hibernate.transform.AliasToBeanConstructorResultTransformer;
 import org.hibernate.transform.Transformers;
 import org.junit.Test;
 
@@ -17,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class PivotTest extends AbstractOracleXEIntegrationTest {
+public class PivotTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -152,9 +149,9 @@ public class PivotTest extends AbstractOracleXEIntegrationTest {
 
         doInJPA(entityManager -> {
            List<Property> componentProperties = entityManager.createQuery(
-                "select p " +
-                "from Property p " +
-                "where p.id.component.name = :name", Property.class)
+                "SELECT p " +
+                "FROM Property p " +
+                "WHERE p.id.component.name = :name", Property.class)
             .setParameter("name", "flexyPoolDataSource")
             .getResultList();
             assertEquals(4, componentProperties.size());
@@ -162,13 +159,13 @@ public class PivotTest extends AbstractOracleXEIntegrationTest {
 
         doInJPA(entityManager -> {
             List<Object[]> componentProperties = entityManager.createNativeQuery(
-                "select " +
-                "   p.service_name as serviceName, " +
-                "   p.component_name as componentName, " +
+                "SELECT " +
+                "   p.service_name AS serviceName, " +
+                "   p.component_name AS componentName, " +
                 "   p.property_name, " +
                 "   p.property_value " +
-                "from Property p " +
-                "where " +
+                "FROM Property p " +
+                "WHERE " +
                 "   p.component_name = :name")
             .setParameter("name", "dataSource")
             .getResultList();
@@ -176,22 +173,33 @@ public class PivotTest extends AbstractOracleXEIntegrationTest {
         });
 
         doInJPA(entityManager -> {
-            List<DataSourceConfiguration> dataSources = entityManager.createNativeQuery(
-                "select distinct " +
-                "   userName.service_name as \"serviceName\", " +
-                "   c.name as \"componentName\", " +
-                "   databaseName.property_value as \"databaseName\", " +
-                "   url.property_value as \"url\", " +
-                "   serverName.property_value as \"serverName\", " +
-                "   userName.property_value as \"userName\", " +
-                "   password.property_value as \"password\" " +
-                "from Component c " +
-                "left join Property databaseName on databaseName.component_name = c.name and databaseName.property_name = 'databaseName' " +
-                "left join Property url on url.component_name = c.name and url.property_name = 'url' " +
-                "left join Property serverName on serverName.component_name = c.name and serverName.property_name = 'serverName' " +
-                "left join Property userName on userName.component_name = c.name and userName.property_name = 'username' " +
-                "left join Property password on password.component_name = c.name and password.property_name = 'password' " +
-                "where " +
+            List<DataSourceConfiguration> dataSources = entityManager
+            .createNativeQuery(
+                "SELECT distinct " +
+                "   userName.service_name AS \"serviceName\", " +
+                "   c.name AS \"componentName\", " +
+                "   databaseName.property_value AS \"databaseName\", " +
+                "   url.property_value AS \"url\", " +
+                "   serverName.property_value AS \"serverName\", " +
+                "   userName.property_value AS \"userName\", " +
+                "   password.property_value AS \"password\" " +
+                "FROM Component c " +
+                "left join Property databaseName " +
+                "   on databaseName.component_name = c.name and " +
+                "      databaseName.property_name = 'databaseName' " +
+                "left join Property url " +
+                "   on url.component_name = c.name and " +
+                "      url.property_name = 'url' " +
+                "left join Property serverName " +
+                "   on serverName.component_name = c.name and " +
+                "      serverName.property_name = 'serverName' " +
+                "left join Property userName " +
+                "   on userName.component_name = c.name and " +
+                "      userName.property_name = 'username' " +
+                "left join Property password " +
+                "   on password.component_name = c.name and " +
+                "      password.property_name = 'password' " +
+                "WHERE " +
                 "   c.name = :name")
             .setParameter("name", "dataSource")
             .unwrap(Query.class)
@@ -202,18 +210,23 @@ public class PivotTest extends AbstractOracleXEIntegrationTest {
 
         doInJPA(entityManager -> {
             List<DataSourceConfiguration> dataSources = entityManager.createNativeQuery(
-                "select " +
-                "   p.service_name as \"serviceName\", " +
-                "   p.component_name as \"componentName\", " +
-                "   MAX(CASE WHEN property_name = 'databaseName' THEN property_value END) AS \"databaseName\", " +
-                "   MAX(CASE WHEN property_name = 'url' THEN property_value END) AS \"url\", " +
-                "   MAX(CASE WHEN property_name = 'serverName' THEN property_value END) AS \"serverName\", " +
-                "   MAX(CASE WHEN property_name = 'username' THEN property_value END) AS \"userName\", " +
-                "   MAX(CASE WHEN property_name = 'password' THEN property_value END) AS \"password\" " +
-                "from Property p " +
-                "where " +
+                "SELECT " +
+                "   p.service_name AS \"serviceName\", " +
+                "   p.component_name AS \"componentName\", " +
+                "   MAX(CASE WHEN property_name = 'databaseName' " +
+                "       THEN property_value END) AS \"databaseName\", " +
+                "   MAX(CASE WHEN property_name = 'url' " +
+                "       THEN property_value END) AS \"url\", " +
+                "   MAX(CASE WHEN property_name = 'serverName' " +
+                "       THEN property_value END) AS \"serverName\", " +
+                "   MAX(CASE WHEN property_name = 'username' " +
+                "       THEN property_value END) AS \"userName\", " +
+                "   MAX(CASE WHEN property_name = 'password' " +
+                "   THEN property_value END) AS \"password\" " +
+                "FROM Property p " +
+                "WHERE " +
                 "   p.component_name = :name " +
-                "group by p.service_name, p.component_name")
+                "GROUP BY p.service_name, p.component_name")
             .setParameter("name", "dataSource")
             .unwrap(Query.class)
             .setResultTransformer(Transformers.aliasToBean(DataSourceConfiguration.class))
@@ -224,18 +237,19 @@ public class PivotTest extends AbstractOracleXEIntegrationTest {
         //http://modern-sql.com/use-case/pivot
 
         doInJPA(entityManager -> {
-            List<DataSourceConfiguration> dataSources = entityManager.createNativeQuery(
-                "select * from ( " +
-                "   select " +
-                "       p.service_name as \"serviceName\", " +
-                "       p.component_name as \"componentName\", " +
+            List<DataSourceConfiguration> dataSources = entityManager
+            .createNativeQuery(
+                "SELECT * FROM ( " +
+                "   SELECT " +
+                "       p.service_name AS \"serviceName\", " +
+                "       p.component_name AS \"componentName\", " +
                 "       p.property_name , " +
                 "       p.property_value " +
-                "   from Property p " +
-                "   where " +
+                "   FROM Property p " +
+                "   WHERE " +
                 "       p.component_name = :name" +
                 ") " +
-                "pivot(" +
+                "PIVOT(" +
                 "   MAX(property_value) " +
                 "   FOR property_name IN (" +
                 "       'databaseName' AS \"databaseName\", " +
@@ -246,7 +260,11 @@ public class PivotTest extends AbstractOracleXEIntegrationTest {
                 ")")
             .setParameter("name", "dataSource")
             .unwrap(Query.class)
-            .setResultTransformer(Transformers.aliasToBean(DataSourceConfiguration.class))
+            .setResultTransformer(
+                Transformers.aliasToBean(
+                    DataSourceConfiguration.class
+                )
+            )
             .getResultList();
             assertEquals(2, dataSources.size());
         });

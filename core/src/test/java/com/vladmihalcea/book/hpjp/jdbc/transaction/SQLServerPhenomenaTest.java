@@ -58,6 +58,10 @@ public class SQLServerPhenomenaTest extends AbstractPhenomenaTest {
         return "INSERT INTO post_comment WITH(NOWAIT) (post_id, review, version, id) VALUES (1, 'Phantom', 0, 1000)";
     }
 
+    protected String insertEmployeeSql() {
+        return "INSERT INTO employee WITH(NOWAIT) (department_id, first_name, last_name, salary, id) VALUES (?, ?, ?, ?, ?)";
+    }
+
     @Override
     protected void prepareConnection(Connection connection) throws SQLException {
         try(Statement statement = connection.createStatement()) {

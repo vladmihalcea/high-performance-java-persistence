@@ -24,7 +24,6 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.dialect.PostgreSQL94Dialect;
 import org.hibernate.dialect.PostgreSQL95Dialect;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
@@ -1112,6 +1111,21 @@ public abstract class AbstractTest {
                     throw new IllegalArgumentException("There was no row to be selected!");
                 }
                 return resultSet.getString(1);
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected <T> T selectColumn(Connection connection, String sql, Class<T> clazz) {
+        try {
+            try(Statement statement = connection.createStatement()) {
+                statement.setQueryTimeout(1);
+                ResultSet resultSet = statement.executeQuery(sql);
+                if(!resultSet.next()) {
+                    throw new IllegalArgumentException("There was no row to be selected!");
+                }
+                return clazz.cast(resultSet.getObject(1));
             }
         } catch (SQLException e) {
             throw new IllegalStateException(e);
