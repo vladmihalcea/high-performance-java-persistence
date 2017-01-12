@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * QueryCacheTest - Test to check the 2nd level query cache
@@ -94,6 +95,23 @@ public class QueryCacheTest extends AbstractTest {
         .setMaxResults(10)
         .setHint(QueryHints.HINT_CACHEABLE, true)
         .getResultList();
+    }
+
+    @Test
+    public void test2ndLevelCacheWithoutResults() {
+        doInJPA(entityManager -> {
+            entityManager.createQuery("delete from PostComment").executeUpdate();
+        });
+        doInJPA(entityManager -> {
+            LOGGER.info("Query cache with basic type parameter");
+            List<PostComment> comments = getLatestPostCommentsByPostId(entityManager);
+            assertTrue(comments.isEmpty());
+        });
+        doInJPA(entityManager -> {
+            LOGGER.info("Query cache with entity type parameter");
+            List<PostComment> comments = getLatestPostCommentsByPostId(entityManager);
+            assertTrue(comments.isEmpty());
+        });
     }
 
     @Test

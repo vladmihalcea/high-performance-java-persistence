@@ -129,12 +129,12 @@
             <version>${hibernate.version}</version>
         </dependency>
 
-        <dependency>
+        <!--<dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
             <version>${ehcache.version}</version>
             <scope>compile</scope>
-        </dependency>
+        </dependency>-->
 
         <!-- Database -->
 
