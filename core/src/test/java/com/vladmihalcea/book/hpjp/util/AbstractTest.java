@@ -703,6 +703,10 @@ public abstract class AbstractTest {
         return null;
     }
 
+    protected String[] resources() {
+        return null;
+    }
+
     protected Interceptor interceptor() {
         return null;
     }
@@ -731,6 +735,13 @@ public abstract class AbstractTest {
             }
         }
 
+        String[] resources = resources();
+        if (resources != null) {
+            for (String resource : resources) {
+                metadataSources.addResource(resource);
+            }
+        }
+
         final MetadataBuilder metadataBuilder = metadataSources.getMetadataBuilder();
         metadataBuilder.enableNewIdentifierGeneratorSupport(true);
         metadataBuilder.applyImplicitNamingStrategy(ImplicitNamingStrategyLegacyJpaImpl.INSTANCE);
@@ -752,6 +763,12 @@ public abstract class AbstractTest {
         if(packages != null) {
             for(String scannedPackage : packages) {
                 configuration.addPackage(scannedPackage);
+            }
+        }
+        String[] resources = resources();
+        if (resources != null) {
+            for (String resource : resources) {
+                configuration.addResource(resource);
             }
         }
         Interceptor interceptor = interceptor();
@@ -799,9 +816,14 @@ public abstract class AbstractTest {
     }
 
     protected PersistenceUnitInfoImpl persistenceUnitInfo(String name) {
-        return new PersistenceUnitInfoImpl(
+        PersistenceUnitInfoImpl persistenceUnitInfo = new PersistenceUnitInfoImpl(
             name, entityClassNames(), properties()
         );
+        String[] resources = resources();
+        if (resources != null) {
+            persistenceUnitInfo.getMappingFileNames().addAll(Arrays.asList(resources));
+        }
+        return persistenceUnitInfo;
     }
 
     protected Properties properties() {

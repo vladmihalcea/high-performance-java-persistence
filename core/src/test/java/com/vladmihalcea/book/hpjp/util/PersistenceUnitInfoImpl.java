@@ -9,6 +9,7 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -23,6 +24,8 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
     private PersistenceUnitTransactionType transactionType = PersistenceUnitTransactionType.RESOURCE_LOCAL;
 
     private final List<String> managedClassNames;
+
+    private final List<String> mappingFileNames = new ArrayList<>();
 
     private final Properties properties;
 
@@ -77,7 +80,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     @Override
     public List<String> getMappingFileNames() {
-        return null;
+        return mappingFileNames;
     }
 
     @Override
