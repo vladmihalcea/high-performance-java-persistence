@@ -155,10 +155,10 @@ public class MVCCPostgreSQLTest extends AbstractPostgreSQLIntegrationTest {
 
     private PostWithXminAndXmax getPost(EntityManager entityManager, Integer id) {
         List<PostWithXminAndXmax> result = (List<PostWithXminAndXmax>) entityManager.createNativeQuery(
-            "select " +
-            "    id, title, cast(xmin as text), cast(xmax as text) " +
-            "from Post " +
-            "where id = :id")
+            "SELECT " +
+            "    id, title, CAST(xmin AS text), CAST(xmax AS text) " +
+            "FROM Post " +
+            "WHERE id = :id")
         .setParameter("id", id)
         .unwrap(Query.class)
         .setResultTransformer(new AliasToBeanResultTransformer(PostWithXminAndXmax.class))
@@ -168,7 +168,7 @@ public class MVCCPostgreSQLTest extends AbstractPostgreSQLIntegrationTest {
 
     private String transactionId(EntityManager entityManager) {
         return (String) entityManager.createNativeQuery(
-            "SELECT CAST(txid_current() as text) ")
+            "SELECT CAST(txid_current() AS text) ")
         .getSingleResult();
     }
 
