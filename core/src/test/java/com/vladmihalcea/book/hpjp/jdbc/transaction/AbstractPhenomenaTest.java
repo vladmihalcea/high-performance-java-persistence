@@ -41,9 +41,9 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     public static final String INSERT_EMPLOYEE = "insert into employee (department_id, name, salary, id) values (?, ?, ?, ?)";
 
-    private final String isolationLevelName;
+    protected final String isolationLevelName;
 
-    private final int isolationLevel;
+    protected final int isolationLevel;
 
     private final CountDownLatch bobLatch = new CountDownLatch(1);
 
@@ -73,9 +73,9 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     @Parameterized.Parameters
     public static Collection<Object[]> isolationLevels() {
         List<Object[]> levels = new ArrayList<>();
-        levels.add(new Object[]{"Read Uncommitted", Connection.TRANSACTION_READ_UNCOMMITTED});
+        /*levels.add(new Object[]{"Read Uncommitted", Connection.TRANSACTION_READ_UNCOMMITTED});
         levels.add(new Object[]{"Read Committed", Connection.TRANSACTION_READ_COMMITTED});
-        levels.add(new Object[]{"Repeatable Read", Connection.TRANSACTION_REPEATABLE_READ});
+        levels.add(new Object[]{"Repeatable Read", Connection.TRANSACTION_REPEATABLE_READ});*/
         levels.add(new Object[]{"Serializable", Connection.TRANSACTION_SERIALIZABLE});
         return levels;
     }
@@ -450,6 +450,66 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     }
 
     @Test
+    public void testPhantomWriteSelectColumn() {
+        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
+        try {
+            doInJDBC(aliceConnection -> {
+                if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
+                    LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
+                    return;
+                }
+                prepareConnection(aliceConnection);
+
+                List<Number> salaries = selectColumnList(aliceConnection, allEmployeeSalarySql(), Number.class);
+                assertEquals(90_000, salaries.stream().mapToInt(Number::intValue).sum());
+
+                try {
+                    executeSync(() -> {
+                        doInJDBC(bobConnection -> {
+                            prepareConnection(bobConnection);
+                            try {
+                                List<Number> _salaries = selectColumnList(bobConnection, allEmployeeSalarySql(), Number.class);
+                                assertEquals(90_000, _salaries.stream().mapToInt(Number::intValue).sum());
+
+                                try (
+                                        PreparedStatement employeeStatement = bobConnection.prepareStatement(insertEmployeeSql());
+                                ) {
+                                    int employeeId = 4;
+                                    int index = 0;
+                                    employeeStatement.setLong(++index, 1);
+                                    employeeStatement.setString(++index, "Carol");
+                                    employeeStatement.setLong(++index, 9_000);
+                                    employeeStatement.setLong(++index, employeeId);
+                                    employeeStatement.executeUpdate();
+                                }
+                            } catch (Exception e) {
+                                LOGGER.info("Exception thrown", e);
+                                preventedByLocking.set(true);
+                            }
+                        });
+                    });
+                } catch (Exception e) {
+                    LOGGER.info("Exception thrown", e);
+                    preventedByLocking.set(true);
+                }
+                update(aliceConnection, updateEmployeeSalarySql());
+            });
+        } catch (Exception e) {
+            LOGGER.info("Exception thrown", e);
+            preventedByLocking.set(true);
+        }
+        doInJDBC(aliceConnection -> {
+            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+            if(99_000 != salaryCount) {
+                LOGGER.info("Isolation level {} allows Phantom Write since the salary count is {} instead 99000", isolationLevelName, salaryCount);
+            }
+            else {
+                LOGGER.info("Isolation level {} prevents Phantom Write {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
+            }
+        });
+    }
+
+    @Test
     public void testPhantomReadAggregateWithTableLock() {
         AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
         try {
@@ -507,64 +567,6 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
             }
             else {
                 LOGGER.info("Isolation level {} prevents Phantom Write when using Explicit Locks {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
-            }
-        });
-    }
-
-    @Test
-    public void testPhantomWriteSelectColumn() {
-        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
-        try {
-            doInJDBC(aliceConnection -> {
-                if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
-                    LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
-                    return;
-                }
-                prepareConnection(aliceConnection);
-
-                List<Number> salaries = selectColumnList(aliceConnection, allEmployeeSalarySql(), Number.class);
-
-                try {
-                    executeSync(() -> {
-                        doInJDBC(bobConnection -> {
-                            prepareConnection(bobConnection);
-                            try {
-                                List<Number> _salaries = selectColumnList(bobConnection, allEmployeeSalarySql(), Number.class);
-
-                                try (
-                                        PreparedStatement employeeStatement = bobConnection.prepareStatement(insertEmployeeSql());
-                                ) {
-                                    int employeeId = 4;
-                                    int index = 0;
-                                    employeeStatement.setLong(++index, 1);
-                                    employeeStatement.setString(++index, "Carol");
-                                    employeeStatement.setLong(++index, 9_000);
-                                    employeeStatement.setLong(++index, employeeId);
-                                    employeeStatement.executeUpdate();
-                                }
-                            } catch (Exception e) {
-                                LOGGER.info("Exception thrown", e);
-                                preventedByLocking.set(true);
-                            }
-                        });
-                    });
-                } catch (Exception e) {
-                    LOGGER.info("Exception thrown", e);
-                    preventedByLocking.set(true);
-                }
-                update(aliceConnection, updateEmployeeSalarySql());
-            });
-        } catch (Exception e) {
-            LOGGER.info("Exception thrown", e);
-            preventedByLocking.set(true);
-        }
-        doInJDBC(aliceConnection -> {
-            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
-            if(99_000 != salaryCount) {
-                LOGGER.info("Isolation level {} allows Phantom Write since the salary count is {} instead 99000", isolationLevelName, salaryCount);
-            }
-            else {
-                LOGGER.info("Isolation level {} prevents Phantom Write {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
             }
         });
     }
