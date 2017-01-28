@@ -73,9 +73,9 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     @Parameterized.Parameters
     public static Collection<Object[]> isolationLevels() {
         List<Object[]> levels = new ArrayList<>();
-        /*levels.add(new Object[]{"Read Uncommitted", Connection.TRANSACTION_READ_UNCOMMITTED});
+        levels.add(new Object[]{"Read Uncommitted", Connection.TRANSACTION_READ_UNCOMMITTED});
         levels.add(new Object[]{"Read Committed", Connection.TRANSACTION_READ_COMMITTED});
-        levels.add(new Object[]{"Repeatable Read", Connection.TRANSACTION_REPEATABLE_READ});*/
+        levels.add(new Object[]{"Repeatable Read", Connection.TRANSACTION_REPEATABLE_READ});
         levels.add(new Object[]{"Serializable", Connection.TRANSACTION_SERIALIZABLE});
         return levels;
     }
