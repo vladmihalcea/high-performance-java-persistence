@@ -5,6 +5,7 @@ import org.junit.runners.Parameterized;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -20,7 +21,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class OraclePhenomenaTest extends AbstractPhenomenaTest {
 
-    private int sleepMillis = 250;
+    private int sleepMillis = 500;
 
     public OraclePhenomenaTest(String isolationLevelName, int isolationLevel) {
         super(isolationLevelName, isolationLevel);
@@ -29,7 +30,7 @@ public class OraclePhenomenaTest extends AbstractPhenomenaTest {
     @Parameterized.Parameters
     public static Collection<Object[]> isolationLevels() {
         List<Object[]> levels = new ArrayList<>();
-        //levels.add(new Object[]{"Read Committed", Connection.TRANSACTION_READ_COMMITTED});
+        levels.add(new Object[]{"Read Committed", Connection.TRANSACTION_READ_COMMITTED});
         levels.add(new Object[]{"Serializable", Connection.TRANSACTION_SERIALIZABLE});
         return levels;
     }
@@ -44,8 +45,19 @@ public class OraclePhenomenaTest extends AbstractPhenomenaTest {
         return new OracleDataSourceProvider();
     }
 
+    @Override
+    protected void prepareConnection(Connection connection) throws SQLException {
+        super.prepareConnection(connection);
+        //Sleep a little bit because Oracle XE has some timing issues related to flushing Tx log and obtaining connections
+        //sleep(sleepMillis);
+    }
+
     @Test
     public void testPhantomWriteAggregateNTimes() {
+        if (isolationLevel != Connection.TRANSACTION_SERIALIZABLE) {
+            return;
+        }
+
         AtomicInteger ok = new AtomicInteger();
         AtomicInteger fail = new AtomicInteger();
         for (int i = 0; i < 10; i++) {
@@ -71,8 +83,8 @@ public class OraclePhenomenaTest extends AbstractPhenomenaTest {
                             doInJDBC(bobConnection -> {
                                 prepareConnection(bobConnection);
                                 try {
-                                    long _salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
-                                    assertEquals(90_000, salaryCount);
+                                    long _salaryCount = selectColumn(bobConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                                    assertEquals(90_000, _salaryCount);
 
                                     try (
                                             PreparedStatement employeeStatement = bobConnection.prepareStatement(insertEmployeeSql());

@@ -392,6 +392,10 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     @Test
     public void testPhantomReadAggregate() {
+        if (isolationLevel != Connection.TRANSACTION_SERIALIZABLE) {
+            return;
+        }
+
         AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
         try {
             doInJDBC(aliceConnection -> {
@@ -408,8 +412,8 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                         doInJDBC(bobConnection -> {
                             prepareConnection(bobConnection);
                             try {
-                                long _salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
-                                assertEquals(90_000, salaryCount);
+                                long _salaryCount = selectColumn(bobConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                                assertEquals(90_000, _salaryCount);
 
                                 try (
                                         PreparedStatement employeeStatement = bobConnection.prepareStatement(insertEmployeeSql());
@@ -530,8 +534,8 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                             prepareConnection(bobConnection);
                             executeStatement(bobConnection, lockEmployeeTableSql());
                             try {
-                                long _salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
-                                assertEquals(90_000, salaryCount);
+                                long _salaryCount = selectColumn(bobConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                                assertEquals(90_000, _salaryCount);
 
                                 try (
                                         PreparedStatement employeeStatement = bobConnection.prepareStatement(insertEmployeeSql());
