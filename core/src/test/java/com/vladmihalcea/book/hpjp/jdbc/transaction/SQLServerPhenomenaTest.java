@@ -59,7 +59,7 @@ public class SQLServerPhenomenaTest extends AbstractPhenomenaTest {
     }
 
     protected String insertEmployeeSql() {
-        return "INSERT INTO employee WITH(NOWAIT) (department_id, first_name, last_name, salary, id) VALUES (?, ?, ?, ?, ?)";
+        return "INSERT INTO employee WITH(NOWAIT) (department_id, name, salary, id) VALUES (?, ?, ?, ?)";
     }
 
     @Override
@@ -70,5 +70,10 @@ public class SQLServerPhenomenaTest extends AbstractPhenomenaTest {
             statement.executeUpdate("ALTER DATABASE high_performance_java_persistence SET ALLOW_SNAPSHOT_ISOLATION " + snapshot);
         }
         super.prepareConnection(connection);
+    }
+
+    @Override
+    protected String lockEmployeeTableSql() {
+        return "SELECT 1 FROM employee WITH (HOLDLOCK) WHERE department_id = 1";
     }
 }

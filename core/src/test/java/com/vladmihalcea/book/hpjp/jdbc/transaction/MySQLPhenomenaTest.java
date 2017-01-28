@@ -12,6 +12,11 @@ public class MySQLPhenomenaTest extends AbstractPhenomenaTest {
     }
 
     @Override
+    protected String lockEmployeeTableSql() {
+        return "SELECT * FROM employee WHERE department_id = 1 FOR UPDATE";
+    }
+
+    @Override
     protected DataSourceProvider dataSourceProvider() {
         return new MySQLDataSourceProvider();
     }

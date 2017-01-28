@@ -12,6 +12,11 @@ public class PostgreSQLPhenomenaTest extends AbstractPhenomenaTest {
     }
 
     @Override
+    protected String lockEmployeeTableSql() {
+        return "LOCK TABLE employee IN SHARE ROW EXCLUSIVE MODE NOWAIT";
+    }
+
+    @Override
     protected DataSourceProvider dataSourceProvider() {
         return new PostgreSQLDataSourceProvider();
     }

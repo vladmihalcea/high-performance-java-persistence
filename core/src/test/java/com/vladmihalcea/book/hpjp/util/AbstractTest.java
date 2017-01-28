@@ -1154,11 +1154,38 @@ public abstract class AbstractTest {
         }
     }
 
+    protected <T> List<T> selectColumnList(Connection connection, String sql, Class<T> clazz) {
+        List<T> result = new ArrayList<>();
+        try {
+            try(Statement statement = connection.createStatement()) {
+                statement.setQueryTimeout(1);
+                ResultSet resultSet = statement.executeQuery(sql);
+                while (resultSet.next()) {
+                    result.add(clazz.cast(resultSet.getObject(1)));
+                }
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+        return result;
+    }
+
     protected int update(Connection connection, String sql) {
         try {
             try(Statement statement = connection.createStatement()) {
                 statement.setQueryTimeout(1);
                 return statement.executeUpdate(sql);
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected void executeStatement(Connection connection, String sql) {
+        try {
+            try(Statement statement = connection.createStatement()) {
+                statement.setQueryTimeout(1);
+                statement.execute(sql);
             }
         } catch (SQLException e) {
             throw new IllegalStateException(e);
