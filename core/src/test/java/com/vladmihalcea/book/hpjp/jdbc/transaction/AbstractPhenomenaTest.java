@@ -434,7 +434,78 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                     preventedByLocking.set(true);
                 }
                 sleep(300);
-                update(aliceConnection, updateEmployeeSalarySql());
+                update(aliceConnection, "UPDATE employee SET salary = salary * 1.1 WHERE department_id = 1");
+            });
+        } catch (Exception e) {
+            LOGGER.info("Exception thrown", e);
+            preventedByLocking.set(true);
+        }
+        doInJDBC(aliceConnection -> {
+            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+            if(99_000 != salaryCount) {
+                LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead 99000", isolationLevelName, salaryCount);
+            }
+            else {
+                LOGGER.info("Isolation level {} prevents Phantom Read {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
+            }
+        });
+    }
+
+    @Test
+    public void testPhantomReadAggregateWithInsert() {
+        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
+        try {
+            doInJDBC(aliceConnection -> {
+                if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
+                    LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
+                    return;
+                }
+                prepareConnection(aliceConnection);
+                long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                assertEquals(90_000, salaryCount);
+
+                try {
+                    executeSync(() -> {
+                        doInJDBC(bobConnection -> {
+                            prepareConnection(bobConnection);
+                            try {
+                                long _salaryCount = selectColumn(bobConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                                assertEquals(90_000, _salaryCount);
+
+                                try (
+                                        PreparedStatement employeeStatement = bobConnection.prepareStatement(insertEmployeeSql());
+                                ) {
+                                    int employeeId = 4;
+                                    int index = 0;
+                                    employeeStatement.setLong(++index, 1);
+                                    employeeStatement.setString(++index, "Carol");
+                                    employeeStatement.setLong(++index, 9_000);
+                                    employeeStatement.setLong(++index, employeeId);
+                                    employeeStatement.executeUpdate();
+                                }
+                            } catch (Exception e) {
+                                LOGGER.info("Exception thrown", e);
+                                preventedByLocking.set(true);
+                                throw new IllegalStateException(e);
+                            }
+                        });
+                    });
+                } catch (Exception e) {
+                    LOGGER.info("Exception thrown", e);
+                    preventedByLocking.set(true);
+                }
+                sleep(300);
+                try (
+                        PreparedStatement employeeStatement = aliceConnection.prepareStatement(insertEmployeeSql());
+                ) {
+                    int employeeId = 5;
+                    int index = 0;
+                    employeeStatement.setLong(++index, 1);
+                    employeeStatement.setString(++index, "Dave");
+                    employeeStatement.setLong(++index, 9_000);
+                    employeeStatement.setLong(++index, employeeId);
+                    employeeStatement.executeUpdate();
+                }
             });
         } catch (Exception e) {
             LOGGER.info("Exception thrown", e);

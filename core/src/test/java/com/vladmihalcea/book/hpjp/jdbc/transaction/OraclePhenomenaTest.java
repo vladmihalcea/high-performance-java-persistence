@@ -42,6 +42,14 @@ public class OraclePhenomenaTest extends AbstractPhenomenaTest {
         return new OracleDataSourceProvider();
     }
 
+    @Override
+    public void init() {
+        super.init();
+        doInJDBC(aliceConnection -> {
+            executeStatement(aliceConnection, "alter table employee initrans 100");
+        });
+    }
+
     @Test
     public void testPhantomWriteAggregateNTimes() {
         if (isolationLevel != Connection.TRANSACTION_SERIALIZABLE) {
@@ -100,7 +108,7 @@ public class OraclePhenomenaTest extends AbstractPhenomenaTest {
                         preventedByLocking.set(true);
                     }
                     sleep(sleepMillis);
-                    update(aliceConnection, updateEmployeeSalarySql());
+                    update(aliceConnection, "UPDATE employee SET salary = salary * 1.1 WHERE department_id = 1 and id < 4");
                 });
             } catch (Exception e) {
                 LOGGER.info("Exception thrown", e);
