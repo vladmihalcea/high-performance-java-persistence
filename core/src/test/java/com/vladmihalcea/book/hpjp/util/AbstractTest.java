@@ -320,8 +320,7 @@ public abstract class AbstractTest {
             try {
                 OracleDataSource dataSource = new OracleDataSource();
                 dataSource.setDatabaseName("high_performance_java_persistence");
-                //dataSource.setURL("jdbc:oracle:thin:@localhost:1521/xe");
-                dataSource.setURL("jdbc:oracle:thin:@localhost:1521/orclpdb1");
+                dataSource.setURL(url());
                 dataSource.setUser("oracle");
                 dataSource.setPassword("admin");
                 return dataSource;
@@ -347,7 +346,8 @@ public abstract class AbstractTest {
 
         @Override
         public String url() {
-            return "jdbc:oracle:thin:@localhost:1521/xe";
+            //return "jdbc:oracle:thin:@localhost:1521/xe";
+            return "jdbc:oracle:thin:@localhost:1521/orclpdb1";
         }
 
         @Override
