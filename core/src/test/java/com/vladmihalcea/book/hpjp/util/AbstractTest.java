@@ -312,7 +312,7 @@ public abstract class AbstractTest {
     public static class OracleDataSourceProvider implements DataSourceProvider {
         @Override
         public String hibernateDialect() {
-            return "org.hibernate.dialect.Oracle10gDialect";
+            return "org.hibernate.dialect.Oracle12cDialect";
         }
 
         @Override
@@ -320,7 +320,8 @@ public abstract class AbstractTest {
             try {
                 OracleDataSource dataSource = new OracleDataSource();
                 dataSource.setDatabaseName("high_performance_java_persistence");
-                dataSource.setURL("jdbc:oracle:thin:@localhost:1521/xe");
+                //dataSource.setURL("jdbc:oracle:thin:@localhost:1521/xe");
+                dataSource.setURL("jdbc:oracle:thin:@localhost:1521/orclpdb1");
                 dataSource.setUser("oracle");
                 dataSource.setPassword("admin");
                 return dataSource;

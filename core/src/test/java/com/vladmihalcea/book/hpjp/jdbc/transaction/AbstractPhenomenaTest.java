@@ -392,10 +392,6 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     @Test
     public void testPhantomReadAggregate() {
-        if (isolationLevel != Connection.TRANSACTION_SERIALIZABLE) {
-            return;
-        }
-
         AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
         try {
             doInJDBC(aliceConnection -> {
@@ -437,6 +433,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                     LOGGER.info("Exception thrown", e);
                     preventedByLocking.set(true);
                 }
+                sleep(300);
                 update(aliceConnection, updateEmployeeSalarySql());
             });
         } catch (Exception e) {
@@ -446,20 +443,16 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         doInJDBC(aliceConnection -> {
             long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
             if(99_000 != salaryCount) {
-                LOGGER.info("Isolation level {} allows Phantom Write since the salary count is {} instead 99000", isolationLevelName, salaryCount);
+                LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead 99000", isolationLevelName, salaryCount);
             }
             else {
-                LOGGER.info("Isolation level {} prevents Phantom Write {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
+                LOGGER.info("Isolation level {} prevents Phantom Read {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
             }
         });
     }
 
     @Test
     public void testPhantomWriteSelectColumn() {
-        if (isolationLevel != Connection.TRANSACTION_SERIALIZABLE) {
-            return;
-        }
-
         AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
         try {
             doInJDBC(aliceConnection -> {
@@ -510,20 +503,16 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         doInJDBC(aliceConnection -> {
             long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
             if(99_000 != salaryCount) {
-                LOGGER.info("Isolation level {} allows Phantom Write since the salary count is {} instead 99000", isolationLevelName, salaryCount);
+                LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead 99000", isolationLevelName, salaryCount);
             }
             else {
-                LOGGER.info("Isolation level {} prevents Phantom Write {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
+                LOGGER.info("Isolation level {} prevents Phantom Read {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
             }
         });
     }
 
     @Test
     public void testPhantomWriteSelectColumnInOneTx() {
-        if (isolationLevel != Connection.TRANSACTION_SERIALIZABLE) {
-            return;
-        }
-
         AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
         try {
             doInJDBC(aliceConnection -> {
@@ -571,10 +560,10 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         doInJDBC(aliceConnection -> {
             long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
             if(99_000 != salaryCount) {
-                LOGGER.info("Isolation level {} allows Phantom Write since the salary count is {} instead 99000", isolationLevelName, salaryCount);
+                LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead 99000", isolationLevelName, salaryCount);
             }
             else {
-                LOGGER.info("Isolation level {} prevents Phantom Write {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
+                LOGGER.info("Isolation level {} prevents Phantom Read {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
             }
         });
     }
@@ -633,10 +622,10 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         doInJDBC(aliceConnection -> {
             long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
             if(99_000 != salaryCount) {
-                LOGGER.info("Isolation level {} allows Phantom Write even when using Explicit Locks since the salary count is {} instead 99000", isolationLevelName, salaryCount);
+                LOGGER.info("Isolation level {} allows Phantom Read even when using Explicit Locks since the salary count is {} instead 99000", isolationLevelName, salaryCount);
             }
             else {
-                LOGGER.info("Isolation level {} prevents Phantom Write when using Explicit Locks {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
+                LOGGER.info("Isolation level {} prevents Phantom Read when using Explicit Locks {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
             }
         });
     }
