@@ -433,7 +433,6 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                     LOGGER.info("Exception thrown", e);
                     preventedByLocking.set(true);
                 }
-                sleep(300);
                 update(aliceConnection, "UPDATE employee SET salary = salary * 1.1 WHERE department_id = 1");
             });
         } catch (Exception e) {
@@ -494,7 +493,6 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                     LOGGER.info("Exception thrown", e);
                     preventedByLocking.set(true);
                 }
-                sleep(300);
                 try (
                         PreparedStatement employeeStatement = aliceConnection.prepareStatement(insertEmployeeSql());
                 ) {
