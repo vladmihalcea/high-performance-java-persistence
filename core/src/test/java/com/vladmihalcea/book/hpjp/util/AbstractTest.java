@@ -346,8 +346,8 @@ public abstract class AbstractTest {
 
         @Override
         public String url() {
-            //return "jdbc:oracle:thin:@localhost:1521/xe";
-            return "jdbc:oracle:thin:@localhost:1521/orclpdb1";
+            return "jdbc:oracle:thin:@localhost:1521/xe";
+            //return "jdbc:oracle:thin:@localhost:1521/orclpdb1";
         }
 
         @Override
@@ -837,7 +837,7 @@ public abstract class AbstractTest {
         if (dataSource != null) {
             properties.put("hibernate.connection.datasource", dataSource);
         }
-        properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
+        //properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
         //properties.put("hibernate.ejb.metamodel.population", "disabled");
         return properties;
     }
