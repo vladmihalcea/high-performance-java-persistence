@@ -1,9 +1,8 @@
 package com.vladmihalcea.book.hpjp.jdbc.caching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
-import oracle.jdbc.OracleConnection;
-import oracle.jdbc.OraclePreparedStatement;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
@@ -79,17 +78,16 @@ public class OracleExplicitStatementCacheTest extends AbstractOracleXEIntegratio
     public void testStatementCaching() {
         doInJDBC(connection -> {
             for (int i = 0; i < 5; i++) {
-                OracleConnection oracleConnection = (OracleConnection) connection;
-                oracleConnection.setExplicitCachingEnabled(true);
-                oracleConnection.setStatementCacheSize(1);
-                PreparedStatement statement = oracleConnection.getStatementWithKey(SELECT_POST_REVIEWS_KEY);
+                ReflectionUtils.invokeSetter(connection,"explicitCachingEnabled", true);
+                ReflectionUtils.invokeSetter(connection,"statementCacheSize", 1);
+                PreparedStatement statement = ReflectionUtils.invoke(connection, ReflectionUtils.getMethod(connection, "getStatementWithKey", String.class), SELECT_POST_REVIEWS_KEY);
                 if (statement == null)
                     statement = connection.prepareStatement(SELECT_POST_REVIEWS);
                 try {
                     statement.setInt(1, 10);
                     statement.execute();
                 } finally {
-                    ((OraclePreparedStatement) statement).closeWithKey(SELECT_POST_REVIEWS_KEY);
+                    ReflectionUtils.invoke(statement, ReflectionUtils.getMethod(statement, "closeWithKey", String.class), SELECT_POST_REVIEWS_KEY);
                 }
             }
         });

@@ -41,7 +41,7 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
             post.setTitle("High-Performance Java Persistence");
             session.persist(post);
 
-            for (long i = 0; i < 5; i++) {
+            for (long i = 1; i <= 3; i++) {
                 PostComment comment = new PostComment();
                 comment.setId(i);
                 comment.setReview(String.format("Comment nr. %d", i));
@@ -61,7 +61,7 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
                 "from PostComment c " +
                 "where c.post.id = :id", PostComment.class)
             .setParameter("id", 1L)
-            .setLockOptions(new LockOptions(LockMode.PESSIMISTIC_WRITE).setTimeOut(LockOptions.NO_WAIT))
+            .setLockOptions(new LockOptions(LockMode.PESSIMISTIC_WRITE))
             .getResultList();
 
             executeAsync(() -> {
@@ -71,8 +71,8 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
                     Post post = _session.getReference(Post.class, 1L);
 
                     PostComment comment = new PostComment();
-                    comment.setId((long) comments.size());
-                    comment.setReview(String.format("Comment nr. %d", comments.size()));
+                    comment.setId((long) comments.size() + 1);
+                    comment.setReview(String.format("Comment nr. %d", comments.size() + 1));
                     comment.setPost(post);
 
                     _session.persist(comment);
@@ -107,7 +107,7 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
                 "from PostComment c " +
                 "where c.post.id = :id", PostComment.class)
             .setParameter("id", 1L)
-            .setLockOptions(new LockOptions(LockMode.PESSIMISTIC_WRITE).setTimeOut(LockOptions.NO_WAIT))
+            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
             .getResultList();
 
             executeAsync(() -> {
@@ -141,7 +141,7 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
                 "from PostComment c " +
                 "where c.post.id = :id", PostComment.class)
             .setParameter("id", 1L)
-            .setLockOptions(new LockOptions(LockMode.PESSIMISTIC_WRITE).setTimeOut(LockOptions.NO_WAIT))
+            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
             .getResultList();
 
             executeAsync(() -> {

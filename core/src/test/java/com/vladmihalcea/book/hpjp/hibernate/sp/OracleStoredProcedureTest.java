@@ -2,7 +2,6 @@ package com.vladmihalcea.book.hpjp.hibernate.sp;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
-import oracle.jdbc.OracleTypes;
 import org.hibernate.Session;
 import org.hibernate.annotations.NamedNativeQuery;
 import org.hibernate.dialect.Oracle12cDialect;
@@ -23,7 +22,6 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
 import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostComment;
@@ -194,7 +192,7 @@ public class OracleStoredProcedureTest extends AbstractOracleXEIntegrationTest {
     public void testFunctionCallAfterRegistration() {
         doInJPA(entityManager -> {
             Integer commentCount = (Integer) entityManager
-                .createQuery("select fn_count_comments(:postId) from Post where id = :posdtId")
+                .createQuery("select fn_count_comments(:postId) from Post where id = :postId")
                 .setParameter("postId", 1L)
                 .getSingleResult();
             assertEquals(Integer.valueOf(2), commentCount);
@@ -226,7 +224,8 @@ public class OracleStoredProcedureTest extends AbstractOracleXEIntegrationTest {
                 try (CallableStatement function = connection.prepareCall(
                         "{ call post_comments(?, ?) }" )) {
                     function.setInt( 1, 1 );
-                    function.registerOutParameter( 2, OracleTypes.CURSOR );
+                    //function.registerOutParameter( 2, OracleTypes.CURSOR );
+                    function.registerOutParameter( 2, -10 );
                     function.execute();
                     try (ResultSet resultSet = (ResultSet) function.getObject(2);) {
                         while (resultSet.next()) {
@@ -261,7 +260,8 @@ public class OracleStoredProcedureTest extends AbstractOracleXEIntegrationTest {
             session.doWork( connection -> {
                 try (CallableStatement function = connection.prepareCall(
                         "{ ? = call fn_post_and_comments( ? ) }" )) {
-                    function.registerOutParameter( 1, OracleTypes.CURSOR );
+                    //function.registerOutParameter( 1, OracleTypes.CURSOR );
+                    function.registerOutParameter( 1, -10 );
                     function.setInt( 2, 1 );
                     function.execute();
                     try (ResultSet resultSet = (ResultSet) function.getObject(1);) {

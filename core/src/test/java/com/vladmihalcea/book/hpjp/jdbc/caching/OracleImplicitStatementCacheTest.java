@@ -1,9 +1,8 @@
 package com.vladmihalcea.book.hpjp.jdbc.caching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
-import oracle.jdbc.OracleConnection;
-import oracle.jdbc.pool.OracleDataSource;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -32,15 +31,15 @@ public class OracleImplicitStatementCacheTest extends AbstractOracleXEIntegratio
         return new OracleDataSourceProvider() {
             @Override
             public DataSource dataSource() {
-                OracleDataSource dataSource = (OracleDataSource) super.dataSource();
+                DataSource dataSource = super.dataSource();
                 try {
-                    Properties connectionProperties = dataSource.getConnectionProperties();
+                    Properties connectionProperties = ReflectionUtils.invokeGetter(dataSource, "connectionProperties");
                     if(connectionProperties == null) {
                         connectionProperties = new Properties();
                     }
                     connectionProperties.put("oracle.jdbc.implicitStatementCacheSize", "5");
-                    dataSource.setConnectionProperties(connectionProperties);
-                } catch (SQLException e) {
+                    ReflectionUtils.invokeSetter(dataSource, "connectionProperties", connectionProperties);
+                } catch (Exception e) {
                     fail(e.getMessage());
                 }
                 return dataSource;
@@ -103,14 +102,13 @@ public class OracleImplicitStatementCacheTest extends AbstractOracleXEIntegratio
     private void selectWhenCaching(boolean caching) {
         long startNanos = System.nanoTime();
         doInJDBC(connection -> {
-            OracleConnection oracleConnection = (OracleConnection) connection;
-            oracleConnection.setImplicitCachingEnabled(false);
-            assertFalse(oracleConnection.getImplicitCachingEnabled());
-            assertEquals(5, oracleConnection.getStatementCacheSize());
+            ReflectionUtils.invokeSetter(connection, "implicitCachingEnabled", false);
+            assertFalse(ReflectionUtils.invokeGetter(connection, "implicitCachingEnabled"));
+            assertEquals(Integer.valueOf(5), ReflectionUtils.invokeGetter(connection, "statementCacheSize"));
 
             for (int i = 0; i < 1; i++) {
                 try (PreparedStatement statement = connection.prepareStatement(
-                        "select p.OracleExplicitStatementCacheTesttitle, pc.review " +
+                        "select p.title, pc.review " +
                                 "from post p left join post_comment pc on p.id = pc.post_id " +
                                 "where EXISTS ( " +
                                 "   select 1 from post_comment where version = ? and id > p.id " +

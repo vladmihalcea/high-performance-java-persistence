@@ -8,7 +8,6 @@ import net.sourceforge.jtds.jdbcx.JtdsDataSource;
 import net.ttddyy.dsproxy.ExecutionInfo;
 import net.ttddyy.dsproxy.QueryInfo;
 import net.ttddyy.dsproxy.listener.DefaultQueryLogEntryCreator;
-import oracle.jdbc.pool.OracleDataSource;
 import org.hibernate.Interceptor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -318,20 +317,24 @@ public abstract class AbstractTest {
         @Override
         public DataSource dataSource() {
             try {
-                OracleDataSource dataSource = new OracleDataSource();
-                dataSource.setDatabaseName("high_performance_java_persistence");
-                dataSource.setURL(url());
-                dataSource.setUser("oracle");
-                dataSource.setPassword("admin");
+                DataSource dataSource = ReflectionUtils.newInstance("oracle.jdbc.pool.OracleDataSource");
+                ReflectionUtils.invokeSetter(dataSource, "databaseName", "high_performance_java_persistence");
+                ReflectionUtils.invokeSetter(dataSource, "URL", url());
+                ReflectionUtils.invokeSetter(dataSource, "user", "oracle");
+                ReflectionUtils.invokeSetter(dataSource, "password", "admin");
                 return dataSource;
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 throw new IllegalStateException(e);
             }
         }
 
         @Override
         public Class<? extends DataSource> dataSourceClassName() {
-            return OracleDataSource.class;
+            try {
+                return (Class<? extends DataSource>) Class.forName("oracle.jdbc.pool.OracleDataSource");
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException(e);
+            }
         }
 
         @Override

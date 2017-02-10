@@ -1,8 +1,8 @@
 package com.vladmihalcea.book.hpjp.jdbc.batch;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
-import oracle.jdbc.pool.OracleDataSource;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -31,15 +31,15 @@ public class OracleBatchStatementTest extends AbstractOracleXEIntegrationTest {
         return new OracleDataSourceProvider() {
             @Override
             public DataSource dataSource() {
-                OracleDataSource dataSource = (OracleDataSource) super.dataSource();
+                DataSource dataSource = super.dataSource();
                 try {
-                    Properties connectionProperties = dataSource.getConnectionProperties();
+                    Properties connectionProperties = ReflectionUtils.invokeGetter(dataSource, "connectionProperties");
                     if(connectionProperties == null) {
                         connectionProperties = new Properties();
                     }
                     connectionProperties.put("defaultExecuteBatch", 30);
-                    dataSource.setConnectionProperties(connectionProperties);
-                } catch (SQLException e) {
+                    ReflectionUtils.invokeSetter(dataSource, "connectionProperties", connectionProperties);
+                } catch (Exception e) {
                     fail(e.getMessage());
                 }
                 return dataSource;
