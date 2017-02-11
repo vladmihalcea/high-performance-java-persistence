@@ -637,68 +637,6 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         });
     }
 
-    @Test
-    public void testPhantomReadAggregateWithTableLock() {
-        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
-        try {
-            doInJDBC(aliceConnection -> {
-                if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
-                    LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
-                    return;
-                }
-                prepareConnection(aliceConnection);
-                executeStatement(aliceConnection, lockEmployeeTableSql());
-
-                long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
-                assertEquals(90_000, salaryCount);
-
-                try {
-                    executeSync(() -> {
-                        doInJDBC(bobConnection -> {
-                            prepareConnection(bobConnection);
-                            executeStatement(bobConnection, lockEmployeeTableSql());
-                            try {
-                                long _salaryCount = selectColumn(bobConnection, sumEmployeeSalarySql(), Number.class).longValue();
-                                assertEquals(90_000, _salaryCount);
-
-                                try (
-                                        PreparedStatement employeeStatement = bobConnection.prepareStatement(insertEmployeeSql());
-                                ) {
-                                    int employeeId = 4;
-                                    int index = 0;
-                                    employeeStatement.setLong(++index, 1);
-                                    employeeStatement.setString(++index, "Carol");
-                                    employeeStatement.setLong(++index, 9_000);
-                                    employeeStatement.setLong(++index, employeeId);
-                                    employeeStatement.executeUpdate();
-                                }
-                            } catch (Exception e) {
-                                LOGGER.info("Exception thrown", e);
-                                preventedByLocking.set(true);
-                            }
-                        });
-                    });
-                } catch (Exception e) {
-                    LOGGER.info("Exception thrown", e);
-                    preventedByLocking.set(true);
-                }
-                update(aliceConnection, updateEmployeeSalarySql());
-            });
-        } catch (Exception e) {
-            LOGGER.info("Exception thrown", e);
-            preventedByLocking.set(true);
-        }
-        doInJDBC(aliceConnection -> {
-            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
-            if(99_000 != salaryCount) {
-                LOGGER.info("Isolation level {} allows Phantom Read even when using Explicit Locks since the salary count is {} instead 99000", isolationLevelName, salaryCount);
-            }
-            else {
-                LOGGER.info("Isolation level {} prevents Phantom Read when using Explicit Locks {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
-            }
-        });
-    }
-
     protected void prepareConnection(Connection connection) throws SQLException {
         connection.setTransactionIsolation(isolationLevel);
         try {
@@ -731,8 +669,6 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     protected String countCommentsSql() {
         return "SELECT COUNT(*) FROM post_comment where post_id = 1";
     }
-
-    protected abstract String lockEmployeeTableSql();
 
     protected String countCommentsSqlForInitialVersion() {
         return "SELECT COUNT(*) FROM post_comment where post_id = 1 and version = 0";

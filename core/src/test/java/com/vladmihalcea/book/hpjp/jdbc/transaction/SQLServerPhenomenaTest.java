@@ -71,9 +71,4 @@ public class SQLServerPhenomenaTest extends AbstractPhenomenaTest {
         }
         super.prepareConnection(connection);
     }
-
-    @Override
-    protected String lockEmployeeTableSql() {
-        return "SELECT 1 FROM employee WITH (HOLDLOCK) WHERE department_id = 1";
-    }
 }
