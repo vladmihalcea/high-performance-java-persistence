@@ -97,12 +97,13 @@ public class SoftDeleteTest extends AbstractTest {
 			Post post = entityManager.find(Post.class, 1L);
 			assertEquals(2, post.getTags().size());
 
-			//That would not work with @Where(clause = "deleted = false")
+			//That would not work without @Loader(namedQuery = "findTagById")
 			assertNull(entityManager.find(Tag.class, "Misc"));
 		} );
 
 		doInJPA( entityManager -> {
 			List<Tag> tags = entityManager.createQuery("select t from Tag t", Tag.class).getResultList();
+			//That would not work without @Where(clause = "deleted = false")
 			assertEquals(3, tags.size());
 		} );
 	}
