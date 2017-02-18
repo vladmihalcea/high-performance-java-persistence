@@ -44,6 +44,12 @@ public abstract class AbstractTableLockTest extends AbstractTest {
                 departmentStatement.setLong(++index, 1);
                 departmentStatement.executeUpdate();
 
+                index = 0;
+                departmentStatement.setString(++index, "Bitsystem");
+                departmentStatement.setLong(++index, 10_000);
+                departmentStatement.setLong(++index, 2);
+                departmentStatement.executeUpdate();
+
                 for (int i = 0; i < 3; i++) {
                     index = 0;
                     employeeStatement.setLong(++index, 1);
@@ -61,7 +67,8 @@ public abstract class AbstractTableLockTest extends AbstractTest {
 
     @Test
     public void testPhantomReadAggregateWithTableLock() {
-        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
+        AtomicReference<Boolean> carolPreventedByLocking = new AtomicReference<>();
+        AtomicReference<Boolean> davePreventedByLocking = new AtomicReference<>();
         try {
             doInJDBC(aliceConnection -> {
                 prepareConnection(aliceConnection);
@@ -71,6 +78,7 @@ public abstract class AbstractTableLockTest extends AbstractTest {
                 assertEquals(90_000, salaryCount);
 
                 try {
+                    LOGGER.debug("Add Carol on Department 1");
                     executeSync(() -> {
                         doInJDBC(bobConnection -> {
                             prepareConnection(bobConnection);
@@ -86,19 +94,45 @@ public abstract class AbstractTableLockTest extends AbstractTest {
                                 employeeStatement.executeUpdate();
                             } catch (Exception e) {
                                 LOGGER.info("Exception thrown", e);
-                                preventedByLocking.set(true);
+                                carolPreventedByLocking.set(true);
                             }
                         });
                     });
                 } catch (Exception e) {
                     LOGGER.info("Exception thrown", e);
-                    preventedByLocking.set(true);
+                    carolPreventedByLocking.set(true);
+                }
+
+                try {
+                    executeSync(() -> {
+                        LOGGER.debug("Add Dave on Department 2");
+                        doInJDBC(daveConnection -> {
+                            prepareConnection(daveConnection);
+                            try (
+                                    PreparedStatement employeeStatement = daveConnection.prepareStatement(insertEmployeeSql());
+                            ) {
+                                int employeeId = 5;
+                                int index = 0;
+                                employeeStatement.setLong(++index, 2);
+                                employeeStatement.setString(++index, "Dave");
+                                employeeStatement.setLong(++index, 9_000);
+                                employeeStatement.setLong(++index, employeeId);
+                                employeeStatement.executeUpdate();
+                            } catch (Exception e) {
+                                LOGGER.info("Exception thrown", e);
+                                davePreventedByLocking.set(true);
+                            }
+                        });
+                    });
+                } catch (Exception e) {
+                    LOGGER.info("Exception thrown", e);
+                    davePreventedByLocking.set(true);
                 }
                 update(aliceConnection, updateEmployeeSalarySql());
             });
         } catch (Exception e) {
             LOGGER.info("Exception thrown", e);
-            preventedByLocking.set(true);
+            carolPreventedByLocking.set(true);
         }
         doInJDBC(aliceConnection -> {
             long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
@@ -106,16 +140,15 @@ public abstract class AbstractTableLockTest extends AbstractTest {
                 LOGGER.info("Table lock {} allows Phantom Read even when using Explicit Locks since the salary count is {} instead 99000", salaryCount);
             }
             else {
-                LOGGER.info("Table lock prevents Phantom Read when using Explicit Locks {}", preventedByLocking.get() ? "due to locking" : "");
+                LOGGER.info("Table lock prevents Phantom Read when using Explicit Locks {}", carolPreventedByLocking.get() ? "due to locking" : "");
             }
         });
     }
 
     protected void prepareConnection(Connection connection) {
         try {
-            connection.setNetworkTimeout(Executors.newSingleThreadExecutor(), 2000);
-        } catch (Throwable e) {
-            LOGGER.info("Unsupported operation", e);
+            connection.setNetworkTimeout(Executors.newSingleThreadExecutor(), 3000);
+        } catch (Throwable ignore) {
         }
     }
 
@@ -170,7 +203,7 @@ public abstract class AbstractTableLockTest extends AbstractTest {
     }
 
     @Entity(name = "Employee")
-    @Table(name = "employee", indexes = @Index(name = "IDX_Employee", columnList = "department_id"))
+    @Table(name = "employee")
     public static class Employee {
 
         @Id
