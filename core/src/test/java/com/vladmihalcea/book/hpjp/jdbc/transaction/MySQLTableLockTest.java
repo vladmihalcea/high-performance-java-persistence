@@ -19,6 +19,11 @@ public class MySQLTableLockTest extends AbstractTableLockTest {
 
     @Override
     protected void prepareConnection(Connection connection) {
+        /*try {
+            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        } catch (SQLException e) {
+            fail(e.getMessage());
+        }*/
         executeStatement(connection, "SET GLOBAL innodb_lock_wait_timeout = 1");
     }
 }

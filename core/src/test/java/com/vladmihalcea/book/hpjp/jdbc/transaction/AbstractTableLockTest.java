@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
@@ -74,8 +73,8 @@ public abstract class AbstractTableLockTest extends AbstractTest {
                 prepareConnection(aliceConnection);
                 executeStatement(aliceConnection, lockEmployeeTableSql());
 
-                long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
-                assertEquals(90_000, salaryCount);
+                /*long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                assertEquals(90_000, salaryCount);*/
 
                 try {
                     LOGGER.debug("Add Carol on Department 1");
@@ -137,7 +136,7 @@ public abstract class AbstractTableLockTest extends AbstractTest {
         doInJDBC(aliceConnection -> {
             long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
             if(99_000 != salaryCount) {
-                LOGGER.info("Table lock {} allows Phantom Read even when using Explicit Locks since the salary count is {} instead 99000", salaryCount);
+                LOGGER.info("Table lock allows Phantom Read even when using Explicit Locks since the salary count is {} instead of 99000", salaryCount);
             }
             else {
                 LOGGER.info("Table lock prevents Phantom Read when using Explicit Locks {}", carolPreventedByLocking.get() ? "due to locking" : "");
@@ -147,6 +146,7 @@ public abstract class AbstractTableLockTest extends AbstractTest {
 
     protected void prepareConnection(Connection connection) {
         try {
+            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             connection.setNetworkTimeout(Executors.newSingleThreadExecutor(), 3000);
         } catch (Throwable ignore) {
         }

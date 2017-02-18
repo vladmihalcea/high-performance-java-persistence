@@ -442,7 +442,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         doInJDBC(aliceConnection -> {
             long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
             if(99_000 != salaryCount) {
-                LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead 99000", isolationLevelName, salaryCount);
+                LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
             }
             else {
                 LOGGER.info("Isolation level {} prevents Phantom Read {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
@@ -512,7 +512,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         doInJDBC(aliceConnection -> {
             long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
             if(99_000 != salaryCount) {
-                LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead 99000", isolationLevelName, salaryCount);
+                LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
             }
             else {
                 LOGGER.info("Isolation level {} prevents Phantom Read {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
@@ -572,7 +572,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         doInJDBC(aliceConnection -> {
             long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
             if(99_000 != salaryCount) {
-                LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead 99000", isolationLevelName, salaryCount);
+                LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
             }
             else {
                 LOGGER.info("Isolation level {} prevents Phantom Read {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
@@ -629,7 +629,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         doInJDBC(aliceConnection -> {
             long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
             if(99_000 != salaryCount) {
-                LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead 99000", isolationLevelName, salaryCount);
+                LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
             }
             else {
                 LOGGER.info("Isolation level {} prevents Phantom Read {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");

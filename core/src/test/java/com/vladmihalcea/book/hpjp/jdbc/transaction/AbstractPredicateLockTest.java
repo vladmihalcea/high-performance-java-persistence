@@ -56,6 +56,7 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
         AtomicBoolean prevented = new AtomicBoolean();
 
         doInHibernate( session -> {
+            session.unwrap(Session.class).doWork(this::prepareConnection);
             List<PostComment> comments = session.createQuery(
                 "select c " +
                 "from PostComment c " +
@@ -102,6 +103,8 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
         AtomicBoolean prevented = new AtomicBoolean();
 
         doInHibernate( session -> {
+            session.unwrap(Session.class).doWork(this::prepareConnection);
+
             List<PostComment> comments = session.createQuery(
                 "select c " +
                 "from PostComment c " +
@@ -112,6 +115,8 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
 
             executeAsync(() -> {
                 doInHibernate(_session -> {
+                    _session.unwrap(Session.class).doWork(this::prepareConnection);
+
                     aliceLatch.countDown();
                     _session.createNativeQuery(
                         "delete from post_comment where id = :id ")
@@ -136,6 +141,8 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
         AtomicBoolean prevented = new AtomicBoolean();
 
         doInHibernate( session -> {
+            session.unwrap(Session.class).doWork(this::prepareConnection);
+
             List<PostComment> comments = session.createQuery(
                 "select c " +
                 "from PostComment c " +
@@ -146,6 +153,8 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
 
             executeAsync(() -> {
                 doInHibernate(_session -> {
+                    _session.unwrap(Session.class).doWork(this::prepareConnection);
+
                     aliceLatch.countDown();
                     _session.createQuery(
                         "update PostComment " +

@@ -112,7 +112,7 @@ public class OraclePhenomenaTest extends AbstractPhenomenaTest {
             doInJDBC(aliceConnection -> {
                 long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
                 if(99_000 != salaryCount) {
-                    LOGGER.info("Isolation level {} allows Phantom Write since the salary count is {} instead 99000", isolationLevelName, salaryCount);
+                    LOGGER.info("Isolation level {} allows Phantom Write since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
                     fail.incrementAndGet();
                 }
                 else {
