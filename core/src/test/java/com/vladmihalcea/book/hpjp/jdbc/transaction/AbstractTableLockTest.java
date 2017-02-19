@@ -8,7 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.fail;
 
@@ -45,13 +45,19 @@ public abstract class AbstractTableLockTest extends AbstractTest {
 
                 index = 0;
                 departmentStatement.setString(++index, "Bitsystem");
-                departmentStatement.setLong(++index, 10_000);
+                departmentStatement.setLong(++index, 75_000);
                 departmentStatement.setLong(++index, 2);
                 departmentStatement.executeUpdate();
 
-                for (int i = 0; i < 3; i++) {
+                index = 0;
+                departmentStatement.setString(++index, "Briskydatum");
+                departmentStatement.setLong(++index,90_000);
+                departmentStatement.setLong(++index, 3);
+                departmentStatement.executeUpdate();
+
+                for (int i = 1; i < 5; i++) {
                     index = 0;
-                    employeeStatement.setLong(++index, 1);
+                    employeeStatement.setLong(++index, (i % 2) + 1);
                     employeeStatement.setString(++index, String.format("John Doe %1$d", i));
                     employeeStatement.setLong(++index, 30_000);
                     employeeStatement.setLong(++index, i);
@@ -66,25 +72,22 @@ public abstract class AbstractTableLockTest extends AbstractTest {
 
     @Test
     public void testPhantomReadAggregateWithTableLock() {
-        AtomicReference<Boolean> carolPreventedByLocking = new AtomicReference<>();
-        AtomicReference<Boolean> davePreventedByLocking = new AtomicReference<>();
+        AtomicBoolean carolPreventedByLocking = new AtomicBoolean();
+        AtomicBoolean davePreventedByLocking = new AtomicBoolean();
         try {
             doInJDBC(aliceConnection -> {
                 prepareConnection(aliceConnection);
-                executeStatement(aliceConnection, lockEmployeeTableSql());
-
-                /*long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
-                assertEquals(90_000, salaryCount);*/
+                lockEmployeeTable(aliceConnection);
 
                 try {
-                    LOGGER.debug("Add Carol on Department 1");
+                    LOGGER.debug("Add Carol on Hypersistence");
                     executeSync(() -> {
                         doInJDBC(bobConnection -> {
                             prepareConnection(bobConnection);
                             try (
                                     PreparedStatement employeeStatement = bobConnection.prepareStatement(insertEmployeeSql());
                             ) {
-                                int employeeId = 4;
+                                int employeeId = 6;
                                 int index = 0;
                                 employeeStatement.setLong(++index, 1);
                                 employeeStatement.setString(++index, "Carol");
@@ -104,15 +107,15 @@ public abstract class AbstractTableLockTest extends AbstractTest {
 
                 try {
                     executeSync(() -> {
-                        LOGGER.debug("Add Dave on Department 2");
+                        LOGGER.debug("Add Dave on Briskydatum");
                         doInJDBC(daveConnection -> {
                             prepareConnection(daveConnection);
                             try (
                                     PreparedStatement employeeStatement = daveConnection.prepareStatement(insertEmployeeSql());
                             ) {
-                                int employeeId = 5;
+                                int employeeId = 7;
                                 int index = 0;
-                                employeeStatement.setLong(++index, 2);
+                                employeeStatement.setLong(++index, 3);
                                 employeeStatement.setString(++index, "Dave");
                                 employeeStatement.setLong(++index, 9_000);
                                 employeeStatement.setLong(++index, employeeId);
@@ -133,15 +136,8 @@ public abstract class AbstractTableLockTest extends AbstractTest {
             LOGGER.info("Exception thrown", e);
             carolPreventedByLocking.set(true);
         }
-        doInJDBC(aliceConnection -> {
-            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
-            if(99_000 != salaryCount) {
-                LOGGER.info("Table lock allows Phantom Read even when using Explicit Locks since the salary count is {} instead of 99000", salaryCount);
-            }
-            else {
-                LOGGER.info("Table lock prevents Phantom Read when using Explicit Locks {}", carolPreventedByLocking.get() ? "due to locking" : "");
-            }
-        });
+        LOGGER.info("Carol insert was {} prevented by lock", carolPreventedByLocking.get() ? "" : "not");
+        LOGGER.info("Dave insert was {} prevented by lock", davePreventedByLocking.get() ? "" : "not");
     }
 
     protected void prepareConnection(Connection connection) {
@@ -150,6 +146,10 @@ public abstract class AbstractTableLockTest extends AbstractTest {
             connection.setNetworkTimeout(Executors.newSingleThreadExecutor(), 3000);
         } catch (Throwable ignore) {
         }
+    }
+
+    protected void lockEmployeeTable(Connection connection) {
+        executeStatement(connection, lockEmployeeTableSql());
     }
 
     protected abstract String lockEmployeeTableSql();

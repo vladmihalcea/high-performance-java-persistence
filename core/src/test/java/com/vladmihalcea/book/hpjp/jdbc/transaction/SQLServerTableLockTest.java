@@ -12,7 +12,7 @@ public class SQLServerTableLockTest extends AbstractTableLockTest {
 
     @Override
     protected String lockEmployeeTableSql() {
-        return "SELECT 1 FROM employee WITH (HOLDLOCK) WHERE department_id = 1";
+        return "SELECT * FROM employee WITH (HOLDLOCK) WHERE department_id = 1";
     }
 
     protected String insertEmployeeSql() {
