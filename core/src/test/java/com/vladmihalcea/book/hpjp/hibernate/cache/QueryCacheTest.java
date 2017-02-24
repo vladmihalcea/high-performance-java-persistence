@@ -97,6 +97,18 @@ public class QueryCacheTest extends AbstractTest {
         .getResultList();
     }
 
+    private List<PostCommentSummary> getPostCommentSummaryByPost(EntityManager entityManager) {
+        return entityManager.createQuery(
+            "select new com.vladmihalcea.book.hpjp.hibernate.cache.QueryCacheTest$PostCommentSummary(pc.id, p.title, pc.review) " +
+            "from PostComment pc " +
+            "left join pc.post p " +
+            "where p.id = :postId ", PostCommentSummary.class)
+            .setParameter("postId", 1L)
+        .setMaxResults(10)
+        .setHint(QueryHints.HINT_CACHEABLE, true)
+        .getResultList();
+    }
+
     @Test
     public void test2ndLevelCacheWithoutResults() {
         doInJPA(entityManager -> {
@@ -133,6 +145,20 @@ public class QueryCacheTest extends AbstractTest {
         doInJPA(entityManager -> {
             LOGGER.info("Query cache with entity type parameter");
             List<PostComment> comments = getLatestPostCommentsByPost(entityManager);
+            assertEquals(1, comments.size());
+        });
+    }
+
+    @Test
+    public void test2ndLevelCacheWithProjection() {
+        doInJPA(entityManager -> {
+            LOGGER.info("Query cache with projection");
+            List<PostCommentSummary> comments = getPostCommentSummaryByPost(entityManager);
+            assertEquals(1, comments.size());
+        });
+        doInJPA(entityManager -> {
+            LOGGER.info("Query cache with projection");
+            List<PostCommentSummary> comments = getPostCommentSummaryByPost(entityManager);
             assertEquals(1, comments.size());
         });
     }
@@ -292,6 +318,33 @@ public class QueryCacheTest extends AbstractTest {
 
         public void setReview(String review) {
             this.review = review;
+        }
+    }
+
+    public static class PostCommentSummary {
+
+        private Long commentId;
+
+        private String title;
+
+        private String review;
+
+        public PostCommentSummary(Long commentId, String title, String review) {
+            this.commentId = commentId;
+            this.title = title;
+            this.review = review;
+        }
+
+        public Long getCommentId() {
+            return commentId;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getReview() {
+            return review;
         }
     }
 }

@@ -19,6 +19,7 @@ The Integration Tests require some external configurations:
     Open pgAdmin III and executed the following query:
     
         CREATE EXTENSION postgis;
+        CREATE EXTENSION pgcrypto;
     
 - Oracle
 
