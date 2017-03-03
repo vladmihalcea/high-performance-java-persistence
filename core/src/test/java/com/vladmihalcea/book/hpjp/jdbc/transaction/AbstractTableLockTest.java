@@ -219,7 +219,7 @@ public abstract class AbstractTableLockTest extends AbstractTest {
     }
 
     @Entity(name = "Employee")
-    @Table(name = "employee")
+    @Table(name = "employee", indexes = @Index(name = "IDX_DEPARTMENT_ID", columnList = "department_id"))
     public static class Employee {
 
         @Id
