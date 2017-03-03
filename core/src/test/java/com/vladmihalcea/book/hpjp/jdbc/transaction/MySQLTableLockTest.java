@@ -24,6 +24,6 @@ public class MySQLTableLockTest extends AbstractTableLockTest {
         } catch (SQLException e) {
             fail(e.getMessage());
         }*/
-        executeStatement(connection, "SET GLOBAL innodb_lock_wait_timeout = 1");
+        executeStatement(connection, "SET GLOBAL innodb_lock_wait_timeout = 100");
     }
 }

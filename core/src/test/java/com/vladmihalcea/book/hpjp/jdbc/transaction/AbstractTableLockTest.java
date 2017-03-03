@@ -32,42 +32,58 @@ public abstract class AbstractTableLockTest extends AbstractTest {
     @Override
     public void init() {
         super.init();
+        initData();
+    }
+
+    protected void initData() {
         doInJDBC(connection -> {
             try (
                     PreparedStatement departmentStatement = connection.prepareStatement(INSERT_DEPARTMENT);
                     PreparedStatement employeeStatement = connection.prepareStatement(INSERT_EMPLOYEE);
             ) {
                 int index = 0;
-                departmentStatement.setString(++index, "Hypersistence");
+                departmentStatement.setString(++index, "Department 1");
                 departmentStatement.setLong(++index, 100_000);
                 departmentStatement.setLong(++index, 1);
                 departmentStatement.executeUpdate();
 
                 index = 0;
-                departmentStatement.setString(++index, "Bitsystem");
+                departmentStatement.setString(++index, "Department 2");
                 departmentStatement.setLong(++index, 75_000);
                 departmentStatement.setLong(++index, 2);
                 departmentStatement.executeUpdate();
 
                 index = 0;
-                departmentStatement.setString(++index, "Briskydatum");
+                departmentStatement.setString(++index, "Department 3");
                 departmentStatement.setLong(++index,90_000);
                 departmentStatement.setLong(++index, 3);
                 departmentStatement.executeUpdate();
 
-                for (int i = 1; i < 5; i++) {
-                    index = 0;
-                    employeeStatement.setLong(++index, (i % 2) + 1);
-                    employeeStatement.setString(++index, String.format("John Doe %1$d", i));
-                    employeeStatement.setLong(++index, 30_000);
-                    employeeStatement.setLong(++index, i);
-                    employeeStatement.executeUpdate();
-                }
+                index = 0;
+                employeeStatement.setLong(++index, 1L);
+                employeeStatement.setString(++index, "CEO");
+                employeeStatement.setLong(++index, 30_000);
+                employeeStatement.setLong(++index, 1L);
+                employeeStatement.executeUpdate();
+
+                index = 0;
+                employeeStatement.setLong(++index, 1L);
+                employeeStatement.setString(++index, "CTO");
+                employeeStatement.setLong(++index, 30_000);
+                employeeStatement.setLong(++index, 2L);
+                employeeStatement.executeUpdate();
+
+                index = 0;
+                employeeStatement.setLong(++index, 2L);
+                employeeStatement.setString(++index, "CEO");
+                employeeStatement.setLong(++index, 30_000);
+                employeeStatement.setLong(++index, 3L);
+                employeeStatement.executeUpdate();
+
             } catch (SQLException e) {
                 fail(e.getMessage());
             }
         });
-
     }
 
     @Test
@@ -80,7 +96,7 @@ public abstract class AbstractTableLockTest extends AbstractTest {
                 lockEmployeeTable(aliceConnection);
 
                 try {
-                    LOGGER.debug("Add Carol on Hypersistence");
+                    LOGGER.debug("Add Carol on Department 1");
                     executeSync(() -> {
                         doInJDBC(bobConnection -> {
                             prepareConnection(bobConnection);
@@ -107,7 +123,7 @@ public abstract class AbstractTableLockTest extends AbstractTest {
 
                 try {
                     executeSync(() -> {
-                        LOGGER.debug("Add Dave on Briskydatum");
+                        LOGGER.debug("Add Dave on Department 3");
                         doInJDBC(daveConnection -> {
                             prepareConnection(daveConnection);
                             try (
