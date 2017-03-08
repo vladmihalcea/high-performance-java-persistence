@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping.softdelete;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.hibernate.annotations.Loader;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -13,14 +13,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
  */
-public class SoftDeleteTest extends AbstractTest {
+public class SoftDeleteTest extends AbstractMySQLIntegrationTest {
 
 	@Override
 	protected Class<?>[] entities() {
@@ -53,7 +51,51 @@ public class SoftDeleteTest extends AbstractTest {
 			miscTag.setId("Misc");
 			entityManager.persist(miscTag);
 		} );
+	}
 
+	@Test
+	public void testRemoveTag() {
+		doInJPA( entityManager -> {
+			Post post = new Post();
+			post.setId(1L);
+			post.setTitle("High-Performance Java Persistence");
+
+			entityManager.persist(post);
+
+			post.addTag(entityManager.getReference(Tag.class, "Java"));
+			post.addTag(entityManager.getReference(Tag.class, "Hibernate"));
+			post.addTag(entityManager.getReference(Tag.class, "Misc"));
+		} );
+
+		doInJPA( entityManager -> {
+			Post post = entityManager.find(Post.class, 1L);
+			assertEquals(3, post.getTags().size());
+		} );
+
+		doInJPA( entityManager -> {
+			Tag miscTag = entityManager.getReference(Tag.class, "Misc");
+			entityManager.remove(miscTag);
+		} );
+
+		doInJPA( entityManager -> {
+			Post post = entityManager.find(Post.class, 1L);
+			assertEquals(2, post.getTags().size());
+		} );
+
+		doInJPA( entityManager -> {
+			//That would not work without @Loader(namedQuery = "findTagById")
+			assertNull(entityManager.find(Tag.class, "Misc"));
+		} );
+
+		doInJPA( entityManager -> {
+			List<Tag> tags = entityManager.createQuery("select t from Tag t", Tag.class).getResultList();
+			//That would not work without @Where(clause = "deleted = false")
+			assertEquals(3, tags.size());
+		} );
+	}
+
+	@Test
+	public void testRemovePostDetails() {
 		doInJPA( entityManager -> {
 			Post post = new Post();
 			post.setId(1L);
@@ -79,37 +121,7 @@ public class SoftDeleteTest extends AbstractTest {
 			comment2.setReview("To read");
 			post.addComment(comment2);
 		} );
-	}
 
-	@Test
-	public void testRemoveTag() {
-		doInJPA( entityManager -> {
-			Post post = entityManager.find(Post.class, 1L);
-			assertEquals(3, post.getTags().size());
-		} );
-
-		doInJPA( entityManager -> {
-			Tag miscTag = entityManager.getReference(Tag.class, "Misc");
-			entityManager.remove(miscTag);
-		} );
-
-		doInJPA( entityManager -> {
-			Post post = entityManager.find(Post.class, 1L);
-			assertEquals(2, post.getTags().size());
-
-			//That would not work without @Loader(namedQuery = "findTagById")
-			assertNull(entityManager.find(Tag.class, "Misc"));
-		} );
-
-		doInJPA( entityManager -> {
-			List<Tag> tags = entityManager.createQuery("select t from Tag t", Tag.class).getResultList();
-			//That would not work without @Where(clause = "deleted = false")
-			assertEquals(3, tags.size());
-		} );
-	}
-
-	@Test
-	public void testRemovePostDetails() {
 		doInJPA( entityManager -> {
 			Post post = entityManager.find(Post.class, 1L);
 			assertNotNull(post.getDetails());
@@ -128,6 +140,32 @@ public class SoftDeleteTest extends AbstractTest {
 
 	@Test
 	public void testRemovePostComment() {
+		doInJPA( entityManager -> {
+			Post post = new Post();
+			post.setId(1L);
+			post.setTitle("High-Performance Java Persistence");
+
+			PostDetails postDetails = new PostDetails();
+			postDetails.setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2016, 11, 2, 12, 0, 0)));
+			post.addDetails(postDetails);
+
+			entityManager.persist(post);
+
+			post.addTag(entityManager.getReference(Tag.class, "Java"));
+			post.addTag(entityManager.getReference(Tag.class, "Hibernate"));
+			post.addTag(entityManager.getReference(Tag.class, "Misc"));
+
+			PostComment comment1 = new PostComment();
+			comment1.setId(1L);
+			comment1.setReview("Great!");
+			post.addComment(comment1);
+
+			PostComment comment2= new PostComment();
+			comment2.setId(2L);
+			comment2.setReview("To read");
+			post.addComment(comment2);
+		} );
+
 		doInJPA( entityManager -> {
 			Post post = entityManager.find(Post.class, 1L);
 			assertEquals(2, post.getComments().size());
@@ -167,16 +205,22 @@ public class SoftDeleteTest extends AbstractTest {
 		doInJPA( entityManager -> {
 			Post post = entityManager.find(Post.class, 1L);
 			assertEquals(1, post.getComments().size());
-
-
 		} );
 	}
 
 	@Entity(name = "Post")
 	@Table(name = "post")
-	@SQLDelete(sql = "UPDATE post set deleted = true where id = ?")
+	@SQLDelete(sql =
+		"UPDATE post " +
+		"SET deleted = true " +
+		"WHERE id = ?")
 	@Loader(namedQuery = "findPostById")
-	@NamedQuery(name = "findPostById", query = "select p from Post p where p.id = ? and p.deleted = false")
+	@NamedQuery(name = "findPostById", query =
+		"SELECT p " +
+		"FROM Post p " +
+		"WHERE " +
+		"	p.id = ? AND " +
+		"	p.deleted = false")
 	@Where(clause = "deleted = false")
 	public static class Post extends BaseEntity {
 
@@ -185,39 +229,27 @@ public class SoftDeleteTest extends AbstractTest {
 
 		private String title;
 
-		public Post() {}
-
-		public Post(Long id) {
-			this.id = id;
-		}
-
-		public Post(String title) {
-			this.title = title;
-		}
-
 		@OneToMany(
-				mappedBy = "post",
-				cascade = CascadeType.ALL,
-				orphanRemoval = true
+			mappedBy = "post",
+			cascade = CascadeType.ALL,
+			orphanRemoval = true
 		)
-		@Where(clause = "deleted = false")
 		private List<PostComment> comments = new ArrayList<>();
 
 		@OneToOne(
-				mappedBy = "post",
-				cascade = CascadeType.ALL,
-				orphanRemoval = true,
-				fetch = FetchType.LAZY
+			mappedBy = "post",
+			cascade = CascadeType.ALL,
+			orphanRemoval = true,
+			fetch = FetchType.LAZY
 		)
 		private PostDetails details;
 
 		@ManyToMany
 		@JoinTable(
-				name = "post_tag",
-				joinColumns = @JoinColumn(name = "post_id"),
-				inverseJoinColumns = @JoinColumn(name = "tag_id")
+			name = "post_tag",
+			joinColumns = @JoinColumn(name = "post_id"),
+			inverseJoinColumns = @JoinColumn(name = "tag_id")
 		)
-		@Where(clause = "deleted = false")
 		private List<Tag> tags = new ArrayList<>();
 
 		public Long getId() {
@@ -275,9 +307,17 @@ public class SoftDeleteTest extends AbstractTest {
 
 	@Entity(name = "PostDetails")
 	@Table(name = "post_details")
-	@SQLDelete(sql = "UPDATE post_details set deleted = true where id = ?")
+	@SQLDelete(sql =
+		"UPDATE post_details " +
+		"SET deleted = true " +
+		"WHERE id = ?")
 	@Loader(namedQuery = "findPostDetailsById")
-	@NamedQuery(name = "findPostDetailsById", query = "select pd from PostDetails pd where pd.id = ? and pd.deleted = false")
+	@NamedQuery(name = "findPostDetailsById", query =
+		"SELECT pd " +
+		"FROM PostDetails pd " +
+		"WHERE " +
+		"	pd.id = ? AND " +
+		"	pd.deleted = false")
 	@Where(clause = "deleted = false")
 	public static class PostDetails extends BaseEntity {
 
@@ -334,9 +374,17 @@ public class SoftDeleteTest extends AbstractTest {
 
 	@Entity(name = "PostComment")
 	@Table(name = "post_comment")
-	@SQLDelete(sql = "UPDATE post_comment set deleted = true where id = ?")
+	@SQLDelete(sql =
+		"UPDATE post_comment " +
+		"SET deleted = true " +
+		"WHERE id = ?")
 	@Loader(namedQuery = "findPostCommentById")
-	@NamedQuery(name = "findPostCommentById", query = "select pc from PostComment pc where pc.id = ? and pc.deleted = false")
+	@NamedQuery(name = "findPostCommentById", query =
+		"SELECT pc " +
+		"from PostComment pc " +
+		"WHERE " +
+		"	pc.id = ? AND " +
+		"	pc.deleted = false")
 	@Where(clause = "deleted = false")
 	public static class PostComment extends BaseEntity {
 
@@ -375,9 +423,17 @@ public class SoftDeleteTest extends AbstractTest {
 
 	@Entity(name = "Tag")
 	@Table(name = "tag")
-	@SQLDelete(sql = "UPDATE tag set deleted = true where id = ?")
+	@SQLDelete(sql =
+		"UPDATE tag " +
+		"SET deleted = true " +
+		"WHERE id = ?")
 	@Loader(namedQuery = "findTagById")
-	@NamedQuery(name = "findTagById", query = "select t from Tag t where t.id = ? and t.deleted = false")
+	@NamedQuery(name = "findTagById", query =
+		"SELECT t " +
+		"FROM Tag t " +
+		"WHERE " +
+		"	t.id = ? AND " +
+		"	t.deleted = false")
 	@Where(clause = "deleted = false")
 	public static class Tag extends BaseEntity {
 
