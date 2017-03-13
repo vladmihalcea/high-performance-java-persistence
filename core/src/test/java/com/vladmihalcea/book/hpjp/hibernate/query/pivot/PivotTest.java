@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.query.pivot;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.query.Query;
+import org.hibernate.Query;
 import org.hibernate.transform.Transformers;
 import org.junit.Test;
 
@@ -204,7 +204,7 @@ public class PivotTest extends AbstractPostgreSQLIntegrationTest {
             .setParameter("name", "dataSource")
             .unwrap(Query.class)
             .setResultTransformer(Transformers.aliasToBean(DataSourceConfiguration.class))
-            .getResultList();
+            .list();
             assertEquals(2, dataSources.size());
         });
 
@@ -230,7 +230,7 @@ public class PivotTest extends AbstractPostgreSQLIntegrationTest {
             .setParameter("name", "dataSource")
             .unwrap(Query.class)
             .setResultTransformer(Transformers.aliasToBean(DataSourceConfiguration.class))
-            .getResultList();
+            .list();
             assertEquals(2, dataSources.size());
         });
 
@@ -265,7 +265,7 @@ public class PivotTest extends AbstractPostgreSQLIntegrationTest {
                     DataSourceConfiguration.class
                 )
             )
-            .getResultList();
+            .list();
             assertEquals(2, dataSources.size());
         });
     }

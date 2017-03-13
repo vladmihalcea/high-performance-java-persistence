@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.query.Query;
+import org.hibernate.Query;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.junit.Test;
 
@@ -162,7 +162,7 @@ public class MVCCPostgreSQLTest extends AbstractPostgreSQLIntegrationTest {
         .setParameter("id", id)
         .unwrap(Query.class)
         .setResultTransformer(new AliasToBeanResultTransformer(PostWithXminAndXmax.class))
-        .getResultList();
+        .list();
         return !result.isEmpty() ? result.get(0) : null;
     }
 

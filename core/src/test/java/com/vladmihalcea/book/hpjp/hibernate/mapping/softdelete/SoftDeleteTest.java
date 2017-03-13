@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping.softdelete;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
-import org.hibernate.annotations.Loader;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.junit.Test;
@@ -18,7 +17,7 @@ import static org.junit.Assert.*;
 /**
  * @author Vlad Mihalcea
  */
-public class SoftDeleteTest extends AbstractMySQLIntegrationTest {
+public class SoftDeleteTest extends AbstractTest {
 
 	@Override
 	protected Class<?>[] entities() {
@@ -214,13 +213,6 @@ public class SoftDeleteTest extends AbstractMySQLIntegrationTest {
 		"UPDATE post " +
 		"SET deleted = true " +
 		"WHERE id = ?")
-	@Loader(namedQuery = "findPostById")
-	@NamedQuery(name = "findPostById", query =
-		"SELECT p " +
-		"FROM Post p " +
-		"WHERE " +
-		"	p.id = ? AND " +
-		"	p.deleted = false")
 	@Where(clause = "deleted = false")
 	public static class Post extends BaseEntity {
 
@@ -234,6 +226,7 @@ public class SoftDeleteTest extends AbstractMySQLIntegrationTest {
 			cascade = CascadeType.ALL,
 			orphanRemoval = true
 		)
+		@Where(clause = "deleted = false")
 		private List<PostComment> comments = new ArrayList<>();
 
 		@OneToOne(
@@ -250,6 +243,7 @@ public class SoftDeleteTest extends AbstractMySQLIntegrationTest {
 			joinColumns = @JoinColumn(name = "post_id"),
 			inverseJoinColumns = @JoinColumn(name = "tag_id")
 		)
+		@Where(clause = "deleted = false")
 		private List<Tag> tags = new ArrayList<>();
 
 		public Long getId() {
@@ -311,13 +305,6 @@ public class SoftDeleteTest extends AbstractMySQLIntegrationTest {
 		"UPDATE post_details " +
 		"SET deleted = true " +
 		"WHERE id = ?")
-	@Loader(namedQuery = "findPostDetailsById")
-	@NamedQuery(name = "findPostDetailsById", query =
-		"SELECT pd " +
-		"FROM PostDetails pd " +
-		"WHERE " +
-		"	pd.id = ? AND " +
-		"	pd.deleted = false")
 	@Where(clause = "deleted = false")
 	public static class PostDetails extends BaseEntity {
 
@@ -378,13 +365,6 @@ public class SoftDeleteTest extends AbstractMySQLIntegrationTest {
 		"UPDATE post_comment " +
 		"SET deleted = true " +
 		"WHERE id = ?")
-	@Loader(namedQuery = "findPostCommentById")
-	@NamedQuery(name = "findPostCommentById", query =
-		"SELECT pc " +
-		"from PostComment pc " +
-		"WHERE " +
-		"	pc.id = ? AND " +
-		"	pc.deleted = false")
 	@Where(clause = "deleted = false")
 	public static class PostComment extends BaseEntity {
 
@@ -427,13 +407,6 @@ public class SoftDeleteTest extends AbstractMySQLIntegrationTest {
 		"UPDATE tag " +
 		"SET deleted = true " +
 		"WHERE id = ?")
-	@Loader(namedQuery = "findTagById")
-	@NamedQuery(name = "findTagById", query =
-		"SELECT t " +
-		"FROM Tag t " +
-		"WHERE " +
-		"	t.id = ? AND " +
-		"	t.deleted = false")
 	@Where(clause = "deleted = false")
 	public static class Tag extends BaseEntity {
 

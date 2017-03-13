@@ -3,7 +3,6 @@ package com.vladmihalcea.book.hpjp.jdbc.transaction;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
-import org.hibernate.Session;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -56,20 +55,20 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
         AtomicBoolean prevented = new AtomicBoolean();
 
         doInHibernate( session -> {
-            session.unwrap(Session.class).doWork(this::prepareConnection);
+            session.doWork(this::prepareConnection);
             List<PostComment> comments = session.createQuery(
                 "select c " +
                 "from PostComment c " +
-                "where c.post.id = :id", PostComment.class)
+                "where c.post.id = :id")
             .setParameter("id", 1L)
             .setLockOptions(new LockOptions(LockMode.PESSIMISTIC_WRITE))
-            .getResultList();
+            .list();
 
             executeAsync(() -> {
                 doInHibernate(_session -> {
-                    _session.unwrap(Session.class).doWork(this::prepareConnection);
+                    _session.doWork(this::prepareConnection);
 
-                    Post post = _session.getReference(Post.class, 1L);
+                    Post post = _session.load(Post.class, 1L);
 
                     PostComment comment = new PostComment();
                     comment.setId((long) comments.size() + 1);
@@ -103,22 +102,22 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
         AtomicBoolean prevented = new AtomicBoolean();
 
         doInHibernate( session -> {
-            session.unwrap(Session.class).doWork(this::prepareConnection);
+            session.doWork(this::prepareConnection);
 
             List<PostComment> comments = session.createQuery(
                 "select c " +
                 "from PostComment c " +
-                "where c.post.id = :id", PostComment.class)
+                "where c.post.id = :id")
             .setParameter("id", 1L)
-            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-            .getResultList();
+            .setLockOptions(new LockOptions(LockMode.PESSIMISTIC_WRITE))
+            .list();
 
             executeAsync(() -> {
                 doInHibernate(_session -> {
-                    _session.unwrap(Session.class).doWork(this::prepareConnection);
+                    _session.doWork(this::prepareConnection);
 
                     aliceLatch.countDown();
-                    _session.createNativeQuery(
+                    _session.createSQLQuery(
                         "delete from post_comment where id = :id ")
                     .setParameter("id", 1L)
                     .executeUpdate();
@@ -141,19 +140,19 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
         AtomicBoolean prevented = new AtomicBoolean();
 
         doInHibernate( session -> {
-            session.unwrap(Session.class).doWork(this::prepareConnection);
+            session.doWork(this::prepareConnection);
 
             List<PostComment> comments = session.createQuery(
                 "select c " +
                 "from PostComment c " +
-                "where c.post.id = :id", PostComment.class)
+                "where c.post.id = :id")
             .setParameter("id", 1L)
-            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-            .getResultList();
+            .setLockOptions(new LockOptions(LockMode.PESSIMISTIC_WRITE))
+            .list();
 
             executeAsync(() -> {
                 doInHibernate(_session -> {
-                    _session.unwrap(Session.class).doWork(this::prepareConnection);
+                    _session.doWork(this::prepareConnection);
 
                     aliceLatch.countDown();
                     _session.createQuery(
