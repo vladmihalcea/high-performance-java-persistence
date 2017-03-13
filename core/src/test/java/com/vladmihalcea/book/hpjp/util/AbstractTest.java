@@ -381,6 +381,12 @@ public abstract class AbstractTest {
         private boolean cachePrepStmts = false;
 
         private boolean useServerPrepStmts = false;
+        
+        private boolean useTimezone = false;
+
+        private boolean useJDBCCompliantTimezoneShift = false;
+
+        private boolean useLegacyDatetimeCode = true;
 
         public boolean isRewriteBatchedStatements() {
             return rewriteBatchedStatements;
@@ -406,6 +412,30 @@ public abstract class AbstractTest {
             this.useServerPrepStmts = useServerPrepStmts;
         }
 
+        public boolean isUseTimezone() {
+            return useTimezone;
+        }
+
+        public void setUseTimezone(boolean useTimezone) {
+            this.useTimezone = useTimezone;
+        }
+
+        public boolean isUseJDBCCompliantTimezoneShift() {
+            return useJDBCCompliantTimezoneShift;
+        }
+
+        public void setUseJDBCCompliantTimezoneShift(boolean useJDBCCompliantTimezoneShift) {
+            this.useJDBCCompliantTimezoneShift = useJDBCCompliantTimezoneShift;
+        }
+
+        public boolean isUseLegacyDatetimeCode() {
+            return useLegacyDatetimeCode;
+        }
+
+        public void setUseLegacyDatetimeCode(boolean useLegacyDatetimeCode) {
+            this.useLegacyDatetimeCode = useLegacyDatetimeCode;
+        }
+
         @Override
         public String hibernateDialect() {
             return "org.hibernate.dialect.MySQL57InnoDBDialect";
@@ -417,7 +447,11 @@ public abstract class AbstractTest {
             dataSource.setURL("jdbc:mysql://localhost/high_performance_java_persistence?" +
                     "rewriteBatchedStatements=" + rewriteBatchedStatements +
                     "&cachePrepStmts=" + cachePrepStmts +
-                    "&useServerPrepStmts=" + useServerPrepStmts
+                    "&useServerPrepStmts=" + useServerPrepStmts +
+                    "&useTimezone=" + useTimezone +
+                    "&useJDBCCompliantTimezoneShift=" + useJDBCCompliantTimezoneShift +
+                    "&useLegacyDatetimeCode=" + useLegacyDatetimeCode
+
             );
             dataSource.setUser("mysql");
             dataSource.setPassword("admin");
@@ -467,6 +501,9 @@ public abstract class AbstractTest {
                     "rewriteBatchedStatements=" + rewriteBatchedStatements +
                     ", cachePrepStmts=" + cachePrepStmts +
                     ", useServerPrepStmts=" + useServerPrepStmts +
+                    ", useTimezone=" + useTimezone +
+                    ", useJDBCCompliantTimezoneShift=" + useJDBCCompliantTimezoneShift +
+                    ", useLegacyDatetimeCode=" + useLegacyDatetimeCode +
                     '}';
         }
     }
