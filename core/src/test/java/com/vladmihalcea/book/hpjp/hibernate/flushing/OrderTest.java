@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -33,7 +34,7 @@ public class OrderTest extends AbstractTest {
         });
     }
 
-    @Test(expected = PersistenceException.class)
+    @Test
     public void tesOperationOrder() {
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, postId);
@@ -71,6 +72,7 @@ public class OrderTest extends AbstractTest {
 
         private String title;
 
+        @NaturalId
         private String slug;
 
         public Long getId() {

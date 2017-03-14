@@ -2,7 +2,6 @@ package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
-import org.hibernate.Session;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
@@ -24,6 +23,11 @@ public class AutoFlushTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return entityProvider.entities();
+    }
+
+    @Override
+    protected boolean nativeHibernateSessionFactoryBootstrap() {
+        return true;
     }
 
     @Test
@@ -96,25 +100,27 @@ public class AutoFlushTest extends AbstractTest {
 
     @Test
     public void testFlushAutoSQLNativeSession() {
-        doInJPA(entityManager -> {
+        doInHibernate(entityManager -> {
             entityManager.createNativeQuery("delete from Post").executeUpdate();
             ;
         });
-        doInJPA(entityManager -> {
+        doInHibernate(session -> {
             log.info("testFlushAutoSQLNativeSession");
 
-            assertTrue(((Number) entityManager
+            assertTrue(((Number) session
                     .createQuery("select count(*) from Post")
                     .getSingleResult()).intValue() == 0);
 
             Post post = new Post("Hibernate");
             post.setId(1L);
-            entityManager.persist(post);
+            session.persist(post);
 
-            Session session = entityManager.unwrap(Session.class);
-            assertTrue(((Number) session
-                .createSQLQuery("select count(*) from Post")
-                .uniqueResult()).intValue() == 0);
+            int count = ((Number) session
+                    .createSQLQuery("select count(*) from Post")
+                    .addSynchronizedEntityClass(Post.class)
+                    .uniqueResult()).intValue();
+
+            assertTrue( count == 0);
         });
     }
 }

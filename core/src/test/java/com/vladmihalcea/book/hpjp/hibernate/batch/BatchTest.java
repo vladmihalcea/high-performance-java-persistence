@@ -90,10 +90,6 @@ public class BatchTest extends AbstractTest {
 		}
 	}
 
-	void a() {
-
-	};
-
 	@Entity(name = "Post")
 	public static class Post {
 

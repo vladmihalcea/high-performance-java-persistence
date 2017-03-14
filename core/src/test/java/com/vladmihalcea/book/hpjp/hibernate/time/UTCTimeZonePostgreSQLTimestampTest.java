@@ -20,9 +20,4 @@ public class UTCTimeZonePostgreSQLTimestampTest extends DefaultPostgreSQLTimesta
     protected String expectedServerTimestamp() {
         return "2016-08-25 11:23:46";
     }
-
-    @Override
-    protected String expectedClientTimestamp() {
-        return "2016-08-25 01:23:46";
-    }
 }
