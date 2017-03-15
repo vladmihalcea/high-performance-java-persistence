@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
@@ -20,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Vlad Mihalcea
  */
-public class SkipLockJobQueueTest extends AbstractOracleXEIntegrationTest {
+public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -81,7 +82,7 @@ public class SkipLockJobQueueTest extends AbstractOracleXEIntegrationTest {
                 assertEquals(1, Arrays.asList(ExceptionUtils.getThrowables(e))
                     .stream()
                     .map(Throwable::getClass)
-                    .filter(clazz -> clazz.equals(org.hibernate.exception.LockTimeoutException.class))
+                    .filter(clazz -> clazz.equals(PessimisticLockException.class))
                     .count());
             }
         });
@@ -149,7 +150,7 @@ public class SkipLockJobQueueTest extends AbstractOracleXEIntegrationTest {
         //.setLockOptions(new LockOptions(LockMode.UPGRADE_SKIPLOCKED))
         .setLockOptions(new LockOptions(LockMode.PESSIMISTIC_WRITE)
             .setTimeOut(LockOptions.SKIP_LOCKED)
-            //This is not really needed for this query but showsthat you can control the follow-on locking mechanism
+            //This is not really needed for this query but shows that you can control the follow-on locking mechanism
             .setFollowOnLocking(false)
         )
         .list();

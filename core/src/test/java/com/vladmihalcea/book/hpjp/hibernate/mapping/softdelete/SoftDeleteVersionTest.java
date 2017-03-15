@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping.softdelete;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.Loader;
 import org.hibernate.annotations.SQLDelete;
@@ -8,13 +7,10 @@ import org.hibernate.annotations.Where;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Vlad Mihalcea
@@ -82,7 +78,7 @@ public class SoftDeleteVersionTest extends AbstractTest {
 		"SELECT t " +
 		"FROM Tag t " +
 		"WHERE " +
-		"	t.id = ? AND " +
+		"	t.id = ?1 AND " +
 		"	t.deleted = false")
 	@Where(clause = "deleted = false")
 	public static class Tag extends BaseEntity {
