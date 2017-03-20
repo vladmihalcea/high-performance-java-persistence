@@ -59,8 +59,9 @@ The Integration Tests require some external configurations:
 
     You should install SQL Server Express Edition with Tools Chose mixed mode authentication and set the sa user password to adm1n
 
-    Open SQL Server Management Studio and create the hibernate_master_class database
-
     Open SQL Server Configuration Manager -> SQL Server Network Configuration and enable Named Pipes and TCP
+    
+    In the right pane of the TCP/IP option, choose Properties, then IP Addresses and make sure you Enable all listed IP addresses.
+    You need to blank the dynamic TCP port value, and configure the static TCP port 1433 for all IPs.
         
-    Now you need to create a `high_performance_java_persistence` database
+    Open SQL Server Management Studio and create the `high_performance_java_persistence` database
