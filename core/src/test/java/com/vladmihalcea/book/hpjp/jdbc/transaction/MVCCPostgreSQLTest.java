@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.concurrency;
+package com.vladmihalcea.book.hpjp.jdbc.transaction;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.query.Query;
