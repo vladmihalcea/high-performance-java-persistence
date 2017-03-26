@@ -11,6 +11,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public abstract class AbstractPostgreSQLAdvisoryLocksTest extends AbstractPostgr
 
 	private static final int workerCount = 30;
 
-	private static final int logCount = 2;
+	private static final int logCount = 6;
 
 	private static final int workerLineCount = 10;
 
@@ -85,29 +86,32 @@ public abstract class AbstractPostgreSQLAdvisoryLocksTest extends AbstractPostgr
 	@Test
 	public void test() {
 		long startNanos = System.nanoTime();
+		AtomicInteger counter = new AtomicInteger( workerCount );
 		for ( int i = 0; i < workerCount; i++ ) {
 			final int workerId = i;
 			workers.execute( () -> {
 				LOGGER.info( "Worker {} is ready", workerId );
-				int logIndex = (int) ( ( Math.random() * 10 ) % logCount );
 
-				List<String> lines = new ArrayList<>( workerLineCount );
+				try {
+					doInJDBC( connection -> {
+						awaitOnLatch( startLatch );
+						Integer logIndex = null;
 
-				for ( int j = 1; j <= workerLineCount; j++ ) {
-					lines.add( String.valueOf( workerId ^ j ) );
+						try {
+							logIndex = acquireLock(connection, randomLogIndex(), workerId);
+							write( logs[logIndex], workerId );
+						}
+						finally {
+							if ( logIndex != null ) {
+								releaseLock(connection, logIndex, workerId);
+							}
+						}
+					} );
 				}
-
-				LOGGER.info( "Worker {} writes to log {}", workerId, logIndex );
-
-				doInJDBC( connection -> {
-					awaitOnLatch( startLatch );
-
-					acquireLock(connection, logIndex, workerId);
-					write( logs[logIndex], lines );
-					releaseLock(connection, logIndex, workerId);
-				} );
-
-				endLatch.countDown();
+				finally {
+					LOGGER.info( "Count down {}", counter.decrementAndGet() );
+					endLatch.countDown();
+				}
 			} );
 		}
 		LOGGER.info( "Start workers" );
@@ -116,16 +120,26 @@ public abstract class AbstractPostgreSQLAdvisoryLocksTest extends AbstractPostgr
 		LOGGER.info( "Workers are done in {} ms", TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
 	}
 
-	protected abstract void acquireLock(Connection connection, int logIndex, int workerId);
+	protected int randomLogIndex() {
+		return (int) ( ( Math.random() * 10 ) % logCount );
+	}
+
+	protected abstract int acquireLock(Connection connection, int logIndex, int workerId);
 
 	protected abstract void releaseLock(Connection connection, int logIndex, int workerId);
 
-	private void write(Path path, List<String> lines) {
+	private void write(Path path, int workerId) {
 		try {
+			List<String> lines = new ArrayList<>( workerLineCount );
+
+			for ( int j = 1; j <= workerLineCount; j++ ) {
+				lines.add( String.valueOf( workerId ^ j ) );
+			}
+
 			Files.write( path, lines, UTF_8, APPEND );
 		}
 		catch (IOException e) {
-			fail( e.getMessage() );
+			LOGGER.error( "Write failed", e);
 		}
 	}
 }

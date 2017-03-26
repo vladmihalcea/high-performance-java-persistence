@@ -11,28 +11,32 @@ import java.sql.SQLException;
 public class PostgreSQLSessionTryAdvisoryLocksTest extends AbstractPostgreSQLAdvisoryLocksTest {
 
 	@Override
-	protected void acquireLock(Connection connection, int logIndex, int workerId) {
+	protected int acquireLock(Connection connection, int logIndex, int workerId) {
+		LOGGER.info( "Worker {} writes to log {}", workerId, logIndex );
 		try(PreparedStatement statement =
 				connection.prepareStatement("select pg_try_advisory_lock(?)")) {
-			boolean lockAcquired = false;
+			boolean lockAcquired;
 			statement.setInt( 1, logIndex );
 
 			do {
 				ResultSet resultSet = statement.executeQuery();
 				resultSet.next();
 				lockAcquired = resultSet.getBoolean( 1 );
-				LOGGER.error(
+				LOGGER.info(
 						"Worker {} has {} acquired an advisory lock on log {}",
 						workerId,
 						lockAcquired ? "" : "not",
 						logIndex
 				);
+				logIndex = randomLogIndex();
+				LOGGER.info("Trying with log {}", logIndex);
 			}
 			while ( !lockAcquired );
 		}
 		catch (SQLException e) {
 			LOGGER.error( "Worker {} failed with this message: {}", workerId, e.getMessage() );
 		}
+		return logIndex;
 	}
 
 	@Override

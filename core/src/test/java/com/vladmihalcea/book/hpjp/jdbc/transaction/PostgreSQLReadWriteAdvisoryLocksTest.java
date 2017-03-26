@@ -131,6 +131,11 @@ public class PostgreSQLReadWriteAdvisoryLocksTest extends AbstractPostgreSQLInte
 
 	}
 
+	@Test
+	public void testExclusiveBlocksShared() {
+
+	}
+
 	protected void acquireShareLock(Connection connection, int lockId) {
 		try(PreparedStatement statement =
 					connection.prepareStatement("select pg_advisory_lock_shared(?)")) {

@@ -3,7 +3,6 @@ package com.vladmihalcea.book.hpjp.jdbc.transaction;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * @author Vlad Mihalcea
@@ -11,7 +10,8 @@ import java.sql.Statement;
 public class PostgreSQLSessionAdvisoryLocksTest extends AbstractPostgreSQLAdvisoryLocksTest {
 
 	@Override
-	protected void acquireLock(Connection connection, int logIndex, int workerId) {
+	protected int acquireLock(Connection connection, int logIndex, int workerId) {
+		LOGGER.info( "Worker {} writes to log {}", workerId, logIndex );
 		try(PreparedStatement statement =
 				connection.prepareStatement("select pg_advisory_lock(?)")) {
 			statement.setInt( 1, logIndex );
@@ -20,6 +20,7 @@ public class PostgreSQLSessionAdvisoryLocksTest extends AbstractPostgreSQLAdviso
 		catch (SQLException e) {
 			LOGGER.error( "Worker {} failed with this message: {}", workerId, e.getMessage() );
 		}
+		return logIndex;
 	}
 
 	@Override
