@@ -73,6 +73,7 @@ public class PostgreSQLReadWriteAdvisoryLocksTest extends AbstractPostgreSQLInte
 	public void testSharedBlocksWrite() {
 		doInJDBC( aliceConnection -> {
 			try {
+				LOGGER.info( "Alice acquires a shared lock for document {}", documentId );
 				acquireShareLock( aliceConnection, documentId );
 				try {
 					executorService.submit( () -> {
@@ -123,7 +124,7 @@ public class PostgreSQLReadWriteAdvisoryLocksTest extends AbstractPostgreSQLInte
 				assertTrue(read( doc ).isEmpty() );
 			}
 			finally {
-				LOGGER.info( "Alice releases lock for document {}", documentId );
+				LOGGER.info( "Alice releases the shared lock for document {}", documentId );
 				releaseShareLock( aliceConnection, documentId );
 			}
 			awaitOnLatch( bobLatch );
@@ -133,7 +134,43 @@ public class PostgreSQLReadWriteAdvisoryLocksTest extends AbstractPostgreSQLInte
 
 	@Test
 	public void testExclusiveBlocksShared() {
+		doInJDBC( aliceConnection -> {
+			try {
+				LOGGER.info( "Alice acquires an exclusive lock for document {}", documentId );
+				acquireExclusiveLock( aliceConnection, documentId );
 
+				executorService.submit( () -> {
+					Thread.currentThread().setName( "Bob" );
+					doInJDBC( bobConnection -> {
+						try {
+							LOGGER.info( "Bob tries to acquire a shared lock for document {}", documentId );
+							acquireShareLock( bobConnection, documentId );
+							LOGGER.info( "Bob reads the document {} which has {} lines", documentId, read( doc ).size() );
+						}
+						finally {
+							releaseShareLock( bobConnection, documentId );
+						}
+						bobLatch.countDown();
+					} );
+				} );
+
+				LOGGER.info( "Alice sleeps for {} second", 1 );
+				sleep( 1 * 1000 );
+				LOGGER.info( "Alice writes to the document {}", documentId );
+				write(
+						doc,
+						Arrays.asList(
+								"High-Performance Java Persistence",
+								"Vlad Mihalcea"
+						)
+				);
+			}
+			finally {
+				LOGGER.info( "Alice releases exclusive lock for document {}", documentId );
+				releaseExclusiveLock( aliceConnection, documentId );
+			}
+			awaitOnLatch( bobLatch );
+		} );
 	}
 
 	protected void acquireShareLock(Connection connection, int lockId) {
