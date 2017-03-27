@@ -1,48 +1,65 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.junit.Test;
-
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
+import javax.persistence.Table;
+
+import org.junit.Test;
+
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 
 /**
  * @author Vlad Mihalcea
  */
-public class BidirectionalOneToManyTest extends AbstractTest {
+public class UnidirectionalOneToManyJoinColumnAndOrderColumnTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
-                Post.class,
-                PostComment.class,
+            Post.class,
+            PostComment.class,
         };
     }
 
     @Test
-    public void testLifecycle() {
+    public void testRemoveTail() {
         doInJPA(entityManager -> {
             Post post = new Post("First post");
 
-            post.addComment(
-                new PostComment("My first review")
-            );
-            post.addComment(
-                new PostComment("My second review")
-            );
-            post.addComment(
-                new PostComment( "My third review")
-            );
+            post.getComments().add(new PostComment("My first review"));
+            post.getComments().add(new PostComment("My second review"));
+            post.getComments().add(new PostComment("My third review"));
 
             entityManager.persist(post);
+            entityManager.flush();
+
+            LOGGER.info("Remove tail");
+            post.getComments().remove(2);
         });
+    }
+
+    @Test
+    public void testRemoveHead() {
         doInJPA(entityManager -> {
+            Post post = new Post("First post");
 
-            Post post = entityManager.find( Post.class, 1L );
-            PostComment comment1 = post.getComments().get( 0 );
+            post.getComments().add(new PostComment("My first review"));
+            post.getComments().add(new PostComment("My second review"));
+            post.getComments().add(new PostComment("My third review"));
 
-            post.removeComment(comment1);
+            entityManager.persist(post);
+            entityManager.flush();
+
+            entityManager.flush();
+            LOGGER.info("Remove head");
+            post.getComments().remove(0);
         });
     }
 
@@ -56,14 +73,16 @@ public class BidirectionalOneToManyTest extends AbstractTest {
 
         private String title;
 
-        @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-        private List<PostComment> comments = new ArrayList<>();
-
         public Post() {}
 
         public Post(String title) {
             this.title = title;
         }
+
+        @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+        @JoinColumn(name = "post_id")
+        @OrderColumn(name = "order_id")
+        private List<PostComment> comments = new ArrayList<>();
 
         public Long getId() {
             return id;
@@ -84,16 +103,6 @@ public class BidirectionalOneToManyTest extends AbstractTest {
         public List<PostComment> getComments() {
             return comments;
         }
-
-        public void addComment(PostComment comment) {
-            comments.add(comment);
-            comment.setPost(this);
-        }
-
-        public void removeComment(PostComment comment) {
-            comments.remove(comment);
-            comment.setPost(null);
-        }
     }
 
     @Entity(name = "PostComment")
@@ -105,10 +114,6 @@ public class BidirectionalOneToManyTest extends AbstractTest {
         private Long id;
 
         private String review;
-
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "post_id")
-        private Post post;
 
         public PostComment() {}
 
@@ -130,25 +135,6 @@ public class BidirectionalOneToManyTest extends AbstractTest {
 
         public void setReview(String review) {
             this.review = review;
-        }
-
-        public Post getPost() {
-            return post;
-        }
-
-        public void setPost(Post post) {
-            this.post = post;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof PostComment )) return false;
-            return id != null && id.equals(((PostComment) o).id);
-        }
-        @Override
-        public int hashCode() {
-            return 31;
         }
     }
 }

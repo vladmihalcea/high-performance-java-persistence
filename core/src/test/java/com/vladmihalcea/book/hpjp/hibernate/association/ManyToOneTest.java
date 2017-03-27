@@ -1,5 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
+import java.util.List;
+
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
@@ -35,6 +37,43 @@ public class ManyToOneTest extends AbstractTest {
         });
     }
 
+    @Test
+    public void testThreePostComments() {
+        doInJPA(entityManager -> {
+            Post post = new Post("First post");
+            entityManager.persist(post);
+        });
+        doInJPA(entityManager -> {
+            Post post = entityManager.getReference(Post.class, 1L);
+            
+            PostComment comment1 = new PostComment( "My first review");
+            comment1.setPost( post );
+            PostComment comment2 = new PostComment( "My second review");
+            comment2.setPost( post );
+            PostComment comment3 = new PostComment( "My third review");
+            comment3.setPost( post );
+
+            entityManager.persist(comment1);
+            entityManager.persist(comment2);
+            entityManager.persist(comment3);
+        });
+
+        doInJPA(entityManager -> {
+            PostComment comment1 = entityManager.getReference(PostComment.class, 2L);
+
+            entityManager.remove(comment1);
+        });
+
+        doInJPA(entityManager -> {
+            List<PostComment> comments = entityManager.createQuery(
+                "select pc " +
+                "from PostComment pc " +
+                "where pc.post.id = :postId", PostComment.class)
+            .setParameter( "postId", 1L )
+            .getResultList();
+        });
+    }
+    
     @Entity(name = "Post")
     @Table(name = "post")
     public static class Post {
@@ -78,7 +117,7 @@ public class ManyToOneTest extends AbstractTest {
 
         private String review;
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "post_id")
         private Post post;
 
