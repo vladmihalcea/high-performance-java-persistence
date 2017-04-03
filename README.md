@@ -5,7 +5,7 @@ The [High-Performance Java Persistence](https://leanpub.com/high-performance-jav
 <img src="https://vladmihalcea.files.wordpress.com/2015/11/hpjp_small.jpg" alt="High-Performance Java Persistence">
 </a>
 
-All examples require at least Java 1.8.
+All examples require at least Java 1.8. Javac compiler might be required in order to run in IDEA environment.
 
 The Unit Tests are run against HSQLDB, so no preliminary set-ups are required.
 
