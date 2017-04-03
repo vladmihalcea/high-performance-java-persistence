@@ -55,7 +55,7 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
                 "where p.status = :status",
                 Post.class)
             .setParameter("status", PostStatus.PENDING)
-            .setFirstResult(5)
+            .setFirstResult(0)
             .setMaxResults(2)
             .setLockMode(LockModeType.PESSIMISTIC_WRITE)
             .setHint("javax.persistence.lock.timeout", 0)
@@ -71,7 +71,7 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
                             "from Post p " +
                             "where p.status = :status", Post.class)
                         .setParameter("status", PostStatus.PENDING)
-                        .setFirstResult(5)
+                        .setFirstResult(0)
                         .setMaxResults(2)
                         .setLockMode(LockModeType.PESSIMISTIC_WRITE)
                         .setHint("javax.persistence.lock.timeout", 0)
@@ -145,7 +145,7 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
             "select p from Post p where p.status = :status", Post.class)
         .setParameter("status", PostStatus.PENDING)
         .setMaxResults(maxResults)
-        .unwrap(org.hibernate.Query.class)
+        .unwrap(org.hibernate.query.Query.class)
         //Legacy hack - UPGRADE_SKIPLOCKED bypasses follow-on-locking
         //.setLockOptions(new LockOptions(LockMode.UPGRADE_SKIPLOCKED))
         .setLockOptions(new LockOptions(LockMode.PESSIMISTIC_WRITE)

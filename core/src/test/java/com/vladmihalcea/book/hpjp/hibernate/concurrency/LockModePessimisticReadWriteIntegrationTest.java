@@ -1,10 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
+import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
+import org.hibernate.dialect.lock.PessimisticEntityLockException;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -204,15 +207,24 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
     }
 
     @Test
-    public void testPessimisticNoWait() throws InterruptedException {
+    public void testPessimisticNoWait() {
         LOGGER.info("Test PESSIMISTIC_READ blocks PESSIMISTIC_WRITE, NO WAIT fails fast");
+        Post post = doInJPA(entityManager -> {
+            return entityManager.find(Post.class, 1L);
+        });
+
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
-            entityManager.unwrap(Session.class)
-            .buildLockRequest(
-                new LockOptions(LockMode.PESSIMISTIC_WRITE)
-                .setTimeOut(LockOptions.NO_WAIT))
-            .lock(post);
+            entityManager.unwrap( Session.class ).lock(post, LockMode.PESSIMISTIC_WRITE);
+
+            executeSync( () -> {
+                doInJPA(_entityManager -> {
+                    _entityManager.unwrap(Session.class)
+                        .buildLockRequest(
+                            new LockOptions(LockMode.PESSIMISTIC_WRITE)
+                            .setTimeOut(LockOptions.NO_WAIT))
+                    .lock(post);
+                });
+            } );
         });
     }
 
@@ -230,7 +242,8 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
     @Test
     public void testPessimisticTimeout() throws InterruptedException {
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
+            Post post = entityManager.getReference(Post.class, 1L);
+
             entityManager.unwrap(Session.class)
             .buildLockRequest(
                 new LockOptions(LockMode.PESSIMISTIC_WRITE)
