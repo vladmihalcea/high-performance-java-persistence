@@ -3,28 +3,38 @@ package com.vladmihalcea.book.hpjp.hibernate.query;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityResult;
+import javax.persistence.FieldResult;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedNativeQuery;
+import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
 
+import org.hibernate.Criteria;
 import org.hibernate.SQLQuery;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.query.NativeQuery;
+import org.hibernate.transform.ResultTransformer;
 
 import org.junit.Test;
 
+import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 
 import static org.junit.Assert.assertEquals;
@@ -74,8 +84,48 @@ public class NativeQueryEntityMappingTest extends AbstractPostgreSQLIntegrationT
 
             assertEquals(3, tuples.size());
         });
+
+        doInJPA(entityManager -> {
+            List<Post> tuples = entityManager
+            .createNamedQuery("find_posts_with_tags")
+            .getResultList();
+
+            assertEquals(3, tuples.size());
+        });
     }
 
+    @NamedNativeQuery(
+            name = "find_posts_with_tags",
+            query =
+                "SELECT " +
+                "       p.id as \"p.id\", "+
+                "       p.title as \"p.title\", "+
+                "       t.id as \"t.id\", "+
+                "       t.name as \"t.name\" "+
+                "FROM post p "+
+                "LEFT JOIN post_tag pt ON p.id = pt.post_id "+
+                "LEFT JOIN tag t ON t.id = pt.tag_id ",
+            resultSetMapping = "posts_with_tags"
+    )
+    @SqlResultSetMapping(
+            name = "posts_with_tags",
+            entities = {
+                    @EntityResult(
+                            entityClass = Post.class,
+                            fields = {
+                                @FieldResult( name = "id", column = "p.id" ),
+                                @FieldResult( name = "title", column = "p.title" ),
+                            }
+                    ),
+                    @EntityResult(
+                            entityClass = Tag.class,
+                            fields = {
+                                @FieldResult( name = "id", column = "t.id" ),
+                                @FieldResult( name = "name", column = "t.name" ),
+                            }
+                    )
+            }
+    )
     @Entity(name = "Post")
     @Table(name = "post")
     public static class Post {
