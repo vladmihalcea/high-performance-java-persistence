@@ -17,6 +17,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -218,11 +219,18 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
 
             executeSync( () -> {
                 doInJPA(_entityManager -> {
-                    _entityManager.unwrap(Session.class)
+                    try {
+                        _entityManager
+                        .unwrap(Session.class)
                         .buildLockRequest(
                             new LockOptions(LockMode.PESSIMISTIC_WRITE)
                             .setTimeOut(LockOptions.NO_WAIT))
-                    .lock(post);
+                        .lock(post);
+                        fail("Should throw PessimisticEntityLockException");
+                    }
+                    catch (PessimisticEntityLockException expected) {
+                        //This is expected since the first transaction already acquired this lock
+                    }
                 });
             } );
         });

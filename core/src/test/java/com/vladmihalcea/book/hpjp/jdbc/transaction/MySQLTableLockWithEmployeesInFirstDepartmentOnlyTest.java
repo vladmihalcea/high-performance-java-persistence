@@ -74,6 +74,6 @@ public class MySQLTableLockWithEmployeesInFirstDepartmentOnlyTest extends Abstra
         } catch (SQLException e) {
             fail(e.getMessage());
         }*/
-        executeStatement(connection, "SET GLOBAL innodb_lock_wait_timeout = 100");
+        executeStatement(connection, "SET GLOBAL innodb_lock_wait_timeout = 1");
     }
 }
