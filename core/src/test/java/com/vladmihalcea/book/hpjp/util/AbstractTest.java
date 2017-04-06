@@ -934,7 +934,12 @@ public abstract class AbstractTest {
             txn = session.beginTransaction();
 
             result = callable.apply(session);
-            txn.commit();
+            if ( !txn.getRollbackOnly() ) {
+                txn.commit();
+            }
+            else {
+                txn.rollback();
+            }
         } catch (Throwable e) {
             if ( txn != null ) txn.rollback();
             throw e;
@@ -956,7 +961,12 @@ public abstract class AbstractTest {
             txn = session.beginTransaction();
 
             callable.accept(session);
-            txn.commit();
+            if ( !txn.getRollbackOnly() ) {
+                txn.commit();
+            }
+            else {
+                txn.rollback();
+            }
         } catch (Throwable e) {
             if ( txn != null ) txn.rollback();
             throw e;
@@ -978,7 +988,12 @@ public abstract class AbstractTest {
             txn = entityManager.getTransaction();
             txn.begin();
             result = function.apply(entityManager);
-            txn.commit();
+            if ( !txn.getRollbackOnly() ) {
+                txn.commit();
+            }
+            else {
+                txn.rollback();
+            }
         } catch (Throwable e) {
             if ( txn != null && txn.isActive()) txn.rollback();
             throw e;
@@ -1000,7 +1015,12 @@ public abstract class AbstractTest {
             txn = entityManager.getTransaction();
             txn.begin();
             function.accept(entityManager);
-            txn.commit();
+            if ( !txn.getRollbackOnly() ) {
+                txn.commit();
+            }
+            else {
+                txn.rollback();
+            }
         } catch (Throwable e) {
             if ( txn != null && txn.isActive()) txn.rollback();
             throw e;
@@ -1022,7 +1042,12 @@ public abstract class AbstractTest {
             session.doWork(connection -> {
                 result.set(callable.execute(connection));
             });
-            txn.commit();
+            if ( !txn.getRollbackOnly() ) {
+                txn.commit();
+            }
+            else {
+                txn.rollback();
+            }
         } catch (Throwable e) {
             if ( txn != null ) txn.rollback();
             throw e;
@@ -1041,7 +1066,12 @@ public abstract class AbstractTest {
             session = sessionFactory().openSession();
             txn = session.beginTransaction();
             session.doWork(callable::execute);
-            txn.commit();
+            if ( !txn.getRollbackOnly() ) {
+                txn.commit();
+            }
+            else {
+                txn.rollback();
+            }
         } catch (Throwable e) {
             if ( txn != null ) txn.rollback();
             throw e;
