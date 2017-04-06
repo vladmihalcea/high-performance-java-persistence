@@ -941,7 +941,14 @@ public abstract class AbstractTest {
                 txn.rollback();
             }
         } catch (Throwable e) {
-            if ( txn != null ) txn.rollback();
+            if ( txn != null && txn.isActive() ) {
+                try {
+                    txn.rollback();
+                }
+                catch (Exception e1) {
+                    LOGGER.error( "Rollback failure", e );
+                }
+            }
             throw e;
         } finally {
             callable.afterTransactionCompletion();
@@ -968,7 +975,14 @@ public abstract class AbstractTest {
                 txn.rollback();
             }
         } catch (Throwable e) {
-            if ( txn != null ) txn.rollback();
+            if ( txn != null && txn.isActive() ) {
+                try {
+                    txn.rollback();
+                }
+                catch (Exception e1) {
+                    LOGGER.error( "Rollback failure", e );
+                }
+            }
             throw e;
         } finally {
             callable.afterTransactionCompletion();
@@ -995,7 +1009,14 @@ public abstract class AbstractTest {
                 txn.rollback();
             }
         } catch (Throwable e) {
-            if ( txn != null && txn.isActive()) txn.rollback();
+            if ( txn != null && txn.isActive() ) {
+                try {
+                    txn.rollback();
+                }
+                catch (Exception e1) {
+                    LOGGER.error( "Rollback failure", e );
+                }
+            }
             throw e;
         } finally {
             function.afterTransactionCompletion();
@@ -1022,7 +1043,14 @@ public abstract class AbstractTest {
                 txn.rollback();
             }
         } catch (Throwable e) {
-            if ( txn != null && txn.isActive()) txn.rollback();
+            if ( txn != null && txn.isActive() ) {
+                try {
+                    txn.rollback();
+                }
+                catch (Exception e1) {
+                    LOGGER.error( "Rollback failure", e );
+                }
+            }
             throw e;
         } finally {
             function.afterTransactionCompletion();
@@ -1049,7 +1077,14 @@ public abstract class AbstractTest {
                 txn.rollback();
             }
         } catch (Throwable e) {
-            if ( txn != null ) txn.rollback();
+            if ( txn != null && txn.isActive() ) {
+                try {
+                    txn.rollback();
+                }
+                catch (Exception e1) {
+                    LOGGER.error( "Rollback failure", e );
+                }
+            }
             throw e;
         } finally {
             if (session != null) {
@@ -1073,7 +1108,14 @@ public abstract class AbstractTest {
                 txn.rollback();
             }
         } catch (Throwable e) {
-            if ( txn != null ) txn.rollback();
+            if ( txn != null && txn.isActive() ) {
+                try {
+                    txn.rollback();
+                }
+                catch (Exception e1) {
+                    LOGGER.error( "Rollback failure", e );
+                }
+            }
             throw e;
         } finally {
             if (session != null) {
