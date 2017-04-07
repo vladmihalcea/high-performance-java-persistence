@@ -1,7 +1,13 @@
 package com.vladmihalcea.book.hpjp.jdbc.fetching;
 
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.SQLServerDataSourceProvider;
+
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 

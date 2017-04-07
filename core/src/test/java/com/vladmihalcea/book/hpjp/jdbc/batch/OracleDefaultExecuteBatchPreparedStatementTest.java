@@ -2,7 +2,10 @@ package com.vladmihalcea.book.hpjp.jdbc.batch;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

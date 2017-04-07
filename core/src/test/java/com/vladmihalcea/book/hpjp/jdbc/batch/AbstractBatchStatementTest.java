@@ -1,7 +1,9 @@
 package com.vladmihalcea.book.hpjp.jdbc.batch;
 
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+
 import org.junit.Test;
 
 import java.sql.SQLException;

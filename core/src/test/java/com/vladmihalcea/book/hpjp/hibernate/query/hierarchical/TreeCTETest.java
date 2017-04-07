@@ -5,6 +5,9 @@ import org.junit.Test;
 
 import java.util.List;
 
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+
 import static org.junit.Assert.assertEquals;
 
 /**

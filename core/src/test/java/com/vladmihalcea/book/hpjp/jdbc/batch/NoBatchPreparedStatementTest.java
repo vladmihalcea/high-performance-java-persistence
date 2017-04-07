@@ -3,6 +3,8 @@ package com.vladmihalcea.book.hpjp.jdbc.batch;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+
 /**
  * NoBatchPreparedStatementTest - Test without batching PreparedStatements
  *

@@ -8,6 +8,9 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
+
 /**
  * OracleConnectionReadyOnlyTransactionTest - Test to verify Oracle driver supports read-only transactions
  *

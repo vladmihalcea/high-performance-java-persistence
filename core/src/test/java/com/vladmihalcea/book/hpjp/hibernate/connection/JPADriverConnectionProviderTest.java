@@ -2,6 +2,8 @@ package com.vladmihalcea.book.hpjp.hibernate.connection;
 
 import java.util.Properties;
 
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+
 public class JPADriverConnectionProviderTest extends DriverConnectionProviderTest {
 
     protected void appendDriverProperties(Properties properties) {

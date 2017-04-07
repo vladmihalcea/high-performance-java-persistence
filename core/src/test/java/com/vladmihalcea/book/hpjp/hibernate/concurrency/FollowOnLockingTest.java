@@ -1,6 +1,9 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
+
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.dialect.Oracle10gDialect;

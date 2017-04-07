@@ -5,6 +5,10 @@ import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.book.hpjp.hibernate.identifier.optimizer.providers.*;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

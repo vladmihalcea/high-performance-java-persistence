@@ -5,6 +5,9 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+
 import org.hibernate.annotations.Type;
 import org.hibernate.spatial.dialect.postgis.PostgisDialect;
 import org.junit.Test;

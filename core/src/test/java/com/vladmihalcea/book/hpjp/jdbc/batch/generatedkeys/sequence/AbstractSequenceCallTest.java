@@ -4,7 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.SequenceBatchEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.entity.SequenceBatchEntityProvider;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

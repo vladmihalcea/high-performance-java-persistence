@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.jdbc.caching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.TaskEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.entity.TaskEntityProvider;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;

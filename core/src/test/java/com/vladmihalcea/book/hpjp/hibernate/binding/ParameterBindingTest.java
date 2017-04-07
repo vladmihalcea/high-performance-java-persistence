@@ -1,7 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.binding;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.exception.DataAccessException;
+import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
@@ -112,7 +113,7 @@ public class ParameterBindingTest extends AbstractTest {
                     assertEquals(expectedCount, resultSet.getLong(1));
                 }
             } catch (SQLException e) {
-                throw new DataAccessException(e);
+                throw new DataAccessException( e);
             }
         });
     }

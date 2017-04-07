@@ -1,7 +1,8 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.BankEntityProvider;
+import com.vladmihalcea.book.hpjp.util.exception.DataAccessException;
+import com.vladmihalcea.book.hpjp.util.providers.entity.BankEntityProvider;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -121,7 +122,7 @@ public class AutoCommitTest extends AbstractTest {
                 transferStatement.setLong(2, toAccountId);
                 transferStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new DataAccessException(e);
+                throw new DataAccessException( e);
             }
         });
     }

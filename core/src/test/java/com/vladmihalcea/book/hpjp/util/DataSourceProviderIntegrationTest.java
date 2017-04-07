@@ -7,6 +7,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.SQLServerDataSourceProvider;
+
 /**
  * DataSourceProviderIntegrationTest - Test against some common RDBMS providers
  *

@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.util.spring.config.jpa;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
+import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.jpa.HibernatePersistenceProvider;
@@ -42,7 +42,7 @@ public abstract class AbstractJpaConfiguration {
 
     private DataSource dataSource() {
         SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
-        loggingListener.setQueryLogEntryCreator(new AbstractTest.InlineQueryLogEntryCreator());
+        loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
         return ProxyDataSourceBuilder
             .create(actualDataSource())
             .name(DATA_SOURCE_PROXY_NAME)

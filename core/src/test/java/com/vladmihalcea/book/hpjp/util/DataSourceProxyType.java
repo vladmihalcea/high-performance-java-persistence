@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.util;
 
 import com.p6spy.engine.spy.P6DataSource;
+import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import net.ttddyy.dsproxy.listener.ChainListener;
 import net.ttddyy.dsproxy.listener.DataSourceQueryCountListener;
 import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
@@ -17,7 +18,7 @@ public enum DataSourceProxyType {
         DataSource dataSource(DataSource dataSource) {
             ChainListener listener = new ChainListener();
             SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
-            loggingListener.setQueryLogEntryCreator(new AbstractTest.InlineQueryLogEntryCreator());
+            loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
             listener.addListener(loggingListener);
             listener.addListener(new DataSourceQueryCountListener());
             return ProxyDataSourceBuilder

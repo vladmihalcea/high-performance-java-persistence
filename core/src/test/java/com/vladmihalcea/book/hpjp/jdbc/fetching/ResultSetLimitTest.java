@@ -1,7 +1,9 @@
 package com.vladmihalcea.book.hpjp.jdbc.fetching;
 
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+
 import org.hibernate.dialect.pagination.LimitHandler;
 import org.hibernate.engine.spi.RowSelection;
 import org.hibernate.internal.SessionFactoryImpl;

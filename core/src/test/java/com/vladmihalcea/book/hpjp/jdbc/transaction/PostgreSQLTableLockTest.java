@@ -2,6 +2,9 @@ package com.vladmihalcea.book.hpjp.jdbc.transaction;
 
 import java.sql.Connection;
 
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+
 /**
  * @author Vlad Mihalcea
  */

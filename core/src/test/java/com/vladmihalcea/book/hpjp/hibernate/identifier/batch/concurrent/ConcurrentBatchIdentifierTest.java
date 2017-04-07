@@ -8,6 +8,10 @@ import com.vladmihalcea.book.hpjp.hibernate.identifier.batch.concurrent.provider
 import com.vladmihalcea.book.hpjp.hibernate.identifier.batch.concurrent.providers.SequencePostEntityProvider;
 import com.vladmihalcea.book.hpjp.hibernate.identifier.batch.concurrent.providers.TablePostEntityProvider;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

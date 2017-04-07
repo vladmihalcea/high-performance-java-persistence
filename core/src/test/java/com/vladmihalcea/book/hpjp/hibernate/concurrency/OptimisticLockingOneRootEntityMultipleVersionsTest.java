@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.transaction.VoidCallable;
 import org.hamcrest.core.IsInstanceOf;
 import org.junit.Before;
 import org.junit.Rule;

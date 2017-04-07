@@ -3,6 +3,9 @@ package com.vladmihalcea.book.hpjp.jdbc.transaction;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.SQLServerDataSourceProvider;
+
 import static org.junit.Assert.fail;
 
 /**

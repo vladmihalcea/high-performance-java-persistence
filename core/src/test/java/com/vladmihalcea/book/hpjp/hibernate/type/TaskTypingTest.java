@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.TaskEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.entity.TaskEntityProvider;
 import org.junit.Test;
 
 /**

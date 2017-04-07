@@ -21,7 +21,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.sql.DataSource;
 import java.util.Properties;
 
-import static com.vladmihalcea.book.hpjp.util.AbstractTest.InlineQueryLogEntryCreator;
+import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 
 /**
  * @author Vlad Mihalcea

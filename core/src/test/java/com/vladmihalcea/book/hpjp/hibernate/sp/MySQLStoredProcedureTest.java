@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.sp;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import org.hibernate.Session;
 import org.hibernate.procedure.ProcedureCall;
 import org.hibernate.result.Output;
@@ -18,8 +18,8 @@ import java.sql.Types;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
-import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostComment;
+import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.Post;
+import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.PostComment;
 import static org.junit.Assert.*;
 
 /**

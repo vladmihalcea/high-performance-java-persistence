@@ -4,6 +4,9 @@ import org.hibernate.cfg.AvailableSettings;
 
 import java.util.Properties;
 
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
+
 /**
  * @author Vlad Mihalcea
  */

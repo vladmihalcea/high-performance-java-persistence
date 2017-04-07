@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.jdbc.caching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;

@@ -1,7 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.binding;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.exception.DataAccessException;
+import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
@@ -13,8 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
-import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostComment;
+import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.Post;
+import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.PostComment;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -114,7 +115,7 @@ public class EntityGraphMapperTest extends AbstractTest {
                     assertEquals(expectedCount, posts.size());
                 }
             } catch (SQLException e) {
-                throw new DataAccessException(e);
+                throw new DataAccessException( e);
             }
         });
     }

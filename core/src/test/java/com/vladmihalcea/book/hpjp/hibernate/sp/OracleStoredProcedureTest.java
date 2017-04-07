@@ -1,7 +1,10 @@
 package com.vladmihalcea.book.hpjp.hibernate.sp;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
+
 import org.hibernate.Session;
 import org.hibernate.annotations.NamedNativeQuery;
 import org.hibernate.dialect.Oracle12cDialect;
@@ -23,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
-import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.PostComment;
+import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.Post;
+import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.PostComment;
 import static org.junit.Assert.assertEquals;
 
 /**

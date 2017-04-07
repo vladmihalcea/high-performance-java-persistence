@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.statistics;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import org.hibernate.cfg.AvailableSettings;
 import org.junit.Test;
 

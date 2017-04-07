@@ -1,5 +1,8 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction;
 
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+
 /**
  * PostgreSQLPhenomenaTest - Test to validate PostgreSQL phenomena
  *

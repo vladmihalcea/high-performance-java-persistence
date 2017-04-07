@@ -1,13 +1,36 @@
 package com.vladmihalcea.book.hpjp.util;
 
-import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import net.sourceforge.jtds.jdbcx.JtdsDataSource;
-import net.ttddyy.dsproxy.ExecutionInfo;
-import net.ttddyy.dsproxy.QueryInfo;
-import net.ttddyy.dsproxy.listener.DefaultQueryLogEntryCreator;
+import java.io.Closeable;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.spi.PersistenceUnitInfo;
+import javax.sql.DataSource;
+
 import org.hibernate.Interceptor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -23,7 +46,10 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.dialect.PostgreSQL95Dialect;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.H2Dialect;
+import org.hibernate.dialect.MySQLDialect;
+import org.hibernate.dialect.PostgreSQL81Dialect;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
@@ -33,589 +59,31 @@ import org.hibernate.type.BasicType;
 import org.hibernate.type.Type;
 import org.hibernate.usertype.CompositeUserType;
 import org.hibernate.usertype.UserType;
-import org.hsqldb.jdbc.JDBCDataSource;
+
 import org.junit.After;
 import org.junit.Before;
-import org.postgresql.ds.PGSimpleDataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.spi.PersistenceUnitInfo;
-import javax.sql.DataSource;
-import java.io.Closeable;
-import java.io.IOException;
-import java.sql.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.vladmihalcea.book.hpjp.util.exception.DataAccessException;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.HsqldbDataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.LockType;
+import com.vladmihalcea.book.hpjp.util.transaction.ConnectionCallable;
+import com.vladmihalcea.book.hpjp.util.transaction.ConnectionVoidCallable;
+import com.vladmihalcea.book.hpjp.util.transaction.HibernateTransactionConsumer;
+import com.vladmihalcea.book.hpjp.util.transaction.HibernateTransactionFunction;
+import com.vladmihalcea.book.hpjp.util.transaction.JPATransactionFunction;
+import com.vladmihalcea.book.hpjp.util.transaction.JPATransactionVoidFunction;
+import com.vladmihalcea.book.hpjp.util.transaction.VoidCallable;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 public abstract class AbstractTest {
 
-    protected interface DataSourceProvider {
-
-        enum IdentifierStrategy {
-            IDENTITY,
-            SEQUENCE
-        }
-
-        enum Database {
-            HSQLDB,
-            POSTGRESQL,
-            ORACLE,
-            MYSQL,
-            SQLSERVER
-        }
-
-        String hibernateDialect();
-
-        DataSource dataSource();
-
-        Class<? extends DataSource> dataSourceClassName();
-
-        Properties dataSourceProperties();
-
-        String url();
-
-        String username();
-
-        String password();
-
-        List<IdentifierStrategy> identifierStrategies();
-
-        Database database();
-    }
-
-    protected static class DataAccessException extends RuntimeException {
-        public DataAccessException() {
-        }
-
-        public DataAccessException(String message) {
-            super(message);
-        }
-
-        public DataAccessException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public DataAccessException(Throwable cause) {
-            super(cause);
-        }
-
-        public DataAccessException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-            super(message, cause, enableSuppression, writableStackTrace);
-        }
-    }
-
     static {
         Thread.currentThread().setName("Alice");
-    }
-
-    protected enum LockType {
-        LOCKS,
-        MVLOCKS,
-        MVCC
-    }
-
-    public static class InlineQueryLogEntryCreator extends DefaultQueryLogEntryCreator {
-        @Override
-        protected void writeParamsEntry(StringBuilder sb, ExecutionInfo execInfo, List<QueryInfo> queryInfoList) {
-            sb.append("Params:[");
-            for (QueryInfo queryInfo : queryInfoList) {
-                boolean firstArg = true;
-                for (Map<String, Object> paramMap : queryInfo.getQueryArgsList()) {
-
-                    if(!firstArg) {
-                        sb.append(", ");
-                    } else {
-                        firstArg = false;
-                    }
-
-                    SortedMap<String, Object> sortedParamMap = new TreeMap<>(new StringAsIntegerComparator());
-                    sortedParamMap.putAll(paramMap);
-
-                    sb.append("(");
-                    boolean firstParam = true;
-                    for (Map.Entry<String, Object> paramEntry : sortedParamMap.entrySet()) {
-                        if(!firstParam) {
-                            sb.append(", ");
-                        } else {
-                            firstParam = false;
-                        }
-                        Object parameter = paramEntry.getValue();
-                        if(parameter != null && parameter.getClass().isArray()) {
-                            sb.append(arrayToString(parameter));
-                        } else {
-                            sb.append(parameter);
-                        }
-                    }
-                    sb.append(")");
-                }
-            }
-            sb.append("]");
-        }
-
-        private String arrayToString(Object object) {
-            if(object.getClass().isArray()) {
-                if(object instanceof byte[]) {
-                    return Arrays.toString((byte []) object);
-                }
-                if(object instanceof short[]) {
-                    return Arrays.toString((short []) object);
-                }
-                if(object instanceof char[]) {
-                    return Arrays.toString((char []) object);
-                }
-                if(object instanceof int[]) {
-                    return Arrays.toString((int []) object);
-                }
-                if(object instanceof long[]) {
-                    return Arrays.toString((long []) object);
-                }
-                if(object instanceof float[]) {
-                    return Arrays.toString((float []) object);
-                }
-                if(object instanceof double[]) {
-                    return Arrays.toString((double []) object);
-                }
-                if(object instanceof boolean[]) {
-                    return Arrays.toString((boolean []) object);
-                }
-                if(object instanceof Object[]) {
-                    return Arrays.toString((Object []) object);
-                }
-            }
-            throw new UnsupportedOperationException("Arrat type not supported: " + object.getClass());
-        }
-    };
-
-    public static class HsqldbDataSourceProvider implements DataSourceProvider {
-
-        @Override
-        public String hibernateDialect() {
-            return "org.hibernate.dialect.HSQLDialect";
-        }
-
-        @Override
-        public DataSource dataSource() {
-            JDBCDataSource dataSource = new JDBCDataSource();
-            dataSource.setUrl("jdbc:hsqldb:mem:test");
-            dataSource.setUser("sa");
-            dataSource.setPassword("");
-            return dataSource;
-        }
-
-        @Override
-        public Class<? extends DataSource> dataSourceClassName() {
-            return JDBCDataSource.class;
-        }
-
-        @Override
-        public Properties dataSourceProperties() {
-            Properties properties = new Properties();
-            properties.setProperty("url", url());
-            properties.setProperty("user", username());
-            properties.setProperty("password", password());
-            return properties;
-        }
-
-        @Override
-        public String url() {
-            return "jdbc:hsqldb:mem:test";
-        }
-
-        @Override
-        public String username() {
-            return "sa";
-        }
-
-        @Override
-        public String password() {
-            return "";
-        }
-
-        @Override
-        public List<IdentifierStrategy> identifierStrategies() {
-            return Arrays.asList(IdentifierStrategy.IDENTITY, IdentifierStrategy.SEQUENCE);
-        }
-
-        @Override
-        public Database database() {
-            return Database.HSQLDB;
-        }
-    }
-
-    public static class PostgreSQLDataSourceProvider implements DataSourceProvider {
-
-        @Override
-        public String hibernateDialect() {
-            return PostgreSQL95Dialect.class.getName();
-        }
-
-        @Override
-        public DataSource dataSource() {
-            PGSimpleDataSource dataSource = new PGSimpleDataSource();
-            dataSource.setDatabaseName("high_performance_java_persistence");
-            dataSource.setServerName("localhost");
-            dataSource.setUser("postgres");
-            dataSource.setPassword("admin");
-            return dataSource;
-        }
-
-        @Override
-        public Class<? extends DataSource> dataSourceClassName() {
-            return PGSimpleDataSource.class;
-        }
-
-        @Override
-        public Properties dataSourceProperties() {
-            Properties properties = new Properties();
-            properties.setProperty("databaseName", "high_performance_java_persistence");
-            properties.setProperty("serverName", "localhost");
-            properties.setProperty("user", username());
-            properties.setProperty("password", password());
-            return properties;
-        }
-
-        @Override
-        public String url() {
-            return null;
-        }
-
-        @Override
-        public String username() {
-            return "postgres";
-        }
-
-        @Override
-        public String password() {
-            return "admin";
-        }
-
-        @Override
-        public List<IdentifierStrategy> identifierStrategies() {
-            return Arrays.asList(IdentifierStrategy.SEQUENCE);
-        }
-
-        @Override
-        public Database database() {
-            return Database.POSTGRESQL;
-        }
-    }
-
-    public static class OracleDataSourceProvider implements DataSourceProvider {
-        @Override
-        public String hibernateDialect() {
-            return "org.hibernate.dialect.Oracle12cDialect";
-        }
-
-        @Override
-        public DataSource dataSource() {
-            try {
-                DataSource dataSource = ReflectionUtils.newInstance("oracle.jdbc.pool.OracleDataSource");
-                ReflectionUtils.invokeSetter(dataSource, "databaseName", "high_performance_java_persistence");
-                ReflectionUtils.invokeSetter(dataSource, "URL", url());
-                ReflectionUtils.invokeSetter(dataSource, "user", "oracle");
-                ReflectionUtils.invokeSetter(dataSource, "password", "admin");
-                return dataSource;
-            } catch (Exception e) {
-                throw new IllegalStateException(e);
-            }
-        }
-
-        @Override
-        public Class<? extends DataSource> dataSourceClassName() {
-            try {
-                return (Class<? extends DataSource>) Class.forName("oracle.jdbc.pool.OracleDataSource");
-            } catch (ClassNotFoundException e) {
-                throw new IllegalArgumentException(e);
-            }
-        }
-
-        @Override
-        public Properties dataSourceProperties() {
-            Properties properties = new Properties();
-            properties.setProperty("databaseName", "high_performance_java_persistence");
-            properties.setProperty("URL", url());
-            properties.setProperty("user", username());
-            properties.setProperty("password", password());
-            return properties;
-        }
-
-        @Override
-        public String url() {
-            return "jdbc:oracle:thin:@localhost:1521/xe";
-            //return "jdbc:oracle:thin:@localhost:1521/orclpdb1";
-        }
-
-        @Override
-        public String username() {
-            return "oracle";
-        }
-
-        @Override
-        public String password() {
-            return "admin";
-        }
-
-        @Override
-        public List<IdentifierStrategy> identifierStrategies() {
-            return Arrays.asList(IdentifierStrategy.SEQUENCE);
-        }
-
-        @Override
-        public Database database() {
-            return Database.ORACLE;
-        }
-    }
-
-    public static class MySQLDataSourceProvider implements DataSourceProvider {
-
-        private boolean rewriteBatchedStatements = true;
-
-        private boolean cachePrepStmts = false;
-
-        private boolean useServerPrepStmts = false;
-        
-        private boolean useTimezone = false;
-
-        private boolean useJDBCCompliantTimezoneShift = false;
-
-        private boolean useLegacyDatetimeCode = true;
-
-        public boolean isRewriteBatchedStatements() {
-            return rewriteBatchedStatements;
-        }
-
-        public void setRewriteBatchedStatements(boolean rewriteBatchedStatements) {
-            this.rewriteBatchedStatements = rewriteBatchedStatements;
-        }
-
-        public boolean isCachePrepStmts() {
-            return cachePrepStmts;
-        }
-
-        public void setCachePrepStmts(boolean cachePrepStmts) {
-            this.cachePrepStmts = cachePrepStmts;
-        }
-
-        public boolean isUseServerPrepStmts() {
-            return useServerPrepStmts;
-        }
-
-        public void setUseServerPrepStmts(boolean useServerPrepStmts) {
-            this.useServerPrepStmts = useServerPrepStmts;
-        }
-
-        public boolean isUseTimezone() {
-            return useTimezone;
-        }
-
-        public void setUseTimezone(boolean useTimezone) {
-            this.useTimezone = useTimezone;
-        }
-
-        public boolean isUseJDBCCompliantTimezoneShift() {
-            return useJDBCCompliantTimezoneShift;
-        }
-
-        public void setUseJDBCCompliantTimezoneShift(boolean useJDBCCompliantTimezoneShift) {
-            this.useJDBCCompliantTimezoneShift = useJDBCCompliantTimezoneShift;
-        }
-
-        public boolean isUseLegacyDatetimeCode() {
-            return useLegacyDatetimeCode;
-        }
-
-        public void setUseLegacyDatetimeCode(boolean useLegacyDatetimeCode) {
-            this.useLegacyDatetimeCode = useLegacyDatetimeCode;
-        }
-
-        @Override
-        public String hibernateDialect() {
-            return "org.hibernate.dialect.MySQL57InnoDBDialect";
-        }
-
-        @Override
-        public DataSource dataSource() {
-            MysqlDataSource dataSource = new MysqlDataSource();
-            dataSource.setURL("jdbc:mysql://localhost/high_performance_java_persistence?" +
-                    "rewriteBatchedStatements=" + rewriteBatchedStatements +
-                    "&cachePrepStmts=" + cachePrepStmts +
-                    "&useServerPrepStmts=" + useServerPrepStmts +
-                    "&useTimezone=" + useTimezone +
-                    "&useJDBCCompliantTimezoneShift=" + useJDBCCompliantTimezoneShift +
-                    "&useLegacyDatetimeCode=" + useLegacyDatetimeCode
-
-            );
-            dataSource.setUser("mysql");
-            dataSource.setPassword("admin");
-            return dataSource;
-        }
-
-        @Override
-        public Class<? extends DataSource> dataSourceClassName() {
-            return MysqlDataSource.class;
-        }
-
-        @Override
-        public Properties dataSourceProperties() {
-            Properties properties = new Properties();
-            properties.setProperty("url", url());
-            return properties;
-        }
-
-        @Override
-        public String url() {
-            return "jdbc:mysql://localhost/high_performance_java_persistence?user=mysql&password=admin";
-        }
-
-        @Override
-        public String username() {
-            return null;
-        }
-
-        @Override
-        public String password() {
-            return null;
-        }
-
-        @Override
-        public List<IdentifierStrategy> identifierStrategies() {
-            return Arrays.asList(IdentifierStrategy.IDENTITY);
-        }
-
-        @Override
-        public Database database() {
-            return Database.MYSQL;
-        }
-
-        @Override
-        public String toString() {
-            return "MySQLDataSourceProvider{" +
-                    "rewriteBatchedStatements=" + rewriteBatchedStatements +
-                    ", cachePrepStmts=" + cachePrepStmts +
-                    ", useServerPrepStmts=" + useServerPrepStmts +
-                    ", useTimezone=" + useTimezone +
-                    ", useJDBCCompliantTimezoneShift=" + useJDBCCompliantTimezoneShift +
-                    ", useLegacyDatetimeCode=" + useLegacyDatetimeCode +
-                    '}';
-        }
-    }
-
-    public static class SQLServerDataSourceProvider implements DataSourceProvider {
-        @Override
-        public String hibernateDialect() {
-            return "org.hibernate.dialect.SQLServer2012Dialect";
-        }
-
-        @Override
-        public DataSource dataSource() {
-            SQLServerDataSource dataSource = new SQLServerDataSource();
-            dataSource.setURL("jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence;user=sa;password=adm1n");
-            return dataSource;
-        }
-
-        @Override
-        public Class<? extends DataSource> dataSourceClassName() {
-            return SQLServerDataSource.class;
-        }
-
-        @Override
-        public Properties dataSourceProperties() {
-            Properties properties = new Properties();
-            properties.setProperty("URL", url());
-            return properties;
-        }
-
-        @Override
-        public String url() {
-            return "jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence;user=sa;password=adm1n";
-        }
-
-        @Override
-        public String username() {
-            return null;
-        }
-
-        @Override
-        public String password() {
-            return null;
-        }
-
-        @Override
-        public List<IdentifierStrategy> identifierStrategies() {
-            return Arrays.asList(IdentifierStrategy.IDENTITY, IdentifierStrategy.SEQUENCE);
-        }
-
-        @Override
-        public Database database() {
-            return Database.SQLSERVER;
-        }
-    }
-
-    public static class JTDSDataSourceProvider implements DataSourceProvider {
-        @Override
-        public String hibernateDialect() {
-            return "org.hibernate.dialect.SQLServer2012Dialect";
-        }
-
-        @Override
-        public DataSource dataSource() {
-            JtdsDataSource dataSource = new JtdsDataSource();
-            dataSource.setServerName("localhost");
-            dataSource.setDatabaseName("high_performance_java_persistence");
-            dataSource.setInstance("SQLEXPRESS");
-            dataSource.setUser("sa");
-            dataSource.setPassword("adm1n");
-            return dataSource;
-        }
-
-        @Override
-        public Class<? extends DataSource> dataSourceClassName() {
-            return JtdsDataSource.class;
-        }
-
-        @Override
-        public Properties dataSourceProperties() {
-            Properties properties = new Properties();
-            properties.setProperty("databaseName", "high_performance_java_persistence");
-            properties.setProperty("serverName", "localhost");
-            properties.setProperty("instance", "SQLEXPRESS");
-            properties.setProperty("user", username());
-            properties.setProperty("password", password());
-            return properties;
-        }
-
-        @Override
-        public String url() {
-            return null;
-        }
-
-        @Override
-        public String username() {
-            return "sa";
-        }
-
-        @Override
-        public String password() {
-            return "adm1n";
-        }
-
-        @Override
-        public List<IdentifierStrategy> identifierStrategies() {
-            return Arrays.asList(IdentifierStrategy.IDENTITY, IdentifierStrategy.SEQUENCE);
-        }
-
-        @Override
-        public Database database() {
-            return Database.SQLSERVER;
-        }
     }
 
     protected final ExecutorService executorService = Executors.newSingleThreadExecutor(r -> {
@@ -625,71 +93,6 @@ public abstract class AbstractTest {
     });
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @FunctionalInterface
-    protected interface VoidCallable extends Callable<Void> {
-
-        void execute();
-
-        default Void call() throws Exception {
-            execute();
-            return null;
-        }
-    }
-
-    @FunctionalInterface
-    protected interface HibernateTransactionFunction<T> extends Function<Session, T> {
-        default void beforeTransactionCompletion() {
-
-        }
-
-        default void afterTransactionCompletion() {
-
-        }
-    }
-
-    @FunctionalInterface
-    protected interface HibernateTransactionConsumer extends Consumer<Session> {
-        default void beforeTransactionCompletion() {
-
-        }
-
-        default void afterTransactionCompletion() {
-
-        }
-    }
-
-    @FunctionalInterface
-    protected interface JPATransactionFunction<T> extends Function<EntityManager, T> {
-        default void beforeTransactionCompletion() {
-
-        }
-
-        default void afterTransactionCompletion() {
-
-        }
-    }
-
-    @FunctionalInterface
-    protected interface JPATransactionVoidFunction extends Consumer<EntityManager> {
-        default void beforeTransactionCompletion() {
-
-        }
-
-        default void afterTransactionCompletion() {
-
-        }
-    }
-
-    @FunctionalInterface
-    protected interface ConnectionCallable<T> {
-        T execute(Connection connection) throws SQLException;
-    }
-
-    @FunctionalInterface
-    protected interface ConnectionVoidCallable {
-        void execute(Connection connection) throws SQLException;
-    }
 
     private EntityManagerFactory emf;
 
@@ -1210,7 +613,7 @@ public abstract class AbstractTest {
                 try {
                     connection.rollback();
                 } catch (SQLException ex) {
-                    throw new DataAccessException(e);
+                    throw new DataAccessException( e);
                 }
             }
             throw (e instanceof DataAccessException ?
@@ -1362,6 +765,39 @@ public abstract class AbstractTest {
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    /**
+     * Set Session or Statement timeout
+     * @param session Hibernate Session
+     */
+    public static void setJdbcTimeout(Session session) {
+        session.doWork( connection -> {
+            if( Dialect.getDialect() instanceof H2Dialect ) {
+                try (Statement st = connection.createStatement()) {
+                    st.execute( "SET LOCK_TIMEOUT 100" );
+                }
+            }
+            else if ( Dialect.getDialect() instanceof PostgreSQL81Dialect ) {
+                try (Statement st = connection.createStatement()) {
+                    st.execute( "SET statement_timeout TO 1000" );
+                }
+
+            }
+            else if( Dialect.getDialect() instanceof MySQLDialect ) {
+                try (Statement st = connection.createStatement()) {
+                    st.execute( "SET GLOBAL innodb_lock_wait_timeout = 1" );
+                }
+            }
+            else {
+                try {
+                    connection.setNetworkTimeout( Executors.newSingleThreadExecutor(), 1000 );
+                }
+                catch (Throwable ignore) {
+                    ignore.fillInStackTrace();
+                }
+            }
+        } );
     }
 
     protected void printCacheRegionStatistics(String region) {

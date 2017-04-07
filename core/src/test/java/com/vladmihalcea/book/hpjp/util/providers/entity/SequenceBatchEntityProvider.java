@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.util.providers;
+package com.vladmihalcea.book.hpjp.util.providers.entity;
 
 import com.vladmihalcea.book.hpjp.util.EntityProvider;
 

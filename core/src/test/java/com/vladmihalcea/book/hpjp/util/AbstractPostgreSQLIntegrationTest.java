@@ -1,5 +1,8 @@
 package com.vladmihalcea.book.hpjp.util;
 
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+
 /**
  * AbstractPostgreSQLIntegrationTest - Abstract PostgreSQL IntegrationTest
  *

@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.hibernate.config;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
+import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
@@ -68,7 +68,7 @@ public class HibernateTransactionManagerConfiguration {
     @Bean
     public DataSource dataSource() {
         SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
-        loggingListener.setQueryLogEntryCreator(new AbstractTest.InlineQueryLogEntryCreator());
+        loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
         return ProxyDataSourceBuilder
                 .create(actualDataSource())
                 .name(DATA_SOURCE_PROXY_NAME)

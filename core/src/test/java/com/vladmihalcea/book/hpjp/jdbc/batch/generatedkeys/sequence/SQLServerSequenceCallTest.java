@@ -1,5 +1,8 @@
 package com.vladmihalcea.book.hpjp.jdbc.batch.generatedkeys.sequence;
 
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.SQLServerDataSourceProvider;
+
 /**
  * PostgreSQLSequenceCallTest - PostgreSQL sequence call
  *

@@ -1,6 +1,9 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction;
 
 import com.microsoft.sqlserver.jdbc.SQLServerConnection;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.SQLServerDataSourceProvider;
+
 import org.junit.runners.Parameterized;
 
 import java.sql.Connection;

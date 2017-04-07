@@ -4,6 +4,8 @@ import org.hibernate.hikaricp.internal.HikariCPConnectionProvider;
 
 import java.util.Properties;
 
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+
 public class HikariCPConnectionProviderTest extends DriverConnectionProviderTest {
 
     @Override

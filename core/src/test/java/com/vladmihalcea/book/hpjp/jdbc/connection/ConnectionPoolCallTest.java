@@ -4,6 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.Ignore;

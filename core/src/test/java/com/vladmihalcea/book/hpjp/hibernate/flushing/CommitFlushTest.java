@@ -1,13 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider;
+import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
 import javax.persistence.FlushModeType;
 
-import static com.vladmihalcea.book.hpjp.util.providers.BlogEntityProvider.Post;
+import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.Post;
 import static org.junit.Assert.assertTrue;
 
 /**
