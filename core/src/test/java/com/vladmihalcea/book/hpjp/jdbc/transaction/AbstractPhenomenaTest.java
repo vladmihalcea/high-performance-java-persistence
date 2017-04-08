@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -309,7 +308,8 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     @Test
     public void testLostUpdate() {
-        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
+        final AtomicBoolean preventedByLocking = new AtomicBoolean();
+        final AtomicBoolean preventedByMVCC = new AtomicBoolean();
         try {
             doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
@@ -324,23 +324,35 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                         try {
                             update(bobConnection, updatePostTitleParamSql(), new Object[]{"Bob"});
                         } catch (Exception e) {
-                            LOGGER.info("Exception thrown", e);
-                            preventedByLocking.set(true);
+                            if( ExceptionUtil.isLockTimeout( e )) {
+                                preventedByLocking.set( true );
+                            } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                                preventedByMVCC.set( true );
+                            } else {
+                                throw new IllegalStateException( e );
+                            }
                         }
                     });
                 });
                 update(aliceConnection, updatePostTitleParamSql(), new Object[]{"Alice"});
             });
         } catch (Exception e) {
-            LOGGER.info("Exception thrown", e);
-            preventedByLocking.set(true);
+            if( ExceptionUtil.isLockTimeout( e )) {
+                preventedByLocking.set( true );
+            } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                preventedByMVCC.set( true );
+            } else if ( !ExceptionUtil.isConnectionClose( e ) ) {
+                throw new IllegalStateException( e );
+            }
         }
         doInJDBC(aliceConnection -> {
             String title = selectStringColumn(aliceConnection, selectPostTitleSql());
+            LOGGER.info("Isolation level {} {} Lost Update", isolationLevelName, "Alice".equals(title) ? "allows" : "prevents");
+
             if (Boolean.TRUE.equals(preventedByLocking.get())) {
                 LOGGER.info("Isolation level {} Lost Update prevented by locking", isolationLevelName);
-            } else {
-                LOGGER.info("Isolation level {} {} Lost Update", isolationLevelName, "Alice".equals(title) ? "allows" : "prevents");
+            } else if (Boolean.TRUE.equals(preventedByMVCC.get())) {
+                LOGGER.info("Isolation level {} Lost Update prevented by MVCC", isolationLevelName);
             }
         });
     }

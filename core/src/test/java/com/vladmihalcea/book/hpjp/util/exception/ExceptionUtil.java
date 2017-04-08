@@ -69,6 +69,35 @@ public interface ExceptionUtil {
 	}
 
 	/**
+	 * Is the given throwable caused by a database MVCC anomaly detection?
+	 *
+	 * @param e exception
+	 *
+	 * @return is caused by a database lock MVCC anomaly detection
+	 */
+	static boolean isMVCCAnomalyDetection(Throwable e) {
+		AtomicReference<Throwable> causeHolder = new AtomicReference<>(e);
+		do {
+			final Throwable cause = causeHolder.get();
+			if (
+				e.getMessage().contains( "ORA-08177" ) //can't serialize access for this transaction
+			 || e.getMessage().toLowerCase().contains( "could not serialize access due to concurrent update" ) //PSQLException
+			 || e.getMessage().toLowerCase().contains( "snapshot isolation transaction aborted due to update conflict" ) //SQLServerException
+			) {
+				return true;
+			} else {
+				if(cause.getCause() == null || cause.getCause() == cause) {
+					break;
+				} else {
+					causeHolder.set( cause.getCause() );
+				}
+			}
+		}
+		while ( true );
+		return false;
+	}
+
+	/**
 	 * Was the given exception caused by a SQL connection close
 	 *
 	 * @param e exception
