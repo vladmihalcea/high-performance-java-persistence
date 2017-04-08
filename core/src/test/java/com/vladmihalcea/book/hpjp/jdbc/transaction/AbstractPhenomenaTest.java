@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,9 +74,9 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     @Parameterized.Parameters
     public static Collection<Object[]> isolationLevels() {
         List<Object[]> levels = new ArrayList<>();
-        /*levels.add(new Object[]{"Read Uncommitted", Connection.TRANSACTION_READ_UNCOMMITTED});
+        levels.add(new Object[]{"Read Uncommitted", Connection.TRANSACTION_READ_UNCOMMITTED});
         levels.add(new Object[]{"Read Committed", Connection.TRANSACTION_READ_COMMITTED});
-        levels.add(new Object[]{"Repeatable Read", Connection.TRANSACTION_REPEATABLE_READ});*/
+        levels.add(new Object[]{"Repeatable Read", Connection.TRANSACTION_REPEATABLE_READ});
         levels.add(new Object[]{"Serializable", Connection.TRANSACTION_SERIALIZABLE});
         return levels;
     }
@@ -141,6 +142,8 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     @Test
     public void testDirtyWrite() {
         String firstTitle = "Alice";
+        AtomicBoolean preventedByLocking = new AtomicBoolean();
+
         try {
             doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
@@ -156,26 +159,36 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                             try {
                                 update(bobConnection, updatePostTitleParamSql(), new Object[]{"Bob"});
                             } catch (Exception e) {
-                                LOGGER.info("Exception thrown", e);
+                                if( ExceptionUtil.isLockTimeout( e )) {
+                                    preventedByLocking.set( true );
+                                } else {
+                                    throw new IllegalStateException( e );
+                                }
                             }
                         });
                     });
                 } catch (Exception e) {
-                    LOGGER.info("Exception thrown", e);
+                    if ( !ExceptionUtil.isConnectionClose( e ) ) {
+                        fail(e.getMessage());
+                    }
                 }
             });
         } catch (Exception e) {
-            LOGGER.info("Exception thrown", e);
+            fail(e.getMessage());
         }
         doInJDBC(aliceConnection -> {
             String title = selectStringColumn(aliceConnection, selectPostTitleSql());
             LOGGER.info("Isolation level {} {} Dirty Write", isolationLevelName, !title.equals(firstTitle) ? "allows" : "prevents");
+            if(preventedByLocking.get()) {
+                LOGGER.info("Isolation level {} Dirty Write prevented by locking", isolationLevelName);
+            }
         });
     }
 
     @Test
     public void testDirtyRead() {
         final AtomicBoolean dirtyRead = new AtomicBoolean();
+        AtomicBoolean preventedByLocking = new AtomicBoolean();
 
         try {
             doInJDBC(aliceConnection -> {
@@ -199,16 +212,23 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                                     fail("Unknown title: " + title);
                                 }
                             } catch (Exception e) {
-                                LOGGER.info("Exception thrown", e);
+                                if( ExceptionUtil.isLockTimeout( e )) {
+                                    preventedByLocking.set( true );
+                                } else {
+                                    throw new IllegalStateException( e );
+                                }
                             }
                         });
                     });
                 }
             });
         } catch (Exception e) {
-            LOGGER.info("Exception thrown", e);
+            fail(e.getMessage());
         }
-        LOGGER.info("Isolation level {} {} Dirty Reads", isolationLevelName, dirtyRead.get() ? "allows" : "prevents");
+        LOGGER.info("Isolation level {} {} Dirty Read", isolationLevelName, dirtyRead.get() ? "allows" : "prevents");
+        if(preventedByLocking.get()) {
+            LOGGER.info("Isolation level {} Dirty Read prevented by locking", isolationLevelName);
+        }
     }
 
     @Test
@@ -639,11 +659,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     protected void prepareConnection(Connection connection) throws SQLException {
         connection.setTransactionIsolation(isolationLevel);
-        try {
-            connection.setNetworkTimeout(Executors.newSingleThreadExecutor(), 5000);
-        } catch (Throwable e) {
-            LOGGER.info("Unsupported operation", e);
-        }
+        setJdbcTimeout(connection);
     }
 
     protected String selectPostTitleSql() {

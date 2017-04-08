@@ -80,6 +80,8 @@ import com.vladmihalcea.book.hpjp.util.transaction.VoidCallable;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import static org.junit.Assert.fail;
+
 public abstract class AbstractTest {
 
     static {
@@ -768,36 +770,33 @@ public abstract class AbstractTest {
     }
 
     /**
-     * Set Session or Statement timeout
-     * @param session Hibernate Session
+     * Set JDBC Connection or Statement timeout
+     *
+     * @param connection JDBC Connection time out
      */
-    public static void setJdbcTimeout(Session session) {
-        session.doWork( connection -> {
-            if( Dialect.getDialect() instanceof H2Dialect ) {
-                try (Statement st = connection.createStatement()) {
-                    st.execute( "SET LOCK_TIMEOUT 100" );
-                }
-            }
-            else if ( Dialect.getDialect() instanceof PostgreSQL81Dialect ) {
-                try (Statement st = connection.createStatement()) {
-                    st.execute( "SET statement_timeout TO 1000" );
-                }
+    public void setJdbcTimeout(Connection connection) {
+        try (Statement st = connection.createStatement()) {
+            DataSourceProvider dataSourceProvider = dataSourceProvider();
 
-            }
-            else if( Dialect.getDialect() instanceof MySQLDialect ) {
-                try (Statement st = connection.createStatement()) {
+            switch ( dataSourceProvider.database() ) {
+                case POSTGRESQL:
+                    st.execute( "SET statement_timeout TO 1000" );
+                    break;
+                case MYSQL:
                     st.execute( "SET GLOBAL innodb_lock_wait_timeout = 1" );
-                }
+                    break;
+                default:
+                    try {
+                        connection.setNetworkTimeout( Executors.newSingleThreadExecutor(), 1000 );
+                    }
+                    catch (Throwable ignore) {
+                        ignore.fillInStackTrace();
+                    }
             }
-            else {
-                try {
-                    connection.setNetworkTimeout( Executors.newSingleThreadExecutor(), 1000 );
-                }
-                catch (Throwable ignore) {
-                    ignore.fillInStackTrace();
-                }
-            }
-        } );
+        }
+        catch (SQLException e) {
+            fail(e.getMessage());
+        }
     }
 
     protected void printCacheRegionStatistics(String region) {

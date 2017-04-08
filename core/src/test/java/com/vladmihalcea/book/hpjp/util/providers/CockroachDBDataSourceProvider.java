@@ -1,24 +1,22 @@
 package com.vladmihalcea.book.hpjp.util.providers;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 import javax.sql.DataSource;
 
-import org.hibernate.dialect.PostgreSQL81Dialect;
+import org.hibernate.dialect.PostgreSQL82Dialect;
 import org.hibernate.dialect.PostgreSQL94Dialect;
-import org.hibernate.dialect.PostgreSQL95Dialect;
 
 import org.postgresql.ds.PGSimpleDataSource;
 
 /**
  * @author Vlad Mihalcea
  */
-public class CockroachDBDataSourceProvider implements DataSourceProvider {
+public class CockroachDBDataSourceProvider
+		implements DataSourceProvider {
 
 	@Override
 	public String hibernateDialect() {
-		return PostgreSQL94Dialect.class.getName();
+		return PostgreSQL82Dialect.class.getName();
 	}
 
 	@Override
@@ -52,7 +50,11 @@ public class CockroachDBDataSourceProvider implements DataSourceProvider {
 
 	@Override
 	public String url() {
-		return null;
+		return String.format(
+			"jdbc:postgresql://%s:%d/high_performance_java_persistence?sslmode=disable",
+			host(),
+			port()
+		);
 	}
 
 	public String host() {

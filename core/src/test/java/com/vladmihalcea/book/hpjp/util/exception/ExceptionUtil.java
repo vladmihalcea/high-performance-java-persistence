@@ -1,5 +1,9 @@
 package com.vladmihalcea.book.hpjp.util.exception;
 
+import java.sql.SQLTimeoutException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.persistence.LockTimeoutException;
 
 import org.hibernate.PessimisticLockException;
@@ -11,6 +15,14 @@ import org.hibernate.exception.LockAcquisitionException;
  * @author Vlad Mihalcea
  */
 public interface ExceptionUtil {
+
+	static List<Class<? extends Exception>> LOCK_TIMEOUT_EXCEPTIONS = Arrays.asList(
+		LockAcquisitionException.class,
+		LockTimeoutException.class,
+		PessimisticLockException.class,
+		javax.persistence.PessimisticLockException.class,
+		SQLTimeoutException.class
+	);
 
 	/**
 	 * Get the root cause of a particular {@code Throwable}
@@ -28,29 +40,26 @@ public interface ExceptionUtil {
 	}
 
 	/**
-	 * Was the given exception caused by a SQL lock timeout?
+	 * Is the given throwable caused by a database lock timeout?
 	 *
 	 * @param e exception
 	 *
-	 * @return is caused by a SQL lock timeout
+	 * @return is caused by a database lock timeout
 	 */
-	static boolean isSqlLockTimeout(Exception e) {
-		if ( LockAcquisitionException.class.isInstance( e )
-				|| LockTimeoutException.class.isInstance( e )
-				|| PessimisticLockException.class.isInstance( e )
-				|| javax.persistence.PessimisticLockException.class.isInstance( e )
+	static boolean isLockTimeout(Throwable e) {
+		AtomicReference<Throwable> cause = new AtomicReference<>(e);
+		do {
+			if ( LOCK_TIMEOUT_EXCEPTIONS.stream().anyMatch( c -> c.isInstance( cause.get() ) ) ||
+				e.getMessage().contains( "timeout" ) ||
+				e.getMessage().contains( "timed out" ) ||
+				e.getMessage().contains( "time out" )
 			) {
-			return true;
-		}
-		else {
-			Throwable rootCause = ExceptionUtil.rootCause( e );
-			if ( rootCause != null && (
-					rootCause.getMessage().contains( "timeout" ) ||
-							rootCause.getMessage().contains( "timed out" ) )
-					) {
 				return true;
+			} else {
+				cause.set( cause.get().getCause() );
 			}
 		}
+		while ( cause.get().getCause() != null || cause.get().getCause() != cause.get() );
 		return false;
 	}
 
@@ -62,13 +71,17 @@ public interface ExceptionUtil {
 	 * @return is caused by a SQL connection close
 	 */
 	static boolean isConnectionClose(Exception e) {
-		Throwable rootCause = ExceptionUtil.rootCause( e );
-		if ( rootCause != null && (
-				rootCause.getMessage().toLowerCase().contains( "connection is close" ) ||
-				rootCause.getMessage().toLowerCase().contains( "closed connection" )
-		) ) {
-			return true;
+		AtomicReference<Throwable> cause = new AtomicReference<>(e);
+		do {
+			if ( cause.get().getMessage().toLowerCase().contains( "connection is close" ) ||
+				cause.get().getMessage().toLowerCase().contains( "closed connection" )
+			) {
+				return true;
+			} else {
+				cause.set( cause.get().getCause() );
+			}
 		}
+		while ( cause.get().getCause() != null || cause.get().getCause() != cause.get() );
 		return false;
 	}
 }

@@ -1,5 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -13,13 +15,15 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.Session;
+
 import org.junit.Test;
 
 import com.vladmihalcea.book.hpjp.util.AbstractCockroachDBIntegrationTest;
 
 import static org.junit.Assert.assertEquals;
 
-public class EntityIdentifierCockroachDBTest extends AbstractCockroachDBIntegrationTest {
+public class EntityIdentifierTimestampCockroachDBTest extends AbstractCockroachDBIntegrationTest {
 
 	@Override
 	protected Class<?>[] entities() {
@@ -36,37 +40,25 @@ public class EntityIdentifierCockroachDBTest extends AbstractCockroachDBIntegrat
 	@Test
 	public void test() {
 		doInJPA( entityManager -> {
-			LocalDate startDate = LocalDate.of( 2016, 11, 2 );
-			for ( int offset = 0; offset < 10; offset++ ) {
-				Post post = new Post();
-				post.setTitle(
-					String.format(
-						"High-Performance Java Persistence, Review %d",
-						offset
-					)
-				);
-				post.setCreatedOn(
-					Date.from( startDate
-				   		.plusDays( offset )
-						.atStartOfDay( ZoneId.of( "UTC" ) )
-						.toInstant()
-					)
-				);
-				entityManager.persist( post );
-			}
-		} );
+			entityManager.unwrap( Session.class ).doWork( connection -> {
+				try(PreparedStatement preparedStatement = connection.prepareStatement(
+					"INSERT INTO post (title, createdOn) " +
+						"VALUES (?, ?)")
+				) {
+					int index = 0;
+					preparedStatement.setString(
+							++index,
+							"High-Performance Java Persistence"
+					);
+					preparedStatement.setTimestamp(
+							++index,
+							new Timestamp( System.currentTimeMillis() )
+					);
+					int updateCount = preparedStatement.executeUpdate();
 
-		doInJPA( entityManager -> {
-
-			List<Post> posts = entityManager.createQuery(
-				"select p " +
-				"from Post p " +
-				"order by p.createdOn", Post.class )
-			.setFirstResult( 5 )
-			.setMaxResults( 5 )
-			.getResultList();
-
-			assertEquals( 5, posts.size() );
+					assertEquals( 1, updateCount );
+				}
+			} );
 		} );
 	}
 
@@ -75,16 +67,21 @@ public class EntityIdentifierCockroachDBTest extends AbstractCockroachDBIntegrat
 	public static class Post {
 
 		@Id
-		@GeneratedValue(
-			strategy = GenerationType.IDENTITY
-		)
+		@GeneratedValue(strategy = GenerationType.IDENTITY)
 		private Long id;
 
-		@Column
-		@Temporal(TemporalType.DATE)
+		@Column(columnDefinition = "timestamptz")
+		@Temporal(TemporalType.TIMESTAMP)
 		private Date createdOn;
 
 		private String title;
+
+		public Post() {
+		}
+
+		public Post(String title) {
+			this.title = title;
+		}
 
 		public Long getId() {
 			return id;
