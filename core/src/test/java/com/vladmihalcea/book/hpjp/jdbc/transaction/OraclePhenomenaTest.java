@@ -30,7 +30,7 @@ public class OraclePhenomenaTest extends AbstractPhenomenaTest {
     @Parameterized.Parameters
     public static Collection<Object[]> isolationLevels() {
         List<Object[]> levels = new ArrayList<>();
-        //levels.add(new Object[]{"Read Committed", Connection.TRANSACTION_READ_COMMITTED});
+        levels.add(new Object[]{"Read Committed", Connection.TRANSACTION_READ_COMMITTED});
         levels.add(new Object[]{"Serializable", Connection.TRANSACTION_SERIALIZABLE});
         return levels;
     }

@@ -176,7 +176,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
             String title = selectStringColumn(aliceConnection, selectPostTitleSql());
             LOGGER.info("Isolation level {} {} Dirty Write", isolationLevelName, !title.equals(firstTitle) ? "allows" : "prevents");
             if(preventedByLocking.get()) {
-                LOGGER.info("Isolation level {} Dirty Write prevented by locking", isolationLevelName);
+                LOGGER.info("Isolation level {} prevents Dirty Write by locking", isolationLevelName);
             }
         });
     }
@@ -220,7 +220,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
         LOGGER.info("Isolation level {} {} Dirty Read", isolationLevelName, dirtyRead.get() ? "allows" : "prevents");
         if(preventedByLocking.get()) {
-            LOGGER.info("Isolation level {} Dirty Read prevented by locking", isolationLevelName);
+            LOGGER.info("Isolation level {} prevents Dirty Read by locking", isolationLevelName);
         }
     }
 
@@ -259,7 +259,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
             LOGGER.info("Isolation level {} {} Non-Repeatable Read", isolationLevelName, !firstTitle.equals(secondTitle) ? "allows" : "prevents");
             if(preventedByLocking.get()) {
-                LOGGER.info("Isolation level {} Non-Repeatable Read prevented by locking", isolationLevelName);
+                LOGGER.info("Isolation level {} prevents Non-Repeatable Read by locking", isolationLevelName);
             }
         });
     }
@@ -301,7 +301,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
             LOGGER.info("Isolation level {} {} Phantom Reads", isolationLevelName, secondCommentsCount != commentsCount ? "allows" : "prevents");
             if(preventedByLocking.get()) {
-                LOGGER.info("Isolation level {} Phantom Read prevented by locking", isolationLevelName);
+                LOGGER.info("Isolation level {} prevents Phantom Read by locking", isolationLevelName);
             }
         });
     }
@@ -350,16 +350,17 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
             LOGGER.info("Isolation level {} {} Lost Update", isolationLevelName, "Alice".equals(title) ? "allows" : "prevents");
 
             if (Boolean.TRUE.equals(preventedByLocking.get())) {
-                LOGGER.info("Isolation level {} Lost Update prevented by locking", isolationLevelName);
+                LOGGER.info("Isolation level {} prevents Lost Update by locking", isolationLevelName);
             } else if (Boolean.TRUE.equals(preventedByMVCC.get())) {
-                LOGGER.info("Isolation level {} Lost Update prevented by MVCC", isolationLevelName);
+                LOGGER.info("Isolation level {} prevents Lost Update by MVCC", isolationLevelName);
             }
         });
     }
 
     @Test
     public void testReadSkew() {
-        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
+        final AtomicBoolean preventedByLocking = new AtomicBoolean();
+        final AtomicBoolean preventedByMVCC = new AtomicBoolean();
         try {
             doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
@@ -376,8 +377,13 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                             update(bobConnection, updatePostTitleParamSql(), new Object[]{"Bob"});
                             update(bobConnection, updatePostDetailsAuthorParamSql(), new Object[]{"Bob"});
                         } catch (Exception e) {
-                            LOGGER.info("Exception thrown", e);
-                            preventedByLocking.set(true);
+                            if( ExceptionUtil.isLockTimeout( e )) {
+                                preventedByLocking.set( true );
+                            } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                                preventedByMVCC.set( true );
+                            } else {
+                                throw new IllegalStateException( e );
+                            }
                         }
                     });
                 });
@@ -385,20 +391,29 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 LOGGER.info("Isolation level {} {} Read Skew", isolationLevelName, "Bob".equals(createdBy) ? "allows" : "prevents");
             });
         } catch (Exception e) {
-            LOGGER.info("Exception thrown", e);
-            preventedByLocking.set(true);
+            if( ExceptionUtil.isLockTimeout( e )) {
+                preventedByLocking.set( true );
+            } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                preventedByMVCC.set( true );
+            } else if ( !ExceptionUtil.isConnectionClose( e ) ) {
+                throw new IllegalStateException( e );
+            }
         }
         doInJDBC(aliceConnection -> {
             String title = selectStringColumn(aliceConnection, selectPostTitleSql());
+
             if (Boolean.TRUE.equals(preventedByLocking.get())) {
-                LOGGER.info("Isolation level {} Read Skew prevented by locking", isolationLevelName);
+                LOGGER.info("Isolation level {} prevents Read Skew by locking", isolationLevelName);
+            } else if (Boolean.TRUE.equals(preventedByMVCC.get())) {
+                LOGGER.info("Isolation level {} prevents Read Skew by MVCC", isolationLevelName);
             }
         });
     }
 
     @Test
     public void testWriteSkew() {
-        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
+        final AtomicBoolean preventedByLocking = new AtomicBoolean();
+        final AtomicBoolean preventedByMVCC = new AtomicBoolean();
         try {
             doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
@@ -417,18 +432,34 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                             String bonCreatedBy = selectStringColumn(bobConnection, selectPostDetailsAuthorSql());
                             update(bobConnection, updatePostTitleParamSql(), new Object[]{"Bob"});
                         } catch (Exception e) {
-                            LOGGER.info("Exception thrown", e);
-                            preventedByLocking.set(true);
+                            if( ExceptionUtil.isLockTimeout( e )) {
+                                preventedByLocking.set( true );
+                            } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                                preventedByMVCC.set( true );
+                            } else {
+                                throw new IllegalStateException( e );
+                            }
                         }
                     });
                 });
                 update(aliceConnection, updatePostDetailsAuthorParamSql(), new Object[]{"Alice"});
             });
         } catch (Exception e) {
-            LOGGER.info("Exception thrown", e);
-            preventedByLocking.set(true);
+            if( ExceptionUtil.isLockTimeout( e )) {
+                preventedByLocking.set( true );
+            } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                preventedByMVCC.set( true );
+            } else {
+                throw new IllegalStateException( e );
+            }
         }
-        LOGGER.info("Isolation level {} {} Write Skew", isolationLevelName, !Boolean.TRUE.equals(preventedByLocking.get()) ? "allows" : "prevents");
+        if (Boolean.TRUE.equals(preventedByLocking.get())) {
+            LOGGER.info("Isolation level {} prevents Write Skew by locking", isolationLevelName);
+        } else if (Boolean.TRUE.equals(preventedByMVCC.get())) {
+            LOGGER.info("Isolation level {} prevents Write Skew by MVCC", isolationLevelName);
+        } else {
+            LOGGER.info("Isolation level {} allows Write Skew", isolationLevelName);
+        }
     }
 
     @Test

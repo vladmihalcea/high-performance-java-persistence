@@ -82,6 +82,7 @@ public interface ExceptionUtil {
 			if (
 				e.getMessage().contains( "ORA-08177" ) //can't serialize access for this transaction
 			 || e.getMessage().toLowerCase().contains( "could not serialize access due to concurrent update" ) //PSQLException
+			 || e.getMessage().toLowerCase().contains( "ould not serialize access due to read/write dependencies among transactions" ) //PSQLException
 			 || e.getMessage().toLowerCase().contains( "snapshot isolation transaction aborted due to update conflict" ) //SQLServerException
 			) {
 				return true;
