@@ -142,40 +142,37 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     @Test
     public void testDirtyWrite() {
         String firstTitle = "Alice";
-        AtomicBoolean preventedByLocking = new AtomicBoolean();
+        final AtomicBoolean preventedByLocking = new AtomicBoolean();
 
-        try {
-            doInJDBC(aliceConnection -> {
-                if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
-                    LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
-                    return;
-                }
-                prepareConnection(aliceConnection);
-                update(aliceConnection, updatePostTitleParamSql(), new Object[]{firstTitle});
-                try {
-                    executeSync(() -> {
-                        doInJDBC(bobConnection -> {
-                            prepareConnection(bobConnection);
-                            try {
-                                update(bobConnection, updatePostTitleParamSql(), new Object[]{"Bob"});
-                            } catch (Exception e) {
-                                if( ExceptionUtil.isLockTimeout( e )) {
-                                    preventedByLocking.set( true );
-                                } else {
-                                    throw new IllegalStateException( e );
-                                }
+        doInJDBC(aliceConnection -> {
+            if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
+                LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
+                return;
+            }
+            prepareConnection(aliceConnection);
+            update(aliceConnection, updatePostTitleParamSql(), new Object[]{firstTitle});
+            try {
+                executeSync(() -> {
+                    doInJDBC(bobConnection -> {
+                        prepareConnection(bobConnection);
+                        try {
+                            update(bobConnection, updatePostTitleParamSql(), new Object[]{"Bob"});
+                        } catch (Exception e) {
+                            if( ExceptionUtil.isLockTimeout( e )) {
+                                preventedByLocking.set( true );
+                            } else {
+                                throw new IllegalStateException( e );
                             }
-                        });
+                        }
                     });
-                } catch (Exception e) {
-                    if ( !ExceptionUtil.isConnectionClose( e ) ) {
-                        fail(e.getMessage());
-                    }
+                });
+            } catch (Exception e) {
+                if ( !ExceptionUtil.isConnectionClose( e ) ) {
+                    fail(e.getMessage());
                 }
-            });
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
+            }
+        });
+
         doInJDBC(aliceConnection -> {
             String title = selectStringColumn(aliceConnection, selectPostTitleSql());
             LOGGER.info("Isolation level {} {} Dirty Write", isolationLevelName, !title.equals(firstTitle) ? "allows" : "prevents");
@@ -188,43 +185,40 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     @Test
     public void testDirtyRead() {
         final AtomicBoolean dirtyRead = new AtomicBoolean();
-        AtomicBoolean preventedByLocking = new AtomicBoolean();
+        final AtomicBoolean preventedByLocking = new AtomicBoolean();
 
-        try {
-            doInJDBC(aliceConnection -> {
-                if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
-                    LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
-                    return;
-                }
-                prepareConnection(aliceConnection);
-                try (Statement aliceStatement = aliceConnection.createStatement()) {
-                    aliceStatement.executeUpdate(updatePostTitleSql());
-                    executeSync(() -> {
-                        doInJDBC(bobConnection -> {
-                            prepareConnection(bobConnection);
-                            try {
-                                String title = selectStringColumn(bobConnection, selectPostTitleSql());
-                                if ("Transactions".equals(title)) {
-                                    LOGGER.info("No Dirty Read, uncommitted data is not viewable");
-                                } else if ("ACID".equals(title)) {
-                                    dirtyRead.set(true);
-                                } else {
-                                    fail("Unknown title: " + title);
-                                }
-                            } catch (Exception e) {
-                                if( ExceptionUtil.isLockTimeout( e )) {
-                                    preventedByLocking.set( true );
-                                } else {
-                                    throw new IllegalStateException( e );
-                                }
+        doInJDBC(aliceConnection -> {
+            if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
+                LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
+                return;
+            }
+            prepareConnection(aliceConnection);
+            try (Statement aliceStatement = aliceConnection.createStatement()) {
+                aliceStatement.executeUpdate(updatePostTitleSql());
+                executeSync(() -> {
+                    doInJDBC(bobConnection -> {
+                        prepareConnection(bobConnection);
+                        try {
+                            String title = selectStringColumn(bobConnection, selectPostTitleSql());
+                            if ("Transactions".equals(title)) {
+                                LOGGER.info("No Dirty Read, uncommitted data is not viewable");
+                            } else if ("ACID".equals(title)) {
+                                dirtyRead.set(true);
+                            } else {
+                                fail("Unknown title: " + title);
                             }
-                        });
+                        } catch (Exception e) {
+                            if( ExceptionUtil.isLockTimeout( e )) {
+                                preventedByLocking.set( true );
+                            } else {
+                                throw new IllegalStateException( e );
+                            }
+                        }
                     });
-                }
-            });
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
+                });
+            }
+        });
+
         LOGGER.info("Isolation level {} {} Dirty Read", isolationLevelName, dirtyRead.get() ? "allows" : "prevents");
         if(preventedByLocking.get()) {
             LOGGER.info("Isolation level {} Dirty Read prevented by locking", isolationLevelName);
@@ -233,6 +227,8 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     @Test
     public void testNonRepeatableRead() {
+        final AtomicBoolean preventedByLocking = new AtomicBoolean();
+
         doInJDBC(aliceConnection -> {
             if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
                 LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
@@ -247,55 +243,68 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                         try {
                             assertEquals(1, update(bobConnection, updatePostTitleSql()));
                         } catch (Exception e) {
-                            LOGGER.info("Exception thrown", e);
+                            if( ExceptionUtil.isLockTimeout( e )) {
+                                preventedByLocking.set( true );
+                            } else {
+                                throw new IllegalStateException( e );
+                            }
                         }
                     });
                 });
             } catch (Exception e) {
-                LOGGER.info("Exception thrown", e);
+                if ( !ExceptionUtil.isConnectionClose( e ) ) {
+                    fail(e.getMessage());
+                }
             }
             String secondTitle = selectStringColumn(aliceConnection, selectPostTitleSql());
 
-            LOGGER.info("Isolation level {} {} Non-Repeatable Reads", isolationLevelName, !firstTitle.equals(secondTitle) ? "allows" : "prevents");
+            LOGGER.info("Isolation level {} {} Non-Repeatable Read", isolationLevelName, !firstTitle.equals(secondTitle) ? "allows" : "prevents");
+            if(preventedByLocking.get()) {
+                LOGGER.info("Isolation level {} Non-Repeatable Read prevented by locking", isolationLevelName);
+            }
         });
     }
 
     @Test
     public void testPhantomRead() {
-        try {
-            doInJDBC(aliceConnection -> {
-                if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
-                    LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
-                    return;
-                }
-                prepareConnection(aliceConnection);
-                int commentsCount = count(aliceConnection, countCommentsSql());
-                assertEquals(3, commentsCount);
-                update(aliceConnection, updateCommentsSql());
-                try {
-                    executeSync(() -> {
-                        doInJDBC(bobConnection -> {
-                            prepareConnection(bobConnection);
-                            try {
-                                //FOR MVCC
-                                int _commentsCount = count(bobConnection, countCommentsSqlForInitialVersion());
-                                assertEquals(3, _commentsCount);
-                                assertEquals(1, update(bobConnection, insertCommentSql()));
-                            } catch (Exception e) {
-                                LOGGER.info("Exception thrown", e);
-                            }
-                        });
-                    });
-                } catch (Exception e) {
-                    LOGGER.info("Exception thrown", e);
-                }
-                int secondCommentsCount = count(aliceConnection, countCommentsSql());
+        final AtomicBoolean preventedByLocking = new AtomicBoolean();
 
-                LOGGER.info("Isolation level {} {} Phantom Reads", isolationLevelName, secondCommentsCount != commentsCount ? "allows" : "prevents");
-            });
-        } catch (Exception e) {
-            LOGGER.info("Exception thrown due to MVCC anomaly detection", e);
-        }
+        doInJDBC(aliceConnection -> {
+            if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
+                LOGGER.info("Database {} doesn't support {}", dataSourceProvider().database(), isolationLevelName);
+                return;
+            }
+            prepareConnection(aliceConnection);
+            int commentsCount = count(aliceConnection, countCommentsSql());
+            assertEquals(3, commentsCount);
+            update(aliceConnection, updateCommentsSql());
+            try {
+                executeSync(() -> {
+                    doInJDBC(bobConnection -> {
+                        prepareConnection(bobConnection);
+                        try {
+                            assertEquals(1, update(bobConnection, insertCommentSql()));
+                        } catch (Exception e) {
+                            if( ExceptionUtil.isLockTimeout( e )) {
+                                preventedByLocking.set( true );
+                            } else {
+                                throw new IllegalStateException( e );
+                            }
+                        }
+                    });
+                });
+            } catch (Exception e) {
+                if ( !ExceptionUtil.isConnectionClose( e ) ) {
+                    fail(e.getMessage());
+                }
+            }
+            int secondCommentsCount = count(aliceConnection, countCommentsSql());
+
+            LOGGER.info("Isolation level {} {} Phantom Reads", isolationLevelName, secondCommentsCount != commentsCount ? "allows" : "prevents");
+            if(preventedByLocking.get()) {
+                LOGGER.info("Isolation level {} Phantom Read prevented by locking", isolationLevelName);
+            }
+        });
     }
 
     @Test

@@ -47,19 +47,24 @@ public interface ExceptionUtil {
 	 * @return is caused by a database lock timeout
 	 */
 	static boolean isLockTimeout(Throwable e) {
-		AtomicReference<Throwable> cause = new AtomicReference<>(e);
+		AtomicReference<Throwable> causeHolder = new AtomicReference<>(e);
 		do {
-			if ( LOCK_TIMEOUT_EXCEPTIONS.stream().anyMatch( c -> c.isInstance( cause.get() ) ) ||
+			final Throwable cause = causeHolder.get();
+			if ( LOCK_TIMEOUT_EXCEPTIONS.stream().anyMatch( c -> c.isInstance( cause ) ) ||
 				e.getMessage().contains( "timeout" ) ||
 				e.getMessage().contains( "timed out" ) ||
 				e.getMessage().contains( "time out" )
 			) {
 				return true;
 			} else {
-				cause.set( cause.get().getCause() );
+				if(cause.getCause() == null || cause.getCause() == cause) {
+					break;
+				} else {
+					causeHolder.set( cause.getCause() );
+				}
 			}
 		}
-		while ( cause.get().getCause() != null || cause.get().getCause() != cause.get() );
+		while ( true );
 		return false;
 	}
 
@@ -71,17 +76,21 @@ public interface ExceptionUtil {
 	 * @return is caused by a SQL connection close
 	 */
 	static boolean isConnectionClose(Exception e) {
-		AtomicReference<Throwable> cause = new AtomicReference<>(e);
+		Throwable cause = e;
 		do {
-			if ( cause.get().getMessage().toLowerCase().contains( "connection is close" ) ||
-				cause.get().getMessage().toLowerCase().contains( "closed connection" )
+			if ( cause.getMessage().toLowerCase().contains( "connection is close" ) ||
+				cause.getMessage().toLowerCase().contains( "closed connection" )
 			) {
 				return true;
 			} else {
-				cause.set( cause.get().getCause() );
+				if(cause.getCause() == null || cause.getCause() == cause) {
+					break;
+				} else {
+					cause = cause.getCause();
+				}
 			}
 		}
-		while ( cause.get().getCause() != null || cause.get().getCause() != cause.get() );
+		while ( true );
 		return false;
 	}
 }
