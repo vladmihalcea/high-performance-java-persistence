@@ -464,7 +464,9 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     @Test
     public void testPhantomReadAggregate() {
-        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
+        final AtomicBoolean preventedByLocking = new AtomicBoolean();
+        final AtomicBoolean preventedByMVCC = new AtomicBoolean();
+
         try {
             doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
@@ -495,21 +497,35 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                                     employeeStatement.executeUpdate();
                                 }
                             } catch (Exception e) {
-                                LOGGER.info("Exception thrown", e);
-                                preventedByLocking.set(true);
-                                throw new IllegalStateException(e);
+                                if( ExceptionUtil.isLockTimeout( e )) {
+                                    preventedByLocking.set( true );
+                                } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                                    preventedByMVCC.set( true );
+                                } else {
+                                    throw new IllegalStateException( e );
+                                }
                             }
                         });
                     });
                 } catch (Exception e) {
-                    LOGGER.info("Exception thrown", e);
-                    preventedByLocking.set(true);
+                    if( ExceptionUtil.isLockTimeout( e )) {
+                        preventedByLocking.set( true );
+                    } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                        preventedByMVCC.set( true );
+                    } else {
+                        throw new IllegalStateException( e );
+                    }
                 }
                 update(aliceConnection, "UPDATE employee SET salary = salary * 1.1 WHERE department_id = 1");
             });
         } catch (Exception e) {
-            LOGGER.info("Exception thrown", e);
-            preventedByLocking.set(true);
+            if( ExceptionUtil.isLockTimeout( e )) {
+                preventedByLocking.set( true );
+            } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                preventedByMVCC.set( true );
+            } else {
+                throw new IllegalStateException( e );
+            }
         }
         doInJDBC(aliceConnection -> {
             long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
@@ -517,14 +533,16 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
             }
             else {
-                LOGGER.info("Isolation level {} prevents Phantom Read {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
+                LOGGER.info("Isolation level {} prevents Phantom Read due to {}", isolationLevelName, preventedByLocking.get() ? "locking" : preventedByMVCC.get() ? "MVCC" : "unknown");
             }
         });
     }
 
     @Test
     public void testPhantomReadAggregateWithInsert() {
-        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
+        final AtomicBoolean preventedByLocking = new AtomicBoolean();
+        final AtomicBoolean preventedByMVCC = new AtomicBoolean();
+
         try {
             doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
@@ -555,15 +573,24 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                                     employeeStatement.executeUpdate();
                                 }
                             } catch (Exception e) {
-                                LOGGER.info("Exception thrown", e);
-                                preventedByLocking.set(true);
-                                throw new IllegalStateException(e);
+                                if( ExceptionUtil.isLockTimeout( e )) {
+                                    preventedByLocking.set( true );
+                                } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                                    preventedByMVCC.set( true );
+                                } else {
+                                    throw new IllegalStateException( e );
+                                }
                             }
                         });
                     });
                 } catch (Exception e) {
-                    LOGGER.info("Exception thrown", e);
-                    preventedByLocking.set(true);
+                    if( ExceptionUtil.isLockTimeout( e )) {
+                        preventedByLocking.set( true );
+                    } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                        preventedByMVCC.set( true );
+                    } else {
+                        throw new IllegalStateException( e );
+                    }
                 }
                 try (
                         PreparedStatement employeeStatement = aliceConnection.prepareStatement(insertEmployeeSql());
@@ -578,8 +605,13 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 }
             });
         } catch (Exception e) {
-            LOGGER.info("Exception thrown", e);
-            preventedByLocking.set(true);
+            if( ExceptionUtil.isLockTimeout( e )) {
+                preventedByLocking.set( true );
+            } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                preventedByMVCC.set( true );
+            } else {
+                throw new IllegalStateException( e );
+            }
         }
         doInJDBC(aliceConnection -> {
             long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
@@ -587,14 +619,16 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
             }
             else {
-                LOGGER.info("Isolation level {} prevents Phantom Read {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
+                LOGGER.info("Isolation level {} prevents Phantom Read due to {}", isolationLevelName, preventedByLocking.get() ? "locking" : preventedByMVCC.get() ? "MVCC" : "unknown");
             }
         });
     }
 
     @Test
     public void testPhantomWriteSelectColumn() {
-        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
+        final AtomicBoolean preventedByLocking = new AtomicBoolean();
+        final AtomicBoolean preventedByMVCC = new AtomicBoolean();
+
         try {
             doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
@@ -626,20 +660,35 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                                     employeeStatement.executeUpdate();
                                 }
                             } catch (Exception e) {
-                                LOGGER.info("Exception thrown", e);
-                                preventedByLocking.set(true);
+                                if( ExceptionUtil.isLockTimeout( e )) {
+                                    preventedByLocking.set( true );
+                                } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                                    preventedByMVCC.set( true );
+                                } else {
+                                    throw new IllegalStateException( e );
+                                }
                             }
                         });
                     });
                 } catch (Exception e) {
-                    LOGGER.info("Exception thrown", e);
-                    preventedByLocking.set(true);
+                    if( ExceptionUtil.isLockTimeout( e )) {
+                        preventedByLocking.set( true );
+                    } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                        preventedByMVCC.set( true );
+                    } else {
+                        throw new IllegalStateException( e );
+                    }
                 }
                 update(aliceConnection, updateEmployeeSalarySql());
             });
         } catch (Exception e) {
-            LOGGER.info("Exception thrown", e);
-            preventedByLocking.set(true);
+            if( ExceptionUtil.isLockTimeout( e )) {
+                preventedByLocking.set( true );
+            } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                preventedByMVCC.set( true );
+            } else {
+                throw new IllegalStateException( e );
+            }
         }
         doInJDBC(aliceConnection -> {
             long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
@@ -647,14 +696,16 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
             }
             else {
-                LOGGER.info("Isolation level {} prevents Phantom Read {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
+                LOGGER.info("Isolation level {} prevents Phantom Read due to {}", isolationLevelName, preventedByLocking.get() ? "locking" : preventedByMVCC.get() ? "MVCC" : "unknown");
             }
         });
     }
 
     @Test
     public void testPhantomWriteSelectColumnInOneTx() {
-        AtomicReference<Boolean> preventedByLocking = new AtomicReference<>();
+        final AtomicBoolean preventedByLocking = new AtomicBoolean();
+        final AtomicBoolean preventedByMVCC = new AtomicBoolean();
+
         try {
             doInJDBC(aliceConnection -> {
                 if (!aliceConnection.getMetaData().supportsTransactionIsolationLevel(isolationLevel)) {
@@ -683,20 +734,35 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                                     employeeStatement.executeUpdate();
                                 }
                             } catch (Exception e) {
-                                LOGGER.info("Exception thrown", e);
-                                preventedByLocking.set(true);
+                                if( ExceptionUtil.isLockTimeout( e )) {
+                                    preventedByLocking.set( true );
+                                } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                                    preventedByMVCC.set( true );
+                                } else {
+                                    throw new IllegalStateException( e );
+                                }
                             }
                         });
                     });
                 } catch (Exception e) {
-                    LOGGER.info("Exception thrown", e);
-                    preventedByLocking.set(true);
+                    if( ExceptionUtil.isLockTimeout( e )) {
+                        preventedByLocking.set( true );
+                    } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                        preventedByMVCC.set( true );
+                    } else {
+                        throw new IllegalStateException( e );
+                    }
                 }
                 update(aliceConnection, updateEmployeeSalarySql());
             });
         } catch (Exception e) {
-            LOGGER.info("Exception thrown", e);
-            preventedByLocking.set(true);
+            if( ExceptionUtil.isLockTimeout( e )) {
+                preventedByLocking.set( true );
+            } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
+                preventedByMVCC.set( true );
+            } else {
+                throw new IllegalStateException( e );
+            }
         }
         doInJDBC(aliceConnection -> {
             long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
@@ -704,7 +770,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 LOGGER.info("Isolation level {} allows Phantom Read since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
             }
             else {
-                LOGGER.info("Isolation level {} prevents Phantom Read {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
+                LOGGER.info("Isolation level {} prevents Phantom Read due to {}", isolationLevelName, preventedByLocking.get() ? "locking" : preventedByMVCC.get() ? "MVCC" : "unknown");
             }
         });
     }

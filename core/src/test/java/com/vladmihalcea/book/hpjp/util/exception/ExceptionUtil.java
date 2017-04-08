@@ -80,10 +80,10 @@ public interface ExceptionUtil {
 		do {
 			final Throwable cause = causeHolder.get();
 			if (
-				e.getMessage().contains( "ORA-08177" ) //can't serialize access for this transaction
-			 || e.getMessage().toLowerCase().contains( "could not serialize access due to concurrent update" ) //PSQLException
-			 || e.getMessage().toLowerCase().contains( "ould not serialize access due to read/write dependencies among transactions" ) //PSQLException
-			 || e.getMessage().toLowerCase().contains( "snapshot isolation transaction aborted due to update conflict" ) //SQLServerException
+				cause.getMessage().contains( "ORA-08177: can't serialize access for this transaction" ) //Oracle
+			 || cause.getMessage().toLowerCase().contains( "could not serialize access due to concurrent update" ) //PSQLException
+			 || cause.getMessage().toLowerCase().contains( "ould not serialize access due to read/write dependencies among transactions" ) //PSQLException
+			 || cause.getMessage().toLowerCase().contains( "snapshot isolation transaction aborted due to update conflict" ) //SQLServerException
 			) {
 				return true;
 			} else {
@@ -108,8 +108,8 @@ public interface ExceptionUtil {
 	static boolean isConnectionClose(Exception e) {
 		Throwable cause = e;
 		do {
-			if ( cause.getMessage().toLowerCase().contains( "connection is close" ) ||
-				cause.getMessage().toLowerCase().contains( "closed connection" )
+			if ( cause.getMessage().toLowerCase().contains( "connection is close" )
+			  || cause.getMessage().toLowerCase().contains( "closed connection" )
 			) {
 				return true;
 			} else {
