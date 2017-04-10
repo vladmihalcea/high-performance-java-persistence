@@ -6,6 +6,7 @@ import javax.sql.DataSource;
 import org.hibernate.dialect.PostgreSQL82Dialect;
 import org.hibernate.dialect.PostgreSQL94Dialect;
 
+import com.vladmihalcea.book.hpjp.util.CockroachDBDialect;
 import org.postgresql.ds.PGSimpleDataSource;
 
 /**
@@ -16,7 +17,7 @@ public class CockroachDBDataSourceProvider
 
 	@Override
 	public String hibernateDialect() {
-		return PostgreSQL82Dialect.class.getName();
+		return CockroachDBDialect.class.getName();
 	}
 
 	@Override
