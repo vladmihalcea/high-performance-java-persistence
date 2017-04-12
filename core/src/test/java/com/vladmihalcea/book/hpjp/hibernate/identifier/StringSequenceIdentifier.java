@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier;
 import org.hibernate.MappingException;
 import org.hibernate.Session;
 import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.config.spi.ConfigurationService;
 import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.Configurable;
@@ -36,10 +37,15 @@ public class StringSequenceIdentifier
                 serviceRegistry.getService(JdbcEnvironment.class);
         final Dialect dialect = jdbcEnvironment.getDialect();
 
+        final ConfigurationService configurationService =
+                serviceRegistry.getService(ConfigurationService.class);
+        String globalEntityIdentifierPrefix =
+            configurationService.getSetting( "entity.identifier.prefix", String.class, "SEQ_" );
+
         sequencePrefix = ConfigurationHelper.getString(
                 SEQUENCE_PREFIX,
                 params,
-                "SEQ_");
+                globalEntityIdentifierPrefix);
 
         final String sequencePerEntitySuffix = ConfigurationHelper.getString(
                 SequenceStyleGenerator.CONFIG_SEQUENCE_PER_ENTITY_SUFFIX,
