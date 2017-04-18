@@ -46,6 +46,7 @@ public class ProperIdEqualityTest extends AbstractEqualityCheckTest {
             if (!(o instanceof Post)) return false;
             return id != null && id.equals(((Post) o).id);
         }
+
         @Override
         public int hashCode() {
             return 31;
