@@ -129,7 +129,7 @@ public abstract class AbstractTest {
     }
 
     public EntityManagerFactory entityManagerFactory() {
-        return emf;
+        return nativeHibernateSessionFactoryBootstrap() ? sf : emf;
     }
 
     public SessionFactory sessionFactory() {
@@ -158,15 +158,19 @@ public abstract class AbstractTest {
     }
 
     private SessionFactory newSessionFactory() {
-        final BootstrapServiceRegistryBuilder bsrb = new BootstrapServiceRegistryBuilder();
-        bsrb.enableAutoClose();
+        final BootstrapServiceRegistryBuilder bsrb = new BootstrapServiceRegistryBuilder()
+            .enableAutoClose();
+
+        Integrator integrator = integrator();
+        if (integrator != null) {
+            bsrb.applyIntegrator( integrator );
+        }
 
         final BootstrapServiceRegistry bsr = bsrb.build();
 
-        final StandardServiceRegistryBuilder ssrb = new StandardServiceRegistryBuilder(bsr);
-        ssrb.applySettings(properties());
-
-        StandardServiceRegistry serviceRegistry = ssrb.build();
+        final StandardServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder(bsr)
+            .applySettings(properties())
+            .build();
 
         final MetadataSources metadataSources = new MetadataSources(serviceRegistry);
 
@@ -195,6 +199,10 @@ public abstract class AbstractTest {
         MetadataImplementor metadata = (MetadataImplementor) metadataBuilder.build();
 
         final SessionFactoryBuilder sfb = metadata.getSessionFactoryBuilder();
+        Interceptor interceptor = interceptor();
+        if(interceptor != null) {
+            sfb.applyInterceptor(interceptor);
+        }
 
         return sfb.build();
     }
@@ -221,6 +229,7 @@ public abstract class AbstractTest {
         if(interceptor != null) {
             configuration.setInterceptor(interceptor);
         }
+
         final List<Type> additionalTypes = additionalTypes();
         if (additionalTypes != null) {
             configuration.registerTypeContributor((typeContributions, serviceRegistry) -> {

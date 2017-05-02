@@ -1,12 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
-import org.jboss.logging.Logger;
-import org.junit.Test;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+
+import org.junit.Test;
+
+import org.jboss.logging.Logger;
+
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 
 import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.Post;
 import static org.junit.Assert.assertTrue;
@@ -14,9 +16,9 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Vlad Mihalcea
  */
-public class AutoFlushTest extends AbstractTest {
+public class JpaAutoFlushTest extends AbstractTest {
 
-    private static final Logger log = Logger.getLogger(AutoFlushTest.class);
+    private static final Logger log = Logger.getLogger(JpaAutoFlushTest.class);
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
@@ -27,7 +29,7 @@ public class AutoFlushTest extends AbstractTest {
 
     @Override
     protected boolean nativeHibernateSessionFactoryBootstrap() {
-        return true;
+        return false;
     }
 
     @Test
@@ -86,41 +88,20 @@ public class AutoFlushTest extends AbstractTest {
         });
         doInJPA(entityManager -> {
             log.info("testFlushAutoSQL");
+
             assertTrue(((Number) entityManager
                 .createNativeQuery("select count(*) from Post")
                 .getSingleResult()).intValue() == 0);
-        Post post = new Post("Hibernate");
-            post.setId(1L);
-            entityManager.persist(post);
-            assertTrue(((Number) entityManager
-                .createNativeQuery("select count(*) from Post")
-                .getSingleResult()).intValue() == 1);
-        });
-    }
-
-    @Test
-    public void testFlushAutoSQLNativeSession() {
-        doInHibernate(entityManager -> {
-            entityManager.createNativeQuery("delete from Post").executeUpdate();
-            ;
-        });
-        doInHibernate(session -> {
-            log.info("testFlushAutoSQLNativeSession");
-
-            assertTrue(((Number) session
-                    .createQuery("select count(*) from Post")
-                    .getSingleResult()).intValue() == 0);
 
             Post post = new Post("Hibernate");
             post.setId(1L);
-            session.persist(post);
+            entityManager.persist(post);
 
-            int count = ((Number) session
-                    .createSQLQuery("select count(*) from Post")
-                    .addSynchronizedEntityClass(Post.class)
-                    .uniqueResult()).intValue();
+            int count = ((Number) entityManager
+                    .createNativeQuery("select count(*) from Post")
+                    .getSingleResult()).intValue();
 
-            assertTrue( count == 0);
+            assertTrue( count == 1 );
         });
     }
 }
