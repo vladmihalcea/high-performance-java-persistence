@@ -62,7 +62,6 @@ public class EntityIdentifierCockroachDBTest extends AbstractCockroachDBIntegrat
 				"select p " +
 				"from Post p " +
 				"order by p.createdOn", Post.class )
-			.setFirstResult( 5 )
 			.setMaxResults( 5 )
 			.getResultList();
 
