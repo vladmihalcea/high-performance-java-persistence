@@ -1,18 +1,28 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.junit.Test;
-
-import javax.persistence.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.NaturalId;
+
+import org.junit.Test;
+
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 
 /**
  * @author Vlad Mihalcea
  */
-public class BidirectionalManyToManySetTest extends AbstractMySQLIntegrationTest {
+public class BidirectionalManyToManyListTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -94,13 +104,13 @@ public class BidirectionalManyToManySetTest extends AbstractMySQLIntegrationTest
             LOGGER.info("Shuffle");
             Tag tag1 = new Tag("Java");
             Post post1 = entityManager
-                    .createQuery(
-                            "select p " +
-                                    "from Post p " +
-                                    "join fetch p.tags " +
-                                    "where p.id = :id", Post.class)
-                    .setParameter( "id", postId )
-                    .getSingleResult();
+            .createQuery(
+                "select p " +
+                "from Post p " +
+                "join fetch p.tags " +
+                "where p.id = :id", Post.class)
+            .setParameter( "id", postId )
+            .getSingleResult();
 
             post1.getTags().remove(tag1);
         });
@@ -127,7 +137,7 @@ public class BidirectionalManyToManySetTest extends AbstractMySQLIntegrationTest
             joinColumns = @JoinColumn(name = "post_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
         )
-        private Set<Tag> tags = new HashSet<>();
+        private List<Tag> tags = new ArrayList<>();
 
         public Long getId() {
             return id;
@@ -145,7 +155,7 @@ public class BidirectionalManyToManySetTest extends AbstractMySQLIntegrationTest
             this.title = title;
         }
 
-        public Set<Tag> getTags() {
+        public List<Tag> getTags() {
             return tags;
         }
 
@@ -184,7 +194,7 @@ public class BidirectionalManyToManySetTest extends AbstractMySQLIntegrationTest
         private String name;
 
         @ManyToMany(mappedBy = "tags")
-        private Set<Post> posts = new HashSet<>();
+        private List<Post> posts = new ArrayList<>();
 
         public Tag() {}
 
@@ -208,7 +218,7 @@ public class BidirectionalManyToManySetTest extends AbstractMySQLIntegrationTest
             this.name = name;
         }
 
-        public Set<Post> getPosts() {
+        public List<Post> getPosts() {
             return posts;
         }
 
