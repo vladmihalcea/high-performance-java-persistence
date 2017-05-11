@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class JoinFormulaCollationManyToManyTest extends
+public class MapsIdWithOneToOneTest extends
 		AbstractSQLServerIntegrationTest {
 
 	@Override
