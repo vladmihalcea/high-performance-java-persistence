@@ -1,0 +1,385 @@
+<?xml version="1.0"?>
+<Prognoza_AdmNatMeteorologie_Romania>
+    <tara nume="Romania">
+        <localitate nume="Arad">
+            <DataPrognozei>2017-05-11</DataPrognozei>
+            <prognoza data="2017-05-12">
+                <temp_min unit="Celsius">13</temp_min>
+                <temp_max unit="Celsius">24</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, PLOAIE SLABA</fenomen_descriere>
+                <fenomen_simbol>002-2</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-13">
+                <temp_min unit="Celsius">15</temp_min>
+                <temp_max unit="Celsius">22</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, AVERSE, DESCARCARI ELECTRICE</fenomen_descriere>
+                <fenomen_simbol>003</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-14">
+                <temp_min unit="Celsius">11</temp_min>
+                <temp_max unit="Celsius">23</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER PARTIAL NOROS</fenomen_descriere>
+                <fenomen_simbol>001-2</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-15">
+                <temp_min unit="Celsius">9</temp_min>
+                <temp_max unit="Celsius">22</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER VARIABIL</fenomen_descriere>
+                <fenomen_simbol>001</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-16">
+                <temp_min unit="Celsius">10</temp_min>
+                <temp_max unit="Celsius">20</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER MAI MULT NOROS</fenomen_descriere>
+                <fenomen_simbol>200</fenomen_simbol>
+            </prognoza>
+        </localitate>
+        <localitate nume="Botosani">
+            <DataPrognozei>2017-05-11</DataPrognozei>
+            <prognoza data="2017-05-12">
+                <temp_min unit="Celsius">8</temp_min>
+                <temp_max unit="Celsius">21</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, PLOAIE SLABA</fenomen_descriere>
+                <fenomen_simbol>002-2</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-13">
+                <temp_min unit="Celsius">10</temp_min>
+                <temp_max unit="Celsius">21</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, AVERSE, DESCARCARI ELECTRICE</fenomen_descriere>
+                <fenomen_simbol>003</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-14">
+                <temp_min unit="Celsius">12</temp_min>
+                <temp_max unit="Celsius">18</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER MAI MULT NOROS, PLOAIE SLABA</fenomen_descriere>
+                <fenomen_simbol>202-2</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-15">
+                <temp_min unit="Celsius">9</temp_min>
+                <temp_max unit="Celsius">18</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER VARIABIL</fenomen_descriere>
+                <fenomen_simbol>001</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-16">
+                <temp_min unit="Celsius">9</temp_min>
+                <temp_max unit="Celsius">15</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER MAI MULT SENIN</fenomen_descriere>
+                <fenomen_simbol>000</fenomen_simbol>
+            </prognoza>
+        </localitate>
+        <localitate nume="Bucuresti">
+            <DataPrognozei>2017-05-11</DataPrognozei>
+            <prognoza data="2017-05-12">
+                <temp_min unit="Celsius">9</temp_min>
+                <temp_max unit="Celsius">23</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, PLOAIE SLABA</fenomen_descriere>
+                <fenomen_simbol>002-2</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-13">
+                <temp_min unit="Celsius">12</temp_min>
+                <temp_max unit="Celsius">27</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, AVERSE, DESCARCARI ELECTRICE</fenomen_descriere>
+                <fenomen_simbol>003</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-14">
+                <temp_min unit="Celsius">13</temp_min>
+                <temp_max unit="Celsius">25</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, AVERSE, DESCARCARI ELECTRICE</fenomen_descriere>
+                <fenomen_simbol>003</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-15">
+                <temp_min unit="Celsius">12</temp_min>
+                <temp_max unit="Celsius">23</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER PARTIAL NOROS</fenomen_descriere>
+                <fenomen_simbol>001-2</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-16">
+                <temp_min unit="Celsius">12</temp_min>
+                <temp_max unit="Celsius">19</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER MAI MULT NOROS</fenomen_descriere>
+                <fenomen_simbol>200</fenomen_simbol>
+            </prognoza>
+        </localitate>
+        <localitate nume="Cluj-Napoca">
+            <DataPrognozei>2017-05-11</DataPrognozei>
+            <prognoza data="2017-05-12">
+                <temp_min unit="Celsius">9</temp_min>
+                <temp_max unit="Celsius">19</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, AVERSE, DESCARCARI ELECTRICE</fenomen_descriere>
+                <fenomen_simbol>003</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-13">
+                <temp_min unit="Celsius">11</temp_min>
+                <temp_max unit="Celsius">17</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, AVERSE, DESCARCARI ELECTRICE</fenomen_descriere>
+                <fenomen_simbol>003</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-14">
+                <temp_min unit="Celsius">11</temp_min>
+                <temp_max unit="Celsius">20</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER PARTIAL NOROS</fenomen_descriere>
+                <fenomen_simbol>001-2</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-15">
+                <temp_min unit="Celsius">7</temp_min>
+                <temp_max unit="Celsius">20</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER MAI MULT NOROS</fenomen_descriere>
+                <fenomen_simbol>200</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-16">
+                <temp_min unit="Celsius">9</temp_min>
+                <temp_max unit="Celsius">18</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER MAI MULT NOROS, PLOAIE SLABA</fenomen_descriere>
+                <fenomen_simbol>202-2</fenomen_simbol>
+            </prognoza>
+        </localitate>
+        <localitate nume="Constanta">
+            <DataPrognozei>2017-05-11</DataPrognozei>
+            <prognoza data="2017-05-12">
+                <temp_min unit="Celsius">11</temp_min>
+                <temp_max unit="Celsius">19</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, AVERSE, DESCARCARI ELECTRICE</fenomen_descriere>
+                <fenomen_simbol>003</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-13">
+                <temp_min unit="Celsius">14</temp_min>
+                <temp_max unit="Celsius">22</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER VARIABIL</fenomen_descriere>
+                <fenomen_simbol>001</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-14">
+                <temp_min unit="Celsius">15</temp_min>
+                <temp_max unit="Celsius">22</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, PLOAIE SLABA</fenomen_descriere>
+                <fenomen_simbol>002-2</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-15">
+                <temp_min unit="Celsius">13</temp_min>
+                <temp_max unit="Celsius">20</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER VARIABIL</fenomen_descriere>
+                <fenomen_simbol>001</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-16">
+                <temp_min unit="Celsius">14</temp_min>
+                <temp_max unit="Celsius">19</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER PARTIAL NOROS</fenomen_descriere>
+                <fenomen_simbol>001-2</fenomen_simbol>
+            </prognoza>
+        </localitate>
+        <localitate nume="Craiova">
+            <DataPrognozei>2017-05-11</DataPrognozei>
+            <prognoza data="2017-05-12">
+                <temp_min unit="Celsius">11</temp_min>
+                <temp_max unit="Celsius">23</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER MAI MULT NOROS</fenomen_descriere>
+                <fenomen_simbol>200</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-13">
+                <temp_min unit="Celsius">13</temp_min>
+                <temp_max unit="Celsius">25</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, AVERSE, DESCARCARI ELECTRICE</fenomen_descriere>
+                <fenomen_simbol>003</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-14">
+                <temp_min unit="Celsius">14</temp_min>
+                <temp_max unit="Celsius">26</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER VARIABIL</fenomen_descriere>
+                <fenomen_simbol>001</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-15">
+                <temp_min unit="Celsius">12</temp_min>
+                <temp_max unit="Celsius">23</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER VARIABIL</fenomen_descriere>
+                <fenomen_simbol>001</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-16">
+                <temp_min unit="Celsius">12</temp_min>
+                <temp_max unit="Celsius">21</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER MAI MULT NOROS</fenomen_descriere>
+                <fenomen_simbol>200</fenomen_simbol>
+            </prognoza>
+        </localitate>
+        <localitate nume="Iasi">
+            <DataPrognozei>2017-05-11</DataPrognozei>
+            <prognoza data="2017-05-12">
+                <temp_min unit="Celsius">8</temp_min>
+                <temp_max unit="Celsius">23</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, AVERSE, DESCARCARI ELECTRICE</fenomen_descriere>
+                <fenomen_simbol>003</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-13">
+                <temp_min unit="Celsius">12</temp_min>
+                <temp_max unit="Celsius">23</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, AVERSE, DESCARCARI ELECTRICE</fenomen_descriere>
+                <fenomen_simbol>003</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-14">
+                <temp_min unit="Celsius">12</temp_min>
+                <temp_max unit="Celsius">18</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, PLOAIE SLABA</fenomen_descriere>
+                <fenomen_simbol>002-2</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-15">
+                <temp_min unit="Celsius">10</temp_min>
+                <temp_max unit="Celsius">20</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER VARIABIL</fenomen_descriere>
+                <fenomen_simbol>001</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-16">
+                <temp_min unit="Celsius">9</temp_min>
+                <temp_max unit="Celsius">16</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER PARTIAL NOROS</fenomen_descriere>
+                <fenomen_simbol>001-2</fenomen_simbol>
+            </prognoza>
+        </localitate>
+        <localitate nume="Rm. Valcea">
+            <DataPrognozei>2017-05-11</DataPrognozei>
+            <prognoza data="2017-05-12">
+                <temp_min unit="Celsius">11</temp_min>
+                <temp_max unit="Celsius">22</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, PLOAIE SLABA</fenomen_descriere>
+                <fenomen_simbol>002-2</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-13">
+                <temp_min unit="Celsius">12</temp_min>
+                <temp_max unit="Celsius">24</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, AVERSE, DESCARCARI ELECTRICE</fenomen_descriere>
+                <fenomen_simbol>003</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-14">
+                <temp_min unit="Celsius">12</temp_min>
+                <temp_max unit="Celsius">25</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, PLOAIE SLABA</fenomen_descriere>
+                <fenomen_simbol>002-2</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-15">
+                <temp_min unit="Celsius">12</temp_min>
+                <temp_max unit="Celsius">23</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER VARIABIL</fenomen_descriere>
+                <fenomen_simbol>001</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-16">
+                <temp_min unit="Celsius">8</temp_min>
+                <temp_max unit="Celsius">14</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER MAI MULT NOROS, PLOAIE SLABA</fenomen_descriere>
+                <fenomen_simbol>202-2</fenomen_simbol>
+            </prognoza>
+        </localitate>
+        <localitate nume="Sibiu">
+            <DataPrognozei>2017-05-11</DataPrognozei>
+            <prognoza data="2017-05-12">
+                <temp_min unit="Celsius">8</temp_min>
+                <temp_max unit="Celsius">21</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER MAI MULT NOROS</fenomen_descriere>
+                <fenomen_simbol>200</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-13">
+                <temp_min unit="Celsius">11</temp_min>
+                <temp_max unit="Celsius">19</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, AVERSE, DESCARCARI ELECTRICE</fenomen_descriere>
+                <fenomen_simbol>003</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-14">
+                <temp_min unit="Celsius">11</temp_min>
+                <temp_max unit="Celsius">21</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, PLOAIE IMPORTANTA CANTITATIV</fenomen_descriere>
+                <fenomen_simbol>002</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-15">
+                <temp_min unit="Celsius">9</temp_min>
+                <temp_max unit="Celsius">21</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER VARIABIL</fenomen_descriere>
+                <fenomen_simbol>001</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-16">
+                <temp_min unit="Celsius">9</temp_min>
+                <temp_max unit="Celsius">18</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER MAI MULT NOROS</fenomen_descriere>
+                <fenomen_simbol>200</fenomen_simbol>
+            </prognoza>
+        </localitate>
+        <localitate nume="Sulina">
+            <DataPrognozei>2017-05-11</DataPrognozei>
+            <prognoza data="2017-05-12">
+                <temp_min unit="Celsius">12</temp_min>
+                <temp_max unit="Celsius">16</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, PLOAIE SLABA</fenomen_descriere>
+                <fenomen_simbol>002-2</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-13">
+                <temp_min unit="Celsius">13</temp_min>
+                <temp_max unit="Celsius">18</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, PLOAIE SLABA</fenomen_descriere>
+                <fenomen_simbol>002-2</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-14">
+                <temp_min unit="Celsius">14</temp_min>
+                <temp_max unit="Celsius">17</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, PLOAIE SLABA</fenomen_descriere>
+                <fenomen_simbol>002-2</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-15">
+                <temp_min unit="Celsius">12</temp_min>
+                <temp_max unit="Celsius">19</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER VARIABIL</fenomen_descriere>
+                <fenomen_simbol>001</fenomen_simbol>
+            </prognoza>
+            <prognoza data="2017-05-16">
+                <temp_min unit="Celsius">14</temp_min>
+                <temp_max unit="Celsius">18</temp_max>
+                <!--Simbolul-indicativul fenomenului este util pentru asocierea cu simboluri utilizate de catre cei ce parcurg acest fisier.-->
+                <fenomen_descriere>CER TEMPORAR NOROS, PLOAIE SLABA</fenomen_descriere>
+                <fenomen_simbol>002-2</fenomen_simbol>
+            </prognoza>
+        </localitate>
+    </tara>
+</Prognoza_AdmNatMeteorologie_Romania>
