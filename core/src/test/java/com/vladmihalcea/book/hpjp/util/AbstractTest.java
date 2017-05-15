@@ -798,6 +798,9 @@ public abstract class AbstractTest {
                 case MYSQL:
                     st.execute( "SET GLOBAL innodb_lock_wait_timeout = 1" );
                     break;
+                case SQLSERVER:
+                    st.execute( "SET LOCK_TIMEOUT 1" );
+                    break;
                 default:
                     try {
                         connection.setNetworkTimeout( Executors.newSingleThreadExecutor(), 1000 );
