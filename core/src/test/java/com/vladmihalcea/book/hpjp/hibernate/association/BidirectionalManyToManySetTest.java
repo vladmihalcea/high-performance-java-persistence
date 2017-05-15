@@ -67,6 +67,7 @@ public class BidirectionalManyToManySetTest extends AbstractMySQLIntegrationTest
         doInJPA(entityManager -> {
             LOGGER.info("Remove");
             Post post1 = entityManager.find(Post.class, postId);
+
             entityManager.remove(post1);
         });
     }
@@ -102,7 +103,7 @@ public class BidirectionalManyToManySetTest extends AbstractMySQLIntegrationTest
                     .setParameter( "id", postId )
                     .getSingleResult();
 
-            post1.getTags().remove(tag1);
+            post1.removeTag(tag1);
         });
     }
 
