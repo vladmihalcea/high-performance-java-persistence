@@ -39,9 +39,9 @@ public class ResourceLocalDelayConnectionAcquisitionTest extends AbstractTest {
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
 
-    private long warmUpDuration = TimeUnit.SECONDS.toNanos( 5 );
+    private long warmUpDuration = TimeUnit.SECONDS.toNanos( 10 );
 
-    private long measurementsDuration = TimeUnit.SECONDS.toNanos( 16 );
+    private long measurementsDuration = TimeUnit.SECONDS.toNanos( 17 );
 
     private int parseCount = 100;
 
@@ -97,7 +97,7 @@ public class ResourceLocalDelayConnectionAcquisitionTest extends AbstractTest {
     protected Properties properties() {
         Properties properties = super.properties();
         properties.put("hibernate.jdbc.batch_size", "50");
-        //properties.put("hibernate.connection.provider_disables_autocommit", "true");
+        properties.put("hibernate.connection.provider_disables_autocommit", "true");
         return properties;
     }
 
@@ -114,11 +114,14 @@ public class ResourceLocalDelayConnectionAcquisitionTest extends AbstractTest {
 
         LOGGER.info( "Measuring" );
         flexyPoolDataSource.start();
+        int transactionCount = 0;
         while ( System.nanoTime() < measurementsThreshold ) {
             importForecasts();
+            transactionCount++;
         }
         flexyPoolDataSource.stop();
         logReporter.report();
+        LOGGER.info( "Transaction throughput: {}", transactionCount);
     }
 
     private void importForecasts() {
@@ -131,8 +134,10 @@ public class ResourceLocalDelayConnectionAcquisitionTest extends AbstractTest {
             }
             timer.update( System.nanoTime() - startNanos, TimeUnit.NANOSECONDS );
 
-            for(Forecast forecast : forecasts) {
-                entityManager.persist( forecast );
+            if ( forecasts != null ) {
+                for(Forecast forecast : forecasts.subList( 0, 50 )) {
+					entityManager.persist( forecast );
+				}
             }
         });
     }
