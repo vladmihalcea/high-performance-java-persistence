@@ -3,6 +3,8 @@ package com.vladmihalcea.book.hpjp.hibernate.type;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -96,13 +98,14 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
 
     @Entity(name = "Event")
     @Table(name = "event")
+    @TypeDef( name = "ipv4", typeClass = IPv4Type.class, defaultForType = IPv4.class )
     public static class Event {
 
         @Id
         @GeneratedValue
         private Long id;
 
-        @Type(type = "com.vladmihalcea.book.hpjp.hibernate.type.IPv4Type")
+        //@Type(type = "com.vladmihalcea.book.hpjp.hibernate.type.IPv4Type")
         @Column(name = "ip", columnDefinition = "inet")
         private IPv4 ip;
 
