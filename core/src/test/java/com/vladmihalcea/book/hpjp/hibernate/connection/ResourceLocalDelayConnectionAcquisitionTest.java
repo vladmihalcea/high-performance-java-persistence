@@ -28,7 +28,6 @@ import com.vladmihalcea.flexypool.FlexyPoolDataSource;
 import com.vladmihalcea.flexypool.adaptor.DataSourcePoolAdapter;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import oracle.xml.parser.v2.XMLElement;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -164,9 +163,12 @@ public class ResourceLocalDelayConnectionAcquisitionTest extends AbstractTest {
             Node cityNode = cityNodes.item(i);
             String city = cityNode.getAttributes().getNamedItem( "nume" ).getNodeValue();
 
-            NodeList forecastNodes = ( (XMLElement) cityNode ).getChildrenByTagName( "prognoza" );
+            NodeList forecastNodes = cityNode.getChildNodes();
             for ( int j = 0; j < forecastNodes.getLength(); j++ ) {
                 Node forecastNode = forecastNodes.item(j);
+                if( !"prognoza".equals( forecastNode.getNodeName() ) ) {
+                    continue;
+                }
 
                 Forecast forecast = new Forecast();
                 forecast.setCity( city );
