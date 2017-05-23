@@ -1,15 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -18,26 +17,20 @@ import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 
 import org.junit.Test;
 
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.PersistenceUnitInfoImpl;
 
 /**
  * @author Vlad Mihalcea
  */
-public class LongToNumericTypeTest extends AbstractPostgreSQLIntegrationTest {
+public class LongToNumericTypeTest extends AbstractSQLServerIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
-                Event.class
+                DummyEvent.class
         };
     }
-
-    /*protected Properties properties() {
-        Properties properties = super.properties();
-        properties.put("hibernate.hbm2ddl.auto", "validate");
-        return properties;
-    }*/
 
     protected Properties validateProperties() {
         Properties properties = super.properties();
@@ -49,7 +42,7 @@ public class LongToNumericTypeTest extends AbstractPostgreSQLIntegrationTest {
     public void test() {
         PersistenceUnitInfoImpl persistenceUnitInfo = new PersistenceUnitInfoImpl(
                 LongToNumericTypeTest.class.getName(),
-                Collections.singletonList( ValidateEvent.class.getName() ),
+                Collections.singletonList( Event.class.getName() ),
                 validateProperties()
         );
 
@@ -68,22 +61,22 @@ public class LongToNumericTypeTest extends AbstractPostgreSQLIntegrationTest {
         }
     }
 
-    @Entity(name = "Event")
+    @Entity
     @Table(name = "event")
-    public static class Event {
+    public static class DummyEvent {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(columnDefinition = "NUMERIC(19,0)")
         private Long id;
     }
 
     @Entity(name = "Event")
     @Table(name = "event")
-    public static class ValidateEvent {
+    public static class Event {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(columnDefinition = "NUMERIC(19,0)")
         private Long id;
     }
