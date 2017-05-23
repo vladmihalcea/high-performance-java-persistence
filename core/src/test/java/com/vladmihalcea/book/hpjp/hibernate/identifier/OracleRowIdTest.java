@@ -38,7 +38,6 @@ import static org.junit.Assert.assertNotNull;
  * @author Vlad Mihalcea
  */
 public class OracleRowIdTest extends AbstractOracleXEIntegrationTest {
-
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
@@ -99,16 +98,6 @@ public class OracleRowIdTest extends AbstractOracleXEIntegrationTest {
 
         private String title;
 
-        public Post() {}
-
-        public Post(Long id) {
-            this.id = id;
-        }
-
-        public Post(String title) {
-            this.title = title;
-        }
-
         @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
                 orphanRemoval = true)
         private List<PostComment> comments = new ArrayList<>();
@@ -157,12 +146,6 @@ public class OracleRowIdTest extends AbstractOracleXEIntegrationTest {
         private Post post;
 
         private String review;
-
-        public PostComment() {}
-
-        public PostComment(String review) {
-            this.review = review;
-        }
 
         public Long getId() {
             return id;
