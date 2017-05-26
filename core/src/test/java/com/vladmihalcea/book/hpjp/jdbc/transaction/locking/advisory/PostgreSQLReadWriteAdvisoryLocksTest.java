@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.jdbc.transaction;
+package com.vladmihalcea.book.hpjp.jdbc.transaction.locking.advisory;
 
 import java.io.IOException;
 import java.nio.file.Files;

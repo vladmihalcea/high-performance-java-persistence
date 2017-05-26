@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.jdbc.transaction;
+package com.vladmihalcea.book.hpjp.jdbc.transaction.phenomena;
 
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;

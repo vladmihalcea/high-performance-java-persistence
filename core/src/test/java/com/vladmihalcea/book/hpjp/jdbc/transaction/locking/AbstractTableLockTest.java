@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.jdbc.transaction;
+package com.vladmihalcea.book.hpjp.jdbc.transaction.locking;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;

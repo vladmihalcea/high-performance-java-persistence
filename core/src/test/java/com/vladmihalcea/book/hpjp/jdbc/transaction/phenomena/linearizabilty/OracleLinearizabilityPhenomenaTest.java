@@ -1,7 +1,4 @@
-package com.vladmihalcea.book.hpjp.jdbc.transaction;
-
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+package com.vladmihalcea.book.hpjp.jdbc.transaction.phenomena.linearizabilty;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,6 +7,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.junit.Test;
+import org.junit.runners.Parameterized;
 
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
@@ -21,9 +21,9 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Vlad Mihalcea
  */
-public class OraclePhenomenaTest extends AbstractPhenomenaTest {
+public class OracleLinearizabilityPhenomenaTest extends AbstractLinearizabilityPhenomenaTest {
 
-    public OraclePhenomenaTest(String isolationLevelName, int isolationLevel) {
+    public OracleLinearizabilityPhenomenaTest(String isolationLevelName, int isolationLevel) {
         super(isolationLevelName, isolationLevel);
     }
 

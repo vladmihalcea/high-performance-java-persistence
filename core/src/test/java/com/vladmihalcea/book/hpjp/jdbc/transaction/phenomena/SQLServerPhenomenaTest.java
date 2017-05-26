@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.jdbc.transaction;
+package com.vladmihalcea.book.hpjp.jdbc.transaction.phenomena;
 
 import com.microsoft.sqlserver.jdbc.SQLServerConnection;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
