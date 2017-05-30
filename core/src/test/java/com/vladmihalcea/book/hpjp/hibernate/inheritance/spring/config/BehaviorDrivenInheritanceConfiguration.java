@@ -34,7 +34,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 @ComponentScan(basePackages = "com.vladmihalcea.book.hpjp.hibernate.inheritance.spring")
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-public class InheritanceVisitorConfiguration {
+public class BehaviorDrivenInheritanceConfiguration {
 
 	public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 

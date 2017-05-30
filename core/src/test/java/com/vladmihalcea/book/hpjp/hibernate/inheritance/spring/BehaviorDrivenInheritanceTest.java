@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.model.EmailNotification;
 import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.model.SmsNotification;
-import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.config.InheritanceVisitorConfiguration;
+import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.config.BehaviorDrivenInheritanceConfiguration;
 import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -25,9 +25,9 @@ import org.springframework.transaction.support.TransactionTemplate;
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = InheritanceVisitorConfiguration.class)
+@ContextConfiguration(classes = BehaviorDrivenInheritanceConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class InheritanceVisitorTest {
+public class BehaviorDrivenInheritanceTest {
 
 	protected final Logger LOGGER = LoggerFactory.getLogger( getClass() );
 
