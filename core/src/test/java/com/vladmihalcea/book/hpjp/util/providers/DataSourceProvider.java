@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.util.providers;
 
-import java.util.List;
 import java.util.Properties;
 import javax.sql.DataSource;
 

@@ -1,6 +1,8 @@
 package com.vladmihalcea.book.hpjp.jooq.mssql.crud;
 
 import com.vladmihalcea.book.hpjp.jooq.AbstractJOOQIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.SQLServerDataSourceProvider;
 import org.jooq.SQLDialect;
 
 /**

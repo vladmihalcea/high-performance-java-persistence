@@ -18,7 +18,7 @@
 
     <modules>
         <module>core</module>
-        <!--<module>jooq</module>-->
+        <module>jooq</module>
     </modules>
 
     <repositories>
@@ -152,12 +152,12 @@
             <scope>test</scope>
         </dependency>
 
-        <!--dependency>
+        <dependency>
             <groupId>com.oracle.jdbc</groupId>
             <artifactId>ojdbc7</artifactId>
             <version>${oracle.version}</version>
             <scope>test</scope>
-        </dependency-->
+        </dependency>
 
         <dependency>
             <groupId>mysql</groupId>
