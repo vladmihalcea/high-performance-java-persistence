@@ -25,6 +25,7 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -34,9 +35,13 @@
                 <artifactId>sql-maven-plugin</artifactId>
                 <dependencies>
                     <dependency>
-                        <groupId>com.oracle.jdbc</groupId>
-                        <artifactId>ojdbc7</artifactId>
-                        <version>${oracle.version}</version>
+                        <groupId>com.oracle</groupId>
+                        <artifactId>ojdbc7_g</artifactId>
+                        <version>12.1.0.1</version>
+                        <!-- Fails with Maven -->
+                        <!--<groupId>com.oracle.jdbc</groupId>
+                        <artifactId>ojdbc8</artifactId>
+                        <version>${oracle.version}</version>-->
                     </dependency>
                 </dependencies>
                 <configuration>
@@ -84,9 +89,12 @@
                 </executions>
                 <dependencies>
                     <dependency>
-                        <groupId>com.oracle.jdbc</groupId>
-                        <artifactId>ojdbc7</artifactId>
-                        <version>${oracle.version}</version>
+                        <!--<groupId>com.oracle.jdbc</groupId>
+                        <artifactId>ojdbc8</artifactId>
+                        <version>${oracle.version}</version>-->
+                        <groupId>com.oracle</groupId>
+                        <artifactId>ojdbc7_g</artifactId>
+                        <version>12.1.0.1</version>
                     </dependency>
                 </dependencies>
 

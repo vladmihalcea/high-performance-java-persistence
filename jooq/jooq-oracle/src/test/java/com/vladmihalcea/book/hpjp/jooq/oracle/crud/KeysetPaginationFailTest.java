@@ -2,6 +2,8 @@ package com.vladmihalcea.book.hpjp.jooq.oracle.crud;
 
 import org.jooq.Record3;
 import org.jooq.SelectSeekStep2;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigInteger;
@@ -24,6 +26,7 @@ public class KeysetPaginationFailTest extends AbstractJOOQOracleSQLIntegrationTe
     }
 
     @Test
+	@Ignore("Failure expected")
     public void testPagination() {
         String user = "Vlad Mihalcea";
 
