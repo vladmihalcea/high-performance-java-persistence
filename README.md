@@ -20,6 +20,8 @@ However, on Eclipse it has been reported that you need to consider the following
 Until [this Eclipse issue](https://bugs.eclipse.org/bugs/show_bug.cgi?id=434642) is fixed, you need to use the Oracle JDK to compile the project.
 If you can't change that, you need to rename those overloaded functions as explained by Urs Joss in [this specific commit](https://github.com/ursjoss/high-performance-java-persistence/commit/88373dc7c2080d02e2e3965afae961495e7d956b).
 
+Urs applied all those changes in his branch [tb_eclipse](https://github.com/ursjoss/high-performance-java-persistence/tree/tb_eclipse) and tries to keep abreast with the evolution of this repository.
+
 The Unit Tests are run against HSQLDB, so no preliminary set-ups are required.
 
 The Integration Tests require some external configurations:
