@@ -11,7 +11,8 @@ import org.springframework.stereotype.Component;
  * @author Vlad Mihalcea
  */
 @Component
-public class EmailNotificationSender implements NotificationSender<EmailNotification> {
+public class EmailNotificationSender
+	implements NotificationSender<EmailNotification> {
 
 	protected final Logger LOGGER = LoggerFactory.getLogger( getClass() );
 
@@ -22,10 +23,11 @@ public class EmailNotificationSender implements NotificationSender<EmailNotifica
 
 	@Override
 	public void send(EmailNotification notification) {
-		LOGGER.info( "Send Email to {} {} via address: {}",
-					 notification.getFirstName(),
-					 notification.getLastName(),
-					 notification.getEmailAddress()
+		LOGGER.info(
+			"Send Email to {} {} via address: {}",
+			 notification.getFirstName(),
+			 notification.getLastName(),
+			 notification.getEmailAddress()
 		);
 	}
 }

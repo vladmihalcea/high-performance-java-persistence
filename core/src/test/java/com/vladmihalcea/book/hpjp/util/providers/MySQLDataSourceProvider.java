@@ -74,7 +74,7 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
 
 	@Override
 	public String hibernateDialect() {
-		return "org.hibernate.dialect.MySQL57InnoDBDialect";
+		return "org.hibernate.dialect.MySQL57Dialect";
 	}
 
 	@Override

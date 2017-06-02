@@ -2,7 +2,6 @@ package com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Inheritance;
 import javax.persistence.Table;
 
 /**
@@ -10,10 +9,9 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "email_notification")
-@Inheritance
 public class EmailNotification extends Notification {
 
-	@Column(name = "email_address")
+	@Column(name = "email_address", nullable = false)
 	private String emailAddress;
 
 	public String getEmailAddress() {

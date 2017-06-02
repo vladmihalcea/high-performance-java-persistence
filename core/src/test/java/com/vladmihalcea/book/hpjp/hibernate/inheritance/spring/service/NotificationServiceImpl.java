@@ -16,7 +16,8 @@ import org.springframework.stereotype.Service;
  * @author Vlad Mihalcea
  */
 @Service
-public class NotificationServiceImpl implements NotificationService {
+public class NotificationServiceImpl
+	implements NotificationService {
 
 	@Autowired
 	private NotificationDAO notificationDAO;
@@ -24,13 +25,17 @@ public class NotificationServiceImpl implements NotificationService {
 	@Autowired
 	private List<NotificationSender> notificationSenders;
 
-	private Map<Class<? extends Notification>, NotificationSender> notificationSenderMap = new HashMap<>();
+	private Map<Class<? extends Notification>, NotificationSender>
+		notificationSenderMap = new HashMap<>();
 
 	@PostConstruct
 	@SuppressWarnings( "unchecked" )
 	public void init() {
 		for ( NotificationSender notificationSender : notificationSenders ) {
-			notificationSenderMap.put( notificationSender.appliesTo(), notificationSender );
+			notificationSenderMap.put(
+				notificationSender.appliesTo(),
+				notificationSender
+			);
 		}
 	}
 
@@ -41,7 +46,9 @@ public class NotificationServiceImpl implements NotificationService {
 		List<Notification> notifications = notificationDAO.findAll();
 
 		for ( Notification notification : notifications ) {
-			notificationSenderMap.get( notification.getClass() ).send( notification );
+			notificationSenderMap
+				.get( notification.getClass() )
+				.send( notification );
 		}
 	}
 }

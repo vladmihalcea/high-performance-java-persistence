@@ -30,7 +30,7 @@ import org.springframework.transaction.support.TransactionTemplate;
  * @author Vlad Mihalcea
  */
 @Configuration
-@PropertySource({ "/META-INF/jdbc-hsqldb.properties" })
+@PropertySource({ "/META-INF/jdbc-mysql.properties" })
 @ComponentScan(basePackages = "com.vladmihalcea.book.hpjp.hibernate.inheritance.spring")
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
