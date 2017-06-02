@@ -15,9 +15,12 @@
         <module>jooq-core</module>
         <module>jooq-mysql</module>
         <module>jooq-pgsql</module>
-        <module>jooq-oracle</module>
-        <module>jooq-mssql</module>
         <module>jooq-pgsql-score</module>
+	<!-- Oracle and MSSQL require a commercial license of jOOQ - uncomment the modules if you have them -->
+	<!--
+	<module>jooq-oracle</module>
+	<module>jooq-mssql</module>
+        -->
     </modules>
 
     <dependencies>
