@@ -66,9 +66,13 @@ The Integration Tests require some external configurations:
 
 - MySQL
 
-    You should install MySQL 5.6 (or later) and the password for the mysql user should be admin
+    You should install MySQL 5.6 (or later) and the password for the mysql user should be admin.
 
     Now you need to create a `high_performance_java_persistence` schema
+
+    Besides having all privileges on this schema, the user mysql also requires select persmission on `mysql.PROC`.
+
+    Exact instructions can be found in [here](https://github.com/ursjoss/high-performance-java-persistence/blob/tb_mysql_instructions/MYSQL.md).
 
 - SQL Server
 
