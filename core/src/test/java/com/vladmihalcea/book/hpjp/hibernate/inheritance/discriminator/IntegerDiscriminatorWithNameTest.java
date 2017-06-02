@@ -1,21 +1,22 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance.discriminator;
 
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.persistence.DiscriminatorValue;
+import javax.persistence.EntityManager;
+
+import org.hibernate.Session;
 
 import org.junit.Test;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 /**
  * @author Vlad Mihalcea
  */
-public class DiscriminatorColumnSingleTableTest
+public class IntegerDiscriminatorWithNameTest
     extends AbstractMySQLIntegrationTest {
 
     @Override
@@ -33,6 +34,8 @@ public class DiscriminatorColumnSingleTableTest
     @Test
     public void test() {
         Topic _topic = doInJPA(entityManager -> {
+
+            addConsistecyTriggers( entityManager );
 
             for ( Class entityClass : entities() ) {
                 if ( Topic.class.isAssignableFrom( entityClass ) && !Topic.class.equals( entityClass ) ) {
@@ -90,6 +93,45 @@ public class DiscriminatorColumnSingleTableTest
 
             for ( Topic topic: topics ) {
                 LOGGER.info( "Found topic: {}", topic.getType() );
+            }
+        });
+    }
+
+    private void addConsistecyTriggers(EntityManager entityManager) {
+        entityManager.unwrap(Session.class).doWork( connection -> {
+            try(Statement st = connection.createStatement()) {
+                st.executeUpdate(
+                    "CREATE " +
+                    "TRIGGER post_content_check BEFORE INSERT " +
+                    "ON Topic " +
+                    "FOR EACH ROW " +
+                    "BEGIN " +
+                    "   IF NEW.topic_type_id = 1 " +
+                    "   THEN " +
+                    "       IF NEW.content IS NULL " +
+                    "       THEN " +
+                    "           signal sqlstate '45000' " +
+                    "           set message_text = 'Post content cannot be NULL'; " +
+                    "       END IF; " +
+                    "   END IF; " +
+                    "END;"
+                );
+                st.executeUpdate(
+                    "CREATE " +
+                    "TRIGGER announcement_validUntil_check BEFORE INSERT " +
+                    "ON Topic " +
+                    "FOR EACH ROW " +
+                    "BEGIN " +
+                    "   IF NEW.topic_type_id = 2 " +
+                    "   THEN " +
+                    "       IF NEW.validUntil IS NULL " +
+                    "       THEN " +
+                    "           signal sqlstate '45000' " +
+                    "           set message_text = 'Announcement validUntil cannot be NULL'; " +
+                    "       END IF; " +
+                    "   END IF; " +
+                    "END;"
+                );
             }
         });
     }
