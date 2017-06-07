@@ -9,14 +9,17 @@ import javax.persistence.EntityManager;
 
 import org.hibernate.Session;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Vlad Mihalcea
  */
-public class IntegerDiscriminatorWithNameTest
+public class IntegerDiscriminatorWithDescriptionTest
     extends AbstractMySQLIntegrationTest {
 
     @Override
@@ -93,6 +96,40 @@ public class IntegerDiscriminatorWithNameTest
 
             for ( Topic topic: topics ) {
                 LOGGER.info( "Found topic: {}", topic.getType() );
+            }
+
+            List<Object[]> results = entityManager
+            .createNativeQuery(
+                "SELECT " +
+                "    tt.name, " +
+                "    t.id, " +
+                "    t.createdOn, " +
+                "    t.owner, " +
+                "    t.title, " +
+                "    t.content, " +
+                "    t.validUntil, " +
+                "    t.board_id " +
+                "FROM topic t " +
+                "INNER JOIN topic_type tt ON t.topic_type_id = tt.id "
+            )
+            .getResultList();
+
+            assertEquals( 2, results.size());
+        });
+
+        doInJPA(entityManager -> {
+            Board board = _topic.getBoard();
+            LOGGER.info("Fetch Posts");
+            List<Post> posts = entityManager
+            .createQuery(
+                "select p " +
+                "from Post p " +
+                "where p.board = :board", Post.class)
+            .setParameter("board", board)
+            .getResultList();
+
+            for ( Topic post: posts ) {
+                LOGGER.info( "Found post: {}", post.getType() );
             }
         });
     }

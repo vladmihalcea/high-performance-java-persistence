@@ -83,6 +83,11 @@ public class JoinTableTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
+            LOGGER.info("Fetch just one Topic");
+            Topic _topic = entityManager.find(Topic.class, topic.getId());
+        });
+
+        doInJPA(entityManager -> {
             LOGGER.info("Fetch Board topics");
             entityManager.find(Board.class, topic.getBoard().getId()).getTopics().size();
         });
@@ -104,6 +109,19 @@ public class JoinTableTest extends AbstractTest {
                     .setParameter("topicId", topicId)
                     .getSingleResult();
         });
+
+        TopicStatistics statistics = doInJPA(entityManager -> {
+            Long topicId = topic.getId();
+            LOGGER.info("Fetch one TopicStatistic");
+            return entityManager.find(TopicStatistics.class, topicId);
+        });
+
+        try {
+            statistics.getTopic().getCreatedOn();
+        }
+        catch (Exception expected) {
+            LOGGER.info( "Topic was not fetched" );
+        }
     }
 
     @Test
@@ -297,10 +315,9 @@ public class JoinTableTest extends AbstractTest {
     public static class TopicStatistics {
 
         @Id
-        @GeneratedValue
         private Long id;
 
-        @OneToOne
+        @OneToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "id")
         @MapsId
         private Topic topic;

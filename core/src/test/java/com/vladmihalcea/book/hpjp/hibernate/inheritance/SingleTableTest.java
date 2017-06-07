@@ -155,6 +155,18 @@ public class SingleTableTest extends AbstractPostgreSQLIntegrationTest {
         } catch (Exception expected) {
             assertEquals(PersistenceException.class, expected.getCause().getClass());
         }
+
+        doInJPA(entityManager -> {
+            Board board = topic.getBoard();
+            LOGGER.info("Fetch Posts");
+            List<Post> posts = entityManager
+            .createQuery(
+                "select p " +
+                "from Post p " +
+                "where p.board = :board", Post.class)
+            .setParameter("board", board)
+            .getResultList();
+        });
     }
 
     @Entity(name = "Board")

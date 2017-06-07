@@ -259,7 +259,7 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
     public void testFunctionWithJDBCByName() {
         doInJPA(entityManager -> {
             final AtomicReference<Integer> commentCount = new AtomicReference<>();
-            Session session = entityManager.unwrap( Session.class );
+            Session session = entityManager.wrapArray( Session.class );
             session.doWork( connection -> {
                 try (CallableStatement function = connection.prepareCall(
                         "{ ? = call fn_count_comments(?) }" )) {

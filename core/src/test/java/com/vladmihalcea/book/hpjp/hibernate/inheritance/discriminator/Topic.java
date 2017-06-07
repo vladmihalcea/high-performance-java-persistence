@@ -22,8 +22,9 @@ import javax.persistence.TemporalType;
 @Table(name = "topic")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(
-		discriminatorType = DiscriminatorType.INTEGER,
-		name = "topic_type_id"
+	discriminatorType = DiscriminatorType.INTEGER,
+	name = "topic_type_id",
+	columnDefinition = "TINYINT(1)"
 )
 public class Topic {
 
@@ -43,9 +44,9 @@ public class Topic {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
-			name = "topic_type_id",
-			insertable = false,
-			updatable = false
+		name = "topic_type_id",
+		insertable = false,
+		updatable = false
 	)
 	private TopicType type;
 

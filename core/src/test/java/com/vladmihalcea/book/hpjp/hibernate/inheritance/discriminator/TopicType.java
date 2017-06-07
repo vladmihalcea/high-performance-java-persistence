@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance.discriminator;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -12,6 +13,7 @@ import javax.persistence.Table;
 public class TopicType {
 
 	@Id
+	@Column(columnDefinition = "TINYINT(1)")
 	private Byte id;
 
 	private String name;
