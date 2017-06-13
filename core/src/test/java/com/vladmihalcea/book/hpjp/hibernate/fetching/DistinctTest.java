@@ -53,6 +53,18 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
+    public void testWithDistinctScalarQuery() {
+        doInJPA(entityManager -> {
+            List<String> posts = entityManager.createQuery(
+                "select distinct p.title " +
+                "from Post p ", String.class)
+            .getResultList();
+
+            LOGGER.info("Fetched {} post entities: {}", posts.size(), posts);
+        });
+    }
+
+    @Test
     public void testWithDistinct() {
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery(
