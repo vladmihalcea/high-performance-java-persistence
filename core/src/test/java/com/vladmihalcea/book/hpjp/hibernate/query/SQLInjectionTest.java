@@ -4,6 +4,7 @@ import com.vladmihalcea.book.hpjp.hibernate.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.forum.PostComment;
 import com.vladmihalcea.book.hpjp.hibernate.forum.PostDetails;
 import com.vladmihalcea.book.hpjp.hibernate.forum.Tag;
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
 import org.junit.Test;

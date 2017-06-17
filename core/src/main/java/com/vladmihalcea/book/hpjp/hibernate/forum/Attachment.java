@@ -1,7 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.forum;
 
-import org.hibernate.annotations.Type;
-
 import javax.persistence.*;
 
 /**

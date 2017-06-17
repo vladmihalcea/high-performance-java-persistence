@@ -72,8 +72,6 @@ public class OracleCustomSQLWithStoredProcedureTest extends AbstractOracleXEInte
 		} );
 	}
 
-
-	//tag::sql-custom-crud-example[]
 	@Entity(name = "Person")
 	@SQLInsert(
 		sql = "INSERT INTO person (name, id, valid) VALUES (?, ?, 1) ",
@@ -117,6 +115,4 @@ public class OracleCustomSQLWithStoredProcedureTest extends AbstractOracleXEInte
 			this.name = name;
 		}
 	}
-	//end::sql-custom-crud-example[]
-
 }

@@ -34,7 +34,7 @@ public class Post {
             orphanRemoval = true)
     private List<PostComment> comments = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "post", fetch = FetchType.LAZY, optional = true)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "post", fetch = FetchType.LAZY)
     @LazyToOne(LazyToOneOption.NO_PROXY)
     private PostDetails details;
 

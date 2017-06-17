@@ -84,3 +84,11 @@ The Integration Tests require some external configurations:
     You need to blank the dynamic TCP port value and configure the static TCP port 1433 for all IPs.
         
     Open SQL Server Management Studio and create the `high_performance_java_persistence` database
+    
+To build the project, don't use *install* or *package*. Instead, just compile test classes like this:
+
+    mvn clean test-compile
+    
+Then, just pick one test from the IDE and run it individually.
+If you run all tests (e.g. `mvn clean test`), the test suite will take way to long to complete since
+some performance tests require to run for long periods of time.

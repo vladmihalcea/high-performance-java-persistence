@@ -796,7 +796,7 @@ public abstract class AbstractTest {
                     st.execute( "SET statement_timeout TO 1000" );
                     break;
                 case MYSQL:
-                    st.execute( "SET GLOBAL innodb_lock_wait_timeout = 1" );
+                    st.execute( "SET SESSION innodb_lock_wait_timeout = 1" );
                     break;
                 case SQLSERVER:
                     st.execute( "SET LOCK_TIMEOUT 1" );

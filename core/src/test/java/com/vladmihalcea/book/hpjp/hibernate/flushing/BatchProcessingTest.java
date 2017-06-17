@@ -34,40 +34,37 @@ public class BatchProcessingTest extends AbstractTest {
         int entityCount = 50;
         int batchSize = 25;
 
-        EntityManager entityManager = null;
-        EntityTransaction transaction = null;
+        EntityManager entityManager = entityManagerFactory().createEntityManager();;
 
         try {
-            entityManager = entityManagerFactory().createEntityManager();
-
-            transaction = entityManager.getTransaction();
-            transaction.begin();
+            entityManager.getTransaction().begin();
 
             for ( int i = 0; i < entityCount; ++i ) {
                 if ( i > 0 && i % batchSize == 0 ) {
-                    entityManager.flush();
-                    entityManager.clear();
-
-                    transaction.commit();
-                    transaction.begin();
+                    flush( entityManager );
                 }
 
                 Post post = new Post( String.format( "Post %d", i + 1 ) );
                 entityManager.persist( post );
             }
 
-            transaction.commit();
+            entityManager.getTransaction().commit();
         } catch (RuntimeException e) {
-            if ( transaction != null && transaction.isActive()) {
-                transaction.rollback();
+            if ( entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
             }
             throw e;
         } finally {
-            if (entityManager != null) {
-                entityManager.close();
-            }
+            entityManager.close();
         }
-        //end::batch-session-batch-insert-example[]
+    }
+
+    private void flush(EntityManager entityManager) {
+        entityManager.flush();
+        entityManager.clear();
+
+        entityManager.getTransaction().commit();
+        entityManager.getTransaction().begin();
     }
 
     @Entity(name = "Post")

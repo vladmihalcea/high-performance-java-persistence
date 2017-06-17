@@ -188,12 +188,10 @@ public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegration
     @Test
     public void test_hql_bit_length_function_example() {
         doInJPA(entityManager -> {
-            //tag::hql-bit-length-function-example[]
             List<Number> bits = entityManager.createQuery(
                     "select bit_length( c.title ) " +
                             "from Post c ", Number.class )
                     .getResultList();
-            //end::hql-bit-length-function-example[]
             assertFalse(bits.isEmpty());
         });
     }
