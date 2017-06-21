@@ -46,7 +46,7 @@ public class ArraySqlTypeDescriptor implements SqlTypeDescriptor {
             @Override
             protected void doBind(CallableStatement st, X value, String name, WrapperOptions options)
                     throws SQLException {
-                throw new UnsupportedOperationException( "Binding by index is not supported!" );
+                throw new UnsupportedOperationException( "Binding by name is not supported!" );
             }
         };
     }
