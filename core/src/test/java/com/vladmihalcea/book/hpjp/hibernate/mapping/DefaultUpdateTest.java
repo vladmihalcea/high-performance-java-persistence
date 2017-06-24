@@ -31,7 +31,10 @@ public class DefaultUpdateTest extends AbstractTest {
     @Override
     protected Properties properties() {
         Properties properties = super.properties();
-        properties.put( AvailableSettings.STATEMENT_BATCH_SIZE, 10 );
+        properties.put("hibernate.jdbc.batch_size", "5");
+        properties.put("hibernate.order_inserts", "true");
+        properties.put("hibernate.order_updates", "true");
+        properties.put("hibernate.jdbc.batch_versioned_data", "true");
         return properties;
     }
 
@@ -46,17 +49,15 @@ public class DefaultUpdateTest extends AbstractTest {
 
             Post post2 = new Post();
             post2.setId(2L);
-            post2.setTitle("High-Performance Java Persistence");
+            post2.setTitle("Spring Boot Buch");
             entityManager.persist(post2);
         });
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
-            LOGGER.info("Fetched post: {}", post);
-            post.setScore(12);
+            Post post1 = entityManager.find(Post.class, 1L);
+            post1.setTitle("High-Performance Java Persistence 2nd Edition");
 
             Post post2 = entityManager.find(Post.class, 2L);
-            LOGGER.info("Fetched post: {}", post2);
-            post2.setTitle("HPJP");
+            post2.setScore(12);
         });
     }
 

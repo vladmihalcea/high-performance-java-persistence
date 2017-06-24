@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
@@ -9,21 +10,32 @@ import java.sql.Timestamp;
 import java.time.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
+
+import org.hibernate.cfg.AvailableSettings;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class LocalDateTest extends AbstractTest {
+public class DateTimeTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
             LocalDateEvent.class,
+            ZonedDateTimeEvent.class,
             OffsetDateTimeEvent.class,
             TimestampEvent.class
         };
+    }
+
+    @Override
+    protected Properties properties() {
+        Properties properties = super.properties();
+        properties.setProperty( AvailableSettings.JDBC_TIME_ZONE, "UTC" );
+        return properties;
     }
 
     @Test
@@ -50,14 +62,35 @@ public class LocalDateTest extends AbstractTest {
         doInJPA(entityManager -> {
             OffsetDateTimeEvent event = new OffsetDateTimeEvent();
             event.id = 1L;
-            event.startDate = OffsetDateTime.of(1, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+            event.startDate = OffsetDateTime.of(2017, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
             entityManager.persist(event);
         });
 
         doInJPA(entityManager -> {
             OffsetDateTimeEvent event = entityManager.find(OffsetDateTimeEvent.class, 1L);
             try {
-                assertEquals(OffsetDateTime.of(1, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), event.startDate);
+                assertEquals(OffsetDateTime.of(2017, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), event.startDate);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Test
+    public void testZonedDateTimeEvent() {
+        doInJPA(entityManager -> {
+            ZonedDateTimeEvent event = new ZonedDateTimeEvent();
+            event.id = 1L;
+            event.startDate = ZonedDateTime.of(
+                2017, 6, 24, 15, 45, 23, 0, ZoneOffset.systemDefault());
+            entityManager.persist(event);
+        });
+
+        doInJPA(entityManager -> {
+            ZonedDateTimeEvent event = entityManager.find(ZonedDateTimeEvent.class, 1L);
+            try {
+                assertEquals(ZonedDateTime.of(
+                2017, 6, 24, 15, 45, 23, 0, ZoneOffset.systemDefault()), event.startDate);
             } catch (Throwable e) {
                 e.printStackTrace();
             }
@@ -123,6 +156,17 @@ public class LocalDateTest extends AbstractTest {
         @NotNull
         @Column(name = "START_DATE", nullable = false)
         private OffsetDateTime startDate;
+    }
+
+    @Entity(name = "ZonedDateTimeEvent")
+    public static class ZonedDateTimeEvent {
+
+        @Id
+        private Long id;
+
+        @NotNull
+        @Column(name = "START_DATE", nullable = false)
+        private ZonedDateTime startDate;
     }
 
     @Entity(name = "TimestampEvent")
