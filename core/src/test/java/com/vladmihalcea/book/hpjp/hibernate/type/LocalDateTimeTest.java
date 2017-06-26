@@ -6,9 +6,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalUnit;
-import java.util.concurrent.TimeUnit;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -50,7 +47,7 @@ public class LocalDateTimeTest extends AbstractPostgreSQLIntegrationTest {
 					1981, 12, 10
 				)
 			);
-			employee.setEmployedOn(
+			employee.setUpdatedOn(
 				LocalDateTime.of(
 					2015, 12, 1,
 					8, 0, 0
@@ -92,7 +89,7 @@ public class LocalDateTimeTest extends AbstractPostgreSQLIntegrationTest {
 					2015, 12, 1,
 					8, 0, 0
 				),
-				employee.getEmployedOn()
+				employee.getUpdatedOn()
 			);
 
 			Meeting meeting = entityManager.find( Meeting.class, 1L );
@@ -126,8 +123,8 @@ public class LocalDateTimeTest extends AbstractPostgreSQLIntegrationTest {
 
 		private LocalDate birthday;
 
-		@Column(name = "employed_on")
-		private LocalDateTime employedOn;
+		@Column(name = "updated_on")
+		private LocalDateTime updatedOn;
 
 		public Long getId() {
 			return id;
@@ -153,12 +150,12 @@ public class LocalDateTimeTest extends AbstractPostgreSQLIntegrationTest {
 			this.birthday = birthday;
 		}
 
-		public LocalDateTime getEmployedOn() {
-			return employedOn;
+		public LocalDateTime getUpdatedOn() {
+			return updatedOn;
 		}
 
-		public void setEmployedOn(LocalDateTime employedOn) {
-			this.employedOn = employedOn;
+		public void setUpdatedOn(LocalDateTime updatedOn) {
+			this.updatedOn = updatedOn;
 		}
 	}
 
