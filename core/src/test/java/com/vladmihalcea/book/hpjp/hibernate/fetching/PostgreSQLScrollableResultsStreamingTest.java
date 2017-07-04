@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -14,8 +15,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Table;
 
+import org.hibernate.Session;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.Query;
@@ -39,8 +42,6 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
 
     private MetricRegistry metricRegistry = new MetricRegistry();
 
-    private Timer timer = metricRegistry.timer(getClass().getSimpleName());
-
     private Slf4jReporter logReporter = Slf4jReporter
             .forRegistry(metricRegistry)
             .outputTo(LOGGER)
@@ -58,7 +59,12 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
     public void init() {
         super.init();
         doInJPA(entityManager -> {
-            LongStream.range(0, 100).forEach(i -> {
+            entityManager.unwrap( Session.class ).doWork( connection -> {
+                try(Statement statement = connection.createStatement()) {
+                    statement.execute( "CREATE INDEX idx_post_created_on ON post ( created_on DESC )" );
+                }
+            } );
+            LongStream.range(0, 50 * 100).forEach(i -> {
                 Post post = new Post(i);
                 post.setTitle(String.format("Post nr. %d", i));
                 entityManager.persist(post);
@@ -98,6 +104,52 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
     }
 
     @Test
+    public void testStreamExecutionPlan() {
+        List<Object[]> executionPlanLines = doInJPA(entityManager -> {
+            try(Stream<Object[]> postStream = entityManager
+                .createNativeQuery(
+                    "EXPLAIN ANALYZE " +
+                    "SELECT p " +
+                    "FROM post p " +
+                    "ORDER BY p.created_on DESC")
+                .setHint( QueryHints.HINT_FETCH_SIZE, 50 )
+                .unwrap(Query.class)
+                .stream()
+            ) {
+                return postStream.collect( Collectors.toList() );
+            }
+        });
+
+        LOGGER.info( "Execution plan: {}",
+                     executionPlanLines
+                     .stream()
+                     .map( line -> (String) line[0] )
+                     .collect( Collectors.joining( "\n" ) )
+        );
+    }
+
+    @Test
+    public void testPaginationExecutionPlan() {
+        List<String> executionPlanLines = doInJPA(entityManager -> {
+            return entityManager
+                .createNativeQuery(
+                    "EXPLAIN ANALYZE " +
+                    "SELECT p " +
+                    "FROM post p " +
+                    "ORDER BY p.created_on DESC")
+                .setMaxResults( 50 )
+                .unwrap(Query.class)
+                .getResultList();
+        });
+
+        LOGGER.info( "Execution plan: {}",
+                     executionPlanLines
+                     .stream()
+                     .collect( Collectors.joining( "\n" ) )
+        );
+    }
+
+    @Test
     public void testStreamWithoutMaxResult() {
         List<Post> posts = doInJPA(entityManager -> {
             try(Stream<Post> postStream = entityManager
@@ -116,7 +168,9 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
     }
 
     @Entity(name = "Post")
-    @Table(name = "post")
+    @Table(
+        name = "post"
+    )
     public static class Post {
 
         @Id
