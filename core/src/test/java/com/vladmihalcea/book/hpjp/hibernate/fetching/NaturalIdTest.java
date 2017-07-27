@@ -2,11 +2,15 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
-import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.*;
+
 import org.junit.Test;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -23,6 +27,13 @@ public class NaturalIdTest extends AbstractPostgreSQLIntegrationTest {
         };
     }
 
+    @Override
+    protected Properties properties() {
+        Properties properties = super.properties();
+        properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
+        properties.put("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+        return properties;
+    }
 
     @Override
     public void init() {
@@ -70,7 +81,10 @@ public class NaturalIdTest extends AbstractPostgreSQLIntegrationTest {
         });
     }
 
-    @Entity(name = "Post") @Table(name = "post")
+    @Entity(name = "Post")
+    @Table(name = "post")
+    //@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    //@NaturalIdCache
     public static class Post {
 
         @Id
