@@ -10,6 +10,7 @@ import org.hibernate.annotations.TypeDefs;
 import com.vladmihalcea.book.hpjp.hibernate.type.array.IntArrayType;
 import com.vladmihalcea.book.hpjp.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.JsonBinaryType;
+import com.vladmihalcea.book.hpjp.hibernate.type.json.JsonNodeBinaryType;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.JsonStringType;
 
 /**
@@ -20,6 +21,7 @@ import com.vladmihalcea.book.hpjp.hibernate.type.json.JsonStringType;
     @TypeDef(name = "int-array", typeClass = IntArrayType.class),
     @TypeDef(name = "json", typeClass = JsonStringType.class),
     @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class),
+    @TypeDef(name = "jsonb-node", typeClass = JsonNodeBinaryType.class),
 })
 @MappedSuperclass
 public class BaseEntity {
