@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import java.io.Serializable;
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -68,8 +67,8 @@ public class ManyToOneJoinColumnNonPKTest extends AbstractTest {
             .getSingleResult();
 
             assertEquals(
-                    "amazon.co.uk",
-                    publication.getPublisher()
+                "amazon.co.uk",
+                publication.getPublisher()
             );
 
             assertEquals(
@@ -129,7 +128,7 @@ public class ManyToOneJoinColumnNonPKTest extends AbstractTest {
 
     @Entity(name = "Publication")
     @Table(name = "publication")
-    public static class Publication implements Serializable {
+    public static class Publication {
 
         @Id
         @GeneratedValue
