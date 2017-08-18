@@ -100,6 +100,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-envers</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>javax.el</groupId>
             <artifactId>javax.el-api</artifactId>
             <version>${javax.el.version}</version>
