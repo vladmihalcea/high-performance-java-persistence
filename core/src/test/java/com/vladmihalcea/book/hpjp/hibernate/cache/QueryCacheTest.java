@@ -154,12 +154,14 @@ public class QueryCacheTest extends AbstractTest {
         doInJPA(entityManager -> {
             LOGGER.info("Query cache with projection");
             List<PostCommentSummary> comments = getPostCommentSummaryByPost(entityManager);
+            printQueryCacheRegionStatistics();
             assertEquals(1, comments.size());
         });
         doInJPA(entityManager -> {
             LOGGER.info("Query cache with projection");
             List<PostCommentSummary> comments = getPostCommentSummaryByPost(entityManager);
             assertEquals(1, comments.size());
+            printQueryCacheRegionStatistics();
         });
     }
 

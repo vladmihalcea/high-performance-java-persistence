@@ -44,6 +44,7 @@ import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.boot.spi.MetadataImplementor;
+import org.hibernate.cache.internal.StandardQueryCache;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
@@ -291,7 +292,7 @@ public abstract class AbstractTest {
         if (dataSource != null) {
             properties.put("hibernate.connection.datasource", dataSource);
         }
-        //properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
+        properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
         //properties.put("hibernate.ejb.metamodel.population", "disabled");
         return properties;
     }
@@ -818,5 +819,49 @@ public abstract class AbstractTest {
     protected void printCacheRegionStatistics(String region) {
         SecondLevelCacheStatistics statistics = sessionFactory().getStatistics().getSecondLevelCacheStatistics(region);
         LOGGER.debug("\nRegion: {},\nStatistics: {},\nEntries: {}", region, statistics, statistics.getEntries());
+    }
+
+    protected void printQueryCacheRegionStatistics() {
+        SecondLevelCacheStatistics statistics = sessionFactory()
+                .getStatistics()
+                .getSecondLevelCacheStatistics(StandardQueryCache.class.getName());
+
+        StringBuilder queryCache = new StringBuilder();
+
+        for ( Object queryCacheEntry: statistics.getEntries().entrySet()) {
+            if(queryCache.length() > 0) {
+                queryCache.append( ", " );
+            }
+            if(queryCacheEntry instanceof Map.Entry) {
+                Map.Entry queryCacheEntryMap = (Map.Entry) queryCacheEntry;
+                queryCache.append( "{" );
+                queryCache.append( queryCacheEntryMap.getKey() );
+                queryCache.append( "=" );
+                List values = (List) queryCacheEntryMap.getValue();
+
+                boolean first = true;
+
+                queryCache.append( "[" );
+                for ( Object value: values) {
+                    if(first) {
+                        first = false;
+                    }
+                    else {
+                        queryCache.append( ", " );
+                    }
+                    queryCache.append(
+                        Object[].class.isAssignableFrom( value.getClass() ) ?
+                            Arrays.toString( (Object[]) value ) :
+                            value
+                    );
+                }
+                queryCache.append( "]" );
+                queryCache.append( "}" );
+            }
+        }
+
+        statistics.getEntries();
+
+        LOGGER.debug("\nRegion: {},\nStatistics: {},\nEntries: {}", StandardQueryCache.class.getName(), statistics, queryCache );
     }
 }
