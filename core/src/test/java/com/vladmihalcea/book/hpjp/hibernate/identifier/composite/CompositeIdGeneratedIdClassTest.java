@@ -22,7 +22,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 
 import static org.junit.Assert.assertEquals;
 
-public class CompositeIdGeneratedIdClassTest extends AbstractSQLServerIntegrationTest {
+public class CompositeIdGeneratedIdClassTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -31,30 +31,11 @@ public class CompositeIdGeneratedIdClassTest extends AbstractSQLServerIntegratio
         };
     }
 
-    protected void additionalProperties(Properties properties) {
-        properties.put("hibernate.hbm2ddl.auto", "none");
-    }
-
-
     @Test
     public void test() {
         LOGGER.debug("test");
 
         Book _book = doInJPA(entityManager -> {
-
-            Session session = entityManager.unwrap( Session.class );
-
-            session.doWork( connection -> {
-                try(Statement statement = connection.createStatement()) {
-                    statement.executeUpdate( "drop table BOOK_EMBEDDED" );
-                }
-                catch (Exception ignore) {}
-
-                try(Statement statement = connection.createStatement()) {
-                    statement.executeUpdate( "create table BOOK_EMBEDDED (group_no int not null, row_id bigint IDENTITY(1,1) not null, BOOK_NAME varchar(255), primary key (group_no, row_id))" );
-                }
-                catch (Exception ignore) {}
-            } );
 
             Book book = new Book();
             book.setGroupNo( 1 );
@@ -75,10 +56,11 @@ public class CompositeIdGeneratedIdClassTest extends AbstractSQLServerIntegratio
 
     @Entity(name = "BOOK_EMBEDDED")
     @IdClass( PK.class )
-    public class Book implements Serializable {
+    public static class Book {
 
         @Id
-        @Column(name = "row_id", insertable = false, updatable = false)
+        @Column(name = "row_id")
+        @GeneratedValue
         private Long rowId;
 
         @Id
@@ -115,10 +97,8 @@ public class CompositeIdGeneratedIdClassTest extends AbstractSQLServerIntegratio
 
     public static class PK implements Serializable {
 
-        @Column(name = "row_id", insertable = false, updatable = false)
         private Long rowId;
 
-        @Column(name = "group_no")
         private int groupNo;
 
         public PK(Long rowId, int groupNo) {

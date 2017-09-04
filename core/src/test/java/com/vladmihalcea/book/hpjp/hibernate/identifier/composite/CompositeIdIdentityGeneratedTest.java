@@ -1,8 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier.composite;
 
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Objects;
 import java.util.Properties;
@@ -10,23 +8,18 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Version;
 
 import org.hibernate.Session;
 import org.hibernate.annotations.SQLInsert;
-import org.hibernate.jdbc.Work;
 
 import org.junit.Test;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
-public class CompositeIdGeneratedTest extends AbstractSQLServerIntegrationTest {
+public class CompositeIdIdentityGeneratedTest extends AbstractSQLServerIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
