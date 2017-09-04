@@ -1,20 +1,20 @@
 package com.vladmihalcea.book.hpjp.hibernate.logging;
 
 import java.util.Properties;
-
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
-import org.junit.Test;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.junit.Test;
+
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
+
 /**
  * @author Vlad Mihalcea
  */
-public class DataSourceProxyTest extends AbstractTest {
+public class HibernateLoggingTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -29,8 +29,8 @@ public class DataSourceProxyTest extends AbstractTest {
     }
 
     @Override
-    protected DataSourceProxyType dataSourceProxyType() {
-        return DataSourceProxyType.DATA_SOURCE_PROXY;
+    protected boolean proxyDataSource() {
+        return false;
     }
 
     @Test
@@ -47,15 +47,16 @@ public class DataSourceProxyTest extends AbstractTest {
     @Test
     public void testBatch() {
         doInJPA(entityManager -> {
-            for ( long i = 0; i < 3; i++ ) {
+            for ( long id = 1; id <= 5; id++ ) {
                 Post post = new Post();
-                post.setId( i );
+                post.setId( id );
                 post.setTitle(
                     String.format(
-                        "Post no. %d",
-                        i
+                        "High-Performance Java Persistence, part %d",
+                        id
                     )
                 );
+
                 entityManager.persist(post);
             }
         });

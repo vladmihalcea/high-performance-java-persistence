@@ -294,7 +294,12 @@ public abstract class AbstractTest {
         }
         properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
         //properties.put("hibernate.ejb.metamodel.population", "disabled");
+        additionalProperties(properties);
         return properties;
+    }
+
+    protected void additionalProperties(Properties properties) {
+
     }
 
     protected DataSourceProxyType dataSourceProxyType() {

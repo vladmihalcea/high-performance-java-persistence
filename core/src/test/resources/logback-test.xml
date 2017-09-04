@@ -12,7 +12,7 @@
     </appender>
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>DEBUG</level>
+            <level>TRACE</level>
         </filter>
         <encoder>
             <Pattern>%-5p [%t]: %c{1} - %m%n</Pattern>
@@ -33,7 +33,8 @@
     <logger name="org.hibernate.cache" level="debug"/>
     <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="info"/>
 
-    <logger name="org.hibernate.SQL" level="error"/>
+    <!--<logger name="org.hibernate.SQL" level="debug"/>
+    <logger name="org.hibernate.type.descriptor.sql" level="trace"/>-->
 
     <logger name="net.sf.ehcache" level="info"/>
 
