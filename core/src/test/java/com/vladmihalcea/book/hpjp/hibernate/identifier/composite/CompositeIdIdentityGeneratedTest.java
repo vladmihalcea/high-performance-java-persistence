@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.persistence.Version;
 
 import org.hibernate.Session;
@@ -40,49 +41,53 @@ public class CompositeIdIdentityGeneratedTest extends AbstractSQLServerIntegrati
             Session session = entityManager.unwrap( Session.class );
 
             session.doWork( connection -> {
-				try(Statement statement = connection.createStatement()) {
-				    statement.executeUpdate( "drop table BOOK_EMBEDDED" );
+                try (Statement statement = connection.createStatement()) {
+                    statement.executeUpdate( "drop table book" );
                 }
-                catch (Exception ignore) {}
-
-                try(Statement statement = connection.createStatement()) {
-                    statement.executeUpdate( "create table BOOK_EMBEDDED (group_no int not null, row_id bigint IDENTITY(1,1) not null, BOOK_NAME varchar(255), version int, primary key (group_no, row_id))" );
+                catch (Exception ignore) {
                 }
-                catch (Exception ignore) {}
-			} );
 
+                try (Statement statement = connection.createStatement()) {
+                    statement.executeUpdate(
+                            "create table book (publisher_id int not null, registration_number bigint IDENTITY not null, title varchar(255), version int, primary key (publisher_id, registration_number))" );
+                }
+                catch (Exception ignore) {
+                }
+            } );
+        });
+
+        doInJPA(entityManager -> {
+            Book book = new Book();
+            book.setTitle( "High-Performance Java Persistence");
 
             EmbeddedKey key = new EmbeddedKey();
-            key.setGroupNo(1);
-
-            Book book = new Book();
-            book.setBookName( "High-Performance Java Persistence");
-
+            key.setPublisherId(1);
             book.setKey(key);
 
             entityManager.persist(book);
         });
+
         doInJPA(entityManager -> {
             EmbeddedKey key = new EmbeddedKey();
 
-            key.setGroupNo(1);
-            key.setRowId(1L);
+            key.setPublisherId(1);
+            key.setRegistrationNumber(1L);
 
             Book book = entityManager.find(Book.class, key);
-            assertEquals( "High-Performance Java Persistence", book.getBookName() );
+            assertEquals( "High-Performance Java Persistence", book.getTitle() );
         });
 
     }
 
-    @Entity(name = "BOOK_EMBEDDED")
-    @SQLInsert( sql = "insert into BOOK_EMBEDDED (BOOK_NAME, group_no, version) values (?, ?, ?)")
+    @Entity(name = "Book")
+    @Table(name = "book")
+    @SQLInsert( sql = "insert into book (title, publisher_id, version) values (?, ?, ?)")
     public static class Book implements Serializable {
 
         @EmbeddedId
         private EmbeddedKey key;
 
-        @Column(name = "BOOK_NAME")
-        private String bookName;
+        private String title;
 
         @Version
         @Column(insertable = false)
@@ -96,38 +101,38 @@ public class CompositeIdIdentityGeneratedTest extends AbstractSQLServerIntegrati
             this.key = key;
         }
 
-        public String getBookName() {
-            return bookName;
+        public String getTitle() {
+            return title;
         }
 
-        public void setBookName(String bookName) {
-            this.bookName = bookName;
+        public void setTitle(String title) {
+            this.title = title;
         }
     }
 
     @Embeddable
     public static class EmbeddedKey implements Serializable {
 
-        @Column(name = "row_id", insertable = false, updatable = false)
-        private Long rowId;
+        @Column(name = "registration_number")
+        private Long registrationNumber;
 
-        @Column(name = "group_no")
-        private int groupNo;
+        @Column(name = "publisher_id")
+        private Integer publisherId;
 
-        public Long getRowId() {
-            return rowId;
+        public Long getRegistrationNumber() {
+            return registrationNumber;
         }
 
-        public void setRowId(Long rowId) {
-            this.rowId = rowId;
+        public void setRegistrationNumber(Long registrationNumber) {
+            this.registrationNumber = registrationNumber;
         }
 
-        public int getGroupNo() {
-            return groupNo;
+        public int getPublisherId() {
+            return publisherId;
         }
 
-        public void setGroupNo(int groupNo) {
-            this.groupNo = groupNo;
+        public void setPublisherId(int publisherId) {
+            this.publisherId = publisherId;
         }
 
         @Override
@@ -139,13 +144,13 @@ public class CompositeIdIdentityGeneratedTest extends AbstractSQLServerIntegrati
                 return false;
             }
             EmbeddedKey that = (EmbeddedKey) o;
-            return groupNo == that.groupNo &&
-                    Objects.equals( rowId, that.rowId );
+            return Objects.equals( registrationNumber, that.registrationNumber ) &&
+                    Objects.equals( publisherId, that.publisherId );
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash( rowId, groupNo );
+            return Objects.hash( registrationNumber, publisherId );
         }
     }
 

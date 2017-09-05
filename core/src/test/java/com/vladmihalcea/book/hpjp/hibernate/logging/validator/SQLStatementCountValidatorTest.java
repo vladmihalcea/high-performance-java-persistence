@@ -25,46 +25,57 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
         };
     }
 
-    @Test
-    public void testValidate() {
+    @Override
+    public void init() {
+        super.init();
         doInJPA(entityManager -> {
-            Post post1 = new Post(1L);
+            Post post1 = new Post();
+            post1.setId( 1L );
             post1.setTitle("Post one");
 
-            Post post2 = new Post(2L);
-            post2.setTitle("Post two");
+            entityManager.persist(post1);
 
             PostComment comment1 = new PostComment();
             comment1.setId(1L);
             comment1.setReview("Good");
+            comment1.setPost( post1 );
+
+            entityManager.persist(comment1);
+
+            Post post2 = new Post();
+            post2.setId( 2L );
+            post2.setTitle("Post two");
+
+            entityManager.persist(post2);
 
             PostComment comment2 = new PostComment();
             comment2.setId(2L);
             comment2.setReview("Excellent");
+            comment2.setPost( post2 );
 
-            post1.addComment(comment1);
-            post2.addComment(comment2);
-            entityManager.persist(post1);
-            entityManager.persist(post2);
+            entityManager.persist(comment2);
         });
+    }
 
-        doInJPA(entityManager -> {
-            LOGGER.info("Detect N+1");
-            try {
-                SQLStatementCountValidator.reset();
-                List<PostComment> postComments = entityManager.createQuery(
-                    "select pc " +
-                    "from PostComment pc", PostComment.class)
-                .getResultList();
+    @Test
+    public void testNPlusOne() {
+        doInJPA( entityManager -> {
+            LOGGER.info( "Detect N+1" );
 
-                for(PostComment postComment : postComments) {
-                    assertNotNull(postComment.getPost().getTitle());
-                }
-                SQLStatementCountValidator.assertSelectCount(1);
-            } catch (SQLStatementCountMismatchException e) {
-                assertEquals(3, e.getRecorded());
-            }
-        });
+            SQLStatementCountValidator.reset();
+
+            List<PostComment> comments = entityManager.createQuery(
+                "select pc " +
+                "from PostComment pc", PostComment.class )
+            .getResultList();
+            assertEquals( 2, comments.size() );
+
+            SQLStatementCountValidator.assertSelectCount( 1 );
+        } );
+    }
+
+    @Test
+    public void testJoinFetch() {
 
         doInJPA(entityManager -> {
             LOGGER.info("Join fetch to prevent N+1");
@@ -90,20 +101,6 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
 
         private String title;
 
-        public Post() {}
-
-        public Post(Long id) {
-            this.id = id;
-        }
-
-        public Post(String title) {
-            this.title = title;
-        }
-
-        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
-                orphanRemoval = true)
-        private List<PostComment> comments = new ArrayList<>();
-
         public Long getId() {
             return id;
         }
@@ -119,15 +116,6 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
         public void setTitle(String title) {
             this.title = title;
         }
-
-        public List<PostComment> getComments() {
-            return comments;
-        }
-
-        public void addComment(PostComment comment) {
-            comments.add(comment);
-            comment.setPost(this);
-        }
     }
 
     @Entity(name = "PostComment")
@@ -137,16 +125,12 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
         @Id
         private Long id;
 
-        @ManyToOne
+        @ManyToOne(
+            fetch = FetchType.LAZY
+        )
         private Post post;
 
         private String review;
-
-        public PostComment() {}
-
-        public PostComment(String review) {
-            this.review = review;
-        }
 
         public Long getId() {
             return id;
