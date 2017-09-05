@@ -1,13 +1,16 @@
 package com.vladmihalcea.book.hpjp.hibernate.logging.validator;
 
-import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
-import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.exception.SQLStatementCountMismatchException;
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 import org.junit.Test;
 
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -15,7 +18,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vlad Mihalcea
  */
-public class SQLStatementCountValidatorTest extends AbstractTest {
+public class SQLStatementCountValidatorJoinFetchTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -137,23 +140,5 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
 
             SQLStatementCountValidator.assertSelectCount( 1 );
         } );
-    }
-
-    @Test
-    public void testJoinFetch() {
-
-        doInJPA(entityManager -> {
-            LOGGER.info("Join fetch to prevent N+1");
-            SQLStatementCountValidator.reset();
-            List<PostComment> postComments = entityManager
-                    .createQuery("select pc from PostComment pc join fetch pc.post", PostComment.class)
-                    .getResultList();
-
-            for(PostComment postComment : postComments) {
-                assertNotNull(postComment.getPost());
-            }
-
-            SQLStatementCountValidator.assertSelectCount(1);
-        });
     }
 }
