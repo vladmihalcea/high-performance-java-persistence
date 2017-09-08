@@ -1,11 +1,17 @@
 package com.vladmihalcea.book.hpjp.hibernate.schema.flyway;
 
-import com.vladmihalcea.book.hpjp.util.spring.config.jpa.HikariCPPostgreSQLJpaConfiguration;
+import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.hibernate.Session;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.EncodedResource;
@@ -17,18 +23,13 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.annotation.Resource;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 /**
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration(classes = AbstractHsqldbJpaConfiguration.class)
-@ContextConfiguration(classes = HikariCPPostgreSQLJpaConfiguration.class)
+@ContextConfiguration(classes = PostgreSQLFlywayConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class DropFlywayDBTest {
+public class DropPostgreSQLPublicSchemaTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 

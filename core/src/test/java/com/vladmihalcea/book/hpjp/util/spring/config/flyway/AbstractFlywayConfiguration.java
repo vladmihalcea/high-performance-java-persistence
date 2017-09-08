@@ -88,5 +88,6 @@ public abstract class AbstractFlywayConfiguration {
         return this.getClass();
     }
 
+    @Bean
     protected abstract String databaseType();
 }

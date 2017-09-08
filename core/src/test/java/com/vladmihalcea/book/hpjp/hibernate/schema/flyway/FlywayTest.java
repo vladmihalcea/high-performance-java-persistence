@@ -21,7 +21,6 @@ import static com.vladmihalcea.book.hpjp.hibernate.schema.flyway.FlywayEntities.
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration(classes = HsqldbFlywayConfiguration.class)
 @ContextConfiguration(classes = PostgreSQLFlywayConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class FlywayTest {
