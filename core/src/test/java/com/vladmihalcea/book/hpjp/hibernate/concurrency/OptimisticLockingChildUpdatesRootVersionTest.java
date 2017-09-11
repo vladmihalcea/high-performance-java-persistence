@@ -3,6 +3,8 @@ package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.boot.Metadata;
 import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
@@ -212,8 +214,17 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
-            PostComment postComment = entityManager.getReference(PostComment.class, 3l);
+            PostComment postComment = entityManager.getReference(PostComment.class, 3L);
             entityManager.remove(postComment);
+        });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.getReference(Post.class, 1L);
+            entityManager.createQuery( "delete from PostComment p where p.post.id = :postId" )
+            .setParameter( "postId", post.getId() )
+            .executeUpdate();
+
+            entityManager.remove(post);
         });
     }
 
@@ -300,6 +311,7 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
 
         @OneToOne(fetch = FetchType.LAZY)
         @MapsId
+        @OnDelete( action = OnDeleteAction.CASCADE )
         private PostComment comment;
 
         private int votes;
