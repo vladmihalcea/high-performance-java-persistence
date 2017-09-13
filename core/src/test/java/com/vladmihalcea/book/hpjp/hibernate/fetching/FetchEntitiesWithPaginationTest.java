@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.hibernate.internal.CoreMessageLogger;
@@ -26,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class LazyFetchingOneToManyFindEntityTest extends AbstractPostgreSQLIntegrationTest {
+public class FetchEntitiesWithPaginationTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -51,9 +52,10 @@ public class LazyFetchingOneToManyFindEntityTest extends AbstractPostgreSQLInteg
 
                 PostComment comment1 = new PostComment();
                 comment1.setReview("Excellent!");
+                post.addComment(comment1);
+
                 PostComment comment2 = new PostComment();
                 comment2.setReview("Good!");
-                post.addComment(comment1);
                 post.addComment(comment2);
 
                 entityManager.persist(post);
@@ -66,6 +68,7 @@ public class LazyFetchingOneToManyFindEntityTest extends AbstractPostgreSQLInteg
         doInJPA(entityManager -> {
             String titlePattern = "High-Performance%";
             int maxResults = 3;
+
             List<Post> posts = entityManager.createQuery(
                 "select p " +
                 "from Post p " +
@@ -75,18 +78,19 @@ public class LazyFetchingOneToManyFindEntityTest extends AbstractPostgreSQLInteg
             .setParameter("title", titlePattern)
             .setMaxResults(maxResults)
             .getResultList();
+
             assertEquals(maxResults, posts.size());
-            assertEquals(2, posts.get(0).comments.size());
+            assertEquals(2, posts.get(0).getComments().size());
         });
     }
 
     @Test
     public void testFetchAndPaginateUsingDenseRank() {
-        doInJPA(entityManager -> {
+        List<Post> _posts = doInJPA(entityManager -> {
             String titlePattern = "High-Performance%";
             int maxResults = 3;
             List<Post> posts = entityManager.createNativeQuery(
-                "select p_pc_r.* " +
+                "select * " +
                 "from (   " +
                 "    select *, dense_rank() OVER (ORDER BY post_id) rank " +
                 "    from (   " +
@@ -101,11 +105,15 @@ public class LazyFetchingOneToManyFindEntityTest extends AbstractPostgreSQLInteg
             .setParameter("title", titlePattern)
             .setParameter("rank", maxResults)
             .unwrap( NativeQuery.class )
+            .addEntity( "p", Post.class )
+            .addEntity( "pc", PostComment.class )
             .setResultTransformer( DistinctPostResultTransformer.INSTANCE )
             .getResultList();
+
             assertEquals(maxResults, posts.size());
-            //assertEquals(2, posts.get(0).comments.size());
+            return posts;
         });
+        assertEquals(2, _posts.get(0).comments.size());
     }
 
     @Entity(name = "Post")
@@ -121,17 +129,6 @@ public class LazyFetchingOneToManyFindEntityTest extends AbstractPostgreSQLInteg
         @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
         private List<PostComment> comments = new ArrayList<>();
 
-        public Post() {
-        }
-
-        public Post(Long id) {
-            this.id = id;
-        }
-
-        public Post(String title) {
-            this.title = title;
-        }
-
         public Long getId() {
             return id;
         }
@@ -146,6 +143,14 @@ public class LazyFetchingOneToManyFindEntityTest extends AbstractPostgreSQLInteg
 
         public void setTitle(String title) {
             this.title = title;
+        }
+
+        public List<PostComment> getComments() {
+            return comments;
+        }
+
+        public void setComments(List<PostComment> comments) {
+            this.comments = comments;
         }
 
         public void addComment(PostComment comment) {
@@ -166,13 +171,6 @@ public class LazyFetchingOneToManyFindEntityTest extends AbstractPostgreSQLInteg
         private Post post;
 
         private String review;
-
-        public PostComment() {
-        }
-
-        public PostComment(String review) {
-            this.review = review;
-        }
 
         public Long getId() {
             return id;
@@ -208,16 +206,35 @@ public class LazyFetchingOneToManyFindEntityTest extends AbstractPostgreSQLInteg
             Map<Serializable, Identifiable> identifiableMap = new LinkedHashMap<>( list.size() );
             for ( Object entityArray : list ) {
                 if ( Object[].class.isAssignableFrom( entityArray.getClass() ) ) {
-                    Object entity = ((Object[]) entityArray)[0];
-                    Identifiable identifiable = (Identifiable) entity;
-                    if ( !identifiableMap.containsKey( identifiable.getId() ) ) {
-                        identifiableMap.put( identifiable.getId(), identifiable );
+                    Post post = null;
+                    PostComment comment = null;
+
+                    Object[] tuples = (Object[]) entityArray;
+
+                    for ( Object tuple : tuples ) {
+                        if(tuple instanceof Post) {
+                            post = (Post) tuple;
+                        }
+                        else if(tuple instanceof PostComment) {
+                            comment = (PostComment) tuple;
+                        }
+                        else {
+                            throw new UnsupportedOperationException(
+                                "Tuple " + tuple.getClass() + " is not supported!"
+                            );
+                        }
                     }
+                    Objects.requireNonNull(post);
+                    Objects.requireNonNull(comment);
+
+                    if ( !identifiableMap.containsKey( post.getId() ) ) {
+                        identifiableMap.put( post.getId(), post );
+                        post.setComments( new ArrayList<>() );
+                    }
+                    post.addComment( comment );
                 }
             }
             return new ArrayList<>( identifiableMap.values() );
         }
-
-
     }
 }
