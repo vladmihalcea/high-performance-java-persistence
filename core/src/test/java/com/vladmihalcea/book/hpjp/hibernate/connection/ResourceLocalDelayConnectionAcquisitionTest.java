@@ -20,9 +20,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.junit.Test;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Slf4jReporter;
-import com.codahale.metrics.Timer;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
 import com.vladmihalcea.flexypool.adaptor.DataSourcePoolAdapter;
@@ -34,234 +31,220 @@ import org.w3c.dom.NodeList;
 
 public class ResourceLocalDelayConnectionAcquisitionTest extends AbstractTest {
 
-    public static final String DATA_FILE_PATH = "data/weather.xml";
+	private static final String DATA_FILE_PATH = "data/weather.xml";
 
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
+	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
 
-    private long warmUpDuration = TimeUnit.SECONDS.toNanos( 10 );
+	private long warmUpDuration = TimeUnit.SECONDS.toNanos( 5 );
 
-    private long measurementsDuration = TimeUnit.SECONDS.toNanos( 17 );
+	private long measurementsDuration = TimeUnit.SECONDS.toNanos( 15 );
 
-    private int parseCount = 100;
+	private int parseCount = 100;
 
-    private FlexyPoolDataSource flexyPoolDataSource;
+	private FlexyPoolDataSource flexyPoolDataSource;
 
-    private MetricRegistry metricRegistry = new MetricRegistry();
+	@Override
+	protected Class<?>[] entities() {
+		return new Class[] {
+			Forecast.class
+		};
+	}
 
-    private Timer timer = metricRegistry.timer( getClass().getSimpleName() );
+	protected boolean connectionPooling() {
+		return false;
+	}
 
-    private Slf4jReporter logReporter = Slf4jReporter
-            .forRegistry(metricRegistry)
-            .outputTo(LOGGER)
-            .build();
+	protected HikariConfig hikariConfig(DataSource dataSource) {
+		HikariConfig hikariConfig = super.hikariConfig( dataSource );
+		hikariConfig.setAutoCommit( false );
+		return hikariConfig;
+	}
 
-    @Override
-    protected Class<?>[] entities() {
-        return new Class[] {
-            Forecast.class
-        };
-    }
+	protected HikariDataSource connectionPoolDataSource(DataSource dataSource) {
+		HikariConfig hikariConfig = new HikariConfig();
+		int cpuCores = Runtime.getRuntime().availableProcessors();
+		hikariConfig.setMaximumPoolSize( cpuCores * 4 );
+		hikariConfig.setDataSource( dataSource );
 
-    protected boolean connectionPooling() {
-        return false;
-    }
+		return new HikariDataSource( hikariConfig );
+	}
 
-    protected HikariConfig hikariConfig(DataSource dataSource) {
-        HikariConfig hikariConfig = super.hikariConfig( dataSource );
-        hikariConfig.setAutoCommit( false );
-        return hikariConfig;
-    }
+	@Override
+	protected DataSource newDataSource() {
+		DataSource dataSource = super.newDataSource();
 
-    protected HikariDataSource connectionPoolDataSource(DataSource dataSource) {
-        HikariConfig hikariConfig = new HikariConfig();
-        int cpuCores = Runtime.getRuntime().availableProcessors();
-        hikariConfig.setMaximumPoolSize(cpuCores * 4);
-        hikariConfig.setDataSource(dataSource);
+		com.vladmihalcea.flexypool.config.Configuration<DataSource> configuration = new com.vladmihalcea.flexypool.config.Configuration.Builder<>(
+				getClass().getSimpleName(), dataSource, DataSourcePoolAdapter.FACTORY )
+				.setMetricLogReporterMillis( TimeUnit.SECONDS.toMillis( 15 ) )
+				.build();
+		flexyPoolDataSource = new FlexyPoolDataSource<>( configuration );
+		return flexyPoolDataSource;
+	}
 
-        return new HikariDataSource(hikariConfig);
-    }
+	protected Properties properties() {
+		Properties properties = super.properties();
+		properties.put( "hibernate.generate_statistics", Boolean.FALSE.toString() );
+		properties.put( "hibernate.jdbc.batch_size", "50" );
+		properties.put( "hibernate.connection.provider_disables_autocommit", "true" );
+		return properties;
+	}
 
-    @Override
-    protected DataSource newDataSource() {
-        DataSource dataSource = super.newDataSource();
+	@Test
+	public void testConnectionLeaseTime() {
+		long warmUpThreshold = System.nanoTime() + warmUpDuration;
+		LOGGER.info( "Warming up" );
 
-        com.vladmihalcea.flexypool.config.Configuration<DataSource> configuration = new com.vladmihalcea.flexypool.config.Configuration.Builder<>(
-                getClass().getSimpleName(), dataSource, DataSourcePoolAdapter.FACTORY)
-                .setMetricLogReporterMillis( TimeUnit.SECONDS.toMillis( 15 ) )
-        .build();
-        flexyPoolDataSource = new FlexyPoolDataSource<>( configuration);
-        return flexyPoolDataSource;
-    }
+		while ( System.nanoTime() < warmUpThreshold ) {
+			importForecasts();
+		}
 
-    protected Properties properties() {
-        Properties properties = super.properties();
-        properties.put("hibernate.jdbc.batch_size", "50");
-        properties.put("hibernate.connection.provider_disables_autocommit", "true");
-        return properties;
-    }
+		long measurementsThreshold = System.nanoTime() + measurementsDuration;
 
-    @Test
-    public void testConnection() {
-        long warmUpThreshold = System.nanoTime() + warmUpDuration;
-        LOGGER.info( "Warming up" );
+		LOGGER.info( "Measuring connection lease time" );
+		flexyPoolDataSource.start();
+		while ( System.nanoTime() < measurementsThreshold ) {
+			importForecasts();
+		}
+		flexyPoolDataSource.stop();
+		sleep( 500 );
+	}
 
-        while ( System.nanoTime() < warmUpThreshold ) {
-            importForecasts();
-        }
+	private void importForecasts() {
+		doInJPA( entityManager -> {
+			List<Forecast> forecasts = null;
 
-        long measurementsThreshold = System.nanoTime() + measurementsDuration;
+			for ( int i = 0; i < parseCount; i++ ) {
+				Document forecastXmlDocument = readXmlDocument( DATA_FILE_PATH );
+				forecasts = parseForecasts( forecastXmlDocument );
+			}
 
-        LOGGER.info( "Measuring" );
-        flexyPoolDataSource.start();
-        int transactionCount = 0;
-        while ( System.nanoTime() < measurementsThreshold ) {
-            importForecasts();
-            transactionCount++;
-        }
-        flexyPoolDataSource.stop();
-        logReporter.report();
-        LOGGER.info( "Transaction throughput: {}", transactionCount);
-    }
-
-    private void importForecasts() {
-        doInJPA(entityManager -> {
-            long startNanos = System.nanoTime();
-            List<Forecast> forecasts = null;
-            for ( int i = 0; i < parseCount; i++ ) {
-                Document forecastXmlDocument = readXmlDocument( DATA_FILE_PATH );
-                forecasts = parseForecasts(forecastXmlDocument);
-            }
-            timer.update( System.nanoTime() - startNanos, TimeUnit.NANOSECONDS );
-
-            if ( forecasts != null ) {
-                for(Forecast forecast : forecasts.subList( 0, 50 )) {
+			if ( forecasts != null ) {
+				for ( Forecast forecast : forecasts.subList( 0, 50 ) ) {
 					entityManager.persist( forecast );
 				}
-            }
-        });
-    }
+			}
+		} );
+	}
 
-    private Document readXmlDocument(String filePath) {
-        try (InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream( filePath )) {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse( inputStream );
+	private Document readXmlDocument(String filePath) {
+		try (InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream( filePath )) {
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse( inputStream );
+			doc.getDocumentElement().normalize();
+			return doc;
+		}
+		catch (Exception e) {
+			throw new IllegalArgumentException( e );
+		}
+	}
 
-            doc.getDocumentElement().normalize();
+	private List<Forecast> parseForecasts(Document xmlDocument) {
+		NodeList cityNodes = xmlDocument.getElementsByTagName( "localitate" );
+		List<Forecast> forecasts = new ArrayList<>();
+		for ( int i = 0; i < cityNodes.getLength(); i++ ) {
+			Node cityNode = cityNodes.item( i );
+			String city = cityNode.getAttributes().getNamedItem( "nume" ).getNodeValue();
 
-            return doc;
-        }
-        catch (Exception e) {
-            throw new IllegalArgumentException( e );
-        }
-    }
+			NodeList forecastNodes = cityNode.getChildNodes();
+			for ( int j = 0; j < forecastNodes.getLength(); j++ ) {
+				Node forecastNode = forecastNodes.item( j );
+				if ( !"prognoza".equals( forecastNode.getNodeName() ) ) {
+					continue;
+				}
 
-    private List<Forecast> parseForecasts(Document xmlDocument) {
-        NodeList cityNodes = xmlDocument.getElementsByTagName( "localitate");
-        List<Forecast> forecasts = new ArrayList<>(  );
-        for ( int i = 0; i < cityNodes.getLength(); i++ ) {
-            Node cityNode = cityNodes.item(i);
-            String city = cityNode.getAttributes().getNamedItem( "nume" ).getNodeValue();
+				Forecast forecast = new Forecast();
+				forecast.setCity( city );
 
-            NodeList forecastNodes = cityNode.getChildNodes();
-            for ( int j = 0; j < forecastNodes.getLength(); j++ ) {
-                Node forecastNode = forecastNodes.item(j);
-                if( !"prognoza".equals( forecastNode.getNodeName() ) ) {
-                    continue;
-                }
+				String dateValue = forecastNode.getAttributes().getNamedItem( "data" ).getNodeValue();
+				try {
+					forecast.setDate( simpleDateFormat.parse( dateValue ) );
+				}
+				catch (ParseException e) {
+					throw new IllegalArgumentException( e );
+				}
 
-                Forecast forecast = new Forecast();
-                forecast.setCity( city );
+				NodeList forecastDetailsNodes = forecastNode.getChildNodes();
+				for ( int k = 0; k < forecastDetailsNodes.getLength(); k++ ) {
+					Node forecastDetailsNode = forecastDetailsNodes.item( k );
+					switch ( forecastDetailsNode.getNodeName() ) {
+						case "temp_min":
+							forecast.setTemperatureMin( Byte.valueOf( forecastDetailsNode.getTextContent() ) );
+							break;
+						case "temp_max":
+							forecast.setTemperatureMax( Byte.valueOf( forecastDetailsNode.getTextContent() ) );
+							break;
+						case "fenomen_descriere":
+							forecast.setDescription( forecastDetailsNode.getTextContent() );
+							break;
+					}
+				}
 
-                String dateValue = forecastNode.getAttributes().getNamedItem( "data" ).getNodeValue();
-                try {
-                    forecast.setDate( simpleDateFormat.parse( dateValue ) );
-                }
-                catch (ParseException e) {
-                    throw new IllegalArgumentException( e );
-                }
+				forecasts.add( forecast );
+			}
+		}
+		return forecasts;
+	}
 
-                NodeList forecastDetailsNodes = forecastNode.getChildNodes();
-                for ( int k = 0; k < forecastDetailsNodes.getLength(); k++ ) {
-                    Node forecastDetailsNode = forecastDetailsNodes.item(k);
-                    switch ( forecastDetailsNode.getNodeName() ) {
-                        case "temp_min":
-                            forecast.setTemperatureMin( Byte.valueOf( forecastDetailsNode.getTextContent() ) );
-                            break;
-                        case "temp_max":
-                            forecast.setTemperatureMax( Byte.valueOf( forecastDetailsNode.getTextContent() ) );
-                            break;
-                        case "fenomen_descriere":
-                            forecast.setDescription( forecastDetailsNode.getTextContent() );
-                            break;
-                    }
-                }
+	@Entity(name = "Forecast")
+	public static class Forecast {
 
-                forecasts.add( forecast );
-            }
-        }
-        return forecasts;
-    }
+		@Id
+		@GeneratedValue
+		private Long id;
 
-    @Entity(name = "Forecast")
-    public static class Forecast {
+		private String city;
 
-        @Id
-        @GeneratedValue
-        private Long id;
+		@Temporal(TemporalType.DATE)
+		@Column(name = "forecast_date")
+		private Date date;
 
-        private String city;
+		@Column(name = "temperature_min")
+		private byte temperatureMin;
 
-        @Temporal( TemporalType.DATE )
-        @Column(name = "forecast_date")
-        private Date date;
+		@Column(name = "temperature_max")
+		private byte temperatureMax;
 
-        @Column(name = "temperature_min")
-        private byte temperatureMin;
+		private String description;
 
-        @Column(name = "temperature_max")
-        private byte temperatureMax;
+		public String getCity() {
+			return city;
+		}
 
-        private String description;
+		public void setCity(String city) {
+			this.city = city;
+		}
 
-        public String getCity() {
-            return city;
-        }
+		public Date getDate() {
+			return date;
+		}
 
-        public void setCity(String city) {
-            this.city = city;
-        }
+		public void setDate(Date date) {
+			this.date = date;
+		}
 
-        public Date getDate() {
-            return date;
-        }
+		public byte getTemperatureMin() {
+			return temperatureMin;
+		}
 
-        public void setDate(Date date) {
-            this.date = date;
-        }
+		public void setTemperatureMin(byte temperatureMin) {
+			this.temperatureMin = temperatureMin;
+		}
 
-        public byte getTemperatureMin() {
-            return temperatureMin;
-        }
+		public byte getTemperatureMax() {
+			return temperatureMax;
+		}
 
-        public void setTemperatureMin(byte temperatureMin) {
-            this.temperatureMin = temperatureMin;
-        }
+		public void setTemperatureMax(byte temperatureMax) {
+			this.temperatureMax = temperatureMax;
+		}
 
-        public byte getTemperatureMax() {
-            return temperatureMax;
-        }
+		public String getDescription() {
+			return description;
+		}
 
-        public void setTemperatureMax(byte temperatureMax) {
-            this.temperatureMax = temperatureMax;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-    }
+		public void setDescription(String description) {
+			this.description = description;
+		}
+	}
 }
