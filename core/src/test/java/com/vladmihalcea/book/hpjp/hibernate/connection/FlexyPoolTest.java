@@ -1,16 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.connection;
 
-import com.vladmihalcea.book.hpjp.hibernate.connection.jta.FlexyPoolEntities;
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -24,6 +20,9 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static com.vladmihalcea.book.hpjp.hibernate.connection.jta.FlexyPoolEntities.Post;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = FlexyPoolTestConfiguration.class)
@@ -67,19 +66,32 @@ public class FlexyPoolTest {
         CountDownLatch awaitTermination = new CountDownLatch(threadCount);
         List<Callable<Void>> tasks = new ArrayList<>();
 
+        AtomicLong postCount = new AtomicLong();
+
         for (int i = 0; i < threadCount; i++) {
             tasks.add(
                 () -> {
                     LOGGER.info("Starting worker thread");
+                    
                     while (TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startNanos) < seconds) {
                         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
-                            for (int j = 0; j < 50; j++) {
-                                entityManager.persist(new FlexyPoolEntities.Post());
+                            for (int j = 0; j < 100; j++) {
+                                entityManager.persist(new Post());
                             }
-                            Number postCount = entityManager.createQuery(
-                                "select count(p) from Post p", Number.class)
-                            .getSingleResult();
-                            LOGGER.info("Post entity count: {}", postCount);
+
+                            postCount.set(
+                                entityManager.createQuery(
+                                    "select count(p) " +
+                                    "from Post p ", Number.class)
+                                .getSingleResult()
+                                .longValue()
+                            );
+
+                            if (postCount.get() % 1000 == 0) {
+                                LOGGER.info("Post entity count: {}", postCount);
+                                sleep(250, TimeUnit.MILLISECONDS);
+                            }
+
                             return null;
                         });
                     }
@@ -91,5 +103,13 @@ public class FlexyPoolTest {
 
         executorService.invokeAll(tasks);
         awaitTermination.await();
+    }
+
+    private void sleep(long duration, TimeUnit timeUnit) {
+        try {
+            Thread.sleep(timeUnit.toMillis(duration));
+        } catch (InterruptedException e) {
+            Thread.interrupted();
+        }
     }
 }
