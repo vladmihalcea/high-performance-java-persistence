@@ -25,7 +25,7 @@ import java.util.Properties;
  */
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-public abstract class AbstractJpaConfiguration {
+public abstract class AbstractJPAConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 

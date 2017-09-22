@@ -14,7 +14,7 @@ import java.util.Properties;
  */
 @Configuration
 @PropertySource({"/META-INF/jdbc-hsqldb.properties"})
-public class AbstractHsqldbJpaConfiguration extends AbstractJpaConfiguration {
+public class AbstractHsqldbJpaConfiguration extends AbstractJPAConfiguration {
 
     @Value("${jdbc.dataSourceClassName}")
     private String dataSourceClassName;

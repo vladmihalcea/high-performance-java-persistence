@@ -12,7 +12,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @PropertySource({"/META-INF/jdbc-postgresql.properties"})
-public class PostgreSQLJpaConfiguration extends AbstractJpaConfiguration {
+public class PostgreSQLJPAConfiguration extends AbstractJPAConfiguration {
 
     @Value("${jdbc.dataSourceClassName}")
     private String dataSourceClassName;
