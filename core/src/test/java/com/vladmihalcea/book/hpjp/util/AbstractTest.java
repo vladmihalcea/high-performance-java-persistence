@@ -47,10 +47,6 @@ import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.cache.internal.StandardQueryCache;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.H2Dialect;
-import org.hibernate.dialect.MySQLDialect;
-import org.hibernate.dialect.PostgreSQL81Dialect;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
@@ -69,7 +65,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vladmihalcea.book.hpjp.util.exception.DataAccessException;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.HsqldbDataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.HSQLDBDataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.LockType;
 import com.vladmihalcea.book.hpjp.util.transaction.ConnectionCallable;
 import com.vladmihalcea.book.hpjp.util.transaction.ConnectionVoidCallable;
@@ -341,7 +337,7 @@ public abstract class AbstractTest {
     }
 
     protected DataSourceProvider dataSourceProvider() {
-        return new HsqldbDataSourceProvider();
+        return new HSQLDBDataSourceProvider();
     }
 
     protected List<Type> additionalTypes() {

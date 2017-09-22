@@ -16,9 +16,9 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Vlad Mihalcea
  */
-public class JpaAutoFlushTest extends AbstractTest {
+public class JPAAutoFlushTest extends AbstractTest {
 
-    private static final Logger log = Logger.getLogger(JpaAutoFlushTest.class);
+    private static final Logger log = Logger.getLogger(JPAAutoFlushTest.class);
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 

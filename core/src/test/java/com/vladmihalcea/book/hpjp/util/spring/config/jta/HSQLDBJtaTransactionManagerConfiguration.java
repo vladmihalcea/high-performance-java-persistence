@@ -11,15 +11,12 @@ import java.util.Properties;
 /**
  * @author Vlad Mihalcea
  */
-@PropertySource({"/META-INF/jta-postgresql.properties"})
+@PropertySource({"/META-INF/jta-hsqldb.properties"})
 @Configuration
-public abstract class PostgreSQLJtaTransactionManagerConfiguration extends AbstractJtaTransactionManagerConfiguration{
+public abstract class HSQLDBJtaTransactionManagerConfiguration extends AbstractJTATransactionManagerConfiguration {
 
     @Value("${jdbc.dataSourceClassName}")
     private String dataSourceClassName;
-
-    @Value("${btm.config.journal:disk}")
-    private String btmJournal;
 
     @Value("${jdbc.username}")
     private String jdbcUser;
@@ -27,18 +24,8 @@ public abstract class PostgreSQLJtaTransactionManagerConfiguration extends Abstr
     @Value("${jdbc.password}")
     private String jdbcPassword;
 
-    @Value("${jdbc.database}")
-    private String jdbcDatabase;
-
-    @Value("${jdbc.host}")
-    private String jdbcHost;
-
-    @Value("${jdbc.port}")
-    private String jdbcPort;
-
-    @Value("${hibernate.dialect}")
-    private String hibernateDialect;
-
+    @Value("${jdbc.url}")
+    private String jdbcUrl;
     public DataSource actualDataSource() {
         PoolingDataSource poolingDataSource = new PoolingDataSource();
         poolingDataSource.setClassName(dataSourceClassName);
@@ -49,9 +36,7 @@ public abstract class PostgreSQLJtaTransactionManagerConfiguration extends Abstr
         poolingDataSource.setDriverProperties(new Properties());
         poolingDataSource.getDriverProperties().put("user", jdbcUser);
         poolingDataSource.getDriverProperties().put("password", jdbcPassword);
-        poolingDataSource.getDriverProperties().put("databaseName", jdbcDatabase);
-        poolingDataSource.getDriverProperties().put("serverName", jdbcHost);
-        poolingDataSource.getDriverProperties().put("portNumber", jdbcPort);
+        poolingDataSource.getDriverProperties().put("url", jdbcUrl);
         return poolingDataSource;
     }
 }

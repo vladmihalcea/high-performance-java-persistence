@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.connection.jta;
 
 import bitronix.tm.resource.jdbc.PoolingDataSource;
-import com.vladmihalcea.book.hpjp.util.spring.config.jta.PostgreSQLJtaTransactionManagerConfiguration;
+import com.vladmihalcea.book.hpjp.util.spring.config.jta.PostgreSQLJTATransactionManagerConfiguration;
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
 import com.vladmihalcea.flexypool.adaptor.BitronixPoolAdapter;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import javax.sql.DataSource;
 
 @Configuration
-public class JtaFlexyPoolTestConfiguration extends PostgreSQLJtaTransactionManagerConfiguration {
+public class JTAFlexyPoolTestConfiguration extends PostgreSQLJTATransactionManagerConfiguration {
 
     @Override
     protected Class configurationClass() {

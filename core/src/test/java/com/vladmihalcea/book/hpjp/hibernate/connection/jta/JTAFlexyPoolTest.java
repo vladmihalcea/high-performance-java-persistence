@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.concurrent.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = JtaFlexyPoolTestConfiguration.class)
+@ContextConfiguration(classes = JTAFlexyPoolTestConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class JtaFlexyPoolTest {
+public class JTAFlexyPoolTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 

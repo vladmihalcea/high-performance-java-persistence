@@ -28,7 +28,7 @@ import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
  */
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-public abstract class AbstractJtaTransactionManagerConfiguration {
+public abstract class AbstractJTATransactionManagerConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 

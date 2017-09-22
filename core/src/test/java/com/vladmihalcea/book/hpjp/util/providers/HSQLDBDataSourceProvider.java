@@ -1,7 +1,5 @@
 package com.vladmihalcea.book.hpjp.util.providers;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 import javax.sql.DataSource;
 
@@ -10,7 +8,7 @@ import org.hsqldb.jdbc.JDBCDataSource;
 /**
  * @author Vlad Mihalcea
  */
-public class HsqldbDataSourceProvider implements DataSourceProvider {
+public class HSQLDBDataSourceProvider implements DataSourceProvider {
 
 	@Override
 	public String hibernateDialect() {

@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = JtaConnectionReleaseConfiguration.class)
+@ContextConfiguration(classes = JTAConnectionReleaseConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class JtaConnectionReleaseTest {
 

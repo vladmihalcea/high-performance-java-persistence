@@ -5,11 +5,11 @@ import java.util.Properties;
 import org.hibernate.cfg.AvailableSettings;
 
 import com.vladmihalcea.book.hpjp.hibernate.statistics.TransactionStatisticsFactory;
-import com.vladmihalcea.book.hpjp.util.spring.config.jta.PostgreSQLJtaTransactionManagerConfiguration;
+import com.vladmihalcea.book.hpjp.util.spring.config.jta.PostgreSQLJTATransactionManagerConfiguration;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class HandlingModeJtaConnectionReleaseConfiguration extends PostgreSQLJtaTransactionManagerConfiguration {
+public class HandlingModeJTAConnectionReleaseConfiguration extends PostgreSQLJTATransactionManagerConfiguration {
 
     @Override
     protected Class configurationClass() {

@@ -1,21 +1,15 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa;
 
-import java.sql.Connection;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.function.Function;
-
 import javax.persistence.Tuple;
-
-import org.hibernate.Session;
 
 import org.junit.Test;
 
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import sun.security.pkcs11.wrapper.Functions;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -23,7 +17,7 @@ import static org.junit.Assert.assertFalse;
 /**
  * @author Vlad Mihalcea
  */
-public class JpaDTOProjectionTest extends AbstractTest {
+public class JPADTOProjectionTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {

@@ -22,7 +22,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = HandlingModeJtaConnectionReleaseConfiguration.class)
+@ContextConfiguration(classes = HandlingModeJTAConnectionReleaseConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class HandlingModeJtaConnectionReleaseTest {
 

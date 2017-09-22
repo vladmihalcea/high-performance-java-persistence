@@ -1,12 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache.transactional;
 
-import com.vladmihalcea.book.hpjp.util.spring.config.jta.HsqldbJtaTransactionManagerConfiguration;
+import com.vladmihalcea.book.hpjp.util.spring.config.jta.HSQLDBJtaTransactionManagerConfiguration;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Properties;
 
 @Configuration
-public class TransactionalCacheConcurrencyStrategyTestConfiguration extends HsqldbJtaTransactionManagerConfiguration {
+public class TransactionalCacheConcurrencyStrategyTestConfiguration extends HSQLDBJtaTransactionManagerConfiguration {
 
     @Override
     protected Properties additionalProperties() {

@@ -1,13 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.connection.jta;
 
 import com.vladmihalcea.book.hpjp.hibernate.statistics.TransactionStatisticsFactory;
-import com.vladmihalcea.book.hpjp.util.spring.config.jta.PostgreSQLJtaTransactionManagerConfiguration;
+import com.vladmihalcea.book.hpjp.util.spring.config.jta.PostgreSQLJTATransactionManagerConfiguration;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Properties;
 
 @Configuration
-public class JtaConnectionReleaseConfiguration extends PostgreSQLJtaTransactionManagerConfiguration {
+public class JTAConnectionReleaseConfiguration extends PostgreSQLJTATransactionManagerConfiguration {
 
     @Override
     protected Class configurationClass() {

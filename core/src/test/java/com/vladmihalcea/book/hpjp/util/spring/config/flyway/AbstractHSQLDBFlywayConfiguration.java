@@ -14,7 +14,7 @@ import java.util.Properties;
  */
 @Configuration
 @PropertySource({"/META-INF/jdbc-hsqldb.properties"})
-public class AbstractHsqldbFlywayConfiguration extends AbstractFlywayConfiguration {
+public class AbstractHSQLDBFlywayConfiguration extends AbstractFlywayConfiguration {
 
     @Value("${jdbc.dataSourceClassName}")
     private String dataSourceClassName;

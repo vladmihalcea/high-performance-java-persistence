@@ -15,9 +15,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = JtaTableIdentifierTestConfiguration.class)
+@ContextConfiguration(classes = JTATableIdentifierTestConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class JtaTableIdentifierTest {
+public class JTATableIdentifierTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
