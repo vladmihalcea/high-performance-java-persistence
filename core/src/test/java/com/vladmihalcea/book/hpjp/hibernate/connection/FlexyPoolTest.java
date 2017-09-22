@@ -2,12 +2,15 @@ package com.vladmihalcea.book.hpjp.hibernate.connection;
 
 import com.vladmihalcea.book.hpjp.hibernate.connection.jta.FlexyPoolEntities;
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -38,8 +41,9 @@ public class FlexyPoolTest {
     @Autowired
     private DataSource dataSource;
 
-    private int threadCount = 1;
-    private int seconds = 60;
+    private int threadCount = 6;
+
+    private int seconds = 120;
 
     private ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
@@ -51,6 +55,7 @@ public class FlexyPoolTest {
 
     @After
     public void destroy() {
+        executorService.shutdownNow();
         FlexyPoolDataSource flexyPoolDataSource = (FlexyPoolDataSource) dataSource;
         flexyPoolDataSource.stop();
     }
@@ -58,23 +63,33 @@ public class FlexyPoolTest {
     @Test
     public void test() throws InterruptedException, ExecutionException {
         long startNanos = System.nanoTime();
-       while (TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startNanos) < seconds){
-            List<Future<Void>> futures = new ArrayList<>();
-            for (int i = 0; i < threadCount; i++) {
-                futures.add(executorService.submit((Callable<Void>) () -> {
-                    transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
-                        for (int j = 0; j < 1000; j++) {
-                            entityManager.persist(new FlexyPoolEntities.Post());
-                        }
-                        entityManager.createQuery("select count(p) from Post p").getSingleResult();
-                        return null;
-                    });
+
+        CountDownLatch awaitTermination = new CountDownLatch(threadCount);
+        List<Callable<Void>> tasks = new ArrayList<>();
+
+        for (int i = 0; i < threadCount; i++) {
+            tasks.add(
+                () -> {
+                    LOGGER.info("Starting worker thread");
+                    while (TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startNanos) < seconds) {
+                        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+                            for (int j = 0; j < 50; j++) {
+                                entityManager.persist(new FlexyPoolEntities.Post());
+                            }
+                            Number postCount = entityManager.createQuery(
+                                "select count(p) from Post p", Number.class)
+                            .getSingleResult();
+                            LOGGER.info("Post entity count: {}", postCount);
+                            return null;
+                        });
+                    }
+                    awaitTermination.countDown();
                     return null;
-                }));
-            }
-            for (Future<Void> future : futures) {
-                future.get();
-            }
+                }
+            );
         }
+
+        executorService.invokeAll(tasks);
+        awaitTermination.await();
     }
 }

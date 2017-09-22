@@ -1,15 +1,18 @@
 package com.vladmihalcea.book.hpjp.hibernate.connection;
 
 import com.vladmihalcea.book.hpjp.hibernate.connection.jta.FlexyPoolEntities;
+import com.vladmihalcea.book.hpjp.util.spring.config.jpa.HikariCPPostgreSQLJPAConfiguration;
 import com.vladmihalcea.book.hpjp.util.spring.config.jpa.PostgreSQLJPAConfiguration;
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
 import com.vladmihalcea.flexypool.adaptor.DataSourcePoolAdapter;
+import com.vladmihalcea.flexypool.adaptor.HikariCPPoolAdapter;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 
 @Configuration
-public class FlexyPoolTestConfiguration extends PostgreSQLJPAConfiguration {
+public class FlexyPoolTestConfiguration extends HikariCPPostgreSQLJPAConfiguration {
 
     @Override
     protected Class configurationClass() {
@@ -18,13 +21,13 @@ public class FlexyPoolTestConfiguration extends PostgreSQLJPAConfiguration {
 
     @Override
     public DataSource actualDataSource() {
-        final DataSource dataSource = super.actualDataSource();
+        final HikariDataSource dataSource = (HikariDataSource) super.actualDataSource();
 
-        com.vladmihalcea.flexypool.config.Configuration<DataSource> configuration =
+        com.vladmihalcea.flexypool.config.Configuration<HikariDataSource> configuration =
             new com.vladmihalcea.flexypool.config.Configuration.Builder<>(
-                getClass().getSimpleName(),
+                "flexy-pool-test",
                 dataSource,
-                DataSourcePoolAdapter.FACTORY
+                HikariCPPoolAdapter.FACTORY
             )
         .build();
 

@@ -36,20 +36,20 @@ public class HikariCPPostgreSQLJPAConfiguration extends AbstractJPAConfiguration
 
     @Override
     public DataSource actualDataSource() {
-        Properties driverProperties = new Properties();
-        driverProperties.setProperty("user", jdbcUser);
-        driverProperties.setProperty("password", jdbcPassword);
-        driverProperties.setProperty("databaseName", jdbcDatabase);
-        driverProperties.setProperty("serverName", jdbcHost);
-        driverProperties.setProperty("portNumber", jdbcPort);
+        Properties dataSourceProperties = new Properties();
+        dataSourceProperties.setProperty("user", jdbcUser);
+        dataSourceProperties.setProperty("password", jdbcPassword);
+        dataSourceProperties.setProperty("databaseName", jdbcDatabase);
+        dataSourceProperties.setProperty("serverName", jdbcHost);
+        dataSourceProperties.setProperty("portNumber", jdbcPort);
 
-        Properties properties = new Properties();
-        properties.put("dataSourceClassName", dataSourceClassName);
-        properties.put("dataSourceProperties", driverProperties);
-        //properties.setProperty("minimumPoolSize", String.valueOf(1));
-        properties.setProperty("maximumPoolSize", String.valueOf(3));
-        properties.setProperty("connectionTimeout", String.valueOf(5000));
-        return new HikariDataSource(new HikariConfig(properties));
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setDataSourceClassName(dataSourceClassName);
+        hikariConfig.setDataSourceProperties(dataSourceProperties);
+        hikariConfig.setMinimumPoolSize(1);
+        hikariConfig.setMaximumPoolSize(3);
+
+        return new HikariDataSource(hikariConfig);
     }
 
     @Override
