@@ -12,6 +12,8 @@ import java.util.List;
  */
 public class BlogEntityProvider implements EntityProvider {
 
+    public static final EntityProvider INSTANCE = new BlogEntityProvider();
+
     @Override
     public Class<?>[] entities() {
         return new Class<?>[]{

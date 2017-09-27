@@ -9,27 +9,21 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class TransactionStatistics extends ConcurrentStatisticsImpl {
 
-    private static final ThreadLocal<AtomicLong> startNanos = new ThreadLocal<AtomicLong>() {
-        @Override protected AtomicLong initialValue() {
-            return new AtomicLong();
-        }
-    };
+    private static final ThreadLocal<AtomicLong> startNanos = ThreadLocal.withInitial(AtomicLong::new);
 
-    private static final ThreadLocal<AtomicLong> connectionCounter = new ThreadLocal<AtomicLong>() {
-        @Override protected AtomicLong initialValue() {
-            return new AtomicLong();
-        }
-    };
+    private static final ThreadLocal<AtomicLong> connectionCounter = ThreadLocal.withInitial(AtomicLong::new);
 
     private StatisticsReport report = new StatisticsReport();
 
-    @Override public void connect() {
+    @Override
+    public void connect() {
         connectionCounter.get().incrementAndGet();
         startNanos.get().compareAndSet(0, System.nanoTime());
         super.connect();
     }
 
-    @Override public void endTransaction(boolean success) {
+    @Override
+    public void endTransaction(boolean success) {
         try {
             report.transactionTime(System.nanoTime() - startNanos.get().get());
             report.connectionsCount(connectionCounter.get().get());
