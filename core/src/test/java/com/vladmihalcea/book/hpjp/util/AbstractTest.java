@@ -106,6 +106,11 @@ public abstract class AbstractTest {
         } else {
             emf = newEntityManagerFactory();
         }
+        afterInit();
+    }
+
+    protected void afterInit() {
+
     }
 
     @After
