@@ -1,10 +1,12 @@
-package com.vladmihalcea.book.hpjp.hibernate.identifier.batch;
+package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
+import com.vladmihalcea.book.hpjp.hibernate.identifier.batch.AbstractBatchIdentifierTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
 import javax.persistence.*;
 
-public class SequenceIdentifierTest extends AbstractBatchIdentifierTest {
+public class SimpleSequenceIdentifierTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {

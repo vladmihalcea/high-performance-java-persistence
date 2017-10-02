@@ -13,7 +13,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.Post;
 import static org.junit.Assert.assertEquals;
@@ -30,17 +29,18 @@ public class ConnectionStatisticsTest extends AbstractTest {
 
     private final AtomicBoolean autoCommit = new AtomicBoolean(true);
 
-    private class SingletonDatasourceConnectionProvider
+    private class ThreadLocalDatasourceConnectionProvider
             extends DatasourceConnectionProviderImpl {
 
-        public SingletonDatasourceConnectionProvider(final DataSource dataSource) {
+        public ThreadLocalDatasourceConnectionProvider(final DataSource dataSource) {
             setDataSource(dataSource);
         }
 
-        final AtomicReference<Connection> connectionHolder = new AtomicReference<>();
+        final ThreadLocal<Connection> connectionHolder = new ThreadLocal<>();
 
         @Override
-        public Connection getConnection() throws SQLException {
+        public Connection getConnection()
+                throws SQLException {
             Connection connection = connectionHolder.get();
             if(connection == null) {
                 connection = super.getConnection();
@@ -53,20 +53,22 @@ public class ConnectionStatisticsTest extends AbstractTest {
         }
 
         @Override
-        public void closeConnection(Connection connection) throws SQLException {
+        public void closeConnection(Connection connection)
+                throws SQLException {
             if (autoCommit.get()) {
                 super.closeConnection(connection);
-                connectionHolder.set(null);
+                connectionHolder.remove();
             }
         }
     }
 
     protected void additionalProperties(Properties properties) {
-        DataSource actualDataSource = (DataSource) properties.get(AvailableSettings.CONNECTION_PROVIDER);
+        DataSource actualDataSource = (DataSource) properties
+            .get(AvailableSettings.DATASOURCE);
 
         properties.put(
             AvailableSettings.CONNECTION_PROVIDER,
-            new SingletonDatasourceConnectionProvider(actualDataSource)
+            new ThreadLocalDatasourceConnectionProvider(actualDataSource)
         );
 
         properties.put(

@@ -8,14 +8,14 @@ public class MySQLIdentifierTest extends AbstractMySQLIntegrationTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
-                Post.class,
+            Post.class,
         };
     }
 
     @Override
     protected String[] resources() {
         return new String[] {
-                "mappings/identifier/global/mysql-orm.xml"
+            "mappings/identifier/global/mysql-orm.xml"
         };
     }
 

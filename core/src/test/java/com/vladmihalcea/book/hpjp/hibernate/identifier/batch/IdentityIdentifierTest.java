@@ -9,19 +9,20 @@ public class IdentityIdentifierTest extends AbstractBatchIdentifierTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
-                Post.class,
+            Post.class,
         };
     }
 
     @Test
     public void testIdentityIdentifierGenerator() {
-        LOGGER.debug("testIdentityIdentifierGenerator");
-        int batchSize = 2;
         doInJPA(entityManager -> {
-            for (int i = 0; i < batchSize; i++) {
-                entityManager.persist(new Post());
+            for (int i = 0; i < 3; i++) {
+                Post post = new Post();
+                post.setTitle(
+                    String.format("High-Performance Java Persistence, Part %d", i)
+                );
+                entityManager.persist(post);
             }
-            LOGGER.debug("Flush is triggered at commit-time");
         });
     }
 
@@ -53,7 +54,27 @@ public class IdentityIdentifierTest extends AbstractBatchIdentifierTest {
     public static class Post {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @GeneratedValue(
+            strategy = GenerationType.IDENTITY
+        )
         private Long id;
+
+        private String title;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
     }
 }

@@ -40,7 +40,7 @@ public class NativeIdentifierMySQLTest extends AbstractMySQLIntegrationTest {
     public static class Post {
 
         @Id
-        @GeneratedValue(strategy= GenerationType.AUTO, generator="native")
+        @GeneratedValue(generator="native")
         @GenericGenerator(name = "native", strategy = "native")
         private Long id;
 
