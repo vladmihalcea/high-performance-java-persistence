@@ -4,6 +4,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 
+import com.vladmihalcea.book.hpjp.hibernate.type.array.EnumArrayType;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
@@ -19,6 +20,7 @@ import com.vladmihalcea.book.hpjp.hibernate.type.json.JsonStringType;
 @TypeDefs({
     @TypeDef(name = "string-array", typeClass = StringArrayType.class),
     @TypeDef(name = "int-array", typeClass = IntArrayType.class),
+    @TypeDef(name = "enum-array", typeClass = EnumArrayType.class),
     @TypeDef(name = "json", typeClass = JsonStringType.class),
     @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class),
     @TypeDef(name = "jsonb-node", typeClass = JsonNodeBinaryType.class),

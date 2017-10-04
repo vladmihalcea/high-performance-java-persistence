@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.array;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 /**
@@ -54,7 +55,7 @@ public class ArrayUtil {
 
 		if( boolean[].class.equals( arrayClass ) ) {
 			boolean[] fromArray = (boolean[]) objectArray;
-			Boolean[] array = new Boolean[ fromArray.length];
+			Boolean[] array = new Boolean[fromArray.length];
 			for ( int i = 0; i < fromArray.length; i++ ) {
 				array[i] = fromArray[i];
 			}
@@ -62,7 +63,7 @@ public class ArrayUtil {
 		}
 		else if( byte[].class.equals( arrayClass ) ) {
 			byte[] fromArray = (byte[]) objectArray;
-			Byte[] array = new Byte[ fromArray.length];
+			Byte[] array = new Byte[fromArray.length];
 			for ( int i = 0; i < fromArray.length; i++ ) {
 				array[i] = fromArray[i];
 			}
@@ -70,7 +71,7 @@ public class ArrayUtil {
 		}
 		else if( short[].class.equals( arrayClass ) ) {
 			short[] fromArray = (short[]) objectArray;
-			Short[] array = new Short[ fromArray.length];
+			Short[] array = new Short[fromArray.length];
 			for ( int i = 0; i < fromArray.length; i++ ) {
 				array[i] = fromArray[i];
 			}
@@ -78,7 +79,7 @@ public class ArrayUtil {
 		}
 		else if( int[].class.equals( arrayClass ) ) {
 			int[] fromArray = (int[]) objectArray;
-			Integer[] array = new Integer[ fromArray.length];
+			Integer[] array = new Integer[fromArray.length];
 			for ( int i = 0; i < fromArray.length; i++ ) {
 				array[i] = fromArray[i];
 			}
@@ -86,7 +87,7 @@ public class ArrayUtil {
 		}
 		else if( long[].class.equals( arrayClass ) ) {
 			long[] fromArray = (long[]) objectArray;
-			Long[] array = new Long[ fromArray.length];
+			Long[] array = new Long[fromArray.length];
 			for ( int i = 0; i < fromArray.length; i++ ) {
 				array[i] = fromArray[i];
 			}
@@ -94,7 +95,7 @@ public class ArrayUtil {
 		}
 		else if( float[].class.equals( arrayClass ) ) {
 			float[] fromArray = (float[]) objectArray;
-			Float[] array = new Float[ fromArray.length];
+			Float[] array = new Float[fromArray.length];
 			for ( int i = 0; i < fromArray.length; i++ ) {
 				array[i] = fromArray[i];
 			}
@@ -102,7 +103,7 @@ public class ArrayUtil {
 		}
 		else if( double[].class.equals( arrayClass ) ) {
 			double[] fromArray = (double[]) objectArray;
-			Double[] array = new Double[ fromArray.length];
+			Double[] array = new Double[fromArray.length];
 			for ( int i = 0; i < fromArray.length; i++ ) {
 				array[i] = fromArray[i];
 			}
@@ -110,9 +111,17 @@ public class ArrayUtil {
 		}
 		else if( char[].class.equals( arrayClass ) ) {
 			char[] fromArray = (char[]) objectArray;
-			Character[] array = new Character[ fromArray.length];
+			Character[] array = new Character[fromArray.length];
 			for ( int i = 0; i < fromArray.length; i++ ) {
 				array[i] = fromArray[i];
+			}
+			return array;
+		}
+		else if( Enum[].class.isAssignableFrom( arrayClass ) ) {
+			Enum[] fromArray = (Enum[]) objectArray;
+			Integer[] array = new Integer[fromArray.length];
+			for ( int i = 0; i < fromArray.length; i++ ) {
+				array[i] = fromArray[i].ordinal();
 			}
 			return array;
 		}
@@ -178,6 +187,19 @@ public class ArrayUtil {
 				array[i] = objectArray[i] != null ? (Character) objectArray[i] : 0;
 			}
 			return (T) array;
+		}
+		else if( Enum[].class.isAssignableFrom( arrayClass ) ) {
+			try {
+				Class<?> enumClass = arrayClass.getComponentType();
+				Enum[] values = (Enum[]) enumClass.getMethod("values").invoke(enumClass);
+				Enum[] array = (Enum[]) Array.newInstance(enumClass, objectArray.length);
+				for ( int i = 0; i < objectArray.length; i++ ) {
+                    array[i] = objectArray[i] != null ? values[(int) objectArray[i]] : null;
+                }
+				return (T) array;
+			} catch (IllegalAccessException|InvocationTargetException|NoSuchMethodException e) {
+				throw new IllegalArgumentException(e);
+			}
 		}
 		else {
 			return (T) objectArray;

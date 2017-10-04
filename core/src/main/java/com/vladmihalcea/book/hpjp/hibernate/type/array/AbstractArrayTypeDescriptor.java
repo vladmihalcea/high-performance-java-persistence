@@ -22,7 +22,6 @@ public abstract class AbstractArrayTypeDescriptor<T>
     @Override
     public void setParameterValues(Properties parameters) {
         arrayObjectClass = ( (ParameterType) parameters.get( PARAMETER_TYPE ) ).getReturnedClass();
-
     }
 
     public AbstractArrayTypeDescriptor(Class<T> arrayObjectClass) {
