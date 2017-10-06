@@ -52,6 +52,7 @@ public class EnumOrdinalDescriptionTest extends AbstractMySQLIntegrationTest {
 
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
+
             assertEquals(PostStatus.PENDING, post.getStatus());
             assertEquals("PENDING", post.getStatusInfo().getName());
 
@@ -132,7 +133,7 @@ public class EnumOrdinalDescriptionTest extends AbstractMySQLIntegrationTest {
     public static class PostStatusInfo {
 
         @Id
-        @Column(columnDefinition = "smallint")
+        @Column(columnDefinition = "tinyint")
         private Integer id;
 
         private String name;
