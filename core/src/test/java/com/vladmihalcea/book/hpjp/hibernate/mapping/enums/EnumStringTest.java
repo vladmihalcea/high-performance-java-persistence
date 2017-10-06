@@ -1,87 +1,74 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping.enums;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Version;
-
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
-
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.junit.Test;
 
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
-
-import static org.junit.Assert.assertEquals;
+import javax.persistence.*;
 
 /**
  * @author Vlad Mihalcea
  */
 public class EnumStringTest extends AbstractPostgreSQLIntegrationTest {
 
-	@Override
-	protected Class<?>[] entities() {
-		return new Class<?>[] {
-			Post.class
-		};
-	}
+    @Override
+    protected Class<?>[] entities() {
+        return new Class<?>[]{
+                Post.class
+        };
+    }
 
-	@Test
-	public void test() {
-		doInJPA( entityManager -> {
-			Post post = new Post();
-			post.setId( 1L );
-			post.setTitle( "High-Performance Java Persistence" );
-			post.setStatus( PostStatus.PENDING );
-			entityManager.persist( post );
-		} );
-	}
+    @Test
+    public void test() {
+        doInJPA(entityManager -> {
+            Post post = new Post();
+            post.setId(1L);
+            post.setTitle("High-Performance Java Persistence");
+            post.setStatus(PostStatus.PENDING);
+            entityManager.persist(post);
+        });
+    }
 
-	@Entity(name = "Post")
-	@Table(name = "post")
-	public static class Post {
+    public enum PostStatus {
+        PENDING,
+        APPROVED,
+        SPAM
+    }
 
-		@Id
-		private Long id;
+    @Entity(name = "Post")
+    @Table(name = "post")
+    public static class Post {
 
-		private String title;
+        @Id
+        private Long id;
 
-		@Enumerated(EnumType.STRING)
-		@Column(length = 8)
-		private PostStatus status;
+        private String title;
 
-		public Long getId() {
-			return id;
-		}
+        @Enumerated(EnumType.STRING)
+        @Column(length = 8)
+        private PostStatus status;
 
-		public void setId(Long id) {
-			this.id = id;
-		}
+        public Long getId() {
+            return id;
+        }
 
-		public String getTitle() {
-			return title;
-		}
+        public void setId(Long id) {
+            this.id = id;
+        }
 
-		public void setTitle(String title) {
-			this.title = title;
-		}
+        public String getTitle() {
+            return title;
+        }
 
-		public PostStatus getStatus() {
-			return status;
-		}
+        public void setTitle(String title) {
+            this.title = title;
+        }
 
-		public void setStatus(PostStatus status) {
-			this.status = status;
-		}
-	}
+        public PostStatus getStatus() {
+            return status;
+        }
 
-	public enum PostStatus {
-		PENDING,
-		APPROVED,
-		SPAM
-	}
+        public void setStatus(PostStatus status) {
+            this.status = status;
+        }
+    }
 }
