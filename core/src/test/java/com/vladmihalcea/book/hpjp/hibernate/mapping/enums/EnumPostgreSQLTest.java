@@ -32,7 +32,7 @@ public class EnumPostgreSQLTest extends AbstractPostgreSQLIntegrationTest {
             try (Statement statement = connection.createStatement()) {
                 try {
                     statement.executeUpdate(
-                            "DROP TYPE post_status_info"
+                            "DROP TYPE post_status_info CASCADE"
                     );
                 } catch (SQLException ignore) {
                 }
@@ -70,10 +70,7 @@ public class EnumPostgreSQLTest extends AbstractPostgreSQLIntegrationTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
-    @TypeDef(
-            name = "pgsql_enum",
-            typeClass = PostgreSQLEnumType.class
-    )
+    @TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)
     public static class Post {
 
         @Id

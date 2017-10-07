@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping.enums;
 
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.junit.Test;
 
@@ -8,7 +9,7 @@ import javax.persistence.*;
 /**
  * @author Vlad Mihalcea
  */
-public class EnumStringTest extends AbstractPostgreSQLIntegrationTest {
+public class EnumStringTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
