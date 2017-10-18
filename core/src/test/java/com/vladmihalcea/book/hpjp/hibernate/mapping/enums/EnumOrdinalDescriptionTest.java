@@ -58,15 +58,15 @@ public class EnumOrdinalDescriptionTest extends AbstractMySQLIntegrationTest {
 
             Tuple tuple = (Tuple) entityManager
                     .createNativeQuery(
-                            "SELECT " +
-                                    "    p.id, " +
-                                    "    p.title, " +
-                                    "    p.status, " +
-                                    "    psi.name, " +
-                                    "    psi.description " +
-                                    "FROM post p " +
-                                    "INNER JOIN post_status_info psi ON p.status = psi.id " +
-                                    "WHERE p.id = :postId", Tuple.class
+                        "SELECT " +
+                        "    p.id, " +
+                        "    p.title, " +
+                        "    p.status, " +
+                        "    psi.name, " +
+                        "    psi.description " +
+                        "FROM post p " +
+                        "INNER JOIN post_status_info psi ON p.status = psi.id " +
+                        "WHERE p.id = :postId", Tuple.class
                     )
                     .setParameter("postId", 1L)
                     .getSingleResult();
