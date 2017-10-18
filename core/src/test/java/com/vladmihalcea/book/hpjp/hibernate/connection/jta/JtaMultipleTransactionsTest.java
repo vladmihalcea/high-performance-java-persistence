@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.persistence.EntityManagerFactory;
@@ -29,7 +31,7 @@ public class JtaMultipleTransactionsTest {
     private TransactionTemplate transactionTemplate;
 
     @Test
-    public void test() {
+    public void testManualTxManagement() {
 
         try(Session session1 = entityManagerFactory.unwrap(SessionFactory.class).openSession()) {
             session1.beginTransaction();
@@ -41,5 +43,21 @@ public class JtaMultipleTransactionsTest {
             }
             session1.getTransaction().commit();
         }
+    }
+
+    @Test
+    public void testAutoTxManagement() {
+
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus1 -> {
+            try(Session session1 = entityManagerFactory.unwrap(SessionFactory.class).openSession()) {
+                transactionTemplate.execute((TransactionCallback<Void>) transactionStatus2 -> {
+                    try(Session session2 = entityManagerFactory.unwrap(SessionFactory.class).openSession()) {
+                    }
+                    return null;
+                });
+            }
+            return null;
+        });
+
     }
 }
