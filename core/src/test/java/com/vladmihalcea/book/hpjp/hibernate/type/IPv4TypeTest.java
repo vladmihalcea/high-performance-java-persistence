@@ -4,7 +4,6 @@ import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -30,90 +29,103 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
         };
     }
 
+    private Event _event;
+
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJDBC(connection -> {
-            try (
-                    Statement statement = connection.createStatement();
-            ) {
+            try (Statement statement = connection.createStatement()) {
                 statement.executeUpdate("CREATE INDEX ON event USING gist (ip inet_ops)");
             } catch (SQLException e) {
                 fail(e.getMessage());
             }
         });
+
+        _event = doInJPA(entityManager -> {
+            entityManager.persist(new Event());
+
+            Event event = new Event();
+            event.setIp("192.168.0.123/24");
+            entityManager.persist(event);
+
+            return event;
+        });
     }
 
     @Test
-    public void test() {
-        final AtomicReference<Event> eventHolder = new AtomicReference<>();
+    public void testFindById() {
         doInJPA(entityManager -> {
-            entityManager.persist(new Event());
-            Event event = new Event("192.168.0.231");
-            entityManager.persist(event);
-            eventHolder.set(event);
-        });
-        doInJPA(entityManager -> {
-            Event event = entityManager.find(Event.class, eventHolder.get().getId());
-            event.setIp("192.168.0.123");
-        });
-        doInJPA(entityManager -> {
-            Event event = entityManager.createQuery("select e from Event e where ip is not null", Event.class).getSingleResult();
-            assertEquals("192.168.0.123", event.getIp().getAddress());
+            Event event = entityManager.find(Event.class, _event.getId());
+            assertEquals("192.168.0.123/24", event.getIp().getAddress());
+            assertEquals("192.168.0.123", event.getIp().toInetAddress().getHostAddress());
 
-            try {
-                assertEquals("192.168.0.123", event.getIp().toInetAddress().getHostAddress());
-            } catch (UnknownHostException e) {
-                fail(e.getMessage());
-            }
+            event.setIp("192.168.0.231/24");
+        });
+    }
 
+    @Test
+    public void testJPQLQuery() {
+        doInJPA(entityManager -> {
+            Event event = entityManager.createQuery(
+                "select e " +
+                "from Event e " +
+                "where " +
+                "   ip is not null", Event.class)
+            .getSingleResult();
+            assertEquals("192.168.0.123/24", event.getIp().getAddress());
+        });
+    }
+
+    @Test
+    public void testNativeQuery() {
+        doInJPA(entityManager -> {
+            Event event = (Event) entityManager.createNativeQuery(
+                "SELECT {e.*} " +
+                "FROM event e " +
+                "WHERE " +
+                "   e.ip && CAST(:network AS inet) = true", Event.class)
+            .setParameter("network", "192.168.0.1/24")
+            .getSingleResult();
+
+            assertEquals("192.168.0.123/24", event.getIp().getAddress());
+        });
+    }
+
+
+    @Test
+    public void testJDBCQuery() {
+        doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
             session.doWork(connection -> {
                 try(PreparedStatement ps = connection.prepareStatement(
-                        "select * " +
-                        "from Event e " +
-                        "where " +
-                        "   e.ip && ?::inet = TRUE"
+                    "SELECT * " +
+                    "FROM Event e " +
+                    "WHERE " +
+                    "   e.ip && ?::inet = true"
                 )) {
                     ps.setObject(1, "192.168.0.1/24");
                     ResultSet rs = ps.executeQuery();
                     while(rs.next()) {
                         Long id = rs.getLong(1);
                         String ip = rs.getString(2);
-                        assertEquals("192.168.0.123", ip);
+                        assertEquals("192.168.0.123/24", ip);
                     }
                 }
             });
-
-            Event matchingEvent = (Event) entityManager.createNativeQuery(
-                "SELECT {e.*} " +
-                "FROM event e " +
-                "WHERE " +
-                "   e.ip && CAST(:network AS inet) = TRUE", Event.class)
-            .setParameter("network", "192.168.0.1/24")
-            .getSingleResult();
-            assertEquals("192.168.0.123", matchingEvent.getIp().getAddress());
         });
     }
 
     @Entity(name = "Event")
     @Table(name = "event")
-    @TypeDef( name = "ipv4", typeClass = IPv4Type.class, defaultForType = IPv4.class )
+    @TypeDef(name = "ipv4", typeClass = IPv4Type.class, defaultForType = IPv4.class)
     public static class Event {
 
         @Id
         @GeneratedValue
         private Long id;
 
-        //@Type(type = "com.vladmihalcea.book.hpjp.hibernate.type.IPv4Type")
         @Column(name = "ip", columnDefinition = "inet")
         private IPv4 ip;
-
-        public Event() {}
-
-        public Event(String address) {
-            this.ip = new IPv4(address);
-        }
 
         public Long getId() {
             return id;

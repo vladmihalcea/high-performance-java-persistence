@@ -33,7 +33,12 @@ public class IPv4 implements Serializable {
         return Objects.hash(address);
     }
 
-    public InetAddress toInetAddress() throws UnknownHostException {
-        return Inet4Address.getByName(address);
+    public InetAddress toInetAddress() {
+        try {
+            String host = address.replaceAll("\\/.*$", "");
+            return Inet4Address.getByName(host);
+        } catch (UnknownHostException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }
