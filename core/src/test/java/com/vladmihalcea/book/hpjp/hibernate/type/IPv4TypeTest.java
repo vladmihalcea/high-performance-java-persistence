@@ -56,6 +56,7 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
     public void testFindById() {
         doInJPA(entityManager -> {
             Event event = entityManager.find(Event.class, _event.getId());
+
             assertEquals("192.168.0.123/24", event.getIp().getAddress());
             assertEquals("192.168.0.123", event.getIp().toInetAddress().getHostAddress());
 
@@ -72,6 +73,7 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
                 "where " +
                 "   ip is not null", Event.class)
             .getSingleResult();
+
             assertEquals("192.168.0.123/24", event.getIp().getAddress());
         });
     }

@@ -18,7 +18,9 @@ public class IPv4Type extends ImmutableType<IPv4> {
     }
 
     @Override
-    public int[] sqlTypes() { return new int[]{Types.OTHER}; }
+    public int[] sqlTypes() {
+        return new int[]{Types.OTHER};
+    }
 
     @Override
     public IPv4 get(ResultSet rs, String[] names,
