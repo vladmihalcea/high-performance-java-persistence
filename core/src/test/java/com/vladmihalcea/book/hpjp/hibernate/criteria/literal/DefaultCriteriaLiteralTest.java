@@ -1,0 +1,100 @@
+package com.vladmihalcea.book.hpjp.hibernate.criteria.literal;
+
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.annotations.NaturalId;
+import org.junit.Test;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
+import static org.junit.Assert.assertEquals;
+
+/**
+ * @author Vlad Mihalcea
+ */
+public class DefaultCriteriaLiteralTest extends AbstractTest {
+
+    @Override
+    protected Class<?>[] entities() {
+        return new Class<?>[] {
+            Book.class
+        };
+    }
+
+    @Test
+    public void test() {
+        doInJPA(entityManager -> {
+            Book book = new Book();
+            book.setId(1L);
+            book.setName("High-Performance Java Persistence");
+            book.setIsbn(978_9730228236L);
+
+            entityManager.persist(book);
+        });
+
+        doInJPA(entityManager -> {
+            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+
+            CriteriaQuery<Book> cq = cb.createQuery(Book.class);
+            Root<Book> root = cq.from(Book.class);
+            cq.select(root);
+            cq.where(cb.equal(root.get("isbn"), 978_9730228236L));
+
+            Book book = entityManager.createQuery(cq).getSingleResult();
+            assertEquals("High-Performance Java Persistence", book.getName());
+        });
+
+        doInJPA(entityManager -> {
+            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+
+            CriteriaQuery<Book> cq = cb.createQuery(Book.class);
+            Root<Book> root = cq.from(Book.class);
+            cq.select(root);
+            cq.where(cb.equal(root.get("name"), "High-Performance Java Persistence"));
+
+            Book book = entityManager.createQuery(cq).getSingleResult();
+            assertEquals(978_9730228236L, book.getIsbn());
+        });
+    }
+
+    @Entity(name = "Book")
+    @Table(name = "book")
+    public static class Book {
+
+        @Id
+        private Long id;
+
+        private String name;
+
+        @NaturalId
+        private long isbn;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public long getIsbn() {
+            return isbn;
+        }
+
+        public void setIsbn(long isbn) {
+            this.isbn = isbn;
+        }
+    }
+}
