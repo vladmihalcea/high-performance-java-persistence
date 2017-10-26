@@ -30,6 +30,7 @@ public class PostgreSQLUpdateNullTest extends AbstractPostgreSQLIntegrationTest 
             Post post = new Post();
             post.id = 1L;
             post.externalId = 123L;
+            post.title = "High-Performance Java Persistence";
 
             entityManager.persist(post);
         });
@@ -37,15 +38,17 @@ public class PostgreSQLUpdateNullTest extends AbstractPostgreSQLIntegrationTest 
         doInJPA(entityManager -> {
             int count = entityManager.createQuery(
                 "update Post p " +
-                "set p.externalId = :externalId " +
+                "set p.externalId = :externalId, p.title = :title " +
                 "where p.id = :id")
                 .setParameter("externalId", null)
+                .setParameter("title", null)
                 .setParameter("id", 1L)
                 .executeUpdate();
             assertEquals(1, count);
 
             Post post = entityManager.find(Post.class, 1L);
             assertNull(post.externalId);
+            assertNull(post.title);
         });
     }
 
@@ -57,5 +60,8 @@ public class PostgreSQLUpdateNullTest extends AbstractPostgreSQLIntegrationTest 
         private Long id;
 
         private Long externalId;
+
+        @Column(columnDefinition = "text")
+        private String title;
     }
 }
