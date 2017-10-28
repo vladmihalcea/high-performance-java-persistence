@@ -1,43 +1,28 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import org.hibernate.Session;
 import org.hibernate.annotations.RowId;
 
 import org.junit.Test;
 
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 
 import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
  */
-public class OracleRowIdTest extends AbstractOracleXEIntegrationTest {
+public class OracleRowIdTest extends AbstractOracleIntegrationTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {

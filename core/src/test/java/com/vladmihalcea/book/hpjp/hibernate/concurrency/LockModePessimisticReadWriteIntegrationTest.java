@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;

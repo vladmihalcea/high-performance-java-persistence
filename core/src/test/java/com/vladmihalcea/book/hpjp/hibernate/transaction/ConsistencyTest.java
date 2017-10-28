@@ -1,14 +1,9 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction;
 
 import java.sql.Statement;
-import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedEntityGraph;
 import javax.persistence.Table;
 
 import org.hibernate.Session;
@@ -16,11 +11,7 @@ import org.hibernate.annotations.NaturalId;
 
 import org.junit.Test;
 
-import com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentDTO;
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
 
 /**
  * @author Vlad Mihalcea

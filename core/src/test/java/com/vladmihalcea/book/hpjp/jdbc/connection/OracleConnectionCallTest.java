@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.jdbc.connection;
 
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,7 @@ import java.sql.SQLException;
 /**
  * @author Vlad Mihalcea
  */
-public class OracleConnectionCallTest extends AbstractOracleXEIntegrationTest {
+public class OracleConnectionCallTest extends AbstractOracleIntegrationTest {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 

@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.hibernate.LockMode;
@@ -10,7 +9,6 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;

@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.sp;
 
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class OracleStoredProcedureTest extends AbstractOracleXEIntegrationTest {
+public class OracleStoredProcedureTest extends AbstractOracleIntegrationTest {
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 

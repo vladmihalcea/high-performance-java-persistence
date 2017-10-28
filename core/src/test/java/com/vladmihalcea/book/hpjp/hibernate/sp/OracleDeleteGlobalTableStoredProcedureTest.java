@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.sp;
 
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * @author Vlad Mihalcea
  */
 @RunWith(Parameterized.class)
-public class OracleDeleteGlobalTableStoredProcedureTest extends AbstractOracleXEIntegrationTest {
+public class OracleDeleteGlobalTableStoredProcedureTest extends AbstractOracleIntegrationTest {
 
     private final int infoEntryCount;
     private final int errorEntryCount;

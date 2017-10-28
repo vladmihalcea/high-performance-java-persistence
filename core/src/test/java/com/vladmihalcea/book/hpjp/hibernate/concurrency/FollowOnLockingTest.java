@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
 
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class FollowOnLockingTest extends AbstractOracleXEIntegrationTest {
+public class FollowOnLockingTest extends AbstractOracleIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {

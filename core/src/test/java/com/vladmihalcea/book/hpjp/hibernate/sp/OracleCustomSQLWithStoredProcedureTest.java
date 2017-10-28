@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.sp;
 
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import org.hibernate.Session;
 import org.hibernate.annotations.Loader;
 import org.hibernate.annotations.ResultCheckStyle;
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertNull;
 /**
  * @author Vlad Mihalcea
  */
-public class OracleCustomSQLWithStoredProcedureTest extends AbstractOracleXEIntegrationTest {
+public class OracleCustomSQLWithStoredProcedureTest extends AbstractOracleIntegrationTest {
 
 	private static final Logger log = Logger.getLogger( OracleCustomSQLWithStoredProcedureTest.class );
 

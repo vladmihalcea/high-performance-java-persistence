@@ -59,7 +59,7 @@ public class NativeQueryTest extends AbstractPostgreSQLIntegrationTest {
 
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
-            List<PostCommentSummary> summaries = session.createSQLQuery(
+            List<PostCommentSummary> summaries = session.createNativeQuery(
                 "SELECT p.id as id, p.title as title, c.review as review " +
                 "FROM post_comment c " +
                 "JOIN post p ON c.post_id = p.id " +
@@ -68,6 +68,16 @@ public class NativeQueryTest extends AbstractPostgreSQLIntegrationTest {
             .setMaxResults(pageSize)
             .setResultTransformer(new AliasToBeanResultTransformer(PostCommentSummary.class))
             .list();
+            assertEquals(pageSize, summaries.size());
+        });
+        
+        doInJPA(entityManager -> {
+            List<String> summaries = entityManager.createNativeQuery(
+                "SELECT p.title " +
+                "FROM post p ")
+            .setFirstResult(pageStart)
+            .setMaxResults(pageSize)
+            .getResultList();
             assertEquals(pageSize, summaries.size());
         });
     }

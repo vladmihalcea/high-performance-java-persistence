@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.jdbc.batch;
 
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
  * @author Vlad Mihalcea
  */
 @RunWith(Parameterized.class)
-public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOracleXEIntegrationTest {
+public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOracleIntegrationTest {
 
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 

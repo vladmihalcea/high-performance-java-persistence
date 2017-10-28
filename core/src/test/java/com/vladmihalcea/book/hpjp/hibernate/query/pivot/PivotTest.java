@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.pivot;
 
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.query.Query;
 import org.hibernate.transform.Transformers;

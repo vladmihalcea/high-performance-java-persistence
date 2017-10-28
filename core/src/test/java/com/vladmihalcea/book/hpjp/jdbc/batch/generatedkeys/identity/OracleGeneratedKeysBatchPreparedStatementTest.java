@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.jdbc.batch.generatedkeys.identity;
 
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import org.junit.Test;
 
 import java.sql.*;
@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Vlad Mihalcea
  */
-public class OracleGeneratedKeysBatchPreparedStatementTest extends AbstractOracleXEIntegrationTest {
+public class OracleGeneratedKeysBatchPreparedStatementTest extends AbstractOracleIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {

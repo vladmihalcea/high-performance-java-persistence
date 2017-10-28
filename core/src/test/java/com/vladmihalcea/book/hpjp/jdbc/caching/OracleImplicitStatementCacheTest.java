@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.jdbc.caching;
 
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
  *
  * @author Vlad Mihalcea
  */
-public class OracleImplicitStatementCacheTest extends AbstractOracleXEIntegrationTest {
+public class OracleImplicitStatementCacheTest extends AbstractOracleIntegrationTest {
 
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 

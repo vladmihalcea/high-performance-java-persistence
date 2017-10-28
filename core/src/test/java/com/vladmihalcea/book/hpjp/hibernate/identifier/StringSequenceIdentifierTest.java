@@ -2,7 +2,6 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
 import java.util.Properties;
 
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 
 import org.hibernate.annotations.GenericGenerator;

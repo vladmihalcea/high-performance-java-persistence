@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.hpjp.util;
 
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 
 /**
  * AbstractMySQLIntegrationTest - Abstract MySQL IntegrationTest
@@ -11,7 +10,7 @@ import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
 public abstract class AbstractMySQLIntegrationTest extends AbstractTest {
 
     @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new MySQLDataSourceProvider();
+    protected Database database() {
+        return Database.MYSQL;
     }
 }

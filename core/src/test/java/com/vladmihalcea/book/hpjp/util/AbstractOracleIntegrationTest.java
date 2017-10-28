@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.util;
 
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
 
 /**
@@ -8,10 +9,10 @@ import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
  *
  * @author Vlad Mihalcea
  */
-public abstract class AbstractOracleXEIntegrationTest extends AbstractTest {
+public abstract class AbstractOracleIntegrationTest extends AbstractTest {
 
     @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new OracleDataSourceProvider();
+    protected Database database() {
+        return Database.ORACLE;
     }
 }

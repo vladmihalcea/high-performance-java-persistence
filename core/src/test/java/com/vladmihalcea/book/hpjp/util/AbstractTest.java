@@ -31,6 +31,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.sql.DataSource;
 
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Interceptor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -342,7 +343,11 @@ public abstract class AbstractTest {
     }
 
     protected DataSourceProvider dataSourceProvider() {
-        return new HSQLDBDataSourceProvider();
+        return database().dataSourceProvider();
+    }
+
+    protected Database database() {
+        return Database.HSQLDB;
     }
 
     protected List<Type> additionalTypes() {

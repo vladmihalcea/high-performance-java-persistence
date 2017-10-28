@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.hpjp.util;
 
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.SQLServerDataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 
 /**
  * AbstractSQLServerIntegrationTest - Abstract SQL Server IntegrationTest
@@ -11,7 +10,7 @@ import com.vladmihalcea.book.hpjp.util.providers.SQLServerDataSourceProvider;
 public abstract class AbstractSQLServerIntegrationTest extends AbstractTest {
 
     @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new SQLServerDataSourceProvider();
+    protected Database database() {
+        return Database.SQLSERVER;
     }
 }

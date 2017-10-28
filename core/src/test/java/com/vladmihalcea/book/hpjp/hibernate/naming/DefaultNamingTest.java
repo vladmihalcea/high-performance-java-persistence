@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.naming;
 
-import com.vladmihalcea.book.hpjp.util.AbstractOracleXEIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import org.junit.Test;
 
 import javax.persistence.Entity;
@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class DefaultNamingTest extends AbstractOracleXEIntegrationTest {
+public class DefaultNamingTest extends AbstractOracleIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {

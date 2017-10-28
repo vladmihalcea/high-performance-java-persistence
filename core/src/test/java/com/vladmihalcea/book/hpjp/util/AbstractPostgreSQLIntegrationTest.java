@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.hpjp.util;
 
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 
 /**
  * AbstractPostgreSQLIntegrationTest - Abstract PostgreSQL IntegrationTest
@@ -11,7 +10,7 @@ import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
 public abstract class AbstractPostgreSQLIntegrationTest extends AbstractTest {
 
     @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new PostgreSQLDataSourceProvider();
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 }
