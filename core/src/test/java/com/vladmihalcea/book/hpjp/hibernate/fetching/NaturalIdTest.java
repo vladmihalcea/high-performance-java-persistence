@@ -1,14 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Session;
-import org.hibernate.annotations.*;
-
+import org.hibernate.annotations.NaturalId;
+import org.hibernate.cache.ehcache.EhCacheRegionFactory;
 import org.junit.Test;
 
 import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import java.util.List;
 import java.util.Properties;
 
@@ -18,7 +17,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vlad Mihalcea
  */
-public class NaturalIdTest extends AbstractPostgreSQLIntegrationTest {
+public class NaturalIdTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -28,10 +27,15 @@ public class NaturalIdTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
+    @Override
     protected Properties properties() {
         Properties properties = super.properties();
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
-        properties.put("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+        properties.put("hibernate.cache.region.factory_class", EhCacheRegionFactory.class.getName());
         return properties;
     }
 
