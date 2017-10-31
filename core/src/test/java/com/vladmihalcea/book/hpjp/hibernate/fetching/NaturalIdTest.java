@@ -3,12 +3,15 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Session;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.cache.ehcache.EhCacheRegionFactory;
 import org.junit.Test;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 import static org.junit.Assert.assertFalse;
@@ -44,9 +47,22 @@ public class NaturalIdTest extends AbstractTest {
         super.init();
         doInJPA(entityManager -> {
             Post post = new Post();
-            post.setTitle(String.format("Post nr. %d", 1));
+            post.setTitle("High-Performance Java persistence");
             post.setSlug("high-performance-java-persistence");
             entityManager.persist(post);
+        });
+    }
+
+    @Test
+    public void testFindBySimpleNaturalId() {
+        doInJPA(entityManager -> {
+            String slug = "high-performance-java-persistence";
+
+            Post post = entityManager.unwrap(Session.class)
+            .bySimpleNaturalId(Post.class)
+            .load(slug);
+
+            assertNotNull(post);
         });
     }
 
@@ -54,8 +70,12 @@ public class NaturalIdTest extends AbstractTest {
     public void testFindByNaturalId() {
         doInJPA(entityManager -> {
             String slug = "high-performance-java-persistence";
-            Session session = entityManager.unwrap(Session.class);
-            Post post = session.bySimpleNaturalId(Post.class).load(slug);
+
+            Post post = entityManager.unwrap(Session.class)
+            .byNaturalId(Post.class)
+            .using("slug", slug)
+            .load();
+
             assertNotNull(post);
         });
     }
@@ -87,8 +107,8 @@ public class NaturalIdTest extends AbstractTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
-    //@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    //@NaturalIdCache
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @NaturalIdCache
     public static class Post {
 
         @Id
@@ -123,6 +143,19 @@ public class NaturalIdTest extends AbstractTest {
 
         public void setSlug(String slug) {
             this.slug = slug;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Post post = (Post) o;
+            return Objects.equals(slug, post.slug);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(slug);
         }
     }
 }

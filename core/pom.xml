@@ -75,6 +75,9 @@
                             <processors>
                                 <processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</processor>
                             </processors>
+                            <options>
+                                <addSuppressWarningsAnnotation>true</addSuppressWarningsAnnotation>
+                            </options>
                         </configuration>
                     </execution>
                 </executions>

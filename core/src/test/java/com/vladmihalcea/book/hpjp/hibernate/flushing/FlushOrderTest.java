@@ -9,7 +9,7 @@ import javax.persistence.*;
 /**
  * @author Vlad Mihalcea
  */
-public class OrderTest extends AbstractTest {
+public class FlushOrderTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
