@@ -39,6 +39,8 @@ import org.hibernate.Transaction;
 import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.SessionFactoryBuilder;
+import org.hibernate.boot.model.TypeContributions;
+import org.hibernate.boot.model.TypeContributor;
 import org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl;
 import org.hibernate.boot.registry.BootstrapServiceRegistry;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
@@ -52,6 +54,7 @@ import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
+import org.hibernate.service.ServiceRegistry;
 import org.hibernate.stat.SecondLevelCacheStatistics;
 import org.hibernate.type.BasicType;
 import org.hibernate.type.Type;
@@ -198,6 +201,21 @@ public abstract class AbstractTest {
         final MetadataBuilder metadataBuilder = metadataSources.getMetadataBuilder();
         metadataBuilder.enableNewIdentifierGeneratorSupport(true);
         metadataBuilder.applyImplicitNamingStrategy(ImplicitNamingStrategyLegacyJpaImpl.INSTANCE);
+
+        final List<Type> additionalTypes = additionalTypes();
+        if (additionalTypes != null) {
+            additionalTypes.stream().forEach(type -> {
+                metadataBuilder.applyTypes((typeContributions, serviceRegistry1) -> {
+                    if(type instanceof BasicType) {
+                        typeContributions.contributeType((BasicType) type);
+                    } else if (type instanceof UserType ){
+                        typeContributions.contributeType((UserType) type);
+                    } else if (type instanceof CompositeUserType) {
+                        typeContributions.contributeType((CompositeUserType) type);
+                    }
+                });
+            });
+        }
 
         MetadataImplementor metadata = (MetadataImplementor) metadataBuilder.build();
 
@@ -350,7 +368,7 @@ public abstract class AbstractTest {
         return Database.HSQLDB;
     }
 
-    protected List<Type> additionalTypes() {
+    protected List<org.hibernate.type.Type> additionalTypes() {
         return null;
     }
 

@@ -6,15 +6,28 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
+import org.hibernate.boot.model.TypeContributions;
+import org.hibernate.boot.model.TypeContributor;
+import org.hibernate.dialect.PostgreSQL95Dialect;
+import org.hibernate.jpa.boot.spi.TypeContributorList;
+import org.hibernate.service.ServiceRegistry;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author Vlad Mihalcea
@@ -26,6 +39,31 @@ public class PostgreSQLJsonNodeBinaryTypeTest extends AbstractPostgreSQLIntegrat
         return new Class<?>[] {
             Book.class
         };
+    }
+
+    @Override
+    protected void additionalProperties(Properties properties) {
+        properties.put( "hibernate.type_contributors", (TypeContributorList) () -> Arrays.asList(
+            (TypeContributor) (typeContributions, serviceRegistry) ->
+                typeContributions.contributeType(new JsonNodeBinaryType())
+        ) );
+    }
+
+    protected DataSourceProvider dataSourceProvider() {
+        return new PostgreSQLDataSourceProvider() {
+            @Override
+            public String hibernateDialect() {
+                return PostgreSQL95JsonBDialect.class.getName();
+            }
+        };
+    }
+
+    public static class PostgreSQL95JsonBDialect extends PostgreSQL95Dialect {
+
+        public PostgreSQL95JsonBDialect() {
+            super();
+            this.registerHibernateType( Types.OTHER, "jsonb-node" );
+        }
     }
 
     @Test
@@ -48,6 +86,7 @@ public class PostgreSQLJsonNodeBinaryTypeTest extends AbstractPostgreSQLIntegrat
 
             entityManager.persist( book );
         });
+
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap( Session.class );
             Book book = session
@@ -67,6 +106,14 @@ public class PostgreSQLJsonNodeBinaryTypeTest extends AbstractPostgreSQLIntegrat
                     "}"
                 )
             );
+        });
+
+        doInJPA(entityManager -> {
+            List<?> properties = entityManager.createNativeQuery(
+                "select properties from book")
+            .getResultList();
+
+            properties.size();
         });
     }
 
