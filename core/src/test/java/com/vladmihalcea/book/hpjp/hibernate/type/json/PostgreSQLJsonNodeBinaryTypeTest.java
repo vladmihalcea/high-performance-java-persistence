@@ -41,13 +41,13 @@ public class PostgreSQLJsonNodeBinaryTypeTest extends AbstractPostgreSQLIntegrat
         };
     }
 
-    @Override
+    /*@Override
     protected void additionalProperties(Properties properties) {
         properties.put( "hibernate.type_contributors", (TypeContributorList) () -> Arrays.asList(
             (TypeContributor) (typeContributions, serviceRegistry) ->
                 typeContributions.contributeType(new JsonNodeBinaryType())
         ) );
-    }
+    }*/
 
     protected DataSourceProvider dataSourceProvider() {
         return new PostgreSQLDataSourceProvider() {
@@ -62,7 +62,7 @@ public class PostgreSQLJsonNodeBinaryTypeTest extends AbstractPostgreSQLIntegrat
 
         public PostgreSQL95JsonBDialect() {
             super();
-            this.registerHibernateType( Types.OTHER, "jsonb-node" );
+            //this.registerHibernateType( Types.OTHER, "jsonb-node" );
         }
     }
 
@@ -111,6 +111,8 @@ public class PostgreSQLJsonNodeBinaryTypeTest extends AbstractPostgreSQLIntegrat
         doInJPA(entityManager -> {
             List<?> properties = entityManager.createNativeQuery(
                 "select properties from book")
+            .unwrap(org.hibernate.query.NativeQuery.class)
+            .addScalar("properties", JsonNodeBinaryType.INSTANCE)
             .getResultList();
 
             properties.size();

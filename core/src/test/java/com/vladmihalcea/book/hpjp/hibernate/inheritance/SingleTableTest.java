@@ -265,7 +265,6 @@ public class SingleTableTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Entity(name = "Post")
-    @Table(name = "post")
     public static class Post extends Topic {
 
         private String content;
@@ -280,7 +279,6 @@ public class SingleTableTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Entity(name = "Announcement")
-    @Table(name = "announcement")
     public static class Announcement extends Topic {
 
         @Temporal(TemporalType.TIMESTAMP)

@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class JsonNodeBinaryType
 	extends AbstractSingleColumnStandardBasicType<JsonNode> {
 
+	public static final JsonNodeBinaryType INSTANCE = new JsonNodeBinaryType();
+
 	public JsonNodeBinaryType() {
 		super( JsonBinarySqlTypeDescriptor.INSTANCE, JsonNodeTypeDescriptor.INSTANCE );
 	}
