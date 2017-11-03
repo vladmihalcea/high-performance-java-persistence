@@ -32,6 +32,7 @@ public class DefaultCriteriaLiteralTest extends AbstractTest {
             book.setId(1L);
             book.setName("High-Performance Java Persistence");
             book.setIsbn(978_9730228236L);
+            book.setActive(true);
 
             entityManager.persist(book);
         });
@@ -59,6 +60,18 @@ public class DefaultCriteriaLiteralTest extends AbstractTest {
             Book book = entityManager.createQuery(cq).getSingleResult();
             assertEquals(978_9730228236L, book.getIsbn());
         });
+
+        doInJPA(entityManager -> {
+            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+
+            CriteriaQuery<Book> cq = cb.createQuery(Book.class);
+            Root<Book> root = cq.from(Book.class);
+            cq.select(root);
+            cq.where(cb.equal(root.get("active"), true));
+
+            Book book = entityManager.createQuery(cq).getSingleResult();
+            assertEquals(978_9730228236L, book.getIsbn());
+        });
     }
 
     @Entity(name = "Book")
@@ -72,6 +85,8 @@ public class DefaultCriteriaLiteralTest extends AbstractTest {
 
         @NaturalId
         private long isbn;
+
+        private boolean active;
 
         public Long getId() {
             return id;
@@ -95,6 +110,14 @@ public class DefaultCriteriaLiteralTest extends AbstractTest {
 
         public void setIsbn(long isbn) {
             this.isbn = isbn;
+        }
+
+        public boolean isActive() {
+            return active;
+        }
+
+        public void setActive(boolean active) {
+            this.active = active;
         }
     }
 }
