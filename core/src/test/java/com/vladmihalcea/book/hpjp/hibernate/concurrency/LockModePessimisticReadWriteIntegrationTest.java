@@ -7,11 +7,13 @@ import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.dialect.lock.PessimisticEntityLockException;
 
+import org.hibernate.jpa.QueryHints;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.*;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -37,7 +39,8 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class
+                Post.class,
+                PostComment.class
         };
     }
 
@@ -270,6 +273,18 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
         });
     }
 
+    @Test
+    public void testPessimisticWriteQuery() throws InterruptedException {
+        doInJPA(entityManager -> {
+            List<PostComment> comments = entityManager.createQuery(
+                "select pc " +
+                "from PostComment pc " +
+                "join fetch pc.post p ", PostComment.class)
+            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+            .getResultList();
+        });
+    }
+
     @Entity(name = "Post")
     @Table(name = "post")
     public static class Post {
@@ -306,6 +321,46 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
 
         public void setBody(String body) {
             this.body = body;
+        }
+    }
+
+    @Entity(name = "PostComment")
+    @Table(name = "post_comment")
+    public static class PostComment {
+
+        @Id
+        private Long id;
+
+        @ManyToOne(fetch = FetchType.LAZY)
+        private Post post;
+
+        private String review;
+
+        @Version
+        private int version;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public Post getPost() {
+            return post;
+        }
+
+        public void setPost(Post post) {
+            this.post = post;
+        }
+
+        public String getReview() {
+            return review;
+        }
+
+        public void setReview(String review) {
+            this.review = review;
         }
     }
 }
