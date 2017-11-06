@@ -46,7 +46,6 @@
                     <password>adm1n</password>
                     <autocommit>true</autocommit>
                     <onError>continue</onError>
-                    <settingsKey>oracle-db-test</settingsKey>
                 </configuration>
                 <executions>
                     <execution>
@@ -102,7 +101,7 @@
                         <database>
                             <name>org.jooq.util.sqlserver.SQLServerDatabase</name>
                             <includes>high_performance_java_persistence\..*</includes>
-                            <excludes></excludes>
+                            <excludes>master</excludes>
                             <inputSchema>dbo</inputSchema>
                         </database>
                         <generate></generate>

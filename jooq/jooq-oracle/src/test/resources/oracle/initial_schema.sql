@@ -5,6 +5,8 @@ drop table post_tag cascade constraints;
 drop table post cascade constraints;
 drop table tag cascade constraints;
 
+drop sequence hibernate_sequence;
+
 create table post (id number(19,0) not null, title varchar2(255 char), primary key (id));
 create table post_comment (id number(19,0) not null, review varchar2(255 char), post_id number(19,0), primary key (id));
 create table post_details (id number(19,0) not null, created_by varchar2(255 char), created_on timestamp, updated_by varchar2(255 char), updated_on timestamp, primary key (id));
@@ -16,3 +18,5 @@ alter table post_comment add constraint FKna4y825fdc5hw8aow65ijexm0 foreign key 
 alter table post_details add constraint FKkl5eik513p1xiudk2kxb0v92u foreign key (id) references post;
 alter table post_tag add constraint FKac1wdchd2pnur3fl225obmlg0 foreign key (tag_id) references tag;
 alter table post_tag add constraint FKc2auetuvsec0k566l0eyvr9cs foreign key (post_id) references post;
+
+create sequence hibernate_sequence start with 1 increment by 1;

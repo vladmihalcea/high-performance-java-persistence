@@ -50,10 +50,12 @@ public interface ExceptionUtil {
 		AtomicReference<Throwable> causeHolder = new AtomicReference<>(e);
 		do {
 			final Throwable cause = causeHolder.get();
+			final String failureMessage = cause.getMessage().toLowerCase();
 			if ( LOCK_TIMEOUT_EXCEPTIONS.stream().anyMatch( c -> c.isInstance( cause ) ) ||
-				e.getMessage().contains( "timeout" ) ||
-				e.getMessage().contains( "timed out" ) ||
-				e.getMessage().contains( "time out" )
+				failureMessage.contains( "timeout" ) ||
+				failureMessage.contains( "timed out" ) ||
+				failureMessage.contains( "time out" ) ||
+				failureMessage.contains( "closed connection" )
 			) {
 				return true;
 			} else {

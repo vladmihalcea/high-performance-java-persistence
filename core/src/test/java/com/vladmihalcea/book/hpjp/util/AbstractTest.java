@@ -606,6 +606,14 @@ public abstract class AbstractTest {
         executeSync(Collections.singleton(callable));
     }
 
+    protected <T> T executeSync(Callable<T> callable) {
+        try {
+            return executorService.submit(callable).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     protected void executeSync(Collection<VoidCallable> callables) {
         try {
             List<Future<Void>> futures = executorService.invokeAll(callables);
@@ -826,6 +834,7 @@ public abstract class AbstractTest {
                     st.execute( "SET statement_timeout TO 1000" );
                     break;
                 case MYSQL:
+                    connection.setNetworkTimeout( Executors.newSingleThreadExecutor(), 1000 );
                     st.execute( "SET SESSION innodb_lock_wait_timeout = 1" );
                     break;
                 case SQLSERVER:
