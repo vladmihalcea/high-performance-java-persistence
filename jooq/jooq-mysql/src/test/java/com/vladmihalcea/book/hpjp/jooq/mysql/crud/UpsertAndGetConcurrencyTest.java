@@ -44,12 +44,11 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQMySQLIntegrationTes
             .fetchOne();
 
             final Long postId = postRecord.getId();
-            final Timestamp now = Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC));
 
             sql
             .insertInto(POST_DETAILS)
             .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)
-            .values(postId, "Alice", now)
+            .values(postId, "Alice", Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)))
             .onDuplicateKeyIgnore()
             .execute();
 
@@ -77,7 +76,7 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQMySQLIntegrationTes
                         _sql
                         .insertInto(POST_DETAILS)
                         .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)
-                        .values(postId, "Bob", now)
+                        .values(postId, "Bob", Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)))
                         .onDuplicateKeyIgnore()
                         .execute();
                     });
