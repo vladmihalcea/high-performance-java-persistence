@@ -264,7 +264,6 @@ public class MixSingleTableJoinTest extends AbstractPostgreSQLIntegrationTest {
         private Long id;
 
         @OneToOne
-        @JoinColumn(name = "id")
         @MapsId
         private Topic topic;
 

@@ -297,7 +297,6 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
         }
 
         @OneToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "id")
         @MapsId
         private Post post;
 

@@ -284,7 +284,6 @@ public class IntegerDiscriminatorDefaultTest extends AbstractMySQLIntegrationTes
         private Long id;
 
         @OneToOne
-        @JoinColumn(name = "id")
         @MapsId
         private Topic topic;
 

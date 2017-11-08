@@ -159,7 +159,6 @@ public class HibernateFlushTest extends AbstractJOOQMySQLIntegrationTest {
         }
 
         @OneToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "id")
         @MapsId
         private Post post;
 

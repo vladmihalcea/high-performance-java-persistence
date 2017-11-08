@@ -186,7 +186,6 @@ public class AllAssociationTest extends AbstractTest {
         }
 
         @OneToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "id")
         @MapsId
         private Post post;
 

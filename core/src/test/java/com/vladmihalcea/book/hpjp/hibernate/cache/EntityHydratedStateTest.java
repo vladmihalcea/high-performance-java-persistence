@@ -134,7 +134,6 @@ public class EntityHydratedStateTest extends AbstractTest {
         private String createdBy;
 
         @OneToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "id")
         @MapsId
         private Post post;
 

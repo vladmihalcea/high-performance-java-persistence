@@ -25,7 +25,6 @@ public class PostDetails {
     }
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
     @MapsId
     private Post post;
 

@@ -318,7 +318,6 @@ public class JoinTableTest extends AbstractTest {
         private Long id;
 
         @OneToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "id")
         @MapsId
         private Topic topic;
 

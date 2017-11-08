@@ -121,7 +121,6 @@ public class PostDetailsCommentsEntityProvider implements EntityProvider {
             }
 
             @OneToOne(fetch = FetchType.LAZY)
-            @JoinColumn(name = "id")
             @MapsId
             private Post post;
 

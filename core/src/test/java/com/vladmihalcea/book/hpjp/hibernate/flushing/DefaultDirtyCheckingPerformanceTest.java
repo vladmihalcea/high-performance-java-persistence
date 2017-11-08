@@ -329,7 +329,6 @@ public class DefaultDirtyCheckingPerformanceTest extends AbstractTest {
         }
 
         @OneToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "id")
         @MapsId
         private Post post;
 

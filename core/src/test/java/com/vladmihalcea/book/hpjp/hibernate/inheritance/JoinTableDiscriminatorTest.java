@@ -292,7 +292,6 @@ public class JoinTableDiscriminatorTest extends AbstractTest {
         private Long id;
 
         @OneToOne
-        @JoinColumn(name = "id")
         @MapsId
         private Topic topic;
 

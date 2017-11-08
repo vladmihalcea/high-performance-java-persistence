@@ -214,7 +214,6 @@ public class MappedSuperclassTest extends AbstractTest {
     public static class PostStatistics extends TopicStatistics<Post> {
 
         @OneToOne
-        @JoinColumn(name = "id")
         @MapsId
         private Post topic;
 
@@ -235,7 +234,6 @@ public class MappedSuperclassTest extends AbstractTest {
     public static class AnnouncementStatistics extends TopicStatistics<Announcement> {
 
         @OneToOne
-        @JoinColumn(name = "id")
         @MapsId
         private Announcement topic;
 

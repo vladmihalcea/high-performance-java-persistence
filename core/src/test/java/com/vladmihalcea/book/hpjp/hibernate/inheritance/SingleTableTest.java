@@ -302,7 +302,6 @@ public class SingleTableTest extends AbstractPostgreSQLIntegrationTest {
         private Long id;
 
         @OneToOne
-        @JoinColumn(name = "id")
         @MapsId
         private Topic topic;
 

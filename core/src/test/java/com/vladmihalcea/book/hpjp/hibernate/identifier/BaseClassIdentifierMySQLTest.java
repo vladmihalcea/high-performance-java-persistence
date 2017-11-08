@@ -165,7 +165,6 @@ public class BaseClassIdentifierMySQLTest extends AbstractMySQLIntegrationTest {
         private String createdBy;
 
         @OneToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "id")
         @MapsId
         private Post post;
 

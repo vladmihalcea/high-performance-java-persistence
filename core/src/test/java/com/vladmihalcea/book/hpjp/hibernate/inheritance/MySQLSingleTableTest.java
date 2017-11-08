@@ -294,7 +294,6 @@ public class MySQLSingleTableTest extends AbstractMySQLIntegrationTest {
         private Long id;
 
         @OneToOne
-        @JoinColumn(name = "id")
         @MapsId
         private Topic topic;
 
