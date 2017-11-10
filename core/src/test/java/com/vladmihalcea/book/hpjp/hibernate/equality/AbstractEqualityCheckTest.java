@@ -27,7 +27,7 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
         doInJPA(entityManager -> {
             entityManager.persist(entity);
             entityManager.flush();
-            assertTrue("The entity is found in the Set after it's persisted",
+            assertTrue("The entity is not found in the Set after it's persisted.",
                     tuples.contains(entity)
             );
         });
@@ -37,30 +37,30 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
 
         doInJPA(entityManager -> {
             T _entity = entityManager.merge(entity);
-            assertTrue("The entity is found in the Set after it's merged",
+            assertTrue("The entity is not found in the Set after it's merged.",
                     tuples.contains(_entity)
             );
         });
 
         doInJPA(entityManager -> {
             entityManager.unwrap(Session.class).update(entity);
-            assertTrue("The entity is found in the Set after it's reattached",
+            assertTrue("The entity is not found in the Set after it's reattached.",
                     tuples.contains(entity)
             );
         });
 
         doInJPA(entityManager -> {
             T _entity = entityManager.find(clazz, entity.getId());
-            assertTrue("The entity is found in the Set after it's loaded " +
-                            "in an other Persistence Context",
+            assertTrue("The entity is not found in the Set after it's loaded " +
+                            "in a subsequent Persistence Context.",
                     tuples.contains(_entity)
             );
         });
 
         doInJPA(entityManager -> {
             T _entity = entityManager.getReference(clazz, entity.getId());
-            assertTrue("The entity is in the Set found after it's loaded as a Proxy " +
-                            "in an other Persistence Context",
+            assertTrue("The entity is not in the Set found after it's loaded as a Proxy " +
+                            "in an other Persistence Context.",
                     tuples.contains(_entity)
             );
         });
@@ -71,7 +71,7 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
             return _entity;
         });
 
-        assertTrue("The entity is found in the Set even after it's deleted",
+        assertTrue("The entity is found in not the Set even after it's deleted.",
             tuples.contains(deletedEntity)
         );
     }

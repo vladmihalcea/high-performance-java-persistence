@@ -11,8 +11,8 @@ import javax.persistence.Table;
 /**
  * @author Vlad Mihalcea
  */
-public class ProperIdEqualityTest
-        extends AbstractEqualityCheckTest<ProperIdEqualityTest.Post> {
+public class IdEqualityTest
+        extends AbstractEqualityCheckTest<IdEqualityTest.Post> {
 
     @Override
     protected Class<?>[] entities() {

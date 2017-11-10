@@ -1,8 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -14,7 +12,6 @@ import javax.persistence.Table;
 
 import org.junit.Test;
 
-import com.vladmihalcea.book.hpjp.hibernate.equality.ProperIdEqualityTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 
 /**

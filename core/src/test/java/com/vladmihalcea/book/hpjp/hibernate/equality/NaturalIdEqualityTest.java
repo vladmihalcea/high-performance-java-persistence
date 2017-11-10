@@ -4,10 +4,7 @@ import com.vladmihalcea.book.hpjp.hibernate.identifier.Identifiable;
 import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Objects;
 
 /**
@@ -43,12 +40,14 @@ public class NaturalIdEqualityTest
         private String title;
 
         @NaturalId
+        @Column(nullable = false)
         private String isbn;
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof Book)) return false;
+
             Book book = (Book) o;
             return Objects.equals(getIsbn(), book.getIsbn());
         }
