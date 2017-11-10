@@ -13,7 +13,8 @@ import java.util.Objects;
 /**
  * @author Vlad Mihalcea
  */
-public class NaturalIdEqualityTest extends AbstractEqualityCheckTest {
+public class NaturalIdEqualityTest
+        extends AbstractEqualityCheckTest<NaturalIdEqualityTest.Book> {
 
     @Override
     protected Class<?>[] entities() {
@@ -28,7 +29,7 @@ public class NaturalIdEqualityTest extends AbstractEqualityCheckTest {
         book.setTitle("High-PerformanceJava Persistence");
         book.setIsbn("123-456-7890");
 
-        assertEqualityConstraints(Book.class, book);
+        assertEqualityConsistency(Book.class, book);
     }
 
     @Entity(name = "Book")

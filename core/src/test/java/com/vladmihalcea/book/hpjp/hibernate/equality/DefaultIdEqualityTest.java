@@ -12,7 +12,8 @@ import java.util.Objects;
 /**
  * @author Vlad Mihalcea
  */
-public class DefaultIdEqualityTest extends AbstractEqualityCheckTest {
+public class DefaultIdEqualityTest
+        extends AbstractEqualityCheckTest<DefaultIdEqualityTest.Post> {
 
     @Override
     protected Class<?>[] entities() {
@@ -26,7 +27,7 @@ public class DefaultIdEqualityTest extends AbstractEqualityCheckTest {
         Post post = new Post();
         post.setTitle("High-PerformanceJava Persistence");
 
-        assertEqualityConstraints(Post.class, post);
+        assertEqualityConsistency(Post.class, post);
     }
 
     @Entity(name = "Post")

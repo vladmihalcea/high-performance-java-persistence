@@ -11,7 +11,8 @@ import javax.persistence.Table;
 /**
  * @author Vlad Mihalcea
  */
-public class DefaultEqualityTest extends AbstractEqualityCheckTest {
+public class DefaultEqualityTest
+        extends AbstractEqualityCheckTest<DefaultEqualityTest.Post> {
 
     @Override
     protected Class<?>[] entities() {
@@ -25,7 +26,7 @@ public class DefaultEqualityTest extends AbstractEqualityCheckTest {
         Post post = new Post();
         post.setTitle("High-PerformanceJava Persistence");
 
-        assertEqualityConstraints(Post.class, post);
+        assertEqualityConsistency(Post.class, post);
     }
 
     @Entity(name = "Post")
