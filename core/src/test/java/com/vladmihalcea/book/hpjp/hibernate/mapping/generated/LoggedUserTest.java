@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping.generated;
 
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.Session;
 import org.hibernate.annotations.GenerationTime;
@@ -11,10 +12,15 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import javax.persistence.Table;
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+
 /**
  * @author Vlad Mihalcea
  */
-public class LoggedUserTest extends AbstractTest {
+public class LoggedUserTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -78,6 +84,7 @@ public class LoggedUserTest extends AbstractTest {
     }
 
     @Entity(name = "Sensor")
+    @Table(name = "sensor")
     public static class Sensor {
 
         @Id
@@ -152,6 +159,33 @@ public class LoggedUserTest extends AbstractTest {
         public String generateValue(
                 Session session, Object owner) {
             return LoggedUser.INSTANCE.get();
+        }
+    }
+
+    public static class LoggedUserFilter implements Filter {
+
+        @Override
+        public void init(FilterConfig filterConfig) throws ServletException {
+        }
+
+        @Override
+        public void doFilter(ServletRequest request, ServletResponse response,
+                             FilterChain filterChain)
+                throws IOException, ServletException {
+
+            try {
+                HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+                LoggedUser.INSTANCE.logIn(httpServletRequest.getRemoteUser());
+
+                filterChain.doFilter(request, response);
+            }
+            finally {
+                LoggedUser.INSTANCE.logOut();
+            }
+        }
+
+        @Override
+        public void destroy() {
         }
     }
 }
