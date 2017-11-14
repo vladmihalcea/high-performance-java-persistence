@@ -31,7 +31,7 @@ public class LoggedUserTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected void afterInit() {
-        LoggedUser.INSTANCE.logIn("Alice");
+        LoggedUser.logIn("Alice");
 
         doInJPA(entityManager -> {
             Sensor ip = new Sensor();
@@ -41,7 +41,7 @@ public class LoggedUserTest extends AbstractMySQLIntegrationTest {
             entityManager.persist(ip);
 
             executeSync(() -> {
-                LoggedUser.INSTANCE.logIn("Bob");
+                LoggedUser.logIn("Bob");
 
                 doInJPA(_entityManager -> {
                     Sensor temperature = new Sensor();
@@ -51,16 +51,16 @@ public class LoggedUserTest extends AbstractMySQLIntegrationTest {
                     _entityManager.persist(temperature);
                 });
 
-                LoggedUser.INSTANCE.logOut();
+                LoggedUser.logOut();
             });
         });
 
-        LoggedUser.INSTANCE.logOut();
+        LoggedUser.logOut();
     }
 
     @Test
     public void test() {
-        LoggedUser.INSTANCE.logIn("Alice");
+        LoggedUser.logIn("Alice");
 
         doInJPA(entityManager -> {
             Sensor temperature = entityManager.find(Sensor.class, "temperature");
@@ -68,7 +68,7 @@ public class LoggedUserTest extends AbstractMySQLIntegrationTest {
             temperature.setValue("36");
 
             executeSync(() -> {
-                LoggedUser.INSTANCE.logIn("Bob");
+                LoggedUser.logIn("Bob");
 
                 doInJPA(_entityManager -> {
                     Sensor ip = _entityManager.find(Sensor.class, "ip");
@@ -76,11 +76,11 @@ public class LoggedUserTest extends AbstractMySQLIntegrationTest {
                     ip.setValue("192.168.0.102");
                 });
 
-                LoggedUser.INSTANCE.logOut();
+                LoggedUser.logOut();
             });
         });
 
-        LoggedUser.INSTANCE.logOut();
+        LoggedUser.logOut();
     }
 
     @Entity(name = "Sensor")
@@ -135,19 +135,17 @@ public class LoggedUserTest extends AbstractMySQLIntegrationTest {
 
     public static class LoggedUser {
 
-        public static final LoggedUser INSTANCE = new LoggedUser();
-
         private static final ThreadLocal<String> userHolder = new ThreadLocal<>();
 
-        public void logIn(String user) {
+        public static void logIn(String user) {
             userHolder.set(user);
         }
 
-        public void logOut() {
+        public static void logOut() {
             userHolder.remove();
         }
 
-        public String get() {
+        public static String get() {
             return userHolder.get();
         }
     }
@@ -158,7 +156,7 @@ public class LoggedUserTest extends AbstractMySQLIntegrationTest {
         @Override
         public String generateValue(
                 Session session, Object owner) {
-            return LoggedUser.INSTANCE.get();
+            return LoggedUser.get();
         }
     }
 
@@ -175,12 +173,12 @@ public class LoggedUserTest extends AbstractMySQLIntegrationTest {
 
             try {
                 HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-                LoggedUser.INSTANCE.logIn(httpServletRequest.getRemoteUser());
+                LoggedUser.logIn(httpServletRequest.getRemoteUser());
 
                 filterChain.doFilter(request, response);
             }
             finally {
-                LoggedUser.INSTANCE.logOut();
+                LoggedUser.logOut();
             }
         }
 
