@@ -31,9 +31,18 @@ public class ManyToOneTest extends AbstractTest {
             PostComment comment = new PostComment("My review");
             comment.setPost(post);
             entityManager.persist(comment);
+        });
 
-            entityManager.flush();
+        doInJPA(entityManager -> {
+            PostComment comment = entityManager.find(PostComment.class, 2L);
+
             comment.setPost(null);
+        });
+
+        doInJPA(entityManager -> {
+            PostComment comment = entityManager.getReference(PostComment.class, 2L);
+
+            entityManager.remove(comment);
         });
     }
 

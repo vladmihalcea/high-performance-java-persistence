@@ -40,9 +40,9 @@ public class BidirectionalOneToManyTest extends AbstractTest {
         doInJPA(entityManager -> {
 
             Post post = entityManager.find( Post.class, 1L );
-            PostComment comment1 = post.getComments().get( 0 );
+            PostComment comment = post.getComments().get( 0 );
 
-            post.removeComment(comment1);
+            post.removeComment(comment);
         });
     }
 
