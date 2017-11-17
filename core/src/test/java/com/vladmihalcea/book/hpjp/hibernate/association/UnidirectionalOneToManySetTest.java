@@ -30,11 +30,18 @@ public class UnidirectionalOneToManySetTest extends AbstractTest {
             post.getComments().add(new PostComment("My third review"));
 
             entityManager.persist(post);
-            entityManager.flush();
+        });
 
-            for(PostComment comment: new ArrayList<>(post.getComments())) {
-                post.getComments().remove(comment);
-            }
+        doInJPA(entityManager -> {
+            Post post = entityManager.createQuery(
+                "select p " +
+                "from Post p " +
+                "join fetch p.comments " +
+                "where p.id = :postId", Post.class)
+            .setParameter("postId", 1L)
+            .getSingleResult();
+
+            post.getComments().remove(post.getComments().iterator().next());
         });
     }
 
@@ -86,27 +93,13 @@ public class UnidirectionalOneToManySetTest extends AbstractTest {
         @GeneratedValue
         private Long id;
 
-        private String slug;
-
         private String review;
 
         public PostComment() {
-            byte[] bytes = new byte[8];
-            ByteBuffer.wrap(bytes).putDouble(Math.random());
-            slug = Base64.getEncoder().encodeToString(bytes);
         }
 
         public PostComment(String review) {
-            this();
             this.review = review;
-        }
-
-        public String getSlug() {
-            return slug;
-        }
-
-        public void setSlug(String slug) {
-            this.slug = slug;
         }
 
         public String getReview() {
@@ -120,14 +113,13 @@ public class UnidirectionalOneToManySetTest extends AbstractTest {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            PostComment comment = (PostComment) o;
-            return Objects.equals(slug, comment.slug);
+            if (!(o instanceof PostComment)) return false;
+            return id != null && id.equals(((PostComment) o).id);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(slug);
+            return 31;
         }
     }
 }
