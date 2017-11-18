@@ -1,14 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import java.util.List;
-
-import org.junit.Test;
-
 import com.vladmihalcea.book.hpjp.hibernate.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.forum.PostComment;
 import com.vladmihalcea.book.hpjp.hibernate.forum.PostDetails;
 import com.vladmihalcea.book.hpjp.hibernate.forum.Tag;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.junit.Test;
+
+import java.util.List;
 
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.fail;
@@ -21,54 +20,65 @@ public class BidirectionalOneToOneLazyNoProxyTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
-                Post.class,
-                PostDetails.class,
-                PostComment.class,
-                Tag.class
+        return new Class<?>[]{
+            Post.class,
+            PostDetails.class,
+            PostComment.class,
+            Tag.class
         };
     }
 
     @Test
-    public void testLifecycle() {
+    public void testNPlusOne() {
         doInJPA(entityManager -> {
-            Post post1 = new Post("First post");
-            post1.setId( 1L );
+            Post post = new Post();
+            post.setId(1L);
+            post.setTitle("High-Performance Java Persistence, 1st Part");
 
-            PostDetails details1 = new PostDetails();
-            details1.setCreatedBy( "John Doe" );
-            post1.addDetails(details1);
+            PostDetails details = new PostDetails();
+            details.setCreatedBy("Vlad Mihalcea");
 
-            Post post2 = new Post("Second post");
-            post2.setId( 2L );
+            post.addDetails(details);
 
-            entityManager.persist(post1);
-            entityManager.persist(post2);
+            entityManager.persist(post);
         });
+
         List<Post> posts = doInJPA(entityManager -> {
             return entityManager.createQuery(
-                    "select p " +
-                    "from Post p ", Post.class)
-                .getResultList();
+                "select p " +
+                "from Post p " +
+                "where p.title like 'High-Performance Java Persistence%'", Post.class)
+            .getResultList();
         });
 
         try {
-            assertNotNull(posts.get( 0 ).getDetails());
+            assertNotNull(posts.get(0).getDetails());
             fail("Should throw LazyInitializationException");
+        } catch (Exception expected) {
+            LOGGER.info("The @OneToOne association was fetched lazily");
         }
-        catch (Exception expected) {
-            LOGGER.info( "The @OneToOne association was fetched lazily" );
-        }
+    }
+
+    @Test
+    public void testLazyLoading() {
+        doInJPA(entityManager -> {
+            Post post = new Post();
+            post.setId(1L);
+            post.setTitle("High-Performance Java Persistence, 2nd Part");
+
+            entityManager.persist(post);
+        });
 
         doInJPA(entityManager -> {
             Post post = entityManager.createQuery(
-                    "select p " +
-                    "from Post p " +
-                    "where p.id = :postId", Post.class)
-                    .setParameter( "postId", 2L )
-                    .getSingleResult();
+                "select p " +
+                "from Post p " +
+                "where p.id = :postId", Post.class)
+            .setParameter("postId", 1L)
+            .getSingleResult();
 
-            LOGGER.info( "Fetched Post" );
+            LOGGER.info("Fetched Post entity");
+
             assertNull(post.getDetails());
         });
     }

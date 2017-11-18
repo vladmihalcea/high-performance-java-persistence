@@ -30,8 +30,7 @@ public class Post {
         this.title = title;
     }
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
-            orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
     private List<PostComment> comments = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "post", fetch = FetchType.LAZY)
@@ -40,8 +39,8 @@ public class Post {
 
     @ManyToMany
     @JoinTable(name = "post_tag",
-            joinColumns = @JoinColumn(name = "post_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
+        joinColumns = @JoinColumn(name = "post_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private List<Tag> tags = new ArrayList<>();
 
