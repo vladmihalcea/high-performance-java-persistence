@@ -43,16 +43,17 @@ public class BidirectionalOneToOneLazyNoProxyTest extends AbstractTest {
             entityManager.persist(post);
         });
 
-        List<Post> posts = doInJPA(entityManager -> {
+        Post post = doInJPA(entityManager -> {
             return entityManager.createQuery(
                 "select p " +
                 "from Post p " +
                 "where p.title like 'High-Performance Java Persistence%'", Post.class)
-            .getResultList();
+            .getSingleResult();
         });
 
         try {
-            assertNotNull(posts.get(0).getDetails());
+            assertNotNull(post.getDetails());
+
             fail("Should throw LazyInitializationException");
         } catch (Exception expected) {
             LOGGER.info("The @OneToOne association was fetched lazily");
