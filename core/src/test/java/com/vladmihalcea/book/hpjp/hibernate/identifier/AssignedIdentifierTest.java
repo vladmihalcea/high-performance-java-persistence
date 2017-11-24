@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.Session;
 import org.hibernate.annotations.GenericGenerator;
@@ -10,7 +11,7 @@ import java.sql.Statement;
 
 import static org.junit.Assert.assertEquals;
 
-public class AssignedIdentifierTest extends AbstractTest {
+public class AssignedIdentifierTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
