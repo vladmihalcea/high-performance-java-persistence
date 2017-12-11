@@ -8,6 +8,7 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -68,6 +69,16 @@ public class LatestChildJoinFormulaTest extends AbstractPostgreSQLIntegrationTes
 			PostComment latestComment = post.getLatestComment();
 
 			assertEquals("Awesome!", latestComment.getReview());
+		} );
+
+		doInJPA( entityManager -> {
+			List<Post> posts = entityManager.createQuery(
+				"select p " +
+				"from Post p " +
+				"join fetch p.latestComment", Post.class)
+			.getResultList();
+
+			assertEquals("Awesome!", posts.get(0).getLatestComment().getReview());
 		} );
 	}
 
