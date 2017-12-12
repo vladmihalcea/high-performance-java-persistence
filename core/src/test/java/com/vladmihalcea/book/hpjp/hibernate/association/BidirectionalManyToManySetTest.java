@@ -12,7 +12,7 @@ import org.hibernate.annotations.NaturalId;
 /**
  * @author Vlad Mihalcea
  */
-public class BidirectionalManyToManySetTest extends AbstractMySQLIntegrationTest {
+public class BidirectionalManyToManySetTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -128,7 +128,7 @@ public class BidirectionalManyToManySetTest extends AbstractMySQLIntegrationTest
             joinColumns = @JoinColumn(name = "post_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
         )
-        private Set<Tag> tags = new HashSet<>();
+        private Set<Tag> tags = new LinkedHashSet<>();
 
         public Long getId() {
             return id;

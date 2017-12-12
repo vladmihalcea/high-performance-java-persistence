@@ -5,12 +5,10 @@ import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.junit.Test;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -38,6 +36,13 @@ public class CriteriaAPITest extends AbstractPostgreSQLIntegrationTest {
             post.setId(1L);
             post.setTitle("high-performance-java-persistence");
             entityManager.persist(post);
+
+            for (long i = 0; i < 5; i++) {
+                PostComment comment = new PostComment();
+                comment.setId(i + 1);
+                comment.setReview("Great");
+                post.addComment(comment);
+            }
         });
     }
 
@@ -50,6 +55,22 @@ public class CriteriaAPITest extends AbstractPostgreSQLIntegrationTest {
         doInJPA(entityManager -> {
             List<Post> posts = filterPosts(entityManager, null);
             assertTrue(posts.isEmpty());
+        });
+    }
+
+    @Test
+    public void testFilterChild() {
+        doInJPA(entityManager -> {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<PostComment> criteria = builder.createQuery(PostComment.class);
+            Root<PostComment> fromPost = criteria.from(PostComment.class);
+
+            Join<PostComment, Post> postJoin = fromPost.join("post");
+
+            criteria.where(builder.like(postJoin.get(Post_.title), "high-performance%"));
+            List<PostComment> comments = entityManager.createQuery(criteria).getResultList();
+
+            assertEquals(5, comments.size());
         });
     }
 
