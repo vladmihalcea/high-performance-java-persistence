@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.annotations.DiscriminatorOptions;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -17,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Vlad Mihalcea
  */
-public class JoinTableTest extends AbstractTest {
+public class JoinTableDiscriminatorColumnTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -151,29 +150,8 @@ public class JoinTableTest extends AbstractTest {
             .getResultList();
 
             assertEquals(2, topics.size());
-            assertTrue(topics.get(0) instanceof Post);
-            assertTrue(topics.get(1) instanceof Announcement);
-        });
-
-        doInJPA(entityManager -> {
-            Board board = topic.getBoard();
-
-            List<Topic> topics = entityManager
-            .createQuery(
-                "select t " +
-                "from Topic t " +
-                "where t.board = :board " +
-                "order by " +
-                "   case " +
-                "   when type(t) = Announcement then 10" +
-                "   when type(t) = Post then 20 " +
-                "   end", Topic.class)
-            .setParameter("board", board)
-            .getResultList();
-
-            assertEquals(2, topics.size());
-            assertTrue(topics.get(0) instanceof Post);
-            assertTrue(topics.get(1) instanceof Announcement);
+            assertTrue(topics.get(0) instanceof Announcement);
+            assertTrue(topics.get(1) instanceof Post);
         });
     }
 
@@ -275,6 +253,7 @@ public class JoinTableTest extends AbstractTest {
     @Entity(name = "Topic")
     @Table(name = "topic")
     @Inheritance(strategy = InheritanceType.JOINED)
+    @DiscriminatorColumn
     public static class Topic {
 
         @Id

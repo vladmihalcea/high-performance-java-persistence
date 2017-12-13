@@ -1,13 +1,11 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
-import com.vladmihalcea.book.hpjp.util.*;
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
-import org.hibernate.jdbc.Work;
+import org.junit.Assert;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -16,8 +14,8 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -166,6 +164,36 @@ public class SingleTableTest extends AbstractPostgreSQLIntegrationTest {
                 "where p.board = :board", Post.class)
             .setParameter("board", board)
             .getResultList();
+        });
+
+        doInJPA(entityManager -> {
+
+            List<Tuple> results = entityManager
+            .createQuery(
+                "select count(t), t.class " +
+                "from Topic t " +
+                "group by t.class " +
+                "order by t.class ")
+            .getResultList();
+
+            assertEquals(2, results.size());
+        });
+
+        doInJPA(entityManager -> {
+            Board board = topic.getBoard();
+
+            List<Topic> topics = entityManager
+            .createQuery(
+                "select t " +
+                "from Topic t " +
+                "where t.board = :board " +
+                "order by t.class", Topic.class)
+            .setParameter("board", board)
+            .getResultList();
+
+            assertEquals(2, topics.size());
+            assertTrue(topics.get(0) instanceof Announcement);
+            assertTrue(topics.get(1) instanceof Post);
         });
     }
 
