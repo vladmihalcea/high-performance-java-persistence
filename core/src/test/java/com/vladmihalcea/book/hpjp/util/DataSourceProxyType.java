@@ -15,7 +15,7 @@ import javax.sql.DataSource;
 public enum DataSourceProxyType {
     DATA_SOURCE_PROXY {
         @Override
-        DataSource dataSource(DataSource dataSource) {
+        public DataSource dataSource(DataSource dataSource) {
             ChainListener listener = new ChainListener();
             SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
             loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
@@ -30,10 +30,10 @@ public enum DataSourceProxyType {
     },
     P6SPY {
         @Override
-        DataSource dataSource(DataSource dataSource) {
+        public DataSource dataSource(DataSource dataSource) {
             return new P6DataSource(dataSource);
         }
     };
 
-    abstract DataSource dataSource(DataSource dataSource);
+    public abstract DataSource dataSource(DataSource dataSource);
 }

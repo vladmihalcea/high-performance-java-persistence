@@ -19,6 +19,8 @@ import java.util.Properties;
  */
 public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
+    public static final String JPA_VERSION = "2.1";
+
     private final String persistenceUnitName;
 
     private PersistenceUnitTransactionType transactionType = PersistenceUnitTransactionType.RESOURCE_LOCAL;
@@ -33,7 +35,10 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     private DataSource nonJtaDataSource;
 
-    public PersistenceUnitInfoImpl(String persistenceUnitName, List<String> managedClassNames, Properties properties) {
+    public PersistenceUnitInfoImpl(
+            String persistenceUnitName,
+            List<String> managedClassNames,
+            Properties properties) {
         this.persistenceUnitName = persistenceUnitName;
         this.managedClassNames = managedClassNames;
         this.properties = properties;
@@ -119,7 +124,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     @Override
     public String getPersistenceXMLSchemaVersion() {
-        return "2.1";
+        return JPA_VERSION;
     }
 
     @Override
