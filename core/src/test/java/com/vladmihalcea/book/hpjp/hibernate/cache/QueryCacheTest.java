@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.transaction.VoidCallable;
 import org.hibernate.SQLQuery;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.cache.internal.StandardQueryCache;
@@ -132,6 +133,33 @@ public class QueryCacheTest extends AbstractTest {
             printCacheRegionStatistics(StandardQueryCache.class.getName());
             assertEquals(1, getLatestPostComments(entityManager).size());
             printCacheRegionStatistics(StandardQueryCache.class.getName());
+            assertEquals(1, getLatestPostComments(entityManager).size());
+        });
+    }
+
+    @Test
+    public void test2ndLevelCacheWithQueryEntityLoad() {
+        doInJPA(entityManager -> {
+            printCacheRegionStatistics(PostComment.class.getName());
+            printCacheRegionStatistics(StandardQueryCache.class.getName());
+
+            assertEquals(1, getLatestPostComments(entityManager).size());
+
+            printCacheRegionStatistics(PostComment.class.getName());
+            printCacheRegionStatistics(StandardQueryCache.class.getName());
+
+            executeSync(() -> {
+                doInJPA(_entityManager -> {
+                    List<PostComment> _comments = getLatestPostComments(_entityManager);
+                    assertEquals(1, _comments.size());
+
+                    _comments.get(0).setReview("Revision 2");
+                });
+            });
+
+            printCacheRegionStatistics(PostComment.class.getName());
+            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            List<PostComment> comments = getLatestPostComments(entityManager);
         });
     }
 
