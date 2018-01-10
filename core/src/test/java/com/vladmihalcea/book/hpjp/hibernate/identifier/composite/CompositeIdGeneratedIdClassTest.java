@@ -15,6 +15,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class CompositeIdGeneratedIdClassTest extends AbstractPostgreSQLIntegrationTest {
 
@@ -38,6 +39,8 @@ public class CompositeIdGeneratedIdClassTest extends AbstractPostgreSQLIntegrati
 
             return book;
         });
+
+        assertNotNull(_book.getRegistrationNumber());
 
         doInJPA(entityManager -> {
             PK key = new PK( _book.getRegistrationNumber(), 1);

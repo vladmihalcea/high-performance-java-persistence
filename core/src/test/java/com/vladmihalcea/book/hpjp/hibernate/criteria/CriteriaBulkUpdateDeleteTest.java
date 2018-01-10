@@ -212,12 +212,6 @@ public class CriteriaBulkUpdateDeleteTest extends AbstractTest {
 
         private String message;
 
-        public PostComment() {}
-
-        public PostComment(String review) {
-            this.message = review;
-        }
-
         public Long getId() {
             return id;
         }
