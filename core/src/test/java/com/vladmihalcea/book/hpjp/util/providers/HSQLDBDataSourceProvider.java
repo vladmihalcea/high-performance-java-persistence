@@ -18,9 +18,9 @@ public class HSQLDBDataSourceProvider implements DataSourceProvider {
 	@Override
 	public DataSource dataSource() {
 		JDBCDataSource dataSource = new JDBCDataSource();
-		dataSource.setUrl( "jdbc:hsqldb:mem:test" );
-		dataSource.setUser( "sa" );
-		dataSource.setPassword( "" );
+		dataSource.setUrl( url() );
+		dataSource.setUser( username() );
+		dataSource.setPassword( password() );
 		return dataSource;
 	}
 

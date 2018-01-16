@@ -1,32 +1,34 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.array;
 
-import java.util.Properties;
-
 import org.hibernate.type.AbstractSingleColumnStandardBasicType;
 import org.hibernate.usertype.DynamicParameterizedType;
 
+import java.util.Properties;
+
 /**
- * @author Vlad MIhalcea
+ * @author Vlad Mihalcea
  */
 public class IntArrayType
-		extends AbstractSingleColumnStandardBasicType<int[]>
-		implements DynamicParameterizedType {
+        extends AbstractSingleColumnStandardBasicType<int[]>
+        implements DynamicParameterizedType {
 
-	public IntArrayType() {
-		super( ArraySqlTypeDescriptor.INSTANCE, IntArrayTypeDescriptor.INSTANCE );
-	}
+    public static final IntArrayType INSTANCE = new IntArrayType();
 
-	public String getName() {
-		return "int-array";
-	}
+    public IntArrayType() {
+        super(ArraySqlTypeDescriptor.INSTANCE, IntArrayTypeDescriptor.INSTANCE);
+    }
 
-	@Override
-	protected boolean registerUnderJavaType() {
-		return true;
-	}
+    public String getName() {
+        return "int-array";
+    }
 
-	@Override
-	public void setParameterValues(Properties parameters) {
-		((IntArrayTypeDescriptor) getJavaTypeDescriptor()).setParameterValues(parameters);
-	}
+    @Override
+    protected boolean registerUnderJavaType() {
+        return true;
+    }
+
+    @Override
+    public void setParameterValues(Properties parameters) {
+        ((IntArrayTypeDescriptor) getJavaTypeDescriptor()).setParameterValues(parameters);
+    }
 }

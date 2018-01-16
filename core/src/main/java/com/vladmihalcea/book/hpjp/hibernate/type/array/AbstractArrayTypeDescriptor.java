@@ -1,15 +1,15 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.array;
 
-import java.sql.Array;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Properties;
-
 import org.hibernate.type.descriptor.WrapperOptions;
 import org.hibernate.type.descriptor.java.AbstractTypeDescriptor;
 import org.hibernate.type.descriptor.java.MutabilityPlan;
 import org.hibernate.type.descriptor.java.MutableMutabilityPlan;
 import org.hibernate.usertype.DynamicParameterizedType;
+
+import java.sql.Array;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Properties;
 
 /**
  * @author Vlad Mihalcea
@@ -19,30 +19,30 @@ public abstract class AbstractArrayTypeDescriptor<T>
 
     private Class<T> arrayObjectClass;
 
-    @Override
-    public void setParameterValues(Properties parameters) {
-        arrayObjectClass = ( (ParameterType) parameters.get( PARAMETER_TYPE ) ).getReturnedClass();
-    }
-
     public AbstractArrayTypeDescriptor(Class<T> arrayObjectClass) {
-        super( arrayObjectClass, (MutabilityPlan<T>) new MutableMutabilityPlan<Object>() {
+        super(arrayObjectClass, (MutabilityPlan<T>) new MutableMutabilityPlan<Object>() {
             @Override
             protected T deepCopyNotNull(Object value) {
-            return ArrayUtil.deepCopy( value );
+                return ArrayUtil.deepCopy(value);
             }
-        } );
+        });
         this.arrayObjectClass = arrayObjectClass;
     }
 
     @Override
+    public void setParameterValues(Properties parameters) {
+        arrayObjectClass = ((ParameterType) parameters.get(PARAMETER_TYPE)).getReturnedClass();
+    }
+
+    @Override
     public boolean areEqual(Object one, Object another) {
-        if ( one == another ) {
+        if (one == another) {
             return true;
         }
-        if ( one == null || another == null ) {
+        if (one == null || another == null) {
             return false;
         }
-        return ArrayUtil.isEquals( one, another );
+        return ArrayUtil.isEquals(one, another);
     }
 
     @Override
@@ -55,26 +55,25 @@ public abstract class AbstractArrayTypeDescriptor<T>
         return ArrayUtil.fromString(string, arrayObjectClass);
     }
 
-    @SuppressWarnings({ "unchecked" })
+    @SuppressWarnings({"unchecked"})
     @Override
     public <X> X unwrap(T value, Class<X> type, WrapperOptions options) {
-        return (X) ArrayUtil.wrapArray( value );
+        return (X) ArrayUtil.wrapArray(value);
     }
 
     @Override
     public <X> T wrap(X value, WrapperOptions options) {
-        if( value instanceof Array ) {
+        if (value instanceof Array) {
             Array array = (Array) value;
             try {
-                return ArrayUtil.unwrapArray( (Object[]) array.getArray(), arrayObjectClass );
-            }
-            catch (SQLException e) {
-                throw new IllegalArgumentException( e );
+                return ArrayUtil.unwrapArray((Object[]) array.getArray(), arrayObjectClass);
+            } catch (SQLException e) {
+                throw new IllegalArgumentException(e);
             }
         }
         return (T) value;
     }
 
-    protected abstract String getSqlArrayType();
+    public abstract String getSqlArrayType();
 
 }

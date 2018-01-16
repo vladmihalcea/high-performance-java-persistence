@@ -1,29 +1,22 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.array;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import com.vladmihalcea.book.hpjp.hibernate.type.json.model.BaseEntity;
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+import org.hibernate.annotations.Type;
+import org.junit.Test;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Type;
-
-import org.junit.Test;
-
-import com.vladmihalcea.book.hpjp.hibernate.type.json.model.BaseEntity;
-import com.vladmihalcea.book.hpjp.hibernate.type.json.model.Location;
-import com.vladmihalcea.book.hpjp.hibernate.type.json.model.Ticket;
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
-
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class ArrayTypeTest extends AbstractPostgreSQLIntegrationTest {
+public class PostgreSQLArrayTypeTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
