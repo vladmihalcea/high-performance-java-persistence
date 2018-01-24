@@ -15,6 +15,7 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.NaturalId;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
@@ -56,7 +57,7 @@ public class BidirectionalManyToManyListTest extends AbstractMySQLIntegrationTes
     }
 
     @Test
-    public void testRemove() {
+    public void testRemovePost() {
         final Long postId = doInJPA(entityManager -> {
             Post post1 = new Post("JPA with Hibernate");
             Post post2 = new Post("Native Hibernate");
@@ -75,10 +76,38 @@ public class BidirectionalManyToManyListTest extends AbstractMySQLIntegrationTes
             return post1.id;
         });
         doInJPA(entityManager -> {
-            LOGGER.info("Remove");
+            LOGGER.info("Remove Post");
             Post post1 = entityManager.find(Post.class, postId);
 
             entityManager.remove(post1);
+        });
+    }
+
+    @Test
+    @Ignore
+    public void testRemoveTag() {
+        final Long tagId = doInJPA(entityManager -> {
+            Post post1 = new Post("JPA with Hibernate");
+            Post post2 = new Post("Native Hibernate");
+
+            Tag tag1 = new Tag("Java");
+            Tag tag2 = new Tag("Hibernate");
+
+            post1.addTag(tag1);
+            post1.addTag(tag2);
+
+            post2.addTag(tag1);
+
+            entityManager.persist(post1);
+            entityManager.persist(post2);
+
+            return tag1.id;
+        });
+        doInJPA(entityManager -> {
+            LOGGER.info("Remove Tag");
+            Tag tag1 = entityManager.find(Tag.class, tagId);
+
+            entityManager.remove(tag1);
         });
     }
 

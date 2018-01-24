@@ -230,12 +230,6 @@
 
         <dependency>
             <groupId>com.vladmihalcea.flexy-pool</groupId>
-            <artifactId>flexy-pool-core</artifactId>
-            <version>${flexy-pool.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.vladmihalcea.flexy-pool</groupId>
             <artifactId>flexy-btm</artifactId>
             <version>${flexy-pool.version}</version>
         </dependency>
@@ -341,7 +335,7 @@
         <codahale.metrics.version>3.1.0</codahale.metrics.version>
         <hikari.version>1.3.3</hikari.version>
         <btm.version>2.1.4</btm.version>
-        <flexy-pool.version>1.2.9</flexy-pool.version>
+        <flexy-pool.version>2.0.0</flexy-pool.version>
 
         <aspectj.version>1.8.7</aspectj.version>
         <spring.version>4.3.3.RELEASE</spring.version>
