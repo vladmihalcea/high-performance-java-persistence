@@ -1,28 +1,29 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
-import org.jboss.logging.Logger;
+import org.hibernate.FlushMode;
+import org.hibernate.Session;
+import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import javax.persistence.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
-import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.Post;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class HibernateAutoFlushTest extends AbstractTest {
-
-    private static final Logger log = Logger.getLogger(HibernateAutoFlushTest.class);
-
-    private BlogEntityProvider entityProvider = new BlogEntityProvider();
+public class HibernateAutoFlushTest extends JPAAutoFlushTest {
 
     @Override
     protected Class<?>[] entities() {
-        return entityProvider.entities();
+        return new Class[] {
+            Post.class,
+            PostDetails.class,
+            Tag.class
+        };
     }
 
     @Override
@@ -31,118 +32,190 @@ public class HibernateAutoFlushTest extends AbstractTest {
     }
 
     @Test
-    public void testFlushAutoCommit() {
-        EntityManager entityManager = null;
-        EntityTransaction txn = null;
-        try {
-            entityManager = entityManagerFactory().createEntityManager();
-            txn = entityManager.getTransaction();
-            txn.begin();
+    public void testFlushAutoNativeSQL() {
+        doInJPA(entityManager -> {
+            assertEquals(
+                0,
+                ((Number)
+                    entityManager
+                    .createNativeQuery(
+                        "select count(*) " +
+                        "from post")
+                    .getSingleResult()
+                ).intValue()
+            );
 
-            Post post = new Post("Hibernate");
-            post.setId(1L);
+            Post post = new Post("High-Performance Java Persistence");
+
             entityManager.persist(post);
-            log.info("Entity is in persisted state");
 
-            txn.commit();
-        } catch (RuntimeException e) {
-            if (txn != null && txn.isActive()) txn.rollback();
-            throw e;
-        } finally {
-            if (entityManager != null) {
-                entityManager.close();
-            }
+            int postCount = ((Number)
+            entityManager
+            .createNativeQuery(
+                "select count(*) " +
+                "from post")
+            .getSingleResult()).intValue();
+
+            assertEquals(1, postCount);
+        });
+    }
+
+    @Test
+    public void testFlushAutoNativeSQLFlushModeAlways() {
+        doInJPA(entityManager -> {
+            assertEquals(
+                0,
+                ((Number)
+                    entityManager
+                    .createNativeQuery(
+                        "select count(*) " +
+                        "from post")
+                    .getSingleResult()
+                ).intValue()
+            );
+
+            Post post = new Post("High-Performance Java Persistence");
+
+            entityManager.persist(post);
+
+            int postCount = ((Number)
+            entityManager
+            .unwrap(Session.class)
+            .createNativeQuery(
+                "select count(*) " +
+                "from post")
+            .setFlushMode(FlushMode.ALWAYS)
+            .getSingleResult()).intValue();
+
+            assertEquals(1, postCount);
+        });
+    }
+
+    @Test
+    public void testFlushAutoNativeSQLSynchronizedEntityClass() {
+        doInJPA(entityManager -> {
+            assertEquals(
+                0,
+                ((Number)
+                    entityManager
+                    .createNativeQuery(
+                        "select count(*) " +
+                        "from post")
+                    .getSingleResult()
+                ).intValue()
+            );
+
+            Post post = new Post("High-Performance Java Persistence");
+
+            entityManager.persist(post);
+
+            int postCount = ((Number)
+            entityManager
+            .unwrap(Session.class)
+            .createNativeQuery(
+                "select count(*) " +
+                "from post")
+            .addSynchronizedEntityClass(Post.class)
+            .getSingleResult()).intValue();
+
+            assertEquals(1, postCount);
+        });
+    }
+
+    @Test
+    public void testFlushAutoNativeSQLSynchronizedQuerySpace() {
+        doInJPA(entityManager -> {
+            assertEquals(
+                0,
+                ((Number)
+                    entityManager
+                    .createNativeQuery(
+                        "select count(*) " +
+                        "from post")
+                    .getSingleResult()
+                ).intValue()
+            );
+
+            Post post = new Post("High-Performance Java Persistence");
+
+            entityManager.persist(post);
+
+            int postCount = ((Number)
+            entityManager
+            .unwrap(Session.class)
+            .createNativeQuery(
+                "select count(*) " +
+                "from post")
+            .addSynchronizedQuerySpace("post")
+            .getSingleResult()).intValue();
+
+            assertEquals(1, postCount);
+        });
+    }
+
+    @Entity(name = "Post")
+    @Table(name = "post")
+    public static class Post {
+
+        @Id
+        @GeneratedValue
+        private Long id;
+
+        private String title;
+
+        @OneToOne(
+            mappedBy = "post",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+        )
+        private PostDetails details;
+
+        @ManyToMany
+        @JoinTable(name = "post_tag",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+        )
+        private Set<Tag> tags = new HashSet<>();
+
+        public Post() {}
+
+        public Post(String title) {
+            this.title = title;
         }
     }
 
-    @Test
-    public void testFlushAutoJPQL() {
-        doInJPA(entityManager -> {
-            log.info("testFlushAutoJPQL");
-            Post post = new Post("Hibernate");
-            post.setId(1L);
-            entityManager.persist(post);
-            entityManager.createQuery("select p from Tag p").getResultList();
-            entityManager.createQuery("select p from Post p").getResultList();
-        });
+    @Entity(name = "PostDetails")
+    @Table(name = "post_details")
+    public static class PostDetails {
+
+        @Id
+        private Long id;
+
+        @Column(name = "created_on")
+        private Date createdOn;
+
+        @Column(name = "created_by")
+        private String createdBy;
+
+        @OneToOne(fetch = FetchType.LAZY)
+        @MapsId
+        private Post post;
+
+        public PostDetails() {
+            createdOn = new Date();
+        }
     }
 
-    @Test
-    public void testFlushAutoJPQLOverlap() {
-        doInJPA(entityManager -> {
-            log.info("testFlushAutoJPQL");
-            Post post = new Post("Hibernate");
-            post.setId(1L);
-            entityManager.persist(post);
-            entityManager.createQuery("select p from PostDetails p").getResultList();
-            entityManager.createQuery("select p from Post p").getResultList();
-        });
-    }
+    @Entity(name = "Tag")
+    @Table(name = "tag")
+    public static class Tag {
 
-    @Test
-    public void testFlushAutoSQL() {
-        doInJPA(entityManager -> {
-            entityManager.createNativeQuery("delete from Post").executeUpdate();
-        });
-        doInJPA(entityManager -> {
-            log.info("testFlushAutoSQL");
+        @Id
+        @GeneratedValue
+        private Long id;
 
-            assertTrue(((Number) entityManager
-                .createNativeQuery("select count(*) from Post")
-                .getSingleResult()).intValue() == 0);
-
-            Post post = new Post("Hibernate");
-            post.setId(1L);
-            entityManager.persist(post);
-
-            int count = ((Number) entityManager
-                    .createNativeQuery("select count(*) from Post")
-                    .getSingleResult()).intValue();
-
-            assertTrue( count == 0 );
-        });
-    }
-
-    @Test
-    public void testFlushAutoSQLNativeSessionWithoutSynchronization() {
-        doInHibernate(session -> {
-            log.info("testFlushAutoSQLNativeSession");
-
-            assertTrue(((Number) session
-                    .createQuery("select count(*) from Post")
-                    .getSingleResult()).intValue() == 0);
-
-            Post post = new Post("Hibernate");
-            post.setId(1L);
-            session.persist(post);
-
-            int count = ((Number) session
-                    .createNativeQuery("select count(*) from Post")
-                    .uniqueResult()).intValue();
-
-            assertTrue( count == 0 );
-        });
-    }
-
-    @Test
-    public void testFlushAutoSQLNativeSessionWithSynchronization() {
-        doInHibernate(session -> {
-            log.info("testFlushAutoSQLNativeSession");
-
-            assertTrue(((Number) session
-                    .createQuery("select count(*) from Post")
-                    .getSingleResult()).intValue() == 0);
-
-            Post post = new Post("Hibernate");
-            post.setId(1L);
-            session.persist(post);
-
-            int count = ((Number) session
-                    .createNativeQuery("select count(*) from Post")
-                    .addSynchronizedEntityClass(Post.class)
-                    .uniqueResult()).intValue();
-
-            assertTrue( count == 1 );
-        });
+        @NaturalId
+        private String name;
     }
 }

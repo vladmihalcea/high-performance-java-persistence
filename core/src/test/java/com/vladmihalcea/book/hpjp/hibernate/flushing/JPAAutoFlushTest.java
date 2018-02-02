@@ -1,30 +1,29 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
-import org.jboss.logging.Logger;
+import javax.persistence.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
-
-import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.Post;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
 public class JPAAutoFlushTest extends AbstractTest {
 
-    private static final Logger log = Logger.getLogger(JPAAutoFlushTest.class);
-
-    private BlogEntityProvider entityProvider = new BlogEntityProvider();
-
     @Override
     protected Class<?>[] entities() {
-        return entityProvider.entities();
+        return new Class[] {
+            Post.class,
+            PostDetails.class,
+            Tag.class
+        };
     }
 
     @Override
@@ -33,75 +32,176 @@ public class JPAAutoFlushTest extends AbstractTest {
     }
 
     @Test
-    public void testFlushAutoCommit() {
-        EntityManager entityManager = null;
-        EntityTransaction txn = null;
-        try {
-            entityManager = entityManagerFactory().createEntityManager();
-            txn = entityManager.getTransaction();
-            txn.begin();
+    public void testFlushAutoJPQL() {
+        doInJPA(entityManager -> {
+            assertEquals(
+                0,
+                ((Number)
+                    entityManager
+                    .createQuery(
+                        "select count(p) " +
+                        "from Post p")
+                    .getSingleResult()
+                ).intValue()
+            );
 
-            Post post = new Post("Hibernate");
-            post.setId(1L);
+            Post post = new Post("High-Performance Java Persistence");
+
             entityManager.persist(post);
-            log.info("Entity is in persisted state");
 
-            txn.commit();
-        } catch (RuntimeException e) {
-            if (txn != null && txn.isActive()) txn.rollback();
-            throw e;
-        } finally {
-            if (entityManager != null) {
-                entityManager.close();
-            }
+            int tagCount = ((Number)
+            entityManager
+            .createQuery(
+                "select count(t) " +
+                "from Tag t")
+            .getSingleResult()).intValue();
+
+            int postCount = ((Number)
+            entityManager
+            .createQuery(
+                "select count(p) " +
+                "from Post p")
+            .getSingleResult()).intValue();
+
+            assertEquals(1, postCount);
+        });
+    }
+
+    @Test
+    public void testFlushAutoJPQLTableSpaceOverlap() {
+        doInJPA(entityManager -> {
+            assertEquals(
+                0,
+                ((Number)
+                    entityManager
+                    .createQuery(
+                        "select count(p) " +
+                        "from Post p")
+                    .getSingleResult()
+                ).intValue()
+            );
+
+            Post post = new Post("High-Performance Java Persistence");
+
+            entityManager.persist(post);
+
+            List<PostDetails> details = entityManager
+            .createQuery(
+                "select pd " +
+                "from PostDetails pd " +
+                "join fetch pd.post ")
+            .getResultList();
+
+            int postCount = ((Number)
+            entityManager
+            .createQuery(
+                "select count(p) " +
+                "from Post p")
+            .getSingleResult()).intValue();
+
+            assertEquals(1, postCount);
+        });
+    }
+
+    @Test
+    public void testFlushAutoNativeSQL() {
+        doInJPA(entityManager -> {
+            assertEquals(
+                0,
+                ((Number)
+                    entityManager
+                    .createNativeQuery(
+                        "select count(*) " +
+                        "from Post")
+                    .getSingleResult()
+                ).intValue()
+            );
+
+            Post post = new Post("High-Performance Java Persistence");
+
+            entityManager.persist(post);
+
+            int tagCount = ((Number)
+            entityManager
+            .createNativeQuery(
+                "select count(*) " +
+                "from tag")
+            .getSingleResult()).intValue();
+
+            int postCount = ((Number)
+            entityManager
+            .createNativeQuery(
+                "select count(*) " +
+                "from post")
+            .getSingleResult()).intValue();
+
+            assertEquals(1, postCount);
+        });
+    }
+
+    @Entity(name = "Post")
+    @Table(name = "post")
+    public static class Post {
+
+        @Id
+        @GeneratedValue
+        private Long id;
+
+        private String title;
+
+        @OneToOne(
+            mappedBy = "post",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+        )
+        private PostDetails details;
+
+        @ManyToMany
+        @JoinTable(name = "post_tag",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+        )
+        private Set<Tag> tags = new HashSet<>();
+
+        public Post() {}
+
+        public Post(String title) {
+            this.title = title;
         }
     }
 
-    @Test
-    public void testFlushAutoJPQL() {
-        doInJPA(entityManager -> {
-            log.info("testFlushAutoJPQL");
-            Post post = new Post("Hibernate");
-            post.setId(1L);
-            entityManager.persist(post);
-            entityManager.createQuery("select p from Tag p").getResultList();
-            entityManager.createQuery("select p from Post p").getResultList();
-        });
+    @Entity(name = "PostDetails")
+    @Table(name = "post_details")
+    public static class PostDetails {
+
+        @Id
+        private Long id;
+
+        @Column(name = "created_on")
+        private Date createdOn;
+
+        @Column(name = "created_by")
+        private String createdBy;
+
+        @OneToOne(fetch = FetchType.LAZY)
+        @MapsId
+        private Post post;
+
+        public PostDetails() {
+            createdOn = new Date();
+        }
     }
 
-    @Test
-    public void testFlushAutoJPQLOverlap() {
-        doInJPA(entityManager -> {
-            log.info("testFlushAutoJPQL");
-            Post post = new Post("Hibernate");
-            post.setId(1L);
-            entityManager.persist(post);
-            entityManager.createQuery("select p from PostDetails p").getResultList();
-            entityManager.createQuery("select p from Post p").getResultList();
-        });
-    }
+    @Entity(name = "Tag")
+    @Table(name = "tag")
+    public static class Tag {
 
-    @Test
-    public void testFlushAutoSQL() {
-        doInJPA(entityManager -> {
-            entityManager.createNativeQuery("delete from Post").executeUpdate();
-        });
-        doInJPA(entityManager -> {
-            log.info("testFlushAutoSQL");
+        @Id
+        @GeneratedValue
+        private Long id;
 
-            assertTrue(((Number) entityManager
-                .createNativeQuery("select count(*) from Post")
-                .getSingleResult()).intValue() == 0);
-
-            Post post = new Post("Hibernate");
-            post.setId(1L);
-            entityManager.persist(post);
-
-            int count = ((Number) entityManager
-                    .createNativeQuery("select count(*) from Post")
-                    .getSingleResult()).intValue();
-
-            assertTrue( count == 1 );
-        });
+        @NaturalId
+        private String name;
     }
 }
