@@ -1,16 +1,30 @@
 # High-Performance Java Persistence
-The [High-Performance Java Persistence](https://leanpub.com/high-performance-java-persistence?utm_source=GitHub&utm_medium=banner&utm_campaign=hpjp) book code examples.
+
+The [High-Performance Java Persistence](https://vladmihalcea.com/books/high-performance-java-persistence?utm_source=GitHub&utm_medium=banner&utm_campaign=hpjp) book code examples.
 
 <a href="https://leanpub.com/high-performance-java-persistence?utm_source=GitHub&utm_medium=banner&utm_campaign=hpjp">
 <img src="https://vladmihalcea.files.wordpress.com/2015/11/hpjp_small.jpg" alt="High-Performance Java Persistence">
 </a>
 
+I even write [an article](https://vladmihalcea.com/high-performance-java-persistence-github-repository/) about this repository since it's one of the best way to test JDBC, JPA< Hibernate or even jOOQ code.
+
+## Video presentation
+
+Or, if you prefer videos, you can watch [this presentation on YouTube](https://www.youtube.com/watch?v=U8MoOe8uMYA). 
+
+## Java
+
 All examples require at least Java 1.8. 
 
-**Javac compiler is required in order to run in in any IDE environment. 
-Especially if you're using Eclipse, you must use the Oracle JDK compiler and not the Eclipse-based one which suffers from [this issue](https://bugs.eclipse.org/bugs/show_bug.cgi?id=434642).**
+**Javac compiler is required in order to run in in any IDE environment**.
+ 
+Especially if you're using Eclipse, you must use the Oracle JDK compiler and not the Eclipse-based one which suffers from [this issue](https://bugs.eclipse.org/bugs/show_bug.cgi?id=434642).
+
+## IntelliJ IDEA
 
 On InteliJ IDEA, the project runs just fine without any further requirements.
+
+## Eclipse
 
 However, on Eclipse it has been reported that you need to consider the following configurations (many thanks to [Urs Joss](https://github.com/ursjoss) for the hints):
 
@@ -19,6 +33,8 @@ However, on Eclipse it has been reported that you need to consider the following
 3. There’s an issue with Eclipse (or probably more specific ecj) to infer the types of parameters in case of method overloading with the methods `doInJpa`, `doInHibernate`, `doInJdbc`. 
 Until [this Eclipse issue](https://bugs.eclipse.org/bugs/show_bug.cgi?id=434642) is fixed, you need to use the Oracle JDK to compile the project.
 If you can't change that, you need to rename those overloaded functions as explained by Urs Joss in [this specific commit](https://github.com/ursjoss/high-performance-java-persistence/commit/e975c1bb5c11d9557fcbc3fef88afaf67dc68a25).
+
+## Database setup
 
 The Unit Tests are run against HSQLDB, so no preliminary set-ups are required.
 
@@ -85,6 +101,8 @@ The Integration Tests require some external configurations:
         
     Open SQL Server Management Studio and create the `high_performance_java_persistence` database
     
+## Maven
+
 To build the project, don't use *install* or *package*. Instead, just compile test classes like this:
 
     mvn clean test-compile
