@@ -1,7 +1,6 @@
-package com.vladmihalcea.book.hpjp.hibernate.cache;
+package com.vladmihalcea.book.hpjp.hibernate.cache.query;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.transaction.VoidCallable;
 import org.hibernate.SQLQuery;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.cache.internal.StandardQueryCache;
@@ -98,13 +97,18 @@ public class QueryCacheTest extends AbstractTest {
         .getResultList();
     }
 
-    private List<PostCommentSummary> getPostCommentSummaryByPost(EntityManager entityManager) {
+    private List<PostCommentSummary> getPostCommentSummaryByPost(EntityManager entityManager, Long postId) {
         return entityManager.createQuery(
-            "select new com.vladmihalcea.book.hpjp.hibernate.cache.QueryCacheTest$PostCommentSummary(pc.id, p.title, pc.review) " +
+            "select new " +
+            "   com.vladmihalcea.book.hpjp.hibernate.cache.query.PostCommentSummary(" +
+            "       pc.id, " +
+            "       p.title, " +
+            "       pc.review" +
+            "   ) " +
             "from PostComment pc " +
             "left join pc.post p " +
             "where p.id = :postId ", PostCommentSummary.class)
-            .setParameter("postId", 1L)
+            .setParameter("postId", postId)
         .setMaxResults(10)
         .setHint(QueryHints.HINT_CACHEABLE, true)
         .getResultList();
@@ -179,15 +183,17 @@ public class QueryCacheTest extends AbstractTest {
 
     @Test
     public void test2ndLevelCacheWithProjection() {
+        Long postId = 1L;
+
         doInJPA(entityManager -> {
             LOGGER.info("Query cache with projection");
-            List<PostCommentSummary> comments = getPostCommentSummaryByPost(entityManager);
+            List<PostCommentSummary> comments = getPostCommentSummaryByPost(entityManager, postId);
             printQueryCacheRegionStatistics();
             assertEquals(1, comments.size());
         });
         doInJPA(entityManager -> {
             LOGGER.info("Query cache with projection");
-            List<PostCommentSummary> comments = getPostCommentSummaryByPost(entityManager);
+            List<PostCommentSummary> comments = getPostCommentSummaryByPost(entityManager, postId);
             assertEquals(1, comments.size());
             printQueryCacheRegionStatistics();
         });
@@ -348,33 +354,6 @@ public class QueryCacheTest extends AbstractTest {
 
         public void setReview(String review) {
             this.review = review;
-        }
-    }
-
-    public static class PostCommentSummary {
-
-        private Long commentId;
-
-        private String title;
-
-        private String review;
-
-        public PostCommentSummary(Long commentId, String title, String review) {
-            this.commentId = commentId;
-            this.title = title;
-            this.review = review;
-        }
-
-        public Long getCommentId() {
-            return commentId;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public String getReview() {
-            return review;
         }
     }
 }
