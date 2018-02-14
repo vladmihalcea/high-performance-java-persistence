@@ -20,7 +20,11 @@ public class SQLServerDataSourceProvider implements DataSourceProvider {
 	public DataSource dataSource() {
 		SQLServerDataSource dataSource = new SQLServerDataSource();
 		dataSource.setURL(
-				"jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence;user=sa;password=adm1n" );
+				"jdbc:sqlserver://localhost;instance=SQLEXPRESS;" +
+				"databaseName=high_performance_java_persistence;"
+		);
+		dataSource.setUser("sa");
+		dataSource.setPassword("adm1n");
 		return dataSource;
 	}
 
@@ -43,12 +47,12 @@ public class SQLServerDataSourceProvider implements DataSourceProvider {
 
 	@Override
 	public String username() {
-		return null;
+		return "sa";
 	}
 
 	@Override
 	public String password() {
-		return null;
+		return "adm1n";
 	}
 
 	@Override

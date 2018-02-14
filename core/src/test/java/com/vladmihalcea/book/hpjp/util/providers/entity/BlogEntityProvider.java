@@ -135,6 +135,7 @@ public class BlogEntityProvider implements EntityProvider {
 
         @OneToOne(fetch = FetchType.LAZY)
         @MapsId
+        @JoinColumn(name = "id")
         private Post post;
 
         public Long getId() {

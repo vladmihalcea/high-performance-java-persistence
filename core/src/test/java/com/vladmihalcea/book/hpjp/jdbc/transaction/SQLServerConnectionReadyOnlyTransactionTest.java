@@ -23,14 +23,16 @@ public class SQLServerConnectionReadyOnlyTransactionTest extends ConnectionReady
 
     @Parameterized.Parameters
     public static Collection<DataSourceProvider[]> rdbmsDataSourceProvider() {
-        return Collections.singletonList(new DataSourceProvider[]{new SQLServerDataSourceProvider() {
-            @Override
-            public DataSource dataSource() {
-                SQLServerDataSource dataSource = (SQLServerDataSource) super.dataSource();
-                dataSource.setURL(dataSource.getURL() + ";ApplicationIntent=ReadOnly");
-                return dataSource;
-            }
-        }});
+        return Collections.singletonList(new DataSourceProvider[]{
+            new SQLServerDataSourceProvider() {
+                @Override
+                public DataSource dataSource() {
+                    SQLServerDataSource dataSource = (SQLServerDataSource) super.dataSource();
+                    dataSource.setURL(dataSource.getURL() + ";ApplicationIntent=ReadOnly");
+                    return dataSource;
+                }
+            }}
+        );
     }
 
 
