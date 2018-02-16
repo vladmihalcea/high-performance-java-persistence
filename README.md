@@ -88,7 +88,7 @@ The Integration Tests require some external configurations:
 
     Besides having all privileges on this schema, the user mysql also requires select persmission on `mysql.PROC`.
 
-    Exact instructions can be found in [here](https://github.com/ursjoss/high-performance-java-persistence/blob/tb_mysql_instructions/MYSQL.md).
+    Exact instructions can be found in [here](https://github.com/vladmihalcea/high-performance-java-persistence/blob/master/MYSQL.md).
 
 - SQL Server
 
