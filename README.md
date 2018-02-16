@@ -78,7 +78,7 @@ The Integration Tests require some external configurations:
             $ mvn install:install-file -Dfile=ojdbc8.jar -DgroupId=com.oracle.jdbc -DartifactId=ojdbc8 -Dversion=12.2.0.1 -Dpackaging=jar
             $ mvn install:install-file -Dfile=ojdbc7_g.jar -DgroupId=com.oracle -DartifactId=ojdbc7_g -Dversion=12.1.0.1 -Dpackaging=jar            
 
-    The `com.oracle:ojdbc7_g` artifact is sued just by the jooq-oracle sub-module since there is some issue with the sql-maven-plugin Oracle dependency otherwise.
+    The `com.oracle:ojdbc7_g` artifact is used just by the jooq-oracle sub-module since there is some issue with the sql-maven-plugin Oracle dependency otherwise.
 
 - MySQL
 

@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
@@ -18,29 +19,27 @@ public class FlushOrderTest extends AbstractTest {
         };
     }
 
-    private Long postId;
-
     @Override
     public void init() {
         super.init();
-        postId = doInJPA(entityManager -> {
+        doInJPA(entityManager -> {
             Post post = new Post();
+            post.setId(1L);
             post.setTitle("High-Performance Java Persistence");
             post.setSlug("high-performance-java-persistence");
 
             entityManager.persist(post);
-            entityManager.flush();
-            return post.getId();
         });
     }
 
     @Test
-    public void tesOperationOrder() {
+    public void testOperationOrder() {
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, postId);
+            Post post = entityManager.find(Post.class, 1L);
             entityManager.remove(post);
 
             Post newPost = new Post();
+            newPost.setId(2L);
             newPost.setTitle("High-Performance Java Persistence Book");
             newPost.setSlug("high-performance-java-persistence");
             entityManager.persist(newPost);
@@ -48,26 +47,43 @@ public class FlushOrderTest extends AbstractTest {
     }
 
     @Test
-    public void tesOperationOrderWithManualFlush() {
+    public void testOperationOrderWithManualFlush() {
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, postId);
+            Post post = entityManager.find(Post.class, 1L);
             entityManager.remove(post);
+
             entityManager.flush();
 
             Post newPost = new Post();
+            newPost.setId(2L);
             newPost.setTitle("High-Performance Java Persistence Book");
             newPost.setSlug("high-performance-java-persistence");
             entityManager.persist(newPost);
+        });
+    }
+
+    @Test
+    public void testUpdate() {
+        doInJPA(entityManager -> {
+            Post post = entityManager.unwrap(Session.class)
+            .bySimpleNaturalId(Post.class)
+            .load("high-performance-java-persistence");
+
+            post.setTitle("High-Performance Java Persistence Book");
         });
     }
 
     @Entity(name = "Post")
-    @Table(name = "post",
-        uniqueConstraints = @UniqueConstraint(name = "slug_uq", columnNames = "slug"))
+    @Table(
+        name = "post",
+        uniqueConstraints = @UniqueConstraint(
+            name = "slug_uq",
+            columnNames = "slug"
+        )
+    )
     public static class Post {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         private String title;
