@@ -42,7 +42,7 @@
                             <!--This is ned for Byte Buddy-->
                             <!--<dir>${project.build.outputDirectory}/com/vladmihalcea/book/hpjp/hibernate/forum</dir>-->
                             <failOnError>true</failOnError>
-                            <enableLazyInitialization>true</enableLazyInitialization>
+                            <enableLazyInitialization>false</enableLazyInitialization>
                             <enableDirtyTracking>false</enableDirtyTracking>
                             <enableAssociationManagement>false</enableAssociationManagement>
                         </configuration>
