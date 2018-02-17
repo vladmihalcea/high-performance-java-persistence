@@ -7,7 +7,7 @@ import org.junit.Test;
 /**
  * @author Vlad Mihalcea
  */
-public class BytecodeEnhancementDirtyCheckingTest extends AbstractTest {
+public class DirtyCheckingTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
