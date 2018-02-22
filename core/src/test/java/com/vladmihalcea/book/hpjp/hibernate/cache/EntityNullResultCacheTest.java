@@ -1,18 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.transaction.VoidCallable;
-import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.QueryHints;
-import org.hibernate.cache.internal.StandardQueryCache;
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -125,6 +121,42 @@ public class EntityNullResultCacheTest extends AbstractTest {
                     }
                 });
             });
+        });
+    }
+
+    @Test
+    public void testFindNonExistingEntityWithCriteria() {
+
+        try {
+            Book book = getCacheableEntity(Book.class, "isbn", "978-9730456472");
+        } catch (NoResultException expected) {
+        }
+
+        printQueryCacheRegionStatistics();
+
+        executeSync(() -> {
+            try {
+                Book _book = getCacheableEntity(Book.class, "isbn", "978-9730456472");
+            } catch (NoResultException expected) {
+            }
+        });
+    }
+
+    public <T> T getCacheableEntity(
+                Class<T> entityClass,
+                String identifierName,
+                Object identifierValue) {
+        return doInJPA(entityManager -> {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<T> criteria = builder.createQuery(entityClass);
+            Root<T> fromClause = criteria.from(entityClass);
+
+            criteria.where(builder.equal(fromClause.get(identifierName), identifierValue));
+
+            return entityManager
+                    .createQuery(criteria)
+                    .setHint(QueryHints.CACHEABLE, true)
+                    .getSingleResult();
         });
     }
 
