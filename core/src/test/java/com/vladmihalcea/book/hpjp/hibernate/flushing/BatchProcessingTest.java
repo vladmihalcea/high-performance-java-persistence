@@ -1,9 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.annotations.*;
 import org.junit.Test;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Parameter;
+import javax.persistence.Table;
 import java.util.Properties;
 
 /**
@@ -59,11 +63,10 @@ public class BatchProcessingTest extends AbstractTest {
     }
 
     private void flush(EntityManager entityManager) {
-        entityManager.flush();
-        entityManager.clear();
-
         entityManager.getTransaction().commit();
         entityManager.getTransaction().begin();
+
+        entityManager.clear();
     }
 
     @Entity(name = "Post")
@@ -71,7 +74,12 @@ public class BatchProcessingTest extends AbstractTest {
     public static class Post {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(generator = "seq_post")
+        @SequenceGenerator(
+            name = "seq_post",
+            sequenceName = "seq_post",
+            allocationSize = 25
+        )
         private Long id;
 
         private String title;
