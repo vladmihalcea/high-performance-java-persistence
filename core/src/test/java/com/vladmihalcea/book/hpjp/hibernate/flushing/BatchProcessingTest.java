@@ -1,11 +1,10 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
-import java.util.Properties;
-
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
 import javax.persistence.*;
+import java.util.Properties;
 
 /**
  * @author Vlad Mihalcea
@@ -14,8 +13,8 @@ public class BatchProcessingTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
-                Post.class
+        return new Class<?>[]{
+            Post.class
         };
     }
 
@@ -30,27 +29,27 @@ public class BatchProcessingTest extends AbstractTest {
     }
 
     @Test
-    public void testBatchProcessing() {
+    public void testFlushClearCommit() {
         int entityCount = 50;
         int batchSize = 25;
 
-        EntityManager entityManager = entityManagerFactory().createEntityManager();;
+        EntityManager entityManager = entityManagerFactory().createEntityManager();
 
         try {
             entityManager.getTransaction().begin();
 
-            for ( int i = 0; i < entityCount; ++i ) {
-                if ( i > 0 && i % batchSize == 0 ) {
-                    flush( entityManager );
+            for (int i = 0; i < entityCount; ++i) {
+                if (i > 0 && i % batchSize == 0) {
+                    flush(entityManager);
                 }
 
-                Post post = new Post( String.format( "Post %d", i + 1 ) );
-                entityManager.persist( post );
+                Post post = new Post(String.format("Post %d", i + 1));
+                entityManager.persist(post);
             }
 
             entityManager.getTransaction().commit();
         } catch (RuntimeException e) {
-            if ( entityManager.getTransaction().isActive()) {
+            if (entityManager.getTransaction().isActive()) {
                 entityManager.getTransaction().rollback();
             }
             throw e;
