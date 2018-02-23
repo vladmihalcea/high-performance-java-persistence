@@ -8,8 +8,6 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
 /**
- * BytecodeEnhancedTest - Test to check dirty checking capabilities
- *
  * @author Vlad Mihalcea
  */
 public class BytecodeEnhancedTest extends AbstractTest {
@@ -28,7 +26,7 @@ public class BytecodeEnhancedTest extends AbstractTest {
     public void testDirtyChecking() {
         doInJPA(entityManager -> {
             Post post = new Post(1L);
-            post.setTitle("Postit");
+            post.setTitle("High-Performance Java Persistence");
 
             PostComment comment1 = new PostComment();
             comment1.setId(1L);
@@ -46,7 +44,7 @@ public class BytecodeEnhancedTest extends AbstractTest {
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
 
-            post.setTitle("Post it");
+            post.setTitle("High-Performance Java Persistence, 2nd edition");
             entityManager.flush();
         });
     }
