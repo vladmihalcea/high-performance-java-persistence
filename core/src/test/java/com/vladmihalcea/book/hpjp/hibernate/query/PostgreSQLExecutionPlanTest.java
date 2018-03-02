@@ -9,14 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Vlad Mihalcea
  */
-public class ExecutionPlanTest extends AbstractTest {
+public class PostgreSQLExecutionPlanTest extends AbstractTest {
 
-    private static final int ENTITY_COUNT = 1000;
+    private static final int ENTITY_COUNT = 500;
 
     @Override
     protected Class<?>[] entities() {
@@ -53,22 +52,21 @@ public class ExecutionPlanTest extends AbstractTest {
         });
 
         /*
-        Query:
-            SELECT
+        SELECT
             p.id
-                    FROM
+        FROM
             post p
-            WHERE EXISTS (
-                SELECT 1
-                FROM
+        WHERE EXISTS (
+            SELECT 1
+            FROM
                 post_comment pc
-                WHERE
+            WHERE
                 pc.post_id = p.id AND
                 pc.review = 'Bingo'
-            )
-            ORDER BY
+        )
+        ORDER BY
             p.title
-            LIMIT 10
+        LIMIT 10
         */
 
         List<String> executionPlanLines = doInJPA(entityManager -> {
@@ -87,16 +85,12 @@ public class ExecutionPlanTest extends AbstractTest {
                 "        pc.review = 'Bingo' " +
                 ") " +
                 "ORDER BY " +
-                "p.title " +
+                "   p.title " +
                 "LIMIT 10")
             .getResultList();
         });
 
-        LOGGER.info("Execution plan: \n{}",
-                executionPlanLines
-                        .stream()
-                        .collect(Collectors.joining("\n"))
-        );
+        LOGGER.info("Execution plan: \n{}", executionPlanLines.stream().collect(Collectors.joining("\n")));
     }
 
     @Entity(name = "Post")
@@ -119,8 +113,7 @@ public class ExecutionPlanTest extends AbstractTest {
             this.title = title;
         }
 
-        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
-                orphanRemoval = true)
+        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
         private List<PostComment> comments = new ArrayList<>();
 
         public Long getId() {
@@ -157,7 +150,8 @@ public class ExecutionPlanTest extends AbstractTest {
         @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private Long id;
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(foreignKey = @ForeignKey(name = "fk_post_id"))
         private Post post;
 
         private String review;
