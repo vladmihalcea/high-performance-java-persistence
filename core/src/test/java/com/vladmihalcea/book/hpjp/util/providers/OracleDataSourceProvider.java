@@ -13,7 +13,7 @@ import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 public class OracleDataSourceProvider implements DataSourceProvider {
 	@Override
 	public String hibernateDialect() {
-		return "org.hibernate.dialect.Oracle12cDialect";
+		return "org.hibernate.dialect.Oracle10gDialect";
 	}
 
 	@Override
