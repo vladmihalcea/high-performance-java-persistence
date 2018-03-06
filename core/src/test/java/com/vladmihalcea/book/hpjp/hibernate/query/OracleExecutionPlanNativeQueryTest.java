@@ -2,11 +2,14 @@ package com.vladmihalcea.book.hpjp.hibernate.query;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import org.hibernate.Session;
+import org.hibernate.query.*;
 import org.junit.Test;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
 import static org.junit.Assert.assertEquals;
@@ -16,6 +19,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class OracleExecutionPlanNativeQueryTest extends AbstractOracleIntegrationTest {
 
+    private static final int ENTITY_COUNT = 500;
+
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
@@ -24,54 +29,67 @@ public class OracleExecutionPlanNativeQueryTest extends AbstractOracleIntegratio
         };
     }
 
+    @Override
+    protected void additionalProperties(Properties properties) {
+        properties.put("hibernate.jdbc.batch_size", "50");
+        properties.put("hibernate.order_inserts", "true");
+    }
+
     @Test
-    public void testPagination() {
-        int commentsSize = 5;
-
+    public void testQueryExecutionPlan() {
         doInJPA(entityManager -> {
-            LongStream.range(0, 50).forEach(i -> {
-                Post post = new Post(i);
-                post.setTitle(String.format("Post nr. %d", i));
+            for (int i = 0; i < ENTITY_COUNT; i++) {
+                Post post = new Post(String.format("Post no. %d", i));
 
-                LongStream.range(0, commentsSize).forEach(j -> {
-                    PostComment comment = new PostComment();
-                    comment.setId((i * commentsSize) + j);
-                    comment.setReview(String.format("Good review nr. %d", comment.getId()));
-                    post.addComment(comment);
+                post.addComment(new PostComment(String.format("Comment %d-1", i)));
+                if (Math.random() < 0.1) {
+                    post.addComment(new PostComment("Bingo"));
+                }
 
-                });
                 entityManager.persist(post);
-            });
+            }
         });
 
         int pageStart = 20;
         int pageSize = 10;
 
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
 
-            List summaries = session.createNativeQuery(
-                "SELECT /*+GATHER_PLAN_STATISTICS*/ p.id as id, p.title as title, c.review as review " +
-                "FROM post_comment c " +
-                "JOIN post p ON c.post_id = p.id " +
-                "ORDER BY p.id")
+            List<Long> summaries = entityManager.createNativeQuery(
+                "SELECT " +
+                "     p.id " +
+                "FROM " +
+                "     post p " +
+                "WHERE EXISTS ( " +
+                "     SELECT 1 " +
+                "     FROM " +
+                "          post_comment pc " +
+                "     WHERE " +
+                "          pc.post_id = p.id AND " +
+                "          pc.review = 'Bingo' " +
+                ") " +
+                "ORDER BY " +
+                "     p.title ")
             .setFirstResult(pageStart)
             .setMaxResults(pageSize)
-            .list();
-            assertEquals(pageSize, summaries.size());
-
-            List plans = session.createNativeQuery(
-                "SELECT p.*\n" +
-                        "FROM v$sql s, TABLE (\n" +
-                        "  dbms_xplan.display_cursor (\n" +
-                        "    s.sql_id, s.child_number, 'ALLSTATS LAST'\n" +
-                        "  )\n" +
-                        ") p\n" +
-                        "WHERE s.sql_text LIKE '%/*+GATHER_PLAN_STATISTICS*/%'")
+            .unwrap(org.hibernate.query.Query.class)
+            .addQueryHint("+GATHER_PLAN_STATISTICS")
+            .addQueryHint("POST_WITH_BINGO_COMMENTS")
             .getResultList();
 
-            plans.size();
+            assertEquals(pageSize, summaries.size());
 
+            List<String> executionPlanLines = entityManager.createNativeQuery(
+                "SELECT p.* " +
+                "FROM v$sql s, TABLE ( " +
+                "  dbms_xplan.display_cursor ( " +
+                "    s.sql_id, s.child_number, 'ALLSTATS LAST' " +
+                "  ) " +
+                ") p " +
+                "WHERE s.sql_text LIKE '%POST_WITH_BINGO_COMMENTS%'")
+            .getResultList();
+
+            LOGGER.info("Execution plan: \n{}", executionPlanLines.stream().collect(Collectors.joining("\n")));
         });
     }
 
@@ -80,12 +98,12 @@ public class OracleExecutionPlanNativeQueryTest extends AbstractOracleIntegratio
     public static class Post {
 
         @Id
+        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private Long id;
 
         private String title;
 
-        public Post() {
-        }
+        public Post() {}
 
         public Post(Long id) {
             this.id = id;
@@ -95,8 +113,7 @@ public class OracleExecutionPlanNativeQueryTest extends AbstractOracleIntegratio
             this.title = title;
         }
 
-        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
-                orphanRemoval = true)
+        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
         private List<PostComment> comments = new ArrayList<>();
 
         public Long getId() {
@@ -130,15 +147,16 @@ public class OracleExecutionPlanNativeQueryTest extends AbstractOracleIntegratio
     public static class PostComment {
 
         @Id
+        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private Long id;
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(foreignKey = @ForeignKey(name = "fk_post_id"))
         private Post post;
 
         private String review;
 
-        public PostComment() {
-        }
+        public PostComment() {}
 
         public PostComment(String review) {
             this.review = review;
