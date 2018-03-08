@@ -55,6 +55,30 @@ public class OracleExecutionPlanNativeQueryTest extends AbstractOracleIntegratio
 
         doInJPA(entityManager -> {
 
+            List<Long> postIds = entityManager.createNativeQuery(
+                "SELECT " +
+                "     p.id " +
+                "FROM " +
+                "     post p " +
+                "WHERE EXISTS ( " +
+                "     SELECT 1 " +
+                "     FROM " +
+                "          post_comment pc " +
+                "     WHERE " +
+                "          pc.post_id = p.id AND " +
+                "          pc.review = 'Bingo' " +
+                ") " +
+                "ORDER BY " +
+                "     p.title ")
+            .setFirstResult(pageStart)
+            .setMaxResults(pageSize)
+            .getResultList();
+
+            assertEquals(pageSize, postIds.size());
+        });
+
+        doInJPA(entityManager -> {
+
             List<Long> summaries = entityManager.createNativeQuery(
                 "SELECT " +
                 "     p.id " +
@@ -73,11 +97,9 @@ public class OracleExecutionPlanNativeQueryTest extends AbstractOracleIntegratio
             .setFirstResult(pageStart)
             .setMaxResults(pageSize)
             .unwrap(org.hibernate.query.Query.class)
-            .addQueryHint("+GATHER_PLAN_STATISTICS")
-            .addQueryHint("POST_WITH_BINGO_COMMENTS")
+            .addQueryHint("GATHER_PLAN_STATISTICS")
+            .setComment("POST_WITH_BINGO_COMMENTS")
             .getResultList();
-
-            assertEquals(pageSize, summaries.size());
 
             List<String> executionPlanLines = entityManager.createNativeQuery(
                 "SELECT p.* " +
