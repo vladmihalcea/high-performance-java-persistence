@@ -1,13 +1,10 @@
 package com.vladmihalcea.book.hpjp.jdbc.caching;
 
+import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
+import com.vladmihalcea.book.hpjp.util.providers.*;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.JTDSDataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
 import net.sourceforge.jtds.jdbcx.JtdsDataSource;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
@@ -83,6 +80,31 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
         }
     }
 
+    public static class CachingSQLServerDataSourceProvider extends SQLServerDataSourceProvider {
+        private final int cacheSize;
+
+        CachingSQLServerDataSourceProvider(int cacheSize) {
+            this.cacheSize = cacheSize;
+        }
+
+        @Override
+        public DataSource dataSource() {
+            SQLServerDataSource dataSource = (SQLServerDataSource) super.dataSource();
+            dataSource.setStatementPoolingCacheSize(cacheSize);
+            if (cacheSize > 0) {
+                dataSource.setDisableStatementPooling(false);
+            }
+            return dataSource;
+        }
+
+        @Override
+        public String toString() {
+            return "CachingSQLServerDataSourceProvider{" +
+                    "cacheSize=" + cacheSize +
+                    '}';
+        }
+    }
+
     public static class CachingPostgreSQLDataSourceProvider extends PostgreSQLDataSourceProvider {
         private final int cacheSize;
 
@@ -125,10 +147,10 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
                 new CachingOracleDataSourceProvider(0)
         });
         providers.add(new DataSourceProvider[]{
-                new CachingJTDSDataSourceProvider(1)
+                new CachingSQLServerDataSourceProvider(1)
         });
         providers.add(new DataSourceProvider[]{
-                new CachingJTDSDataSourceProvider(0)
+                new CachingSQLServerDataSourceProvider(0)
         });
         providers.add(new DataSourceProvider[]{
                 new CachingPostgreSQLDataSourceProvider(1)
@@ -148,6 +170,7 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
         providers.add(new DataSourceProvider[]{
                 mySQLNoCachingDataSourceProvider
         });
+
         return providers;
     }
 
@@ -201,11 +224,11 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
             while (System.currentTimeMillis() < ttlMillis)
                 try (PreparedStatement statement = connection.prepareStatement(
                         "select p.title, pd.created_on " +
-                                "from post p " +
-                                "left join post_details pd on p.id = pd.id " +
-                                "where EXISTS ( " +
-                                "   select 1 from post_comment where post_id > p.id and version = ?" +
-                                ")"
+                        "from post p " +
+                        "left join post_details pd on p.id = pd.id " +
+                        "where EXISTS ( " +
+                        "   select 1 from post_comment where post_id > p.id and version = ?" +
+                        ")"
                 )) {
                     statement.setInt(1, counter.incrementAndGet());
                     statement.execute();
