@@ -60,7 +60,7 @@
                             <fileset>
                                 <basedir>${basedir}/</basedir>
                                 <includes>
-                                    <include>src/test/resources/oracle/initial_schema.sql</include>
+                                    <include>src/test/resources/mssql/initial_schema.sql</include>
                                 </includes>
                             </fileset>
                             <autocommit>true</autocommit>
