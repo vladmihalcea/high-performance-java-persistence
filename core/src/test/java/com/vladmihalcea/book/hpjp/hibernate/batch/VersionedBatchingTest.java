@@ -142,6 +142,10 @@ public class VersionedBatchingTest extends AbstractTest {
         @Version
         private int version;
 
+        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
+                orphanRemoval = true)
+        private List<PostComment> comments = new ArrayList<>();
+
         public Post() {}
 
         public Post(Long id) {
@@ -151,10 +155,6 @@ public class VersionedBatchingTest extends AbstractTest {
         public Post(String title) {
             this.title = title;
         }
-
-        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
-                orphanRemoval = true)
-        private List<PostComment> comments = new ArrayList<>();
 
         public Long getId() {
             return id;

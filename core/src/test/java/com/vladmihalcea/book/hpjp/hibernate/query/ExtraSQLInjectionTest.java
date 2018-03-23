@@ -5,10 +5,14 @@ import org.hibernate.Session;
 import org.junit.Test;
 
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -17,7 +21,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vlad Mihalcea
  */
-public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
+public class ExtraSQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -112,6 +116,33 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
         assertEquals("Good", getPostCommentReviewUsingPreparedStatement("1"));
     }
 
+    @Test
+    public void testStatementSelectDropTable() {
+        assertEquals("Good", getPostCommentReviewUsingStatement("1"));
+        try {
+            getPostCommentReviewUsingStatement("1; DROP TABLE post_comment");
+        } catch (Exception expected) {
+            LOGGER.error("Failure", expected);
+        }
+        assertEquals("Good", getPostCommentReviewUsingStatement("1"));
+    }
+
+    @Test
+    public void testPreparedStatementSelectDropTable() {
+        assertEquals("Good", getPostCommentReviewUsingPreparedStatement("1"));
+        try {
+            getPostCommentReviewUsingPreparedStatement("1; DROP TABLE post_comment");
+        } catch (Exception expected) {
+            LOGGER.error("Failure", expected);
+        }
+        assertEquals("Good", getPostCommentReviewUsingPreparedStatement("1"));
+    }
+
+    @Test
+    public void testGetPostCommentByReview() {
+        getPostCommentByReview("1 AND 1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(10) )");
+    }
+
     private void updatePostCommentReviewUsingStatement(Long id, String review) {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
@@ -141,6 +172,23 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
         });
     }
 
+    private String getPostCommentReviewUsingStatement(String id) {
+        return doInJPA(entityManager -> {
+            Session session = entityManager.unwrap(Session.class);
+            return session.doReturningWork(connection -> {
+                String sql =
+                    "SELECT review " +
+                    "FROM post_comment " +
+                    "WHERE id = " + id;
+                try(Statement statement = connection.createStatement()) {
+                    try(ResultSet resultSet = statement.executeQuery(sql)) {
+                        return resultSet.next() ? resultSet.getString(1) : null;
+                    }
+                }
+            });
+        });
+    }
+
     private String getPostCommentReviewUsingPreparedStatement(String id) {
         return doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
@@ -155,6 +203,93 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
                     }
                 }
             });
+        });
+    }
+
+    private PostComment getPostCommentByReview(String review) {
+        return doInJPA(entityManager -> {
+            return entityManager.createQuery(
+                "select p " +
+                "from PostComment p " +
+                "where p.review = :review", PostComment.class)
+            .setParameter("review", review)
+            .getSingleResult();
+        });
+    }
+
+    @Test
+    public void testSelectAllEntities() {
+        doInJPA(entityManager -> {
+            List<Post> posts = findAll("com.vladmihalcea.book.hpjp.hibernate.forum.Post");
+            posts = findAll("java.lang.Object");
+            posts.size();
+        });
+    }
+
+    @Test
+    public void testGetPostByTitleSuccess() {
+        doInJPA(entityManager -> {
+            List<Post> posts = getPostsByTitle("High-Performance Java Persistence");
+        });
+    }
+
+    @Test
+    public void testPostGetByTitleAndWait() {
+        doInJPA(entityManager -> {
+            List<Post> posts = getPostsByTitle(
+                "High-Performance Java Persistence' and " +
+                "FUNCTION('1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(10) ) --',) is '"
+            );
+            assertEquals(1, posts.size());
+        });
+    }
+
+    @Test
+    public void testTuples() {
+        doInJPA(entityManager -> {
+            List<Tuple> tuples = getTuples();
+            assertEquals(1, tuples.size());
+        });
+    }
+
+    private List<Post> getPostsByTitle(String title) {
+        return doInJPA(entityManager -> {
+            return entityManager.createQuery(
+                "select p " +
+                "from Post p " +
+                "where" +
+                "   p.title = '" + title + "'", Post.class)
+            .getResultList();
+        });
+    }
+
+    private List<Tuple> getTuples() {
+        return doInJPA(entityManager -> {
+            Class<Post> entityClass = Post.class;
+            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Tuple> query = cb.createTupleQuery();
+            Root<?> root = query.from(entityClass);
+            query.select(
+                cb.tuple(
+                    root.get("id"),
+                    cb.function("now", Date.class)
+                )
+            );
+
+            return entityManager.createQuery(query).getResultList();
+        });
+    }
+
+    private  <T> List<T> findAll(String entityName) {
+        return (List<T>) doInJPA(entityManager -> {
+            try {
+                return entityManager.unwrap(Session.class).createQuery(
+                    "select e " +
+                    "from " + Class.forName(entityName).getName() + " e ")
+                .getResultList();
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException(e);
+            }
         });
     }
 
