@@ -45,7 +45,7 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
 
             post.addComment(comment1);
             post.addComment(comment2);
-            
+
             entityManager.persist(post);
         });
     }
@@ -158,11 +158,11 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
         return doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
             return session.doReturningWork(connection -> {
-                String sql =
+                try(PreparedStatement statement = connection.prepareStatement(
                     "SELECT review " +
                     "FROM post_comment " +
-                    "WHERE id = " + id;
-                try(PreparedStatement statement = connection.prepareStatement(sql)) {
+                    "WHERE id = " + id
+                )) {
                     try(ResultSet resultSet = statement.executeQuery()) {
                         return resultSet.next() ? resultSet.getString(1) : null;
                     }
