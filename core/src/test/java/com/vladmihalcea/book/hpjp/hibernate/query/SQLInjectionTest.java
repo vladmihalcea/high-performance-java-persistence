@@ -45,6 +45,7 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
 
             post.addComment(comment1);
             post.addComment(comment2);
+            
             entityManager.persist(post);
         });
     }
@@ -112,6 +113,17 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
         assertEquals("Good", getPostCommentReviewUsingPreparedStatement("1"));
     }
 
+    @Test
+    public void testJPQLSelectAndWait() {
+        doInJPA(entityManager -> {
+            List<Post> posts = getPostsByTitle(
+                "High-Performance Java Persistence' and " +
+                "FUNCTION('1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(5) ) --',) is '"
+            );
+            assertEquals(1, posts.size());
+        });
+    }
+
     private void updatePostCommentReviewUsingStatement(Long id, String review) {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
@@ -120,7 +132,8 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
                     statement.executeUpdate(
                         "UPDATE post_comment " +
                         "SET review = '" + review + "' " +
-                        "WHERE id = " + id);
+                        "WHERE id = " + id
+                    );
                 }
             });
         });
@@ -155,6 +168,17 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
                     }
                 }
             });
+        });
+    }
+
+    private List<Post> getPostsByTitle(String title) {
+        return doInJPA(entityManager -> {
+            return entityManager.createQuery(
+                "select p " +
+                "from Post p " +
+                "where" +
+                "   p.title = '" + title + "'", Post.class)
+            .getResultList();
         });
     }
 
