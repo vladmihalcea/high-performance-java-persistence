@@ -52,7 +52,7 @@ public class DefaultUpdateTest extends AbstractTest {
             post2.setTitle("Java Persistence with Hibernate");
             entityManager.persist(post2);
         });
-        
+
         doInJPA(entityManager -> {
             Post post1 = entityManager.find(Post.class, 1L);
             post1.setTitle("High-Performance Java Persistence 2nd Edition");

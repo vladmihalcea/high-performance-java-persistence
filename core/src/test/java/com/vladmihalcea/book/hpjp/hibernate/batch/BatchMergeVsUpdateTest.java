@@ -127,10 +127,6 @@ public class BatchMergeVsUpdateTest extends AbstractTest {
 
         public Post() {}
 
-        public Post(Long id) {
-            this.id = id;
-        }
-
         public Post(String title) {
             this.title = title;
         }
