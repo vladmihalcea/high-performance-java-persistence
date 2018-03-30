@@ -49,15 +49,16 @@ public class DefaultUpdateTest extends AbstractTest {
 
             Post post2 = new Post();
             post2.setId(2L);
-            post2.setTitle("Spring Boot Buch");
+            post2.setTitle("Java Persistence with Hibernate");
             entityManager.persist(post2);
         });
+        
         doInJPA(entityManager -> {
             Post post1 = entityManager.find(Post.class, 1L);
             post1.setTitle("High-Performance Java Persistence 2nd Edition");
 
             Post post2 = entityManager.find(Post.class, 2L);
-            post2.setScore(12);
+            post2.setLikes(12);
         });
     }
 
@@ -70,7 +71,7 @@ public class DefaultUpdateTest extends AbstractTest {
 
         private String title;
 
-        private long score;
+        private long likes;
 
         @Column(name = "created_on", nullable = false, updatable = false)
         private Timestamp createdOn;
@@ -97,9 +98,9 @@ public class DefaultUpdateTest extends AbstractTest {
                 "Post{\n" +
                 "  id=%d\n" +
                 "  title='%s'\n" +
-                "  score=%d\n" +
+                "  likes=%d\n" +
                 "  creationTimestamp='%s'\n" +
-                '}', id, title, score, getCreationTimestamp()
+                '}', id, title, likes, getCreationTimestamp()
             );
         }
 
@@ -119,12 +120,12 @@ public class DefaultUpdateTest extends AbstractTest {
             this.title = title;
         }
 
-        public long getScore() {
-            return score;
+        public long getLikes() {
+            return likes;
         }
 
-        public void setScore(long score) {
-            this.score = score;
+        public void setLikes(long likes) {
+            this.likes = likes;
         }
 
         public Timestamp getCreatedOn() {
