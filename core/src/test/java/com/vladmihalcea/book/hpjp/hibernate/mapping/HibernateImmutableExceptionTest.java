@@ -1,17 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping;
 
-import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.annotations.Immutable;
-import org.hibernate.cfg.AvailableSettings;
 import org.junit.Test;
 
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
 import java.util.Date;
 import java.util.Properties;
@@ -42,7 +39,7 @@ public class HibernateImmutableExceptionTest extends AbstractTest {
 
     @Override
     protected void additionalProperties(Properties properties) {
-        properties.put(AvailableSettings.IMMUTABLE_ENTITY_UPDATE_QUERY_HANDLING_MODE, "exception");
+        properties.put("hibernate.query.immutable_entity_update_query_handling_mode", "exception");
     }
 
     @Test
@@ -80,7 +77,8 @@ public class HibernateImmutableExceptionTest extends AbstractTest {
         } catch (Exception e) {
             HibernateException cause = (HibernateException) e.getCause();
             assertEquals(
-                "The query: [update Event set eventValue = :eventValue where id = :id] attempts to update an immutable entity: [Event]",
+                "The query: [update Event set eventValue = :eventValue where id = :id] " +
+                "attempts to update an immutable entity: [Event]",
                 cause.getMessage()
             );
         }
@@ -98,20 +96,23 @@ public class HibernateImmutableExceptionTest extends AbstractTest {
 
                 update
                 .set(root.get("eventValue"), "100")
-                .set(root.get("id"), 1L)
                 .where(
                     builder.equal(root.get("id"), 1L)
                 );
 
-                return entityManager.createQuery(update).executeUpdate();
+                entityManager.createQuery(update).executeUpdate();
             });
 
             fail("Should have thrown exception");
         } catch (Exception e) {
             HibernateException cause = (HibernateException) e.getCause();
             assertEquals(
-                    "The query: [update Event as generatedAlias0 set generatedAlias0.eventValue = :param0, generatedAlias0.id = 1L where generatedAlias0.id=1L] attempts to update an immutable entity: [Event]",
-                    cause.getMessage()
+                "The query: [" +
+                "update Event as generatedAlias0 " +
+                "set generatedAlias0.eventValue = :param0 " +
+                "where generatedAlias0.id=1L" +
+                "] attempts to update an immutable entity: [Event]",
+                cause.getMessage()
             );
         }
     }

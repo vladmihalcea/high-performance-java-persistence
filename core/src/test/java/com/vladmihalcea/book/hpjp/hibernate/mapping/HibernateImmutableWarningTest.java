@@ -88,12 +88,11 @@ public class HibernateImmutableWarningTest extends AbstractSQLServerIntegrationT
 
             update
             .set(root.get("eventValue"), "100")
-            .set(root.get("id"), 1L)
             .where(
                 builder.equal(root.get("id"), 1L)
             );
 
-            return entityManager.createQuery(update).executeUpdate();
+            entityManager.createQuery(update).executeUpdate();
         });
 
         doInJPA(entityManager -> {
