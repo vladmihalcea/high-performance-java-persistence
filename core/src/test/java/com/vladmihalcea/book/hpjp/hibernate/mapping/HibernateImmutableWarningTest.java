@@ -3,33 +3,45 @@ package com.vladmihalcea.book.hpjp.hibernate.mapping;
 import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import org.hibernate.annotations.Immutable;
+import org.hibernate.cfg.AvailableSettings;
 import org.junit.Test;
 
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Root;
 import java.util.Date;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class HibernateImmutableTest extends AbstractSQLServerIntegrationTest {
+public class HibernateImmutableWarningTest extends AbstractSQLServerIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Event.class
+            Event.class
         };
     }
 
-    @Test
-    public void test() {
+    @Override
+    protected void afterInit() {
         doInJPA(entityManager -> {
-            Event event = new Event(1L, "Temperature", "25");
+            Event event = new Event(
+                1L, 
+                "Temperature", 
+                "25"
+            );
 
             entityManager.persist(event);
         });
+    }
 
+    @Test
+    public void testFlushChanges() {
         doInJPA(entityManager -> {
             Event event = entityManager.find(Event.class, 1L);
 
@@ -44,7 +56,10 @@ public class HibernateImmutableTest extends AbstractSQLServerIntegrationTest {
 
             assertEquals("25", event.getEventValue());
         });
+    }
 
+    @Test
+    public void testJPQL() {
         doInJPA(entityManager -> {
             entityManager.createQuery(
                 "update Event " +
@@ -58,7 +73,33 @@ public class HibernateImmutableTest extends AbstractSQLServerIntegrationTest {
         doInJPA(entityManager -> {
             Event event = entityManager.find(Event.class, 1L);
 
-            assertEquals("25", event.getEventValue());
+            assertEquals("10", event.getEventValue());
+        });
+    }
+
+    @Test
+    public void testCriteriaAPI() {
+
+        doInJPA(entityManager -> {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaUpdate<Event> update = builder.createCriteriaUpdate(Event.class);
+
+            Root<Event> root = update.from(Event.class);
+
+            update
+            .set(root.get("eventValue"), "100")
+            .set(root.get("id"), 1L)
+            .where(
+                builder.equal(root.get("id"), 1L)
+            );
+
+            return entityManager.createQuery(update).executeUpdate();
+        });
+
+        doInJPA(entityManager -> {
+            Event event = entityManager.find(Event.class, 1L);
+
+            assertEquals("100", event.getEventValue());
         });
     }
 
