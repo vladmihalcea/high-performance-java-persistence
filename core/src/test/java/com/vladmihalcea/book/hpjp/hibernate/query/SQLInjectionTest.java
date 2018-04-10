@@ -105,11 +105,9 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
     @Test
     public void testPreparedStatementSelectAndWait() {
         assertEquals("Good", getPostCommentReviewUsingPreparedStatement("1"));
-        try {
-            getPostCommentReviewUsingPreparedStatement("1 AND 1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(5) )");
-        } catch (Exception expected) {
-            LOGGER.error("Failure", expected);
-        }
+
+        getPostCommentReviewUsingPreparedStatement("1 AND 1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(5) )");
+        
         assertEquals("Good", getPostCommentReviewUsingPreparedStatement("1"));
     }
 
