@@ -107,7 +107,7 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
         assertEquals("Good", getPostCommentReviewUsingPreparedStatement("1"));
 
         getPostCommentReviewUsingPreparedStatement("1 AND 1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(5) )");
-        
+
         assertEquals("Good", getPostCommentReviewUsingPreparedStatement("1"));
     }
 
