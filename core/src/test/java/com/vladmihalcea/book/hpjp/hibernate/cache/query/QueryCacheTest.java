@@ -18,8 +18,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * QueryCacheTest - Test to check the 2nd level query cache
- *
  * @author Vlad Mihalcea
  */
 public class QueryCacheTest extends AbstractTest {
