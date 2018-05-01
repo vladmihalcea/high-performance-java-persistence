@@ -39,7 +39,7 @@
                 <executions>
                     <execution>
                         <configuration>
-                            <!--This is ned for Byte Buddy-->
+                            <!--This is needed for Byte Buddy-->
                             <!--<dir>${project.build.outputDirectory}/com/vladmihalcea/book/hpjp/hibernate/forum</dir>-->
                             <failOnError>true</failOnError>
                             <enableLazyInitialization>false</enableLazyInitialization>
