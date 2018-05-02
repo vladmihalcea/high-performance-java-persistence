@@ -108,7 +108,7 @@ public class EmbeddableTest extends AbstractMySQLIntegrationTest {
         }
 
         @PreUpdate
-        public void setUpdadtedOn(Auditable auditable) {
+        public void setUpdatedOn(Auditable auditable) {
             Audit audit = auditable.getAudit();
 
             audit.setUpdatedOn(LocalDateTime.now());
