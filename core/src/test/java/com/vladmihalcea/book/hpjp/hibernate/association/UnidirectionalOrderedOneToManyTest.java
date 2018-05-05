@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -10,7 +11,7 @@ import java.util.List;
 /**
  * @author Vlad Mihalcea
  */
-public class UnidirectionalOrderedOneToManyTest extends AbstractMySQLIntegrationTest {
+public class UnidirectionalOrderedOneToManyTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -18,6 +19,11 @@ public class UnidirectionalOrderedOneToManyTest extends AbstractMySQLIntegration
             Post.class,
             PostComment.class,
         };
+    }
+
+    @Override
+    protected DataSourceProxyType dataSourceProxyType() {
+        return DataSourceProxyType.P6SPY;
     }
 
     @Test
@@ -32,11 +38,9 @@ public class UnidirectionalOrderedOneToManyTest extends AbstractMySQLIntegration
             entityManager.persist(post);
             entityManager.flush();
 
-            LOGGER.info("Remove tail");
-            post.getComments().remove(2);
-            entityManager.flush();
             LOGGER.info("Remove head");
-            post.getComments().remove(0);
+            PostComment deletedComment = post.getComments().remove(0);
+            LOGGER.info("Deleted {}", deletedComment);
         });
     }
 
@@ -111,6 +115,14 @@ public class UnidirectionalOrderedOneToManyTest extends AbstractMySQLIntegration
 
         public void setReview(String review) {
             this.review = review;
+        }
+
+        @Override
+        public String toString() {
+            return "PostComment{" +
+                    "id=" + id +
+                    ", review='" + review + '\'' +
+                    '}';
         }
     }
 }
