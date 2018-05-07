@@ -14,7 +14,7 @@ public class BidirectionalOneToManyTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
+        return new Class<?>[]{
                 Post.class,
                 PostComment.class,
         };
@@ -25,22 +25,31 @@ public class BidirectionalOneToManyTest extends AbstractTest {
         doInJPA(entityManager -> {
             Post post = new Post("First post");
 
+            post.addComment(new PostComment("My first review"));
             post.addComment(
-                new PostComment("My first review")
+                    new PostComment("My second review")
             );
             post.addComment(
-                new PostComment("My second review")
-            );
-            post.addComment(
-                new PostComment( "My third review")
+                    new PostComment("My third review")
             );
 
             entityManager.persist(post);
         });
-        doInJPA(entityManager -> {
 
-            Post post = entityManager.find( Post.class, 1L );
-            PostComment comment = post.getComments().get( 0 );
+        doInJPA(entityManager -> {
+            Post post = new Post();
+            post.setTitle("High-Performance Java Persistence");
+
+            PostComment comment = new PostComment();
+            comment.setReview("JPA and Hibernate");
+            post.addComment(comment);
+
+            entityManager.persist(post);
+        });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            PostComment comment = post.getComments().get(0);
 
             post.removeComment(comment);
         });
@@ -59,7 +68,8 @@ public class BidirectionalOneToManyTest extends AbstractTest {
         @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<PostComment> comments = new ArrayList<>();
 
-        public Post() {}
+        public Post() {
+        }
 
         public Post(String title) {
             this.title = title;
@@ -110,7 +120,8 @@ public class BidirectionalOneToManyTest extends AbstractTest {
         @JoinColumn(name = "post_id")
         private Post post;
 
-        public PostComment() {}
+        public PostComment() {
+        }
 
         public PostComment(String review) {
             this.review = review;
@@ -143,9 +154,10 @@ public class BidirectionalOneToManyTest extends AbstractTest {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof PostComment )) return false;
+            if (!(o instanceof PostComment)) return false;
             return id != null && id.equals(((PostComment) o).id);
         }
+
         @Override
         public int hashCode() {
             return 31;

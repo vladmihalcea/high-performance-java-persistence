@@ -5,14 +5,13 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
  */
-public class BidirectionalOneToOneMapsIdTest extends AbstractTest {
+public class BidirectionalOneToOneOptionalTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -28,36 +27,16 @@ public class BidirectionalOneToOneMapsIdTest extends AbstractTest {
             Post post = new Post("First post");
             PostDetails details = new PostDetails("John Doe");
             post.setDetails(details);
+
             entityManager.persist(post);
         });
 
         doInJPA(entityManager -> {
             LOGGER.info("Fetching Post");
             Post post = entityManager.find(Post.class, 1L);
-
             assertNotNull(post);
 
             post.setDetails(null);
-        });
-    }
-
-    @Test
-    public void testNPlusOne() {
-        doInJPA(entityManager -> {
-            Post post1 = new Post("First post");
-            PostDetails details1 = new PostDetails("John Doe");
-            post1.setDetails(details1);
-            Post post2 = new Post("Second post");
-            PostDetails details2 = new PostDetails("John Doe");
-            post2.setDetails(details2);
-            entityManager.persist(post1);
-            entityManager.persist(post2);
-        });
-        doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p ", Post.class)
-            .getResultList();
         });
     }
 
@@ -71,7 +50,7 @@ public class BidirectionalOneToOneMapsIdTest extends AbstractTest {
 
         private String title;
 
-        @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
+        @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
         private PostDetails details;
 
         public Post() {}
@@ -118,6 +97,7 @@ public class BidirectionalOneToOneMapsIdTest extends AbstractTest {
     public static class PostDetails {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         @Column(name = "created_on")
@@ -127,7 +107,7 @@ public class BidirectionalOneToOneMapsIdTest extends AbstractTest {
         private String createdBy;
 
         @OneToOne(fetch = FetchType.LAZY)
-        @MapsId
+        @JoinColumn(name = "post_id")
         private Post post;
 
         public PostDetails() {}

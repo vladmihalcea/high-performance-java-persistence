@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.Session;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -93,17 +94,21 @@ public class BidirectionalManyToManySetTest extends AbstractTest {
         });
         doInJPA(entityManager -> {
             LOGGER.info("Shuffle");
-            Tag tag1 = new Tag("Java");
-            Post post1 = entityManager
-                    .createQuery(
-                            "select p " +
-                                    "from Post p " +
-                                    "join fetch p.tags " +
-                                    "where p.id = :id", Post.class)
-                    .setParameter( "id", postId )
-                    .getSingleResult();
 
-            post1.removeTag(tag1);
+            Post post1 = entityManager
+            .createQuery(
+                "select p " +
+                "from Post p " +
+                "join fetch p.tags " +
+                "where p.id = :id", Post.class)
+            .setParameter( "id", postId )
+            .getSingleResult();
+
+            Tag javaTag = entityManager.unwrap(Session.class)
+            .bySimpleNaturalId(Tag.class)
+            .getReference("Java");
+
+            post1.removeTag(javaTag);
         });
     }
 

@@ -12,7 +12,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vlad Mihalcea
  */
-public class BidirectionalOneToOneMapsIdTest extends AbstractTest {
+public class BidirectionalOneToOneMapsIdOptionalTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -25,9 +25,14 @@ public class BidirectionalOneToOneMapsIdTest extends AbstractTest {
     @Test
     public void testLifecycle() {
         doInJPA(entityManager -> {
-            Post post = new Post("First post");
-            PostDetails details = new PostDetails("John Doe");
+            Post post = new Post();
+            post.setTitle("High-Performance Java Persistence");
+
+            PostDetails details = new PostDetails();
+            details.setCreatedBy("Vlad Mihalcea");
+
             post.setDetails(details);
+
             entityManager.persist(post);
         });
 
@@ -71,7 +76,12 @@ public class BidirectionalOneToOneMapsIdTest extends AbstractTest {
 
         private String title;
 
-        @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
+        @OneToOne(
+            mappedBy = "post",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+        )
         private PostDetails details;
 
         public Post() {}
@@ -151,6 +161,14 @@ public class BidirectionalOneToOneMapsIdTest extends AbstractTest {
 
         public String getCreatedBy() {
             return createdBy;
+        }
+
+        public void setCreatedOn(Date createdOn) {
+            this.createdOn = createdOn;
+        }
+
+        public void setCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
         }
 
         public Post getPost() {

@@ -27,6 +27,7 @@ public class BidirectionalOneToOneTest extends AbstractTest {
             Post post = new Post("First post");
             PostDetails details = new PostDetails("John Doe");
             post.setDetails(details);
+
             entityManager.persist(post);
         });
 
@@ -34,6 +35,8 @@ public class BidirectionalOneToOneTest extends AbstractTest {
             LOGGER.info("Fetching Post");
             Post post = entityManager.find(Post.class, 1L);
             assertNotNull(post);
+
+            post.setDetails(null);
         });
     }
 
@@ -77,8 +80,11 @@ public class BidirectionalOneToOneTest extends AbstractTest {
         }
 
         public void setDetails(PostDetails details) {
+            if (details == null) {
+                if (this.details != null) this.details.setPost(null);
+            }
+            else details.setPost(this);
             this.details = details;
-            details.setPost(this);
         }
     }
 
