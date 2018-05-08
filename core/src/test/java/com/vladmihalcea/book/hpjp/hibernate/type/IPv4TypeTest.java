@@ -86,7 +86,7 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
     public void testNativeQuery() {
         doInJPA(entityManager -> {
             Event event = (Event) entityManager.createNativeQuery(
-                "SELECT {e.*} " +
+                "SELECT e.* " +
                 "FROM event e " +
                 "WHERE " +
                 "   e.ip && CAST(:network AS inet) = true", Event.class)

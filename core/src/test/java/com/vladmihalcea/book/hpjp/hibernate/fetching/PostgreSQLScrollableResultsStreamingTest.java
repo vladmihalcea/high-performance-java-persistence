@@ -105,8 +105,8 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
 
     @Test
     public void testStreamExecutionPlan() {
-        List<Object[]> executionPlanLines = doInJPA(entityManager -> {
-            try(Stream<Object[]> postStream = entityManager
+        List<String> executionPlanLines = doInJPA(entityManager -> {
+            try(Stream<String> postStream = entityManager
                 .createNativeQuery(
                     "EXPLAIN ANALYZE " +
                     "SELECT p " +
@@ -114,17 +114,16 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
                     "ORDER BY p.created_on DESC")
                 .setHint( QueryHints.HINT_FETCH_SIZE, 50 )
                 .unwrap(Query.class)
-                .stream()
+                .getResultStream()
             ) {
                 return postStream.collect( Collectors.toList() );
             }
         });
 
         LOGGER.info( "Execution plan: {}",
-                     executionPlanLines
-                     .stream()
-                     .map( line -> (String) line[0] )
-                     .collect( Collectors.joining( "\n" ) )
+                    executionPlanLines
+                    .stream()
+                    .collect( Collectors.joining( "\n" ) )
         );
     }
 
@@ -138,7 +137,6 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
                     "FROM post p " +
                     "ORDER BY p.created_on DESC")
                 .setMaxResults( 50 )
-                .unwrap(Query.class)
                 .getResultList();
         });
 
