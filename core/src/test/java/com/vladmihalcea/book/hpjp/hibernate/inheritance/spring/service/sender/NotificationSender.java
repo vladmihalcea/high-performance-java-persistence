@@ -7,7 +7,7 @@ import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.model.Notificatio
  */
 public interface NotificationSender<N extends Notification> {
 
-	Class<N> appliesTo();
+    Class<N> appliesTo();
 
-	void send(N notification);
+    void send(N notification);
 }

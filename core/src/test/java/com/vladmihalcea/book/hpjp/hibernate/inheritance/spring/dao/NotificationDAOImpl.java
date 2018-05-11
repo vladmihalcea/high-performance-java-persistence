@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class NotificationDAOImpl extends GenericDAOImpl<Notification, Long> implements NotificationDAO {
 
-	protected NotificationDAOImpl() {
-		super( Notification.class );
-	}
+    protected NotificationDAOImpl() {
+        super(Notification.class);
+    }
 }

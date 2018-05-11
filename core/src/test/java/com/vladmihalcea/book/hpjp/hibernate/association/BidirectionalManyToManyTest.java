@@ -149,8 +149,12 @@ public class BidirectionalManyToManyTest extends AbstractTest {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+
+            if (!(o instanceof Post))
+                return false;
+
             Post post = (Post) o;
             return Objects.equals(title, post.title);
         }
@@ -202,8 +206,12 @@ public class BidirectionalManyToManyTest extends AbstractTest {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+
+            if (!(o instanceof Tag))
+                return false;
+
             Tag tag = (Tag) o;
             return Objects.equals(name, tag.name);
         }

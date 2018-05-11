@@ -1,14 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.dao;
 
-import java.io.Serializable;
-import java.util.List;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author Vlad Mihalcea
@@ -17,36 +17,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public abstract class GenericDAOImpl<T, ID extends Serializable> implements GenericDAO<T, ID> {
 
-	@PersistenceContext
-	private EntityManager entityManager;
+    private final Class<T> entityClass;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-	private final Class<T> entityClass;
+    protected GenericDAOImpl(Class<T> entityClass) {
+        this.entityClass = entityClass;
+    }
 
-	protected EntityManager getEntityManager() {
-		return entityManager;
-	}
+    protected EntityManager getEntityManager() {
+        return entityManager;
+    }
 
-	protected GenericDAOImpl(Class<T> entityClass) {
-		this.entityClass = entityClass;
-	}
+    @Override
+    public T findById(ID id) {
+        return entityManager.find(entityClass, id);
+    }
 
-	@Override
-	public T findById(ID id) {
-		return entityManager.find( entityClass, id );
-	}
+    @Override
+    public List<T> findAll() {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<T> criteria = builder.createQuery(entityClass);
+        criteria.from(entityClass);
 
-	@Override
-	public List<T> findAll() {
-		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-		CriteriaQuery<T> criteria = builder.createQuery( entityClass );
-		criteria.from( entityClass );
+        return entityManager.createQuery(criteria).getResultList();
+    }
 
-		return entityManager.createQuery( criteria ).getResultList();
-	}
-
-	@Override
-	public T persist(T entity) {
-		entityManager.persist( entity );
-		return entity;
-	}
+    @Override
+    public T persist(T entity) {
+        entityManager.persist(entity);
+        return entity;
+    }
 }
