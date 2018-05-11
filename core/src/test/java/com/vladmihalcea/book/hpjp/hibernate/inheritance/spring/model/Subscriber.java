@@ -11,7 +11,7 @@ import java.util.Date;
 @Entity
 @Table(name = "notification")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class Notification {
+public class Subscriber {
 
     @Id
     @GeneratedValue

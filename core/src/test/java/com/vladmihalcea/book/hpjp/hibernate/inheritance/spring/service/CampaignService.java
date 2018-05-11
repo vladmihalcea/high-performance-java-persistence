@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.service;
 /**
  * @author Vlad Mihalcea
  */
-public interface NotificationService {
+public interface CampaignService {
 
-    void sendCampaign(String name, String message);
+    void send(String title, String message);
 }

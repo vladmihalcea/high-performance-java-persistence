@@ -8,8 +8,8 @@ import javax.persistence.Table;
  * @author Vlad Mihalcea
  */
 @Entity
-@Table(name = "sms_notification")
-public class SmsNotification extends Notification {
+@Table(name = "sms_subscriber")
+public class SmsSubscriber extends Subscriber {
 
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
