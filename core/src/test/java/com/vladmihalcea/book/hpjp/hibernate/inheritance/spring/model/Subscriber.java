@@ -9,7 +9,7 @@ import java.util.Date;
  * @author Vlad Mihalcea
  */
 @Entity
-@Table(name = "notification")
+@Table(name = "subscriber")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Subscriber {
 

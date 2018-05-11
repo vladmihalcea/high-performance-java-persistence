@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component;
  * @author Vlad Mihalcea
  */
 @Component
-public class EmailCampaignSender
-        implements CampaignSender<EmailSubscriber> {
+public class EmailCampaignSender implements CampaignSender<EmailSubscriber> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
