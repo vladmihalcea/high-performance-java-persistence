@@ -60,7 +60,6 @@ public class GroupConcatFunctionTest extends AbstractMySQLIntegrationTest {
 
             assertEquals(1, postSummaries.size());
         });
-
     }
 
     @Entity(name = "Post")
@@ -127,29 +126,4 @@ public class GroupConcatFunctionTest extends AbstractMySQLIntegrationTest {
         }
     }
 
-    public static class PostSummary {
-        private Long id;
-
-        private String title;
-
-        private String tags;
-
-        public PostSummary(Long id, String title, String tags) {
-            this.id = id;
-            this.title = title;
-            this.tags = tags;
-        }
-
-        public Long getId() {
-            return id;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public String getTags() {
-            return tags;
-        }
-    }
 }

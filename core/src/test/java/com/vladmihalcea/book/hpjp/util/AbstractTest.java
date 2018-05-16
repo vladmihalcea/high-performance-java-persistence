@@ -187,6 +187,8 @@ public abstract class AbstractTest {
             });
         }
 
+        additionalMetadata(metadataBuilder);
+
         MetadataImplementor metadata = (MetadataImplementor) metadataBuilder.build();
 
         final SessionFactoryBuilder sfb = metadata.getSessionFactoryBuilder();
@@ -340,6 +342,10 @@ public abstract class AbstractTest {
 
     protected List<org.hibernate.type.Type> additionalTypes() {
         return null;
+    }
+
+    protected void additionalMetadata(MetadataBuilder metadataBuilder) {
+
     }
 
     protected <T> T doInHibernate(HibernateTransactionFunction<T> callable) {
