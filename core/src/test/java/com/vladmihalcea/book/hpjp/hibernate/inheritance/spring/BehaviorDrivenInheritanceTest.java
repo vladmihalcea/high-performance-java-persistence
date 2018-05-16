@@ -36,7 +36,7 @@ public class BehaviorDrivenInheritanceTest {
     private EntityManager entityManager;
 
     @Autowired
-    private CampaignService notificationService;
+    private CampaignService campaignService;
 
     @Test
     public void test() {
@@ -46,6 +46,7 @@ public class BehaviorDrivenInheritanceTest {
                 sms.setPhoneNumber("012-345-67890");
                 sms.setFirstName("Vlad");
                 sms.setLastName("Mihalcea");
+
                 entityManager.persist(sms);
 
                 EmailSubscriber email = new EmailSubscriber();
@@ -60,7 +61,7 @@ public class BehaviorDrivenInheritanceTest {
             LOGGER.error("Failure", e);
         }
 
-        notificationService.send("Black Friday", "High-Performance Java Persistence is 40% OFF");
+        campaignService.send("Black Friday", "High-Performance Java Persistence is 40% OFF");
 
     }
 }
