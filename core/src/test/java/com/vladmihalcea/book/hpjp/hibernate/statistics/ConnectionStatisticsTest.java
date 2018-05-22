@@ -112,7 +112,7 @@ public class ConnectionStatisticsTest extends AbstractTest {
                     entityManager.persist(post);
 
                     Number postCount = entityManager.createQuery(
-                        "select count(*) from Post", Number.class)
+                        "select count(p) from Post p", Number.class)
                     .getSingleResult();
 
                     assertEquals((long) id, postCount.longValue());

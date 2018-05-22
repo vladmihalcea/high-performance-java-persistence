@@ -129,6 +129,18 @@
             <version>${hibernate.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>${ehcache.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jcache</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+
         <!-- Database -->
 
         <dependency>
@@ -315,10 +327,10 @@
         <slf4j.version>1.7.7</slf4j.version>
         <logback.version>1.1.2</logback.version>
         <commons-lang.version>3.3.2</commons-lang.version>
-        <hibernate.version>5.2.17.Final</hibernate.version>
+        <hibernate.version>5.3.3.Final</hibernate.version>
         <hibernate.validator.version>5.2.3.Final</hibernate.validator.version>
         <javassist.version>3.18.1-GA</javassist.version>
-        <ehcache.version>2.6.9</ehcache.version>
+        <ehcache.version>3.4.0</ehcache.version>
         <datasource-proxy.version>1.3.3</datasource-proxy.version>
         <p6spy.version>2.1.4</p6spy.version>
         <hsqldb.version>2.4.0</hsqldb.version>

@@ -1,19 +1,25 @@
 package com.vladmihalcea.book.hpjp.hibernate.statistics;
 
-import org.hibernate.stat.internal.ConcurrentStatisticsImpl;
+
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.stat.internal.StatisticsImpl;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Vlad Mihalcea
  */
-public class TransactionStatistics extends ConcurrentStatisticsImpl {
+public class TransactionStatistics extends StatisticsImpl {
 
     private static final ThreadLocal<AtomicLong> startNanos = ThreadLocal.withInitial(AtomicLong::new);
 
     private static final ThreadLocal<AtomicLong> connectionCounter = ThreadLocal.withInitial(AtomicLong::new);
 
     private StatisticsReport report = new StatisticsReport();
+
+    public TransactionStatistics(SessionFactoryImplementor sessionFactory) {
+        super(sessionFactory);
+    }
 
     @Override
     public void connect() {

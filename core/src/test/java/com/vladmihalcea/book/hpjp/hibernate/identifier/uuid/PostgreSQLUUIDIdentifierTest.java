@@ -30,6 +30,15 @@ public class PostgreSQLUUIDIdentifierTest extends AbstractPostgreSQLIntegrationT
         properties.put("hibernate.order_updates", "true");
     }
 
+    @Override
+    protected void afterInit() {
+        doInJPA(entityManager -> {
+            entityManager.createNativeQuery(
+                    "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""
+            ).executeUpdate();
+        });
+    }
+
     @Test
     public void testPersist() {
         doInJPA(entityManager -> {

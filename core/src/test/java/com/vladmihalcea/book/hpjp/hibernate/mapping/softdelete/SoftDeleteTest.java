@@ -213,13 +213,13 @@ public class SoftDeleteTest extends AbstractTest {
 	@SQLDelete(sql =
 		"UPDATE post " +
 		"SET deleted = true " +
-		"WHERE id = ?")
+		"WHERE id = ?1")
 	@Loader(namedQuery = "findPostById")
 	@NamedQuery(name = "findPostById", query =
-		"SELECT p " +
-		"FROM Post p " +
-		"WHERE " +
-		"	p.id = ? AND " +
+		"select p " +
+		"from Post p " +
+		"where " +
+		"	p.id = ?1 and " +
 		"	p.deleted = false")
 	@Where(clause = "deleted = false")
 	public static class Post extends BaseEntity {
@@ -313,10 +313,10 @@ public class SoftDeleteTest extends AbstractTest {
 		"WHERE id = ?")
 	@Loader(namedQuery = "findPostDetailsById")
 	@NamedQuery(name = "findPostDetailsById", query =
-		"SELECT pd " +
-		"FROM PostDetails pd " +
-		"WHERE " +
-		"	pd.id = ? AND " +
+		"select pd " +
+		"from PostDetails pd " +
+		"where " +
+		"	pd.id = ?1 and " +
 		"	pd.deleted = false")
 	@Where(clause = "deleted = false")
 	public static class PostDetails extends BaseEntity {
@@ -380,10 +380,10 @@ public class SoftDeleteTest extends AbstractTest {
 		"WHERE id = ?")
 	@Loader(namedQuery = "findPostCommentById")
 	@NamedQuery(name = "findPostCommentById", query =
-		"SELECT pc " +
+		"select pc " +
 		"from PostComment pc " +
-		"WHERE " +
-		"	pc.id = ? AND " +
+		"where " +
+		"	pc.id = ?1 and " +
 		"	pc.deleted = false")
 	@Where(clause = "deleted = false")
 	public static class PostComment extends BaseEntity {
@@ -429,10 +429,10 @@ public class SoftDeleteTest extends AbstractTest {
 		"WHERE id = ?")
 	@Loader(namedQuery = "findTagById")
 	@NamedQuery(name = "findTagById", query =
-		"SELECT t " +
-		"FROM Tag t " +
-		"WHERE " +
-		"	t.id = ? AND " +
+		"select t " +
+		"from Tag t " +
+		"where " +
+		"	t.id = ?1 and " +
 		"	t.deleted = false")
 	@Where(clause = "deleted = false")
 	public static class Tag extends BaseEntity {

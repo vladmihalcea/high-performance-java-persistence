@@ -12,7 +12,7 @@ public class IdentityTransactionalCacheConcurrencyStrategyTestConfiguration exte
     @Override
     protected Properties additionalProperties() {
         Properties properties = super.additionalProperties();
-        properties.put("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+        properties.put("hibernate.cache.region.factory_class", "ehcache");
         properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
         return properties;
     }

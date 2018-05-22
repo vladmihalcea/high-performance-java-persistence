@@ -29,8 +29,8 @@ public class AutoIdentifierWithSequenceGeneratorTest extends AbstractTest {
     public static class Post {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.AUTO, generator = "custom-sequence")
-        @SequenceGenerator(name = "custom-sequence", initialValue = 10)
+        @GeneratedValue(strategy = GenerationType.AUTO, generator = "custom_sequence")
+        @SequenceGenerator(name = "custom_sequence", initialValue = 10)
         private Long id;
     }
 }

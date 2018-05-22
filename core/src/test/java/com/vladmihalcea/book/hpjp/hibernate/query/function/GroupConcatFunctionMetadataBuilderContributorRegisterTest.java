@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.function;
 
 import org.hibernate.boot.MetadataBuilder;
+import org.hibernate.boot.spi.MetadataBuilderContributor;
 import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.query.Query;
 import org.hibernate.transform.Transformers;
@@ -26,10 +27,10 @@ public class GroupConcatFunctionMetadataBuilderContributorRegisterTest extends G
         );
     }
 
-    private static class SqlFunctionsMetadataBuilderContributor
-            //implements org.hibernate.boot.spi.MetadataBuilderContributor
-    {
-        //@Override
+    public static class SqlFunctionsMetadataBuilderContributor
+            implements MetadataBuilderContributor {
+
+        @Override
         public void contribute(MetadataBuilder metadataBuilder) {
             metadataBuilder.applySqlFunction(
                 "group_concat",

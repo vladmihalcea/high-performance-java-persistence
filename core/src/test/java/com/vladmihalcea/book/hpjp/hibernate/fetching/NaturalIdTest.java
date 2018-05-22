@@ -6,7 +6,6 @@ import org.hibernate.Session;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
-import org.hibernate.cache.ehcache.EhCacheRegionFactory;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -38,7 +37,7 @@ public class NaturalIdTest extends AbstractTest {
     protected Properties properties() {
         Properties properties = super.properties();
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
-        properties.put("hibernate.cache.region.factory_class", EhCacheRegionFactory.class.getName());
+        properties.put("hibernate.cache.region.factory_class", "ehcache");
         return properties;
     }
 

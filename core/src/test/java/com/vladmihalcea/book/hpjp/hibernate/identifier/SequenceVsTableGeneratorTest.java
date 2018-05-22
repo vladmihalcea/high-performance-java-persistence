@@ -48,8 +48,8 @@ public class SequenceVsTableGeneratorTest extends AbstractTest {
     public static class SequenceIdentifier {
 
         @Id
-        @GeneratedValue(generator = "sequence", strategy=GenerationType.SEQUENCE)
-        @SequenceGenerator(name = "sequence", allocationSize = 10)
+        @GeneratedValue(generator = "hib_sequence", strategy=GenerationType.SEQUENCE)
+        @SequenceGenerator(name = "hib_sequence", allocationSize = 10)
         private Long id;
     }
 
@@ -57,8 +57,8 @@ public class SequenceVsTableGeneratorTest extends AbstractTest {
     public static class TableSequenceIdentifier {
 
         @Id
-        @GeneratedValue(generator = "table", strategy=GenerationType.TABLE)
-        @TableGenerator(name = "table", allocationSize = 10)
+        @GeneratedValue(generator = "hib_table", strategy=GenerationType.TABLE)
+        @TableGenerator(name = "hib_table", allocationSize = 10)
         private Long id;
     }
 }

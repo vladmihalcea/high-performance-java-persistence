@@ -12,6 +12,6 @@ public class TransactionStatisticsFactory implements StatisticsFactory {
     @Override
     public StatisticsImplementor buildStatistics(
             SessionFactoryImplementor sessionFactory) {
-        return new TransactionStatistics();
+        return new TransactionStatistics(sessionFactory);
     }
 }

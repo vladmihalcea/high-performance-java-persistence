@@ -2,14 +2,12 @@ package com.vladmihalcea.book.hpjp.hibernate.cache.query;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.cache.internal.StandardQueryCache;
 import org.hibernate.jpa.QueryHints;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -83,10 +81,10 @@ public class QueryCacheNPlus1Test extends AbstractTest {
     @Test
     public void test2ndLevelCacheWithQuery() {
         doInJPA(entityManager -> {
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
             assertEquals(3, getLatestPostComments(entityManager).size());
 
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
             assertEquals(3, getLatestPostComments(entityManager).size());
         });
     }
@@ -94,7 +92,7 @@ public class QueryCacheNPlus1Test extends AbstractTest {
     @Test
     public void test2ndLevelCacheWithQueryNPlus1() {
         doInJPA(entityManager -> {
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
             assertEquals(3, getLatestPostComments(entityManager).size());
         });
 

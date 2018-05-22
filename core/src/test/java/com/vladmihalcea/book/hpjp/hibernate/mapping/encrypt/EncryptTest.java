@@ -22,6 +22,15 @@ public class EncryptTest extends AbstractPostgreSQLIntegrationTest {
 		};
 	}
 
+	@Override
+	protected void afterInit() {
+		doInJPA(entityManager -> {
+			entityManager.createNativeQuery(
+				"CREATE EXTENSION IF NOT EXISTS pgcrypto"
+			).executeUpdate();
+		});
+	}
+
 	@Test
 	public void test() {
 		doInJPA( entityManager -> {
