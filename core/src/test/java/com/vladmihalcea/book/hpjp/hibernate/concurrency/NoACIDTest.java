@@ -28,11 +28,6 @@ public class NoACIDTest extends AbstractTest {
         };
     }
 
-    /*@Override
-    protected Database database() {
-        return Database.POSTGRESQL;
-    }*/
-
     @Override
     protected void afterInit() {
         doInJPA(entityManager -> {
@@ -50,58 +45,6 @@ public class NoACIDTest extends AbstractTest {
 
             entityManager.persist(to);
         });
-    }
-
-    @Test
-    public void testSerialExecution() {
-        assertEquals(10L, getBalance("Alice-123"));
-        assertEquals(0L, getBalance("Bob-456"));
-
-        transfer("Alice-123", "Bob-456", 5L);
-
-        assertEquals(5L, getBalance("Alice-123"));
-        assertEquals(5L, getBalance("Bob-456"));
-
-        transfer("Alice-123", "Bob-456", 5L);
-
-        assertEquals(0L, getBalance("Alice-123"));
-        assertEquals(10L, getBalance("Bob-456"));
-
-        transfer("Alice-123", "Bob-456", 5L);
-
-        assertEquals(0L, getBalance("Alice-123"));
-        assertEquals(10L, getBalance("Bob-456"));
-    }
-
-    int threadCount = 16;
-
-    @Test
-    public void testParallelExecution() {
-        assertEquals(10L, getBalance("Alice-123"));
-        assertEquals(0L, getBalance("Bob-456"));
-
-        parallelExecution();
-
-        LOGGER.info("Alice's balance {}", getBalance("Alice-123"));
-        LOGGER.info("Bob's balance {}", getBalance("Bob-456"));
-    }
-
-    public void parallelExecution() {
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch endLatch = new CountDownLatch(threadCount);
-
-        for (int i = 0; i < threadCount; i++) {
-            new Thread(() -> {
-                awaitOnLatch(startLatch);
-
-                transfer("Alice-123", "Bob-456", 5L);
-
-                endLatch.countDown();
-            }).start();
-        }
-        LOGGER.info("Starting threads");
-        startLatch.countDown();
-        awaitOnLatch(endLatch);
     }
 
     public void transfer(String fromIban, String toIban, Long transferCents) {
@@ -144,6 +87,58 @@ public class NoACIDTest extends AbstractTest {
                 statement.executeUpdate();
             }
         });
+    }
+
+    @Test
+    public void testSerialExecution() {
+        assertEquals(10L, getBalance("Alice-123"));
+        assertEquals(0L, getBalance("Bob-456"));
+
+        transfer("Alice-123", "Bob-456", 5L);
+
+        assertEquals(5L, getBalance("Alice-123"));
+        assertEquals(5L, getBalance("Bob-456"));
+
+        transfer("Alice-123", "Bob-456", 5L);
+
+        assertEquals(0L, getBalance("Alice-123"));
+        assertEquals(10L, getBalance("Bob-456"));
+
+        transfer("Alice-123", "Bob-456", 5L);
+
+        assertEquals(0L, getBalance("Alice-123"));
+        assertEquals(10L, getBalance("Bob-456"));
+    }
+
+    @Test
+    public void testParallelExecution() {
+        assertEquals(10L, getBalance("Alice-123"));
+        assertEquals(0L, getBalance("Bob-456"));
+
+        parallelExecution();
+
+        LOGGER.info("Alice's balance {}", getBalance("Alice-123"));
+        LOGGER.info("Bob's balance {}", getBalance("Bob-456"));
+    }
+
+    int threadCount = 4;
+
+    public void parallelExecution() {
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch endLatch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            new Thread(() -> {
+                awaitOnLatch(startLatch);
+
+                transfer("Alice-123", "Bob-456", 5L);
+
+                endLatch.countDown();
+            }).start();
+        }
+        LOGGER.info("Starting threads");
+        startLatch.countDown();
+        awaitOnLatch(endLatch);
     }
 
     @Entity(name = "Account")
