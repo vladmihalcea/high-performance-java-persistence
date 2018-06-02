@@ -10,6 +10,7 @@ public enum Database {
 	POSTGRESQL(PostgreSQLDataSourceProvider.class),
 	ORACLE(OracleDataSourceProvider.class),
 	MYSQL(MySQLDataSourceProvider.class),
+	MARIADB(MariaDBDataSourceProvider.class),
 	SQLSERVER(SQLServerDataSourceProvider.class),
 	COCKROACHDB(CockroachDBDataSourceProvider.class);
 

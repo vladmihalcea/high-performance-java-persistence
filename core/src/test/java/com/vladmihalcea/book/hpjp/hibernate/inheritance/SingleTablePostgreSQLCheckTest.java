@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
 import org.junit.Test;
@@ -13,13 +12,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
  */
-public class MySQLSingleTableTest extends AbstractMySQLIntegrationTest {
+public class SingleTablePostgreSQLCheckTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -39,36 +37,34 @@ public class MySQLSingleTableTest extends AbstractMySQLIntegrationTest {
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try(Statement st = connection.createStatement()) {
                     st.executeUpdate(
-                        "CREATE " +
-                        "TRIGGER post_content_check BEFORE INSERT " +
-                        "ON Topic " +
-                        "FOR EACH ROW " +
-                        "BEGIN " +
-                        "   IF NEW.DTYPE = 'Post' " +
-                        "   THEN " +
-                        "       IF NEW.content IS NULL " +
-                        "       THEN " +
-                        "           signal sqlstate '45000' " +
-                        "           set message_text = 'Post content cannot be NULL'; " +
-                        "       END IF; " +
-                        "   END IF; " +
-                        "END;"
+                        "ALTER TABLE Topic " +
+                        "ADD CONSTRAINT post_content_check CHECK " +
+                        "( " +
+                        "    CASE " +
+                        "        WHEN DTYPE = 'Post' THEN " +
+                        "        CASE " +
+                        "           WHEN content IS NOT NULL " +
+                        "           THEN 1 " +
+                        "           ELSE 0 " +
+                        "           END " +
+                        "        ELSE 1 " +
+                        "    END = 1 " +
+                        ")"
                     );
                     st.executeUpdate(
-                        "CREATE " +
-                        "TRIGGER announcement_validUntil_check BEFORE INSERT " +
-                        "ON Topic " +
-                        "FOR EACH ROW " +
-                        "BEGIN " +
-                        "   IF NEW.DTYPE = 'Announcement' " +
-                        "   THEN " +
-                        "       IF NEW.validUntil IS NULL " +
-                        "       THEN " +
-                        "           signal sqlstate '45000' " +
-                        "           set message_text = 'Announcement validUntil cannot be NULL'; " +
-                        "       END IF; " +
-                        "   END IF; " +
-                        "END;"
+                        "ALTER TABLE Topic " +
+                        "ADD CONSTRAINT announcement_validUntil_check CHECK " +
+                        "( " +
+                        "    CASE " +
+                        "        WHEN DTYPE = 'Announcement' THEN " +
+                        "        CASE " +
+                        "           WHEN validUntil IS NOT NULL " +
+                        "           THEN 1 " +
+                        "           ELSE 0 " +
+                        "           END " +
+                        "        ELSE 1 " +
+                        "    END = 1 " +
+                        ")"
                     );
                 }
             });
@@ -139,9 +135,7 @@ public class MySQLSingleTableTest extends AbstractMySQLIntegrationTest {
 
         try {
             doInJPA(entityManager -> {
-                Post post = new Post();
-                post.setCreatedOn(new Date());
-                entityManager.persist(post);
+                entityManager.persist(new Post());
             });
             fail("content_check should fail");
         } catch (Exception expected) {
@@ -150,13 +144,54 @@ public class MySQLSingleTableTest extends AbstractMySQLIntegrationTest {
 
         try {
             doInJPA(entityManager -> {
-                Announcement announcement = new Announcement();
-                entityManager.persist(announcement);
+                entityManager.persist(new Announcement());
             });
-            fail("content_check should fail");
+            fail("announcement_validUntil_check should fail");
         } catch (Exception expected) {
             assertEquals(PersistenceException.class, expected.getCause().getClass());
         }
+
+        doInJPA(entityManager -> {
+            Board board = topic.getBoard();
+            LOGGER.info("Fetch Posts");
+            List<Post> posts = entityManager
+            .createQuery(
+                "select p " +
+                "from Post p " +
+                "where p.board = :board", Post.class)
+            .setParameter("board", board)
+            .getResultList();
+        });
+
+        doInJPA(entityManager -> {
+
+            List<Tuple> results = entityManager
+            .createQuery(
+                "select count(t), t.class " +
+                "from Topic t " +
+                "group by t.class " +
+                "order by t.class ")
+            .getResultList();
+
+            assertEquals(2, results.size());
+        });
+
+        doInJPA(entityManager -> {
+            Board board = topic.getBoard();
+
+            List<Topic> topics = entityManager
+            .createQuery(
+                "select t " +
+                "from Topic t " +
+                "where t.board = :board " +
+                "order by t.class", Topic.class)
+            .setParameter("board", board)
+            .getResultList();
+
+            assertEquals(2, topics.size());
+            assertTrue(topics.get(0) instanceof Announcement);
+            assertTrue(topics.get(1) instanceof Post);
+        });
     }
 
     @Entity(name = "Board")
@@ -255,7 +290,6 @@ public class MySQLSingleTableTest extends AbstractMySQLIntegrationTest {
     }
 
     @Entity(name = "Post")
-    @Table(name = "post")
     public static class Post extends Topic {
 
         private String content;
@@ -270,7 +304,6 @@ public class MySQLSingleTableTest extends AbstractMySQLIntegrationTest {
     }
 
     @Entity(name = "Announcement")
-    @Table(name = "announcement")
     public static class Announcement extends Topic {
 
         @Temporal(TemporalType.TIMESTAMP)

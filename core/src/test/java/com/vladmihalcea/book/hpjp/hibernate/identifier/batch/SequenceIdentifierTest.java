@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier.batch;
 
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -11,6 +12,11 @@ public class SequenceIdentifierTest extends AbstractBatchIdentifierTest {
         return new Class<?>[] {
                 Post.class,
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.MARIADB;
     }
 
     @Test

@@ -1,9 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import org.hibernate.Session;
 import org.junit.Test;
 
 import javax.persistence.*;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -11,12 +14,12 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Vlad Mihalcea
  */
-public class SingleTableTest extends AbstractTest {
+public class SingleTableMySQLTriggerTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -32,6 +35,43 @@ public class SingleTableTest extends AbstractTest {
     @Test
     public void test() {
         Topic topic = doInJPA(entityManager -> {
+
+            entityManager.unwrap(Session.class).doWork(connection -> {
+                try(Statement st = connection.createStatement()) {
+                    st.executeUpdate(
+                        "CREATE " +
+                        "TRIGGER post_content_check BEFORE INSERT " +
+                        "ON Topic " +
+                        "FOR EACH ROW " +
+                        "BEGIN " +
+                        "   IF NEW.DTYPE = 'Post' " +
+                        "   THEN " +
+                        "       IF NEW.content IS NULL " +
+                        "       THEN " +
+                        "           signal sqlstate '45000' " +
+                        "           set message_text = 'Post content cannot be NULL'; " +
+                        "       END IF; " +
+                        "   END IF; " +
+                        "END;"
+                    );
+                    st.executeUpdate(
+                        "CREATE " +
+                        "TRIGGER announcement_validUntil_check BEFORE INSERT " +
+                        "ON Topic " +
+                        "FOR EACH ROW " +
+                        "BEGIN " +
+                        "   IF NEW.DTYPE = 'Announcement' " +
+                        "   THEN " +
+                        "       IF NEW.validUntil IS NULL " +
+                        "       THEN " +
+                        "           signal sqlstate '45000' " +
+                        "           set message_text = 'Announcement validUntil cannot be NULL'; " +
+                        "       END IF; " +
+                        "   END IF; " +
+                        "END;"
+                    );
+                }
+            });
 
             Board board = new Board();
             board.setName("Hibernate");
@@ -66,66 +106,57 @@ public class SingleTableTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
+            Board board = topic.getBoard();
+            LOGGER.info("Fetch Topics");
             List<Topic> topics = entityManager
-            .createQuery(
-                "select t " +
-                "from Topic t" +
-                " where t.board = :board", Topic.class)
-            .setParameter("board", topic.getBoard())
-            .getResultList();
-
-            assertEquals(2, topics.size());
+                    .createQuery("select t from Topic t where t.board = :board", Topic.class)
+                    .setParameter("board", board)
+                    .getResultList();
         });
 
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager
-            .createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.board = :board", Post.class)
-            .setParameter("board", topic.getBoard())
-            .getResultList();
-
-            assertEquals(1, posts.size());
+            LOGGER.info("Fetch Board topics");
+            entityManager.find(Board.class, topic.getBoard().getId()).getTopics().size();
         });
 
         doInJPA(entityManager -> {
-            Board board = entityManager
-            .createQuery(
-                "select b " +
-                "from Board b " +
-                "join fetch b.topics " +
-                "where b.id = :id", Board.class)
-            .setParameter("id", topic.getBoard().getId())
-            .getSingleResult();
+            LOGGER.info("Fetch Board topics eagerly");
+            Long id = topic.getBoard().getId();
+            Board board = entityManager.createQuery(
+                "select b from Board b join fetch b.topics where b.id = :id", Board.class)
+                .setParameter("id", id)
+                .getSingleResult();
         });
 
         doInJPA(entityManager -> {
+            Long topicId = topic.getId();
+            LOGGER.info("Fetch statistics");
             TopicStatistics statistics = entityManager
-            .createQuery(
-                "select s " +
-                "from TopicStatistics s " +
-                "join fetch s.topic t " +
-                "where t.id = :topicId", TopicStatistics.class)
-            .setParameter("topicId", topic.getId())
-            .getSingleResult();
+                    .createQuery("select s from TopicStatistics s join fetch s.topic t where t.id = :topicId", TopicStatistics.class)
+                    .setParameter("topicId", topicId)
+                    .getSingleResult();
         });
 
-        doInJPA(entityManager -> {
-            List<Topic> topics = entityManager
-            .createQuery(
-                "select t " +
-                "from Topic t " +
-                "where t.board = :board " +
-                "order by t.class", Topic.class)
-            .setParameter("board", topic.getBoard())
-            .getResultList();
+        try {
+            doInJPA(entityManager -> {
+                Post post = new Post();
+                post.setCreatedOn(new Date());
+                entityManager.persist(post);
+            });
+            fail("content_check should fail");
+        } catch (Exception expected) {
+            assertEquals(PersistenceException.class, expected.getCause().getClass());
+        }
 
-            assertEquals(2, topics.size());
-
-            assertTrue(topics.get(0) instanceof Announcement);
-            assertTrue(topics.get(1) instanceof Post);
-        });
+        try {
+            doInJPA(entityManager -> {
+                Announcement announcement = new Announcement();
+                entityManager.persist(announcement);
+            });
+            fail("content_check should fail");
+        } catch (Exception expected) {
+            assertEquals(PersistenceException.class, expected.getCause().getClass());
+        }
     }
 
     @Entity(name = "Board")
@@ -138,6 +169,7 @@ public class SingleTableTest extends AbstractTest {
 
         private String name;
 
+        //Only useful for the sake of seeing the queries being generated.
         @OneToMany(mappedBy = "board")
         private List<Topic> topics = new ArrayList<>();
 
@@ -223,6 +255,7 @@ public class SingleTableTest extends AbstractTest {
     }
 
     @Entity(name = "Post")
+    @Table(name = "post")
     public static class Post extends Topic {
 
         private String content;
@@ -237,6 +270,7 @@ public class SingleTableTest extends AbstractTest {
     }
 
     @Entity(name = "Announcement")
+    @Table(name = "announcement")
     public static class Announcement extends Topic {
 
         @Temporal(TemporalType.TIMESTAMP)
