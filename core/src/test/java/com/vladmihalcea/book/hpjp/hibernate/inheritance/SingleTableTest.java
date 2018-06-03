@@ -170,7 +170,7 @@ public class SingleTableTest extends AbstractTest {
 
     @Entity(name = "Topic")
     @Table(name = "topic")
-    @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+    @Inheritance
     public static class Topic {
 
         @Id
@@ -262,7 +262,6 @@ public class SingleTableTest extends AbstractTest {
     public static class TopicStatistics {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         @OneToOne

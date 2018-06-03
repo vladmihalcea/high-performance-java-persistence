@@ -288,7 +288,6 @@ public class JoinTableDiscriminatorTest extends AbstractTest {
     public static class TopicStatistics {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         @OneToOne

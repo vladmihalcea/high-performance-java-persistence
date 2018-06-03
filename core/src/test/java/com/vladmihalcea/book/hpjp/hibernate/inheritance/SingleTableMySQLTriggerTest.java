@@ -290,7 +290,6 @@ public class SingleTableMySQLTriggerTest extends AbstractMySQLIntegrationTest {
     public static class TopicStatistics {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         @OneToOne
