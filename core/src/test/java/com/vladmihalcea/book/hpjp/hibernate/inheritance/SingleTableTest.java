@@ -31,7 +31,7 @@ public class SingleTableTest extends AbstractTest {
 
     @Test
     public void test() {
-        Topic topic = doInJPA(entityManager -> {
+        Board _board = doInJPA(entityManager -> {
 
             Board board = new Board();
             board.setName("Hibernate");
@@ -62,7 +62,7 @@ public class SingleTableTest extends AbstractTest {
             announcementStatistics.incrementViews();
             entityManager.persist(announcementStatistics);
 
-            return post;
+            return board;
         });
 
         doInJPA(entityManager -> {
@@ -71,22 +71,24 @@ public class SingleTableTest extends AbstractTest {
                 "select t " +
                 "from Topic t" +
                 " where t.board = :board", Topic.class)
-            .setParameter("board", topic.getBoard())
+            .setParameter("board", _board)
             .getResultList();
 
             assertEquals(2, topics.size());
         });
 
-        doInJPA(entityManager -> {
+        Post _post = doInJPA(entityManager -> {
             List<Post> posts = entityManager
             .createQuery(
                 "select p " +
                 "from Post p " +
                 "where p.board = :board", Post.class)
-            .setParameter("board", topic.getBoard())
+            .setParameter("board", _board)
             .getResultList();
 
             assertEquals(1, posts.size());
+
+            return posts.get(0);
         });
 
         doInJPA(entityManager -> {
@@ -96,8 +98,10 @@ public class SingleTableTest extends AbstractTest {
                 "from Board b " +
                 "join fetch b.topics " +
                 "where b.id = :id", Board.class)
-            .setParameter("id", topic.getBoard().getId())
+            .setParameter("id", _board.getId())
             .getSingleResult();
+
+            assertEquals(2, board.getTopics().size());
         });
 
         doInJPA(entityManager -> {
@@ -107,8 +111,10 @@ public class SingleTableTest extends AbstractTest {
                 "from TopicStatistics s " +
                 "join fetch s.topic t " +
                 "where t.id = :topicId", TopicStatistics.class)
-            .setParameter("topicId", topic.getId())
+            .setParameter("topicId", _post.getId())
             .getSingleResult();
+
+            assertTrue(statistics.getTopic() instanceof Post);
         });
 
         doInJPA(entityManager -> {
@@ -118,7 +124,7 @@ public class SingleTableTest extends AbstractTest {
                 "from Topic t " +
                 "where t.board = :board " +
                 "order by t.class", Topic.class)
-            .setParameter("board", topic.getBoard())
+            .setParameter("board", _board)
             .getResultList();
 
             assertEquals(2, topics.size());
