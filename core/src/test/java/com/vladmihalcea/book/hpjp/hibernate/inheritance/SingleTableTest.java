@@ -29,11 +29,12 @@ public class SingleTableTest extends AbstractTest {
         };
     }
 
-    @Test
-    public void test() {
-        Board _board = doInJPA(entityManager -> {
+    @Override
+    protected void afterInit() {
+        doInJPA(entityManager -> {
 
             Board board = new Board();
+            board.setId(1L);
             board.setName("Hibernate");
 
             entityManager.persist(board);
@@ -56,41 +57,54 @@ public class SingleTableTest extends AbstractTest {
 
             TopicStatistics postStatistics = new TopicStatistics(post);
             postStatistics.incrementViews();
+            
             entityManager.persist(postStatistics);
 
             TopicStatistics announcementStatistics = new TopicStatistics(announcement);
             announcementStatistics.incrementViews();
+
             entityManager.persist(announcementStatistics);
-
-            return board;
         });
+    }
 
+    @Test
+    public void testPolymorphicQuery() {
         doInJPA(entityManager -> {
+            Board board = entityManager.getReference(Board.class, 1L);
+
             List<Topic> topics = entityManager
             .createQuery(
                 "select t " +
                 "from Topic t" +
                 " where t.board = :board", Topic.class)
-            .setParameter("board", _board)
+            .setParameter("board", board)
             .getResultList();
 
             assertEquals(2, topics.size());
         });
+    }
 
-        Post _post = doInJPA(entityManager -> {
+    @Test
+    public void testSubclassQuery() {
+        doInJPA(entityManager -> {
+            Board board = entityManager.getReference(Board.class, 1L);
+
             List<Post> posts = entityManager
             .createQuery(
                 "select p " +
                 "from Post p " +
                 "where p.board = :board", Post.class)
-            .setParameter("board", _board)
+            .setParameter("board", board)
             .getResultList();
 
             assertEquals(1, posts.size());
 
             return posts.get(0);
         });
+    }
 
+    @Test
+    public void testPolymorphicAssociation() {
         doInJPA(entityManager -> {
             Board board = entityManager
             .createQuery(
@@ -98,33 +112,36 @@ public class SingleTableTest extends AbstractTest {
                 "from Board b " +
                 "join fetch b.topics " +
                 "where b.id = :id", Board.class)
-            .setParameter("id", _board.getId())
+            .setParameter("id", 1L)
             .getSingleResult();
 
             assertEquals(2, board.getTopics().size());
         });
 
         doInJPA(entityManager -> {
-            TopicStatistics statistics = entityManager
+            List<TopicStatistics> statistics = entityManager
             .createQuery(
                 "select s " +
                 "from TopicStatistics s " +
-                "join fetch s.topic t " +
-                "where t.id = :topicId", TopicStatistics.class)
-            .setParameter("topicId", _post.getId())
-            .getSingleResult();
+                "join fetch s.topic t ", TopicStatistics.class)
+            .getResultList();
 
-            assertTrue(statistics.getTopic() instanceof Post);
+            assertEquals(2, statistics.size());
         });
+    }
 
+    @Test
+    public void testOrderByClassType() {
         doInJPA(entityManager -> {
+            Board board = entityManager.getReference(Board.class, 1L);
+
             List<Topic> topics = entityManager
             .createQuery(
                 "select t " +
                 "from Topic t " +
                 "where t.board = :board " +
                 "order by t.class", Topic.class)
-            .setParameter("board", _board)
+            .setParameter("board", board)
             .getResultList();
 
             assertEquals(2, topics.size());
@@ -139,7 +156,6 @@ public class SingleTableTest extends AbstractTest {
     public static class Board {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         private String name;
