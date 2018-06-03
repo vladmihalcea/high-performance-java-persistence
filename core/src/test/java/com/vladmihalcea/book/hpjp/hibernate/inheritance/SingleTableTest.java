@@ -57,7 +57,7 @@ public class SingleTableTest extends AbstractTest {
 
             TopicStatistics postStatistics = new TopicStatistics(post);
             postStatistics.incrementViews();
-            
+
             entityManager.persist(postStatistics);
 
             TopicStatistics announcementStatistics = new TopicStatistics(announcement);
