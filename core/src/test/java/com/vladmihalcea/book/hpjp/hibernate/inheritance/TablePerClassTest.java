@@ -227,7 +227,7 @@ public class TablePerClassTest extends AbstractTest {
         @Id
         private Long id;
 
-        @OneToOne
+        @OneToOne(fetch = FetchType.LAZY)
         @MapsId
         private Topic topic;
 

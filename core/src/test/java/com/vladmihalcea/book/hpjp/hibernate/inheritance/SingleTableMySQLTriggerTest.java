@@ -292,7 +292,7 @@ public class SingleTableMySQLTriggerTest extends AbstractMySQLIntegrationTest {
         @Id
         private Long id;
 
-        @OneToOne
+        @OneToOne(fetch = FetchType.LAZY)
         @MapsId
         private Topic topic;
 

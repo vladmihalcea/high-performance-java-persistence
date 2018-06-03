@@ -263,7 +263,7 @@ public class MixSingleTableJoinTest extends AbstractPostgreSQLIntegrationTest {
         @GeneratedValue
         private Long id;
 
-        @OneToOne
+        @OneToOne(fetch = FetchType.LAZY)
         @MapsId
         private Topic topic;
 
