@@ -6,7 +6,7 @@ The [High-Performance Java Persistence](https://vladmihalcea.com/books/high-perf
 <img src="https://vladmihalcea.files.wordpress.com/2015/11/hpjp_small.jpg" alt="High-Performance Java Persistence">
 </a>
 
-I even write [an article](https://vladmihalcea.com/high-performance-java-persistence-github-repository/) about this repository since it's one of the best way to test JDBC, JPA< Hibernate or even jOOQ code.
+I even write [an article](https://vladmihalcea.com/high-performance-java-persistence-github-repository/) about this repository since it's one of the best way to test JDBC, JPA, Hibernate or even jOOQ code.
 
 ## Video presentation
 
