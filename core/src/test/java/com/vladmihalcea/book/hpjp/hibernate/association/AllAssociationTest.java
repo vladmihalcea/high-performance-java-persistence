@@ -77,17 +77,6 @@ public class AllAssociationTest extends AbstractTest {
             assertEquals(1, posts.size());
         });
 
-        doInJPA(entityManager -> {
-            LOGGER.info("With alias");
-            Session session = entityManager.unwrap(Session.class);
-            List<Post> posts = session
-                    .createCriteria(Post.class, "post")
-                    .setFetchMode("post.comments", FetchMode.JOIN)
-                    .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                    .add(Restrictions.eq("post.title", "Postit"))
-                    .list();
-            assertEquals(1, posts.size());
-        });
     }
 
     @Entity(name = "Post")
