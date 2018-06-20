@@ -20,6 +20,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -72,5 +75,8 @@ public class JPATransactionManagerTest {
 
         Post post = forumService.newPost("High-Performance Java Persistence", "hibernate", "jpa");
         assertNotNull(post.getId());
+
+        List<Post> posts = forumService.getPostByTitle("High-Performance Java Persistence");
+        assertEquals(1, posts.size());
     }
 }

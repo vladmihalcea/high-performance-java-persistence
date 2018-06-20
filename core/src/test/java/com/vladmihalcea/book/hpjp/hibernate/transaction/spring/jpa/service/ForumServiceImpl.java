@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * @author Vlad Mihalcea
  */
@@ -26,5 +28,11 @@ public class ForumServiceImpl implements ForumService {
         post.setTitle(title);
         post.getTags().addAll(tagDAO.findByName(tags));
         return postDAO.persist(post);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Post> getPostByTitle(String title) {
+        return postDAO.findByTitle(title);
     }
 }
