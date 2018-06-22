@@ -42,19 +42,19 @@ public class BehaviorDrivenInheritanceTest {
     public void test() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
-                SmsSubscriber sms = new SmsSubscriber();
-                sms.setPhoneNumber("012-345-67890");
-                sms.setFirstName("Vlad");
-                sms.setLastName("Mihalcea");
-
-                entityManager.persist(sms);
-
                 EmailSubscriber email = new EmailSubscriber();
                 email.setEmailAddress("vlad@acme.com");
                 email.setFirstName("Vlad");
                 email.setLastName("Mihalcea");
 
                 entityManager.persist(email);
+
+                SmsSubscriber sms = new SmsSubscriber();
+                sms.setPhoneNumber("012-345-67890");
+                sms.setFirstName("Vlad");
+                sms.setLastName("Mihalcea");
+
+                entityManager.persist(sms);
                 return null;
             });
         } catch (TransactionException e) {
