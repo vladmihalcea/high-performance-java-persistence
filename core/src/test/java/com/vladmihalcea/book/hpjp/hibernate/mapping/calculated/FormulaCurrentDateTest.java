@@ -31,9 +31,9 @@ public class FormulaCurrentDateTest extends AbstractPostgreSQLIntegrationTest {
             event.setId(1L);
 
             entityManager.persist(event);
-        });
-        doInJPA(entityManager -> {
-            Event event = entityManager.find(Event.class, 1L);
+            entityManager.flush();
+
+            entityManager.refresh(event);
 
             assertNotNull(event.getCreatedOn());
         });
