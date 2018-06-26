@@ -21,7 +21,6 @@ public class Board {
 
 	private String name;
 
-	//Only useful for the sake of seeing the queries being generated.
 	@OneToMany(mappedBy = "board")
 	private List<Topic> topics = new ArrayList<>();
 

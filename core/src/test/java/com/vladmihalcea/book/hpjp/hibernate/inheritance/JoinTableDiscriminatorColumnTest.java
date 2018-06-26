@@ -225,7 +225,6 @@ public class JoinTableDiscriminatorColumnTest extends AbstractTest {
 
         private String name;
 
-        //Only useful for the sake of seeing the queries being generated.
         @OneToMany(mappedBy = "board")
         private List<Topic> topics = new ArrayList<>();
 

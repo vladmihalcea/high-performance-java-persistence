@@ -34,8 +34,7 @@ public class SingleTableMySQLTriggerTest extends AbstractMySQLIntegrationTest {
 
     @Test
     public void test() {
-        Topic topic = doInJPA(entityManager -> {
-
+        doInJPA(entityManager -> {
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try(Statement st = connection.createStatement()) {
                     st.executeUpdate(
@@ -93,48 +92,6 @@ public class SingleTableMySQLTriggerTest extends AbstractMySQLIntegrationTest {
             announcement.setBoard(board);
 
             entityManager.persist(announcement);
-
-            TopicStatistics postStatistics = new TopicStatistics(post);
-            postStatistics.incrementViews();
-            entityManager.persist(postStatistics);
-
-            TopicStatistics announcementStatistics = new TopicStatistics(announcement);
-            announcementStatistics.incrementViews();
-            entityManager.persist(announcementStatistics);
-
-            return post;
-        });
-
-        doInJPA(entityManager -> {
-            Board board = topic.getBoard();
-            LOGGER.info("Fetch Topics");
-            List<Topic> topics = entityManager
-                    .createQuery("select t from Topic t where t.board = :board", Topic.class)
-                    .setParameter("board", board)
-                    .getResultList();
-        });
-
-        doInJPA(entityManager -> {
-            LOGGER.info("Fetch Board topics");
-            entityManager.find(Board.class, topic.getBoard().getId()).getTopics().size();
-        });
-
-        doInJPA(entityManager -> {
-            LOGGER.info("Fetch Board topics eagerly");
-            Long id = topic.getBoard().getId();
-            Board board = entityManager.createQuery(
-                "select b from Board b join fetch b.topics where b.id = :id", Board.class)
-                .setParameter("id", id)
-                .getSingleResult();
-        });
-
-        doInJPA(entityManager -> {
-            Long topicId = topic.getId();
-            LOGGER.info("Fetch statistics");
-            TopicStatistics statistics = entityManager
-                    .createQuery("select s from TopicStatistics s join fetch s.topic t where t.id = :topicId", TopicStatistics.class)
-                    .setParameter("topicId", topicId)
-                    .getSingleResult();
         });
 
         try {
@@ -169,7 +126,6 @@ public class SingleTableMySQLTriggerTest extends AbstractMySQLIntegrationTest {
 
         private String name;
 
-        //Only useful for the sake of seeing the queries being generated.
         @OneToMany(mappedBy = "board")
         private List<Topic> topics = new ArrayList<>();
 
