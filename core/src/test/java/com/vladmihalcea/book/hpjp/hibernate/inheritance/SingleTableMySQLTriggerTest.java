@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Session;
 import org.junit.Test;
 
@@ -19,7 +19,7 @@ import static org.junit.Assert.fail;
 /**
  * @author Vlad Mihalcea
  */
-public class SingleTableMySQLTriggerTest extends AbstractMySQLIntegrationTest {
+public class SingleTableMySQLTriggerTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -30,6 +30,11 @@ public class SingleTableMySQLTriggerTest extends AbstractMySQLIntegrationTest {
             Announcement.class,
             TopicStatistics.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.MYSQL;
     }
 
     @Test

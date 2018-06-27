@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Session;
 import org.junit.Test;
 
@@ -12,12 +13,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Vlad Mihalcea
  */
-public class SingleTablePostgreSQLCheckTest extends AbstractPostgreSQLIntegrationTest {
+public class SingleTablePostgreSQLCheckTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -28,6 +30,11 @@ public class SingleTablePostgreSQLCheckTest extends AbstractPostgreSQLIntegratio
             Announcement.class,
             TopicStatistics.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 
     @Test
