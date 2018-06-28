@@ -101,9 +101,7 @@ public class SingleTableMySQLTriggerTest extends AbstractTest {
 
         try {
             doInJPA(entityManager -> {
-                Post post = new Post();
-                post.setCreatedOn(new Date());
-                entityManager.persist(post);
+                entityManager.persist(new Post());
             });
             fail("content_check should fail");
         } catch (Exception expected) {
@@ -112,8 +110,7 @@ public class SingleTableMySQLTriggerTest extends AbstractTest {
 
         try {
             doInJPA(entityManager -> {
-                Announcement announcement = new Announcement();
-                entityManager.persist(announcement);
+                entityManager.persist(new Announcement());
             });
             fail("content_check should fail");
         } catch (Exception expected) {
