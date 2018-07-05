@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching;
 import org.hibernate.Session;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 /**
  * @author Vlad Mihalcea
@@ -17,22 +18,21 @@ public class NamedQueryPerformanceTest extends PlanCacheSizePerformanceTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
-            entityManagerFactory().addNamedQuery(QUERY_NAME_1, createEntityQuery1(entityManager));
-            entityManagerFactory().addNamedQuery(QUERY_NAME_2, createEntityQuery2(entityManager));
+            entityManagerFactory().addNamedQuery(QUERY_NAME_1, getEntityQuery1(entityManager));
+            entityManagerFactory().addNamedQuery(QUERY_NAME_2, getEntityQuery2(entityManager));
         });
     }
 
     @Override
-    protected Object getEntityQuery1(EntityManager entityManager) {
+    protected Query getEntityQuery1(EntityManager entityManager) {
         Session session = entityManager.unwrap(Session.class);
         return session.getNamedQuery(QUERY_NAME_1);
     }
 
     @Override
-    protected Object getEntityQuery2(EntityManager entityManager) {
+    protected Query getEntityQuery2(EntityManager entityManager) {
         Session session = entityManager.unwrap(Session.class);
         return session.getNamedQuery(QUERY_NAME_2);
     }

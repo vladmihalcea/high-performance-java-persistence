@@ -7,13 +7,16 @@ import com.codahale.metrics.UniformReservoir;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.SQLQuery;
 import org.hibernate.jpa.QueryHints;
+import org.hibernate.query.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import javax.persistence.*;
+import javax.persistence.Query;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.LongStream;
 
 /**
@@ -47,12 +50,23 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
     }
 
     @Override
+    protected void additionalProperties(Properties properties) {
+        properties.put(
+            "hibernate.query.plan_cache_max_size",
+            planCacheMaxSize
+        );
+
+        properties.put(
+            "hibernate.query.plan_parameter_metadata_max_size",
+            planCacheMaxSize
+        );
+    }
+
+    @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
             Post.class,
-            PostDetails.class,
             PostComment.class,
-            Tag.class
         };
     }
 
@@ -64,7 +78,8 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
         int commentsSize = 5;
         doInJPA(entityManager -> {
             LongStream.range(0, 50).forEach(i -> {
-                Post post = new Post(i);
+                Post post = new Post();
+                post.setId(i);
                 post.setTitle(String.format("Post nr. %d", i));
 
                 LongStream.range(0, commentsSize).forEach(j -> {
@@ -79,81 +94,47 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
         });
     }
 
-    @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
-        properties.put("hibernate.query.plan_cache_max_size", planCacheMaxSize);
-        properties.put("hibernate.query.plan_parameter_metadata_max_size", planCacheMaxSize);
-        return properties;
-    }
-
     @Test
     public void testEntityQueries() {
-        //warming up
-        LOGGER.info("Warming up");
-        doInJPA(entityManager -> {
-            for (int i = 0; i < 10000; i++) {
-                getEntityQuery1(entityManager);
-                getEntityQuery2(entityManager);
-            }
-        });
-        LOGGER.info("Create entity queries for plan cache size {}", planCacheMaxSize);
-        int iterations = 2500;
-        doInJPA(entityManager -> {
-            for (int i = 0; i < iterations; i++) {
-                long startNanos = System.nanoTime();
-                getEntityQuery1(entityManager);
-                timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
-                startNanos = System.nanoTime();
-                getEntityQuery2(entityManager);
-                timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
-            }
-        });
-        logReporter.report();
+        compileQueries(this::getEntityQuery1, this::getEntityQuery2);
     }
 
     @Test
     public void testNativeQueries() {
-        //warming up
+        compileQueries(this::getNativeQuery1, this::getNativeQuery2);
+    }
+
+    protected void compileQueries(
+            Function<EntityManager, Query> query1,
+            Function<EntityManager, Query> query2) {
+
         LOGGER.info("Warming up");
+
         doInJPA(entityManager -> {
             for (int i = 0; i < 10000; i++) {
-                getNativeQuery1(entityManager);
-                getNativeQuery2(entityManager);
+                query1.apply(entityManager);
+                query2.apply(entityManager);
             }
         });
-        LOGGER.info("Create native queries for plan cache size {}", planCacheMaxSize);
-        int iterations = 2500;
+
+        LOGGER.info("Compile queries for plan cache size {}", planCacheMaxSize);
+
         doInJPA(entityManager -> {
-            for (int i = 0; i < iterations; i++) {
+            for (int i = 0; i < 2500; i++) {
                 long startNanos = System.nanoTime();
-                getNativeQuery1(entityManager);
+                query1.apply(entityManager);
                 timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
+
                 startNanos = System.nanoTime();
-                getNativeQuery2(entityManager);
+                query2.apply(entityManager);
                 timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
             }
         });
+
         logReporter.report();
     }
 
-    protected Object getEntityQuery1(EntityManager entityManager) {
-        return createEntityQuery1(entityManager);
-    }
-
-    protected Object getEntityQuery2(EntityManager entityManager) {
-        return createEntityQuery2(entityManager);
-    }
-
-    protected Object getNativeQuery1(EntityManager entityManager) {
-        return createNativeQuery1(entityManager);
-    }
-
-    protected Object getNativeQuery2(EntityManager entityManager) {
-        return createNativeQuery2(entityManager);
-    }
-
-    protected Query createEntityQuery1(EntityManager entityManager) {
+    protected Query getEntityQuery1(EntityManager entityManager) {
         return entityManager.createQuery(
             "select new " +
             "   com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary( " +
@@ -165,15 +146,16 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
         .setHint(QueryHints.HINT_FETCH_SIZE, 20);
     }
 
-    protected Query createEntityQuery2(EntityManager entityManager) {
+    protected Query getEntityQuery2(EntityManager entityManager) {
         return entityManager.createQuery(
             "select c " +
             "from PostComment c " +
             "join fetch c.post p " +
-            "where p.title like :title");
+            "where p.title like :title"
+        );
     }
 
-    protected Query createNativeQuery1(EntityManager entityManager) {
+    protected Query getNativeQuery1(EntityManager entityManager) {
         return entityManager.createNativeQuery(
             "select p.id, p.title, c.review * " +
             "from post_comment c " +
@@ -183,25 +165,19 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
         .setHint(QueryHints.HINT_FETCH_SIZE, 20);
     }
 
-    protected org.hibernate.Query createNativeQuery2(EntityManager entityManager) {
+    protected Query getNativeQuery2(EntityManager entityManager) {
         return entityManager.createNativeQuery(
             "select c.*, p.* " +
             "from post_comment c " +
             "join post p on p.id = c.post_id " +
             "where p.title like :title")
-        .unwrap(SQLQuery.class)
+        .unwrap(NativeQuery.class)
         .addEntity(PostComment.class)
         .addEntity(Post.class);
     }
 
     @Entity(name = "Post")
     @Table(name = "post")
-    @NamedNativeQuery(
-        name = "findPostCommentsByPostTitle",
-        query = "select c.review " +
-                "from post_comment c " +
-                "where c.id > :id "
-    )
     public static class Post {
 
         @Id
@@ -209,31 +185,9 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
 
         private String title;
 
-        public Post() {
-        }
-
-        public Post(Long id) {
-            this.id = id;
-        }
-
-        public Post(String title) {
-            this.title = title;
-        }
-
         @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
                 orphanRemoval = true)
         private List<PostComment> comments = new ArrayList<>();
-
-        @OneToOne(cascade = CascadeType.ALL, mappedBy = "post",
-                orphanRemoval = true, fetch = FetchType.LAZY)
-        private PostDetails details;
-
-        @ManyToMany
-        @JoinTable(name = "post_tag",
-                joinColumns = @JoinColumn(name = "post_id"),
-                inverseJoinColumns = @JoinColumn(name = "tag_id")
-        )
-        private List<Tag> tags = new ArrayList<>();
 
         public Long getId() {
             return id;
@@ -255,81 +209,9 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
             return comments;
         }
 
-        public PostDetails getDetails() {
-            return details;
-        }
-
-        public List<Tag> getTags() {
-            return tags;
-        }
-
         public void addComment(PostComment comment) {
             comments.add(comment);
             comment.setPost(this);
-        }
-
-        public void addDetails(PostDetails details) {
-            this.details = details;
-            details.setPost(this);
-        }
-
-        public void removeDetails() {
-            this.details.setPost(null);
-            this.details = null;
-        }
-    }
-
-    @Entity(name = "PostDetails")
-    @Table(name = "post_details")
-    public static class PostDetails {
-
-        @Id
-        private Long id;
-
-        @Column(name = "created_on")
-        private Date createdOn;
-
-        @Column(name = "created_by")
-        private String createdBy;
-
-        public PostDetails() {
-            createdOn = new Date();
-        }
-
-        @OneToOne(fetch = FetchType.LAZY)
-        @MapsId
-        private Post post;
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public Post getPost() {
-            return post;
-        }
-
-        public void setPost(Post post) {
-            this.post = post;
-        }
-
-        public Date getCreatedOn() {
-            return createdOn;
-        }
-
-        public void setCreatedOn(Date createdOn) {
-            this.createdOn = createdOn;
-        }
-
-        public String getCreatedBy() {
-            return createdBy;
-        }
-
-        public void setCreatedBy(String createdBy) {
-            this.createdBy = createdBy;
         }
     }
 
@@ -340,17 +222,10 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
         @Id
         private Long id;
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         private Post post;
 
         private String review;
-
-        public PostComment() {
-        }
-
-        public PostComment(String review) {
-            this.review = review;
-        }
 
         public Long getId() {
             return id;
@@ -374,24 +249,6 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
 
         public void setReview(String review) {
             this.review = review;
-        }
-    }
-
-    @Entity(name = "Tag")
-    @Table(name = "tag")
-    public static class Tag {
-
-        @Id
-        private Long id;
-
-        private String name;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
         }
     }
 }
