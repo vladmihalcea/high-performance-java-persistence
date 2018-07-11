@@ -4,6 +4,7 @@ package com.vladmihalcea.book.hpjp.hibernate.query.function;
  * @author Vlad Mihalcea
  */
 public class PostSummaryDTO {
+
     private Long id;
 
     private String title;

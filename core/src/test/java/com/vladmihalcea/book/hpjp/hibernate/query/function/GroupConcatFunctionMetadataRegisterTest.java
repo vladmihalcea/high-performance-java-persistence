@@ -25,7 +25,7 @@ public class GroupConcatFunctionMetadataRegisterTest extends GroupConcatFunction
     protected void additionalMetadata(MetadataBuilder metadataBuilder) {
         metadataBuilder.applySqlFunction(
             "group_concat",
-            new StandardSQLFunction( "group_concat", StandardBasicTypes.STRING )
+            new StandardSQLFunction("group_concat", StandardBasicTypes.STRING)
         );
     }
 

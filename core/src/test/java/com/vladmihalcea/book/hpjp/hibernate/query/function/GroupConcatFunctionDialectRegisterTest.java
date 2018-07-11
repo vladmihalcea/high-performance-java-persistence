@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.function;
 
-import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.hibernate.PostDTO;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
 import org.hibernate.dialect.MySQL57Dialect;
@@ -29,17 +28,6 @@ public class GroupConcatFunctionDialectRegisterTest extends GroupConcatFunctionT
         };
     }
 
-    public static class CustomMySQLDialect extends MySQL57Dialect {
-        public CustomMySQLDialect() {
-            super();
-
-            registerFunction(
-                "group_concat",
-                new StandardSQLFunction( "group_concat", StandardBasicTypes.STRING )
-            );
-        }
-    }
-
     @Test
     public void testGroupConcatJPQLQuery() {
         doInJPA(entityManager -> {
@@ -58,5 +46,16 @@ public class GroupConcatFunctionDialectRegisterTest extends GroupConcatFunctionT
             assertEquals(1, postSummaries.size());
             LOGGER.info("Post tags: {}", postSummaries.get(0).getTags());
         });
+    }
+
+    public static class CustomMySQLDialect extends MySQL57Dialect {
+        public CustomMySQLDialect() {
+            super();
+
+            registerFunction(
+                    "group_concat",
+                    new StandardSQLFunction("group_concat", StandardBasicTypes.STRING)
+            );
+        }
     }
 }

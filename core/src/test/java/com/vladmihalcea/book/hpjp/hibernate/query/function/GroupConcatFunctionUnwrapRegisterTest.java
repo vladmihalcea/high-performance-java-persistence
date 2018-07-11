@@ -1,12 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.function;
 
 import org.hibernate.Session;
-import org.hibernate.boot.Metadata;
 import org.hibernate.dialect.function.StandardSQLFunction;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.query.Query;
-import org.hibernate.service.spi.SessionFactoryServiceRegistry;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.StandardBasicTypes;
 import org.junit.Test;
@@ -26,13 +22,13 @@ public class GroupConcatFunctionUnwrapRegisterTest extends GroupConcatFunctionTe
             entityManager.unwrap(Session.class)
             .getSessionFactory()
             .getSessionFactoryOptions()
-            .getCustomSqlFunctionMap().put(
+            .getCustomSqlFunctionMap()
+            .put(
                 "group_concat",
-                new StandardSQLFunction( "group_concat", StandardBasicTypes.STRING )
+                new StandardSQLFunction("group_concat", StandardBasicTypes.STRING)
             );
 
-            List<PostSummaryDTO> postSummaries = entityManager
-                .createQuery(
+            List<PostSummaryDTO> postSummaries = entityManager.createQuery(
                 "select " +
                 "   p.id as id, " +
                 "   p.title as title, " +

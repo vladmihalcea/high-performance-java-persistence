@@ -17,9 +17,9 @@ public class GroupConcatFunctionTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
-            Post.class,
-            Tag.class,
+        return new Class<?>[]{
+                Post.class,
+                Tag.class,
         };
     }
 
@@ -51,12 +51,12 @@ public class GroupConcatFunctionTest extends AbstractMySQLIntegrationTest {
     public void testGroupConcatNaiveQuery() {
         doInJPA(entityManager -> {
             List<Object[]> postSummaries = entityManager.createNativeQuery(
-                "select p.id, p.title, group_concat(t.name) " +
-                "from Post p " +
-                "left join post_tag pt on p.id = pt.post_id " +
-                "left join tag t on t.id = pt.tag_id " +
-                "group by p.id, p.title")
-            .getResultList();
+                    "select p.id, p.title, group_concat(t.name) " +
+                            "from Post p " +
+                            "left join post_tag pt on p.id = pt.post_id " +
+                            "left join tag t on t.id = pt.tag_id " +
+                            "group by p.id, p.title")
+                    .getResultList();
 
             assertEquals(1, postSummaries.size());
         });
