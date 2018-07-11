@@ -11,6 +11,15 @@ public class PostSummaryDTO {
 
     private String tags;
 
+    public PostSummaryDTO() {
+    }
+
+    public PostSummaryDTO(Long id, String title, String tags) {
+        this.id = id;
+        this.title = title;
+        this.tags = tags;
+    }
+
     public Long getId() {
         return id;
     }

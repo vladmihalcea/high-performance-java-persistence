@@ -9,6 +9,8 @@ import org.hibernate.transform.Transformers;
 import org.hibernate.type.StandardBasicTypes;
 import org.junit.Test;
 
+import javax.persistence.Tuple;
+import javax.persistence.criteria.*;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -41,6 +43,35 @@ public class GroupConcatFunctionDialectRegisterTest extends GroupConcatFunctionT
                 "group by p.id, p.title")
             .unwrap(Query.class)
             .setResultTransformer(Transformers.aliasToBean(PostSummaryDTO.class))
+            .getResultList();
+
+            assertEquals(1, postSummaries.size());
+            LOGGER.info("Post tags: {}", postSummaries.get(0).getTags());
+        });
+    }
+
+    @Test
+    public void testGroupConcatCriteriaAPIQuery() {
+        doInJPA(entityManager -> {
+            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+
+            CriteriaQuery<PostSummaryDTO> cq = cb.createQuery(PostSummaryDTO.class);
+            Root<Post> post = cq.from(Post.class);
+            Join tags = post.join("tags", JoinType.LEFT);
+            cq.groupBy(post.get("id"), post.get("title"));
+
+            cq.select(
+                cb
+                .construct(
+                    PostSummaryDTO.class,
+                    post.get("id"),
+                    post.get("title"),
+                    cb.function("group_concat", String.class, tags.get("name"))
+                )
+            );
+
+            List<PostSummaryDTO> postSummaries = entityManager
+            .createQuery(cq)
             .getResultList();
 
             assertEquals(1, postSummaries.size());
