@@ -5,10 +5,7 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -206,7 +203,11 @@ public class ManyToManyMatchParentWithChildMatchAllTest extends AbstractTest {
 
         private String name;
 
-        @OneToMany(mappedBy = "cluster", cascade = CascadeType.ALL, orphanRemoval = true)
+        @OneToMany(
+            mappedBy = "cluster",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+        )
         private List<ClusterTag> tags = new ArrayList<>();
 
         public Long getId() {
@@ -218,33 +219,7 @@ public class ManyToManyMatchParentWithChildMatchAllTest extends AbstractTest {
         }
 
         public void addTag(Tag tag) {
-            ClusterTag postTag = new ClusterTag(this, tag);
-            tags.add(postTag);
-        }
-
-        public void removeTag(Tag tag) {
-            for (Iterator<ClusterTag> iterator = tags.iterator(); iterator.hasNext(); ) {
-                ClusterTag postTag = iterator.next();
-                if (postTag.getCluster().equals(this) &&
-                        postTag.getTag().equals(tag)) {
-                    iterator.remove();
-                    postTag.setCluster(null);
-                    postTag.setTag(null);
-                }
-            }
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Cluster post = (Cluster) o;
-            return Objects.equals(name, post.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name);
+            tags.add(new ClusterTag(this, tag));
         }
     }
 
@@ -329,20 +304,6 @@ public class ManyToManyMatchParentWithChildMatchAllTest extends AbstractTest {
         public void setTag(Tag tag) {
             this.tag = tag;
         }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            ClusterTag that = (ClusterTag) o;
-            return Objects.equals(cluster, that.cluster) &&
-                    Objects.equals(tag, that.tag);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(cluster, tag);
-        }
     }
 
     @Entity(name = "Tag")
@@ -380,20 +341,6 @@ public class ManyToManyMatchParentWithChildMatchAllTest extends AbstractTest {
 
         public void setValue(String value) {
             this.value = value;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Tag tag = (Tag) o;
-            return Objects.equals(name, tag.name) &&
-                    Objects.equals(value, tag.value);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name, value);
         }
     }
 }
