@@ -1,6 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.query;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.jpa.QueryHints;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -84,20 +86,42 @@ public class ManyToManyMatchParentWithChildMatchAllTest extends AbstractTest {
     }
 
     @Test
+    public void testJPQLBroken() {
+        doInJPA(entityManager -> {
+            List<Cluster> clusters = entityManager.createQuery(
+                "select distinct c " +
+                "from ClusterTag ct " +
+                "join ct.cluster c " +
+                "join ct.tag t " +
+                "where " +
+                "    (t.name = :tagName1 and t.value = :tagValue1) or " +
+                "    (t.name = :tagName2 and t.value = :tagValue2) "
+                , Cluster.class)
+            .setParameter("tagName1", "Spark")
+            .setParameter("tagValue1", "2.2")
+            .setParameter("tagName2", "Hadoop")
+            .setParameter("tagValue2", "2.7")
+            .getResultList();
+
+            assertEquals(1, clusters.size());
+        });
+    }
+
+    @Test
     public void testNativeQueryJoin() {
         doInJPA(entityManager -> {
             List<Cluster> clusters = entityManager.createNativeQuery(
-                "select * " +
-                "from cluster c " +
-                "join (" +
-                "   select ct.cluster_id as c_id, count(*)" +
-                "   from cluster_tag ct " +
-                "   join tag t on ct.tag_id = t.id " +
-                "   where " +
-                "       (t.tag_name = :tagName1 and t.tag_value = :tagValue1) or " +
-                "       (t.tag_name = :tagName2 and t.tag_value = :tagValue2) " +
-                "   group by ct.cluster_id " +
-                "   having count(*) = 2" +
+                "SELECT * " +
+                "FROM cluster c " +
+                "JOIN (" +
+                "   SELECT ct.cluster_id AS c_id " +
+                "   FROM cluster_tag ct " +
+                "   JOIN tag t ON ct.tag_id = t.id " +
+                "   WHERE " +
+                "       (t.tag_name = :tagName1 AND t.tag_value = :tagValue1) OR " +
+                "       (t.tag_name = :tagName2 AND t.tag_value = :tagValue2) " +
+                "   GROUP BY ct.cluster_id " +
+                "   HAVING COUNT(*) = 2" +
                 ") ct1 on c.id = ct1.c_id ", Cluster.class)
             .setParameter("tagName1", "Spark")
             .setParameter("tagValue1", "2.2")
@@ -113,19 +137,19 @@ public class ManyToManyMatchParentWithChildMatchAllTest extends AbstractTest {
     public void testNativeQueryExists() {
         doInJPA(entityManager -> {
             List<Cluster> clusters = entityManager.createNativeQuery(
-                "select * " +
-                "from cluster c " +
-                "where exists (" +
-                "   select ct.cluster_id as c_id, count(*)" +
-                "   from cluster_tag ct " +
-                "   join tag t on ct.tag_id = t.id " +
-                "   where " +
-                "       c.id = ct.cluster_id and ( " +
-                "           (t.tag_name = :tagName1 and t.tag_value = :tagValue1) or " +
-                "           (t.tag_name = :tagName2 and t.tag_value = :tagValue2) " +
+                "SELECT * " +
+                "FROM cluster c " +
+                "WHERE EXISTS (" +
+                "   SELECT ct.cluster_id as c_id " +
+                "   FROM cluster_tag ct " +
+                "   JOIN tag t ON ct.tag_id = t.id " +
+                "   WHERE " +
+                "       c.id = ct.cluster_id AND ( " +
+                "           (t.tag_name = :tagName1 AND t.tag_value = :tagValue1) OR " +
+                "           (t.tag_name = :tagName2 AND t.tag_value = :tagValue2) " +
                 "       )" +
-                "   group by ct.cluster_id " +
-                "   having count(*) = 2 " +
+                "   GROUP BY ct.cluster_id " +
+                "   HAVING COUNT(*) = 2 " +
                 ") ", Cluster.class)
             .setParameter("tagName1", "Spark")
             .setParameter("tagValue1", "2.2")
@@ -307,7 +331,12 @@ public class ManyToManyMatchParentWithChildMatchAllTest extends AbstractTest {
     }
 
     @Entity(name = "Tag")
-    @Table(name = "tag")
+    @Table(
+        name = "tag",
+        uniqueConstraints = @UniqueConstraint(columnNames = {
+            "tag_name", "tag_value"
+        })
+    )
     public static class Tag {
 
         @Id
