@@ -31,7 +31,8 @@ public abstract class AbstractSequenceCallTest extends AbstractTest {
             .outputTo(LOGGER)
             .build();
 
-    private int ttl = 60;
+    //private int ttl = 60;
+    private int ttl = 5;
 
     private SequenceBatchEntityProvider entityProvider = new SequenceBatchEntityProvider();
 

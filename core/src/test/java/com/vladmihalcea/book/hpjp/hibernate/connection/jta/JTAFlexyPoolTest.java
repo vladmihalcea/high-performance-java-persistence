@@ -38,7 +38,8 @@ public class JTAFlexyPoolTest {
     private DataSource dataSource;
 
     private int threadCount = 10;
-    private int seconds = 60;
+    //private int seconds = 60;
+    private int seconds = 10;
 
     private ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 

@@ -94,7 +94,8 @@ public class OracleExplicitStatementCacheTest extends AbstractOracleIntegrationT
     }
 
     protected int getPostCount() {
-        return 1000;
+        //return 1000;
+        return 10;
     }
 
     protected int getPostCommentCount() {

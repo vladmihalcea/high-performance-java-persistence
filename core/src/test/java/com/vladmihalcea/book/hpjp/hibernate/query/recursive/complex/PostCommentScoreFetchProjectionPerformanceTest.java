@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.recursive.complex;
 
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
+import org.junit.Ignore;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 /**
  * @author Vlad Mihalcea
  */
+@Ignore
 public class PostCommentScoreFetchProjectionPerformanceTest extends AbstractPostCommentScorePerformanceTest {
 
     public PostCommentScoreFetchProjectionPerformanceTest(int postCount, int commentCount) {

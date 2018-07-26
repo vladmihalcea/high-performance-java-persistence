@@ -43,12 +43,12 @@ public class OracleDeleteStoredProcedureTest extends AbstractOracleIntegrationTe
     public static Collection<Integer[]> parameters() {
         List<Integer[]> multipliers = new ArrayList<>();
         multipliers.add(new Integer[] {1});
-        multipliers.add(new Integer[] {10});
+        /*multipliers.add(new Integer[] {10});
         multipliers.add(new Integer[] {50});
         multipliers.add(new Integer[] {100});
         multipliers.add(new Integer[] {500});
         multipliers.add(new Integer[] {1000});
-        multipliers.add(new Integer[] {2000});
+        multipliers.add(new Integer[] {2000});*/
         return multipliers;
     }
 

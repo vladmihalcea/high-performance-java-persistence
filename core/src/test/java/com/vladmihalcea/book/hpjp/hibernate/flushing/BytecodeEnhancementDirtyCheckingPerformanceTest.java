@@ -49,8 +49,8 @@ public class BytecodeEnhancementDirtyCheckingPerformanceTest extends AbstractTes
     public static Collection<Integer[]> rdbmsDataSourceProvider() {
         List<Integer[]> counts = new ArrayList<>();
         counts.add(new Integer[] {5});
-        counts.add(new Integer[] {10});
-/*        counts.add(new Integer[] {20});
+/*         counts.add(new Integer[] {10});
+       counts.add(new Integer[] {20});
         counts.add(new Integer[] {50});
         counts.add(new Integer[] {100});*/
         return counts;

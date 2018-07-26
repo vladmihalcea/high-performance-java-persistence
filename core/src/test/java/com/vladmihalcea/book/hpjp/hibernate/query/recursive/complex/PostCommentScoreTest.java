@@ -4,6 +4,7 @@ import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.SQLQuery;
 import org.hibernate.transform.ResultTransformer;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -16,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
+@Ignore
 public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override

@@ -242,7 +242,8 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
     }
 
     protected int getPostCount() {
-        return 1000;
+        //return 1000;
+        return 10;
     }
 
     protected int getPostCommentCount() {
@@ -250,7 +251,8 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
     }
 
     protected int getRunMillis() {
-        return 60 * 1000;
+        //return 60 * 1000;
+        return 1 * 1000;
     }
 
     @Override

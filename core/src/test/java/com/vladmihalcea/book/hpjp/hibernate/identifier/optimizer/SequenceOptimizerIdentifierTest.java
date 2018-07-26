@@ -61,13 +61,13 @@ public class SequenceOptimizerIdentifierTest extends AbstractTest {
 
         List<Object[]> providers = new ArrayList<>();
         providers.add(new Object[]{postgreSQLDataSourceProvider, sequence1PostEntityProvider});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequence5PostEntityProvider});
+        /*providers.add(new Object[]{postgreSQLDataSourceProvider, sequence5PostEntityProvider});
         providers.add(new Object[]{postgreSQLDataSourceProvider, sequence10PostEntityProvider});
         providers.add(new Object[]{postgreSQLDataSourceProvider, sequence50PostEntityProvider});
         providers.add(new Object[]{postgreSQLDataSourceProvider, table1PostEntityProvider});
         providers.add(new Object[]{postgreSQLDataSourceProvider, table5PostEntityProvider});
         providers.add(new Object[]{postgreSQLDataSourceProvider, table10PostEntityProvider});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, table50PostEntityProvider});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, table50PostEntityProvider});*/
         return providers;
     }
 

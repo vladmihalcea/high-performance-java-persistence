@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.connection;
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -42,7 +43,8 @@ public class FlexyPoolTest {
 
     private int threadCount = 6;
 
-    private int seconds = 120;
+    //private int seconds = 120;
+    private int seconds = 5;
 
     private ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
@@ -60,6 +62,7 @@ public class FlexyPoolTest {
     }
 
     @Test
+    @Ignore
     public void test() throws InterruptedException, ExecutionException {
         long startNanos = System.nanoTime();
 

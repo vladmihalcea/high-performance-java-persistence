@@ -69,7 +69,8 @@ public class SQLServerImplicitStatementCacheTest extends AbstractSQLServerIntegr
     }
 
     protected int getPostCount() {
-        return 1000;
+        //return 1000;
+        return 5;
     }
 
     @Override

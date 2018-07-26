@@ -52,14 +52,14 @@ public abstract class AbstractPostCommentScorePerformanceTest extends AbstractPo
     public static Collection<Integer[]> parameters() {
         List<Integer[]> postCountSizes = new ArrayList<>();
         int postCount = 2;
-        /*postCountSizes.add(new Integer[] {postCount, 16});
+        //postCountSizes.add(new Integer[] {postCount, 16});
         postCountSizes.add(new Integer[] {postCount, 4});
-        postCountSizes.add(new Integer[] {postCount, 8});
+        /*postCountSizes.add(new Integer[] {postCount, 8});
         postCountSizes.add(new Integer[] {postCount, 16});
         postCountSizes.add(new Integer[] {postCount, 24});
         postCountSizes.add(new Integer[] {postCount, 32});
-        postCountSizes.add(new Integer[] {postCount, 48});*/
-        postCountSizes.add(new Integer[] {postCount, 64});
+        postCountSizes.add(new Integer[] {postCount, 48});
+        postCountSizes.add(new Integer[] {postCount, 64});*/
         return postCountSizes;
     }
 

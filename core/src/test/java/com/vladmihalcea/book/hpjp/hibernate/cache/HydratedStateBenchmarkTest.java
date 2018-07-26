@@ -44,10 +44,10 @@ public class HydratedStateBenchmarkTest extends AbstractTest {
     public static Collection<Object[]> dataProvider() {
         List<Object[]> providers = new ArrayList<>();
         providers.add(new Object[]{100});
-        providers.add(new Object[]{500});
+        /*providers.add(new Object[]{500});
         providers.add(new Object[]{1000});
         providers.add(new Object[]{5000});
-        providers.add(new Object[]{10000});
+        providers.add(new Object[]{10000});*/
         return providers;
     }
 

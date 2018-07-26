@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.recursive.complex;
 
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
+import org.junit.Ignore;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -8,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Vlad Mihalcea
  */
+@Ignore
 public class PostCommentScoreFetchAllPerformanceTest extends AbstractPostCommentScorePerformanceTest {
 
     public PostCommentScoreFetchAllPerformanceTest(int postCount, int commentCount) {
