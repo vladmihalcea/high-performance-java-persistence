@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.equality;
 
 import com.vladmihalcea.book.hpjp.hibernate.identifier.Identifiable;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.Entity;
@@ -23,6 +24,7 @@ public class DefaultIdEqualityTest
     }
 
     @Test
+    @Ignore
     public void testEquality() {
         Post post = new Post();
         post.setTitle("High-PerformanceJava Persistence");

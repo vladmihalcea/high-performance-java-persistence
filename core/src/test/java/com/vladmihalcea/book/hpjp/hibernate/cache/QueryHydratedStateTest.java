@@ -55,7 +55,7 @@ public class QueryHydratedStateTest extends AbstractTest {
     }
 
     @Test
-    public void testEntityLoad() {
+    public void test() {
 
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery(
@@ -65,7 +65,8 @@ public class QueryHydratedStateTest extends AbstractTest {
             .setParameter("token", "High-Performance%")
             .setHint("org.hibernate.cacheable", true)
             .getResultList();
-            assertEquals(1, posts.size());
+
+            assertEquals(2, posts.size());
         });
 
         doInJPA(entityManager -> {
@@ -77,7 +78,8 @@ public class QueryHydratedStateTest extends AbstractTest {
             .setParameter("token", "High-Performance%")
             .setHint("org.hibernate.cacheable", true)
             .getResultList();
-            assertEquals(1, posts.size());
+
+            assertEquals(2, posts.size());
         });
 
         doInJPA(entityManager -> {
@@ -89,7 +91,8 @@ public class QueryHydratedStateTest extends AbstractTest {
             .setParameter("token", "High-Performance%")
             .setCacheable(true)
             .list();
-            assertEquals(1, posts.size());
+
+            assertEquals(2, posts.size());
         });
     }
 

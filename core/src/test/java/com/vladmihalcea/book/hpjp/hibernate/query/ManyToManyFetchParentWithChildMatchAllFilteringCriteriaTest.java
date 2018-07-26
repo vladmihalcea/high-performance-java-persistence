@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.query;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.QueryHints;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -14,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class ManyToManyMatchParentWithChildMatchAllTest extends AbstractTest {
+public class ManyToManyFetchParentWithChildMatchAllFilteringCriteriaTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -86,6 +87,7 @@ public class ManyToManyMatchParentWithChildMatchAllTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testJPQLBroken() {
         doInJPA(entityManager -> {
             List<Cluster> clusters = entityManager.createQuery(

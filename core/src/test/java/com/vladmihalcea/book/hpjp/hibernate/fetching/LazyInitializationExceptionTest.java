@@ -8,6 +8,7 @@ import javax.persistence.*;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -74,7 +75,7 @@ public class LazyInitializationExceptionTest extends AbstractPostgreSQLIntegrati
                 LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
             }
         } catch (LazyInitializationException expected) {
-            assertEquals("could not initialize proxy - no Session", expected.getMessage());
+            assertTrue(expected.getMessage().contains("could not initialize proxy"));
         }
     }
 

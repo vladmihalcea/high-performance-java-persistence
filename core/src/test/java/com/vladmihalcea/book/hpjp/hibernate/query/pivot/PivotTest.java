@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.pivot;
 
+import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.query.Query;
 import org.hibernate.transform.Transformers;
@@ -13,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class PivotTest extends AbstractPostgreSQLIntegrationTest {
+public class PivotTest extends AbstractOracleIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {

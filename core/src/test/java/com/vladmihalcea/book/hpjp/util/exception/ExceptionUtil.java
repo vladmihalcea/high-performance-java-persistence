@@ -112,6 +112,7 @@ public interface ExceptionUtil {
 		do {
 			if ( cause.getMessage().toLowerCase().contains( "connection is close" )
 			  || cause.getMessage().toLowerCase().contains( "closed connection" )
+			  || cause.getMessage().toLowerCase().contains( "link failure" )
 			) {
 				return true;
 			} else {

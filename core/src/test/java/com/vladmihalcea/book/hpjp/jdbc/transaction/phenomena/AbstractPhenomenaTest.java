@@ -169,25 +169,31 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
             try (Statement aliceStatement = aliceConnection.createStatement()) {
                 aliceStatement.executeUpdate(updatePostTitleSql());
                 executeSync(() -> {
-                    doInJDBC(bobConnection -> {
-                        prepareConnection(bobConnection);
-                        try {
-                            String title = selectStringColumn(bobConnection, selectPostTitleSql());
-                            if ("Transactions".equals(title)) {
-                                LOGGER.info("No Dirty Read, uncommitted data is not viewable");
-                            } else if ("ACID".equals(title)) {
-                                dirtyRead.set(true);
-                            } else {
-                                fail("Unknown title: " + title);
+                    try {
+                        doInJDBC(bobConnection -> {
+                            prepareConnection(bobConnection);
+                            try {
+                                String title = selectStringColumn(bobConnection, selectPostTitleSql());
+                                if ("Transactions".equals(title)) {
+                                    LOGGER.info("No Dirty Read, uncommitted data is not viewable");
+                                } else if ("ACID".equals(title)) {
+                                    dirtyRead.set(true);
+                                } else {
+                                    fail("Unknown title: " + title);
+                                }
+                            } catch (Exception e) {
+                                if( ExceptionUtil.isLockTimeout( e )) {
+                                    preventedByLocking.set( true );
+                                } else {
+                                    throw new IllegalStateException( e );
+                                }
                             }
-                        } catch (Exception e) {
-                            if( ExceptionUtil.isLockTimeout( e )) {
-                                preventedByLocking.set( true );
-                            } else {
-                                throw new IllegalStateException( e );
-                            }
+                        });
+                    } catch (Exception e) {
+                        if ( !ExceptionUtil.isConnectionClose( e ) ) {
+                            fail(e.getMessage());
                         }
-                    });
+                    }
                 });
             }
         });
@@ -423,8 +429,8 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 preventedByLocking.set( true );
             } else if( ExceptionUtil.isMVCCAnomalyDetection( e )) {
                 preventedByMVCC.set( true );
-            } else {
-                throw new IllegalStateException( e );
+            } else if ( !ExceptionUtil.isConnectionClose( e ) ) {
+                fail(e.getMessage());
             }
         }
         if (Boolean.TRUE.equals(preventedByLocking.get())) {

@@ -120,8 +120,8 @@ public class SessionAlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
                     "FROM post p " +
                     "JOIN board b on b.id = p.board_id " +
                     "GROUP BY forum")
-            //.addSynchronizedEntityClass(Board.class)
-            //.addSynchronizedEntityClass(Post.class)
+            .addSynchronizedEntityClass(Board.class)
+            .addSynchronizedEntityClass(Post.class)
             .setResultTransformer( Transformers.aliasToBean(ForumCount.class))
             .list();
 

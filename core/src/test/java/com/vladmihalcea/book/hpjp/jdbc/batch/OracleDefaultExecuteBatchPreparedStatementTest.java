@@ -6,6 +6,7 @@ import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -82,10 +83,8 @@ public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOrac
         doInJDBC(connection -> {
             try (
                     PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
-                    PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
             ) {
                 int postCount = getPostCount();
-                int postCommentCount = getPostCommentCount();
 
                 int index;
 
@@ -96,6 +95,18 @@ public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOrac
                     postStatement.setLong(++index, i);
                     postStatement.executeUpdate();
                 }
+            } catch (SQLException e) {
+                fail(e.getMessage());
+            }
+        });
+        doInJDBC(connection -> {
+            try (
+                    PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
+            ) {
+                int postCount = getPostCount();
+                int postCommentCount = getPostCommentCount();
+
+                int index;
 
                 for (int i = 0; i < postCount; i++) {
                     for (int j = 0; j < postCommentCount; j++) {
@@ -118,7 +129,8 @@ public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOrac
     }
 
     protected int getPostCount() {
-        return 1000;
+        //return 1000;
+        return 5;
     }
 
     protected int getPostCommentCount() {

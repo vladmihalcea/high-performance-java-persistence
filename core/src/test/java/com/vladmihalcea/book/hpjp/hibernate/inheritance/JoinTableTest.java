@@ -172,8 +172,8 @@ public class JoinTableTest extends AbstractTest {
             .getResultList();
 
             assertEquals(2, topics.size());
-            assertTrue(topics.get(0) instanceof Post);
-            assertTrue(topics.get(1) instanceof Announcement);
+            assertTrue(topics.get(0) instanceof Announcement);
+            assertTrue(topics.get(1) instanceof Post);
         });
     }
 

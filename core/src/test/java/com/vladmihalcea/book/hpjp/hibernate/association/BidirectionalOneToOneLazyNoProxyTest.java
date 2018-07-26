@@ -5,6 +5,7 @@ import com.vladmihalcea.book.hpjp.hibernate.forum.PostComment;
 import com.vladmihalcea.book.hpjp.hibernate.forum.PostDetails;
 import com.vladmihalcea.book.hpjp.hibernate.forum.Tag;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class BidirectionalOneToOneLazyNoProxyTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testNPlusOne() {
         doInJPA(entityManager -> {
             Post post = new Post();

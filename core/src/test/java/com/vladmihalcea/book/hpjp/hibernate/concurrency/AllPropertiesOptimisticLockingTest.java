@@ -10,6 +10,7 @@ import org.junit.Test;
 import javax.persistence.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -63,7 +64,7 @@ public class AllPropertiesOptimisticLockingTest extends AbstractTest {
         } catch (Exception expected) {
             LOGGER.error("Throws", expected);
             assertEquals(OptimisticLockException.class, expected.getCause().getClass());
-            assertEquals(StaleStateException.class, expected.getCause().getCause().getClass());
+            assertTrue(StaleStateException.class.isAssignableFrom(expected.getCause().getCause().getClass()));
         }
     }
 

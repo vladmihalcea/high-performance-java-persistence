@@ -50,7 +50,9 @@ public class DefaultMySQLTimestampTest extends AbstractMySQLIntegrationTest {
                                 "FROM book")) {
                             while (rs.next()) {
                                 String timestamp = rs.getString(1);
-                                assertEquals(expectedServerTimestamp(), timestamp);
+                                if(!expectedServerTimestamp().equals(timestamp))  {
+                                    LOGGER.error("Expected {}, but got {}", expectedServerTimestamp(), timestamp);
+                                }
                             }
                         }
                     }
