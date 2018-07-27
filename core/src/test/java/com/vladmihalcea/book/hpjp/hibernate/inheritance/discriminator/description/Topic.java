@@ -1,19 +1,7 @@
-package com.vladmihalcea.book.hpjp.hibernate.inheritance.discriminator;
+package com.vladmihalcea.book.hpjp.hibernate.inheritance.discriminator.description;
 
 import java.util.Date;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
 /**
  * @author Vlad Mihalcea
@@ -26,6 +14,7 @@ import javax.persistence.TemporalType;
 	name = "topic_type_id",
 	columnDefinition = "TINYINT(1)"
 )
+@DiscriminatorValue("0")
 public class Topic {
 
 	@Id
@@ -38,9 +27,6 @@ public class Topic {
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createdOn = new Date();
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	private Board board;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
@@ -82,15 +68,7 @@ public class Topic {
 		this.createdOn = createdOn;
 	}
 
-	public Board getBoard() {
-		return board;
-	}
-
-	public void setBoard(Board board) {
-		this.board = board;
-	}
-
-	TopicType getType() {
+	public TopicType getType() {
 		return type;
 	}
 }
