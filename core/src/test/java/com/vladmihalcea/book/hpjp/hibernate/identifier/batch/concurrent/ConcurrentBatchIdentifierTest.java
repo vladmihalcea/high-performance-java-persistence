@@ -12,6 +12,7 @@ import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -61,7 +62,7 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
 
         List<Object[]> providers = new ArrayList<>();
         providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 1});
-        /*providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 2});
+        providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 2});
         providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 4});
         providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 8});
         providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 16});
@@ -69,10 +70,10 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
         providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 2});
         providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 4});
         providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 8});
-        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 16});*/
+        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 16});
 
         providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 1});
-        /*providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 2});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 2});
         providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 4});
         providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 8});
         providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 16});
@@ -80,7 +81,7 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
         providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 2});
         providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 4});
         providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 8});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 16});*/
+        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 16});
         return providers;
     }
 
@@ -90,6 +91,7 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testIdentifierGenerator() throws InterruptedException, ExecutionException {
         LOGGER.debug("testIdentifierGenerator, database: {}, entityProvider: {}, threadCount: {}", dataSourceProvider.database(), entityProvider.getClass().getSimpleName(), threadCount);
         //warming-up

@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.jdbc.caching;
 import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
@@ -75,6 +76,7 @@ public class OracleExplicitStatementCacheTest extends AbstractOracleIntegrationT
     }
 
     @Test
+    @Ignore
     public void testStatementCaching() {
         doInJDBC(connection -> {
             for (int i = 0; i < 5; i++) {
@@ -94,8 +96,7 @@ public class OracleExplicitStatementCacheTest extends AbstractOracleIntegrationT
     }
 
     protected int getPostCount() {
-        //return 1000;
-        return 10;
+        return 1000;
     }
 
     protected int getPostCommentCount() {

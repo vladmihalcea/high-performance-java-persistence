@@ -7,6 +7,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Immutable;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -44,10 +45,10 @@ public class HydratedStateBenchmarkTest extends AbstractTest {
     public static Collection<Object[]> dataProvider() {
         List<Object[]> providers = new ArrayList<>();
         providers.add(new Object[]{100});
-        /*providers.add(new Object[]{500});
+        providers.add(new Object[]{500});
         providers.add(new Object[]{1000});
         providers.add(new Object[]{5000});
-        providers.add(new Object[]{10000});*/
+        providers.add(new Object[]{10000});
         return providers;
     }
 
@@ -90,6 +91,7 @@ public class HydratedStateBenchmarkTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testReadOnlyFetchPerformance() {
         //warming-up
         doInJPA(entityManager -> {

@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.jdbc.caching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.entity.TaskEntityProvider;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
@@ -57,6 +58,7 @@ public class SQLServerImplicitStatementCacheTest extends AbstractSQLServerIntegr
     }
 
     @Test
+    @Ignore
     public void testStatementCaching() {
         doInJDBC(connection -> {
             try (PreparedStatement statement = connection.prepareStatement(
@@ -69,8 +71,7 @@ public class SQLServerImplicitStatementCacheTest extends AbstractSQLServerIntegr
     }
 
     protected int getPostCount() {
-        //return 1000;
-        return 5;
+        return 1000;
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.*;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import net.sourceforge.jtds.jdbcx.JtdsDataSource;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 import org.postgresql.ds.PGSimpleDataSource;
@@ -217,6 +218,7 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void selectWhenCaching() {
         long ttlMillis = System.currentTimeMillis() + getRunMillis();
         AtomicInteger counter = new AtomicInteger();
@@ -242,8 +244,7 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
     }
 
     protected int getPostCount() {
-        //return 1000;
-        return 10;
+        return 1000;
     }
 
     protected int getPostCommentCount() {
@@ -251,8 +252,7 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
     }
 
     protected int getRunMillis() {
-        //return 60 * 1000;
-        return 1 * 1000;
+        return 60 * 1000;
     }
 
     @Override

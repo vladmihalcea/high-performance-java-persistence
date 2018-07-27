@@ -58,12 +58,12 @@ public abstract class AbstractPostCommentScorePerformanceTest extends AbstractPo
         List<Integer[]> postCountSizes = new ArrayList<>();
         int postCount = 10;
         postCountSizes.add(new Integer[] {postCount, 4});
-        /*postCountSizes.add(new Integer[] {postCount, 4});
+        postCountSizes.add(new Integer[] {postCount, 4});
         postCountSizes.add(new Integer[] {postCount, 4});
         postCountSizes.add(new Integer[] {postCount, 8});
         postCountSizes.add(new Integer[] {postCount, 16});
         postCountSizes.add(new Integer[] {postCount, 32});
-        postCountSizes.add(new Integer[] {postCount, 64});*/
+        postCountSizes.add(new Integer[] {postCount, 64});
         return postCountSizes;
     }
 
@@ -151,6 +151,7 @@ public abstract class AbstractPostCommentScorePerformanceTest extends AbstractPo
     }
 
     @Test
+    @Ignore
     public void test() {
         int rank = 3;
         for (long postId = 0; postId < postCount; postId++) {

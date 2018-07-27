@@ -43,8 +43,7 @@ public class FlexyPoolTest {
 
     private int threadCount = 6;
 
-    //private int seconds = 120;
-    private int seconds = 5;
+    private int seconds = 120;
 
     private ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 

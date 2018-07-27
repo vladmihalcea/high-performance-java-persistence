@@ -6,6 +6,7 @@ import com.codahale.metrics.Timer;
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.Query;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -57,7 +58,7 @@ public class MySQLScrollableResultsStreamingTest extends AbstractMySQLIntegratio
     public static Collection<Integer[]> parameters() {
         List<Integer[]> providers = new ArrayList<>();
         providers.add(new Integer[]{1});
-        /*providers.add(new Integer[]{2});
+        providers.add(new Integer[]{2});
         providers.add(new Integer[]{5});
         providers.add(new Integer[]{10});
         providers.add(new Integer[]{25});
@@ -71,7 +72,7 @@ public class MySQLScrollableResultsStreamingTest extends AbstractMySQLIntegratio
         providers.add(new Integer[]{1500});
         providers.add(new Integer[]{2000});
         providers.add(new Integer[]{2500});
-        providers.add(new Integer[]{5000});*/
+        providers.add(new Integer[]{5000});
         return providers;
     }
 
@@ -100,6 +101,7 @@ public class MySQLScrollableResultsStreamingTest extends AbstractMySQLIntegratio
     }
 
     @Test
+    @Ignore
     public void testStream() {
         //warming up
         LOGGER.info("Warming up");

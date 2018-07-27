@@ -18,6 +18,7 @@ import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
@@ -90,6 +91,7 @@ public class ResourceLocalDelayConnectionAcquisitionTest extends AbstractTest {
 	}
 
 	@Test
+	@Ignore
 	public void testConnectionLeaseTime() {
 		long warmUpThreshold = System.nanoTime() + warmUpDuration;
 		LOGGER.info( "Warming up" );

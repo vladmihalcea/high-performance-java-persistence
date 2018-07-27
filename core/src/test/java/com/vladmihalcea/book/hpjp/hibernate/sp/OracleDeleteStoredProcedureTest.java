@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.sp;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -43,12 +44,12 @@ public class OracleDeleteStoredProcedureTest extends AbstractOracleIntegrationTe
     public static Collection<Integer[]> parameters() {
         List<Integer[]> multipliers = new ArrayList<>();
         multipliers.add(new Integer[] {1});
-        /*multipliers.add(new Integer[] {10});
+        multipliers.add(new Integer[] {10});
         multipliers.add(new Integer[] {50});
         multipliers.add(new Integer[] {100});
         multipliers.add(new Integer[] {500});
         multipliers.add(new Integer[] {1000});
-        multipliers.add(new Integer[] {2000});*/
+        multipliers.add(new Integer[] {2000});
         return multipliers;
     }
 
@@ -136,6 +137,7 @@ public class OracleDeleteStoredProcedureTest extends AbstractOracleIntegrationTe
     }
 
     @Test
+    @Ignore
     public void testStoredProcedureOutParameter() {
         doInJPA(entityManager -> {
             long startNanos = System.nanoTime();
@@ -157,6 +159,7 @@ public class OracleDeleteStoredProcedureTest extends AbstractOracleIntegrationTe
     }
 
     @Test
+    @Ignore
     public void testBulkDelete() {
         doInJPA(entityManager -> {
             long startNanos = System.nanoTime();

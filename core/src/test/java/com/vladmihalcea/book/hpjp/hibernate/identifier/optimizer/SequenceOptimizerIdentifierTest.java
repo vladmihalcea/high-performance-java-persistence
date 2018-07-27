@@ -9,6 +9,7 @@ import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -61,13 +62,13 @@ public class SequenceOptimizerIdentifierTest extends AbstractTest {
 
         List<Object[]> providers = new ArrayList<>();
         providers.add(new Object[]{postgreSQLDataSourceProvider, sequence1PostEntityProvider});
-        /*providers.add(new Object[]{postgreSQLDataSourceProvider, sequence5PostEntityProvider});
+        providers.add(new Object[]{postgreSQLDataSourceProvider, sequence5PostEntityProvider});
         providers.add(new Object[]{postgreSQLDataSourceProvider, sequence10PostEntityProvider});
         providers.add(new Object[]{postgreSQLDataSourceProvider, sequence50PostEntityProvider});
         providers.add(new Object[]{postgreSQLDataSourceProvider, table1PostEntityProvider});
         providers.add(new Object[]{postgreSQLDataSourceProvider, table5PostEntityProvider});
         providers.add(new Object[]{postgreSQLDataSourceProvider, table10PostEntityProvider});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, table50PostEntityProvider});*/
+        providers.add(new Object[]{postgreSQLDataSourceProvider, table50PostEntityProvider});
         return providers;
     }
 
@@ -77,6 +78,7 @@ public class SequenceOptimizerIdentifierTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testIdentifierGenerator() throws InterruptedException, ExecutionException {
         LOGGER.debug("testIdentifierGenerator, database: {}, entityProvider: {}", dataSourceProvider.database(), entityProvider.getClass().getSimpleName());
         //warming-up

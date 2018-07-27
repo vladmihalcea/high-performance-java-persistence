@@ -8,6 +8,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.SQLQuery;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.*;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -95,11 +96,13 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testEntityQueries() {
         compileQueries(this::getEntityQuery1, this::getEntityQuery2);
     }
 
     @Test
+    @Ignore
     public void testNativeQueries() {
         compileQueries(this::getNativeQuery1, this::getNativeQuery2);
     }

@@ -6,6 +6,7 @@ import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -93,11 +94,13 @@ public class OracleImplicitStatementCacheTest extends AbstractOracleIntegrationT
     }
 
     @Test
+    @Ignore
     public void testStatementCaching() {
         selectWhenCaching(true);
     }
 
     @Test
+    @Ignore
     public void testStatementWithoutCaching() {
         selectWhenCaching(false);
     }
@@ -134,8 +137,7 @@ public class OracleImplicitStatementCacheTest extends AbstractOracleIntegrationT
     }
 
     protected int getPostCount() {
-        //return 1000;
-        return 5;
+        return 1000;
     }
 
     protected int getPostCommentCount() {

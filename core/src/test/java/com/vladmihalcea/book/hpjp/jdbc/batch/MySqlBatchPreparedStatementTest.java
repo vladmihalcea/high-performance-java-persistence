@@ -5,6 +5,7 @@ import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -42,9 +43,9 @@ public class MySqlBatchPreparedStatementTest extends AbstractMySQLIntegrationTes
     public static Collection<Boolean[]> rdbmsDataSourceProvider() {
         List<Boolean[]> providers = new ArrayList<>();
         providers.add(new Boolean[]{Boolean.FALSE, Boolean.FALSE});
-        /*providers.add(new Boolean[]{Boolean.FALSE, Boolean.TRUE});
+        providers.add(new Boolean[]{Boolean.FALSE, Boolean.TRUE});
         providers.add(new Boolean[]{Boolean.TRUE, Boolean.FALSE});
-        providers.add(new Boolean[]{Boolean.TRUE, Boolean.TRUE});*/
+        providers.add(new Boolean[]{Boolean.TRUE, Boolean.TRUE});
         return providers;
     }
 
@@ -62,6 +63,7 @@ public class MySqlBatchPreparedStatementTest extends AbstractMySQLIntegrationTes
     }
 
     @Test
+    @Ignore
     public void testInsert() {
         LOGGER.info("Test MySQL batch insert with cachePrepStmts={}, useServerPrepStmts={}", cachePrepStmts, useServerPrepStmts);
         AtomicInteger statementCount = new AtomicInteger();

@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.connection.jta;
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -38,8 +39,7 @@ public class JTAFlexyPoolTest {
     private DataSource dataSource;
 
     private int threadCount = 10;
-    //private int seconds = 60;
-    private int seconds = 10;
+    private int seconds = 60;
 
     private ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
@@ -56,6 +56,7 @@ public class JTAFlexyPoolTest {
     }
 
     @Test
+    @Ignore
     public void test() throws InterruptedException, ExecutionException {
         long startNanos = System.nanoTime();
        while (TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startNanos) < seconds){

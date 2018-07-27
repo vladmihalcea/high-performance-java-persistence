@@ -4,6 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -52,14 +53,14 @@ public abstract class AbstractPostCommentScorePerformanceTest extends AbstractPo
     public static Collection<Integer[]> parameters() {
         List<Integer[]> postCountSizes = new ArrayList<>();
         int postCount = 2;
-        //postCountSizes.add(new Integer[] {postCount, 16});
+        postCountSizes.add(new Integer[] {postCount, 16});
         postCountSizes.add(new Integer[] {postCount, 4});
-        /*postCountSizes.add(new Integer[] {postCount, 8});
+        postCountSizes.add(new Integer[] {postCount, 8});
         postCountSizes.add(new Integer[] {postCount, 16});
         postCountSizes.add(new Integer[] {postCount, 24});
         postCountSizes.add(new Integer[] {postCount, 32});
         postCountSizes.add(new Integer[] {postCount, 48});
-        postCountSizes.add(new Integer[] {postCount, 64});*/
+        postCountSizes.add(new Integer[] {postCount, 64});
         return postCountSizes;
     }
 
@@ -131,6 +132,7 @@ public abstract class AbstractPostCommentScorePerformanceTest extends AbstractPo
     }
 
     @Test
+    @Ignore
     public void test() {
         int rank = 3;
         int iterations = 25;

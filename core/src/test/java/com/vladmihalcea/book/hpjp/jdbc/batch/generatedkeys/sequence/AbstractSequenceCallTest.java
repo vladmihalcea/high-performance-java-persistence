@@ -5,6 +5,7 @@ import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.entity.SequenceBatchEntityProvider;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +32,7 @@ public abstract class AbstractSequenceCallTest extends AbstractTest {
             .outputTo(LOGGER)
             .build();
 
-    //private int ttl = 60;
-    private int ttl = 5;
+    private int ttl = 60;
 
     private SequenceBatchEntityProvider entityProvider = new SequenceBatchEntityProvider();
 
@@ -46,6 +46,7 @@ public abstract class AbstractSequenceCallTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testBatch() {
         doInJDBC(this::callSequence);
     }

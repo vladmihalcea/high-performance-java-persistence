@@ -77,6 +77,7 @@ public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOrac
     }
 
     @Test
+    @Ignore
     public void testInsert() {
         LOGGER.info("Test batch insert for defaultExecuteBatch {}", defaultExecuteBatch);
         long startNanos = System.nanoTime();
@@ -129,8 +130,7 @@ public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOrac
     }
 
     protected int getPostCount() {
-        //return 1000;
-        return 5;
+        return 1000;
     }
 
     protected int getPostCommentCount() {

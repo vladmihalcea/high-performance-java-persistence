@@ -7,6 +7,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.Interceptor;
 import org.hibernate.type.Type;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -45,10 +46,10 @@ public class DefaultDirtyCheckingPerformanceTest extends AbstractTest {
     public static Collection<Integer[]> rdbmsDataSourceProvider() {
         List<Integer[]> counts = new ArrayList<>();
         counts.add(new Integer[] {5});
-/*        counts.add(new Integer[] {10});
+        counts.add(new Integer[] {10});
         counts.add(new Integer[] {20});
         counts.add(new Integer[] {50});
-        counts.add(new Integer[] {100});*/
+        counts.add(new Integer[] {100});
         return counts;
     }
 
@@ -137,6 +138,7 @@ public class DefaultDirtyCheckingPerformanceTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testDirtyChecking() {
         doInJPA(entityManager -> {
             List<Post> posts = posts(entityManager);

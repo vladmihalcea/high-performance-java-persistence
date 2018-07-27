@@ -5,6 +5,7 @@ import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -60,6 +61,7 @@ public class MySqlBatchStatementTest extends AbstractMySQLIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testInsert() {
         LOGGER.info("Test MySQL batch insert with rewriteBatchedStatements={}", rewriteBatchedStatements);
         AtomicInteger statementCount = new AtomicInteger();
