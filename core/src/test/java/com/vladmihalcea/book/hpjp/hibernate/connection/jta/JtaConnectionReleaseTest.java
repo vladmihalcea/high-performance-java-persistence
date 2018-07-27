@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.connection.jta;
 
 import org.hibernate.Session;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = JTAConnectionReleaseConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class JtaConnectionReleaseTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -34,6 +35,7 @@ public class JtaConnectionReleaseTest {
     private int[] batches = {10, 50, 100, 500, 1000, 5000, 10000};
 
     @Test
+    @Ignore
     public void test() {
         //Warming up
         for (int i = 0; i < 100; i++) {

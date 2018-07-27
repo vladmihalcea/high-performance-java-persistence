@@ -7,7 +7,9 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * @author Vlad Mihalcea
@@ -23,47 +25,21 @@ public class EagerFetchingOneToManyBagsFindEntityTest extends AbstractPostgreSQL
         };
     }
 
-
     @Override
     public void init() {
-        super.init();
-        doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setId(1L);
-            post.setTitle(String.format("Post nr. %d", 1));
-            PostComment comment = new PostComment();
-            comment.setId(1L);
-            comment.setReview("Excellent!");
-            entityManager.persist(post);
-            entityManager.persist(comment);
-            post.comments.add(comment);
-        });
+        try {
+            super.init();
+
+            fail("Failure expected");
+        } catch (PersistenceException expected) {
+            assertEquals("[PersistenceUnit: EagerFetchingOneToManyBagsFindEntityTest] Unable to build Hibernate SessionFactory", expected.getMessage());
+        }
     }
 
     @Test
-    public void testGet() {
-        doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
-            assertNotNull(post);
-        });
-    }
+    public void test() {
 
-    @Test
-    public void testFindWithQuery() {
-        doInJPA(entityManager -> {
-            Long postId =  1L;
-            Post post = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.tags " +
-                "join fetch p.comments " +
-                "where p.id = :id", Post.class)
-            .setParameter("id", postId)
-            .getSingleResult();
-            assertNotNull(post);
-        });
     }
-
 
     @Entity(name = "Post")
     @Table(name = "post")

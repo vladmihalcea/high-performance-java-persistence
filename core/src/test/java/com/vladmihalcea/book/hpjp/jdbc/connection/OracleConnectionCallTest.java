@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.jdbc.connection;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ public class OracleConnectionCallTest extends AbstractOracleIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testConnections() throws SQLException {
         LOGGER.info("Test without pooling for {}", dataSourceProvider().database());
         simulateLowLatencyTransactions(dataSourceProvider().dataSource(), 10);

@@ -27,7 +27,7 @@ import static com.vladmihalcea.book.hpjp.hibernate.connection.jta.FlexyPoolEntit
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = FlexyPoolTestConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class FlexyPoolTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());

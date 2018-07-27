@@ -28,7 +28,7 @@ import org.springframework.transaction.support.TransactionTemplate;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = PostgreSQLFlywayConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class DropPostgreSQLPublicSchemaTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());

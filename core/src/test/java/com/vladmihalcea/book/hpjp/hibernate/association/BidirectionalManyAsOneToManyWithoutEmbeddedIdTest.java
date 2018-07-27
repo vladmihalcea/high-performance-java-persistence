@@ -31,7 +31,9 @@ public class BidirectionalManyAsOneToManyWithoutEmbeddedIdTest extends AbstractT
             Post post2 = new Post("Native Hibernate");
 
             Tag tag1 = new Tag("Java");
+            tag1.setId(1L);
             Tag tag2 = new Tag("Hibernate");
+            tag2.setId(2L);
 
             entityManager.persist(post1);
             entityManager.persist(post2);
@@ -130,8 +132,9 @@ public class BidirectionalManyAsOneToManyWithoutEmbeddedIdTest extends AbstractT
                         postTag.getTag().equals(tag)) {
                     iterator.remove();
                     postTag.getTag().getPosts().remove(postTag);
-                    postTag.setPost(null);
-                    postTag.setTag(null);
+                    //Fails with this. Throws StaleStateException.
+                    //postTag.setPost(null);
+                    //postTag.setTag(null);
                 }
             }
         }

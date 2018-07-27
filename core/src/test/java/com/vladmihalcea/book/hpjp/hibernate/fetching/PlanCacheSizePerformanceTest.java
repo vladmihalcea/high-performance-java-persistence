@@ -5,7 +5,6 @@ import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.UniformReservoir;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.SQLQuery;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.*;
 import org.junit.Ignore;

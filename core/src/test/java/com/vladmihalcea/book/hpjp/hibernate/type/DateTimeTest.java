@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.type;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -98,6 +99,7 @@ public class DateTimeTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testTruncEvent() {
         doInJPA(entityManager -> {
             TimestampEvent event = new TimestampEvent();

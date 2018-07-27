@@ -26,7 +26,7 @@ import static org.junit.Assert.assertNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TransactionalCacheConcurrencyStrategyTestConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class TransactionalCacheConcurrencyStrategyTest extends AbstractTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -48,6 +48,10 @@ public class TransactionalCacheConcurrencyStrategyTest extends AbstractTest {
     @Before
     public void init() {
         doInJPA(entityManager -> {
+            entityManager.createQuery("delete from PostComment").executeUpdate();
+            entityManager.createQuery("delete from Post").executeUpdate();
+            entityManager.getEntityManagerFactory().getCache().evictAll();
+
             Post post = new Post();
             post.setId(1L);
             post.setTitle("High-Performance Java Persistence");

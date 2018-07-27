@@ -24,7 +24,7 @@ import java.util.concurrent.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = JTAFlexyPoolTestConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class JTAFlexyPoolTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());

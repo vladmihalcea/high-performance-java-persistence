@@ -90,9 +90,13 @@ public abstract class AbstractTest {
     @After
     public void destroy() {
         if(nativeHibernateSessionFactoryBootstrap()) {
-            sf.close();
+            if (sf != null) {
+                sf.close();
+            }
         } else {
-            emf.close();
+            if (emf != null) {
+                emf.close();
+            }
         }
         for(Closeable closeable : closeables) {
             try {

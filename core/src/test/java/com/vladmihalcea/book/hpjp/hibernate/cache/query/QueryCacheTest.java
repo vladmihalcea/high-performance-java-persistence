@@ -1,10 +1,10 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache.query;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.SQLQuery;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.cache.internal.StandardQueryCache;
 import org.hibernate.jpa.QueryHints;
+import org.hibernate.query.NativeQuery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -265,7 +265,7 @@ public class QueryCacheTest extends AbstractTest {
             LOGGER.info("Execute native query with synchronization");
             entityManager.createNativeQuery(
                 "UPDATE post SET title = '\"'||title||'\"' ")
-            .unwrap(SQLQuery.class)
+            .unwrap(NativeQuery.class)
             .addSynchronizedEntityClass(Post.class)
             .executeUpdate();
 

@@ -13,6 +13,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.vladmihalcea.book.hpjp.util.AbstractCockroachDBIntegrationTest;
@@ -34,6 +35,7 @@ public class EntityIdentifierCockroachDBTest extends AbstractCockroachDBIntegrat
 	}
 
 	@Test
+	@Ignore
 	public void test() {
 		doInJPA( entityManager -> {
 			LocalDate startDate = LocalDate.of( 2016, 11, 2 );

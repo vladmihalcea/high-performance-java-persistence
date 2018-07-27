@@ -1,11 +1,10 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.ObjectNotFoundException;
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.query.NativeQuery;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -175,12 +174,12 @@ public class CollectionCacheTest extends AbstractTest {
             entityManager.createNativeQuery(
                 "update Commit c " +
                 "set c.review = true ")
-            .unwrap(SQLQuery.class)
+            .unwrap(NativeQuery.class)
             .addSynchronizedEntityClass(Commit.class)
             .executeUpdate();
         });
         doInJPA(entityManager -> {
-            Repository repository = (Repository)
+            Repository repository =
                 entityManager.find(Repository.class, 1L);
             for(Commit commit : repository.getCommits()) {
                 assertTrue(commit.review);

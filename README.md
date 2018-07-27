@@ -49,6 +49,7 @@ The Integration Tests require some external configurations:
     
         CREATE EXTENSION postgis;
         CREATE EXTENSION pgcrypto;
+        CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
     
 - Oracle
 

@@ -16,7 +16,7 @@ public class SequenceIdentifierTest extends AbstractBatchIdentifierTest {
 
     @Override
     protected Database database() {
-        return Database.MARIADB;
+        return Database.POSTGRESQL;
     }
 
     @Test

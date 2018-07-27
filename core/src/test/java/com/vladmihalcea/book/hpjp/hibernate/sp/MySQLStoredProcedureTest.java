@@ -100,7 +100,11 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
                     "END"
                 );
                 statement.executeUpdate(
-                    "CREATE PROCEDURE getStatistics (OUT A BIGINT UNSIGNED, OUT B BIGINT UNSIGNED, OUT C BIGINT UNSIGNED) " +
+                    "CREATE PROCEDURE getStatistics (" +
+                    "   OUT A BIGINT UNSIGNED, " +
+                    "   OUT B BIGINT UNSIGNED, " +
+                    "   OUT C BIGINT UNSIGNED" +
+                    ") " +
                     "BEGIN " +
                     "    SELECT count(*) into A from post; " +
                     "    SELECT count(*) into B from post_comment; " +
@@ -143,7 +147,7 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
     public void testHibernateProcedureCallOutParameter() {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
-            ProcedureCall call = session.createStoredProcedureCall("getStatistics");
+            ProcedureCall call = session.createStoredProcedureCall("count_comments");
             call.registerParameter("postId", Long.class, ParameterMode.IN).bindValue(1L);
             call.registerParameter("commentCount", Long.class, ParameterMode.OUT);
 
@@ -153,7 +157,7 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
     }
 
     @Test
-    public void testHibernateProcedureCallMultipleOutParameter() {
+    public void testProcedureCallMultipleOutParameter() {
         doInJPA(entityManager -> {
             StoredProcedureQuery query = entityManager
                 .createStoredProcedureQuery("getStatistics")

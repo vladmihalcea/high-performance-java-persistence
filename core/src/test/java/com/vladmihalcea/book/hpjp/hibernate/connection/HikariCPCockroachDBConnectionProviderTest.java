@@ -9,6 +9,7 @@ import javax.persistence.Table;
 
 import org.hibernate.hikaricp.internal.HikariCPConnectionProvider;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.vladmihalcea.book.hpjp.util.providers.CockroachDBDataSourceProvider;
@@ -41,6 +42,7 @@ public class HikariCPCockroachDBConnectionProviderTest extends DriverConnectionP
     }
 
     @Test
+    @Ignore
     public void testConnection() {
         for (final AtomicLong i = new AtomicLong(); i.get() < 5; i.incrementAndGet()) {
             doInJPA(em -> {

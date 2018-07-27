@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.query;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -54,6 +55,7 @@ public class ExtraSQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testStatementUpdateDropTable() {
         doInJPA(entityManager -> {
             PostComment comment = entityManager.find(PostComment.class, 1L);
@@ -80,6 +82,7 @@ public class ExtraSQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testPreparedStatementUpdateDropTable() {
         doInJPA(entityManager -> {
             PostComment comment = entityManager.find(PostComment.class, 1L);
@@ -109,7 +112,7 @@ public class ExtraSQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
     public void testPreparedStatementSelectAndWait() {
         assertEquals("Good", getPostCommentReviewUsingPreparedStatement("1"));
         try {
-            getPostCommentReviewUsingPreparedStatement("1 AND 1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(5) )");
+            getPostCommentReviewUsingPreparedStatement("1 AND 1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(2) )");
         } catch (Exception expected) {
             LOGGER.error("Failure", expected);
         }
@@ -139,8 +142,9 @@ public class ExtraSQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testGetPostCommentByReview() {
-        getPostCommentByReview("1 AND 1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(10) )");
+        getPostCommentByReview("1 AND 1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(2) )");
     }
 
     private void updatePostCommentReviewUsingStatement(Long id, String review) {
@@ -238,7 +242,7 @@ public class ExtraSQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
         doInJPA(entityManager -> {
             List<Post> posts = getPostsByTitle(
                 "High-Performance Java Persistence' and " +
-                "FUNCTION('1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(10) ) --',) is '"
+                "FUNCTION('1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(2) ) --',) is '"
             );
             assertEquals(1, posts.size());
         });

@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.query;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.annotations.GenericGenerator;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -52,6 +53,7 @@ public class PostgreSQLCastTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testCastOperator() {
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createNativeQuery(

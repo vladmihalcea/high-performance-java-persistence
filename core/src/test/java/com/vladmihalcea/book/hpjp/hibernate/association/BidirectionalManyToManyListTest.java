@@ -13,6 +13,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.NaturalId;
 
 import org.junit.Ignore;
@@ -23,7 +24,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 /**
  * @author Vlad Mihalcea
  */
-public class BidirectionalManyToManyListTest extends AbstractMySQLIntegrationTest {
+public class BidirectionalManyToManyListTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {

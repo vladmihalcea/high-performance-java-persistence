@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping.softdelete;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.Loader;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 /**
  * @author Vlad Mihalcea
  */
-public class SoftDeleteTest extends AbstractMySQLIntegrationTest {
+public class SoftDeleteTest extends AbstractTest {
 
 	@Override
 	protected Class<?>[] entities() {

@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.query.recursive.simple;
 
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScoreResultTransformer;
-import org.hibernate.SQLQuery;
+import org.hibernate.query.NativeQuery;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +51,7 @@ public class PostCommentScoreRecursiveCTEPerformanceTest extends AbstractPostCom
                 "    ORDER BY total_score DESC, id ASC " +
                 ") total_score_group " +
                 "WHERE rank <= :rank", "PostCommentScore")
-            .unwrap(SQLQuery.class)
+            .unwrap(NativeQuery.class)
             .setParameter("postId", postId)
             .setParameter("rank", rank)
             .setResultTransformer(new PostCommentScoreResultTransformer())

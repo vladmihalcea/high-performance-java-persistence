@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache.query;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.SQLQuery;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.cache.internal.StandardQueryCache;
 import org.hibernate.jpa.QueryHints;

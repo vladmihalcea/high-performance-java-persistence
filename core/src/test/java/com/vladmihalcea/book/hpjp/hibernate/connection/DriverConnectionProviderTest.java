@@ -28,7 +28,7 @@ public class DriverConnectionProviderTest extends AbstractTest {
 
     protected Properties properties() {
         Properties properties = super.properties();
-        properties.put("hibernate.hbm2ddl.auto", "update");
+        properties.put("hibernate.hbm2ddl.auto", "create-drop");
         appendDriverProperties(properties);
         return properties;
     }

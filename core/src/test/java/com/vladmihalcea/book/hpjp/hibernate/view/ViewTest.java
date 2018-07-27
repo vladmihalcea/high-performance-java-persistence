@@ -13,6 +13,7 @@ import javax.persistence.Table;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Properties;
 
 import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.*;
 import static org.junit.Assert.assertEquals;
@@ -33,6 +34,11 @@ public class ViewTest extends AbstractPostgreSQLIntegrationTest {
                 Tag.class,
                 DatabaseFunction.class
         };
+    }
+
+    @Override
+    protected void additionalProperties(Properties properties) {
+        properties.put("hibernate.hbm2ddl.auto", "none");
     }
 
     @Entity(name = "DatabaseFunction")
@@ -122,7 +128,7 @@ public class ViewTest extends AbstractPostgreSQLIntegrationTest {
                     "        ON  " +
                     "            routines.specific_name = parameters.specific_name " +
                     "        WHERE  " +
-                    "            routines.specific_schema='public' " +
+                    "            routines.specific_schema='public' and routines.routine_name LIKE '%_comments'" +
                     "        ORDER BY routines.routine_name, parameters.ordinal_position " +
                     "    ) AS functions " +
                     "    GROUP BY functions.routine_name;"

@@ -43,7 +43,7 @@ public class ManualFlushTest extends AbstractPostgreSQLIntegrationTest {
                     .getSingleResult()).intValue() == 0);
 
             assertTrue(((Number) session
-                    .createSQLQuery("select count(*) from Post")
+                    .createNativeQuery("select count(*) from Post")
                     .uniqueResult()).intValue() == 0);
         });
     }

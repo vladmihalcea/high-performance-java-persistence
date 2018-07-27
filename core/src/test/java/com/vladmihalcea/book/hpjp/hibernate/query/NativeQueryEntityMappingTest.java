@@ -1,41 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.query;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityResult;
-import javax.persistence.FieldResult;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.NamedNativeQuery;
-import javax.persistence.SqlResultSetMapping;
-import javax.persistence.Table;
-
-import org.hibernate.Criteria;
-import org.hibernate.SQLQuery;
-import org.hibernate.cfg.AvailableSettings;
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.query.NativeQuery;
-import org.hibernate.transform.ResultTransformer;
-
 import org.junit.Test;
 
-import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 

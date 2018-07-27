@@ -4,6 +4,7 @@ import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.providers.MariaDBDataSourceProvider;
 import org.hibernate.dialect.MariaDB102Dialect;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -41,6 +42,7 @@ public class MariaDBIdentifierTest extends AbstractBatchIdentifierTest {
     }
 
     @Test
+    @Ignore
     public void testSequenceIdentifierGenerator() {
         doInJPA(entityManager -> {
             for (int i = 0; i < 3; i++) {

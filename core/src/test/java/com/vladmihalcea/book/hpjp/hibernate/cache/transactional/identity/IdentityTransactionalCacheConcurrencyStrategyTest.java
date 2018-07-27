@@ -26,7 +26,7 @@ import static org.junit.Assert.assertNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = IdentityTransactionalCacheConcurrencyStrategyTestConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -45,17 +45,25 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
         });
     }
 
+    private Post post;
+    private  PostComment comment1;
+    private  PostComment comment2;
+
     @Before
     public void init() {
         doInJPA(entityManager -> {
-            Post post = new Post();
+            entityManager.createQuery("delete from PostComment").executeUpdate();
+            entityManager.createQuery("delete from Post").executeUpdate();
+            entityManager.getEntityManagerFactory().getCache().evictAll();
+
+            post = new Post();
             post.setTitle("High-Performance Java Persistence");
 
-            PostComment comment1 = new PostComment();
+            comment1 = new PostComment();
             comment1.setReview("JDBC part review");
             post.addComment(comment1);
 
-            PostComment comment2 = new PostComment();
+            comment2 = new PostComment();
             comment2.setReview("Hibernate part review");
             post.addComment(comment2);
 
@@ -86,7 +94,7 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
 
         LOGGER.info("Load Post entity and comments collection");
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
+            Post post = entityManager.find(Post.class, this.post.getId());
             assertEquals(2, post.getComments().size());
             printCacheRegionStatistics(post.getClass().getName());
             printCacheRegionStatistics(Post.class.getName() + ".comments");
@@ -99,7 +107,7 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
         LOGGER.info("Evict, modify, load");
 
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
+            Post post = entityManager.find(Post.class, this.post.getId());
             entityManager.detach(post);
 
             post.setTitle("High-Performance Hibernate");
@@ -107,7 +115,7 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
             entityManager.flush();
 
             entityManager.detach(post);
-            post = entityManager.find(Post.class, 1L);
+            post = entityManager.find(Post.class, this.post.getId());
             printCacheRegionStatistics(post.getClass().getName());
         });
     }
@@ -115,7 +123,7 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
     @Test
     public void testEntityUpdate() {
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
+            Post post = entityManager.find(Post.class, this.post.getId());
             post.setTitle("High-Performance Hibernate");
             PostComment comment = post.getComments().remove(0);
             comment.setPost(null);
@@ -136,11 +144,11 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
     @Test
     public void testNonVersionedEntityUpdate() {
         doInJPA(entityManager -> {
-            PostComment comment = entityManager.find(PostComment.class, 1L);
+            PostComment comment = entityManager.find(PostComment.class, this.comment1.getId());
         });
         printCacheRegionStatistics(PostComment.class.getName());
         doInJPA(entityManager -> {
-            PostComment comment = entityManager.find(PostComment.class, 1L);
+            PostComment comment = entityManager.find(PostComment.class, this.comment1.getId());
             comment.setReview("JDBC and Database part review");
         });
         printCacheRegionStatistics(PostComment.class.getName());
@@ -151,7 +159,7 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
         LOGGER.info("Cache entries can be deleted");
 
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
+            Post post = entityManager.find(Post.class, this.post.getId());
             assertEquals(2, post.getComments().size());
         });
 
@@ -160,7 +168,7 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
         printCacheRegionStatistics(PostComment.class.getName());
 
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
+            Post post = entityManager.find(Post.class, this.post.getId());
             entityManager.remove(post);
         });
 
@@ -169,7 +177,7 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
         printCacheRegionStatistics(PostComment.class.getName());
 
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
+            Post post = entityManager.find(Post.class, this.post.getId());
             assertNull(post);
         });
     }

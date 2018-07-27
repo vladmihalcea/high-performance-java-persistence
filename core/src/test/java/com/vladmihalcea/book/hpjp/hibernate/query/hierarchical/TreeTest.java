@@ -27,25 +27,9 @@ public class TreeTest extends AbstractTreeTest {
                     "WHERE c.status = :status")
                 .setParameter("status", Status.APPROVED)
                 .setResultTransformer(PostCommentTreeTransformer.INSTANCE)
-                .list();
+                .getResultList();
         });
         assertEquals(2, comments.size());
-    }
-
-    @Test
-    public void testRecursion() {
-        PostComment comment = doInJPA(entityManager -> {
-            PostComment root = entityManager.createQuery("select n from Comment n where n.parent is null", PostComment.class).getSingleResult();
-            fetchChildren(root);
-            return root;
-        });
-        fetchChildren(comment);
-    }
-
-    public void fetchChildren(PostComment comment) {
-        for (PostComment _comment : comment.getChildren()) {
-            fetchChildren(_comment);
-        }
     }
 
 }

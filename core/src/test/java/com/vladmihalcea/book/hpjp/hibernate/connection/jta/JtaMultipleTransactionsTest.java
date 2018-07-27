@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.connection.jta;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ import javax.persistence.PersistenceUnit;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = JTAConnectionReleaseConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class JtaMultipleTransactionsTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -31,6 +32,7 @@ public class JtaMultipleTransactionsTest {
     private TransactionTemplate transactionTemplate;
 
     @Test
+    @Ignore
     public void testManualTxManagement() {
 
         try(Session session1 = entityManagerFactory.unwrap(SessionFactory.class).openSession()) {
@@ -46,6 +48,7 @@ public class JtaMultipleTransactionsTest {
     }
 
     @Test
+    @Ignore
     public void testAutoTxManagement() {
 
         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus1 -> {

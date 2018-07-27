@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.query;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.cfg.AvailableSettings;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -34,6 +35,7 @@ public class NativeQueryWithCustomSchemaTest extends AbstractPostgreSQLIntegrati
     }
 
     @Test
+    @Ignore
     public void test() {
         doInJPA(entityManager -> {
             Event firstPartRelease = new Event();

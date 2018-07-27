@@ -66,7 +66,7 @@ public class SessionAlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
             entityManager.persist(post3);
 
             Session session = entityManager.unwrap(Session.class);
-            List<ForumCount> result = session.createSQLQuery(
+            List<ForumCount> result = session.createNativeQuery(
                 "SELECT " +
                 "   b.name as forum, " +
                 "   COUNT (p) as count " +
@@ -113,7 +113,7 @@ public class SessionAlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
             post3.setBoard(board2);
             session.persist(post3);
 
-            List<ForumCount> result = session.createSQLQuery(
+            List<ForumCount> result = session.createNativeQuery(
                     "SELECT " +
                     "   b.name as forum, " +
                     "   COUNT (p) as count " +

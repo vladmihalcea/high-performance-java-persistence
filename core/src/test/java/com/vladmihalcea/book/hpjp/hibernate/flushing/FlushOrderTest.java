@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.flushing;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -33,6 +34,7 @@ public class FlushOrderTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testOperationOrder() {
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);

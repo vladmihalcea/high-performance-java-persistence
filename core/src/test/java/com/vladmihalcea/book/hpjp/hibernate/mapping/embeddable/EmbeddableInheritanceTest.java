@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping.embeddable;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.GenericGenerator;
 import org.junit.Test;
 
@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author Vlad Mihalcea
  */
-public class EmbeddableInheritanceTest extends AbstractMySQLIntegrationTest {
+public class EmbeddableInheritanceTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {

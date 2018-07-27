@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping.embeddable;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
-import org.hibernate.annotations.GenericGenerator;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -12,13 +11,13 @@ import java.util.List;
 /**
  * @author Vlad Mihalcea
  */
-public class EmbeddableEntityListenerTest extends AbstractMySQLIntegrationTest {
+public class EmbeddableEntityListenerTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-            Post.class,
-            Tag.class
+                Post.class,
+                Tag.class
         };
     }
 

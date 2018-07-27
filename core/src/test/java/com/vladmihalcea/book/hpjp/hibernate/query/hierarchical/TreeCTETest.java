@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.hierarchical;
 
-import org.hibernate.SQLQuery;
+import org.hibernate.query.NativeQuery;
 import org.junit.Test;
 
 import java.util.List;
@@ -39,7 +39,7 @@ public class TreeCTETest extends AbstractTreeTest {
                     "FROM comment_tree ")
                 .setParameter("status", Status.APPROVED.name())
                 .setParameter("token", "high-performance%")
-                .unwrap(SQLQuery.class)
+                .unwrap(NativeQuery.class)
                 .addEntity(PostComment.class)
                 .setResultTransformer(PostCommentTreeTransformer.INSTANCE)
                 .list();

@@ -17,6 +17,7 @@ import javax.persistence.TemporalType;
 
 import org.hibernate.Session;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.vladmihalcea.book.hpjp.util.AbstractCockroachDBIntegrationTest;
@@ -38,6 +39,7 @@ public class EntityIdentifierTimestampCockroachDBTest extends AbstractCockroachD
 	}
 
 	@Test
+	@Ignore
 	public void test() {
 		doInJPA( entityManager -> {
 			entityManager.unwrap( Session.class ).doWork( connection -> {

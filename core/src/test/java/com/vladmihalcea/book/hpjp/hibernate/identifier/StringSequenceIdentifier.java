@@ -76,7 +76,7 @@ public class StringSequenceIdentifier
             }
         }
         long seqValue = ((Number) Session.class.cast(session)
-            .createSQLQuery(sequenceCallSyntax)
+            .createNativeQuery(sequenceCallSyntax)
             .uniqueResult()).longValue();
 
         return sequencePrefix + String.format("%011d%s", 0 ,seqValue);

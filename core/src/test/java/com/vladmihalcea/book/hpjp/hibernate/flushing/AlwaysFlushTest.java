@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
@@ -16,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class AlwaysFlushTest extends AbstractTest {
+public class AlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
 
     private static final Logger log = Logger.getLogger(AlwaysFlushTest.class);
 
@@ -61,7 +62,7 @@ public class AlwaysFlushTest extends AbstractTest {
             entityManager.persist(post3);
 
             Session session = entityManager.unwrap(Session.class);
-            List<ForumCount> result = session.createSQLQuery(
+            List<ForumCount> result = session.createNativeQuery(
                 "SELECT " +
                 "   b.name as forum, " +
                 "   COUNT (p) as count " +
@@ -109,7 +110,7 @@ public class AlwaysFlushTest extends AbstractTest {
             entityManager.persist(post3);
 
             Session session = entityManager.unwrap(Session.class);
-            List<ForumCount> result = session.createSQLQuery(
+            List<ForumCount> result = session.createNativeQuery(
                     "SELECT " +
                     "   b.name as forum, " +
                     "   COUNT (p) as count " +

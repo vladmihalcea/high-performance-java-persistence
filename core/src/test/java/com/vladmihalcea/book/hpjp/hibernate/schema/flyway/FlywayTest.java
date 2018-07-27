@@ -22,7 +22,7 @@ import static com.vladmihalcea.book.hpjp.hibernate.schema.flyway.FlywayEntities.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = PostgreSQLFlywayConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class FlywayTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());

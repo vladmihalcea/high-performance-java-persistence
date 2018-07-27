@@ -8,6 +8,7 @@ import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.dialect.Oracle10gDialect;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -102,6 +103,7 @@ public class FollowOnLockingTest extends AbstractOracleIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testUpgradeSkipLockedOrderByMaxResult() {
         LOGGER.info("Test lock contention");
         doInJPA(entityManager -> {

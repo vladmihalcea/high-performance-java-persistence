@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.query.recursive.simple;
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScoreResultTransformer;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.SQLQuery;
+import org.hibernate.query.NativeQuery;
 import org.junit.Test;
 
 import java.util.*;
@@ -168,7 +168,8 @@ public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
                 "    ) score_total " +
                 "    ORDER BY total_score DESC, id ASC " +
                 ") total_score_group " +
-                "WHERE rank <= :rank", "PostCommentScore").unwrap(SQLQuery.class)
+                "WHERE rank <= :rank", "PostCommentScore")
+            .unwrap(NativeQuery.class)
             .setParameter("postId", postId)
             .setParameter("rank", rank)
             .setResultTransformer(new PostCommentScoreResultTransformer())
