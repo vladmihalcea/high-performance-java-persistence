@@ -156,13 +156,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.oracle.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
-            <version>${oracle.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysql.version}</version>
@@ -417,6 +410,13 @@
                     <layout>default</layout>
                 </repository>
             </repositories>
+            <dependencies>
+                <dependency>
+                    <groupId>com.oracle.jdbc</groupId>
+                    <artifactId>ojdbc8</artifactId>
+                    <version>${oracle.version}</version>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 
