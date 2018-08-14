@@ -1,6 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.multitenancy;
 
+import com.mysql.cj.jdbc.MysqlDataSource;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.MultiTenancyStrategy;
 import org.hibernate.Session;
@@ -14,15 +16,13 @@ import org.postgresql.ds.PGSimpleDataSource;
 import javax.persistence.*;
 import javax.sql.DataSource;
 import java.sql.Statement;
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.Properties;
 
 /**
  * @author Vlad Mihalcea
  */
-public class SchemaMultitenancyTest extends AbstractTest {
+public class CatalogMultitenancyTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -34,60 +34,55 @@ public class SchemaMultitenancyTest extends AbstractTest {
 
     @Override
     protected Database database() {
-        return Database.POSTGRESQL;
+        return Database.MYSQL;
     }
 
     @Override
     protected void additionalProperties(Properties properties) {
         properties.setProperty(AvailableSettings.HBM2DDL_AUTO, "none");
-        properties.setProperty(AvailableSettings.MULTI_TENANT, MultiTenancyStrategy.SCHEMA.name());
+        properties.setProperty(AvailableSettings.MULTI_TENANT, MultiTenancyStrategy.DATABASE.name());
         properties.setProperty(AvailableSettings.MULTI_TENANT_IDENTIFIER_RESOLVER, TenantContext.TenantIdentifierResolver.class.getName());
         properties.put(AvailableSettings.MULTI_TENANT_CONNECTION_PROVIDER, MultiTenantConnectionProvider.INSTANCE);
     }
 
     @Override
     public void afterInit() {
-        PGSimpleDataSource defaultDataSource = (PGSimpleDataSource) database().dataSourceProvider().dataSource();
+        MysqlDataSource defaultDataSource = (MysqlDataSource) database().dataSourceProvider().dataSource();
         addTenantConnectionProvider(TenantContext.DEFAULT_TENANT_IDENTIFIER, defaultDataSource, properties());
 
-        createSchema("europe");
-        createSchema("asia");
+        createCatalog("europe");
+        createCatalog("asia");
     }
 
-    private void createSchema(String schemaName) {
+    private void createCatalog(String catalogName) {
         doInJPA(entityManager -> {
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try(Statement statement = connection.createStatement()) {
-                    statement.executeUpdate(String.format("drop schema if exists %s cascade", schemaName));
+                    statement.executeUpdate(String.format("drop database if exists %s", catalogName));
 
-                    statement.executeUpdate(String.format("create schema %s", schemaName));
+                    statement.executeUpdate(String.format("create database %s", catalogName));
 
-                    statement.executeUpdate(String.format("SET search_path TO %s,public", schemaName));
+                    statement.executeUpdate(String.format("USE %s", catalogName));
 
-                    statement.executeUpdate("create sequence hibernate_sequence start 1 increment 1");
-                    statement.executeUpdate("create table posts (id int8 not null, created_on timestamp, title varchar(255), user_id int8, primary key (id))");
-                    statement.executeUpdate("create table users (id int8 not null, registered_on timestamp, firstName varchar(255), lastName varchar(255), primary key (id))");
-                    statement.executeUpdate("alter table if exists posts add constraint fk_user_id foreign key (user_id) references users");
-
-                    statement.executeUpdate("SET search_path TO public");
+                    statement.executeUpdate("create table posts (id bigint not null auto_increment, created_on datetime(6), title varchar(255), user_id bigint, primary key (id)) engine=InnoDB");
+                    statement.executeUpdate("create table users (id bigint not null auto_increment, registered_on datetime(6), firstName varchar(255), lastName varchar(255), primary key (id)) engine=InnoDB");
+                    statement.executeUpdate("alter table posts add constraint FK5lidm6cqbc7u4xhqpxm898qme foreign key (user_id) references users (id)");
                 }
             });
         });
 
-        addTenantConnectionProvider(schemaName);
+        addTenantConnectionProvider(catalogName);
     }
 
     private void addTenantConnectionProvider(String tenantId) {
-        PGSimpleDataSource defaultDataSource = (PGSimpleDataSource) database().dataSourceProvider().dataSource();
+        DataSourceProvider dataSourceProvider = database().dataSourceProvider();
 
         Properties properties = properties();
 
-        PGSimpleDataSource tenantDataSource = new PGSimpleDataSource();
-        tenantDataSource.setDatabaseName(defaultDataSource.getDatabaseName());
-        tenantDataSource.setCurrentSchema(tenantId);
-        tenantDataSource.setServerName(defaultDataSource.getServerName());
-        tenantDataSource.setUser(defaultDataSource.getUser());
-        tenantDataSource.setPassword(defaultDataSource.getPassword());
+        MysqlDataSource tenantDataSource = new MysqlDataSource();
+        tenantDataSource.setDatabaseName(tenantId);
+        tenantDataSource.setUser(dataSourceProvider.username());
+        tenantDataSource.setPassword(dataSourceProvider.password());
 
         properties.put(
                 Environment.DATASOURCE,
@@ -148,7 +143,7 @@ public class SchemaMultitenancyTest extends AbstractTest {
     public static class User {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
         private String firstName;
@@ -197,7 +192,7 @@ public class SchemaMultitenancyTest extends AbstractTest {
     public static class Post {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
         private String title;
