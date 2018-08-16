@@ -9,9 +9,11 @@ import java.util.Map;
 /**
  * @author Vlad Mihalcea
  */
-public class MultiTenantConnectionProvider extends AbstractMultiTenantConnectionProvider {
+public class MultiTenantConnectionProvider
+        extends AbstractMultiTenantConnectionProvider {
 
-    public static final MultiTenantConnectionProvider INSTANCE = new MultiTenantConnectionProvider();
+    public static final MultiTenantConnectionProvider INSTANCE =
+            new MultiTenantConnectionProvider();
 
     private final Map<String, ConnectionProvider> connectionProviderMap = new HashMap<>();
 
@@ -26,6 +28,6 @@ public class MultiTenantConnectionProvider extends AbstractMultiTenantConnection
 
     @Override
     protected ConnectionProvider selectConnectionProvider(String tenantIdentifier) {
-        return connectionProviderMap.get( tenantIdentifier );
+        return connectionProviderMap.get(tenantIdentifier);
     }
 }

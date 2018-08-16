@@ -40,9 +40,10 @@ public class CatalogMultitenancyTest extends AbstractTest {
     @Override
     protected void additionalProperties(Properties properties) {
         properties.setProperty(AvailableSettings.HBM2DDL_AUTO, "none");
+        properties.setProperty(AvailableSettings.SHOW_SQL, "true");
         properties.setProperty(AvailableSettings.MULTI_TENANT, MultiTenancyStrategy.DATABASE.name());
-        properties.setProperty(AvailableSettings.MULTI_TENANT_IDENTIFIER_RESOLVER, TenantContext.TenantIdentifierResolver.class.getName());
         properties.put(AvailableSettings.MULTI_TENANT_CONNECTION_PROVIDER, MultiTenantConnectionProvider.INSTANCE);
+        properties.setProperty(AvailableSettings.MULTI_TENANT_IDENTIFIER_RESOLVER, TenantContext.TenantIdentifierResolver.class.getName());
     }
 
     @Override
@@ -66,7 +67,7 @@ public class CatalogMultitenancyTest extends AbstractTest {
 
                     statement.executeUpdate("create table posts (id bigint not null auto_increment, created_on datetime(6), title varchar(255), user_id bigint, primary key (id)) engine=InnoDB");
                     statement.executeUpdate("create table users (id bigint not null auto_increment, registered_on datetime(6), firstName varchar(255), lastName varchar(255), primary key (id)) engine=InnoDB");
-                    statement.executeUpdate("alter table posts add constraint FK5lidm6cqbc7u4xhqpxm898qme foreign key (user_id) references users (id)");
+                    statement.executeUpdate("alter table posts add constraint fk_user_id foreign key (user_id) references users (id)");
                 }
             });
         });
