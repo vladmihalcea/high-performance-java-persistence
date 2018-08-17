@@ -62,57 +62,12 @@ public class CharDiscriminatorTest extends AbstractMySQLIntegrationTest {
         });
     }
 
-    private void addConsistencyTriggers(EntityManager entityManager) {
-        entityManager.unwrap(Session.class).doWork(connection -> {
-            try (Statement st = connection.createStatement()) {
-                st.executeUpdate(
-                    "CREATE " +
-                    "TRIGGER post_content_check BEFORE INSERT " +
-                    "ON Topic " +
-                    "FOR EACH ROW " +
-                    "BEGIN " +
-                    "   IF NEW.topic_type_id = 'P' " +
-                    "   THEN " +
-                    "       IF NEW.content IS NULL " +
-                    "       THEN " +
-                    "           signal sqlstate '45000' " +
-                    "           set message_text = 'Post content cannot be NULL'; " +
-                    "       END IF; " +
-                    "   END IF; " +
-                    "END;"
-                );
-                st.executeUpdate(
-                    "CREATE " +
-                    "TRIGGER announcement_validUntil_check BEFORE INSERT " +
-                    "ON Topic " +
-                    "FOR EACH ROW " +
-                    "BEGIN " +
-                    "   IF NEW.topic_type_id = 'A' " +
-                    "   THEN " +
-                    "       IF NEW.validUntil IS NULL " +
-                    "       THEN " +
-                    "           signal sqlstate '45000' " +
-                    "           set message_text = 'Announcement validUntil cannot be NULL'; " +
-                    "       END IF; " +
-                    "   END IF; " +
-                    "END;"
-                );
-            }
-        });
-    }
-
     @Entity(name = "Topic")
+    @Table(name = "topic")
     @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
     @DiscriminatorColumn(
         discriminatorType = DiscriminatorType.CHAR,
         name = "topic_type_id"
-    )
-    @Table(
-        name = "topic",
-        indexes = @Index(
-            name = "idx_topic_type_id",
-            columnList = "topic_type_id"
-        )
     )
     @DiscriminatorValue("T")
     public static class Topic {
@@ -159,6 +114,45 @@ public class CharDiscriminatorTest extends AbstractMySQLIntegrationTest {
         public void setCreatedOn(Date createdOn) {
             this.createdOn = createdOn;
         }
+    }
+
+    private void addConsistencyTriggers(EntityManager entityManager) {
+        entityManager.unwrap(Session.class).doWork(connection -> {
+            try (Statement st = connection.createStatement()) {
+                st.executeUpdate(
+                    "CREATE " +
+                    "TRIGGER post_content_check BEFORE INSERT " +
+                    "ON Topic " +
+                    "FOR EACH ROW " +
+                    "BEGIN " +
+                    "   IF NEW.topic_type_id = 'P' " +
+                    "   THEN " +
+                    "       IF NEW.content IS NULL " +
+                    "       THEN " +
+                    "           signal sqlstate '45000' " +
+                    "           set message_text = 'Post content cannot be NULL'; " +
+                    "       END IF; " +
+                    "   END IF; " +
+                    "END;"
+                );
+                st.executeUpdate(
+                    "CREATE " +
+                    "TRIGGER announcement_validUntil_check BEFORE INSERT " +
+                    "ON Topic " +
+                    "FOR EACH ROW " +
+                    "BEGIN " +
+                    "   IF NEW.topic_type_id = 'A' " +
+                    "   THEN " +
+                    "       IF NEW.validUntil IS NULL " +
+                    "       THEN " +
+                    "           signal sqlstate '45000' " +
+                    "           set message_text = 'Announcement validUntil cannot be NULL'; " +
+                    "       END IF; " +
+                    "   END IF; " +
+                    "END;"
+                );
+            }
+        });
     }
 
     @Entity(name = "Post")

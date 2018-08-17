@@ -1,24 +1,22 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance.discriminator;
 
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import org.hibernate.Session;
+import org.junit.Test;
+
+import javax.persistence.*;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.*;
-
-import org.hibernate.Session;
-
-import org.junit.Test;
-
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class IntegerDiscriminatorTest extends AbstractMySQLIntegrationTest {
+public class DefaultDiscriminatorTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -72,7 +70,7 @@ public class IntegerDiscriminatorTest extends AbstractMySQLIntegrationTest {
                     "ON Topic " +
                     "FOR EACH ROW " +
                     "BEGIN " +
-                    "   IF NEW.topic_type_id = 1 " +
+                    "   IF NEW.DTYPE = 'Post' " +
                     "   THEN " +
                     "       IF NEW.content IS NULL " +
                     "       THEN " +
@@ -88,7 +86,7 @@ public class IntegerDiscriminatorTest extends AbstractMySQLIntegrationTest {
                     "ON Topic " +
                     "FOR EACH ROW " +
                     "BEGIN " +
-                    "   IF NEW.topic_type_id = 2 " +
+                    "   IF NEW.DTYPE = 'Announcement' " +
                     "   THEN " +
                     "       IF NEW.validUntil IS NULL " +
                     "       THEN " +
@@ -105,12 +103,6 @@ public class IntegerDiscriminatorTest extends AbstractMySQLIntegrationTest {
     @Entity(name = "Topic")
     @Table(name = "topic")
     @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-    @DiscriminatorColumn(
-        discriminatorType = DiscriminatorType.INTEGER,
-        name = "topic_type_id",
-        columnDefinition = "TINYINT(1)"
-    )
-    @DiscriminatorValue("0")
     public static class Topic {
 
         @Id
@@ -159,7 +151,6 @@ public class IntegerDiscriminatorTest extends AbstractMySQLIntegrationTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
-    @DiscriminatorValue("1")
     public static class Post extends Topic {
 
         private String content;
@@ -175,7 +166,6 @@ public class IntegerDiscriminatorTest extends AbstractMySQLIntegrationTest {
 
     @Entity(name = "Announcement")
     @Table(name = "announcement")
-    @DiscriminatorValue("2")
     public static class Announcement extends Topic {
 
         @Temporal(TemporalType.TIMESTAMP)

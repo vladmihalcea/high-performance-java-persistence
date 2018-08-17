@@ -70,7 +70,7 @@ public class StringDiscriminatorTest extends AbstractMySQLIntegrationTest {
                     "ON Topic " +
                     "FOR EACH ROW " +
                     "BEGIN " +
-                    "   IF NEW.topic_type_id = 'Post' " +
+                    "   IF NEW.topic_type_id = 'PST' " +
                     "   THEN " +
                     "       IF NEW.content IS NULL " +
                     "       THEN " +
@@ -86,7 +86,7 @@ public class StringDiscriminatorTest extends AbstractMySQLIntegrationTest {
                     "ON Topic " +
                     "FOR EACH ROW " +
                     "BEGIN " +
-                    "   IF NEW.topic_type_id = 'Announcement' " +
+                    "   IF NEW.topic_type_id = 'ANN' " +
                     "   THEN " +
                     "       IF NEW.validUntil IS NULL " +
                     "       THEN " +
@@ -101,19 +101,14 @@ public class StringDiscriminatorTest extends AbstractMySQLIntegrationTest {
     }
 
     @Entity(name = "Topic")
+    @Table(name = "topic")
     @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
     @DiscriminatorColumn(
         discriminatorType = DiscriminatorType.STRING,
         name = "topic_type_id",
-        columnDefinition = "VARCHAR(12)"
+        columnDefinition = "VARCHAR(3)"
     )
-    @Table(
-        name = "topic",
-        indexes = @Index(
-            name = "idx_topic_type_id",
-            columnList = "topic_type_id"
-        )
-    )
+    @DiscriminatorValue("TPC")
     public static class Topic {
 
         @Id
@@ -162,6 +157,7 @@ public class StringDiscriminatorTest extends AbstractMySQLIntegrationTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
+    @DiscriminatorValue("PST")
     public static class Post extends Topic {
 
         private String content;
@@ -177,6 +173,7 @@ public class StringDiscriminatorTest extends AbstractMySQLIntegrationTest {
 
     @Entity(name = "Announcement")
     @Table(name = "announcement")
+    @DiscriminatorValue("ANN")
     public static class Announcement extends Topic {
 
         @Temporal(TemporalType.TIMESTAMP)
