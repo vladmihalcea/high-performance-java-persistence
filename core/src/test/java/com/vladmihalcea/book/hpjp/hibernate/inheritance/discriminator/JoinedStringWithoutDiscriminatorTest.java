@@ -1,24 +1,20 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance.discriminator;
 
-import java.sql.Statement;
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import org.junit.Test;
+
+import javax.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.*;
-
-import org.hibernate.Session;
-
-import org.junit.Test;
-
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class IntegerDiscriminatorTest extends AbstractMySQLIntegrationTest {
+public class JoinedStringWithoutDiscriminatorTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -27,11 +23,6 @@ public class IntegerDiscriminatorTest extends AbstractMySQLIntegrationTest {
             Post.class,
             Announcement.class
         };
-    }
-
-    @Override
-    protected void afterInit() {
-        doInJPA(this::addConsistencyTriggers);
     }
 
     @Test
@@ -61,62 +52,22 @@ public class IntegerDiscriminatorTest extends AbstractMySQLIntegrationTest {
 
             assertEquals(1, posts.size());
         });
-    }
 
-    private void addConsistencyTriggers(EntityManager entityManager) {
-        entityManager.unwrap(Session.class).doWork(connection -> {
-            try (Statement st = connection.createStatement()) {
-                st.executeUpdate(
-                    "CREATE " +
-                    "TRIGGER post_content_check BEFORE INSERT " +
-                    "ON Topic " +
-                    "FOR EACH ROW " +
-                    "BEGIN " +
-                    "   IF NEW.topic_type_id = 1 " +
-                    "   THEN " +
-                    "       IF NEW.content IS NULL " +
-                    "       THEN " +
-                    "           signal sqlstate '45000' " +
-                    "           set message_text = 'Post content cannot be NULL'; " +
-                    "       END IF; " +
-                    "   END IF; " +
-                    "END;"
-                );
-                st.executeUpdate(
-                    "CREATE " +
-                    "TRIGGER announcement_validUntil_check BEFORE INSERT " +
-                    "ON Topic " +
-                    "FOR EACH ROW " +
-                    "BEGIN " +
-                    "   IF NEW.topic_type_id = 2 " +
-                    "   THEN " +
-                    "       IF NEW.validUntil IS NULL " +
-                    "       THEN " +
-                    "           signal sqlstate '45000' " +
-                    "           set message_text = 'Announcement validUntil cannot be NULL'; " +
-                    "       END IF; " +
-                    "   END IF; " +
-                    "END;"
-                );
+        doInJPA(entityManager -> {
+            List<Topic> posts = entityManager
+            .createQuery(
+                "select t " +
+                "from Topic t " +
+                "where type(t) = Post", Topic.class)
+            .getResultList();
 
-                st.executeUpdate(
-                    "ALTER TABLE topic " +
-                    "MODIFY COLUMN topic_type_id " +
-                    "TINYINT(1) NOT NULL COMMENT '0 - Topic, 1 - Post, 2 - Announcement'"
-                );
-            }
+            assertEquals(1, posts.size());
         });
     }
 
     @Entity(name = "Topic")
     @Table(name = "topic")
-    @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-    @DiscriminatorColumn(
-        discriminatorType = DiscriminatorType.INTEGER,
-        name = "topic_type_id",
-        columnDefinition = "TINYINT(1)"
-    )
-    @DiscriminatorValue("0")
+    @Inheritance(strategy = InheritanceType.JOINED)
     public static class Topic {
 
         @Id
@@ -165,7 +116,6 @@ public class IntegerDiscriminatorTest extends AbstractMySQLIntegrationTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
-    @DiscriminatorValue("1")
     public static class Post extends Topic {
 
         private String content;
@@ -181,7 +131,6 @@ public class IntegerDiscriminatorTest extends AbstractMySQLIntegrationTest {
 
     @Entity(name = "Announcement")
     @Table(name = "announcement")
-    @DiscriminatorValue("2")
     public static class Announcement extends Topic {
 
         @Temporal(TemporalType.TIMESTAMP)

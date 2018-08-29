@@ -1,62 +1,35 @@
-package com.vladmihalcea.book.hpjp.hibernate.inheritance.discriminator.description;
+package com.vladmihalcea.book.hpjp.hibernate.inheritance.discriminator;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.hibernate.Session;
 import org.junit.Test;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.EntityManager;
-import javax.persistence.Tuple;
+import javax.persistence.*;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vlad Mihalcea
  */
-public class IntegerDiscriminatorDescriptionTest extends AbstractMySQLIntegrationTest {
+public class DefaultIntegerDiscriminatorTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
             Topic.class,
             Post.class,
-            Announcement.class,
-            TopicType.class,
+            Announcement.class
         };
     }
 
     @Override
     protected void afterInit() {
         doInJPA(this::addConsistencyTriggers);
-
-        doInJPA(entityManager -> {
-            for (Class entityClass : entities()) {
-                if (Topic.class.isAssignableFrom(entityClass)) {
-
-                    DiscriminatorValue discriminatorValue = (DiscriminatorValue)
-                        entityClass.getAnnotation(DiscriminatorValue.class);
-
-                    TopicType topicType = new TopicType();
-                    topicType.setId(Byte.valueOf(discriminatorValue.value()));
-                    topicType.setName(entityClass.getName());
-                    topicType.setDescription(
-                        Topic.class.equals(entityClass) ?
-                            "Topic is the base class of the Topic entity hierarchy" :
-                            String.format(
-                                "%s is a subclass of the Topic base class",
-                                entityClass.getSimpleName()
-                            )
-                    );
-
-                    entityManager.persist(topicType);
-                }
-            }
-        });
     }
 
     @Test
@@ -85,39 +58,6 @@ public class IntegerDiscriminatorDescriptionTest extends AbstractMySQLIntegratio
             .getResultList();
 
             assertEquals(1, posts.size());
-
-            List<Tuple> results = entityManager
-            .createNativeQuery(
-                "SELECT " +
-                "    t.*, " +
-                "    CAST(tt.id AS SIGNED) AS \"discriminator\", " +
-                "    tt.name AS \"type_name\", " +
-                "    tt.description AS \"type_description\" " +
-                "FROM topic t " +
-                "INNER JOIN topic_type tt ON t.topic_type_id = tt.id " +
-                "WHERE t.content IS NOT NULL", Tuple.class)
-            .getResultList();
-
-            assertEquals(1, results.size());
-
-            Tuple postTuple = results.get(0);
-
-            assertEquals(
-                "Best practices",
-                postTuple.get("content")
-            );
-            assertEquals(
-                1,
-                ((Number) postTuple.get("discriminator")).intValue()
-            );
-            assertEquals(
-                Post.class.getName(),
-                postTuple.get("type_name")
-            );
-            assertEquals(
-                "Post is a subclass of the Topic base class",
-                postTuple.get("type_description")
-            );
         });
     }
 
@@ -160,4 +100,90 @@ public class IntegerDiscriminatorDescriptionTest extends AbstractMySQLIntegratio
         });
     }
 
+    @Entity(name = "Topic")
+    @Table(name = "topic")
+    @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+    @DiscriminatorColumn(
+        discriminatorType = DiscriminatorType.INTEGER,
+        name = "topic_type_id"
+    )
+    @DiscriminatorValue("0")
+    public static class Topic {
+
+        @Id
+        @GeneratedValue
+        private Long id;
+
+        private String title;
+
+        private String owner;
+
+        @Temporal(TemporalType.TIMESTAMP)
+        private Date createdOn = new Date();
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getOwner() {
+            return owner;
+        }
+
+        public void setOwner(String owner) {
+            this.owner = owner;
+        }
+
+        public Date getCreatedOn() {
+            return createdOn;
+        }
+
+        public void setCreatedOn(Date createdOn) {
+            this.createdOn = createdOn;
+        }
+    }
+
+    @Entity(name = "Post")
+    @Table(name = "post")
+    @DiscriminatorValue("1")
+    public static class Post extends Topic {
+
+        private String content;
+
+        public String getContent() {
+            return content;
+        }
+
+        public void setContent(String content) {
+            this.content = content;
+        }
+    }
+
+    @Entity(name = "Announcement")
+    @Table(name = "announcement")
+    @DiscriminatorValue("2")
+    public static class Announcement extends Topic {
+
+        @Temporal(TemporalType.TIMESTAMP)
+        private Date validUntil;
+
+        public Date getValidUntil() {
+            return validUntil;
+        }
+
+        public void setValidUntil(Date validUntil) {
+            this.validUntil = validUntil;
+        }
+    }
 }

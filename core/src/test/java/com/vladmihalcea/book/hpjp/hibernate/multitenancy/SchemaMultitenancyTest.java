@@ -112,6 +112,11 @@ public class SchemaMultitenancyTest extends AbstractTest {
 
         User vlad = doInJPA(entityManager -> {
 
+            LOGGER.info(
+                    "Current schema: {}",
+                    entityManager.createNativeQuery("select current_schema()").getSingleResult()
+            );
+
             User user = new User();
             user.setFirstName("Vlad");
             user.setLastName("Mihalcea");
@@ -125,6 +130,11 @@ public class SchemaMultitenancyTest extends AbstractTest {
 
         doInJPA(entityManager -> {
 
+            LOGGER.info(
+                    "Current schema: {}",
+                    entityManager.createNativeQuery("select current_schema()").getSingleResult()
+            );
+
             User user = new User();
             user.setFirstName("John");
             user.setLastName("Doe");
@@ -135,6 +145,11 @@ public class SchemaMultitenancyTest extends AbstractTest {
         TenantContext.setTenant("europe");
 
         doInJPA(entityManager -> {
+
+            LOGGER.info(
+                    "Current schema: {}",
+                    entityManager.createNativeQuery("select current_schema()").getSingleResult()
+            );
 
             Post post = new Post();
             post.setTitle("High-Performance Java Persistence");
