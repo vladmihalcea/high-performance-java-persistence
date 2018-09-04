@@ -9,9 +9,7 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class CloneTest extends AbstractTest {
 
@@ -120,7 +118,7 @@ public class CloneTest extends AbstractTest {
                 joinColumns = @JoinColumn(name = "post_id"),
                 inverseJoinColumns = @JoinColumn(name = "tag_id")
         )
-        private List<Tag> tags = new ArrayList<>();
+        private Set<Tag> tags = new HashSet<>();
 
         public Long getId() {
             return id;
@@ -146,7 +144,7 @@ public class CloneTest extends AbstractTest {
             return details;
         }
 
-        public List<Tag> getTags() {
+        public Set<Tag> getTags() {
             return tags;
         }
 
