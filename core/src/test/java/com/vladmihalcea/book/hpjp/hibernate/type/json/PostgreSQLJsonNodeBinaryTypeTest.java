@@ -1,33 +1,16 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.json;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-
-import org.hibernate.boot.model.TypeContributions;
-import org.hibernate.boot.model.TypeContributor;
-import org.hibernate.dialect.PostgreSQL95Dialect;
-import org.hibernate.jpa.boot.spi.TypeContributorList;
-import org.hibernate.service.ServiceRegistry;
 import org.junit.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import javax.persistence.*;
 
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -36,43 +19,17 @@ public class PostgreSQLJsonNodeBinaryTypeTest extends AbstractPostgreSQLIntegrat
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
-            Book.class
+        return new Class<?>[]{
+                Book.class
         };
     }
 
-    /*@Override
-    protected void additionalProperties(Properties properties) {
-        properties.put( "hibernate.type_contributors", (TypeContributorList) () -> Arrays.asList(
-            (TypeContributor) (typeContributions, serviceRegistry) ->
-                typeContributions.contributeType(new JsonNodeBinaryType())
-        ) );
-    }*/
-
-    protected DataSourceProvider dataSourceProvider() {
-        return new PostgreSQLDataSourceProvider() {
-            @Override
-            public String hibernateDialect() {
-                return PostgreSQL95JsonBDialect.class.getName();
-            }
-        };
-    }
-
-    public static class PostgreSQL95JsonBDialect extends PostgreSQL95Dialect {
-
-        public PostgreSQL95JsonBDialect() {
-            super();
-            //this.registerHibernateType( Types.OTHER, "jsonb-node" );
-        }
-    }
-
-    @Test
-    public void test() {
-
+    @Override
+    protected void afterInit() {
         doInJPA(entityManager -> {
 
             Book book = new Book();
-            book.setIsbn( "978-9730228236" );
+            book.setIsbn("978-9730228236");
             book.setProperties(
                 JacksonUtil.toJsonNode(
                     "{" +
@@ -84,38 +41,49 @@ public class PostgreSQLJsonNodeBinaryTypeTest extends AbstractPostgreSQLIntegrat
                 )
             );
 
-            entityManager.persist( book );
+            entityManager.persist(book);
         });
+    }
+
+    @Test
+    public void testFetchAndUpdate() {
 
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap( Session.class );
-            Book book = session
-                .bySimpleNaturalId( Book.class )
-                .load( "978-9730228236" );
+            Book book = entityManager
+                    .unwrap(Session.class)
+                    .bySimpleNaturalId(Book.class)
+                    .load("978-9730228236");
 
-            LOGGER.info( "Book details: {}", book.getProperties() );
+            assertEquals("High-Performance Java Persistence", book.getProperties().get("title").asText());
+
+            LOGGER.info("Book details: {}", book.getProperties());
 
             book.setProperties(
-                JacksonUtil.toJsonNode(
-                    "{" +
-                    "   \"title\": \"High-Performance Java Persistence\"," +
-                    "   \"author\": \"Vlad Mihalcea\"," +
-                    "   \"publisher\": \"Amazon\"," +
-                    "   \"price\": 44.99," +
-                    "   \"url\": \"https://www.amazon.com/High-Performance-Java-Persistence-Vlad-Mihalcea/dp/973022823X/\"" +
-                    "}"
-                )
+                    JacksonUtil.toJsonNode(
+                            "{" +
+                                    "   \"title\": \"High-Performance Java Persistence\"," +
+                                    "   \"author\": \"Vlad Mihalcea\"," +
+                                    "   \"publisher\": \"Amazon\"," +
+                                    "   \"price\": 44.99," +
+                                    "   \"url\": \"https://www.amazon.com/High-Performance-Java-Persistence-Vlad-Mihalcea/dp/973022823X/\"" +
+                                    "}"
+                    )
             );
         });
+    }
 
+    @Test
+    public void testFetchUsingJPQL() {
         doInJPA(entityManager -> {
-            List<?> properties = entityManager.createNativeQuery(
-                "select properties from book")
-            .unwrap(org.hibernate.query.NativeQuery.class)
-            .addScalar("properties", JsonNodeBinaryType.INSTANCE)
-            .getResultList();
+            JsonNode properties = entityManager
+            .createQuery(
+                "select b.properties " +
+                "from Book b " +
+                "where b.isbn = :isbn", JsonNode.class)
+            .setParameter("isbn", "978-9730228236")
+            .getSingleResult();
 
-            properties.size();
+            assertEquals("High-Performance Java Persistence", properties.get("title").asText());
         });
     }
 
@@ -131,9 +99,17 @@ public class PostgreSQLJsonNodeBinaryTypeTest extends AbstractPostgreSQLIntegrat
         @NaturalId
         private String isbn;
 
-        @Type( type = "jsonb-node" )
+        @Type(type = "jsonb-node")
         @Column(columnDefinition = "jsonb")
         private JsonNode properties;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
 
         public String getIsbn() {
             return isbn;

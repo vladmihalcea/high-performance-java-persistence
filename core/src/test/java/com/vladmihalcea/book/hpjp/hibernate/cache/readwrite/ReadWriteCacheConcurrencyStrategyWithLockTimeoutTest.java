@@ -7,7 +7,7 @@ import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.cache.internal.DefaultCacheKeysFactory;
-import org.hibernate.cache.spi.EntityRegion;
+import org.hibernate.cache.spi.DomainDataRegion;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.persister.entity.EntityPersister;
 import org.junit.Before;
@@ -53,7 +53,7 @@ public class ReadWriteCacheConcurrencyStrategyWithLockTimeoutTest extends Abstra
     protected Properties properties() {
         Properties properties = super.properties();
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
-        properties.put("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+        properties.put("hibernate.cache.region.factory_class", "ehcache");
         properties.put("net.sf.ehcache.hibernate.cache_lock_timeout", String.valueOf(250));
         return properties;
     }
@@ -114,7 +114,7 @@ public class ReadWriteCacheConcurrencyStrategyWithLockTimeoutTest extends Abstra
 
     private net.sf.ehcache.Cache getCache(Class clazz) throws IllegalAccessException {
         EntityPersister entityPersister = ((SessionFactoryImplementor) sessionFactory()).getEntityPersister(clazz.getName() );
-        EntityRegion region = entityPersister.getCacheAccessStrategy().getRegion();
+        DomainDataRegion region = entityPersister.getCacheAccessStrategy().getRegion();
         Field cacheField = getField(region.getClass(), "cache");
         return  (net.sf.ehcache.Cache) cacheField.get(region);
     }

@@ -26,7 +26,7 @@ public class InheritanceCacheTest extends AbstractTest {
     @Override
     protected Properties properties() {
         Properties properties = super.properties();
-        properties.put("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+        properties.put("hibernate.cache.region.factory_class", "ehcache");
         properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
         properties.put("hibernate.cache.use_query_cache", Boolean.TRUE.toString());
         return properties;

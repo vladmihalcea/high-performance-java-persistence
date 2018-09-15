@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.inheritance.discriminator;
+package com.vladmihalcea.book.hpjp.hibernate.inheritance.discriminator.description;
 
 import java.util.Date;
 import javax.persistence.DiscriminatorValue;

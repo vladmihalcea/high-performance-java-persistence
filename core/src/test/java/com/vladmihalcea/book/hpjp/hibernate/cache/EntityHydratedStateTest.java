@@ -29,7 +29,7 @@ public class EntityHydratedStateTest extends AbstractTest {
     @Override
     protected Properties properties() {
         Properties properties = super.properties();
-        properties.put("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+        properties.put("hibernate.cache.region.factory_class", "ehcache");
         properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
         return properties;
     }

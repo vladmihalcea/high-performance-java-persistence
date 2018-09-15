@@ -2,7 +2,6 @@ package com.vladmihalcea.book.hpjp.hibernate.cache.query;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.cache.internal.StandardQueryCache;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.NativeQuery;
 import org.junit.After;
@@ -34,7 +33,7 @@ public class QueryCacheTest extends AbstractTest {
     protected Properties properties() {
         Properties properties = super.properties();
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
-        properties.put("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+        properties.put("hibernate.cache.region.factory_class", "ehcache");
         properties.put("hibernate.cache.use_query_cache", Boolean.TRUE.toString());
         return properties;
     }
@@ -132,9 +131,9 @@ public class QueryCacheTest extends AbstractTest {
     @Test
     public void test2ndLevelCacheWithQuery() {
         doInJPA(entityManager -> {
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
             assertEquals(1, getLatestPostComments(entityManager).size());
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
             assertEquals(1, getLatestPostComments(entityManager).size());
         });
     }
@@ -143,12 +142,12 @@ public class QueryCacheTest extends AbstractTest {
     public void test2ndLevelCacheWithQueryEntityLoad() {
         doInJPA(entityManager -> {
             printCacheRegionStatistics(PostComment.class.getName());
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
 
             assertEquals(1, getLatestPostComments(entityManager).size());
 
             printCacheRegionStatistics(PostComment.class.getName());
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
 
             executeSync(() -> {
                 doInJPA(_entityManager -> {
@@ -160,7 +159,7 @@ public class QueryCacheTest extends AbstractTest {
             });
 
             printCacheRegionStatistics(PostComment.class.getName());
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
             List<PostComment> comments = getLatestPostComments(entityManager);
         });
     }
@@ -202,7 +201,7 @@ public class QueryCacheTest extends AbstractTest {
         doInJPA(entityManager -> {
 
             assertEquals(1, getLatestPostComments(entityManager).size());
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
 
             LOGGER.info("Insert a new PostComment");
             PostComment newComment = new PostComment();
@@ -213,31 +212,31 @@ public class QueryCacheTest extends AbstractTest {
             entityManager.flush();
 
             assertEquals(2, getLatestPostComments(entityManager).size());
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
         });
 
         LOGGER.info("After transaction commit");
-        printCacheRegionStatistics(StandardQueryCache.class.getName());
+        printQueryCacheRegionStatistics();
 
         doInJPA(entityManager -> {
             LOGGER.info("Check query cache");
             assertEquals(2, getLatestPostComments(entityManager).size());
         });
-        printCacheRegionStatistics(StandardQueryCache.class.getName());
+        printQueryCacheRegionStatistics();
     }
 
     @Test
     public void test2ndLevelCacheWithNativeQueryInvalidation() {
         doInJPA(entityManager -> {
             assertEquals(1, getLatestPostComments(entityManager).size());
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
 
             int postCount = ((Number) entityManager.createNativeQuery(
                 "SELECT count(*) FROM post")
                 .getSingleResult()).intValue();
 
             assertEquals(postCount, getLatestPostComments(entityManager).size());
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
         });
     }
 
@@ -245,14 +244,14 @@ public class QueryCacheTest extends AbstractTest {
     public void test2ndLevelCacheWithNativeUpdateStatementInvalidation() {
         doInJPA(entityManager -> {
             assertEquals(1, getLatestPostComments(entityManager).size());
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
 
             entityManager.createNativeQuery(
                 "UPDATE post SET title = '\"'||title||'\"' ")
             .executeUpdate();
 
             assertEquals(1, getLatestPostComments(entityManager).size());
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
         });
     }
 
@@ -260,7 +259,7 @@ public class QueryCacheTest extends AbstractTest {
     public void test2ndLevelCacheWithNativeUpdateStatementSynchronization() {
         doInJPA(entityManager -> {
             assertEquals(1, getLatestPostComments(entityManager).size());
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
 
             LOGGER.info("Execute native query with synchronization");
             entityManager.createNativeQuery(
@@ -270,7 +269,7 @@ public class QueryCacheTest extends AbstractTest {
             .executeUpdate();
 
             assertEquals(1, getLatestPostComments(entityManager).size());
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
+            printQueryCacheRegionStatistics();
         });
     }
 

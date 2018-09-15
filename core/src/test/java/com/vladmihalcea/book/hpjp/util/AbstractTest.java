@@ -7,6 +7,7 @@ import com.vladmihalcea.book.hpjp.util.providers.LockType;
 import com.vladmihalcea.book.hpjp.util.transaction.*;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import net.sf.ehcache.Cache;
 import org.hibernate.Interceptor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -20,14 +21,24 @@ import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.boot.spi.MetadataImplementor;
-import org.hibernate.cache.internal.StandardQueryCache;
+import org.hibernate.cache.internal.QueryResultsCacheImpl;
+import org.hibernate.cache.jcache.internal.JCacheAccessImpl;
+import org.hibernate.cache.spi.QueryResultsRegion;
+import org.hibernate.cache.spi.Region;
+import org.hibernate.cache.spi.entry.CollectionCacheEntry;
+import org.hibernate.cache.spi.entry.StandardCacheEntryImpl;
+import org.hibernate.cache.spi.support.*;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
+import org.hibernate.stat.CacheRegionStatistics;
+import org.hibernate.stat.QueryStatistics;
 import org.hibernate.stat.SecondLevelCacheStatistics;
+import org.hibernate.stat.Statistics;
+import org.hibernate.stat.internal.CacheRegionStatisticsImpl;
 import org.hibernate.type.BasicType;
 import org.hibernate.type.Type;
 import org.hibernate.usertype.CompositeUserType;
@@ -44,6 +55,7 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.sql.DataSource;
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -289,6 +301,8 @@ public abstract class AbstractTest {
             properties.put("hibernate.connection.datasource", dataSource);
         }
         properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
+
+        properties.put("net.sf.ehcache.configurationResourceName", Thread.currentThread().getContextClassLoader().getResource("ehcache.xml").toString());
         //properties.put("hibernate.ejb.metamodel.population", "disabled");
         additionalProperties(properties);
         return properties;
@@ -835,51 +849,97 @@ public abstract class AbstractTest {
     }
 
     protected void printCacheRegionStatistics(String region) {
-        SecondLevelCacheStatistics statistics = sessionFactory().getStatistics().getSecondLevelCacheStatistics(region);
-        LOGGER.debug("\nRegion: {},\nStatistics: {},\nEntries: {}", region, statistics, statistics.getEntries());
+        printCacheRegionStatisticsEntries(region);
     }
 
     protected void printQueryCacheRegionStatistics() {
-        SecondLevelCacheStatistics statistics = sessionFactory()
-                .getStatistics()
-                .getSecondLevelCacheStatistics(StandardQueryCache.class.getName());
+        printCacheRegionStatisticsEntries("default-query-results-region");
+    }
 
-        StringBuilder queryCache = new StringBuilder();
+    private void printCacheRegionStatisticsEntries(String regionName) {
+        CacheRegionStatistics cacheRegionStatistics = "default-query-results-region".equals(regionName) ?
+                sessionFactory().getStatistics().getQueryRegionStatistics(regionName) :
+                sessionFactory().getStatistics().getDomainDataRegionStatistics(regionName);
 
-        for ( Object queryCacheEntry: statistics.getEntries().entrySet()) {
-            if(queryCache.length() > 0) {
-                queryCache.append( ", " );
-            }
-            if(queryCacheEntry instanceof Map.Entry) {
-                Map.Entry queryCacheEntryMap = (Map.Entry) queryCacheEntry;
-                queryCache.append( "{" );
-                queryCache.append( queryCacheEntryMap.getKey() );
-                queryCache.append( "=" );
-                List values = (List) queryCacheEntryMap.getValue();
+        if (cacheRegionStatistics != null) {
+            AbstractRegion region = ReflectionUtils.getFieldValue(cacheRegionStatistics, "region");
 
-                boolean first = true;
+            StorageAccess storageAccess = getStorageAccess(region);
+            net.sf.ehcache.Cache cache = getEhcache(storageAccess);
 
-                queryCache.append( "[" );
-                for ( Object value: values) {
-                    if(first) {
-                        first = false;
+            if (cache != null) {
+                for (Object key : cache.getKeys()) {
+                    Object cacheValue = storageAccess.getFromCache(key, null);
+
+                    if (cacheValue instanceof QueryResultsCacheImpl.CacheItem) {
+                        StringBuilder cacheEntriesBuilder = new StringBuilder();
+
+                        QueryResultsCacheImpl.CacheItem queryValue = (QueryResultsCacheImpl.CacheItem) cacheValue;
+                        List results = ReflectionUtils.getFieldValue(queryValue, "results");
+
+                        cacheEntriesBuilder.append( "{" );
+                        cacheEntriesBuilder.append( key );
+                        cacheEntriesBuilder.append( "=" );
+
+                        boolean first = true;
+
+                        cacheEntriesBuilder.append( "[" );
+                        for ( Object value: results ) {
+                            if(first) {
+                                first = false;
+                            }
+                            else {
+                                cacheEntriesBuilder.append( ", " );
+                            }
+                            cacheEntriesBuilder.append(
+                                    Object[].class.isAssignableFrom( value.getClass() ) ?
+                                            Arrays.toString( (Object[]) value ) :
+                                            value
+                            );
+                        }
+                        cacheEntriesBuilder.append( "]" );
+                        cacheEntriesBuilder.append( "}" );
+
+                        LOGGER.debug("\nRegion: {},\nStatistics: {},\nEntries: {}", regionName, cacheRegionStatistics, cacheEntriesBuilder );
                     }
-                    else {
-                        queryCache.append( ", " );
+                    else if (cacheValue instanceof StandardCacheEntryImpl) {
+                        StandardCacheEntryImpl standardCacheEntry = (StandardCacheEntryImpl) cacheValue;
+
+                        LOGGER.debug("\nRegion: {},\nStatistics: {},\nEntries: {}", regionName, cacheRegionStatistics, standardCacheEntry.getDisassembledState());
                     }
-                    queryCache.append(
-                        Object[].class.isAssignableFrom( value.getClass() ) ?
-                            Arrays.toString( (Object[]) value ) :
-                            value
-                    );
+                    else if (cacheValue instanceof CollectionCacheEntry) {
+                        CollectionCacheEntry collectionCacheEntry = (CollectionCacheEntry) cacheValue;
+
+                        LOGGER.debug("\nRegion: {},\nStatistics: {},\nEntries: {}", regionName, cacheRegionStatistics, collectionCacheEntry.getState());
+                    }
+                    else if (cacheValue instanceof AbstractReadWriteAccess.Item) {
+                        AbstractReadWriteAccess.Item value = (AbstractReadWriteAccess.Item) cacheValue;
+
+                        LOGGER.debug("\nRegion: {},\nStatistics: {},\nEntries: {}", regionName, cacheRegionStatistics, value.getValue());
+                    }
                 }
-                queryCache.append( "]" );
-                queryCache.append( "}" );
             }
         }
 
-        statistics.getEntries();
+    }
 
-        LOGGER.debug("\nRegion: {},\nStatistics: {},\nEntries: {}", StandardQueryCache.class.getName(), statistics, queryCache );
+    private net.sf.ehcache.Cache getEhcache(StorageAccess storageAccess) {
+        if(storageAccess instanceof JCacheAccessImpl) {
+            return null;
+        }
+        return ReflectionUtils.getFieldValue(storageAccess, "cache");
+    }
+
+
+    private StorageAccess getStorageAccess(AbstractRegion region) {
+        if(region instanceof DirectAccessRegionTemplate) {
+            DirectAccessRegionTemplate directAccessRegionTemplate = (DirectAccessRegionTemplate) region;
+            return directAccessRegionTemplate.getStorageAccess();
+        }
+        else if(region instanceof DomainDataRegionTemplate) {
+            DomainDataRegionTemplate domainDataRegionTemplate = (DomainDataRegionTemplate) region;
+            return domainDataRegionTemplate.getCacheStorageAccess();
+        }
+        throw new IllegalArgumentException("Unsupported region: " + region);
     }
 }

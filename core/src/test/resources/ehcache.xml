@@ -9,4 +9,21 @@
             eternal="true">
         <persistence strategy="none"/>
     </defaultCache>
+
+    <cache name="org.hibernate.cache.spi.TimestampsRegion"
+           maxEntriesLocalHeap="10000"
+           eternal="true"
+           copyOnRead="true"
+           copyOnWrite="true">
+        <persistence strategy="none"/>
+    </cache>
+
+    <cache name="org.hibernate.cache.spi.QueryResultsRegion"
+           maxEntriesLocalHeap="10000"
+           eternal="true"
+           copyOnRead="true"
+           copyOnWrite="true">
+        <persistence strategy="none"/>
+    </cache>
+
 </ehcache>

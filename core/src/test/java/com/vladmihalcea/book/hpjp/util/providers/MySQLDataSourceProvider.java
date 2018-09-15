@@ -111,12 +111,12 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
 
     @Override
     public String username() {
-        return null;
+        return "mysql";
     }
 
     @Override
     public String password() {
-        return null;
+        return "admin";
     }
 
     @Override
