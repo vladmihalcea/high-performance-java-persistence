@@ -149,7 +149,7 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
         public void addTag(Tag tag) {
             PostTag postTag = new PostTag(this, tag);
             tags.add(postTag);
-            tag.getPosts().add(postTag);
+            tag.setPosts(postTag);
         }
 
         public void removeTag(Tag tag) {
@@ -158,7 +158,7 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
                 if (postTag.getPost().equals(this) &&
                         postTag.getTag().equals(tag)) {
                     iterator.remove();
-                    postTag.getTag().getPosts().remove(postTag);
+                    postTag.getTag().setPosts(null);
                     postTag.setPost(null);
                     postTag.setTag(null);
                 }
@@ -302,7 +302,7 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
             cascade = CascadeType.ALL,
             orphanRemoval = true
         )
-        private List<PostTag> posts = new ArrayList<>();
+        private PostTag posts;
 
         public Tag() {
         }
@@ -327,8 +327,12 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
             this.name = name;
         }
 
-        public List<PostTag> getPosts() {
+        public PostTag getPosts() {
             return posts;
+        }
+        
+        public void setPosts(PostTag posts) {
+            this.posts = posts;
         }
 
         @Override
