@@ -29,6 +29,7 @@ import org.hibernate.annotations.NaturalIdCache;
 import org.junit.Test;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import javax.persistence.OneToOne;
 
 /**
  * @author Vlad Mihalcea
@@ -229,7 +230,7 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
         @MapsId("postId")
         private Post post;
 
-        @ManyToOne(fetch = FetchType.LAZY)
+        @OneToOne(fetch = FetchType.LAZY)
         @MapsId("tagId")
         private Tag tag;
 
@@ -296,7 +297,7 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
         @NaturalId
         private String name;
 
-        @OneToMany(
+        @OneToOne(
             mappedBy = "tag",
             cascade = CascadeType.ALL,
             orphanRemoval = true
