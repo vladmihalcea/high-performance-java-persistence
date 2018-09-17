@@ -90,9 +90,9 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
             Post hpjp2 = new Post("High-Performance Java Persistence 2nd edition");
             hpjp2.setId(2L);
 
-            hpjp2.addTag(jdbc);
-            hpjp2.addTag(hibernate);
-            hpjp2.addTag(jooq);
+//            hpjp2.addTag(jdbc);
+//            hpjp2.addTag(hibernate);
+//            hpjp2.addTag(jooq);
 
             entityManager.persist(hpjp2);
         });
