@@ -29,6 +29,7 @@ import org.hibernate.annotations.NaturalIdCache;
 import org.junit.Test;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import javax.persistence.OneToOne;
 
 /**
  * @author Vlad Mihalcea
@@ -89,9 +90,9 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
             Post hpjp2 = new Post("High-Performance Java Persistence 2nd edition");
             hpjp2.setId(2L);
 
-            hpjp2.addTag(jdbc);
-            hpjp2.addTag(hibernate);
-            hpjp2.addTag(jooq);
+//            hpjp2.addTag(jdbc);
+//            hpjp2.addTag(hibernate);
+//            hpjp2.addTag(jooq);
 
             entityManager.persist(hpjp2);
         });
@@ -148,7 +149,7 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
         public void addTag(Tag tag) {
             PostTag postTag = new PostTag(this, tag);
             tags.add(postTag);
-            tag.getPosts().add(postTag);
+            tag.setPosts(postTag);
         }
 
         public void removeTag(Tag tag) {
@@ -157,7 +158,7 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
                 if (postTag.getPost().equals(this) &&
                         postTag.getTag().equals(tag)) {
                     iterator.remove();
-                    postTag.getTag().getPosts().remove(postTag);
+                    postTag.getTag().setPosts(null);
                     postTag.setPost(null);
                     postTag.setTag(null);
                 }
@@ -229,7 +230,7 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
         @MapsId("postId")
         private Post post;
 
-        @ManyToOne(fetch = FetchType.LAZY)
+        @OneToOne(fetch = FetchType.LAZY)
         @MapsId("tagId")
         private Tag tag;
 
@@ -296,12 +297,12 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
         @NaturalId
         private String name;
 
-        @OneToMany(
+        @OneToOne(
             mappedBy = "tag",
             cascade = CascadeType.ALL,
             orphanRemoval = true
         )
-        private List<PostTag> posts = new ArrayList<>();
+        private PostTag posts;
 
         public Tag() {
         }
@@ -326,8 +327,12 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
             this.name = name;
         }
 
-        public List<PostTag> getPosts() {
+        public PostTag getPosts() {
             return posts;
+        }
+        
+        public void setPosts(PostTag posts) {
+            this.posts = posts;
         }
 
         @Override
