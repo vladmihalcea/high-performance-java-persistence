@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.annotations.DiscriminatorOptions;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -17,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Vlad Mihalcea
  */
-public class JoinTableTest extends AbstractTest {
+public class JoinTablePrimaryKeyJoinColumnTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -54,16 +53,12 @@ public class JoinTableTest extends AbstractTest {
 
             entityManager.persist(announcement);
 
-            TopicStatistics postStatistics = new TopicStatistics();
-            postStatistics.setTopic(post);
+            TopicStatistics postStatistics = new TopicStatistics(post);
             postStatistics.incrementViews();
-
             entityManager.persist(postStatistics);
 
-            TopicStatistics announcementStatistics = new TopicStatistics();
-            announcementStatistics.setTopic(announcement);
+            TopicStatistics announcementStatistics = new TopicStatistics(announcement);
             announcementStatistics.incrementViews();
-
             entityManager.persist(announcementStatistics);
 
             return post;
@@ -73,12 +68,9 @@ public class JoinTableTest extends AbstractTest {
             Board board = topic.getBoard();
             LOGGER.info("Fetch Topics");
             List<Topic> topics = entityManager
-            .createQuery(
-                "select t " +
-                "from Topic t " +
-                "where t.board = :board", Topic.class)
-            .setParameter("board", board)
-            .getResultList();
+                    .createQuery("select t from Topic t where t.board = :board", Topic.class)
+                    .setParameter("board", board)
+                    .getResultList();
         });
 
         doInJPA(entityManager -> {
@@ -105,163 +97,18 @@ public class JoinTableTest extends AbstractTest {
             LOGGER.info("Fetch Board topics eagerly");
             Long id = topic.getBoard().getId();
             Board board = entityManager.createQuery(
-                "select b " +
-                "from Board b " +
-                "join fetch b.topics " +
-                "where b.id = :id", Board.class)
-            .setParameter("id", id)
-            .getSingleResult();
-
-            assertTrue(board.getTopics().stream().anyMatch(t -> t instanceof Post));
-            assertTrue(board.getTopics().stream().anyMatch(t -> t instanceof Announcement));
+                    "select b from Board b join fetch b.topics where b.id = :id", Board.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
         });
 
         doInJPA(entityManager -> {
             Long topicId = topic.getId();
             LOGGER.info("Fetch statistics");
-            TopicStatistics statistics = entityManager.createQuery(
-                "select s " +
-                "from TopicStatistics s " +
-                "join fetch s.topic t " +
-                "where t.id = :topicId", TopicStatistics.class)
-            .setParameter("topicId", topicId)
-            .getSingleResult();
-        });
-
-        TopicStatistics statistics = doInJPA(entityManager -> {
-            Long topicId = topic.getId();
-            LOGGER.info("Fetch one TopicStatistic");
-            return entityManager.find(TopicStatistics.class, topicId);
-        });
-
-        try {
-            statistics.getTopic().getCreatedOn();
-        }
-        catch (Exception expected) {
-            LOGGER.info( "Topic was not fetched" );
-        }
-
-        doInJPA(entityManager -> {
-
-            List<Tuple> results = entityManager
-            .createQuery(
-                "select count(t), t.class " +
-                "from Topic t " +
-                "group by t.class " +
-                "order by t.class ")
-            .getResultList();
-
-            assertEquals(2, results.size());
-        });
-
-        doInJPA(entityManager -> {
-            Board board = topic.getBoard();
-
-            List<Topic> topics = entityManager
-            .createQuery(
-                "select t " +
-                "from Topic t " +
-                "where t.board = :board " +
-                "order by t.class", Topic.class)
-            .setParameter("board", board)
-            .getResultList();
-
-            assertEquals(2, topics.size());
-            assertTrue(topics.get(0) instanceof Post);
-            assertTrue(topics.get(1) instanceof Announcement);
-        });
-
-        doInJPA(entityManager -> {
-            Board board = topic.getBoard();
-
-            List<Topic> topics = entityManager
-            .createQuery(
-                "select t " +
-                "from Topic t " +
-                "where t.board = :board " +
-                "order by " +
-                "   case " +
-                "   when type(t) = Announcement then 10" +
-                "   when type(t) = Post then 20 " +
-                "   end", Topic.class)
-            .setParameter("board", board)
-            .getResultList();
-
-            assertEquals(2, topics.size());
-            assertTrue(topics.get(0) instanceof Announcement);
-            assertTrue(topics.get(1) instanceof Post);
-        });
-
-        doInJPA(entityManager -> {
-            Long boardId = topic.getBoard().getId();
-            LOGGER.info("Fetch Board topics");
-
-            Board board = entityManager.find(Board.class, boardId);
-
-            List<Topic> topics = board.getTopics();
-
-            assertTrue(topics.stream().anyMatch(t -> t instanceof Post));
-            assertTrue(topics.stream().anyMatch(t -> t instanceof Announcement));
-        });
-    }
-
-    @Test
-    public void testQueryUsingAll() {
-        doInJPA(entityManager -> {
-            Board board1 = new Board();
-            board1.setName("Hibernate");
-
-            entityManager.persist(board1);
-
-            Post post1 = new Post();
-            post1.setOwner("John Doe");
-            post1.setTitle("Inheritance");
-            post1.setContent("Best practices");
-            post1.setBoard(board1);
-
-            entityManager.persist(post1);
-
-            Announcement announcement1 = new Announcement();
-            announcement1.setOwner("John Doe");
-            announcement1.setTitle("Release x.y.z.Final");
-            announcement1.setValidUntil(Timestamp.valueOf(LocalDateTime.now().plusMonths(1)));
-            announcement1.setBoard(board1);
-
-            entityManager.persist(announcement1);
-
-            Board board2 = new Board();
-            board2.setName("JPA");
-
-            entityManager.persist(board2);
-
-            Post post2 = new Post();
-            post2.setOwner("John Doe");
-            post2.setTitle("Inheritance");
-            post2.setContent("Best practices");
-            post2.setBoard(board2);
-
-            entityManager.persist(post2);
-
-            Post post3 = new Post();
-            post3.setOwner("John Doe");
-            post3.setTitle("Inheritance");
-            post3.setContent("More best practices");
-            post3.setBoard(board2);
-
-            entityManager.persist(post3);
-        });
-
-        doInJPA(entityManager -> {
-            List<Board> postOnlyBoards = entityManager
-            .createQuery(
-                "select distinct b " +
-                "from Board b " +
-                "where Post = all (" +
-                "   select type(t) from Topic t where t.board = b" +
-                ")", Board.class)
-            .getResultList();
-            assertEquals(1, postOnlyBoards.size());
-            assertEquals("JPA", postOnlyBoards.get(0).getName());
+            TopicStatistics statistics = entityManager
+                    .createQuery("select s from TopicStatistics s join fetch s.topic t where t.id = :topicId", TopicStatistics.class)
+                    .setParameter("topicId", topicId)
+                    .getSingleResult();
         });
     }
 
@@ -361,6 +208,7 @@ public class JoinTableTest extends AbstractTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
+    @PrimaryKeyJoinColumn(name = "topic_id", referencedColumnName = "id")
     public static class Post extends Topic {
 
         private String content;
@@ -376,6 +224,7 @@ public class JoinTableTest extends AbstractTest {
 
     @Entity(name = "Announcement")
     @Table(name = "announcement")
+    @PrimaryKeyJoinColumn(name = "topic_id")
     public static class Announcement extends Topic {
 
         @Temporal(TemporalType.TIMESTAMP)
@@ -399,7 +248,6 @@ public class JoinTableTest extends AbstractTest {
 
         @OneToOne(fetch = FetchType.LAZY)
         @MapsId
-        @JoinColumn(name = "id")
         private Topic topic;
 
         private long views;
@@ -414,24 +262,12 @@ public class JoinTableTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
-            this.id = id;
-        }
-
         public Topic getTopic() {
             return topic;
         }
 
-        public void setTopic(Topic topic) {
-            this.topic = topic;
-        }
-
         public long getViews() {
             return views;
-        }
-
-        public void setViews(long views) {
-            this.views = views;
         }
 
         public void incrementViews() {

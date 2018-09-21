@@ -23,8 +23,6 @@ public class CloneTest extends AbstractTest {
         };
     }
 
-    private Post post;
-
     @Override
     protected void afterInit() {
         doInJPA(entityManager -> {
@@ -50,7 +48,7 @@ public class CloneTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
-            post = new Post();
+            Post post = new Post();
             post.setTitle("High-Performance Java Persistence, 1st edition");
 
             PostDetails details = new PostDetails();
@@ -76,11 +74,18 @@ public class CloneTest extends AbstractTest {
 
     @Test
     public void testClone() {
-        Long postId = post.getId();
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, postId);
+            Post post = entityManager.createQuery(
+                "select p " +
+                "from Post p " +
+                "join fetch p.details " +
+                "join fetch p.tags " +
+                "where p.title = :title", Post.class)
+            .setParameter("title", "High-Performance Java Persistence, 1st edition")
+            .getSingleResult();
 
             Post postClone = new Post(post);
+            postClone.setTitle(postClone.getTitle().replace("1st", "2nd"));
             entityManager.persist(postClone);
         });
     }
@@ -94,16 +99,6 @@ public class CloneTest extends AbstractTest {
         private Long id;
 
         private String title;
-
-        public Post() {}
-
-        public Post(Post post) {
-            this.title = post.title;
-
-            addDetails(new PostDetails(post.details));
-
-            tags.addAll(post.getTags());
-        }
 
         @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
                 orphanRemoval = true)
@@ -119,6 +114,20 @@ public class CloneTest extends AbstractTest {
                 inverseJoinColumns = @JoinColumn(name = "tag_id")
         )
         private Set<Tag> tags = new HashSet<>();
+
+        /**
+         * Needed by Hibernate when hydrating the entity
+         * from the JDBC ResultSet
+         */
+        private Post() {}
+
+        public Post(Post post) {
+            this.title = post.title;
+
+            addDetails(new PostDetails(post.details));
+
+            tags.addAll(post.getTags());
+        }
 
         public Long getId() {
             return id;
@@ -178,16 +187,20 @@ public class CloneTest extends AbstractTest {
         @Column(name = "created_by")
         private String createdBy;
 
-        public PostDetails() {
+        @OneToOne(fetch = FetchType.LAZY)
+        @MapsId
+        private Post post;
+
+        /**
+         * Needed by Hibernate when hydrating the entity
+         * from the JDBC ResultSet
+         */
+        private PostDetails() {
         }
 
         public PostDetails(PostDetails details) {
             this.createdBy = details.createdBy;
         }
-
-        @OneToOne(fetch = FetchType.LAZY)
-        @MapsId
-        private Post post;
 
         public Long getId() {
             return id;
@@ -234,12 +247,6 @@ public class CloneTest extends AbstractTest {
         private Post post;
 
         private String review;
-
-        public PostComment() {}
-
-        public PostComment(String review) {
-            this.review = review;
-        }
 
         public Long getId() {
             return id;
