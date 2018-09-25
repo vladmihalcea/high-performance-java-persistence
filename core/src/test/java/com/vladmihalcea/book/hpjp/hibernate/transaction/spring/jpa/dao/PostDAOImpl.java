@@ -17,8 +17,11 @@ public class PostDAOImpl extends GenericDAOImpl<Post, Long> implements PostDAO {
 
     @Override
     public List<Post> findByTitle(String title) {
-        return getEntityManager().createQuery(
-            "select p from Post p where p.title = :title", Post.class)
+        return getEntityManager()
+        .createQuery(
+            "select p " +
+            "from Post p " +
+            "where p.title = :title", Post.class)
         .setParameter("title", title)
         .getResultList();
     }

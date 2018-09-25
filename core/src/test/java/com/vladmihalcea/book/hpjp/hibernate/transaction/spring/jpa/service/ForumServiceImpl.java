@@ -7,6 +7,7 @@ import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -20,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Vlad Mihalcea
  */
-@Repository
+@Service
 public class ForumServiceImpl implements ForumService {
 
     @Autowired
@@ -43,11 +44,10 @@ public class ForumServiceImpl implements ForumService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Post> findPostByTitle(String title) {
+    public List<Post> findAllByTitle(String title) {
         List<Post> posts = postDAO.findByTitle(title);
 
-        SharedSessionContractImplementor session = entityManager.unwrap(SharedSessionContractImplementor.class);
-        org.hibernate.engine.spi.PersistenceContext persistenceContext = session.getPersistenceContext();
+        org.hibernate.engine.spi.PersistenceContext persistenceContext = getHibernatePersistenceContext();
 
         for(Post post : posts) {
             assertTrue(entityManager.contains(post));
@@ -64,12 +64,19 @@ public class ForumServiceImpl implements ForumService {
     public Post findById(Long id) {
         Post post = postDAO.findById(id);
 
-        SharedSessionContractImplementor session = entityManager.unwrap(SharedSessionContractImplementor.class);
-        org.hibernate.engine.spi.PersistenceContext persistenceContext = session.getPersistenceContext();
+        org.hibernate.engine.spi.PersistenceContext persistenceContext = getHibernatePersistenceContext();
+
 
         EntityEntry entityEntry = persistenceContext.getEntry(post);
         assertNotNull(entityEntry.getLoadedState());
 
         return post;
+    }
+
+    private org.hibernate.engine.spi.PersistenceContext getHibernatePersistenceContext() {
+        SharedSessionContractImplementor session = entityManager.unwrap(
+            SharedSessionContractImplementor.class
+        );
+        return session.getPersistenceContext();
     }
 }

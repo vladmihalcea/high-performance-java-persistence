@@ -84,7 +84,7 @@ public class JPATransactionManagerTest {
         Post newPost = forumService.newPost("High-Performance Java Persistence", "hibernate", "jpa");
         assertNotNull(newPost.getId());
 
-        List<Post> posts = forumService.findPostByTitle("High-Performance Java Persistence");
+        List<Post> posts = forumService.findAllByTitle("High-Performance Java Persistence");
         assertEquals(1, posts.size());
 
         Post post = forumService.findById(newPost.getId());

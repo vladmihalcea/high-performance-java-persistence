@@ -9,7 +9,7 @@ import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.PersistenceContext;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 /**
  * @author Vlad Mihalcea
  */
-@Repository
+@Service
 public class ForumServiceImpl implements ForumService {
 
     @Autowired
@@ -42,7 +42,7 @@ public class ForumServiceImpl implements ForumService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Post> findPostByTitle(String title) {
+    public List<Post> findAllByTitle(String title) {
         List<Post> posts = postDAO.findByTitle(title);
 
         Session session = sessionFactory.getCurrentSession();
