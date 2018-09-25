@@ -13,5 +13,7 @@ public interface ForumService {
 
     Post newPost(String title, String... tags);
 
-    List<Post> getPostByTitle(String title);
+    List<Post> findPostByTitle(String title);
+
+    Post findById(Long id);
 }

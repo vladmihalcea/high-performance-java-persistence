@@ -3,6 +3,8 @@ package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.hibernate.servic
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author Vlad Mihalcea
  */
@@ -10,4 +12,8 @@ import org.springframework.stereotype.Service;
 public interface ForumService {
 
     Post newPost(String title, String... tags);
+
+    List<Post> findPostByTitle(String title);
+
+    Post findById(Long id);
 }

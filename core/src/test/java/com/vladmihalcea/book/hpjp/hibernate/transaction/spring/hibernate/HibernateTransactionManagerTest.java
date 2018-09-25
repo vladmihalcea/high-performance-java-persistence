@@ -18,6 +18,9 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -55,12 +58,17 @@ public class HibernateTransactionManagerTest {
         } catch (TransactionException e) {
             LOGGER.error("Failure", e);
         }
-
     }
 
     @Test
     public void test() {
-        Post post = forumService.newPost("High-Performance Java Persistence", "hibernate", "jpa");
-        assertNotNull(post.getId());
+        Post newPost = forumService.newPost("High-Performance Java Persistence", "hibernate", "jpa");
+        assertNotNull(newPost.getId());
+
+        List<Post> posts = forumService.findPostByTitle("High-Performance Java Persistence");
+        assertEquals(1, posts.size());
+
+        Post post = forumService.findById(newPost.getId());
+        assertEquals("High-Performance Java Persistence", post.getTitle());
     }
 }

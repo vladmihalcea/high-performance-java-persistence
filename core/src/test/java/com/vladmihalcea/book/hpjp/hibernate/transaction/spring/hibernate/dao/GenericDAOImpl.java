@@ -32,6 +32,10 @@ public abstract class GenericDAOImpl<T, ID extends Serializable> implements Gene
         this.entityClass = entityClass;
     }
 
+    public Class<T> getEntityClass() {
+        return entityClass;
+    }
+
     @Override
     public T findById(ID id) {
         return getSession().get(entityClass, id);

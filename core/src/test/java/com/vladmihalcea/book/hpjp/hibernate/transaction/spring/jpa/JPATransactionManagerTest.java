@@ -5,6 +5,7 @@ import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Tag;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config.JPATransactionManagerConfiguration;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao.PostBatchDAO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.service.ForumService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -47,8 +48,8 @@ public class JPATransactionManagerTest {
     @Autowired
     private PostBatchDAO postBatchDAO;
 
-    @Test
-    public void test() {
+    @Before
+    public void init() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 Tag hibernate = new Tag();
@@ -64,6 +65,10 @@ public class JPATransactionManagerTest {
             LOGGER.error("Failure", e);
         }
 
+    }
+
+    @Test
+    public void testSavePosts() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 postBatchDAO.savePosts();
@@ -72,11 +77,17 @@ public class JPATransactionManagerTest {
         } catch (TransactionException e) {
             LOGGER.error("Failure", e);
         }
+    }
 
-        Post post = forumService.newPost("High-Performance Java Persistence", "hibernate", "jpa");
-        assertNotNull(post.getId());
+    @Test
+    public void test() {
+        Post newPost = forumService.newPost("High-Performance Java Persistence", "hibernate", "jpa");
+        assertNotNull(newPost.getId());
 
-        List<Post> posts = forumService.getPostByTitle("High-Performance Java Persistence");
+        List<Post> posts = forumService.findPostByTitle("High-Performance Java Persistence");
         assertEquals(1, posts.size());
+
+        Post post = forumService.findById(newPost.getId());
+        assertEquals("High-Performance Java Persistence", post.getTitle());
     }
 }
