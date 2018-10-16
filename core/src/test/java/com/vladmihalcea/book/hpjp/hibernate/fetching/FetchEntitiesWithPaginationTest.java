@@ -161,7 +161,7 @@ public class FetchEntitiesWithPaginationTest extends AbstractPostgreSQLIntegrati
 
     @Entity(name = "PostComment")
     @Table(name = "post_comment")
-    public static class PostComment {
+    public static class PostComment implements Identifiable<Long> {
 
         @Id
         @GeneratedValue
