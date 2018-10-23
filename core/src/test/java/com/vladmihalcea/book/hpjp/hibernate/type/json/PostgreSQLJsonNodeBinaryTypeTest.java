@@ -89,7 +89,7 @@ public class PostgreSQLJsonNodeBinaryTypeTest extends AbstractPostgreSQLIntegrat
 
     @Entity(name = "Book")
     @Table(name = "book")
-    @TypeDef(name = "jsonb-node", typeClass = JsonNodeBinaryType.class)
+    @TypeDef(typeClass = JsonNodeBinaryType.class, defaultForType = JsonNode.class)
     public static class Book {
 
         @Id
@@ -99,7 +99,6 @@ public class PostgreSQLJsonNodeBinaryTypeTest extends AbstractPostgreSQLIntegrat
         @NaturalId
         private String isbn;
 
-        @Type(type = "jsonb-node")
         @Column(columnDefinition = "jsonb")
         private JsonNode properties;
 
