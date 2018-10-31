@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -23,38 +24,33 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
     }
 
     @Test
-    public void testCollectionMerge() {
+    @Ignore
+    public void testCollectionOverwrite() {
+        List<PostComment> comments = postComments();
+
+        modifyComments(comments);
+
         doInJPA(entityManager -> {
-            entityManager.persist(
-                new Post()
-                .setId(1L)
-                .setTitle("High-Performance Java Persistence")
-            );
+            Post post = entityManager.createQuery(
+                "select p " +
+                "from Post p " +
+                "join fetch p.comments " +
+                "where p.id = :id", Post.class)
+            .setParameter("id", 1L)
+            .getSingleResult();
+
+            post.setComments(comments);
         });
 
-        List<PostComment> comments = doInJPA(entityManager -> {
-            Post post = entityManager
-            .find(Post.class, 1L)
-            .addComment(new PostComment().setReview("JDBC section is a must read!"))
-            .addComment(new PostComment().setReview("The book size is larger than usual."))
-            .addComment(new PostComment().setReview("Just half-way through."))
-            .addComment(new PostComment().setReview("The book has over 450 pages."));
+        verifyResults();
+    }
 
-            LOGGER.info("Post comments: {}", post.getComments());
+    @Test
+    public void testCollectionMerge() {
 
-            return post.getComments();
-        });
+        List<PostComment> comments = postComments();
 
-        comments.get(0).setReview("The JDBC part is a must have!");
-
-        comments.remove(2);
-
-        comments.add(
-            new PostComment()
-            .setReview(
-                "The last part is about jOOQ and how to get the most of your relational database."
-            )
-        );
+        modifyComments(comments);
 
         doInJPA(entityManager -> {
             Post post = entityManager.createQuery(
@@ -88,6 +84,46 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
             }
         });
 
+        verifyResults();
+    }
+
+    private List<PostComment> postComments() {
+        doInJPA(entityManager -> {
+            entityManager.persist(
+                new Post()
+                .setId(1L)
+                .setTitle("High-Performance Java Persistence")
+            );
+        });
+
+        return doInJPA(entityManager -> {
+            Post post = entityManager
+                    .find(Post.class, 1L)
+                    .addComment(new PostComment().setReview("JDBC section is a must read!"))
+                    .addComment(new PostComment().setReview("The book size is larger than usual."))
+                    .addComment(new PostComment().setReview("Just half-way through."))
+                    .addComment(new PostComment().setReview("The book has over 450 pages."));
+
+            LOGGER.info("Post comments: {}", post.getComments());
+
+            return post.getComments();
+        });
+    }
+
+    private void modifyComments(List<PostComment> comments) {
+        comments.get(0).setReview("The JDBC part is a must have!");
+
+        comments.remove(2);
+
+        comments.add(
+            new PostComment()
+            .setReview(
+                "The last part is about jOOQ and how to get the most of your relational database."
+            )
+        );
+    }
+
+    private void verifyResults() {
         doInJPA(entityManager -> {
             Post post = entityManager.createQuery(
                 "select p " +
@@ -99,10 +135,26 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
             .getSingleResult();
 
             assertEquals(4, post.getComments().size());
-            assertEquals("The JDBC part is a must have!", post.getComments().get(0).getReview());
-            assertEquals("The book size is larger than usual.", post.getComments().get(1).getReview());
-            assertEquals("The book has over 450 pages.", post.getComments().get(2).getReview());
-            assertEquals("The last part is about jOOQ and how to get the most of your relational database.", post.getComments().get(3).getReview());
+
+            assertEquals(
+                "The JDBC part is a must have!",
+                post.getComments().get(0).getReview()
+            );
+
+            assertEquals(
+                "The book size is larger than usual.",
+                post.getComments().get(1).getReview()
+            );
+
+            assertEquals(
+                "The book has over 450 pages.",
+                post.getComments().get(2).getReview()
+            );
+
+            assertEquals(
+                "The last part is about jOOQ and how to get the most of your relational database.",
+                post.getComments().get(3).getReview()
+            );
         });
     }
 
@@ -138,6 +190,11 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
 
         public List<PostComment> getComments() {
             return comments;
+        }
+
+        private Post setComments(List<PostComment> comments) {
+            this.comments = comments;
+            return this;
         }
 
         public Post addComment(PostComment comment) {
