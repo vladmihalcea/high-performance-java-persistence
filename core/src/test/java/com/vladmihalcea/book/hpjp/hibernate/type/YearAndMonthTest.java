@@ -60,7 +60,6 @@ public class YearAndMonthTest extends AbstractMySQLIntegrationTest {
         });
     }
 
-
     @Entity(name = "Publisher")
     @Table(name = "publisher")
     public static class Publisher {

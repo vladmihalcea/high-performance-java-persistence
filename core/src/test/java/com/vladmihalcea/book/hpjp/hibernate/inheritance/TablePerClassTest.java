@@ -65,9 +65,12 @@ public class TablePerClassTest extends AbstractTest {
             Board board = topic.getBoard();
             LOGGER.info("Fetch Topics");
             List<Topic> topics = entityManager
-                    .createQuery("select t from Topic t where t.board = :board", Topic.class)
-                    .setParameter("board", board)
-                    .getResultList();
+            .createQuery(
+                "select t " +
+                "from Topic t " +
+                "where t.board = :board", Topic.class)
+            .setParameter("board", board)
+            .getResultList();
         });
 
         doInJPA(entityManager -> {
@@ -228,6 +231,7 @@ public class TablePerClassTest extends AbstractTest {
 
         @OneToOne(fetch = FetchType.LAZY)
         @MapsId
+        @JoinColumn(name = "id")
         private Topic topic;
 
         private long views;
