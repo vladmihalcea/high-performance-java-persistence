@@ -23,10 +23,30 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
         };
     }
 
+    @Override
+    protected void afterInit() {
+        doInJPA(entityManager -> {
+            entityManager.persist(
+                new Post()
+                .setId(1L)
+                .setTitle("High-Performance Java Persistence")
+            );
+        });
+
+        doInJPA(entityManager -> {
+            entityManager
+            .find(Post.class, 1L)
+            .addComment(new PostComment().setReview("JDBC section is a must read!"))
+            .addComment(new PostComment().setReview("The book size is larger than usual."))
+            .addComment(new PostComment().setReview("Just half-way through."))
+            .addComment(new PostComment().setReview("The book has over 450 pages."));
+        });
+    }
+
     @Test
     @Ignore
     public void testCollectionOverwrite() {
-        List<PostComment> comments = postComments();
+        List<PostComment> comments = fetchPostComments(1L);
 
         modifyComments(comments);
 
@@ -39,7 +59,37 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
             .setParameter("id", 1L)
             .getSingleResult();
 
+            entityManager.detach(post);
             post.setComments(comments);
+            entityManager.merge(post);
+        });
+
+        verifyResults();
+    }
+
+    @Test
+    public void testCollectionOverwriteFix() {
+        List<PostComment> comments = fetchPostComments(1L);
+
+        modifyComments(comments);
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.createQuery(
+                "select p " +
+                "from Post p " +
+                "join fetch p.comments " +
+                "where p.id = :id", Post.class)
+            .setParameter("id", 1L)
+            .getSingleResult();
+
+            entityManager.detach(post);
+
+            post.getComments().clear();
+            for (PostComment comment : comments) {
+                post.addComment(comment);
+            }
+
+            entityManager.merge(post);
         });
 
         verifyResults();
@@ -48,7 +98,7 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
     @Test
     public void testCollectionMerge() {
 
-        List<PostComment> comments = postComments();
+        List<PostComment> comments = fetchPostComments(1L);
 
         modifyComments(comments);
 
@@ -87,38 +137,30 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
         verifyResults();
     }
 
-    private List<PostComment> postComments() {
-        doInJPA(entityManager -> {
-            entityManager.persist(
-                new Post()
-                .setId(1L)
-                .setTitle("High-Performance Java Persistence")
-            );
-        });
-
+    public List<PostComment> fetchPostComments(Long postId) {
         return doInJPA(entityManager -> {
-            Post post = entityManager
-                    .find(Post.class, 1L)
-                    .addComment(new PostComment().setReview("JDBC section is a must read!"))
-                    .addComment(new PostComment().setReview("The book size is larger than usual."))
-                    .addComment(new PostComment().setReview("Just half-way through."))
-                    .addComment(new PostComment().setReview("The book has over 450 pages."));
-
-            LOGGER.info("Post comments: {}", post.getComments());
-
-            return post.getComments();
+            return entityManager.createQuery(
+                "select pc " +
+                "from PostComment pc " +
+                "join pc.post p " +
+                "where p.id = :postId " +
+                "order by pc.id", PostComment.class)
+            .setParameter("postId", postId)
+            .getResultList();
         });
     }
 
     private void modifyComments(List<PostComment> comments) {
-        comments.get(0).setReview("The JDBC part is a must have!");
+        comments.get(0)
+        .setReview("The JDBC part is a must have!");
 
         comments.remove(2);
 
         comments.add(
             new PostComment()
             .setReview(
-                "The last part is about jOOQ and how to get the most of your relational database."
+                "The last part is about jOOQ and " +
+                "how to get the most of your relational database."
             )
         );
     }
