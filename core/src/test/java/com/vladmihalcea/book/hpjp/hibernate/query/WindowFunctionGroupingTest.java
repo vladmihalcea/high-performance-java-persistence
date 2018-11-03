@@ -5,7 +5,9 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -30,37 +32,37 @@ public class WindowFunctionGroupingTest extends AbstractPostgreSQLIntegrationTes
             event1.setCategory("Living room");
             event1.setKpi("Temperature");
             event1.setValue(21.5d);
-            event1.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusDays(1)));
+            event1.setCreatedOn(Timestamp.valueOf(LocalDate.now().minusDays(1).atStartOfDay(ZoneId.systemDefault()).toLocalDateTime()));
 
             DataEvent event2 = new DataEvent();
             event2.setCategory("Living room");
             event2.setKpi("Temperature");
             event2.setValue(22.5d);
-            event2.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusDays(2)));
+            event2.setCreatedOn(Timestamp.valueOf(LocalDate.now().minusDays(2).atStartOfDay(ZoneId.systemDefault()).toLocalDateTime()));
 
             DataEvent event3 = new DataEvent();
             event3.setCategory("Living room");
             event3.setKpi("Temperature");
             event3.setValue(20.5d);
-            event3.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusDays(2)));
+            event3.setCreatedOn(Timestamp.valueOf(LocalDate.now().minusDays(2).atStartOfDay(ZoneId.systemDefault()).toLocalDateTime()));
 
             DataEvent event4 = new DataEvent();
             event4.setCategory("Bedroom");
             event4.setKpi("Temperature");
             event4.setValue(23.5d);
-            event4.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusDays(1)));
+            event4.setCreatedOn(Timestamp.valueOf(LocalDate.now().minusDays(1).atStartOfDay(ZoneId.systemDefault()).toLocalDateTime()));
 
             DataEvent event5 = new DataEvent();
             event5.setCategory("Bedroom");
             event5.setKpi("Pressure");
             event5.setValue(750.5d);
-            event5.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusDays(1)));
+            event5.setCreatedOn(Timestamp.valueOf(LocalDate.now().minusDays(1).atStartOfDay(ZoneId.systemDefault()).toLocalDateTime()));
 
             DataEvent event6 = new DataEvent();
             event6.setCategory("Living room");
             event6.setKpi("Temperature");
             event6.setValue(22.5d);
-            event6.setCreatedOn(Timestamp.valueOf(LocalDateTime.now().minusDays(1)));
+            event6.setCreatedOn(Timestamp.valueOf(LocalDate.now().minusDays(1).atStartOfDay(ZoneId.systemDefault()).toLocalDateTime()));
 
             entityManager.persist(event1);
             entityManager.persist(event2);
@@ -83,7 +85,7 @@ public class WindowFunctionGroupingTest extends AbstractPostgreSQLIntegrationTes
                     ") de3 " +
                     "where de3.createdon = max_createdon")
             .getResultList();
-            assertEquals(2, values.size());
+            assertEquals(3, values.size());
         });
     }
 
@@ -98,7 +100,7 @@ public class WindowFunctionGroupingTest extends AbstractPostgreSQLIntegrationTes
 
         private String kpi;
 
-        @Temporal(TemporalType.TIMESTAMP)
+        @Temporal(TemporalType.DATE)
         private Date createdOn;
 
         private Double value;

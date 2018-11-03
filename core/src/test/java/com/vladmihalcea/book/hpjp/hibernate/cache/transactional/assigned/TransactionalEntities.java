@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.cache.transactional;
+package com.vladmihalcea.book.hpjp.hibernate.cache.transactional.assigned;
 
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 

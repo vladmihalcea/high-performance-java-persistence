@@ -152,7 +152,7 @@ public class EagerFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInte
 
     @Entity(name = "PostComment")
     @Table(name = "post_comment")
-    @NamedEntityGraph(name = "PostComment.post", attributeNodes = {})
+    @NamedEntityGraph(name = "PostComment.post", attributeNodes = @NamedAttributeNode("post"))
     public static class PostComment {
 
         @Id

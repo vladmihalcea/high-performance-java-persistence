@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.JacksonUtil;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
@@ -101,8 +100,8 @@ public class DefaultOptimisticLockingTest extends AbstractTest {
             });
         } catch (Exception expected) {
             LOGGER.error("Throws", expected);
-            assertEquals(OptimisticLockException.class, expected.getCause().getClass());
-            assertTrue(StaleStateException.class.isAssignableFrom(expected.getCause().getCause().getClass()));
+            assertEquals(OptimisticLockException.class, expected.getClass());
+            assertTrue(StaleStateException.class.isAssignableFrom(ExceptionUtil.rootCause(expected).getClass()));
         }
     }
 

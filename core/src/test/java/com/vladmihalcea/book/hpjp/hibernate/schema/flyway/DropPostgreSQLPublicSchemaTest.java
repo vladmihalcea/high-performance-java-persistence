@@ -6,6 +6,7 @@ import javax.persistence.PersistenceContext;
 
 import org.hibernate.Session;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -45,6 +46,7 @@ public class DropPostgreSQLPublicSchemaTest {
     private boolean drop = true;
 
     @Test
+    @Ignore
     public void test() {
         if (drop) {
             try {

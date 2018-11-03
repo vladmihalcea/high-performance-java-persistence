@@ -1,26 +1,23 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.spatial;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
-
+import org.geolatte.geom.jts.JTS;
 import org.hibernate.annotations.Type;
 import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
-import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.hibernate.spatial.dialect.postgis.PostgisDialect;
 import org.junit.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 
 import javax.persistence.*;
 import javax.persistence.spi.PersistenceUnitInfo;
-
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 

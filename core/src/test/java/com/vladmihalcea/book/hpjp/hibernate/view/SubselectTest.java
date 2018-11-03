@@ -132,7 +132,9 @@ public class SubselectTest extends AbstractPostgreSQLIntegrationTest {
         doInJPA(entityManager -> {
             List<DatabaseFunction> databaseFunctions = entityManager.createQuery(
                 "select df " +
-                "from DatabaseFunction df", DatabaseFunction.class)
+                "from DatabaseFunction df " +
+                "where df.name like '%comments' " +
+                "order by df.name", DatabaseFunction.class)
             .getResultList();
 
             DatabaseFunction countComments = databaseFunctions.get(0);

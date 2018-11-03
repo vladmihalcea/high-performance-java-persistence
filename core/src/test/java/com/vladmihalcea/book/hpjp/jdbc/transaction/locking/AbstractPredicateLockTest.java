@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction.locking;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
@@ -56,7 +57,7 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
         AtomicBoolean prevented = new AtomicBoolean();
 
         doInHibernate( session -> {
-            session.unwrap(Session.class).doWork(this::prepareConnection);
+            session.doWork(this::prepareConnection);
             List<PostComment> comments = session.createQuery(
                 "select c " +
                 "from PostComment c " +
@@ -66,23 +67,31 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
             .getResultList();
 
             executeAsync(() -> {
-                doInHibernate(_session -> {
-                    _session.unwrap(Session.class).doWork(this::prepareConnection);
+                try {
+                    doInHibernate(_session -> {
+                        _session.doWork(this::prepareConnection);
 
-                    Post post = _session.getReference(Post.class, 1L);
+                        Post post = _session.getReference(Post.class, 1L);
 
-                    PostComment comment = new PostComment();
-                    comment.setId((long) comments.size() + 1);
-                    comment.setReview(String.format("Comment nr. %d", comments.size() + 1));
-                    comment.setPost(post);
+                        PostComment comment = new PostComment();
+                        comment.setId((long) comments.size() + 1);
+                        comment.setReview(String.format("Comment nr. %d", comments.size() + 1));
+                        comment.setPost(post);
 
-                    _session.persist(comment);
+                        _session.persist(comment);
 
-                    aliceLatch.countDown();
-                    _session.flush();
-                    LOGGER.info("Insert {} prevented by explicit lock", prevented.get() ? "was" : "was not");
-                    bobLatch.countDown();
-                });
+                        aliceLatch.countDown();
+                        _session.flush();
+                        LOGGER.info("Insert {} prevented by explicit lock", prevented.get() ? "was" : "was not");
+                        bobLatch.countDown();
+                    });
+                } catch (Exception e) {
+                    if (ExceptionUtil.isLockTimeout(e)) {
+                        prevented.set(true);
+                        LOGGER.info("Insert {} prevented by explicit lock", prevented.get() ? "was" : "was not");
+                        bobLatch.countDown();
+                    }
+                }
             });
 
             awaitOnLatch(aliceLatch);
@@ -114,18 +123,26 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
             .getResultList();
 
             executeAsync(() -> {
-                doInHibernate(_session -> {
-                    _session.unwrap(Session.class).doWork(this::prepareConnection);
+                try {
+                    doInHibernate(_session -> {
+                        _session.unwrap(Session.class).doWork(this::prepareConnection);
 
-                    aliceLatch.countDown();
-                    _session.createNativeQuery(
-                        "delete from post_comment where id = :id ")
-                    .setParameter("id", 1L)
-                    .executeUpdate();
+                        aliceLatch.countDown();
+                        _session.createNativeQuery(
+                            "delete from post_comment where id = :id ")
+                        .setParameter("id", 1L)
+                        .executeUpdate();
 
-                    LOGGER.info("Delete {} prevented by explicit lock", prevented.get() ? "was" : "was not");
-                    bobLatch.countDown();
-                });
+                        LOGGER.info("Delete {} prevented by explicit lock", prevented.get() ? "was" : "was not");
+                        bobLatch.countDown();
+                    });
+                } catch (Exception e) {
+                    if (ExceptionUtil.isLockTimeout(e)) {
+                        prevented.set(true);
+                        LOGGER.info("Delete {} prevented by explicit lock", prevented.get() ? "was" : "was not");
+                        bobLatch.countDown();
+                    }
+                }
             });
 
             awaitOnLatch(aliceLatch);
@@ -152,21 +169,29 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
             .getResultList();
 
             executeAsync(() -> {
-                doInHibernate(_session -> {
-                    _session.unwrap(Session.class).doWork(this::prepareConnection);
+                try {
+                    doInHibernate(_session -> {
+                        _session.unwrap(Session.class).doWork(this::prepareConnection);
 
-                    aliceLatch.countDown();
-                    _session.createQuery(
-                        "update PostComment " +
-                        "set review = :review " +
-                        "where id = :id")
-                    .setParameter("review", "Great")
-                    .setParameter("id", 1L)
-                    .executeUpdate();
+                        aliceLatch.countDown();
+                        _session.createQuery(
+                            "update PostComment " +
+                            "set review = :review " +
+                            "where id = :id")
+                        .setParameter("review", "Great")
+                        .setParameter("id", 1L)
+                        .executeUpdate();
 
-                    LOGGER.info("Update {} prevented by explicit lock", prevented.get() ? "was" : "was not");
-                    bobLatch.countDown();
-                });
+                        LOGGER.info("Update {} prevented by explicit lock", prevented.get() ? "was" : "was not");
+                        bobLatch.countDown();
+                    });
+                } catch (Exception e) {
+                    if (ExceptionUtil.isLockTimeout(e)) {
+                        prevented.set(true);
+                        LOGGER.info("Update {} prevented by explicit lock", prevented.get() ? "was" : "was not");
+                        bobLatch.countDown();
+                    }
+                }
             });
 
             awaitOnLatch(aliceLatch);

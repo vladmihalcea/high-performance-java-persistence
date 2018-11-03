@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction.locking;
 
-import com.vladmihalcea.book.hpjp.jdbc.transaction.locking.AbstractTableLockTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
 
