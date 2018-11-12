@@ -1,16 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import javafx.geometry.Pos;
 import org.junit.Test;
 
 import javax.persistence.*;
-
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 
 public class PostgreSQLSerialTest extends AbstractPostgreSQLIntegrationTest {
 

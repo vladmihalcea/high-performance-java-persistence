@@ -15,7 +15,6 @@ import org.junit.Test;
 import com.vladmihalcea.book.hpjp.hibernate.equality.AbstractEqualityCheckTest;
 import com.vladmihalcea.book.hpjp.hibernate.identifier.Identifiable;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import javafx.geometry.Pos;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
