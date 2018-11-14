@@ -19,13 +19,13 @@ public class CamelCaseToSnakeCaseNamingStrategy extends PhysicalNamingStrategySt
         return formatIdentifier(super.toPhysicalColumnName(name, context));
     }
 
-    protected Identifier formatIdentifier(Identifier identifier) {
+    private Identifier formatIdentifier(Identifier identifier) {
         String name = identifier.getText();
 
         String formattedName = name.replaceAll("([a-z]+)([A-Z]+)", "$1\\_$2").toLowerCase();
 
         return !formattedName.equals(name) ?
-                Identifier.toIdentifier(formattedName.toLowerCase(), identifier.isQuoted()) :
+                Identifier.toIdentifier(formattedName, identifier.isQuoted()) :
                 identifier;
     }
 }

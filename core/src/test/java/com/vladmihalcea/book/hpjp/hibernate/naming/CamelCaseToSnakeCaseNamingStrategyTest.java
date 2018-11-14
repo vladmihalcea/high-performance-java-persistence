@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class CamelCaseToSnakeCaseNamingStrategyNamingStrategyTest extends AbstractTest {
+public class CamelCaseToSnakeCaseNamingStrategyTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
