@@ -1,37 +1,25 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Table;
-
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Slf4jReporter;
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.Query;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Slf4jReporter;
-import com.codahale.metrics.Timer;
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.sql.Statement;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -92,11 +80,13 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
                     "select p " +
                     "from Post p " +
                     "order by p.createdOn desc", Post.class)
-                .setHint( QueryHints.HINT_FETCH_SIZE, 50 )
+                .setHint(QueryHints.HINT_FETCH_SIZE, 50)
                 .unwrap(Query.class)
                 .stream()
             ) {
-                return postStream.limit( 50 ).collect( Collectors.toList() );
+                return postStream
+                    .limit(50)
+                    .collect(Collectors.toList());
             }
         });
 
@@ -112,17 +102,17 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
                     "SELECT p " +
                     "FROM post p " +
                     "ORDER BY p.created_on DESC")
-                .setHint( QueryHints.HINT_FETCH_SIZE, 50 )
+                .setHint(QueryHints.HINT_FETCH_SIZE, 50)
                 .getResultStream()
             ) {
-                return postStream.collect( Collectors.toList() );
+                return postStream.limit(50).collect(Collectors.toList());
             }
         });
 
         LOGGER.info( "Execution plan: {}",
                     executionPlanLines
                     .stream()
-                    .collect( Collectors.joining( "\n" ) )
+                    .collect(Collectors.joining( "\n" ))
         );
     }
 
