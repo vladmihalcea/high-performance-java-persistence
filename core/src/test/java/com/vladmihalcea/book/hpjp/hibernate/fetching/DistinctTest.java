@@ -1,10 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import net.sourceforge.jtds.jdbc.DateTime;
 import org.hibernate.jpa.QueryHints;
 import org.junit.Test;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,17 +27,45 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
 
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setId(1L);
-            post.setTitle("High-Performance Java Persistence");
+            Post post1 = new Post();
+            post1.setTitle("High-Performance Java Persistence eBook has been released!");
+            post1.setCreatedOn(LocalDate.of(2016, 8, 30));
+            entityManager.persist(post1);
 
-            post.addComment(new PostComment("Excellent!"));
-            post.addComment(new PostComment("Great!"));
+            Post post2 = new Post();
+            post2.setTitle("High-Performance Java Persistence paperback has been released!");
+            post2.setCreatedOn(LocalDate.of(2016, 10, 12));
 
-            entityManager.persist(post);
+            post2.addComment(new PostComment("Excellent!"));
+            post2.addComment(new PostComment("Great!"));
+
+            entityManager.persist(post2);
+
+
+            Post post3 = new Post();
+            post3.setTitle("High-Performance Java Persistence Mach 1 video course has been released!");
+            post3.setCreatedOn(LocalDate.of(2018, 1, 30));
+            entityManager.persist(post3);
+
+            Post post4 = new Post();
+            post4.setTitle("High-Performance Java Persistence Mach 2 video course has been released!");
+            post4.setCreatedOn(LocalDate.of(2018, 5, 8));
+            entityManager.persist(post4);
+        });
+    }
+
+    @Test
+    public void testWithDistinctScalarQuery() {
+        doInJPA(entityManager -> {
+            List<Integer> posts = entityManager.createQuery(
+                "select distinct year(p.createdOn) " +
+                "from Post p " +
+                "order by year(p.createdOn)", Integer.class)
+            .getResultList();
+
+            LOGGER.info("Fetched {} post entities: {}", posts.size(), posts);
         });
     }
 
@@ -46,18 +78,6 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
                 "left join fetch p.comments " +
                 "where p.title = :title", Post.class)
             .setParameter("title", "High-Performance Java Persistence")
-            .getResultList();
-
-            LOGGER.info("Fetched {} post entities: {}", posts.size(), posts);
-        });
-    }
-
-    @Test
-    public void testWithDistinctScalarQuery() {
-        doInJPA(entityManager -> {
-            List<String> posts = entityManager.createQuery(
-                "select distinct p.title " +
-                "from Post p ", String.class)
             .getResultList();
 
             LOGGER.info("Fetched {} post entities: {}", posts.size(), posts);
@@ -100,12 +120,19 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
     public static class Post {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         private String title;
 
-        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
-                   orphanRemoval = true)
+        @Column(name = "created_on")
+        private LocalDate createdOn;
+
+        @OneToMany(
+            mappedBy = "post",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+        )
         private List<PostComment> comments = new ArrayList<>();
 
         public Long getId() {
@@ -124,17 +151,17 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
             this.title = title;
         }
 
+        public LocalDate getCreatedOn() {
+            return createdOn;
+        }
+
+        public void setCreatedOn(LocalDate createdOn) {
+            this.createdOn = createdOn;
+        }
+
         public void addComment(PostComment comment) {
             comments.add(comment);
             comment.setPost(this);
-        }
-
-        @Override
-        public String toString() {
-            return "Post{" +
-                    "id=" + id +
-                    ", title='" + title + '\'' +
-                    '}';
         }
     }
 
@@ -143,7 +170,7 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
     public static class PostComment {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
+        @GeneratedValue
         private Long id;
 
         @ManyToOne(fetch = FetchType.LAZY)
