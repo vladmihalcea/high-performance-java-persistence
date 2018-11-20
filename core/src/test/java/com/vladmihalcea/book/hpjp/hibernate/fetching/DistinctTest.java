@@ -1,16 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import net.sourceforge.jtds.jdbc.DateTime;
 import org.hibernate.jpa.QueryHints;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Vlad Mihalcea
@@ -34,15 +32,14 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
             post1.setCreatedOn(LocalDate.of(2016, 8, 30));
             entityManager.persist(post1);
 
+            post1.addComment(new PostComment("Excellent!"));
+            post1.addComment(new PostComment("Great!"));
+
             Post post2 = new Post();
             post2.setTitle("High-Performance Java Persistence paperback has been released!");
             post2.setCreatedOn(LocalDate.of(2016, 10, 12));
 
-            post2.addComment(new PostComment("Excellent!"));
-            post2.addComment(new PostComment("Great!"));
-
             entityManager.persist(post2);
-
 
             Post post3 = new Post();
             post3.setTitle("High-Performance Java Persistence Mach 1 video course has been released!");
@@ -59,13 +56,13 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
     @Test
     public void testWithDistinctScalarQuery() {
         doInJPA(entityManager -> {
-            List<Integer> posts = entityManager.createQuery(
+            List<Integer> publicationYears = entityManager.createQuery(
                 "select distinct year(p.createdOn) " +
                 "from Post p " +
                 "order by year(p.createdOn)", Integer.class)
             .getResultList();
 
-            LOGGER.info("Fetched {} post entities: {}", posts.size(), posts);
+            LOGGER.info("Publication years: {}", publicationYears);
         });
     }
 
@@ -77,10 +74,10 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
                 "from Post p " +
                 "left join fetch p.comments " +
                 "where p.title = :title", Post.class)
-            .setParameter("title", "High-Performance Java Persistence")
+            .setParameter("title", "High-Performance Java Persistence eBook has been released!")
             .getResultList();
 
-            LOGGER.info("Fetched {} post entities: {}", posts.size(), posts);
+            LOGGER.info("Fetched the following Post entity identifiers: {}", posts.stream().map(Post::getId).collect(Collectors.toList()));
         });
     }
 
@@ -92,10 +89,10 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
                 "from Post p " +
                 "left join fetch p.comments " +
                 "where p.title = :title", Post.class)
-            .setParameter("title", "High-Performance Java Persistence")
+            .setParameter("title", "High-Performance Java Persistence eBook has been released!")
             .getResultList();
 
-            LOGGER.info("Fetched {} post entities: {}", posts.size(), posts);
+            LOGGER.info("Fetched the following Post entity identifiers: {}", posts.stream().map(Post::getId).collect(Collectors.toList()));
         });
     }
 
@@ -107,11 +104,11 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
                 "from Post p " +
                 "left join fetch p.comments " +
                 "where p.title = :title", Post.class)
-            .setParameter("title", "High-Performance Java Persistence")
+            .setParameter("title", "High-Performance Java Persistence eBook has been released!")
             .setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false)
             .getResultList();
 
-            LOGGER.info("Fetched {} post entities: {}", posts.size(), posts);
+            LOGGER.info("Fetched the following Post entity identifiers: {}", posts.stream().map(Post::getId).collect(Collectors.toList()));
         });
     }
 
