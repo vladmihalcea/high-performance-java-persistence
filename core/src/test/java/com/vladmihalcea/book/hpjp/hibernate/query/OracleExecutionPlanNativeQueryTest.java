@@ -33,6 +33,7 @@ public class OracleExecutionPlanNativeQueryTest extends AbstractOracleIntegratio
     protected void additionalProperties(Properties properties) {
         properties.put("hibernate.jdbc.batch_size", "50");
         properties.put("hibernate.order_inserts", "true");
+        properties.put("hibernate.use_sql_comments", "true");
     }
 
     @Test
