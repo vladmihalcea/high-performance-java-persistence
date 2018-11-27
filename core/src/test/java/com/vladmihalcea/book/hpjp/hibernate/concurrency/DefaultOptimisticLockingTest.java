@@ -1,6 +1,10 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vladmihalcea.book.hpjp.hibernate.type.json.JacksonUtil;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import org.hibernate.StaleStateException;
 import org.junit.Test;
 
@@ -65,8 +69,73 @@ public class DefaultOptimisticLockingTest extends AbstractTest {
             });
         } catch (Exception expected) {
             LOGGER.error("Throws", expected);
+
             assertEquals(OptimisticLockException.class, expected.getCause().getClass());
             assertTrue(StaleStateException.class.isAssignableFrom(expected.getCause().getCause().getClass()));
+        }
+    }
+
+    @Test
+    public void testStaleStateExceptionMerge() {
+
+        Post _post = doInJPA(entityManager -> {
+            Post post = new Post();
+            post.setId(1L);
+            post.setTitle("High-Performance Java Persistence");
+
+            entityManager.persist(post);
+
+            return post;
+        });
+
+        doInJPA(_entityManager -> {
+            Post post = _entityManager.find(Post.class, 1L);
+            post.setTitle("High-Performance JDBC");
+        });
+
+        _post.setTitle("High-Performance Hibernate");
+
+        try {
+            doInJPA(entityManager -> {
+                entityManager.merge(_post);
+            });
+        } catch (Exception expected) {
+            LOGGER.error("Throws", expected);
+            assertEquals(OptimisticLockException.class, expected.getCause().getClass());
+            assertTrue(StaleStateException.class.isAssignableFrom(expected.getCause().getCause().getClass()));
+        }
+    }
+
+    @Test
+    public void testStaleStateExceptionMergeJsonTransform() {
+
+        String postJsonString = doInJPA(entityManager -> {
+            Post post = new Post();
+            post.setId(1L);
+            post.setTitle("High-Performance Java Persistence");
+
+            entityManager.persist(post);
+
+            return JacksonUtil.toString(post);
+        });
+
+        doInJPA(_entityManager -> {
+            Post post = _entityManager.find(Post.class, 1L);
+            post.setTitle("High-Performance JDBC");
+        });
+
+        ObjectNode postJsonNode = (ObjectNode) JacksonUtil.toJsonNode(postJsonString);
+        postJsonNode.put("title", "High-Performance Hibernate");
+
+        try {
+            doInJPA(entityManager -> {
+                Post detachedPost = JacksonUtil.fromString(postJsonNode.toString(), Post.class);
+                entityManager.merge(detachedPost);
+            });
+        } catch (Exception expected) {
+            LOGGER.error("Throws", expected);
+            assertEquals(OptimisticLockException.class, expected.getClass());
+            assertTrue(ExceptionUtil.rootCause(expected) instanceof StaleStateException);
         }
     }
 
