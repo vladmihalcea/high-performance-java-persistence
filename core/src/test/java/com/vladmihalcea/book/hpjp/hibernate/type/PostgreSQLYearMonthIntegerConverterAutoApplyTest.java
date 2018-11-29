@@ -6,6 +6,7 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.spi.MetadataBuilderContributor;
 import org.hibernate.jpa.boot.spi.TypeContributorList;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -36,6 +37,7 @@ public class PostgreSQLYearMonthIntegerConverterAutoApplyTest extends AbstractPo
     }
 
     @Test
+    @Ignore("Requires Hibernate 5.4.0 due to HHH-13040")
     public void test() {
         doInJPA(entityManager -> {
             Book book = new Book();
