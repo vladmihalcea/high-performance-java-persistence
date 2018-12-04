@@ -21,8 +21,8 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
 
     public static final int WAIT_MILLIS = 500;
 
-    private final CountDownLatch aliceLatch = new CountDownLatch(1);
-    private final CountDownLatch bobLatch = new CountDownLatch(1);
+    protected final CountDownLatch aliceLatch = new CountDownLatch(1);
+    protected final CountDownLatch bobLatch = new CountDownLatch(1);
 
     @Override
     protected Class<?>[] entities() {
@@ -178,7 +178,7 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
     }
 
     protected void prepareConnection(Connection connection) {
-
+        setJdbcTimeout(connection);
     }
 
     @Entity(name = "Post")
