@@ -2,6 +2,9 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.hibernate.forum.*;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import org.hibernate.query.Query;
+import org.hibernate.transform.AliasToBeanResultTransformer;
+import org.hibernate.transform.Transformers;
 import org.junit.Test;
 
 import javax.persistence.EntityManager;
@@ -87,5 +90,49 @@ public class CriteriaAPITest extends AbstractPostgreSQLIntegrationTest {
         List<Post> posts = entityManager.createQuery(criteria).getResultList();
 
         return posts;
+    }
+
+    @Test
+    public void testFetchObjectArray() {
+        doInJPA(entityManager -> {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Object[]> criteria = builder.createQuery(Object[].class);
+            Root<PostComment> root = criteria.from(PostComment.class);
+            criteria.multiselect(root.get(PostComment_.id), root.get(PostComment_.review));
+
+            Join<PostComment, Post> postJoin = root.join("post");
+
+            criteria.where(builder.like(postJoin.get(Post_.title), "high-performance%"));
+            List<Object[]> comments = entityManager.createQuery(criteria).getResultList();
+
+            assertEquals(5, comments.size());
+        });
+    }
+
+    @Test
+    public void testFetchObjectArrayToDTO() {
+        doInJPA(entityManager -> {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Object[]> criteria = builder.createQuery(Object[].class);
+
+            Root<PostComment> root = criteria.from(PostComment.class);
+            Join<PostComment, Post> postJoin = root.join("post");
+
+            criteria.multiselect(
+                root.get(PostComment_.id).alias("id"),
+                root.get(PostComment_.review).alias("review"),
+                postJoin.get(Post_.title).alias("title")
+            );
+
+            criteria.where(builder.like(postJoin.get(Post_.title), "high-performance%"));
+
+            List<PostCommentSummary> comments = entityManager
+                .createQuery(criteria)
+                .unwrap(Query.class)
+                .setResultTransformer(Transformers.aliasToBean(PostCommentSummary.class))
+                .getResultList();
+
+            assertEquals(5, comments.size());
+        });
     }
 }

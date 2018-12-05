@@ -65,6 +65,75 @@ public class HibernateInitializeTest extends AbstractTest {
     }
 
     @Test
+    public void testEntityProxyWithoutSecondLevelCache() {
+
+        doInJPA(entityManager -> {
+            LOGGER.info("Clear the second-level cache");
+
+            entityManager.getEntityManagerFactory().getCache().evictAll();
+
+            LOGGER.info("Loading a PostComment");
+
+            PostComment comment = entityManager.find(
+                PostComment.class,
+                1L
+            );
+
+            assertEquals(
+                    "A must read!",
+                    comment.getReview()
+            );
+
+            Post post = comment.getPost();
+
+            LOGGER.info("Post entity class: {}", post.getClass().getName());
+
+            Hibernate.initialize(post);
+
+            assertEquals(
+                    "High-Performance Java Persistence",
+                    post.getTitle()
+            );
+
+            Hibernate.initialize(post);
+        });
+    }
+
+    @Test
+    public void testEntityProxyJoinFetchWithoutSecondLevelCache() {
+
+        doInJPA(entityManager -> {
+            LOGGER.info("Clear the second-level cache");
+
+            entityManager.getEntityManagerFactory().getCache().evictAll();
+
+            LOGGER.info("Loading a PostComment");
+
+            PostComment comment = entityManager.createQuery(
+                "select pc " +
+                "from PostComment pc " +
+                "join fetch pc.post " +
+                "where pc.id = :id", PostComment.class)
+            .setParameter("id", 1L)
+            .getSingleResult();
+
+            assertEquals(
+                    "A must read!",
+                    comment.getReview()
+            );
+
+            Post post = comment.getPost();
+
+            LOGGER.info("Post entity class: {}", post.getClass().getName());
+
+            assertEquals(
+                    "High-Performance Java Persistence",
+                    post.getTitle()
+            );
+        });
+    }
+
+    @Test
     public void testEntityProxy() {
 
         doInJPA(entityManager -> {
@@ -99,6 +168,12 @@ public class HibernateInitializeTest extends AbstractTest {
     public void testCollectionProxy() {
 
         doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+
+            assertEquals(3, post.getComments().size());
+        });
+
+        doInJPA(entityManager -> {
             LOGGER.info("Loading a Post");
 
             Post post = entityManager.find(
@@ -108,7 +183,7 @@ public class HibernateInitializeTest extends AbstractTest {
 
             List<PostComment> comments = post.getComments();
 
-            LOGGER.info("Collection proxy class: {}", comments.getClass().getName());
+            LOGGER.info("Collection class: {}", comments.getClass().getName());
 
             Hibernate.initialize(comments);
 
@@ -133,7 +208,7 @@ public class HibernateInitializeTest extends AbstractTest {
 
             List<PostComment> comments = post.getComments();
 
-            LOGGER.info("Collection proxy class: {}", comments.getClass().getName());
+            LOGGER.info("Collection class: {}", comments.getClass().getName());
 
             Hibernate.initialize(comments);
 
