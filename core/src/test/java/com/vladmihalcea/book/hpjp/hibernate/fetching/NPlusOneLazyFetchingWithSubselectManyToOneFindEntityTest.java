@@ -144,7 +144,6 @@ public class NPlusOneLazyFetchingWithSubselectManyToOneFindEntityTest extends Ab
 
     @Entity(name = "PostComment")
     @Table(name = "post_comment")
-    @NamedEntityGraph(name = "PostComment.post", attributeNodes = {})
     public static class PostComment {
 
         @Id

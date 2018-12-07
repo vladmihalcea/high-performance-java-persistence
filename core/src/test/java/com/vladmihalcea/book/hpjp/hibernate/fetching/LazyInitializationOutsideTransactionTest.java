@@ -119,7 +119,6 @@ public class LazyInitializationOutsideTransactionTest extends AbstractPostgreSQL
 
     @Entity(name = "PostComment")
     @Table(name = "post_comment")
-    @NamedEntityGraph(name = "PostComment.post", attributeNodes = {})
     public static class PostComment {
 
         @Id
