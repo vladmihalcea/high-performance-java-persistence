@@ -36,7 +36,7 @@ public class DefaultPostgreSQLJsonNodeBinaryTypeFetchTest extends PostgreSQLJson
         } catch (Exception e) {
             LOGGER.error("Failure", e);
 
-            Exception rootCause = (Exception) ExceptionUtil.rootCause(e);
+            Exception rootCause = ExceptionUtil.rootCause(e);
             assertEquals("No Dialect mapping for JDBC type: 1111", rootCause.getMessage());
         }
     }

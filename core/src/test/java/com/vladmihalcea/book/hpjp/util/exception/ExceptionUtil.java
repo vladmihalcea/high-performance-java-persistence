@@ -16,7 +16,7 @@ import org.hibernate.exception.LockAcquisitionException;
  */
 public interface ExceptionUtil {
 
-	static List<Class<? extends Exception>> LOCK_TIMEOUT_EXCEPTIONS = Arrays.asList(
+	List<Class<? extends Exception>> LOCK_TIMEOUT_EXCEPTIONS = Arrays.asList(
 		LockAcquisitionException.class,
 		LockTimeoutException.class,
 		PessimisticLockException.class,
@@ -31,12 +31,12 @@ public interface ExceptionUtil {
 	 *
 	 * @return exception root cause
 	 */
-	static Throwable rootCause(Throwable t) {
+	static <T extends Throwable> T rootCause(Throwable t) {
 		Throwable cause = t.getCause();
 		if ( cause != null && cause != t ) {
 			return rootCause( cause );
 		}
-		return t;
+		return (T) t;
 	}
 
 	/**

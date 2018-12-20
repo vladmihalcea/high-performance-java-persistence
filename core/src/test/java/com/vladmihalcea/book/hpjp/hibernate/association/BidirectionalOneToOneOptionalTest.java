@@ -35,8 +35,6 @@ public class BidirectionalOneToOneOptionalTest extends AbstractTest {
             LOGGER.info("Fetching Post");
             Post post = entityManager.find(Post.class, 1L);
             assertNotNull(post);
-
-            post.setDetails(null);
         });
     }
 
@@ -50,7 +48,7 @@ public class BidirectionalOneToOneOptionalTest extends AbstractTest {
 
         private String title;
 
-        @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+        @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, optional = true)
         private PostDetails details;
 
         public Post() {}
@@ -107,7 +105,7 @@ public class BidirectionalOneToOneOptionalTest extends AbstractTest {
         private String createdBy;
 
         @OneToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "post_id")
+        @MapsId
         private Post post;
 
         public PostDetails() {}

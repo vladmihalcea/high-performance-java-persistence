@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -24,6 +25,14 @@ public class TablePerClassTest extends AbstractTest {
                 Announcement.class,
                 TopicStatistics.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        // When using MySQL with older Hibernate versions,
+        // UNION is used instead of UNION ALL
+        // return Database.MYSQL;
+        return Database.POSTGRESQL;
     }
 
     @Test
