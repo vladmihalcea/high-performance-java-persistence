@@ -29,6 +29,17 @@ public class EnumOrdinalTest extends AbstractMySQLIntegrationTest {
             post.setStatus(PostStatus.PENDING);
             entityManager.persist(post);
         });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.createQuery(
+                "select p " +
+                "from Post p " +
+                "where p.status = :status", Post.class)
+            .setParameter("status", PostStatus.PENDING)
+            .getSingleResult();
+
+            assertEquals("High-Performance Java Persistence", post.getTitle());
+        });
     }
 
     public enum PostStatus {
