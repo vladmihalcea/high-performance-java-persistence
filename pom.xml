@@ -46,7 +46,8 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>5.4.0-SNAPSHOT</version>
+            <!--version>5.4.0-SNAPSHOT</version-->
+            <version>${hibernate.version}</version>
         </dependency>
 
         <dependency>
