@@ -5,6 +5,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.transform.BasicTransformerAdapter;
+import org.junit.Assert;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -183,6 +184,48 @@ public class PaginationTest extends AbstractTest {
             .getResultList();
 
             assertEquals(10, posts.size());
+
+
+            /*
+             * Checking the comments collections of the returned posts.
+             * I'm just checking the post comments of the Post with the Id = 1
+             *
+             * The Expected comments list should contains samething like
+             *
+             * id	    created_on	                    review	            post_id
+             * 1	    2018-10-09 12:01:00.000000	    Comment nr. 1	    1
+             * 2	    2018-10-09 12:02:00.000000	    Comment nr. 2	    1
+             * 3	    2018-10-09 12:03:00.000000	    Comment nr. 3	    1
+             * 4	    2018-10-09 12:04:00.000000	    Comment nr. 4	    1
+             * 5	    2018-10-09 12:05:00.000000	    Comment nr. 5	    1
+             */
+
+            final Post post1 = posts.stream().filter(p -> p.getId() == 1L).findFirst().orElse(null);
+            Assert.assertNotNull(post1);
+            Assert.assertEquals(1L, post1.getId().longValue());
+            final List<PostComment> comments = post1.getComments();
+            assertEquals(5, comments.size());
+
+            final PostComment postComment1 = comments.stream().filter(comment -> comment.getId() == 1L).findFirst().orElse(null);
+            Assert.assertNotNull(postComment1);
+            Assert.assertEquals("Comment nr. 1", postComment1.getReview());
+
+            final PostComment postComment2 = comments.stream().filter(comment -> comment.getId() == 2L).findFirst().orElse(null);
+            Assert.assertNotNull(postComment2);
+            Assert.assertEquals("Comment nr. 2", postComment2.getReview());
+
+            final PostComment postComment3 = comments.stream().filter(comment -> comment.getId() == 3L).findFirst().orElse(null);
+            Assert.assertNotNull(postComment3);
+            Assert.assertEquals("Comment nr. 3", postComment3.getReview());
+
+            final PostComment postComment4 = comments.stream().filter(comment -> comment.getId() == 4L).findFirst().orElse(null);
+            Assert.assertNotNull(postComment4);
+            Assert.assertEquals("Comment nr. 4", postComment4.getReview());
+
+            final PostComment postComment5 = comments.stream().filter(comment -> comment.getId() == 5L).findFirst().orElse(null);
+            Assert.assertNotNull(postComment5);
+            Assert.assertEquals("Comment nr. 5", postComment5.getReview());
+
         });
     }
 
