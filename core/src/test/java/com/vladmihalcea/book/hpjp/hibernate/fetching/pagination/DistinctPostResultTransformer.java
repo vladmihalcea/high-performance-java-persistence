@@ -47,6 +47,7 @@ public class DistinctPostResultTransformer extends BasicTransformerAdapter {
                 if (comment != null) {
                     post.addComment(comment);
                 }
+
             }
         }
         return new ArrayList<>(identifiableMap.values());
