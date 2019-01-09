@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.stream.LongStream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
@@ -43,10 +44,10 @@ public class PaginationTest extends AbstractTest {
                 2018, 10, 9, 12, 0, 0, 0
             );
 
-            LongStream.range(1, 50).forEach(postId -> {
+            LongStream.range(1, 10).forEach(postId -> {
                 Post post = new Post()
                 .setId(postId)
-                .setTitle(String.format("Post nr. %d", postId))
+                .setTitle(String.format("High-Performance Java Persistence - Chapter %d", postId))
                 .setCreatedOn(
                      Timestamp.valueOf(timestamp.plusMinutes(postId))
                 );
@@ -58,7 +59,7 @@ public class PaginationTest extends AbstractTest {
                         new PostComment()
                         .setId(commentId)
                         .setReview(
-                            String.format("Comment nr. %d", commentId)
+                            String.format("Comment nr. %d - A must read!", commentId)
                         )
                         .setCreatedOn(
                             Timestamp.valueOf(timestamp.plusMinutes(commentId))
@@ -148,16 +149,59 @@ public class PaginationTest extends AbstractTest {
     @Test
     public void testFetchAndPaginate() {
         doInJPA(entityManager -> {
-
             List<Post> posts = entityManager.createQuery(
                 "select p " +
                 "from Post p " +
                 "left join fetch p.comments " +
+                "where p.title like :titlePattern " +
                 "order by p.createdOn", Post.class)
-            .setMaxResults(10)
+            .setParameter("titlePattern", "High-Performance Java Persistence %")
+            .setMaxResults(5)
             .getResultList();
 
-            assertEquals(10, posts.size());
+            assertEquals(5, posts.size());
+        });
+    }
+
+    @Test
+    public void testFetchAndPaginateWithTwoQueries() {
+        doInJPA(entityManager -> {
+            List<Long> postIds = entityManager
+            .createQuery(
+                "select p.id " +
+                "from Post p " +
+                "where p.title like :titlePattern " +
+                "order by p.createdOn", Long.class)
+            .setParameter("titlePattern", "High-Performance Java Persistence %")
+            .setMaxResults(5)
+            .getResultList();
+
+            List<Post> posts = entityManager.createQuery(
+                "select distinct p " +
+                "from Post p " +
+                "left join fetch p.comments " +
+                "where p.id in (:postIds)", Post.class)
+            .setParameter("postIds", postIds)
+            .setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false)
+            .getResultList();
+
+            assertEquals(5, posts.size());
+
+            Post post1 = posts.get(0);
+
+            List<PostComment> comments = post1.getComments();
+
+            for (int i = 0; i < COMMENT_COUNT - 1; i++) {
+                PostComment postComment1 = comments.get(i);
+
+                assertEquals(
+                        String.format(
+                                "Comment nr. %d - A must read!",
+                                i + 1
+                        ),
+                        postComment1.getReview()
+                );
+            }
         });
     }
 
@@ -167,7 +211,7 @@ public class PaginationTest extends AbstractTest {
             entityManager.persist(
                 new Post()
                 .setId(100L)
-                .setTitle(String.format("Post nr. %d", 100))
+                .setTitle("High-Performance Java Persistence - Second Edition")
                 .setCreatedOn(
                     Timestamp.valueOf(
                         LocalDateTime.of(
@@ -181,7 +225,9 @@ public class PaginationTest extends AbstractTest {
         List<Post> posts = doInJPA(entityManager -> {
             DistinctPostResultTransformer resultTransformer = new DistinctPostResultTransformer(entityManager);
 
-            return entityManager.createNamedQuery("PostWithCommentByRank")
+            return entityManager
+            .createNamedQuery("PostWithCommentByRank")
+            .setParameter("titlePattern", "High-Performance Java Persistence %")
             .setParameter("rank", 2)
             .setHint(QueryHints.HINT_READONLY, true)
             .unwrap(NativeQuery.class)
@@ -206,7 +252,7 @@ public class PaginationTest extends AbstractTest {
         );
 
         Post post2 = posts.get(1);
-        post1.removeComment(post2.getComments().get(0));
+        post2.removeComment(post2.getComments().get(0));
 
         doInJPA(entityManager -> {
             entityManager.merge(post1);
@@ -217,57 +263,81 @@ public class PaginationTest extends AbstractTest {
     @Test
     public void testFetchAndPaginateUsingDenseRank() {
         doInJPA(entityManager -> {
-
-
-            List<Post> posts = entityManager.createNamedQuery("PostWithCommentByRank")
-            .setParameter("rank", 10)
+            List<Post> posts = entityManager
+            .createNamedQuery("PostWithCommentByRank")
+            .setParameter(
+                "titlePattern",
+                "High-Performance Java Persistence %"
+            )
+            .setParameter(
+                "rank",
+                5
+            )
             .unwrap(NativeQuery.class)
-            .setResultTransformer(new DistinctPostResultTransformer(entityManager))
+            .setResultTransformer(
+                new DistinctPostResultTransformer(entityManager)
+            )
             .getResultList();
 
-            assertEquals(10, posts.size());
+            assertEquals(5, posts.size());
 
+            Post post1 = posts.get(0);
 
-            /*
-             * Checking the comments collections of the returned posts.
-             * I'm just checking the post comments of the Post with the Id = 1
-             *
-             * The Expected comments list should contains something like
-             *
-             * id	    created_on	                    review	            post_id
-             * 1	    2018-10-09 12:01:00.000000	    Comment nr. 1	    1
-             * 2	    2018-10-09 12:02:00.000000	    Comment nr. 2	    1
-             * 3	    2018-10-09 12:03:00.000000	    Comment nr. 3	    1
-             * 4	    2018-10-09 12:04:00.000000	    Comment nr. 4	    1
-             * 5	    2018-10-09 12:05:00.000000	    Comment nr. 5	    1
-             */
+            List<PostComment> comments = post1.getComments();
 
-            final Post post1 = posts.stream().filter(p -> p.getId() == 1L).findFirst().orElse(null);
-            Assert.assertNotNull(post1);
-            Assert.assertEquals(1L, post1.getId().longValue());
-            final List<PostComment> comments = post1.getComments();
-            assertEquals(5, comments.size());
+            for (int i = 0; i < COMMENT_COUNT - 1; i++) {
+                PostComment postComment1 = comments.get(i);
 
-            final PostComment postComment1 = comments.stream().filter(comment -> comment.getId() == 1L).findFirst().orElse(null);
-            Assert.assertNotNull(postComment1);
-            Assert.assertEquals("Comment nr. 1", postComment1.getReview());
+                assertEquals(
+                        String.format(
+                                "Comment nr. %d - A must read!",
+                                i + 1
+                        ),
+                        postComment1.getReview()
+                );
+            }
+        });
+    }
 
-            final PostComment postComment2 = comments.stream().filter(comment -> comment.getId() == 2L).findFirst().orElse(null);
-            Assert.assertNotNull(postComment2);
-            Assert.assertEquals("Comment nr. 2", postComment2.getReview());
+    @Test
+    public void testFetchAndPaginateUsingDenseRankAndMerge() {
+        List<Post> posts = doInJPA(entityManager -> {
+            return entityManager
+            .createNamedQuery("PostWithCommentByRank")
+            .setParameter(
+                "titlePattern",
+                "High-Performance Java Persistence %"
+            )
+            .setParameter(
+                "rank",
+                2
+            )
+            .unwrap(NativeQuery.class)
+            .setResultTransformer(
+                new DistinctPostResultTransformer(entityManager)
+            )
+            .getResultList();
+        });
 
-            final PostComment postComment3 = comments.stream().filter(comment -> comment.getId() == 3L).findFirst().orElse(null);
-            Assert.assertNotNull(postComment3);
-            Assert.assertEquals("Comment nr. 3", postComment3.getReview());
+        assertEquals(2, posts.size());
 
-            final PostComment postComment4 = comments.stream().filter(comment -> comment.getId() == 4L).findFirst().orElse(null);
-            Assert.assertNotNull(postComment4);
-            Assert.assertEquals("Comment nr. 4", postComment4.getReview());
+        Post post1 = posts.get(0);
 
-            final PostComment postComment5 = comments.stream().filter(comment -> comment.getId() == 5L).findFirst().orElse(null);
-            Assert.assertNotNull(postComment5);
-            Assert.assertEquals("Comment nr. 5", postComment5.getReview());
+        post1.addComment(
+            new PostComment()
+            .setId((post1.getId() - 1) * COMMENT_COUNT)
+            .setReview("Awesome!")
+            .setCreatedOn(
+                Timestamp.valueOf(LocalDateTime.now())
+            )
+        );
 
+        Post post2 = posts.get(1);
+        post2.removeComment(post2.getComments().get(0));
+
+        doInJPA(entityManager -> {
+            entityManager.merge(post1);
+            entityManager.merge(post2);
         });
     }
 }

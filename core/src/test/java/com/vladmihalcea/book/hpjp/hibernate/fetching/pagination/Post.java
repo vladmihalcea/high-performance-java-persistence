@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching.pagination;
 
-import com.vladmihalcea.book.hpjp.hibernate.association.BidirectionalOneToManyTest;
 import com.vladmihalcea.book.hpjp.hibernate.identifier.Identifiable;
 
 import javax.persistence.*;
@@ -15,48 +14,49 @@ import java.util.List;
 @Entity(name = "Post")
 @Table(name = "post")
 @NamedNativeQuery(
-        name = "PostWithCommentByRank",
-        query =
-                "SELECT * " +
-                "FROM (   " +
-                "    SELECT *, dense_rank() OVER (ORDER BY \"p.created_on\") rank " +
-                "    FROM (   " +
-                "        SELECT p.id AS \"p.id\", " +
-                "               p.created_on AS \"p.created_on\", " +
-                "               p.title AS \"p.title\", " +
-                "               pc.id as \"pc.id\", " +
-                "               pc.created_on AS \"pc.created_on\", " +
-                "               pc.review AS \"pc.review\", " +
-                "               pc.post_id AS \"pc.post_id\" " +
-                "        FROM post p  " +
-                "        LEFT JOIN post_comment pc ON p.id = pc.post_id  " +
-                "        ORDER BY p.created_on " +
-                "    ) p_pc " +
-                ") p_pc_r " +
-                "WHERE p_pc_r.rank <= :rank",
-        resultSetMapping = "PostWithCommentByRankMapping"
+    name = "PostWithCommentByRank",
+    query =
+            "SELECT * " +
+            "FROM (   " +
+            "    SELECT *, dense_rank() OVER (ORDER BY \"p.created_on\", \"p.id\") rank " +
+            "    FROM (   " +
+            "        SELECT p.id AS \"p.id\", " +
+            "               p.created_on AS \"p.created_on\", " +
+            "               p.title AS \"p.title\", " +
+            "               pc.id as \"pc.id\", " +
+            "               pc.created_on AS \"pc.created_on\", " +
+            "               pc.review AS \"pc.review\", " +
+            "               pc.post_id AS \"pc.post_id\" " +
+            "        FROM post p  " +
+            "        LEFT JOIN post_comment pc ON p.id = pc.post_id " +
+            "        WHERE p.title LIKE :titlePattern " +
+            "        ORDER BY p.created_on " +
+            "    ) p_pc " +
+            ") p_pc_r " +
+            "WHERE p_pc_r.rank <= :rank ",
+    resultSetMapping = "PostWithCommentByRankMapping"
 )
 @SqlResultSetMapping(
-        name = "PostWithCommentByRankMapping",
-        entities = {
-                @EntityResult(
-                        entityClass = Post.class,
-                        fields = {
-                                @FieldResult(name = "id", column = "p.id"),
-                                @FieldResult(name = "createdOn", column = "p.created_on"),
-                                @FieldResult(name = "title", column = "p.title"),
-                        }
-                ),
-                @EntityResult(
-                        entityClass = PostComment.class,
-                        fields = {
-                                @FieldResult(name = "id", column = "pc.id"),
-                                @FieldResult(name = "createdOn", column = "pc.created_on"),
-                                @FieldResult(name = "review", column = "pc.review"),
-                                @FieldResult(name = "post", column = "pc.post_id"),
-                        }
-                )
-        }
+    name = "PostWithCommentByRankMapping",
+    entities = {
+        @EntityResult(
+            entityClass = Post.class,
+            fields = {
+                    @FieldResult(name = "id", column = "p.id"),
+                    @FieldResult(name = "createdOn", column = "p.created_on"),
+                    @FieldResult(name = "title", column = "p.title"),
+            }
+        ),
+        @EntityResult(
+            entityClass = PostComment.class,
+            fields = {
+                    @FieldResult(name = "id", column = "pc.id"),
+                    @FieldResult(name = "createdOn", column = "pc.created_on"),
+                    @FieldResult(name = "review", column = "pc.review"),
+                    @FieldResult(name = "post", column = "pc.post_id"),
+            }
+        )
+    }
 )
 public class Post implements Identifiable<Long> {
 
