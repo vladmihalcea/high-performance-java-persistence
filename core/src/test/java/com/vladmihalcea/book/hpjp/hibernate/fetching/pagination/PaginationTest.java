@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching.pagination;
 import com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
+import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.NativeQuery;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,6 +34,8 @@ public class PaginationTest extends AbstractTest {
         return Database.POSTGRESQL;
     }
 
+    public static final int COMMENT_COUNT = 5;
+
     @Override
     public void afterInit() {
         doInJPA(entityManager -> {
@@ -40,31 +43,30 @@ public class PaginationTest extends AbstractTest {
                 2018, 10, 9, 12, 0, 0, 0
             );
 
-            int commentsSize = 5;
-
             LongStream.range(1, 50).forEach(postId -> {
-                Post post = new Post();
-                post.setId(postId);
-                post.setTitle(String.format("Post nr. %d", postId));
-                post.setCreatedOn(
+                Post post = new Post()
+                .setId(postId)
+                .setTitle(String.format("Post nr. %d", postId))
+                .setCreatedOn(
                      Timestamp.valueOf(timestamp.plusMinutes(postId))
                 );
 
-                LongStream.range(1, commentsSize + 1).forEach(commentOffset -> {
-                    PostComment comment = new PostComment();
+                LongStream.range(1, COMMENT_COUNT + 1).forEach(commentOffset -> {
+                    long commentId = ((postId - 1) * COMMENT_COUNT) + commentOffset;
 
-                    long commentId = ((postId - 1) * commentsSize) + commentOffset;
-                    comment.setId(commentId);
-                    comment.setReview(
-                        String.format("Comment nr. %d", comment.getId())
+                    post.addComment(
+                        new PostComment()
+                        .setId(commentId)
+                        .setReview(
+                            String.format("Comment nr. %d", commentId)
+                        )
+                        .setCreatedOn(
+                            Timestamp.valueOf(timestamp.plusMinutes(commentId))
+                        )
                     );
-                    comment.setCreatedOn(
-                        Timestamp.valueOf(timestamp.plusMinutes(commentId))
-                    );
-
-                    post.addComment(comment);
 
                 });
+
                 entityManager.persist(post);
             });
         });
@@ -160,12 +162,67 @@ public class PaginationTest extends AbstractTest {
     }
 
     @Test
+    public void testFetchAndPaginateParentWithNoChild() {
+        doInJPA(entityManager -> {
+            entityManager.persist(
+                new Post()
+                .setId(100L)
+                .setTitle(String.format("Post nr. %d", 100))
+                .setCreatedOn(
+                    Timestamp.valueOf(
+                        LocalDateTime.of(
+                            2018, 10, 8, 12, 0, 0, 0
+                        )
+                    )
+                )
+            );
+        });
+
+        List<Post> posts = doInJPA(entityManager -> {
+            DistinctPostResultTransformer resultTransformer = new DistinctPostResultTransformer(entityManager);
+
+            return entityManager.createNamedQuery("PostWithCommentByRank")
+            .setParameter("rank", 2)
+            .setHint(QueryHints.HINT_READONLY, true)
+            .unwrap(NativeQuery.class)
+            .setResultTransformer(resultTransformer)
+            .getResultList();
+        });
+
+        assertEquals(2, posts.size());
+
+        Post post1 = posts.get(0);
+        long commentId = ((post1.getId() - 1) * COMMENT_COUNT);
+
+        post1.addComment(
+            new PostComment()
+            .setId(commentId)
+            .setReview(
+                    String.format("Comment nr. %d", commentId)
+            )
+            .setCreatedOn(
+                    Timestamp.valueOf(LocalDateTime.now())
+            )
+        );
+
+        Post post2 = posts.get(1);
+        post1.removeComment(post2.getComments().get(0));
+
+        doInJPA(entityManager -> {
+            entityManager.merge(post1);
+            entityManager.merge(post2);
+        });
+    }
+
+    @Test
     public void testFetchAndPaginateUsingDenseRank() {
         doInJPA(entityManager -> {
+
+
             List<Post> posts = entityManager.createNamedQuery("PostWithCommentByRank")
             .setParameter("rank", 10)
             .unwrap(NativeQuery.class)
-            .setResultTransformer(DistinctPostResultTransformer.INSTANCE)
+            .setResultTransformer(new DistinctPostResultTransformer(entityManager))
             .getResultList();
 
             assertEquals(10, posts.size());

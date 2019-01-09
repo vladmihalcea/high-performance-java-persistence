@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching.pagination;
 
+import com.vladmihalcea.book.hpjp.hibernate.association.BidirectionalOneToManyTest;
 import com.vladmihalcea.book.hpjp.hibernate.identifier.Identifiable;
 
 import javax.persistence.*;
@@ -17,22 +18,22 @@ import java.util.List;
         name = "PostWithCommentByRank",
         query =
                 "SELECT * " +
-                        "FROM (   " +
-                        "    SELECT *, dense_rank() OVER (ORDER BY \"pc.post_id\") rank " +
-                        "    FROM (   " +
-                        "        SELECT p.id AS \"p.id\", " +
-                        "               p.created_on AS \"p.created_on\", " +
-                        "               p.title AS \"p.title\", " +
-                        "               pc.id as \"pc.id\", " +
-                        "               pc.created_on AS \"pc.created_on\", " +
-                        "               pc.review AS \"pc.review\", " +
-                        "               pc.post_id AS \"pc.post_id\" " +
-                        "        FROM post p  " +
-                        "        LEFT JOIN post_comment pc ON p.id = pc.post_id  " +
-                        "        ORDER BY p.created_on " +
-                        "    ) p_pc " +
-                        ") p_pc_r " +
-                        "WHERE p_pc_r.rank <= :rank",
+                "FROM (   " +
+                "    SELECT *, dense_rank() OVER (ORDER BY \"p.created_on\") rank " +
+                "    FROM (   " +
+                "        SELECT p.id AS \"p.id\", " +
+                "               p.created_on AS \"p.created_on\", " +
+                "               p.title AS \"p.title\", " +
+                "               pc.id as \"pc.id\", " +
+                "               pc.created_on AS \"pc.created_on\", " +
+                "               pc.review AS \"pc.review\", " +
+                "               pc.post_id AS \"pc.post_id\" " +
+                "        FROM post p  " +
+                "        LEFT JOIN post_comment pc ON p.id = pc.post_id  " +
+                "        ORDER BY p.created_on " +
+                "    ) p_pc " +
+                ") p_pc_r " +
+                "WHERE p_pc_r.rank <= :rank",
         resultSetMapping = "PostWithCommentByRankMapping"
 )
 @SqlResultSetMapping(
@@ -67,43 +68,52 @@ public class Post implements Identifiable<Long> {
     @Column(name = "created_on")
     private Timestamp createdOn;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostComment> comments = new ArrayList<>();
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public Post setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
+    public Post setTitle(String title) {
         this.title = title;
+        return this;
     }
 
     public Date getCreatedOn() {
         return createdOn;
     }
 
-    public void setCreatedOn(Timestamp createdOn) {
+    public Post setCreatedOn(Timestamp createdOn) {
         this.createdOn = createdOn;
+        return this;
     }
 
     public List<PostComment> getComments() {
         return comments;
     }
 
-    public void setComments(List<PostComment> comments) {
+    public Post setComments(List<PostComment> comments) {
         this.comments = comments;
+        return this;
     }
 
     public void addComment(PostComment comment) {
         comments.add(comment);
         comment.setPost(this);
+    }
+
+    public void removeComment(PostComment comment) {
+        comments.remove(comment);
+        comment.setPost(null);
     }
 }

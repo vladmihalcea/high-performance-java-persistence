@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching.pagination;
 import com.vladmihalcea.book.hpjp.hibernate.identifier.Identifiable;
 import org.hibernate.transform.BasicTransformerAdapter;
 
+import javax.persistence.EntityManager;
 import java.io.Serializable;
 import java.util.*;
 
@@ -11,7 +12,11 @@ import java.util.*;
  */
 public class DistinctPostResultTransformer extends BasicTransformerAdapter {
 
-    public static final DistinctPostResultTransformer INSTANCE = new DistinctPostResultTransformer();
+    private final EntityManager entityManager;
+
+    public DistinctPostResultTransformer(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     @Override
     public List transformList(List list) {
@@ -24,24 +29,30 @@ public class DistinctPostResultTransformer extends BasicTransformerAdapter {
                 Object[] tuples = (Object[]) entityArray;
 
                 for (Object tuple : tuples) {
-                    if (tuple instanceof Post) {
-                        post = (Post) tuple;
-                    } else if (tuple instanceof PostComment) {
-                        comment = (PostComment) tuple;
-                    } else {
-                        throw new UnsupportedOperationException(
-                                "Tuple " + tuple.getClass() + " is not supported!"
-                        );
+                    if(tuple instanceof Identifiable) {
+                        entityManager.detach(tuple);
+
+                        if (tuple instanceof Post) {
+                            post = (Post) tuple;
+                        } else if (tuple instanceof PostComment) {
+                            comment = (PostComment) tuple;
+                        } else {
+                            throw new UnsupportedOperationException(
+                                    "Tuple " + tuple.getClass() + " is not supported!"
+                            );
+                        }
                     }
                 }
-                Objects.requireNonNull(post);
-                Objects.requireNonNull(comment);
 
-                if (!identifiableMap.containsKey(post.getId())) {
-                    identifiableMap.put(post.getId(), post);
-                    post.setComments(new ArrayList<>());
+                if (post != null) {
+                    if (!identifiableMap.containsKey(post.getId())) {
+                        identifiableMap.put(post.getId(), post);
+                        post.setComments(new ArrayList<>());
+                    }
+                    if (comment != null) {
+                        post.addComment(comment);
+                    }
                 }
-                post.addComment(comment);
             }
         }
         return new ArrayList<>(identifiableMap.values());
