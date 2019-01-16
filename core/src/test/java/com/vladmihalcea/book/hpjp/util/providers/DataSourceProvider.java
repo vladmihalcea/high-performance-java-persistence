@@ -1,5 +1,7 @@
 package com.vladmihalcea.book.hpjp.util.providers;
 
+import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
+
 import java.util.Properties;
 import javax.sql.DataSource;
 
@@ -28,4 +30,6 @@ public interface DataSourceProvider {
 	String password();
 
 	Database database();
+
+	Queries queries();
 }

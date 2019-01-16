@@ -1,5 +1,7 @@
 package com.vladmihalcea.book.hpjp.util.providers;
 
+import com.vladmihalcea.book.hpjp.util.providers.queries.PostgreSQLQueries;
+import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
 import org.hibernate.dialect.PostgreSQL95Dialect;
 import org.postgresql.ds.PGSimpleDataSource;
 
@@ -59,5 +61,10 @@ public class PostgreSQLDataSourceProvider implements DataSourceProvider {
     @Override
     public Database database() {
         return Database.POSTGRESQL;
+    }
+
+    @Override
+    public Queries queries() {
+        return PostgreSQLQueries.INSTANCE;
     }
 }

@@ -1,6 +1,8 @@
 package com.vladmihalcea.book.hpjp.util.providers;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
+import com.vladmihalcea.book.hpjp.util.providers.queries.MySQLQueries;
+import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -134,5 +136,10 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
                 ", useJDBCCompliantTimezoneShift=" + useJDBCCompliantTimezoneShift +
                 ", useLegacyDatetimeCode=" + useLegacyDatetimeCode +
                 '}';
+    }
+
+    @Override
+    public Queries queries() {
+        return MySQLQueries.INSTANCE;
     }
 }

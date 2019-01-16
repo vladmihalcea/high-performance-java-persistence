@@ -1,11 +1,11 @@
 package com.vladmihalcea.book.hpjp.util.providers;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 import javax.sql.DataSource;
 
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
+import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
+import com.vladmihalcea.book.hpjp.util.providers.queries.SQLServerQueries;
 
 /**
  * @author Vlad Mihalcea
@@ -58,5 +58,10 @@ public class SQLServerDataSourceProvider implements DataSourceProvider {
 	@Override
 	public Database database() {
 		return Database.SQLSERVER;
+	}
+
+	@Override
+	public Queries queries() {
+		return SQLServerQueries.INSTANCE;
 	}
 }

@@ -131,7 +131,9 @@ public abstract class AbstractTest {
         return false;
     }
 
-    protected abstract Class<?>[] entities();
+    protected Class<?>[] entities() {
+        return new Class[]{};
+    }
 
     protected List<String> entityClassNames() {
         return Arrays.asList(entities()).stream().map(Class::getName).collect(Collectors.toList());
@@ -846,6 +848,14 @@ public abstract class AbstractTest {
         catch (SQLException e) {
             fail(e.getMessage());
         }
+    }
+
+    protected String transactionId(EntityManager entityManager) {
+        Object transactionId = entityManager
+                .createNativeQuery(dataSourceProvider().queries().transactionId())
+                .getSingleResult();
+
+        return String.valueOf(transactionId);
     }
 
     protected void printCacheRegionStatistics(String region) {

@@ -6,6 +6,8 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
+import com.vladmihalcea.book.hpjp.util.providers.queries.OracleQueries;
+import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
 
 /**
  * @author Vlad Mihalcea
@@ -70,5 +72,10 @@ public class OracleDataSourceProvider implements DataSourceProvider {
 	@Override
 	public Database database() {
 		return Database.ORACLE;
+	}
+
+	@Override
+	public Queries queries() {
+		return OracleQueries.INSTANCE;
 	}
 }

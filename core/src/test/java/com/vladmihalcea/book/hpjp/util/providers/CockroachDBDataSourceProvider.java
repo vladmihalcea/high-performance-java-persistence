@@ -3,8 +3,8 @@ package com.vladmihalcea.book.hpjp.util.providers;
 import java.util.Properties;
 import javax.sql.DataSource;
 
-import org.hibernate.dialect.PostgreSQL82Dialect;
-import org.hibernate.dialect.PostgreSQL94Dialect;
+import com.vladmihalcea.book.hpjp.util.providers.queries.PostgreSQLQueries;
+import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
 
 import com.vladmihalcea.book.hpjp.util.CockroachDBDialect;
 import org.postgresql.ds.PGSimpleDataSource;
@@ -79,5 +79,10 @@ public class CockroachDBDataSourceProvider
 	@Override
 	public Database database() {
 		return Database.COCKROACHDB;
+	}
+
+	@Override
+	public Queries queries() {
+		return PostgreSQLQueries.INSTANCE;
 	}
 }

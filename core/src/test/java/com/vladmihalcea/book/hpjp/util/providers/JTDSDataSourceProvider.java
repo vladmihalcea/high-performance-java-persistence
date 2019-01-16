@@ -1,10 +1,10 @@
 package com.vladmihalcea.book.hpjp.util.providers;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 import javax.sql.DataSource;
 
+import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
+import com.vladmihalcea.book.hpjp.util.providers.queries.SQLServerQueries;
 import net.sourceforge.jtds.jdbcx.JtdsDataSource;
 
 /**
@@ -61,5 +61,10 @@ public class JTDSDataSourceProvider implements DataSourceProvider {
 	@Override
 	public Database database() {
 		return Database.SQLSERVER;
+	}
+
+	@Override
+	public Queries queries() {
+		return SQLServerQueries.INSTANCE;
 	}
 }

@@ -1,14 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.logging;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
-import org.hibernate.exception.LockAcquisitionException;
-import org.jboss.logging.MDC;
 import org.junit.Test;
+import org.slf4j.MDC;
 
 import javax.persistence.*;
 import java.util.Properties;
@@ -118,12 +116,6 @@ public class MDCLoggingTest extends AbstractPostgreSQLIntegrationTest {
         } finally {
             MDC.remove("txId");
         }
-    }
-
-    private String transactionId(EntityManager entityManager) {
-        return (String) entityManager.createNativeQuery(
-                "SELECT CAST(txid_current() AS text) ")
-                .getSingleResult();
     }
 
     @Entity(name = "Post")

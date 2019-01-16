@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.util.providers;
 
-import com.mysql.cj.jdbc.MysqlDataSource;
+import com.vladmihalcea.book.hpjp.util.providers.queries.MySQLQueries;
+import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
 import org.hibernate.dialect.MariaDB103Dialect;
 import org.mariadb.jdbc.MariaDbDataSource;
 
@@ -90,7 +91,7 @@ public class MariaDBDataSourceProvider implements DataSourceProvider {
                     "&useJDBCCompliantTimezoneShift=" + useJDBCCompliantTimezoneShift +
                     "&useLegacyDatetimeCode=" + useLegacyDatetimeCode
             );
-            dataSource.setUser("mysql");
+            dataSource.setUser("root");
             dataSource.setPassword("admin");
         } catch (SQLException e) {
             throw new IllegalStateException(e);
@@ -112,7 +113,7 @@ public class MariaDBDataSourceProvider implements DataSourceProvider {
 
     @Override
     public String url() {
-        return "jdbc:mariadb://localhost/high_performance_java_persistence?user=mysql&password=admin";
+        return "jdbc:mariadb://localhost/high_performance_java_persistence?user=root&password=admin";
     }
 
     @Override
@@ -140,5 +141,10 @@ public class MariaDBDataSourceProvider implements DataSourceProvider {
                 ", useJDBCCompliantTimezoneShift=" + useJDBCCompliantTimezoneShift +
                 ", useLegacyDatetimeCode=" + useLegacyDatetimeCode +
                 '}';
+    }
+
+    @Override
+    public Queries queries() {
+        return MySQLQueries.INSTANCE;
     }
 }

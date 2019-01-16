@@ -166,12 +166,6 @@ public class MVCCPostgreSQLTest extends AbstractPostgreSQLIntegrationTest {
         return !result.isEmpty() ? result.get(0) : null;
     }
 
-    private String transactionId(EntityManager entityManager) {
-        return (String) entityManager.createNativeQuery(
-            "SELECT CAST(txid_current() AS text) ")
-        .getSingleResult();
-    }
-
     @Entity(name = "Post")
     @Table(name = "post")
     public static class Post {

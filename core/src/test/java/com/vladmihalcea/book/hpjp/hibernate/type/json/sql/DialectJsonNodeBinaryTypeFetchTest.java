@@ -5,6 +5,7 @@ import com.vladmihalcea.book.hpjp.hibernate.type.json.PostgreSQL95JsonDialect;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.PostgreSQLJsonNodeBinaryTypeTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+import org.hibernate.dialect.Dialect;
 import org.junit.Test;
 
 import java.util.List;

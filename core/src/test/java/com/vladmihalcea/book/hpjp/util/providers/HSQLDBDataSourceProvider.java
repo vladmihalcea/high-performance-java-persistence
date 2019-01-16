@@ -1,5 +1,7 @@
 package com.vladmihalcea.book.hpjp.util.providers;
 
+import com.vladmihalcea.book.hpjp.util.providers.queries.HSQLDBServerQueries;
+import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
 import org.hsqldb.jdbc.JDBCDataSource;
 
 import javax.sql.DataSource;
@@ -56,5 +58,10 @@ public class HSQLDBDataSourceProvider implements DataSourceProvider {
     @Override
     public Database database() {
         return Database.HSQLDB;
+    }
+
+    @Override
+    public Queries queries() {
+        return HSQLDBServerQueries.INSTANCE;
     }
 }
