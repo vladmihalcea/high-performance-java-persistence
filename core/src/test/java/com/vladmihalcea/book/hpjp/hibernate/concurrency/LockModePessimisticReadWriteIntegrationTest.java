@@ -276,11 +276,13 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
     @Test
     public void testPessimisticWriteQuery() throws InterruptedException {
         doInJPA(entityManager -> {
-            List<PostComment> comments = entityManager.createQuery(
+            List<PostComment> comments = entityManager
+            .createQuery(
                 "select pc " +
                 "from PostComment pc " +
                 "join fetch pc.post p ", PostComment.class)
             .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+            .setHint("javax.persistence.lock.timeout", 0)
             .getResultList();
         });
     }
