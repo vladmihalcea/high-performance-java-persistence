@@ -7,6 +7,9 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -63,12 +66,30 @@ public class MappedSuperclassTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
+            Board board = topic.getBoard();
+
+            List<Post> posts = entityManager
+            .createQuery(
+                "select p " +
+                "from Post p " +
+                "where p.board = :board", Post.class)
+            .setParameter("board", board)
+            .getResultList();
+        });
+
+        doInJPA(entityManager -> {
             Long postId = topic.getId();
             LOGGER.info("Fetch statistics");
-            PostStatistics statistics = entityManager
-                .createQuery("select s from PostStatistics s join fetch s.topic t where t.id = :postId", PostStatistics.class)
-                .setParameter("postId", postId)
-                .getSingleResult();
+            PostStatistics postStatistics = entityManager
+            .createQuery(
+                "select ps " +
+                "from PostStatistics ps " +
+                "join fetch ps.topic t " +
+                "where t.id = :postId", PostStatistics.class)
+            .setParameter("postId", postId)
+            .getSingleResult();
+
+            assertEquals(postId, postStatistics.getTopic().getId());
         });
     }
 
@@ -111,7 +132,7 @@ public class MappedSuperclassTest extends AbstractTest {
         @Temporal(TemporalType.TIMESTAMP)
         private Date createdOn = new Date();
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         private Board board;
 
         public Long getId() {
@@ -213,8 +234,9 @@ public class MappedSuperclassTest extends AbstractTest {
     @Table(name = "post_statistics")
     public static class PostStatistics extends TopicStatistics<Post> {
 
-        @OneToOne
+        @OneToOne(fetch = FetchType.LAZY)
         @MapsId
+        @JoinColumn(name = "id")
         private Post topic;
 
         public PostStatistics() {}
@@ -233,8 +255,9 @@ public class MappedSuperclassTest extends AbstractTest {
     @Table(name = "announcement_statistics")
     public static class AnnouncementStatistics extends TopicStatistics<Announcement> {
 
-        @OneToOne
+        @OneToOne(fetch = FetchType.LAZY)
         @MapsId
+        @JoinColumn(name = "id")
         private Announcement topic;
 
         public AnnouncementStatistics() {}
