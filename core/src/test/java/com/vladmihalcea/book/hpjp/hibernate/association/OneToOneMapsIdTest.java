@@ -8,6 +8,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -36,9 +37,24 @@ public class OneToOneMapsIdTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
+            Post secondPost = new Post("Second post");
+            entityManager.persist(secondPost);
+
+            Post post = entityManager.find(Post.class, 1L);
+            PostDetails details = entityManager.find(PostDetails.class, post.getId());
+
+            details.setPost(secondPost);
+            PostDetails updatedDetails = entityManager.merge(details);
+
+            assertEquals(updatedDetails.getId(), updatedDetails.getPost().getId()); // this will fail
+
+        });
+
+        doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             PostDetails details = entityManager.find(PostDetails.class, post.getId());
             assertNotNull(details);
+            assertEquals(details.getId(), details.getPost().getId()); // this will pass
 
             entityManager.flush();
             details.setPost(null);
