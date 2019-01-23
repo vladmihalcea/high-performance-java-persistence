@@ -244,6 +244,12 @@
             <version>${db-util.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.vladmihalcea</groupId>
+            <artifactId>hibernate-types-52</artifactId>
+            <version>${hibernate-types.version}</version>
+        </dependency>
+
         <!-- AspectJ -->
 
         <dependency>
@@ -345,6 +351,7 @@
 
         <flyway.version>3.2.1</flyway.version>
         <db-util.version>0.0.1</db-util.version>
+        <hibernate-types.version>2.4.0</hibernate-types.version>
 
         <junit.version>4.12</junit.version>
     </properties>

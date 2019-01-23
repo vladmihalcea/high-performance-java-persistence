@@ -1,8 +1,11 @@
 package com.vladmihalcea.book.hpjp.util.providers;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
+import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.queries.MySQLQueries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
+import org.hibernate.dialect.MySQL8Dialect;
+import org.hibernate.dialect.MySQLDialect;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -74,23 +77,26 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
 
     @Override
     public String hibernateDialect() {
-        return "org.hibernate.dialect.MySQL57Dialect";
+        return "org.hibernate.dialect.MySQL8Dialect";
     }
 
     @Override
     public DataSource dataSource() {
         MysqlDataSource dataSource = new MysqlDataSource();
-        dataSource.setURL("jdbc:mysql://localhost/high_performance_java_persistence?" +
-                "rewriteBatchedStatements=" + rewriteBatchedStatements +
-                "&cachePrepStmts=" + cachePrepStmts +
-                "&useServerPrepStmts=" + useServerPrepStmts +
-                "&useTimezone=" + useTimezone +
-                "&useJDBCCompliantTimezoneShift=" + useJDBCCompliantTimezoneShift +
-                "&useLegacyDatetimeCode=" + useLegacyDatetimeCode
+        String url = "jdbc:mysql://localhost/high_performance_java_persistence?" +
+            "rewriteBatchedStatements=" + rewriteBatchedStatements +
+            "&cachePrepStmts=" + cachePrepStmts +
+            "&useServerPrepStmts=" + useServerPrepStmts;
 
-        );
-        dataSource.setUser("mysql");
-        dataSource.setPassword("admin");
+        if(!MySQL8Dialect.class.isAssignableFrom(ReflectionUtils.getClass(hibernateDialect()))) {
+            url += "&useTimezone=" + useTimezone +
+                    "&useJDBCCompliantTimezoneShift=" + useJDBCCompliantTimezoneShift +
+                    "&useLegacyDatetimeCode=" + useLegacyDatetimeCode;
+        }
+
+        dataSource.setURL(url);
+        dataSource.setUser(username());
+        dataSource.setPassword(password());
         return dataSource;
     }
 

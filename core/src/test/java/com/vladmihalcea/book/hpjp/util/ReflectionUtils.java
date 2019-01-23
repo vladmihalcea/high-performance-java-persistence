@@ -33,13 +33,26 @@ public final class ReflectionUtils {
      */
     public static <T> T newInstance(String className) {
         try {
-            Class clazz = Class.forName(className);
-            return (T) clazz.newInstance();
-        } catch (ClassNotFoundException e) {
-            throw handleException(className, e);
+            Class<T> clazz = getClass(className);
+            return clazz.newInstance();
         } catch (InstantiationException e) {
             throw handleException(className, e);
         } catch (IllegalAccessException e) {
+            throw handleException(className, e);
+        }
+    }
+
+    /**
+     * Get class.
+     *
+     * @param className Class name.
+     * @param <T>       Class generic type
+     * @return class
+     */
+    public static <T> Class<T> getClass(String className) {
+        try {
+            return (Class<T>) Class.forName(className);
+        } catch (ClassNotFoundException e) {
             throw handleException(className, e);
         }
     }
