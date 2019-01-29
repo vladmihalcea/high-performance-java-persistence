@@ -180,6 +180,7 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
+
     public static class Post {
 
         @Id
@@ -219,6 +220,19 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
 
     @Entity(name = "PostComment")
     @Table(name = "post_comment")
+    @NamedNativeQuery(
+            name = "findPostComments",
+            query = "select c.review " +
+                    "from post_comment c " +
+                    "where c.id > :id "
+    )
+    @NamedNativeQuery(
+            name = "findPostCommentSummary",
+            query = "select c.review " +
+                    "from post_comment c " +
+                    "left join post p on p.id = c.post_id " +
+                    "where p.title > :title "
+    )
     public static class PostComment {
 
         @Id

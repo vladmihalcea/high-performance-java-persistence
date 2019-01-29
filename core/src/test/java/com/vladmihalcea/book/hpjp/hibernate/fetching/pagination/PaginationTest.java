@@ -90,6 +90,23 @@ public class PaginationTest extends AbstractTest {
     }
 
     @Test
+    public void testLimitNativeSql() {
+        doInJPA(entityManager -> {
+            List<Post> posts = entityManager
+            .createNativeQuery(
+                "select p.title " +
+                "from post p " +
+                "order by p.created_on ")
+            .setMaxResults(10)
+            .getResultList();
+
+            assertEquals(10, posts.size());
+            assertEquals("Post nr. 1", posts.get(0).getTitle());
+            assertEquals("Post nr. 10", posts.get(9).getTitle());
+        });
+    }
+
+    @Test
     public void testOffset() {
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery(
