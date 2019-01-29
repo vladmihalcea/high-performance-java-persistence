@@ -44,7 +44,23 @@ public class SingleTableMySQLTriggerTest extends AbstractTest {
                 try(Statement st = connection.createStatement()) {
                     st.executeUpdate(
                         "CREATE " +
-                        "TRIGGER post_content_check BEFORE INSERT " +
+                        "TRIGGER post_content_insert_check BEFORE INSERT " +
+                        "ON Topic " +
+                        "FOR EACH ROW " +
+                        "BEGIN " +
+                        "   IF NEW.DTYPE = 'Post' " +
+                        "   THEN " +
+                        "       IF NEW.content IS NULL " +
+                        "       THEN " +
+                        "           signal sqlstate '45000' " +
+                        "           set message_text = 'Post content cannot be NULL'; " +
+                        "       END IF; " +
+                        "   END IF; " +
+                        "END;"
+                    );
+                    st.executeUpdate(
+                        "CREATE " +
+                        "TRIGGER post_content_update_check BEFORE UPDATE " +
                         "ON Topic " +
                         "FOR EACH ROW " +
                         "BEGIN " +
@@ -61,6 +77,22 @@ public class SingleTableMySQLTriggerTest extends AbstractTest {
                     st.executeUpdate(
                         "CREATE " +
                         "TRIGGER announcement_validUntil_check BEFORE INSERT " +
+                        "ON Topic " +
+                        "FOR EACH ROW " +
+                        "BEGIN " +
+                        "   IF NEW.DTYPE = 'Announcement' " +
+                        "   THEN " +
+                        "       IF NEW.validUntil IS NULL " +
+                        "       THEN " +
+                        "           signal sqlstate '45000' " +
+                        "           set message_text = 'Announcement validUntil cannot be NULL'; " +
+                        "       END IF; " +
+                        "   END IF; " +
+                        "END;"
+                    );
+                    st.executeUpdate(
+                        "CREATE " +
+                        "TRIGGER announcement_validUntil_update_check BEFORE UPDATE " +
                         "ON Topic " +
                         "FOR EACH ROW " +
                         "BEGIN " +
@@ -98,6 +130,26 @@ public class SingleTableMySQLTriggerTest extends AbstractTest {
 
             entityManager.persist(announcement);
         });
+
+        try {
+            doInJPA(entityManager -> {
+                Post post = entityManager.createQuery("select p from Post p", Post.class).getSingleResult();
+                post.setContent(null);
+            });
+            fail("content_check should fail");
+        } catch (Exception expected) {
+            assertEquals(PersistenceException.class, expected.getCause().getClass());
+        }
+
+        try {
+            doInJPA(entityManager -> {
+                Announcement announcement = entityManager.createQuery("select a from Announcement a", Announcement.class).getSingleResult();
+                announcement.setValidUntil(null);
+            });
+            fail("valid_until_check should fail");
+        } catch (Exception expected) {
+            assertEquals(PersistenceException.class, expected.getCause().getClass());
+        }
 
         try {
             doInJPA(entityManager -> {
