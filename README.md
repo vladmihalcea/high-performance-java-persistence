@@ -34,7 +34,7 @@ Especially if you're using Eclipse, you must use the Oracle JDK compiler and not
 
 ## IntelliJ IDEA
 
-On InteliJ IDEA, the project runs just fine without any further requirements.
+On IntelliJ IDEA, the project runs just fine without any further requirements.
 
 ## Eclipse
 
