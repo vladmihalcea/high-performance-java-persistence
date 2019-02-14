@@ -1,20 +1,16 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache.query;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.cache.internal.StandardQueryCache;
 import org.hibernate.jpa.QueryHints;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.*;
-import java.util.ArrayList;
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -24,8 +20,7 @@ public class QueryCacheNPlus1Test extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-            Post.class,
-            PostComment.class,
+                TestEntity.class,
         };
     }
 
@@ -42,24 +37,11 @@ public class QueryCacheNPlus1Test extends AbstractTest {
     public void init() {
         super.init();
         doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setTitle("High-Performance Java Persistence");
-            entityManager.persist(post);
-
-            PostComment part1 = new PostComment();
-            part1.setReview("Part one - JDBC");
-            part1.setPost(post);
-            entityManager.persist(part1);
-
-            PostComment part2 = new PostComment();
-            part2.setReview("Part two - Hibernate");
-            part2.setPost(post);
-            entityManager.persist(part2);
-
-            PostComment part3 = new PostComment();
-            part3.setReview("Part two - jOOQ");
-            part3.setPost(post);
-            entityManager.persist(part3);
+            entityManager.persist(new TestEntity("1"));
+            entityManager.persist(new TestEntity("2"));
+            entityManager.persist(new TestEntity("3"));
+            entityManager.persist(new TestEntity("4"));
+            entityManager.persist(new TestEntity("5"));
         });
     }
 
@@ -69,108 +51,52 @@ public class QueryCacheNPlus1Test extends AbstractTest {
         super.destroy();
     }
 
-    public List<PostComment> getLatestPostComments(
+    public List<TestEntity> getEntities(
             EntityManager entityManager) {
         return entityManager.createQuery(
-            "select pc " +
-            "from PostComment pc " +
-            "order by pc.post.id desc", PostComment.class)
-        .setMaxResults(10)
-        .setHint(QueryHints.HINT_CACHEABLE, true)
-        .getResultList();
+                "from TestEntity", TestEntity.class)
+                .setHint(QueryHints.HINT_CACHEABLE, true)
+                .getResultList();
     }
 
     @Test
-    public void test2ndLevelCacheWithQuery() {
+    public void test() {
+        LOGGER.info("first call, cache should be empty here");
         doInJPA(entityManager -> {
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
-            assertEquals(3, getLatestPostComments(entityManager).size());
-
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
-            assertEquals(3, getLatestPostComments(entityManager).size());
-        });
-    }
-
-    @Test
-    public void test2ndLevelCacheWithQueryNPlus1() {
-        doInJPA(entityManager -> {
-            printCacheRegionStatistics(StandardQueryCache.class.getName());
-            assertEquals(3, getLatestPostComments(entityManager).size());
+            assertEquals(5, getEntities(entityManager).size());
         });
 
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new IllegalStateException();
+        }
+
+        LOGGER.info("second call, data should be taken from the cache");
         doInJPA(entityManager -> {
-            entityManager.getEntityManagerFactory().getCache().evict(PostComment.class);
+            assertEquals(5, getEntities(entityManager).size());
         });
 
+        try {
+            Thread.sleep(12000);
+        } catch (InterruptedException e) {
+            throw new IllegalStateException();
+        }
+
+        LOGGER.info("third call, cache should be empty here");
         doInJPA(entityManager -> {
-            assertEquals(3, getLatestPostComments(entityManager).size());
+            assertEquals(5, getEntities(entityManager).size());
         });
-    }
 
-    @Entity(name = "Post")
-    @Table(name = "post")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    public static class Post {
-
-        @Id
-        @GeneratedValue
-        private Long id;
-
-        private String title;
-
-        public Long getId() {
-            return id;
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new IllegalStateException();
         }
 
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-    }
-
-    @Entity(name = "PostComment")
-    @Table(name = "post_comment")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    public static class PostComment {
-
-        @Id
-        @GeneratedValue
-        private Long id;
-
-        @ManyToOne(fetch = FetchType.LAZY)
-        private Post post;
-
-        private String review;
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public Post getPost() {
-            return post;
-        }
-
-        public void setPost(Post post) {
-            this.post = post;
-        }
-
-        public String getReview() {
-            return review;
-        }
-
-        public void setReview(String review) {
-            this.review = review;
-        }
+        LOGGER.info("fourth call, data should be taken from the cache but they are not");
+        doInJPA(entityManager -> {
+            assertEquals(5, getEntities(entityManager).size());
+        });
     }
 }

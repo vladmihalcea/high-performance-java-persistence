@@ -4,6 +4,20 @@
          updateCheck="true" monitoring="autodetect"
          dynamicConfig="true">
 
+    <cache name = "com.vladmihalcea.book.hpjp.hibernate.cache.query.TestEntity"
+           maxElementsInMemory="100000"
+           eternal="false"
+           timeToLiveSeconds="11">
+        <persistence strategy="none"/>
+    </cache>
+
+    <cache name="org.hibernate.cache.internal.StandardQueryCache"
+           maxElementsInMemory="100000"
+           eternal="false"
+           timeToLiveSeconds="10">
+        <persistence strategy="none"/>
+    </cache>
+
     <defaultCache
             maxElementsInMemory="100000"
             eternal="true">
