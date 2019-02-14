@@ -1,9 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.sp;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import org.hibernate.Session;
 import org.hibernate.procedure.ProcedureCall;
+import org.hibernate.procedure.ProcedureOutputs;
+import org.hibernate.procedure.internal.ProcedureOutputsImpl;
 import org.hibernate.result.Output;
 import org.hibernate.result.ResultSetOutput;
 import org.junit.Before;
@@ -11,15 +14,14 @@ import org.junit.Test;
 
 import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureQuery;
+import javax.persistence.Tuple;
 import java.sql.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.Post;
 import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.PostComment;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
@@ -101,16 +103,84 @@ public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegration
     }
 
     @Test
-    public void testStoredProcedureOutParameter() {
+    public void testStoredProcedureOutParameterDefaultClose() {
         doInJPA(entityManager -> {
             StoredProcedureQuery query = entityManager
+            .createStoredProcedureQuery("count_comments")
+            .registerStoredProcedureParameter("postId", Long.class, ParameterMode.IN)
+            .registerStoredProcedureParameter("commentCount", Long.class, ParameterMode.OUT)
+            .setParameter("postId", 1L);
+            query.execute();
+            Long commentCount = (Long) query.getOutputParameterValue("commentCount");
+
+            assertEquals(Long.valueOf(2), commentCount);
+        });
+    }
+
+    @Test
+    public void testProcedureCallParameterDefaultClose() {
+        doInJPA(entityManager -> {
+            Session session = entityManager.unwrap(Session.class);
+
+            ProcedureCall call = session.createStoredProcedureCall("count_comments");
+            call.registerParameter("postId", Long.class, ParameterMode.IN).bindValue(1L);
+            call.registerParameter("commentCount", Long.class, ParameterMode.OUT);
+
+            Long commentCount = (Long) call.getOutputs().getOutputParameterValue("commentCount");
+            assertEquals(Long.valueOf(2), commentCount);
+        });
+    }
+
+    @Test
+    public void testStoredProcedureOutParameter() {
+        doInJPA(entityManager -> {
+            try {
+                StoredProcedureQuery query = entityManager
+                    .createStoredProcedureQuery("count_comments")
+                    .registerStoredProcedureParameter("postId", Long.class, ParameterMode.IN)
+                    .registerStoredProcedureParameter("commentCount", Long.class, ParameterMode.OUT)
+                    .setParameter("postId", 1L);
+                query.execute();
+                Long commentCount = (Long) query.getOutputParameterValue("commentCount");
+                assertEquals(Long.valueOf(2), commentCount);
+
+                ProcedureOutputs procedureOutputs = query.unwrap(ProcedureOutputs.class);
+                CallableStatement callableStatement = ReflectionUtils.getFieldValue(procedureOutputs, "callableStatement");
+                assertFalse(callableStatement.isClosed());
+
+                procedureOutputs.release();
+
+                assertTrue(callableStatement.isClosed());
+            } catch (SQLException e) {
+                fail(e.getMessage());
+            }
+        });
+    }
+
+    @Test
+    public void testStoredProcedureOutParameterCloseStatement() {
+        doInJPA(entityManager -> {
+            try {
+                StoredProcedureQuery query = entityManager
                 .createStoredProcedureQuery("count_comments")
                 .registerStoredProcedureParameter("postId", Long.class, ParameterMode.IN)
                 .registerStoredProcedureParameter("commentCount", Long.class, ParameterMode.OUT)
                 .setParameter("postId", 1L);
-            query.execute();
-            Long commentCount = (Long) query.getOutputParameterValue("commentCount");
-            assertEquals(Long.valueOf(2), commentCount);
+
+                try {
+                    query.execute();
+                    Long commentCount = (Long) query.getOutputParameterValue("commentCount");
+
+                    assertEquals(Long.valueOf(2), commentCount);
+                } finally {
+                    query.unwrap(ProcedureOutputs.class).release();
+                }
+
+                CallableStatement callableStatement = ReflectionUtils.getFieldValue(query.unwrap(ProcedureOutputs.class), "callableStatement");
+                assertTrue(callableStatement.isClosed());
+            } catch (SQLException e) {
+                fail(e.getMessage());
+            }
         });
     }
 
