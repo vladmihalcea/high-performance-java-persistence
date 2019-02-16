@@ -20,8 +20,8 @@ import java.util.Properties;
 /**
  * @author Vlad Mihalcea
  */
-public class StringSequenceIdentifier
-        implements IdentifierGenerator, Configurable {
+public class StringSequenceIdentifier implements
+        IdentifierGenerator, Configurable {
 
     public static final String SEQUENCE_PREFIX = "sequence_prefix";
 
@@ -31,39 +31,56 @@ public class StringSequenceIdentifier
 
     @Override
     public void configure(
-            Type type, Properties params, ServiceRegistry serviceRegistry)
-            throws MappingException {
-        final JdbcEnvironment jdbcEnvironment =
-                serviceRegistry.getService(JdbcEnvironment.class);
+            Type type,
+            Properties params,
+            ServiceRegistry serviceRegistry)
+        throws MappingException {
+
+        final JdbcEnvironment jdbcEnvironment = serviceRegistry.getService(
+                JdbcEnvironment.class
+        );
+
         final Dialect dialect = jdbcEnvironment.getDialect();
 
-        final ConfigurationService configurationService =
-                serviceRegistry.getService(ConfigurationService.class);
-        String globalEntityIdentifierPrefix =
-            configurationService.getSetting( "entity.identifier.prefix", String.class, "SEQ_" );
+        final ConfigurationService configurationService = serviceRegistry.getService(
+                ConfigurationService.class
+        );
+
+        String globalEntityIdentifierPrefix = configurationService.getSetting(
+            "entity.identifier.prefix",
+            String.class,
+            "SEQ_"
+        );
 
         sequencePrefix = ConfigurationHelper.getString(
-                SEQUENCE_PREFIX,
-                params,
-                globalEntityIdentifierPrefix);
+            SEQUENCE_PREFIX,
+            params,
+            globalEntityIdentifierPrefix
+        );
 
         final String sequencePerEntitySuffix = ConfigurationHelper.getString(
-                SequenceStyleGenerator.CONFIG_SEQUENCE_PER_ENTITY_SUFFIX,
-                params,
-                SequenceStyleGenerator.DEF_SEQUENCE_SUFFIX);
+            SequenceStyleGenerator.CONFIG_SEQUENCE_PER_ENTITY_SUFFIX,
+            params,
+            SequenceStyleGenerator.DEF_SEQUENCE_SUFFIX
+        );
 
-        final String defaultSequenceName = ConfigurationHelper.getBoolean(
-                SequenceStyleGenerator.CONFIG_PREFER_SEQUENCE_PER_ENTITY,
-                params,
-                false)
+        boolean preferSequencePerEntity = ConfigurationHelper.getBoolean(
+            SequenceStyleGenerator.CONFIG_PREFER_SEQUENCE_PER_ENTITY,
+            params,
+            false
+        );
+
+        final String defaultSequenceName = preferSequencePerEntity
                 ? params.getProperty(JPA_ENTITY_NAME) + sequencePerEntitySuffix
                 : SequenceStyleGenerator.DEF_SEQUENCE_NAME;
 
         sequenceCallSyntax = dialect.getSequenceNextValString(
-                ConfigurationHelper.getString(
-                        SequenceStyleGenerator.SEQUENCE_PARAM,
-                        params,
-                        defaultSequenceName));
+            ConfigurationHelper.getString(
+                SequenceStyleGenerator.SEQUENCE_PARAM,
+                params,
+                defaultSequenceName
+            )
+        );
     }
 
     @Override
@@ -71,13 +88,17 @@ public class StringSequenceIdentifier
         if (obj instanceof Identifiable) {
             Identifiable identifiable = (Identifiable) obj;
             Serializable id = identifiable.getId();
+
             if (id != null) {
                 return id;
             }
         }
-        long seqValue = ((Number) Session.class.cast(session)
-            .createNativeQuery(sequenceCallSyntax)
-            .uniqueResult()).longValue();
+
+        long seqValue = ((Number)
+                Session.class.cast(session)
+                .createNativeQuery(sequenceCallSyntax)
+                .uniqueResult()
+        ).longValue();
 
         return sequencePrefix + String.format("%011d%s", 0 ,seqValue);
     }
