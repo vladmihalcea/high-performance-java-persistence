@@ -5,6 +5,7 @@ import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
+import org.hibernate.jpa.QueryHints;
 import org.junit.Test;
 import org.slf4j.MDC;
 
@@ -32,7 +33,7 @@ public class MDCLoggingTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected boolean proxyDataSource() {
-        return false;
+        return true;
     }
 
     @Override
@@ -60,14 +61,18 @@ public class MDCLoggingTest extends AbstractPostgreSQLIntegrationTest {
             try {
                 executeSync(() -> {
                     doInJPA(_entityManager -> {
-                        Post _post = _entityManager.find(Post.class, 1L);
-
-                        _entityManager.unwrap(Session.class)
-                        .buildLockRequest(
+                        Post _post = (Post) _entityManager.createQuery(
+                            "select p " +
+                            "from Post p " +
+                            "where p.id = :id", Post.class)
+                        .setParameter("id", 1L)
+                        .unwrap(org.hibernate.query.Query.class)
+                        .setLockOptions(
                             new LockOptions()
-                                .setTimeOut(LockOptions.NO_WAIT))
                                 .setLockMode(LockMode.PESSIMISTIC_WRITE)
-                        .lock(_post);
+                                .setTimeOut(LockOptions.NO_WAIT)
+                        )
+                        .getSingleResult();
                     });
                 });
             } catch (Exception expected) {
@@ -96,14 +101,18 @@ public class MDCLoggingTest extends AbstractPostgreSQLIntegrationTest {
                             doInJPA(_entityManager -> {
                                 MDC.put("txId", String.format(" TxId: [%s]", transactionId(_entityManager)));
 
-                                Post _post = _entityManager.find(Post.class, 1L);
-
-                                _entityManager.unwrap(Session.class)
-                                .buildLockRequest(
-                                    new LockOptions()
-                                        .setTimeOut(LockOptions.NO_WAIT))
-                                        .setLockMode(LockMode.PESSIMISTIC_WRITE)
-                                .lock(_post);
+                                Post _post = (Post) _entityManager.createQuery(
+                                    "select p " +
+                                    "from Post p " +
+                                    "where p.id = :id", Post.class)
+                                .setParameter("id", 1L)
+                                .unwrap(org.hibernate.query.Query.class)
+                                .setLockOptions(
+                                        new LockOptions()
+                                                .setLockMode(LockMode.PESSIMISTIC_WRITE)
+                                                .setTimeOut(LockOptions.NO_WAIT)
+                                )
+                                .getSingleResult();
                             });
                         } finally {
                             MDC.remove("txId");

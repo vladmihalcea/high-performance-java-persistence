@@ -850,12 +850,17 @@ public abstract class AbstractTest {
         }
     }
 
-    protected String transactionId(EntityManager entityManager) {
-        Object transactionId = entityManager
-                .createNativeQuery(dataSourceProvider().queries().transactionId())
-                .getSingleResult();
-
-        return String.valueOf(transactionId);
+    protected String transactionId(
+            EntityManager entityManager) {
+        return String.valueOf(
+            entityManager
+            .createNativeQuery(
+                dataSourceProvider()
+                .queries()
+                .transactionId()
+            )
+            .getSingleResult()
+        );
     }
 
     protected void printCacheRegionStatistics(String region) {
