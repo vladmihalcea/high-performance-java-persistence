@@ -51,11 +51,11 @@ public class PostCommentScoreRecursiveCTEPerformanceTest extends AbstractPostCom
                 "    ORDER BY total_score DESC, id ASC " +
                 ") total_score_group " +
                 "WHERE rank <= :rank", "PostCommentScore")
-            .unwrap(NativeQuery.class)
             .setParameter("postId", postId)
             .setParameter("rank", rank)
+            .unwrap(NativeQuery.class)
             .setResultTransformer(new PostCommentScoreResultTransformer())
-            .list();
+            .getResultList();
             timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
             return postCommentScores;
         });
