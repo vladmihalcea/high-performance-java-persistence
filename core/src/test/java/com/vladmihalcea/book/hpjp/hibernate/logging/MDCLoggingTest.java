@@ -83,9 +83,11 @@ public class MDCLoggingTest extends AbstractPostgreSQLIntegrationTest {
 
     @Test
     public void testWithMDC() {
-        try {
-            doInJPA(entityManager -> {
-                MDC.put("txId", String.format(" TxId: [%s]", transactionId(entityManager)));
+        doInJPA(entityManager -> {
+            try(MDC.MDCCloseable closable = MDC.putCloseable(
+                    "txId",
+                    String.format(" TxId: [%s]", transactionId(entityManager))
+                )) {
 
                 Post post = entityManager.createQuery(
                     "select p " +
@@ -97,9 +99,11 @@ public class MDCLoggingTest extends AbstractPostgreSQLIntegrationTest {
 
                 try {
                     executeSync(() -> {
-                        try {
-                            doInJPA(_entityManager -> {
-                                MDC.put("txId", String.format(" TxId: [%s]", transactionId(_entityManager)));
+                        doInJPA(_entityManager -> {
+                            try(MDC.MDCCloseable _closable = MDC.putCloseable(
+                                    "txId",
+                                    String.format(" TxId: [%s]", transactionId(_entityManager))
+                                )) {
 
                                 Post _post = (Post) _entityManager.createQuery(
                                     "select p " +
@@ -108,23 +112,24 @@ public class MDCLoggingTest extends AbstractPostgreSQLIntegrationTest {
                                 .setParameter("id", 1L)
                                 .unwrap(org.hibernate.query.Query.class)
                                 .setLockOptions(
-                                        new LockOptions()
-                                                .setLockMode(LockMode.PESSIMISTIC_WRITE)
-                                                .setTimeOut(LockOptions.NO_WAIT)
+                                    new LockOptions()
+                                    .setLockMode(LockMode.PESSIMISTIC_WRITE)
+                                    .setTimeOut(LockOptions.NO_WAIT)
                                 )
                                 .getSingleResult();
-                            });
-                        } finally {
-                            MDC.remove("txId");
-                        }
+                            }
+                        });
                     });
                 } catch (Exception expected) {
-                    assertTrue(ExceptionUtil.rootCause(expected).getMessage().contains("could not obtain lock on row in relation"));
+                    assertTrue(
+                        ExceptionUtil
+                        .rootCause(expected)
+                        .getMessage()
+                        .contains("could not obtain lock on row in relation")
+                    );
                 }
-            });
-        } finally {
-            MDC.remove("txId");
-        }
+            }
+        });
     }
 
     @Entity(name = "Post")
