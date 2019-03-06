@@ -55,11 +55,6 @@ public class EntityFirstLevelCacheReuseTest extends AbstractTest {
         });
     }
 
-    /**
-     * Product - Product
-     *
-     * @author Vlad Mihalcea
-     */
     @Entity(name = "Product")
     @Table(name = "product")
     public static class Product {
