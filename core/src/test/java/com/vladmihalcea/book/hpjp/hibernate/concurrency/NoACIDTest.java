@@ -29,6 +29,11 @@ public class NoACIDTest extends AbstractTest {
     }
 
     @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
+    @Override
     protected void afterInit() {
         doInJPA(entityManager -> {
             Account from = new Account();
