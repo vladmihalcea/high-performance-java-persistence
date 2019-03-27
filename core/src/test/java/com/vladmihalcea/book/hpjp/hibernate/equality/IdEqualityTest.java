@@ -16,8 +16,8 @@ public class IdEqualityTest
 
     @Override
     protected Class<?>[] entities() {
-        return new Class[] {
-            Post.class
+        return new Class[]{
+                Post.class
         };
     }
 
@@ -39,13 +39,19 @@ public class IdEqualityTest
 
         private String title;
 
-        public Post() {}
+        public Post() {
+        }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof Post)) return false;
-            return id != null && id.equals(((Post) o).id);
+
+            if (!(o instanceof Post))
+                return false;
+
+            Post other = (Post) o;
+
+            return id != null && id.equals(other.getId());
         }
 
         @Override

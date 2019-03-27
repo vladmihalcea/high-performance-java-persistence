@@ -33,6 +33,16 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
         assertTrue(tuples.contains(entity));
 
         doInJPA(entityManager -> {
+            T entityProxy = entityManager.getReference(clazz, entity.getId());
+            assertTrue(entityProxy.equals(entity));
+        });
+
+        doInJPA(entityManager -> {
+            T entityProxy = entityManager.getReference(clazz, entity.getId());
+            assertTrue(entity.equals(entityProxy));
+        });
+
+        doInJPA(entityManager -> {
             T _entity = entityManager.merge(entity);
             assertTrue("The entity is not found in the Set after it's merged.", tuples.contains(_entity));
         });

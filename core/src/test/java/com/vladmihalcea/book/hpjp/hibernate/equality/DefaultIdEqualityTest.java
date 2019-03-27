@@ -46,11 +46,11 @@ public class DefaultIdEqualityTest
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof Post)) return false;
-            return Objects.equals(id, ((Post) o).id);
+            return Objects.equals(id, ((Post) o).getId());
         }
         @Override
         public int hashCode() {
-            return Objects.hash(id);
+            return Objects.hash(getId());
         }
 
         public Long getId() {
