@@ -174,8 +174,8 @@ public class BidirectionalManyAsOneToManyOrderColumnTest extends AbstractTest {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             PostTagId that = (PostTagId) o;
-            return Objects.equals(postId, that.postId) &&
-                    Objects.equals(tagId, that.tagId);
+            return Objects.equals(postId, that.getPostId()) &&
+                    Objects.equals(tagId, that.getTagId());
         }
 
         @Override

@@ -123,7 +123,7 @@ public class UnidirectionalOneToManyJoinColumnSetTest extends AbstractTest {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             PostComment comment = (PostComment) o;
-            return Objects.equals(slug, comment.slug);
+            return Objects.equals(slug, comment.getSlug());
         }
 
         @Override

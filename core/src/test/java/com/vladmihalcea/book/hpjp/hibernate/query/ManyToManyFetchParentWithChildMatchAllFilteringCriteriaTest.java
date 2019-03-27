@@ -278,8 +278,8 @@ public class ManyToManyFetchParentWithChildMatchAllFilteringCriteriaTest extends
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             ClusterTagId that = (ClusterTagId) o;
-            return Objects.equals(clusterId, that.clusterId) &&
-                    Objects.equals(tagId, that.tagId);
+            return Objects.equals(clusterId, that.getClusterId()) &&
+                    Objects.equals(tagId, that.getTagId());
         }
 
         @Override

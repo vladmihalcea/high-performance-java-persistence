@@ -204,7 +204,7 @@ public class BidirectionalManyToManyListTest extends AbstractTest {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof Post)) return false;
-            return id != null && id.equals(((Post) o).id);
+            return id != null && id.equals(((Post) o).getId());
         }
 
         @Override

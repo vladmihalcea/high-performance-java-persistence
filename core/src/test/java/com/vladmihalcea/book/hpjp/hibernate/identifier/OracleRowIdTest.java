@@ -160,7 +160,7 @@ public class OracleRowIdTest extends AbstractOracleIntegrationTest {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof PostComment)) return false;
-            return id != null && id.equals(((PostComment) o).id);
+            return id != null && id.equals(((PostComment) o).getId());
         }
 
         @Override

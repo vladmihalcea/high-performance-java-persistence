@@ -149,7 +149,7 @@ public class NaturalIdTest extends AbstractTest {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Post post = (Post) o;
-            return Objects.equals(slug, post.slug);
+            return Objects.equals(slug, post.getSlug());
         }
 
         @Override
