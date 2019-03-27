@@ -16,7 +16,9 @@ import static org.junit.Assert.assertTrue;
  */
 public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends Serializable>> extends AbstractTest {
 
-    protected void assertEqualityConsistency(Class<T> clazz, T entity) {
+    protected void assertEqualityConsistency(
+            Class<T> clazz,
+            T entity) {
 
         Set<T> tuples = new HashSet<>();
 
@@ -27,47 +29,79 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
         doInJPA(entityManager -> {
             entityManager.persist(entity);
             entityManager.flush();
-            assertTrue("The entity is not found in the Set after it's persisted.", tuples.contains(entity));
+            assertTrue(
+                    "The entity is not found in the Set after it's persisted.",
+                    tuples.contains(entity)
+            );
         });
 
         assertTrue(tuples.contains(entity));
 
         doInJPA(entityManager -> {
-            T entityProxy = entityManager.getReference(clazz, entity.getId());
-            assertTrue(entityProxy.equals(entity));
+            T entityProxy = entityManager.getReference(
+                    clazz,
+                    entity.getId()
+            );
+            assertTrue(
+                    "The entity proxy is not equal with the entity.",
+                    entityProxy.equals(entity)
+            );
         });
 
         doInJPA(entityManager -> {
-            T entityProxy = entityManager.getReference(clazz, entity.getId());
-            assertTrue(entity.equals(entityProxy));
+            T entityProxy = entityManager.getReference(
+                    clazz,
+                    entity.getId()
+            );
+            assertTrue(
+                    "The entity is not equal with the entity proxy.",
+                    entity.equals(entityProxy));
         });
 
         doInJPA(entityManager -> {
             T _entity = entityManager.merge(entity);
-            assertTrue("The entity is not found in the Set after it's merged.", tuples.contains(_entity));
+            assertTrue(
+                    "The entity is not found in the Set after it's merged.",
+                    tuples.contains(_entity)
+            );
         });
 
         doInJPA(entityManager -> {
             entityManager.unwrap(Session.class).update(entity);
-            assertTrue("The entity is not found in the Set after it's reattached.", tuples.contains(entity));
+            assertTrue(
+                    "The entity is not found in the Set after it's reattached.",
+                    tuples.contains(entity)
+            );
         });
 
         doInJPA(entityManager -> {
             T _entity = entityManager.find(clazz, entity.getId());
-            assertTrue("The entity is not found in the Set after it's loaded in a subsequent Persistence Context.", tuples.contains(_entity));
+            assertTrue(
+                    "The entity is not found in the Set after it's loaded in a subsequent Persistence Context.",
+                    tuples.contains(_entity)
+            );
         });
 
         doInJPA(entityManager -> {
             T _entity = entityManager.getReference(clazz, entity.getId());
-            assertTrue("The entity is not in the Set found after it's loaded as a Proxy in an other Persistence Context.", tuples.contains(_entity));
+            assertTrue(
+                    "The entity is not in the Set found after it's loaded as a proxy in an other Persistence Context.",
+                    tuples.contains(_entity)
+            );
         });
 
         T deletedEntity = doInJPA(entityManager -> {
-            T _entity = entityManager.getReference(clazz, entity.getId());
+            T _entity = entityManager.getReference(
+                    clazz,
+                    entity.getId()
+            );
             entityManager.remove(_entity);
             return _entity;
         });
 
-        assertTrue("The entity is found in not the Set even after it's deleted.", tuples.contains(deletedEntity));
+        assertTrue(
+                "The entity is found in not the Set even after it's deleted.",
+                tuples.contains(deletedEntity)
+        );
     }
 }
