@@ -95,7 +95,6 @@ public class BidirectionalOneToOneOptionalTest extends AbstractTest {
     public static class PostDetails {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         @Column(name = "created_on")

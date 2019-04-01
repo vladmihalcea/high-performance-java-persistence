@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.inheritance.spring;
 import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.config.BehaviorDrivenInheritanceConfiguration;
 import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.model.EmailSubscriber;
 import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.model.SmsSubscriber;
+import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.model.TwitterSubscriber;
 import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.service.CampaignService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +56,14 @@ public class BehaviorDrivenInheritanceTest {
                 sms.setLastName("Mihalcea");
 
                 entityManager.persist(sms);
+
+                TwitterSubscriber twitter = new TwitterSubscriber();
+                twitter.setTwitterAddress("@vlad_mihalcea");
+                twitter.setFirstName("Vlad");
+                twitter.setLastName("Mihalcea");
+
+                entityManager.persist(twitter);
+
                 return null;
             });
         } catch (TransactionException e) {
