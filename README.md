@@ -121,5 +121,5 @@ To build the project, don't use *install* or *package*. Instead, just compile te
     mvn clean test-compile
     
 Then, just pick one test from the IDE and run it individually.
-If you run all tests (e.g. `mvn clean test`), the test suite will take way to long to complete since
-some performance tests require to run for long periods of time.
+
+Don't you run all tests at once (e.g. `mvn clean test`) because the test suite will take a long time to complete, and some tests will fail because the Bitronix config is cached by Spring. Therefore, just run tests individually, as that's how they were designed to be run.

@@ -1,23 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
-import java.util.Objects;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.Hibernate;
-
 import org.junit.Test;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import javax.persistence.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class HibernateProxyTest extends AbstractTest {
 
@@ -33,48 +22,48 @@ public class HibernateProxyTest extends AbstractTest {
     public void test() {
         Post _post = doInJPA(entityManager -> {
             Post post = new Post();
-            post.setId( 1L );
-            post.setTitle( "High-Performance Java Persistence" );
+            post.setId(1L);
+            post.setTitle("High-Performance Java Persistence");
             entityManager.persist(post);
             return post;
         });
 
         doInJPA(entityManager -> {
-            LOGGER.info( "Saving a PostComment" );
+            LOGGER.info("Saving a PostComment");
 
             Post post = entityManager.getReference(Post.class, 1L);
 
             PostComment comment = new PostComment();
-            comment.setId( 1L );
-            comment.setPost( post );
-            comment.setReview( "A must read!" );
-            entityManager.persist( comment );
+            comment.setId(1L);
+            comment.setPost(post);
+            comment.setReview("A must read!");
+            entityManager.persist(comment);
         });
 
         doInJPA(entityManager -> {
-            LOGGER.info( "Loading a PostComment" );
+            LOGGER.info("Loading a PostComment");
 
             PostComment comment = entityManager.find(
-                PostComment.class,
-                1L
+                    PostComment.class,
+                    1L
             );
 
-            LOGGER.info( "Loading the Post Proxy" );
+            LOGGER.info("Loading the Post Proxy");
 
             assertEquals(
-                "High-Performance Java Persistence",
-                comment.getPost().getTitle()
+                    "High-Performance Java Persistence",
+                    comment.getPost().getTitle()
             );
         });
 
         doInJPA(entityManager -> {
-            LOGGER.info( "Equality check" );
+            LOGGER.info("Equality check");
             Post post = entityManager.getReference(Post.class, 1L);
-            LOGGER.info( "Post entity class: {}", post.getClass().getName() );
+            LOGGER.info("Post entity class: {}", post.getClass().getName());
 
             assertFalse(_post.equals(post));
 
-            assertTrue(_post.equals( Hibernate.unproxy( post)));
+            assertTrue(_post.equals(Hibernate.unproxy(post)));
         });
     }
 
@@ -107,7 +96,8 @@ public class HibernateProxyTest extends AbstractTest {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof Post)) return false;
-            return id != null && id.equals(((Post) o).getId());
+            //Intentionally uses field to prove how Proxy works
+            return id != null && id.equals(((Post) o).id);
         }
 
         @Override
