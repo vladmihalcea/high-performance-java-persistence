@@ -55,7 +55,8 @@ public interface ExceptionUtil {
 				failureMessage.contains( "timeout" ) ||
 				failureMessage.contains( "timed out" ) ||
 				failureMessage.contains( "time out" ) ||
-				failureMessage.contains( "closed connection" )
+				failureMessage.contains( "closed connection" ) ||
+				failureMessage.contains( "link failure" )
 			) {
 				return true;
 			} else {
