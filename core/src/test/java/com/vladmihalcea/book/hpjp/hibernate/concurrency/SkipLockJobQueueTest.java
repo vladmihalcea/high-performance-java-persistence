@@ -195,9 +195,6 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
         @Enumerated
         private PostStatus status;
 
-        @Version
-        private int version;
-
         public Long getId() {
             return id;
         }
