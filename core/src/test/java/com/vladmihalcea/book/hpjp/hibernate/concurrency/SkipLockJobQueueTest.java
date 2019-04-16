@@ -15,7 +15,6 @@ import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-
 /**
  * @author Vlad Mihalcea
  */
@@ -46,62 +45,79 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
     @Test
     public void testLockContention() {
         LOGGER.info("Test lock contention");
-        doInJPA(entityManager -> {
-            List<Post> pendingPosts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.status = :status " +
-                "order by p.id",
-                Post.class)
-            .setParameter("status", PostStatus.PENDING)
-            .setFirstResult(0)
-            .setMaxResults(2)
-            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-            .setHint("javax.persistence.lock.timeout", 0)
-            .getResultList();
 
-            assertEquals(2, pendingPosts.size());
+        final int postCount = 2;
+
+        doInJPA(entityManager -> {
+            assertEquals(
+                    postCount,
+                    getAndLockPosts(
+                        entityManager,
+                        PostStatus.PENDING,
+                        postCount
+                    ).size()
+            );
 
             try {
                 executeSync(() -> {
                     doInJPA(_entityManager -> {
-                        List<Post> _pendingPosts = _entityManager.createQuery(
-                            "select p " +
-                            "from Post p " +
-                            "where p.status = :status " +
-                            "order by p.id", Post.class)
-                        .setParameter("status", PostStatus.PENDING)
-                        .setFirstResult(0)
-                        .setMaxResults(2)
-                        .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-                        .setHint("javax.persistence.lock.timeout", 0)
-                        .getResultList();
+                        assertEquals(
+                            postCount,
+                            getAndLockPosts(
+                                _entityManager,
+                                PostStatus.PENDING,
+                                postCount
+                            ).size()
+                        );
                     });
                 });
             } catch (Exception e) {
-                assertEquals(1, Arrays.asList(ExceptionUtils.getThrowables(e))
-                    .stream()
+                assertEquals(
+                    1,
+                    Arrays.stream(ExceptionUtils.getThrowables(e))
                     .map(Throwable::getClass)
                     .filter(clazz -> clazz.equals(PessimisticLockException.class))
-                    .count());
+                    .count()
+                );
             }
         });
+    }
+
+    public List<Post> getAndLockPosts(
+                EntityManager entityManager,
+                PostStatus status,
+                int postCount) {
+        return entityManager.createQuery(
+            "select p " +
+            "from Post p " +
+            "where p.status = :status " +
+            "order by p.id", Post.class)
+        .setParameter("status", status)
+        .setMaxResults(postCount)
+        .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+        .setHint(
+            "javax.persistence.lock.timeout",
+            LockOptions.NO_WAIT
+        )
+        .getResultList();
     }
 
     @Test
     public void testSkipLocked() {
         LOGGER.info("Test lock contention");
+
+        final int postCount = 2;
+
         doInJPA(entityManager -> {
-            final int lockCount = 2;
-            LOGGER.debug("Alice wants to moderate {} Post(s)", lockCount);
-            List<Post> pendingPosts = pendingPosts(entityManager, lockCount);
+            LOGGER.debug("Alice wants to moderate {} Post(s)", postCount);
+            List<Post> pendingPosts = getAndLockPostsWithSkipLocked(entityManager, PostStatus.PENDING, postCount);
             List<Long> ids = pendingPosts.stream().map(Post::getId).collect(toList());
             assertTrue(ids.size() == 2 && ids.contains(0L) && ids.contains(1L));
 
             executeSync(() -> {
                 doInJPA(_entityManager -> {
-                    LOGGER.debug("Bob wants to moderate {} Post(s)", lockCount);
-                    List<Post> _pendingPosts = pendingPosts(_entityManager, lockCount);
+                    LOGGER.debug("Bob wants to moderate {} Post(s)", postCount);
+                    List<Post> _pendingPosts = getAndLockPostsWithSkipLocked(_entityManager, PostStatus.PENDING, postCount);
                     List<Long> _ids = _pendingPosts.stream().map(Post::getId).collect(toList());
                     assertTrue(_ids.size() == 2 && _ids.contains(2L) && _ids.contains(3L));
                 });
@@ -113,12 +129,12 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
     public void testAliceLocksAll() {
         LOGGER.info("Test lock contention");
         doInJPA(entityManager -> {
-            List<Post> pendingPosts = pendingPosts(entityManager, 10);
+            List<Post> pendingPosts = getAndLockPostsWithSkipLocked(entityManager, PostStatus.PENDING, 10);
             assertTrue(pendingPosts.size() == 10);
 
             executeSync(() -> {
                 doInJPA(_entityManager -> {
-                    List<Post> _pendingPosts = pendingPosts(_entityManager, 2);
+                    List<Post> _pendingPosts = getAndLockPostsWithSkipLocked(_entityManager, PostStatus.PENDING, 2);
                     assertTrue(_pendingPosts.size() == 0);
                 });
             });
@@ -129,17 +145,33 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
     public void testSkipLockedMaxCountLessThanLockCount() {
         LOGGER.info("Test lock contention");
         doInJPA(entityManager -> {
-            List<Post> pendingPosts = pendingPosts(entityManager, 11);
+            List<Post> pendingPosts = getAndLockPostsWithSkipLocked(entityManager, PostStatus.PENDING, 11);
             assertEquals(10, pendingPosts.size());
         });
     }
 
-    public List<Post> pendingPosts(EntityManager entityManager, int lockCount) {
-        return pendingPosts(entityManager, lockCount, lockCount, null);
+    public List<Post> getAndLockPostsWithSkipLocked(
+                EntityManager entityManager,
+                PostStatus status,
+                int postCount) {
+        return entityManager
+        .createQuery(
+            "select p " +
+            "from Post p " +
+            "where p.status = :status " +
+            "order by p.id", Post.class)
+        .setParameter("status", status)
+        .setMaxResults(postCount)
+        .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+        .setHint("javax.persistence.lock.timeout", LockOptions.SKIP_LOCKED)
+        .getResultList();
     }
 
-    private List<Post> pendingPosts(EntityManager entityManager, int lockCount,
-                                   int maxResults, Integer maxCount) {
+    private List<Post> getAndLockPostsWithSkipLockedOracle(
+            EntityManager entityManager,
+            int lockCount,
+            int maxResults,
+            Integer maxCount) {
         LOGGER.debug("Attempting to lock {} Post(s) entities", maxResults);
         List<Post> posts= entityManager.createQuery(
             "select p " +
@@ -164,7 +196,7 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
             }
             if(maxResults < maxCount || maxResults == lockCount) {
                 maxResults += lockCount;
-                return pendingPosts(entityManager, lockCount, maxResults, maxCount);
+                return getAndLockPostsWithSkipLockedOracle(entityManager, lockCount, maxResults, maxCount);
             }
         }
         LOGGER.debug("{} Post(s) entities have been locked", posts.size());
