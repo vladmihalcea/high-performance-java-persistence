@@ -27,6 +27,8 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
 
     private boolean useLegacyDatetimeCode = true;
 
+    private boolean useCursorFetch = false;
+
     public boolean isRewriteBatchedStatements() {
         return rewriteBatchedStatements;
     }
@@ -75,6 +77,14 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
         this.useLegacyDatetimeCode = useLegacyDatetimeCode;
     }
 
+    public boolean isUseCursorFetch() {
+        return useCursorFetch;
+    }
+
+    public void setUseCursorFetch(boolean useCursorFetch) {
+        this.useCursorFetch = useCursorFetch;
+    }
+
     @Override
     public String hibernateDialect() {
         return "org.hibernate.dialect.MySQL8Dialect";
@@ -87,6 +97,10 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
             "rewriteBatchedStatements=" + rewriteBatchedStatements +
             "&cachePrepStmts=" + cachePrepStmts +
             "&useServerPrepStmts=" + useServerPrepStmts;
+
+        if(useCursorFetch) {
+            url += "&useCursorFetch=true";
+        }
 
         if(!MySQL8Dialect.class.isAssignableFrom(ReflectionUtils.getClass(hibernateDialect()))) {
             url += "&useTimezone=" + useTimezone +
@@ -141,6 +155,7 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
                 ", useTimezone=" + useTimezone +
                 ", useJDBCCompliantTimezoneShift=" + useJDBCCompliantTimezoneShift +
                 ", useLegacyDatetimeCode=" + useLegacyDatetimeCode +
+                ", useCursorFetch=" + useCursorFetch +
                 '}';
     }
 
