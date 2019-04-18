@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.envers;
 import java.util.Properties;
 
 import org.hibernate.envers.configuration.EnversSettings;
-import org.hibernate.envers.strategy.ValidityAuditStrategy;
+import org.hibernate.envers.strategy.internal.ValidityAuditStrategy;
 
 /**
  * @author Vlad Mihalcea
