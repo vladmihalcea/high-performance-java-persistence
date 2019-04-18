@@ -38,27 +38,6 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
         assertTrue(tuples.contains(entity));
 
         doInJPA(entityManager -> {
-            T entityProxy = entityManager.getReference(
-                    clazz,
-                    entity.getId()
-            );
-            assertTrue(
-                    "The entity proxy is not equal with the entity.",
-                    entityProxy.equals(entity)
-            );
-        });
-
-        doInJPA(entityManager -> {
-            T entityProxy = entityManager.getReference(
-                    clazz,
-                    entity.getId()
-            );
-            assertTrue(
-                    "The entity is not equal with the entity proxy.",
-                    entity.equals(entityProxy));
-        });
-
-        doInJPA(entityManager -> {
             T _entity = entityManager.merge(entity);
             assertTrue(
                     "The entity is not found in the Set after it's merged.",
@@ -97,6 +76,27 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
             );
             entityManager.remove(_entity);
             return _entity;
+        });
+
+        doInJPA(entityManager -> {
+            T entityProxy = entityManager.getReference(
+                    clazz,
+                    entity.getId()
+            );
+            assertTrue(
+                    "The entity proxy is not equal with the entity.",
+                    entityProxy.equals(entity)
+            );
+        });
+
+        doInJPA(entityManager -> {
+            T entityProxy = entityManager.getReference(
+                    clazz,
+                    entity.getId()
+            );
+            assertTrue(
+                    "The entity is not equal with the entity proxy.",
+                    entity.equals(entityProxy));
         });
 
         assertTrue(
