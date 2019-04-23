@@ -10,6 +10,7 @@ import org.hibernate.annotations.NamedNativeQuery;
 import org.hibernate.dialect.Oracle12cDialect;
 import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.procedure.ProcedureCall;
+import org.hibernate.procedure.ProcedureOutputs;
 import org.hibernate.result.Output;
 import org.hibernate.result.ResultSetOutput;
 import org.hibernate.type.StandardBasicTypes;
@@ -143,9 +144,14 @@ public class OracleStoredProcedureTest extends AbstractOracleIntegrationTest {
                 .registerStoredProcedureParameter(2, Long.class, ParameterMode.OUT)
                 .setParameter(1, 1L);
 
-            query.execute();
-            Long commentCount = (Long) query.getOutputParameterValue(2);
-            assertEquals(Long.valueOf(2), commentCount);
+            try {
+                query.execute();
+
+                Long commentCount = (Long) query.getOutputParameterValue(2);
+                assertEquals(Long.valueOf(2), commentCount);
+            } finally {
+                query.unwrap(ProcedureOutputs.class).release();
+            }
         });
     }
 
@@ -158,9 +164,14 @@ public class OracleStoredProcedureTest extends AbstractOracleIntegrationTest {
                 .registerStoredProcedureParameter(2, Class.class, ParameterMode.REF_CURSOR)
                 .setParameter(1, 1L);
 
-            query.execute();
-            List<Object[]> postComments = query.getResultList();
-            assertEquals(2, postComments.size());
+            try {
+                query.execute();
+
+                List<Object[]> postComments = query.getResultList();
+                assertEquals(2, postComments.size());
+            } finally {
+                query.unwrap(ProcedureOutputs.class).release();
+            }
         });
     }
 
@@ -172,10 +183,16 @@ public class OracleStoredProcedureTest extends AbstractOracleIntegrationTest {
             call.registerParameter(1, Long.class, ParameterMode.IN).bindValue(1L);
             call.registerParameter(2, Class.class, ParameterMode.REF_CURSOR);
 
-            Output output = call.getOutputs().getCurrent();
-            if (output.isResultSet()) {
-                List<Object[]> postComments = ((ResultSetOutput) output).getResultList();
-                assertEquals(2, postComments.size());
+            ProcedureOutputs outputs = call.getOutputs();
+            try {
+                Output output = outputs.getCurrent();
+
+                if (output.isResultSet()) {
+                    List<Object[]> postComments = ((ResultSetOutput) output).getResultList();
+                    assertEquals(2, postComments.size());
+                }
+            } finally {
+                outputs.release();
             }
         });
     }
@@ -187,6 +204,7 @@ public class OracleStoredProcedureTest extends AbstractOracleIntegrationTest {
                 .createNativeQuery("SELECT fn_count_comments(:postId) FROM DUAL")
                 .setParameter("postId", 1L)
                 .getSingleResult();
+
             assertEquals(BigDecimal.valueOf(2), commentCount);
         });
     }
@@ -198,6 +216,7 @@ public class OracleStoredProcedureTest extends AbstractOracleIntegrationTest {
                 .createQuery("select fn_count_comments(:postId) from Post where id = :postId")
                 .setParameter("postId", 1L)
                 .getSingleResult();
+
             assertEquals(Integer.valueOf(2), commentCount);
         });
     }
