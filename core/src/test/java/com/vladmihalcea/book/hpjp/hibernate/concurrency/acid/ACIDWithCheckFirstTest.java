@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.concurrency;
+package com.vladmihalcea.book.hpjp.hibernate.concurrency.acid;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class ACIDWithCheckTest extends AbstractTest {
+public class ACIDWithCheckFirstTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -90,8 +90,8 @@ public class ACIDWithCheckTest extends AbstractTest {
 
         parallelExecution();
 
-        assertEquals(0L, getBalance("Alice-123"));
-        assertEquals(10L, getBalance("Bob-456"));
+        LOGGER.info("Alice's balance {}", getBalance("Alice-123"));
+        LOGGER.info("Bob's balance {}", getBalance("Bob-456"));
     }
 
     public void parallelExecution() {
@@ -117,9 +117,9 @@ public class ACIDWithCheckTest extends AbstractTest {
         Long fromBalance = getBalance(fromIban);
 
         if(fromBalance >= transferCents) {
-            addBalance(fromIban, (-1) * transferCents);
-
             addBalance(toIban, transferCents);
+
+            addBalance(fromIban, (-1) * transferCents);
         }
     }
 

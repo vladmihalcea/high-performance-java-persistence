@@ -1,17 +1,15 @@
-package com.vladmihalcea.book.hpjp.hibernate.concurrency;
+package com.vladmihalcea.book.hpjp.hibernate.concurrency.acid;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
 import org.junit.Test;
-import org.postgresql.ds.PGSimpleDataSource;
 
-import javax.persistence.*;
-import javax.sql.DataSource;
-
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertEquals;
@@ -19,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class NoACIDTest extends AbstractTest {
+public class ACIDWithPositiveBalanceCheckFirstOperationTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -35,6 +33,16 @@ public class NoACIDTest extends AbstractTest {
 
     @Override
     protected void afterInit() {
+        doInJDBC(connection -> {
+            try(Statement st = connection.createStatement()) {
+                st.executeUpdate(
+                    "ALTER TABLE account " +
+                    "ADD CONSTRAINT account_balance_check " +
+                    "CHECK (balance >= 0)"
+                );
+            }
+        });
+
         doInJPA(entityManager -> {
             Account from = new Account();
             from.setIban("Alice-123");
@@ -50,6 +58,59 @@ public class NoACIDTest extends AbstractTest {
 
             entityManager.persist(to);
         });
+    }
+
+    @Test
+    public void testSerialExecution() {
+        assertEquals(10L, getBalance("Alice-123"));
+        assertEquals(0L, getBalance("Bob-456"));
+
+        transfer("Alice-123", "Bob-456", 5L);
+
+        assertEquals(5L, getBalance("Alice-123"));
+        assertEquals(5L, getBalance("Bob-456"));
+
+        transfer("Alice-123", "Bob-456", 5L);
+
+        assertEquals(0L, getBalance("Alice-123"));
+        assertEquals(10L, getBalance("Bob-456"));
+
+        transfer("Alice-123", "Bob-456", 5L);
+
+        assertEquals(0L, getBalance("Alice-123"));
+        assertEquals(10L, getBalance("Bob-456"));
+    }
+
+    int threadCount = 16;
+
+    @Test
+    public void testParallelExecution() {
+        assertEquals(10L, getBalance("Alice-123"));
+        assertEquals(0L, getBalance("Bob-456"));
+
+        parallelExecution();
+
+        LOGGER.info("Alice's balance {}", getBalance("Alice-123"));
+        LOGGER.info("Bob's balance {}", getBalance("Bob-456"));
+    }
+
+    public void parallelExecution() {
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch endLatch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            new Thread(() -> {
+                awaitOnLatch(startLatch);
+                try {
+                    transfer("Alice-123", "Bob-456", 5L);
+                } finally {
+                    endLatch.countDown();
+                }
+            }).start();
+        }
+
+        startLatch.countDown();
+        awaitOnLatch(endLatch);
     }
 
     public void transfer(String fromIban, String toIban, Long transferCents) {
@@ -94,58 +155,6 @@ public class NoACIDTest extends AbstractTest {
         });
     }
 
-    @Test
-    public void testSerialExecution() {
-        assertEquals(10L, getBalance("Alice-123"));
-        assertEquals(0L, getBalance("Bob-456"));
-
-        transfer("Alice-123", "Bob-456", 5L);
-
-        assertEquals(5L, getBalance("Alice-123"));
-        assertEquals(5L, getBalance("Bob-456"));
-
-        transfer("Alice-123", "Bob-456", 5L);
-
-        assertEquals(0L, getBalance("Alice-123"));
-        assertEquals(10L, getBalance("Bob-456"));
-
-        transfer("Alice-123", "Bob-456", 5L);
-
-        assertEquals(0L, getBalance("Alice-123"));
-        assertEquals(10L, getBalance("Bob-456"));
-    }
-
-    @Test
-    public void testParallelExecution() {
-        assertEquals(10L, getBalance("Alice-123"));
-        assertEquals(0L, getBalance("Bob-456"));
-
-        parallelExecution();
-
-        LOGGER.info("Alice's balance {}", getBalance("Alice-123"));
-        LOGGER.info("Bob's balance {}", getBalance("Bob-456"));
-    }
-
-    int threadCount = 4;
-
-    public void parallelExecution() {
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch endLatch = new CountDownLatch(threadCount);
-
-        for (int i = 0; i < threadCount; i++) {
-            new Thread(() -> {
-                awaitOnLatch(startLatch);
-
-                transfer("Alice-123", "Bob-456", 5L);
-
-                endLatch.countDown();
-            }).start();
-        }
-        LOGGER.info("Starting threads");
-        startLatch.countDown();
-        awaitOnLatch(endLatch);
-    }
-
     @Entity(name = "Account")
     @Table(name = "account")
     public static class Account {
@@ -155,7 +164,7 @@ public class NoACIDTest extends AbstractTest {
 
         private String owner;
 
-        private long balance;
+        private volatile long balance;
 
         public String getIban() {
             return iban;
