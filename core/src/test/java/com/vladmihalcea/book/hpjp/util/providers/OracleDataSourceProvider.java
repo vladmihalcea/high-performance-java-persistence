@@ -1,13 +1,11 @@
 package com.vladmihalcea.book.hpjp.util.providers;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import javax.sql.DataSource;
-
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.queries.OracleQueries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
+
+import javax.sql.DataSource;
+import java.util.Properties;
 
 /**
  * @author Vlad Mihalcea
@@ -15,7 +13,7 @@ import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
 public class OracleDataSourceProvider implements DataSourceProvider {
 	@Override
 	public String hibernateDialect() {
-		return "org.hibernate.dialect.Oracle10gDialect";
+		return Oracle12CustomDialect.class.getName();
 	}
 
 	@Override
@@ -78,4 +76,5 @@ public class OracleDataSourceProvider implements DataSourceProvider {
 	public Queries queries() {
 		return OracleQueries.INSTANCE;
 	}
+
 }

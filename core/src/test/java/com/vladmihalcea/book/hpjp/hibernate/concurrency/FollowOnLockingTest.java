@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Oracle12CustomDialect;
 import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
 
 import org.hibernate.LockMode;
@@ -133,7 +134,7 @@ public class FollowOnLockingTest extends AbstractOracleIntegrationTest {
         };
     }
 
-    public static class OracleDialect extends Oracle10gDialect {
+    public static class OracleDialect extends Oracle12CustomDialect {
 
         @Override
         public boolean useFollowOnLocking() {

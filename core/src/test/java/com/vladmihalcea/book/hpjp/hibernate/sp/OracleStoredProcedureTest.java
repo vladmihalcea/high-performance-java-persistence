@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.sp;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.Oracle12CustomDialect;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
@@ -330,7 +331,7 @@ public class OracleStoredProcedureTest extends AbstractOracleIntegrationTest {
         @Id private Long id;
     }
 
-    public static class OracleDialect extends Oracle12cDialect {
+    public static class OracleDialect extends Oracle12CustomDialect {
 
         @Override
         protected void registerFunctions() {

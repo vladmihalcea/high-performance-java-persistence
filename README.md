@@ -70,6 +70,8 @@ The Integration Tests require some external configurations:
     Set the sys password to admin
 
     Connect to Oracle using the "sys as sysdba" user and create a new user:
+    
+        alter session set "_ORACLE_SCRIPT"=true;
 
         create user oracle identified by admin default tablespace users;
 
