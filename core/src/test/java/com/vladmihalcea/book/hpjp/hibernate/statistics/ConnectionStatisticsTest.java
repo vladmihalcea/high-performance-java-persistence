@@ -2,9 +2,11 @@ package com.vladmihalcea.book.hpjp.hibernate.statistics;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
+import org.hibernate.Session;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl;
 import org.hibernate.resource.jdbc.spi.PhysicalConnectionHandlingMode;
+import org.hibernate.stat.Statistics;
 import org.hibernate.stat.internal.StatisticsInitiator;
 import org.junit.Test;
 
@@ -16,6 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.Post;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -122,5 +125,15 @@ public class ConnectionStatisticsTest extends AbstractTest {
                 }
             });
         }
+    }
+
+    @Test
+    public void testStatistics() {
+        doInJPA(entityManager -> {
+            Session session = entityManager.unwrap(Session.class);
+
+            Statistics statistics = session.getSessionFactory().getStatistics();
+            assertTrue(statistics instanceof TransactionStatistics);
+        });
     }
 }

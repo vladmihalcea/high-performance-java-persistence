@@ -26,7 +26,7 @@ public class JmxTest extends AbstractTest {
     @Override
     protected void additionalProperties(Properties properties) {
         properties.put(AvailableSettings.GENERATE_STATISTICS, Boolean.TRUE.toString());
-        properties.put(AvailableSettings.JMX_ENABLED, Boolean.TRUE.toString());
+        properties.put("hibernate.jmx.enabled", Boolean.TRUE.toString());
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
         properties.put("hibernate.cache.region.factory_class", "ehcache");
     }
