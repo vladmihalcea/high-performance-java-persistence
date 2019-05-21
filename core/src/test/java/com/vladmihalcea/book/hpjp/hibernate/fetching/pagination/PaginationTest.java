@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.LongStream;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -165,16 +166,20 @@ public class PaginationTest extends AbstractTest {
     public void testFetchAndPaginate() {
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery(
-                    "select p " +
-                            "from Post p " +
-                            "left join fetch p.comments " +
-                            "where p.title like :titlePattern " +
-                            "order by p.createdOn", Post.class)
-                    .setParameter("titlePattern", "High-Performance Java Persistence %")
-                    .setMaxResults(5)
-                    .getResultList();
+                "select p " +
+                "from Post p " +
+                "left join fetch p.comments " +
+                "where p.title like :titlePattern " +
+                "order by p.createdOn", Post.class)
+            .setParameter("titlePattern", "High-Performance Java Persistence %")
+            .setMaxResults(5)
+            .getResultList();
 
             assertEquals(5, posts.size());
+            assertArrayEquals(
+                LongStream.rangeClosed(1, 5).toArray(),
+                posts.stream().mapToLong(Post::getId).toArray()
+            );
         });
     }
 

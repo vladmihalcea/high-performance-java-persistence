@@ -66,9 +66,9 @@ public class CriteriaAPITest extends AbstractPostgreSQLIntegrationTest {
         doInJPA(entityManager -> {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
             CriteriaQuery<PostComment> criteria = builder.createQuery(PostComment.class);
-            Root<PostComment> fromPost = criteria.from(PostComment.class);
+            Root<PostComment> fromPostComment = criteria.from(PostComment.class);
 
-            Join<PostComment, Post> postJoin = fromPost.join("post");
+            Join<PostComment, Post> postJoin = fromPostComment.join("post");
 
             criteria.where(builder.like(postJoin.get(Post_.title), "high-performance%"));
             List<PostComment> comments = entityManager.createQuery(criteria).getResultList();
