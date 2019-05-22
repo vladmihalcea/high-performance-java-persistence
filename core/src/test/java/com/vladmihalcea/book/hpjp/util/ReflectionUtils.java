@@ -11,7 +11,6 @@ import java.lang.reflect.Method;
  * <code>ReflectionUtils</code> - Reflection utilities holder.
  *
  * @author Vlad Mihalcea
- * @since 1.0
  */
 public final class ReflectionUtils {
 
@@ -55,6 +54,18 @@ public final class ReflectionUtils {
         } catch (ClassNotFoundException e) {
             throw handleException(className, e);
         }
+    }
+
+    /**
+     * Get class package name.
+     *
+     * @param className Class name.
+     * @return class package name
+     */
+    public static String getClassPackageName(String className) {
+        Package classPackage = getClass(className).getPackage();
+
+        return classPackage != null ? classPackage.getName() : null;
     }
 
     /**

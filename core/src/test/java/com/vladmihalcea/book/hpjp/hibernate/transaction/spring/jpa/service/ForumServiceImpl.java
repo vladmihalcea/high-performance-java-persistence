@@ -6,7 +6,6 @@ import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao.TagDAO;
 import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
@@ -65,7 +62,6 @@ public class ForumServiceImpl implements ForumService {
         Post post = postDAO.findById(id);
 
         org.hibernate.engine.spi.PersistenceContext persistenceContext = getHibernatePersistenceContext();
-
 
         EntityEntry entityEntry = persistenceContext.getEntry(post);
         assertNotNull(entityEntry.getLoadedState());
