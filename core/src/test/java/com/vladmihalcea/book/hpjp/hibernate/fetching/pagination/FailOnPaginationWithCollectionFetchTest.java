@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching.pagination;
 
+import com.vladmihalcea.book.hpjp.hibernate.forum.Post_;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
@@ -105,19 +106,19 @@ public class FailOnPaginationWithCollectionFetchTest extends AbstractTest {
                 CriteriaQuery<Post> criteria = builder.createQuery(Post.class);
 
                 Root<Post> post = criteria.from(Post.class);
-                post.fetch(Post_.comments);
+                post.fetch("comments");
 
                 ParameterExpression<String> parameterExpression = builder.parameter(String.class);
 
                 criteria.where(
                     builder.like(
-                        post.get(Post_.title),
+                        post.get("title"),
                         parameterExpression
                     )
                 )
                 .orderBy(
                     builder.asc(
-                        post.get(Post_.createdOn)
+                        post.get("createdOn")
                     )
                 );
 
