@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config;
 
+import com.vladmihalcea.book.hpjp.hibernate.logging.LoggingStatementInspector;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.zaxxer.hikari.HikariConfig;
@@ -109,6 +110,10 @@ public class JPATransactionManagerConfiguration {
         Properties properties = new Properties();
         properties.setProperty("hibernate.dialect", hibernateDialect);
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+        properties.put(
+            "hibernate.session_factory.statement_inspector",
+            new LoggingStatementInspector("com.vladmihalcea.book.hpjp.hibernate.transaction")
+        );
         return properties;
     }
 

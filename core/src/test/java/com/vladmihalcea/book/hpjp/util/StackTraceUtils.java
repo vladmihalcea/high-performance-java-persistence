@@ -21,7 +21,7 @@ public final class StackTraceUtils {
      * @param packageNamePrefix package name to match the {@link StackTraceElement} to be returned
      * @return the {@link StackTraceElement} objects matching the provided package name
      */
-    public static List<StackTraceElement> filter(String packageNamePrefix) {
+    public static List<StackTraceElement> stackTraceElements(String packageNamePrefix) {
         return Arrays.stream(Thread.currentThread().getStackTrace()).filter(
             stackTraceElement -> {
                 String packageName = ReflectionUtils.getClassPackageName(stackTraceElement.getClassName());
@@ -31,5 +31,13 @@ public final class StackTraceUtils {
         ).collect(Collectors.toList());
     }
 
-
+    /**
+     * Build a {@link String} path from the provided list of {@link StackTraceElement} objects.
+     *
+     * @param stackTraceElements list of {@link StackTraceElement} objects
+     * @return {@link String} path
+     */
+    public static String stackTracePath(List<StackTraceElement> stackTraceElements) {
+        return stackTraceElements.stream().map(StackTraceElement::toString).collect(Collectors.joining(" -> "));
+    }
 }
