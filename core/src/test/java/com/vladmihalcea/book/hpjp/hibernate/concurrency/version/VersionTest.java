@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency.version;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.JacksonUtil;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
