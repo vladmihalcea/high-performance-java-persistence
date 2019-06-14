@@ -69,26 +69,6 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
             );
         });
 
-        T deletedEntity = doInJPA(entityManager -> {
-            T _entity = entityManager.getReference(
-                    clazz,
-                    entity.getId()
-            );
-            entityManager.remove(_entity);
-            return _entity;
-        });
-
-        doInJPA(entityManager -> {
-            T entityProxy = entityManager.getReference(
-                    clazz,
-                    entity.getId()
-            );
-            assertTrue(
-                    "The entity proxy is not equal with the entity.",
-                    entityProxy.equals(entity)
-            );
-        });
-
         doInJPA(entityManager -> {
             T entityProxy = entityManager.getReference(
                     clazz,
@@ -97,6 +77,15 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
             assertTrue(
                     "The entity is not equal with the entity proxy.",
                     entity.equals(entityProxy));
+        });
+
+        T deletedEntity = doInJPA(entityManager -> {
+            T _entity = entityManager.getReference(
+                    clazz,
+                    entity.getId()
+            );
+            entityManager.remove(_entity);
+            return _entity;
         });
 
         assertTrue(
