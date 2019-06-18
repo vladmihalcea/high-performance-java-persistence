@@ -318,8 +318,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
                 preventedByLocking.set(true);
             } else if (ExceptionUtil.isMVCCAnomalyDetection(e)) {
                 preventedByMVCC.set(true);
-            }
-            if (!ExceptionUtil.isConnectionClose(e)) {
+            } else if (!ExceptionUtil.isConnectionClose(e)) {
                 fail(e.getMessage());
             }
         }
