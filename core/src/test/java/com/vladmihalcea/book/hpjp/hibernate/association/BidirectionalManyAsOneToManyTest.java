@@ -52,6 +52,33 @@ public class BidirectionalManyAsOneToManyTest extends AbstractTest {
     }
 
     @Test
+    public void testLifecycle2() {
+        doInJPA(entityManager -> {
+            Post post1 = new Post("JPA with Hibernate");
+            Post post2 = new Post("Native Hibernate");
+
+            Tag tag1 = new Tag("Java");
+            Tag tag2 = new Tag("Hibernate");
+
+            post1.addTag(tag1);
+            post1.addTag(tag2);
+
+            post2.addTag(tag1);
+
+            entityManager.persist(post1);
+            //entityManager.persist(post2);
+
+            //entityManager.persist(tag1);
+            //entityManager.persist(tag2);
+
+            entityManager.flush();
+
+            LOGGER.info("Remove");
+            post1.removeTag(tag1);
+        });
+    }
+
+    @Test
     public void testShuffle() {
         final Long postId = doInJPA(entityManager -> {
             Post post1 = new Post("JPA with Hibernate");
