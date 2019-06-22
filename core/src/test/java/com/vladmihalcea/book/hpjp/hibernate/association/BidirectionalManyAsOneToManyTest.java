@@ -120,8 +120,7 @@ public class BidirectionalManyAsOneToManyTest extends AbstractTest {
         public void removeTag(Tag tag) {
             for (Iterator<PostTag> iterator = tags.iterator(); iterator.hasNext(); ) {
                 PostTag postTag = iterator.next();
-                if (postTag.getPost().equals(this) &&
-                        postTag.getTag().equals(tag)) {
+                if (postTag.getTag().equals(tag)) {
                     iterator.remove();
                     postTag.getTag().getPosts().remove(postTag);
                     postTag.setPost(null);
