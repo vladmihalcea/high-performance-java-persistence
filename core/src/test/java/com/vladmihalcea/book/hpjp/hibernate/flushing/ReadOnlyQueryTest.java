@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.Session;
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.annotations.QueryHints;
 import org.junit.Test;
 
 import javax.persistence.Entity;
@@ -36,9 +36,11 @@ public class ReadOnlyQueryTest extends AbstractTest {
     @Test
     public void testReadOnly() {
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p from Post p", Post.class)
-            .setHint(QueryHints.HINT_READONLY, true)
+            List<Post> posts = entityManager
+            .createQuery(
+                "select p " +
+                "from Post p", Post.class)
+            .setHint(QueryHints.READ_ONLY, true)
             .getResultList();
         });
     }

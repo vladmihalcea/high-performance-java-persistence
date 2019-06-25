@@ -78,17 +78,29 @@ public class EagerFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInte
     }
 
     @Test
-    public void testFindWithNamedEntityGraph() {
-        doInJPA(entityManager -> {
-            PostComment comment = entityManager.find(PostComment.class, 1L,
+    public void testFindWithNamedEntityFetchGraph() {
+        PostComment comment = doInJPA(entityManager -> {
+            return entityManager.find(PostComment.class, 1L,
                 Collections.singletonMap(
                     "javax.persistence.fetchgraph",
                     entityManager.getEntityGraph("PostComment.post")
                 )
             );
-            LOGGER.info("Fetch entity graph");
-            assertNotNull(comment);
         });
+        assertNotNull(comment.getPost());
+    }
+
+    @Test
+    public void testFindWithNamedEntityLoadGraph() {
+        PostComment comment = doInJPA(entityManager -> {
+            return entityManager.find(PostComment.class, 1L,
+                Collections.singletonMap(
+                    "javax.persistence.loadgraph",
+                    entityManager.getEntityGraph("PostComment.post")
+                )
+            );
+        });
+        assertNotNull(comment.getPost());
     }
 
     @Test

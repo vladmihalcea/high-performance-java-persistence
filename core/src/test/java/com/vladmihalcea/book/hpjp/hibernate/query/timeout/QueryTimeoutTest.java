@@ -36,6 +36,71 @@ public class QueryTimeoutTest extends AbstractTest {
     }
 
     @Test
+    public void testJPQLTimeoutHint() {
+
+
+        doInJPA(entityManager -> {
+            for (int i = 0; i < 5; i++) {
+                entityManager.persist(
+                    new Post().setTitle(String.format("Hibernate User Guide, Chapter %d", i + 1))
+                );
+            }
+
+            for (int i = 0; i < 5; i++) {
+                entityManager.persist(
+                    new Post().setTitle(String.format("%d Hibernate Tips", (i + 1) * 5))
+                );
+            }
+
+            for (int i = 0; i < 5; i++) {
+                entityManager.persist(
+                        new Post().setTitle(String.format("%d Tips to master Hibernate", (i + 1) * 10))
+                );
+            }
+        });
+
+        doInJPA(entityManager -> {
+            List<Post> posts = entityManager
+            .createQuery(
+                "select p " +
+                "from Post p " +
+                "where lower(p.title) like lower(:titlePattern)", Post.class)
+            .setParameter("titlePattern", "%Hibernate%")
+            .setHint("javax.persistence.query.timeout", 50)
+            .getResultList();
+
+            assertEquals(15, posts.size());
+        });
+
+        doInJPA(entityManager -> {
+            List<Post> posts = entityManager
+            .createQuery(
+                "select p " +
+                "from Post p " +
+                "where lower(p.title) like lower(:titlePattern)", Post.class)
+            .setParameter("titlePattern", "%Hibernate%")
+            .setHint("org.hibernate.timeout", 1)
+            .getResultList();
+
+            assertEquals(15, posts.size());
+        });
+
+        doInJPA(entityManager -> {
+            List<Post> posts = entityManager
+            .createQuery(
+                "select p " +
+                "from Post p " +
+                "where lower(p.title) like lower(:titlePattern)", Post.class)
+            .setParameter("titlePattern", "%Hibernate%")
+            .unwrap(org.hibernate.query.Query.class)
+            .setTimeout(1)
+            .getResultList();
+
+            assertEquals(15, posts.size());
+        });
+    }
+
+    @Test
     public void testJPATimeout() {
         doInJPA(entityManager -> {
             try {
@@ -78,30 +143,22 @@ public class QueryTimeoutTest extends AbstractTest {
     public static class Post {
 
         @Id
+        @GeneratedValue
         private Integer id;
 
         private String title;
 
-        public Post() {}
-
-        public Post(String title) {
-            this.title = title;
-        }
-
         public Integer getId() {
             return id;
-        }
-
-        public void setId(Integer id) {
-            this.id = id;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
     }
 }
