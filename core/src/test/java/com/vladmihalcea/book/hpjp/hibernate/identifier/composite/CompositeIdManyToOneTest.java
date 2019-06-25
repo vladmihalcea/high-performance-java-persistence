@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
@@ -36,6 +37,7 @@ public class CompositeIdManyToOneTest extends AbstractMySQLIntegrationTest {
             employee.setName("Vlad Mihalcea");
             entityManager.persist(employee);
         });
+
         doInJPA(entityManager -> {
             Employee employee = entityManager.find(Employee.class, new EmployeeId(1L, 100L));
             Phone phone = new Phone();
@@ -43,12 +45,24 @@ public class CompositeIdManyToOneTest extends AbstractMySQLIntegrationTest {
             phone.setNumber("012-345-6789");
             entityManager.persist(phone);
         });
+
         doInJPA(entityManager -> {
             Phone phone = entityManager.find(Phone.class, "012-345-6789");
             assertNotNull(phone);
             assertEquals(new EmployeeId(1L, 100L), phone.getEmployee().getId());
         });
 
+        doInJPA(entityManager -> {
+            List<Employee> employees = entityManager
+            .createQuery(
+                "select e " +
+                "from Employee e " +
+                "where e.id.companyId = :companyId")
+            .setParameter("companyId", 1L)
+            .getResultList();
+
+            assertEquals(new EmployeeId(1L, 100L), employees.get(0).getId());
+        });
     }
 
     @Entity(name = "Company")
