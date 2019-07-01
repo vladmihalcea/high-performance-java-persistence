@@ -56,10 +56,6 @@ public class BaseClassIdentifierMySQLTest extends AbstractMySQLIntegrationTest {
 
             entityManager.persist(post);
         });
-
-        doInJPA(entityManager -> {
-
-        });
     }
 
     @MappedSuperclass
