@@ -42,9 +42,11 @@ However, on Eclipse it has been reported that you need to consider the following
 
 1. Eclipse does not automatically treat the generated sources by jpamodelgen as source folders. You need to add a dependency on `hibernate-jpamodelgen` and use the `build-helper-maven-plugin` to source the folders with the generated sources.
 2. Secondly, the Maven eclipse plugin e2m seems to have an issue with some plugin configurations. Make sure you configure e2m to ignore the false positives issues (the project runs justs fine from a Maven command line).
-3. There’s an issue with Eclipse (or probably more specific ecj) to infer the types of parameters in case of method overloading with the methods `doInJpa`, `doInHibernate`, `doInJdbc`. 
+3. There’s an issue with Eclipse (or probably more specific ecj) to infer the types of parameters in case of method overloading with the methods `doInJPA`, `doInHibernate`, `doInJDBC`.
 Until [this Eclipse issue](https://bugs.eclipse.org/bugs/show_bug.cgi?id=434642) is fixed, you need to use the Oracle JDK to compile the project.
-If you can't change that, you need to rename those overloaded functions as explained by Urs Joss in [this specific commit](https://github.com/ursjoss/high-performance-java-persistence/commit/e975c1bb5c11d9557fcbc3fef88afaf67dc68a25).
+If you can't change that, you need to rename those overloaded functions as explained by Urs Joss in [this specific commit](https://github.com/ursjoss/high-performance-java-persistence/commit/88373dc7c2080d02e2e3965afae961495e7d956b).
+
+Urs applied all those changes in his branch [tb_eclipse](https://github.com/ursjoss/high-performance-java-persistence/tree/tb_eclipse) and tries to keep abreast with the evolution of this repository.
 
 ## Database setup
 
@@ -56,7 +58,7 @@ The Integration Tests require some external configurations:
 
     You should install PostgreSQL 9.5 (or later) and the password for the postgres user should be admin
 
-    Now you need to create a `high_performance_java_persistence` database
+    Now you need to create a `high_performance_java_persistence` database.
     Open pgAdmin III and executed the following query:
     
         CREATE EXTENSION postgis;
