@@ -21,6 +21,26 @@ public class PostgresUUIDTest extends AbstractPostgreSQLIntegrationTest {
                 Event.class
         };
     }
+
+    @Override
+    protected void afterInit() {
+        doInJPA(entityManager -> {
+            entityManager.createNativeQuery(
+                    "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""
+            ).executeUpdate();
+        });
+    }
+
+    @Override
+    public void destroy() {
+        doInJPA(entityManager -> {
+            entityManager.createNativeQuery(
+                    "DROP EXTENSION \"uuid-ossp\" CASCADE"
+            ).executeUpdate();
+        });
+        super.destroy();
+    }
+
     @Test
     public void test() {
         final AtomicReference<Event> eventHolder = new AtomicReference<>();

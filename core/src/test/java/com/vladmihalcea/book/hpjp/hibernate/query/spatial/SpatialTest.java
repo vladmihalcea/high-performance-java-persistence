@@ -87,6 +87,16 @@ public class SpatialTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Override
+    public void destroy() {
+        doInJPA(entityManager -> {
+            entityManager.createNativeQuery(
+                    "DROP EXTENSION postgis CASCADE"
+            ).executeUpdate();
+        });
+        super.destroy();
+    }
+
+    @Override
     protected DataSourceProvider dataSourceProvider() {
         return new PostgreSQLDataSourceProvider() {
             @Override

@@ -48,26 +48,19 @@ If you can't change that, you need to rename those overloaded functions as expla
 
 ## Database setup
 
-The Unit Tests are run against HSQLDB, so no preliminary set-ups are required.
-
 The Integration Tests require some external configurations:
 
 - PostgreSQL
 
-    You should install PostgreSQL 9.5 (or later) and the password for the postgres user should be admin
+    You should install PostgreSQL 9.5 (or later) and the password for the `postgres` user should be `admin`.
 
-    Now you need to create a `high_performance_java_persistence` database
-    Open pgAdmin III and executed the following query:
-    
-        CREATE EXTENSION postgis;
-        CREATE EXTENSION pgcrypto;
-        CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    Now you need to create a `high_performance_java_persistence` database.
     
 - Oracle
 
     You need to download and install Oracle XE
 
-    Set the sys password to admin
+    Set the `sys` password to `admin`
 
     Connect to Oracle using the "sys as sysdba" user and create a new user:
     
@@ -97,17 +90,17 @@ The Integration Tests require some external configurations:
 
 - MySQL
 
-    You should install MySQL 5.6 (or later) and the password for the mysql user should be admin.
+    You should install MySQL 5.6 (or later) and the password for the `mysql` user should be `admin`.
 
     Now you need to create a `high_performance_java_persistence` schema
 
-    Besides having all privileges on this schema, the user mysql also requires select persmission on `mysql.PROC`.
+    Besides having all privileges on this schema, the user mysql also requires select permission on `mysql.PROC`.
 
     Exact instructions can be found in [here](https://github.com/vladmihalcea/high-performance-java-persistence/blob/master/MYSQL.md).
 
 - SQL Server
 
-    You should install SQL Server Express Edition with Tools Chose mixed mode authentication and set the sa user password to adm1n
+    You should install SQL Server Express Edition with Tools. Chose mixed mode authentication and set the `sa` user password to `adm1n`.
 
     Open SQL Server Configuration Manager -> SQL Server Network Configuration and enable Named Pipes and TCP
     
