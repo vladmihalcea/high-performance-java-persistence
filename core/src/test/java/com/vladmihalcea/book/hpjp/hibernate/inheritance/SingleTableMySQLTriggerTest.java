@@ -133,7 +133,14 @@ public class SingleTableMySQLTriggerTest extends AbstractTest {
 
         try {
             doInJPA(entityManager -> {
-                Post post = entityManager.createQuery("select p from Post p", Post.class).getSingleResult();
+                Post post = entityManager
+                .createQuery(
+                    "select p " +
+                    "from Post p " +
+                    "where p.content = :content", Post.class)
+                .setParameter("content", "Best practices")
+                .getSingleResult();
+
                 post.setContent(null);
             });
             fail("content_check should fail");

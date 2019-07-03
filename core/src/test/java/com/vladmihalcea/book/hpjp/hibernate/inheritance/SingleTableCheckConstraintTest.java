@@ -19,7 +19,7 @@ import static org.junit.Assert.fail;
 /**
  * @author Vlad Mihalcea
  */
-public class SingleTablePostgreSQLCheckTest extends AbstractTest {
+public class SingleTableCheckConstraintTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -34,7 +34,9 @@ public class SingleTablePostgreSQLCheckTest extends AbstractTest {
 
     @Override
     protected Database database() {
-        return Database.POSTGRESQL;
+        //return Database.POSTGRESQL;
+        //Since MySQL 8.0.16
+        return Database.MYSQL;
     }
 
     @Test
@@ -43,7 +45,7 @@ public class SingleTablePostgreSQLCheckTest extends AbstractTest {
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try(Statement st = connection.createStatement()) {
                     st.executeUpdate(
-                        "ALTER TABLE Topic " +
+                        "ALTER TABLE topic " +
                         "ADD CONSTRAINT post_content_check CHECK " +
                         "( " +
                         "    CASE " +
@@ -58,7 +60,7 @@ public class SingleTablePostgreSQLCheckTest extends AbstractTest {
                         ")"
                     );
                     st.executeUpdate(
-                        "ALTER TABLE Topic " +
+                        "ALTER TABLE topic " +
                         "ADD CONSTRAINT announcement_validUntil_check CHECK " +
                         "( " +
                         "    CASE " +
