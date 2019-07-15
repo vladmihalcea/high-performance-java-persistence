@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -18,7 +19,6 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
     }
 
     @Test
-    @Ignore
     public void testFlushAutoNativeSQL() {
         doInJPA(entityManager -> {
             assertEquals(
@@ -37,14 +37,16 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
                 .setTitle("High-Performance Java Persistence")
             );
 
-            int postCount = ((Number)
-            entityManager
-            .createNativeQuery(
-                "select count(*) " +
-                "from post")
-            .getSingleResult()).intValue();
-
-            assertEquals(1, postCount);
+            assertEquals(
+                0,
+                ((Number)
+                entityManager
+                .createNativeQuery(
+                    "select count(*) " +
+                    "from post")
+                .getSingleResult()
+                ).intValue()
+            );
         });
     }
 
@@ -67,16 +69,55 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
                 .setTitle("High-Performance Java Persistence")
             );
 
-            int postCount = ((Number)
+            assertEquals(
+                1,
+                ((Number)
+                    entityManager
+                    .createNativeQuery(
+                        "select count(*) " +
+                        "from post"
+                    )
+                    .unwrap(org.hibernate.query.Query.class)
+                    .setHibernateFlushMode(FlushMode.ALWAYS)
+                    .getSingleResult()
+                ).intValue()
+            );
+        });
+    }
+
+    @Test
+    public void testSessionModeAlways() {
+        doInJPA(entityManager -> {
+            assertEquals(
+                0,
+                ((Number)
+                    entityManager
+                    .createNativeQuery(
+                        "select count(*) " +
+                        "from post")
+                    .getSingleResult()
+                ).intValue()
+            );
+
+            entityManager.persist(
+                new Post()
+                .setTitle("High-Performance Java Persistence")
+            );
+
             entityManager
             .unwrap(Session.class)
-            .createNativeQuery(
-                "select count(*) " +
-                "from post")
-            .setFlushMode(FlushMode.ALWAYS)
-            .getSingleResult()).intValue();
+            .setHibernateFlushMode(FlushMode.ALWAYS);
 
-            assertEquals(1, postCount);
+            assertEquals(
+                1,
+                ((Number)
+                    entityManager
+                    .createNativeQuery(
+                        "select count(*) " +
+                        "from post")
+                    .getSingleResult()
+                ).intValue()
+            );
         });
     }
 
