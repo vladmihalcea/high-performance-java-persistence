@@ -2,14 +2,8 @@ package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
-import org.hibernate.annotations.NaturalId;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
@@ -38,9 +32,10 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
                 ).intValue()
             );
 
-            Post post = new Post("High-Performance Java Persistence");
-
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                .setTitle("High-Performance Java Persistence")
+            );
 
             int postCount = ((Number)
             entityManager
@@ -67,9 +62,10 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
                 ).intValue()
             );
 
-            Post post = new Post("High-Performance Java Persistence");
-
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                .setTitle("High-Performance Java Persistence")
+            );
 
             int postCount = ((Number)
             entityManager
@@ -98,9 +94,10 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
                 ).intValue()
             );
 
-            Post post = new Post("High-Performance Java Persistence");
-
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                .setTitle("High-Performance Java Persistence")
+            );
 
             int postCount = ((Number)
             entityManager
@@ -129,9 +126,10 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
                 ).intValue()
             );
 
-            Post post = new Post("High-Performance Java Persistence");
-
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                .setTitle("High-Performance Java Persistence")
+            );
 
             int postCount = ((Number)
             entityManager

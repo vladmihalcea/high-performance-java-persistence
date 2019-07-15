@@ -38,7 +38,6 @@ public class QueryTimeoutTest extends AbstractTest {
     @Test
     public void testJPQLTimeoutHint() {
 
-
         doInJPA(entityManager -> {
             for (int i = 0; i < 5; i++) {
                 entityManager.persist(

@@ -45,9 +45,10 @@ public class JPAAutoFlushTest extends AbstractTest {
                 ).intValue()
             );
 
-            Post post = new Post("High-Performance Java Persistence");
-
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                .setTitle("High-Performance Java Persistence")
+            );
 
             int tagCount = ((Number)
             entityManager
@@ -81,9 +82,10 @@ public class JPAAutoFlushTest extends AbstractTest {
                 ).intValue()
             );
 
-            Post post = new Post("High-Performance Java Persistence");
-
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                .setTitle("High-Performance Java Persistence")
+            );
 
             List<PostDetails> details = entityManager
             .createQuery(
@@ -117,9 +119,10 @@ public class JPAAutoFlushTest extends AbstractTest {
                 ).intValue()
             );
 
-            Post post = new Post("High-Performance Java Persistence");
-
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                .setTitle("High-Performance Java Persistence")
+            );
 
             int tagCount = ((Number)
             entityManager
@@ -164,10 +167,22 @@ public class JPAAutoFlushTest extends AbstractTest {
         )
         private Set<Tag> tags = new HashSet<>();
 
-        public Post() {}
+        public Long getId() {
+            return id;
+        }
 
-        public Post(String title) {
+        public Post setId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
     }
 
