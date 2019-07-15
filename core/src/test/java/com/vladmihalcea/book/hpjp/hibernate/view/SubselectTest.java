@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.view;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import jdk.nashorn.internal.ir.annotations.Immutable;
+import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Subselect;
 import org.junit.Before;
 import org.junit.Test;
