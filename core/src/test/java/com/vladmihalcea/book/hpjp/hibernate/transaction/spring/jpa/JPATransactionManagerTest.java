@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa;
 
+import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Tag;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config.JPATransactionManagerConfiguration;
@@ -89,5 +90,8 @@ public class JPATransactionManagerTest {
 
         Post post = forumService.findById(newPost.getId());
         assertEquals("High-Performance Java Persistence", post.getTitle());
+
+        PostDTO postDTO = forumService.getPostDTOById(newPost.getId());
+        assertEquals("High-Performance Java Persistence", postDTO.getTitle());
     }
 }

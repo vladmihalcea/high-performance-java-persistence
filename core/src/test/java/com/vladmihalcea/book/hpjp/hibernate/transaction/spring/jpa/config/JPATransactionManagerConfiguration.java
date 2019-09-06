@@ -1,6 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config;
 
 import com.vladmihalcea.book.hpjp.hibernate.logging.LoggingStatementInspector;
+import com.vladmihalcea.book.hpjp.hibernate.metadata.MetadataExtractorIntegrator;
+import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa.DTOImportIntegrator;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.zaxxer.hikari.HikariConfig;
@@ -8,6 +10,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -20,6 +23,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.Collections;
 import java.util.Properties;
 
 /**
@@ -113,6 +117,12 @@ public class JPATransactionManagerConfiguration {
         properties.put(
             "hibernate.session_factory.statement_inspector",
             new LoggingStatementInspector("com.vladmihalcea.book.hpjp.hibernate.transaction")
+        );
+        properties.put(
+            "hibernate.integrator_provider",
+                (IntegratorProvider) () -> Collections.singletonList(
+                DTOImportIntegrator.INSTANCE
+            )
         );
         return properties;
     }
