@@ -930,7 +930,12 @@ public abstract class AbstractTest {
                     else if (cacheValue instanceof AbstractReadWriteAccess.Item) {
                         AbstractReadWriteAccess.Item value = (AbstractReadWriteAccess.Item) cacheValue;
 
-                        LOGGER.debug("\nRegion: {},\nStatistics: {},\nEntries: {}", regionName, cacheRegionStatistics, value.getValue());
+                        if (value.getValue() instanceof StandardCacheEntryImpl) {
+                            StandardCacheEntryImpl standardCacheEntry = ((StandardCacheEntryImpl) value.getValue());
+                            LOGGER.debug("\nRegion: {},\nStatistics: {},\nEntries: {}", regionName, cacheRegionStatistics, standardCacheEntry.getDisassembledState());
+                        } else {
+                            LOGGER.debug("\nRegion: {},\nStatistics: {},\nEntries: {}", regionName, cacheRegionStatistics, value.getValue());
+                        }
                     }
                 }
             }
