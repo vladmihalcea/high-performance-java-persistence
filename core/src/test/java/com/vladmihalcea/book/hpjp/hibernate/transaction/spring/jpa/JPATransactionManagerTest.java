@@ -1,10 +1,11 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa;
 
-import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa.PostDTO;
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Tag;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config.JPATransactionManagerConfiguration;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao.PostBatchDAO;
+import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao.TagDAO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.service.ForumService;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,35 +50,28 @@ public class JPATransactionManagerTest {
     @Autowired
     private PostBatchDAO postBatchDAO;
 
+    @Autowired
+    private TagDAO tagDAO;
+
     @Before
     public void init() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 Tag hibernate = new Tag();
                 hibernate.setName("hibernate");
-                entityManager.persist(hibernate);
+                tagDAO.persist(hibernate);
 
                 Tag jpa = new Tag();
                 jpa.setName("jpa");
-                entityManager.persist(jpa);
-                return null;
-            });
-        } catch (TransactionException e) {
-            LOGGER.error("Failure", e);
-        }
+                tagDAO.persist(jpa);
 
-    }
-
-    @Test
-    public void testSavePosts() {
-        try {
-            transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 postBatchDAO.savePosts();
                 return null;
             });
         } catch (TransactionException e) {
             LOGGER.error("Failure", e);
         }
+
     }
 
     @Test

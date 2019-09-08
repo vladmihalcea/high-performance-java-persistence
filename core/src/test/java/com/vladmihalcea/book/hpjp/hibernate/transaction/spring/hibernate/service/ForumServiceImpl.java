@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.hibernate.service;
 
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.hibernate.dao.PostDAO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.hibernate.dao.TagDAO;
@@ -72,5 +73,11 @@ public class ForumServiceImpl implements ForumService {
         assertNotNull(entityEntry.getLoadedState());
 
         return post;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PostDTO getPostDTOById(Long id) {
+        return postDAO.getPostDTOById(id);
     }
 }

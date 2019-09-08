@@ -59,7 +59,7 @@ public class JTATransactionManagerConfiguration {
     }
 
     @Bean(destroyMethod = "close")
-    public DataSource actualDataSource() {
+    public PoolingDataSource actualDataSource() {
         PoolingDataSource poolingDataSource = new PoolingDataSource();
         poolingDataSource.setClassName(dataSourceClassName);
         poolingDataSource.setUniqueName(getClass().getName());

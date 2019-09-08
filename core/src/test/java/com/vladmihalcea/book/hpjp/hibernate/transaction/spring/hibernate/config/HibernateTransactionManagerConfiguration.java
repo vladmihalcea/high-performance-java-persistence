@@ -1,5 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.hibernate.config;
 
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.ClassImportIntegrator;
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
+import com.vladmihalcea.book.hpjp.hibernate.logging.LoggingStatementInspector;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.zaxxer.hikari.HikariConfig;
@@ -7,6 +10,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.SessionFactory;
+import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -16,6 +20,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Properties;
 
 /**
@@ -78,11 +84,12 @@ public class HibernateTransactionManagerConfiguration {
 
     @Bean
     public LocalSessionFactoryBean sessionFactory() {
-        LocalSessionFactoryBean localSessionFactoryBean = new LocalSessionFactoryBean();
-        localSessionFactoryBean.setDataSource(dataSource());
-        localSessionFactoryBean.setPackagesToScan(packagesToScan());
-        localSessionFactoryBean.setHibernateProperties(additionalProperties());
-        return localSessionFactoryBean;
+        LocalSessionFactoryBean sessionFactoryBean = new LocalSessionFactoryBean();
+        sessionFactoryBean.setDataSource(dataSource());
+        sessionFactoryBean.setPackagesToScan(packagesToScan());
+        sessionFactoryBean.setHibernateProperties(additionalProperties());
+        sessionFactoryBean.setHibernateIntegrators(new ClassImportIntegrator(Arrays.asList(PostDTO.class)));
+        return sessionFactoryBean;
     }
 
     @Bean
@@ -101,6 +108,10 @@ public class HibernateTransactionManagerConfiguration {
         Properties properties = new Properties();
         properties.setProperty("hibernate.dialect", hibernateDialect);
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+        properties.put(
+            "hibernate.session_factory.statement_inspector",
+            new LoggingStatementInspector("com.vladmihalcea.book.hpjp.hibernate.transaction")
+        );
         return properties;
     }
 

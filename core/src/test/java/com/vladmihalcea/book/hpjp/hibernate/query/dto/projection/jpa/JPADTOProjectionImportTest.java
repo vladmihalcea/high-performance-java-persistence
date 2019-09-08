@@ -1,5 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa;
 
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.ClassImportIntegrator;
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.integrator.spi.Integrator;
@@ -8,6 +10,7 @@ import org.junit.Test;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -26,7 +29,7 @@ public class JPADTOProjectionImportTest extends AbstractTest {
 
     @Override
     protected Integrator integrator() {
-        return DTOImportIntegrator.INSTANCE;
+        return new ClassImportIntegrator(Arrays.asList(PostDTO.class));
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.service;
 
-import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa.PostDTO;
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao.PostDAO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao.TagDAO;
@@ -12,9 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -76,12 +73,7 @@ public class ForumServiceImpl implements ForumService {
     @Override
     @Transactional(readOnly = true)
     public PostDTO getPostDTOById(Long id) {
-        return entityManager.createQuery(
-            "select new PostDTO(p.id, p.title) " +
-            "from Post p " +
-            "where p.id = :id", PostDTO.class)
-            .setParameter("id", id)
-        .getSingleResult();
+        return postDAO.getPostDTOById(id);
     }
 
     private org.hibernate.engine.spi.PersistenceContext getHibernatePersistenceContext() {

@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa;
+package com.vladmihalcea.book.hpjp.hibernate.forum.dto;
 
 /**
  * @author Vlad Mihalcea

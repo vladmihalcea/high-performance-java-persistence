@@ -6,6 +6,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import javax.persistence.Tuple;
 
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import org.junit.Test;
 
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;

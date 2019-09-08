@@ -1,24 +1,31 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jta;
 
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Tag;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jta.config.JTATransactionManagerConfiguration;
+import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jta.dao.PostBatchDAO;
+import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jta.dao.TagDAO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jta.service.ForumService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**

@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.hibernate.dao;
 
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 
 import java.util.List;
@@ -10,4 +11,6 @@ import java.util.List;
 public interface PostDAO extends GenericDAO<Post, Long> {
 
     List<Post> findByTitle(String title);
+
+    PostDTO getPostDTOById(Long id);
 }

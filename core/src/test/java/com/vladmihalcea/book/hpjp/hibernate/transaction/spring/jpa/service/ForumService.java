@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.service;
 
-import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa.PostDTO;
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import org.springframework.stereotype.Service;
 

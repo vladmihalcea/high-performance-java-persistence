@@ -11,7 +11,6 @@ import java.io.Serializable;
  * @author Vlad Mihalcea
  */
 @Repository
-@Transactional
 public abstract class GenericDAOImpl<T, ID extends Serializable> implements GenericDAO<T, ID> {
 
     @PersistenceContext

@@ -5,14 +5,12 @@ import javax.persistence.Column;
 import javax.persistence.ColumnResult;
 import javax.persistence.ConstructorResult;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Version;
 
-import com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary;
-import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa.PostDTO;
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 
 /**
  * @author Vlad Mihalcea

@@ -1,8 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config;
 
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.logging.LoggingStatementInspector;
-import com.vladmihalcea.book.hpjp.hibernate.metadata.MetadataExtractorIntegrator;
-import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa.DTOImportIntegrator;
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.ClassImportIntegrator;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.zaxxer.hikari.HikariConfig;
@@ -23,6 +23,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -86,16 +87,16 @@ public class JPATransactionManagerConfiguration {
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-        LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
-        localContainerEntityManagerFactoryBean.setPersistenceUnitName(getClass().getSimpleName());
-        localContainerEntityManagerFactoryBean.setPersistenceProvider(new HibernatePersistenceProvider());
-        localContainerEntityManagerFactoryBean.setDataSource(dataSource());
-        localContainerEntityManagerFactoryBean.setPackagesToScan(packagesToScan());
+        LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+        entityManagerFactoryBean.setPersistenceUnitName(getClass().getSimpleName());
+        entityManagerFactoryBean.setPersistenceProvider(new HibernatePersistenceProvider());
+        entityManagerFactoryBean.setDataSource(dataSource());
+        entityManagerFactoryBean.setPackagesToScan(packagesToScan());
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        localContainerEntityManagerFactoryBean.setJpaVendorAdapter(vendorAdapter);
-        localContainerEntityManagerFactoryBean.setJpaProperties(additionalProperties());
-        return localContainerEntityManagerFactoryBean;
+        entityManagerFactoryBean.setJpaVendorAdapter(vendorAdapter);
+        entityManagerFactoryBean.setJpaProperties(additionalProperties());
+        return entityManagerFactoryBean;
     }
 
     @Bean
@@ -121,8 +122,8 @@ public class JPATransactionManagerConfiguration {
         properties.put(
             "hibernate.integrator_provider",
                 (IntegratorProvider) () -> Collections.singletonList(
-                DTOImportIntegrator.INSTANCE
-            )
+                    new ClassImportIntegrator(Arrays.asList(PostDTO.class))
+                )
         );
         return properties;
     }

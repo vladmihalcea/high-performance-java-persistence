@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa;
 
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
