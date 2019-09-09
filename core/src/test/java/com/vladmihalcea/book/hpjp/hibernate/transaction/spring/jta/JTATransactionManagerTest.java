@@ -25,6 +25,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -41,30 +43,49 @@ public class JTATransactionManagerTest {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @Autowired
     private ForumService forumService;
 
-    @Test
-    public void test() {
+
+    @Autowired
+    private PostBatchDAO postBatchDAO;
+
+    @Autowired
+    private TagDAO tagDAO;
+
+    @Before
+    public void init() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 Tag hibernate = new Tag();
                 hibernate.setName("hibernate");
-                entityManager.persist(hibernate);
+                tagDAO.persist(hibernate);
 
                 Tag jpa = new Tag();
                 jpa.setName("jpa");
-                entityManager.persist(jpa);
+                tagDAO.persist(jpa);
+
+                postBatchDAO.savePosts();
                 return null;
             });
         } catch (TransactionException e) {
             LOGGER.error("Failure", e);
         }
 
-        Post post = forumService.newPost("High-Performance Java Persistence", "hibernate", "jpa");
-        assertNotNull(post.getId());
+    }
+
+    @Test
+    public void test() {
+        Post newPost = forumService.newPost("High-Performance Java Persistence", "hibernate", "jpa");
+        assertNotNull(newPost.getId());
+
+        List<Post> posts = forumService.findAllByTitle("High-Performance Java Persistence");
+        assertEquals(1, posts.size());
+
+        Post post = forumService.findById(newPost.getId());
+        assertEquals("High-Performance Java Persistence", post.getTitle());
+
+        PostDTO postDTO = forumService.getPostDTOById(newPost.getId());
+        assertEquals("High-Performance Java Persistence", postDTO.getTitle());
     }
 }

@@ -3,12 +3,16 @@ package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jta.config;
 import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.ClassImportIntegrator;
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
+import com.vladmihalcea.book.hpjp.hibernate.logging.LoggingStatementInspector;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.engine.transaction.jta.platform.internal.BitronixJtaPlatform;
 import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -20,6 +24,8 @@ import org.springframework.transaction.jta.JtaTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Properties;
 
 /**
@@ -38,14 +44,14 @@ public class JTATransactionManagerConfiguration {
     @Value("${jdbc.dataSourceClassName}")
     private String dataSourceClassName;
 
+    @Value("${jdbc.url}")
+    private String jdbcUrl;
+
     @Value("${jdbc.username}")
     private String jdbcUser;
 
     @Value("${jdbc.password}")
     private String jdbcPassword;
-
-    @Value("${jdbc.url}")
-    private String jdbcUrl;
 
     @Value("${btm.config.journal:null}")
     private String btmJournal;
@@ -91,7 +97,7 @@ public class JTATransactionManagerConfiguration {
         LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         localContainerEntityManagerFactoryBean.setPersistenceUnitName(getClass().getSimpleName());
         localContainerEntityManagerFactoryBean.setPersistenceProvider(new HibernatePersistenceProvider());
-        localContainerEntityManagerFactoryBean.setDataSource(dataSource());
+        localContainerEntityManagerFactoryBean.setJtaDataSource(dataSource());
         localContainerEntityManagerFactoryBean.setPackagesToScan(packagesToScan());
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
@@ -135,6 +141,16 @@ public class JTATransactionManagerConfiguration {
         properties.setProperty("hibernate.transaction.jta.platform", BitronixJtaPlatform.class.getName());
         properties.setProperty("hibernate.dialect", hibernateDialect);
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+        properties.put(
+            "hibernate.session_factory.statement_inspector",
+            new LoggingStatementInspector("com.vladmihalcea.book.hpjp.hibernate.transaction")
+        );
+        properties.put(
+            "hibernate.integrator_provider",
+            (IntegratorProvider) () -> Collections.singletonList(
+                new ClassImportIntegrator(Arrays.asList(PostDTO.class))
+            )
+        );
         return properties;
     }
 

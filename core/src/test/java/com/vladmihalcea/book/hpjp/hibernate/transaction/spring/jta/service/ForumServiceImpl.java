@@ -43,18 +43,7 @@ public class ForumServiceImpl implements ForumService {
     @Override
     @Transactional(readOnly = true)
     public List<Post> findAllByTitle(String title) {
-        List<Post> posts = postDAO.findByTitle(title);
-
-        org.hibernate.engine.spi.PersistenceContext persistenceContext = getHibernatePersistenceContext();
-
-        for(Post post : posts) {
-            assertTrue(entityManager.contains(post));
-
-            EntityEntry entityEntry = persistenceContext.getEntry(post);
-            assertNull(entityEntry.getLoadedState());
-        }
-
-        return posts;
+        return postDAO.findByTitle(title);
     }
 
     @Override

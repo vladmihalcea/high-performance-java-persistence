@@ -41,9 +41,6 @@ public class JPATransactionManagerTest {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @Autowired
     private ForumService forumService;
 
