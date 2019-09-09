@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -19,39 +20,43 @@ public class NamedQueryDTOProjectionTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
+        return new Class<?>[]{
             Post.class,
         };
     }
 
     @Override
-    public void init() {
-        super.init();
-
-        doInJPA( entityManager -> {
+    public void afterInit() {
+        doInJPA(entityManager -> {
             Post post = new Post();
-            post.setId( 1L );
-            post.setTitle( "High-Performance Java Persistence" );
-            post.setCreatedBy( "Vlad Mihalcea" );
-            post.setCreatedOn( Timestamp.from(
-                    LocalDateTime.of( 2016, 11, 2, 12, 0, 0 ).toInstant( ZoneOffset.UTC)
-            ) );
-            post.setUpdatedBy( "Vlad Mihalcea" );
-            post.setUpdatedOn( Timestamp.from(
-                    LocalDateTime.now().toInstant( ZoneOffset.UTC)
-            ) );
+            post.setId(1L);
+            post.setTitle("High-Performance Java Persistence");
+            post.setCreatedBy("Vlad Mihalcea");
+            post.setCreatedOn(Timestamp.from(
+                LocalDateTime.of(2020, 11, 2, 12, 0, 0).toInstant(ZoneOffset.UTC)
+            ));
+            post.setUpdatedBy("Vlad Mihalcea");
+            post.setUpdatedOn(Timestamp.from(
+                LocalDateTime.now().toInstant(ZoneOffset.UTC)
+            ));
 
-            entityManager.persist( post );
-        } );
+            entityManager.persist(post);
+        });
     }
 
     @Test
     public void testConstructorExpression() {
         doInJPA(entityManager -> {
-            List<PostDTO> postDTOs = entityManager.createNamedQuery(
-                "PostDTO", PostDTO.class)
-            .setParameter("fromTimestamp", Timestamp.from(
-                LocalDateTime.of(2016, 1, 1, 0, 0, 0).toInstant(ZoneOffset.UTC)))
+            List<PostDTO> postDTOs = entityManager
+            .createNamedQuery("PostDTO", PostDTO.class)
+            .setParameter(
+                "fromTimestamp",
+                Timestamp.from(
+                    LocalDate.of(2020, 1, 1)
+                        .atStartOfDay()
+                        .toInstant(ZoneOffset.UTC)
+                )
+            )
             .getResultList();
 
             assertEquals(1, postDTOs.size());
@@ -62,7 +67,7 @@ public class NamedQueryDTOProjectionTest extends AbstractTest {
         name = "PostDTO",
         query =
             "select new " +
-            "   com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa.PostDTO(" +
+            "  com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO(" +
             "       p.id, " +
             "       p.title " +
             "   ) " +

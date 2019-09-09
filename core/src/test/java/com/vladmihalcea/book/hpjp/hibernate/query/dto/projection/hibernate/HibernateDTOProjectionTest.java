@@ -85,4 +85,29 @@ public class HibernateDTOProjectionTest extends AbstractTest {
         } );
     }
 
+    /**
+     * @author Vlad Mihalcea
+     */
+    public static class PostDTO {
+
+        private Long id;
+
+        private String title;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Number id) {
+            this.id = id.longValue();
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+    }
 }

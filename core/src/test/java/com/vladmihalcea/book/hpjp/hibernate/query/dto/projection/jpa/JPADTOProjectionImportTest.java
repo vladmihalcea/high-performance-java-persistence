@@ -8,6 +8,7 @@ import org.hibernate.integrator.spi.Integrator;
 import org.junit.Test;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -40,7 +41,7 @@ public class JPADTOProjectionImportTest extends AbstractTest {
             post.setTitle("High-Performance Java Persistence");
             post.setCreatedBy("Vlad Mihalcea");
             post.setCreatedOn(Timestamp.from(
-                LocalDateTime.of(2016, 11, 2, 12, 0, 0).toInstant(ZoneOffset.UTC)
+                LocalDateTime.of(2020, 11, 2, 12, 0, 0).toInstant(ZoneOffset.UTC)
             ));
             post.setUpdatedBy("Vlad Mihalcea");
             post.setUpdatedOn(Timestamp.from(
@@ -55,11 +56,20 @@ public class JPADTOProjectionImportTest extends AbstractTest {
     public void testConstructorExpression() {
         doInJPA(entityManager -> {
             List<PostDTO> postDTOs = entityManager.createQuery(
-                "select new PostDTO(p.id, p.title) " +
+                "select new PostDTO(" +
+                "    p.id, " +
+                "    p.title " +
+                ") " +
                 "from Post p " +
                 "where p.createdOn > :fromTimestamp", PostDTO.class)
-            .setParameter("fromTimestamp", Timestamp.from(
-                LocalDateTime.of(2016, 1, 1, 0, 0, 0).toInstant(ZoneOffset.UTC)))
+            .setParameter(
+                "fromTimestamp",
+                Timestamp.from(
+                    LocalDate.of(2020, 1, 1)
+                        .atStartOfDay()
+                        .toInstant(ZoneOffset.UTC)
+                )
+            )
             .getResultList();
 
             assertEquals(1, postDTOs.size());
