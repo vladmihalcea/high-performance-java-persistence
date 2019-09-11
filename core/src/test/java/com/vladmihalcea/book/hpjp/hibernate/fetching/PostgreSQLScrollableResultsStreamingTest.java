@@ -81,8 +81,7 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
                     "from Post p " +
                     "order by p.createdOn desc", Post.class)
                 .setHint(QueryHints.HINT_FETCH_SIZE, 50)
-                .unwrap(Query.class)
-                .stream()
+                .getResultStream()
             ) {
                 return postStream
                     .limit(50)

@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.jooq.pgsql.score;
 
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScoreResultTransformer;
-import org.hibernate.SQLQuery;
+import org.hibernate.query.NativeQuery;
 import org.jooq.CommonTableExpression;
 import org.jooq.DSLContext;
 import org.jooq.Record7;
@@ -185,9 +185,10 @@ public class PostCommentFingerprintTest extends AbstractJOOQPostgreSQLIntegratio
                     "    ) score_total " +
                     "    ORDER BY total_score DESC, id ASC " +
                     ") total_score_group " +
-                    "WHERE rank <= :rank", "PostCommentScore").unwrap(SQLQuery.class)
+                    "WHERE rank <= :rank", "PostCommentScore")
             .setParameter("postId", postId)
             .setParameter("rank", rank)
+            .unwrap(NativeQuery.class)
             .setResultTransformer(new PostCommentScoreResultTransformer())
             .list();
             return postCommentScores;
