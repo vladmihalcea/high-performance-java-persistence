@@ -1,10 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import javax.persistence.CascadeType;
@@ -28,11 +25,14 @@ import org.hibernate.annotations.NaturalIdCache;
 import org.junit.Test;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import java.util.HashMap;
+import java.util.Map;
+import javax.persistence.MapKeyJoinColumn;
 
 /**
  * @author Vlad Mihalcea
  */
-public class BidirectionalManyAsOneToManyExtraColumnsTestV1
+public class BidirectionalManyToManyLinkEntityMapKeyJoinColumnTest
         extends AbstractTest {
 
     @Override
@@ -123,7 +123,8 @@ public class BidirectionalManyAsOneToManyExtraColumnsTestV1
         private String title;
 
         @OneToMany(mappedBy = "id.post", cascade = CascadeType.ALL, orphanRemoval = true)
-        private List<PostTag> tags = new ArrayList<>();
+        @MapKeyJoinColumn(name="tag_id")
+        private Map<Tag, PostTag> tags = new HashMap<>();
 
         public Post() {
         }
@@ -140,25 +141,19 @@ public class BidirectionalManyAsOneToManyExtraColumnsTestV1
             this.id = id;
         }
 
-        public List<PostTag> getTags() {
+        public Map<Tag, PostTag> getTags() {
             return tags;
         }
 
         public void addTag(Tag tag) {
             PostTag postTag = new PostTag(this, tag);
-            tags.add(postTag);
-            tag.getPosts().add(postTag);
+            tags.put(tag, postTag);
+            tag.getPosts().put(this, postTag);
         }
 
         public void removeTag(Tag tag) {
-            for (Iterator<PostTag> iterator = tags.iterator(); iterator.hasNext(); ) {
-                PostTag postTag = iterator.next();
-                if (postTag.getId().getTag().equals(tag)) {
-                    iterator.remove();
-                    postTag.getId().getTag().getPosts().remove(postTag);
-                    break;
-                }
-            }
+            PostTag postTag = tags.remove(tag);
+            postTag.getId().getTag().getPosts().remove(this);
         }
 
         @Override
@@ -274,12 +269,9 @@ public class BidirectionalManyAsOneToManyExtraColumnsTestV1
         @NaturalId
         private String name;
 
-        @OneToMany(
-            mappedBy = "id.tag",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-        )
-        private List<PostTag> posts = new ArrayList<>();
+        @OneToMany(mappedBy = "id.tag", cascade = CascadeType.ALL, orphanRemoval = true)
+        @MapKeyJoinColumn(name="post_id")
+        private Map<Post, PostTag> posts = new HashMap<>();
 
         public Tag() {
         }
@@ -304,7 +296,7 @@ public class BidirectionalManyAsOneToManyExtraColumnsTestV1
             this.name = name;
         }
 
-        public List<PostTag> getPosts() {
+        public Map<Post, PostTag> getPosts() {
             return posts;
         }
 

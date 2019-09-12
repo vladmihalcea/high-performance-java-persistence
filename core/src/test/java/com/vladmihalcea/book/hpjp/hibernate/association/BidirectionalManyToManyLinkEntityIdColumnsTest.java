@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * @author Vlad Mihalcea
  */
-public class BidirectionalManyAsOneToManyWithoutEmbeddedIdTest extends AbstractTest {
+public class BidirectionalManyToManyLinkEntityIdColumnsTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {

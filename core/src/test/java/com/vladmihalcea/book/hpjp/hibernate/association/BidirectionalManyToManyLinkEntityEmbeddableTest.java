@@ -16,7 +16,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -33,7 +32,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 /**
  * @author Vlad Mihalcea
  */
-public class BidirectionalManyAsOneToManyExtraColumnsTest
+public class BidirectionalManyToManyLinkEntityEmbeddableTest
         extends AbstractTest {
 
     @Override
@@ -105,7 +104,7 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
                 "select p " +
                 "from Post p " +
                 "join fetch p.tags pt " +
-                "join fetch pt.tag " +
+                "join fetch pt.id.tag " +
                 "where p.id = :postId", Post.class)
             .setParameter( "postId", 1L )
             .getSingleResult();
@@ -123,7 +122,7 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
 
         private String title;
 
-        @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+        @OneToMany(mappedBy = "id.post", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<PostTag> tags = new ArrayList<>();
 
         public Post() {
@@ -154,12 +153,10 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
         public void removeTag(Tag tag) {
             for (Iterator<PostTag> iterator = tags.iterator(); iterator.hasNext(); ) {
                 PostTag postTag = iterator.next();
-                if (postTag.getPost().equals(this) &&
-                        postTag.getTag().equals(tag)) {
+                if (postTag.getId().getTag().equals(tag)) {
                     iterator.remove();
-                    postTag.getTag().getPosts().remove(postTag);
-                    postTag.setPost(null);
-                    postTag.setTag(null);
+                    postTag.getId().getTag().getPosts().remove(postTag);
+                    break;
                 }
             }
         }
@@ -182,70 +179,17 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
     public static class PostTagId
         implements Serializable {
 
-        @Column(name = "post_id")
-        private Long postId;
-
-        @Column(name = "tag_id")
-        private Long tagId;
-
-        private PostTagId() {}
-
-        public PostTagId(Long postId, Long tagId) {
-            this.postId = postId;
-            this.tagId = tagId;
-        }
-
-        public Long getPostId() {
-            return postId;
-        }
-
-        public Long getTagId() {
-            return tagId;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            PostTagId that = (PostTagId) o;
-            return Objects.equals(postId, that.getPostId()) &&
-                    Objects.equals(tagId, that.getTagId());
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(postId, tagId);
-        }
-    }
-
-    @Entity(name = "PostTag")
-    @Table(name = "post_tag")
-    public static class PostTag {
-
-        @EmbeddedId
-        private PostTagId id;
-
         @ManyToOne(fetch = FetchType.LAZY)
-        @MapsId("postId")
         private Post post;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @MapsId("tagId")
         private Tag tag;
+        
+        private PostTagId() {}
 
-        @Column(name = "created_on")
-        private Date createdOn = new Date();
-
-        private PostTag() {}
-
-        public PostTag(Post post, Tag tag) {
+        public PostTagId(Post post, Tag tag) {
             this.post = post;
             this.tag = tag;
-            this.id = new PostTagId(post.getId(), tag.getId());
-        }
-
-        public PostTagId getId() {
-            return id;
         }
 
         public Post getPost() {
@@ -264,6 +208,41 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
             this.tag = tag;
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PostTagId that = (PostTagId) o;
+            return Objects.equals(post, that.post) &&
+                    Objects.equals(tag, that.tag);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(post, tag);
+        }
+    }
+
+    @Entity(name = "PostTag")
+    @Table(name = "post_tag")
+    public static class PostTag {
+
+        @EmbeddedId
+        private PostTagId id;
+
+        @Column(name = "created_on")
+        private Date createdOn = new Date();
+
+        private PostTag() {}
+
+        public PostTag(Post post, Tag tag) {
+            this.id = new PostTagId(post, tag);
+        }
+
+        public PostTagId getId() {
+            return id;
+        }
+
         public Date getCreatedOn() {
             return createdOn;
         }
@@ -273,13 +252,12 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             PostTag that = (PostTag) o;
-            return Objects.equals(post, that.post) &&
-                    Objects.equals(tag, that.tag);
+            return Objects.equals(this.id, that.id);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(post, tag);
+            return Objects.hash(this.id);
         }
     }
 
@@ -297,7 +275,7 @@ public class BidirectionalManyAsOneToManyExtraColumnsTest
         private String name;
 
         @OneToMany(
-            mappedBy = "tag",
+            mappedBy = "id.tag",
             cascade = CascadeType.ALL,
             orphanRemoval = true
         )

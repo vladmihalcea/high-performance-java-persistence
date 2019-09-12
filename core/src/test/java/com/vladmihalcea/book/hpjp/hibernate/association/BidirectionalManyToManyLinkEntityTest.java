@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * @author Vlad Mihalcea
  */
-public class BidirectionalManyAsOneToManyTest extends AbstractTest {
+public class BidirectionalManyToManyLinkEntityTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
