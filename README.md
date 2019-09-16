@@ -94,18 +94,6 @@ The Integration Tests require some external configurations:
         
         ALTER PROFILE DEFAULT LIMIT PASSWORD_LIFE_TIME UNLIMITED;
 
-    For the Oracle JDBC driver, you have multiple alternatives.
-    
-    1. You can follow the steps explained in [this article](http://docs.oracle.com/middleware/1213/core/MAVEN/config_maven_repo.htm#MAVEN9010) to set up the Oracle Maven Repository.
-
-    2. You can also download the Oracle JDBC Driver (ojdbc7_g.jar and ojdbc8.jar), which is not available in the Maven Central Repository.
-    and install the ojdbc7_g.jar and ojdbc8.jar on your local Maven repository using the following command:
-
-            $ mvn install:install-file -Dfile=ojdbc8.jar -DgroupId=com.oracle.jdbc -DartifactId=ojdbc8 -Dversion=12.2.0.1 -Dpackaging=jar
-            $ mvn install:install-file -Dfile=ojdbc7_g.jar -DgroupId=com.oracle -DartifactId=ojdbc7_g -Dversion=12.1.0.1 -Dpackaging=jar            
-
-    The `com.oracle:ojdbc7_g` artifact is used just by the jooq-oracle sub-module since there is some issue with the sql-maven-plugin Oracle dependency otherwise.
-
 - MySQL
 
     You should install MySQL 5.6 (or later) and the password for the `mysql` user should be `admin`.

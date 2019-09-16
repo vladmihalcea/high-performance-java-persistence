@@ -183,6 +183,13 @@
         </dependency>
 
         <dependency>
+            <groupId>com.oracle.ojdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>${oracle.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>net.sourceforge.jtds</groupId>
             <artifactId>jtds</artifactId>
             <version>${jtds.version}</version>
@@ -327,8 +334,7 @@
         <p6spy.version>2.1.4</p6spy.version>
         <hsqldb.version>2.4.0</hsqldb.version>
         <postgresql.version>42.2.1</postgresql.version>
-        <oracle.version>12.2.0.1</oracle.version>
-        <!--<oracle.version>11.2.0.4</oracle.version>-->
+        <oracle.version>19.3.0.0</oracle.version>
         <mysql.version>8.0.13</mysql.version>
         <mariadb.version>2.2.3</mariadb.version>
         <mssql.version>6.4.0.jre8</mssql.version>
@@ -382,37 +388,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>oracle</id>
-            <activation>
-                <property>
-                    <name>ENABLE_ORACLE_REPOSITORY</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <repositories>
-                <repository>
-                    <id>maven.oracle.com</id>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <url>https://maven.oracle.com</url>
-                    <layout>default</layout>
-                </repository>
-            </repositories>
-            <dependencies>
-                <dependency>
-                    <groupId>com.oracle.jdbc</groupId>
-                    <artifactId>ojdbc8</artifactId>
-                    <version>${oracle.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
 
 </project>
