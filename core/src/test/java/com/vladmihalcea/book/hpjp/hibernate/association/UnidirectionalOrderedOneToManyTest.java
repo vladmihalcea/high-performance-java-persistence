@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -10,7 +11,7 @@ import java.util.List;
 /**
  * @author Vlad Mihalcea
  */
-public class UnidirectionalOrderedOneToManyTest extends AbstractMySQLIntegrationTest {
+public class UnidirectionalOrderedOneToManyTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -34,7 +35,9 @@ public class UnidirectionalOrderedOneToManyTest extends AbstractMySQLIntegration
 
             LOGGER.info("Remove tail");
             post.getComments().remove(2);
+
             entityManager.flush();
+
             LOGGER.info("Remove head");
             post.getComments().remove(0);
         });
