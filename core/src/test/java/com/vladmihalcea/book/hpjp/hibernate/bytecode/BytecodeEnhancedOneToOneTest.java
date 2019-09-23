@@ -28,7 +28,7 @@ public class BytecodeEnhancedOneToOneTest extends AbstractTest {
             Post post = new Post("First post");
             post.setId(1L);
             PostDetails details = new PostDetails();
-            post.addDetails(details);
+            post.setDetails(details);
             entityManager.persist(post);
         });
 

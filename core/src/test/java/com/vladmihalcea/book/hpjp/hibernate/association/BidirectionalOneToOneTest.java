@@ -81,9 +81,13 @@ public class BidirectionalOneToOneTest extends AbstractTest {
 
         public void setDetails(PostDetails details) {
             if (details == null) {
-                if (this.details != null) this.details.setPost(null);
+                if (this.details != null) {
+                    this.details.setPost(null);
+                }
             }
-            else details.setPost(this);
+            else {
+                details.setPost(this);
+            }
             this.details = details;
         }
     }

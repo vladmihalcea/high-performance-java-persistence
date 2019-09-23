@@ -83,8 +83,15 @@ public class BidirectionalOneToOneMapsIdStringTest extends AbstractTest {
         }
 
         public void setDetails(PostDetails details) {
+            if (details == null) {
+                if (this.details != null) {
+                    this.details.setPost(null);
+                }
+            }
+            else {
+                details.setPost(this);
+            }
             this.details = details;
-            details.setPost(this);
         }
     }
 

@@ -107,7 +107,7 @@ public class BytecodeEnhancementDirtyCheckingPerformanceTest extends AbstractTes
                 PostDetails details = new PostDetails();
                 details.setCreatedOn(new Date());
                 details.setCreatedBy("Vlad");
-                post.addDetails(details);
+                post.setDetails(details);
 
                 Tag tag1 = new Tag();
                 tag1.setId(i * 10L);

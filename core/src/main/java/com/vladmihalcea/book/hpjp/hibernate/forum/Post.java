@@ -77,13 +77,15 @@ public class Post {
         comment.setPost(this);
     }
 
-    public void addDetails(PostDetails details) {
+    public void setDetails(PostDetails details) {
+        if (details == null) {
+            if (this.details != null) {
+                this.details.setPost(null);
+            }
+        }
+        else {
+            details.setPost(this);
+        }
         this.details = details;
-        details.setPost(this);
-    }
-
-    public void removeDetails() {
-        this.details.setPost(null);
-        this.details = null;
     }
 }

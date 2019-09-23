@@ -40,7 +40,7 @@ public class BidirectionalOneToOneLazyNoProxyTest extends AbstractTest {
             PostDetails details = new PostDetails();
             details.setCreatedBy("Vlad Mihalcea");
 
-            post.addDetails(details);
+            post.setDetails(details);
 
             entityManager.persist(post);
         });
