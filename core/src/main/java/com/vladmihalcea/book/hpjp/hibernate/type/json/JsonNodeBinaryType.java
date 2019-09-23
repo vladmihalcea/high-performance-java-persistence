@@ -5,7 +5,7 @@ import org.hibernate.type.AbstractSingleColumnStandardBasicType;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * @author Vlad MIhalcea
+ * @author Vlad Mihalcea
  */
 public class JsonNodeBinaryType
 	extends AbstractSingleColumnStandardBasicType<JsonNode> {

@@ -6,7 +6,7 @@ import org.hibernate.usertype.DynamicParameterizedType;
 import java.util.Properties;
 
 /**
- * @author Vlad MIhalcea
+ * @author Vlad Mihalcea
  */
 public class EnumArrayType
         extends AbstractSingleColumnStandardBasicType<Enum[]>

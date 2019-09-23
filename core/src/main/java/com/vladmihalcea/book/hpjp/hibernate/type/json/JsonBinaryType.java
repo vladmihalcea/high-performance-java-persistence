@@ -8,7 +8,7 @@ import java.util.Properties;
 /**
  * Descriptor for a Json type.
  *
- * @author Vlad MIhalcea
+ * @author Vlad Mihalcea
  *
  */
 public class JsonBinaryType
