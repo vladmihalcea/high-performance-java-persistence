@@ -22,7 +22,7 @@ public class UnidirectionalOrderedOneToManyTest extends AbstractTest {
     }
 
     @Test
-    public void testLifecycle() {
+    public void testRemoveTail() {
         doInJPA(entityManager -> {
             Post post = new Post("First post");
 
@@ -35,7 +35,19 @@ public class UnidirectionalOrderedOneToManyTest extends AbstractTest {
 
             LOGGER.info("Remove tail");
             post.getComments().remove(2);
+        });
+    }
 
+    @Test
+    public void testRemoveHead() {
+        doInJPA(entityManager -> {
+            Post post = new Post("First post");
+
+            post.getComments().add(new PostComment("My first review"));
+            post.getComments().add(new PostComment("My second review"));
+            post.getComments().add(new PostComment("My third review"));
+
+            entityManager.persist(post);
             entityManager.flush();
 
             LOGGER.info("Remove head");
