@@ -175,7 +175,7 @@ public class PivotTest extends AbstractOracleIntegrationTest {
         doInJPA(entityManager -> {
             List<DataSourceConfiguration> dataSources = entityManager
             .createNativeQuery(
-                "SELECT distinct " +
+                "SELECT DISTINCT " +
                 "   userName.service_name AS \"serviceName\", " +
                 "   c.name AS \"componentName\", " +
                 "   databaseName.property_value AS \"databaseName\", " +
@@ -184,20 +184,20 @@ public class PivotTest extends AbstractOracleIntegrationTest {
                 "   userName.property_value AS \"userName\", " +
                 "   password.property_value AS \"password\" " +
                 "FROM Component c " +
-                "left join Property databaseName " +
-                "   on databaseName.component_name = c.name and " +
+                "LEFT JOIN Property databaseName " +
+                "   ON databaseName.component_name = c.name AND " +
                 "      databaseName.property_name = 'databaseName' " +
-                "left join Property url " +
-                "   on url.component_name = c.name and " +
+                "LEFT JOIN Property url " +
+                "   ON url.component_name = c.name AND " +
                 "      url.property_name = 'url' " +
-                "left join Property serverName " +
-                "   on serverName.component_name = c.name and " +
+                "LEFT JOIN Property serverName " +
+                "   ON serverName.component_name = c.name AND " +
                 "      serverName.property_name = 'serverName' " +
-                "left join Property userName " +
-                "   on userName.component_name = c.name and " +
+                "LEFT JOIN Property userName " +
+                "   ON userName.component_name = c.name AND " +
                 "      userName.property_name = 'username' " +
-                "left join Property password " +
-                "   on password.component_name = c.name and " +
+                "LEFT JOIN Property password " +
+                "   ON password.component_name = c.name AND " +
                 "      password.property_name = 'password' " +
                 "WHERE " +
                 "   c.name = :name")
@@ -233,9 +233,7 @@ public class PivotTest extends AbstractOracleIntegrationTest {
             .getResultList();
             assertEquals(2, dataSources.size());
         });
-
-        //http://modern-sql.com/use-case/pivot
-
+        
         doInJPA(entityManager -> {
             List<DataSourceConfiguration> dataSources = entityManager
             .createNativeQuery(
