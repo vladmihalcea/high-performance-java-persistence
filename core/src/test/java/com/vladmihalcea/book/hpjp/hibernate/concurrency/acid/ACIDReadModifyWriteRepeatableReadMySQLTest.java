@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class ACIDReadModifyWriteRepeatableReadTest extends AbstractTest {
+public class ACIDReadModifyWriteRepeatableReadMySQLTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -29,7 +29,7 @@ public class ACIDReadModifyWriteRepeatableReadTest extends AbstractTest {
 
     @Override
     protected Database database() {
-        return Database.POSTGRESQL;
+        return Database.MYSQL;
     }
 
     @Override
