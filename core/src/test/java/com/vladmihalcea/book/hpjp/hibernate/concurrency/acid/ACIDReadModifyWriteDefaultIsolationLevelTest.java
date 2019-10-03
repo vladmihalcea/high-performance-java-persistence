@@ -76,21 +76,26 @@ public class ACIDReadModifyWriteDefaultIsolationLevelTest extends AbstractTest {
 
         for (int i = 0; i < threadCount; i++) {
             new Thread(() -> {
-                doInJDBC(connection -> {
-                    printIsolationLevel(connection);
+                try {
+                    doInJDBC(connection -> {
+                        setIsolationLevel(connection);
+                        printIsolationLevel(connection);
 
-                    Long fromBalance = getBalance(connection, fromIban);
+                        workerThreadWaitsAfterReadingBalanceLatch.countDown();
+                        awaitOnLatch(workerThreadsWriteBalanceLatch);
+                        LOGGER.info("Running thread");
 
-                    workerThreadWaitsAfterReadingBalanceLatch.countDown();
-                    awaitOnLatch(workerThreadsWriteBalanceLatch);
-                    LOGGER.info("Running thread");
+                        Long fromBalance = getBalance(connection, fromIban);
 
-                    if(fromBalance >= transferCents) {
-                        addBalance(connection, fromIban, (-1) * transferCents);
+                        if(fromBalance >= transferCents) {
+                            addBalance(connection, fromIban, (-1) * transferCents);
 
-                        addBalance(connection, toIban, transferCents);
-                    }
-                });
+                            addBalance(connection, toIban, transferCents);
+                        }
+                    });
+                } catch (Exception e) {
+                    LOGGER.error("Transfer failure", e);
+                }
 
                 allWorkerThreadsHaveFinishedLatch.countDown();
             }).start();
@@ -101,8 +106,8 @@ public class ACIDReadModifyWriteDefaultIsolationLevelTest extends AbstractTest {
         awaitOnLatch(allWorkerThreadsHaveFinishedLatch);
     }
 
-    public void transfer() {
-
+    protected void setIsolationLevel(Connection connection) throws SQLException {
+        //By default, we don't set the isolation level
     }
 
     private void printIsolationLevel(Connection connection) throws SQLException {
