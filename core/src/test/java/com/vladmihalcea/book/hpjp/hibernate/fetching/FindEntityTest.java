@@ -24,8 +24,7 @@ public class FindEntityTest extends AbstractPostgreSQLIntegrationTest {
 
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Post post = new Post();
             post.setTitle(String.format("Post nr. %d", 1));

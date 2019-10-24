@@ -53,8 +53,8 @@ public class OracleDataSourceProvider implements DataSourceProvider {
 
 	@Override
 	public String url() {
-		return "jdbc:oracle:thin:@localhost:1521/xe";
-		//return "jdbc:oracle:thin:@localhost:1521/orclpdb1";
+		return "jdbc:oracle:thin:@localhost:1521:xe";
+		//return "jdbc:oracle:thin:@localhost:1521:orclpdb1";
 	}
 
 	@Override
