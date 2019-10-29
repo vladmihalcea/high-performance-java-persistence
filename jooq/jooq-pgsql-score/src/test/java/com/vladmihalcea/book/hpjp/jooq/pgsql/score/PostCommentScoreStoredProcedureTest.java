@@ -162,7 +162,6 @@ public class PostCommentScoreStoredProcedureTest extends AbstractJOOQPostgreSQLI
                      "              FROM post_comment pc " +
                     "              INNER JOIN post_comment_score pcs " +
                     "              ON pc.parent_id = pcs.id " +
-                    "              WHERE pc.parent_id = pcs.id " +
                     "          ) " +
                     "          SELECT id, parent_id, root_id, review, created_on, score " +
                     "          FROM post_comment_score " +

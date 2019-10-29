@@ -175,9 +175,7 @@ public class PostCommentFingerprintTest extends AbstractJOOQPostgreSQLIntegratio
                     "              SELECT pc.id, pcs.root_id, pc.post_id, pc.parent_id, " +
                     "                  pc.review, pc.created_on, pc.score " +
                      "              FROM post_comment pc " +
-                    "              INNER JOIN post_comment_score pcs " +
-                    "              ON pc.parent_id = pcs.id " +
-                    "              WHERE pc.parent_id = pcs.id " +
+                    "              INNER JOIN post_comment_score pcs ON pc.parent_id = pcs.id " +
                     "          ) " +
                     "          SELECT id, parent_id, root_id, review, created_on, score " +
                     "          FROM post_comment_score " +
@@ -262,7 +260,6 @@ public class PostCommentFingerprintTest extends AbstractJOOQPostgreSQLIntegratio
                 .from(POST_COMMENT)
                 .innerJoin(table(name(PCS)))
                 .on(POST_COMMENT.PARENT_ID.eq(field(name(PCS, "id"), Long.class)))
-                .where(POST_COMMENT.PARENT_ID.eq(field(name(PCS, "id"), Long.class)))
             )
         );
     }
