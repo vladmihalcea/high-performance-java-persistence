@@ -15,7 +15,7 @@
             <level>TRACE</level>
         </filter>
         <encoder>
-            <Pattern>%-5p [%t]:%X{txId} %c{1} - %m%n</Pattern>
+            <Pattern>%d %-5p [%t]:%X{txId} %c{1} - %m%n</Pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>

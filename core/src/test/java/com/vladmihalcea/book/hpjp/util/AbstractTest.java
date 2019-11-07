@@ -690,7 +690,7 @@ public abstract class AbstractTest {
         }
     }
 
-    protected void sleep(int millis) {
+    protected void sleep(long millis) {
         try {
             Thread.sleep(millis);
         } catch (Exception e) {
