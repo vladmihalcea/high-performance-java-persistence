@@ -6,8 +6,7 @@ import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.dialect.lock.PessimisticEntityLockException;
-
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.cfg.AvailableSettings;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,6 +17,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 
@@ -212,29 +212,25 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
     @Test
     public void testPessimisticNoWait() {
         LOGGER.info("Test PESSIMISTIC_READ blocks PESSIMISTIC_WRITE, NO WAIT fails fast");
-        Post post = doInJPA(entityManager -> {
-            return entityManager.find(Post.class, 1L);
-        });
 
         doInJPA(entityManager -> {
-            entityManager.unwrap( Session.class ).lock(post, LockMode.PESSIMISTIC_WRITE);
+            Post post = entityManager.find(Post.class, 1L,
+                LockModeType.PESSIMISTIC_WRITE
+            );
 
-            executeSync( () -> {
-                doInJPA(_entityManager -> {
-                    try {
-                        _entityManager
-                        .unwrap(Session.class)
-                        .buildLockRequest(
-                            new LockOptions(LockMode.PESSIMISTIC_WRITE)
-                            .setTimeOut(LockOptions.NO_WAIT))
-                        .lock(post);
-                        fail("Should throw PessimisticEntityLockException");
-                    }
-                    catch (PessimisticEntityLockException expected) {
-                        //This is expected since the first transaction already acquired this lock
-                    }
-                });
-            } );
+            executeSync(() -> doInJPA(_entityManager -> {
+                try {
+                    Post _post = _entityManager.find(Post.class, 1L,
+                        LockModeType.PESSIMISTIC_WRITE,
+                        Collections.singletonMap(
+                            AvailableSettings.JPA_LOCK_TIMEOUT, LockOptions.NO_WAIT
+                        )
+                    );
+                    fail("Should throw PessimisticEntityLockException");
+                } catch (LockTimeoutException expected) {
+                    //This is expected since the first transaction already acquired this lock
+                }
+            }));
         });
     }
 

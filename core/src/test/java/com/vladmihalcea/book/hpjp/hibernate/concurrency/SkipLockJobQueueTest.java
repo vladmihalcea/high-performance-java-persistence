@@ -31,7 +31,7 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
     public void init() {
         super.init();
         doInJPA(entityManager -> {
-            for (long i = 0; i < 10; i++) {
+            for (long i = 1; i <= 10; i++) {
                 Post post = new Post();
                 post.setId(i);
                 post.setTitle("High-Performance Java Persistence");
@@ -76,7 +76,7 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
                     1,
                     Arrays.stream(ExceptionUtils.getThrowables(e))
                     .map(Throwable::getClass)
-                    .filter(clazz -> clazz.equals(PessimisticLockException.class))
+                    .filter(clazz -> clazz.equals(LockTimeoutException.class))
                     .count()
                 );
             }
@@ -112,14 +112,14 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
             LOGGER.debug("Alice wants to moderate {} Post(s)", postCount);
             List<Post> pendingPosts = getAndLockPostsWithSkipLocked(entityManager, PostStatus.PENDING, postCount);
             List<Long> ids = pendingPosts.stream().map(Post::getId).collect(toList());
-            assertTrue(ids.size() == 2 && ids.contains(0L) && ids.contains(1L));
+            assertTrue(ids.size() == 2 && ids.contains(1L) && ids.contains(2L));
 
             executeSync(() -> {
                 doInJPA(_entityManager -> {
                     LOGGER.debug("Bob wants to moderate {} Post(s)", postCount);
                     List<Post> _pendingPosts = getAndLockPostsWithSkipLocked(_entityManager, PostStatus.PENDING, postCount);
                     List<Long> _ids = _pendingPosts.stream().map(Post::getId).collect(toList());
-                    assertTrue(_ids.size() == 2 && _ids.contains(2L) && _ids.contains(3L));
+                    assertTrue(_ids.size() == 2 && _ids.contains(3L) && _ids.contains(4L));
                 });
             });
         });
