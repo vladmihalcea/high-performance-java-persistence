@@ -17,18 +17,21 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Vlad Mihalcea
  */
-public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationTest {
+public class MultiLevelFethingTest extends AbstractPostgreSQLIntegrationTest {
 
     public static final int POST_COUNT = 50;
     public static final int POST_COMMENT_COUNT = 20;
     public static final int TAG_COUNT = 10;
+    public static final int VOTE_COUNT = 5;
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostComment.class,
-                Tag.class
+            Post.class,
+            PostComment.class,
+            Tag.class,
+            User.class,
+            UserVote.class
         };
     }
 
@@ -43,6 +46,17 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
     public void afterInit() {
         doInJPA(entityManager -> {
 
+            User alice = new User()
+                .setId(1L)
+                .setName("Alice");
+
+            User bob = new User()
+                .setId(2L)
+                .setName("Bob");
+
+            entityManager.persist(alice);
+            entityManager.persist(bob);
+
             List<Tag> tags = new ArrayList<>();
 
             for (long i = 1; i <= TAG_COUNT; i++) {
@@ -52,9 +66,10 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
 
                 entityManager.persist(tag);
                 tags.add(tag);
-        }
+            }
 
             long commentId = 0;
+            long voteId = 0;
 
             for (long postId = 1; postId <= POST_COUNT; postId++) {
                 Post post = new Post()
@@ -63,11 +78,21 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
 
 
                 for (long i = 0; i < POST_COMMENT_COUNT; i++) {
-                    post.addComment(
-                        new PostComment()
-                            .setId(++commentId)
-                            .setReview("Excellent!")
-                    );
+                    PostComment comment = new PostComment()
+                        .setId(++commentId)
+                        .setReview("Excellent!");
+
+                    for (int j = 0; j < VOTE_COUNT; j++) {
+                        comment.addVote(
+                            new UserVote()
+                                .setId(++voteId)
+                                .setScore(Math.random() > 0.5 ? 1 : -1)
+                                .setUser(Math.random() > 0.5 ? alice : bob)
+                        );
+                    }
+
+                    post.addComment(comment);
+
                 }
 
                 for (int i = 0; i < TAG_COUNT; i++) {
@@ -80,60 +105,50 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
     }
 
     @Test
-    public void testOneQueryTwoJoinFetch() {
-        try {
-            doInJPA(entityManager -> {
-                List<Post> posts = entityManager.createQuery(
-                    "select p " +
-                    "from Post p " +
-                    "left join fetch p.comments " +
-                    "left join fetch p.tags " +
-                    "where p.id between :minId and :maxId", Post.class)
-                .setParameter("minId", 1L)
-                .setParameter("maxId", 50L)
-                .getResultList();
-            });
-        } catch (Exception e) {
-            assertTrue(
-                MultipleBagFetchException.class.isAssignableFrom(
-                    ExceptionUtil.rootCause(e).getClass()
-                )
-            );
-            LOGGER.error("Failure", e);
-        }
-    }
-
-    @Test
     public void testTwoJoinFetchQueries() {
         List<Post> posts = doInJPA(entityManager -> {
             List<Post> _posts = entityManager
-            .createQuery(
-                "select distinct p " +
-                "from Post p " +
-                "left join fetch p.comments " +
-                "where p.id between :minId and :maxId ", Post.class)
-            .setParameter("minId", 1L)
-            .setParameter("maxId", 50L)
-            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
-            .getResultList();
+                .createQuery(
+                    "select distinct p " +
+                    "from Post p " +
+                    "left join fetch p.comments " +
+                    "where p.id between :minId and :maxId ", Post.class)
+                .setParameter("minId", 1L)
+                .setParameter("maxId", 50L)
+                .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
+                .getResultList();
 
-            _posts = entityManager
-            .createQuery(
-                "select distinct p " +
-                "from Post p " +
-                "left join fetch p.tags t " +
-                "where p in :posts ", Post.class)
-            .setParameter("posts", _posts)
-            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
-            .getResultList();
+            entityManager
+                .createQuery(
+                    "select distinct p " +
+                    "from Post p " +
+                    "left join fetch p.tags t " +
+                    "where p in :posts ", Post.class)
+                .setParameter("posts", _posts)
+                .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
+                .getResultList();
+
+            entityManager
+                .createQuery(
+                    "select distinct pc " +
+                    "from PostComment pc " +
+                    "left join fetch pc.votes t " +
+                    "join pc.post p " +
+                    "where p in :posts ", PostComment.class)
+                .setParameter("posts", _posts)
+                .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
+                .getResultList();
 
             return _posts;
         });
 
         assertEquals(POST_COUNT, posts.size());
 
-        for(Post post : posts) {
+        for (Post post : posts) {
             assertEquals(POST_COMMENT_COUNT, post.getComments().size());
+            for(PostComment comment : post.getComments()) {
+                assertEquals(VOTE_COUNT, comment.getVotes().size());
+            }
             assertEquals(TAG_COUNT, post.getTags().size());
         }
     }
@@ -206,6 +221,9 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
 
         private String review;
 
+        @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+        private List<UserVote> votes = new ArrayList<>();
+
         public Long getId() {
             return id;
         }
@@ -230,6 +248,16 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
 
         public PostComment setReview(String review) {
             this.review = review;
+            return this;
+        }
+
+        public List<UserVote> getVotes() {
+            return votes;
+        }
+
+        public PostComment addVote(UserVote vote) {
+            votes.add(vote);
+            vote.setComment(this);
             return this;
         }
     }
@@ -258,6 +286,86 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
 
         public Tag setName(String name) {
             this.name = name;
+            return this;
+        }
+    }
+
+    @Entity(name = "User")
+    @Table(name = "blog_user")
+    public static class User {
+
+        @Id
+        private Long id;
+
+        private String name;
+
+        public Long getId() {
+            return id;
+        }
+
+        public User setId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public User setName(String name) {
+            this.name = name;
+            return this;
+        }
+    }
+
+    @Entity(name = "UserVote")
+    @Table(name = "user_vote")
+    public static class UserVote {
+
+        @Id
+        private Long id;
+
+        @ManyToOne(fetch = FetchType.LAZY)
+        private User user;
+
+        @ManyToOne(fetch = FetchType.LAZY)
+        private PostComment comment;
+
+        private int score;
+
+        public Long getId() {
+            return id;
+        }
+
+        public UserVote setId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public User getUser() {
+            return user;
+        }
+
+        public UserVote setUser(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public PostComment getComment() {
+            return comment;
+        }
+
+        public UserVote setComment(PostComment comment) {
+            this.comment = comment;
+            return this;
+        }
+
+        public int getScore() {
+            return score;
+        }
+
+        public UserVote setScore(int score) {
+            this.score = score;
             return this;
         }
     }
