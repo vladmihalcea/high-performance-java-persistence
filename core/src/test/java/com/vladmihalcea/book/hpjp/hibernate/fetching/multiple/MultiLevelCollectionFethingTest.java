@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.fetching;
+package com.vladmihalcea.book.hpjp.hibernate.fetching.multiple;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Vlad Mihalcea
  */
-public class MultiLevelFethingTest extends AbstractPostgreSQLIntegrationTest {
+public class MultiLevelCollectionFethingTest extends AbstractPostgreSQLIntegrationTest {
 
     public static final int POST_COUNT = 50;
     public static final int POST_COMMENT_COUNT = 20;

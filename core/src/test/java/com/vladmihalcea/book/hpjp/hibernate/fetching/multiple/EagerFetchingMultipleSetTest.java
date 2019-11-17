@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.fetching;
+package com.vladmihalcea.book.hpjp.hibernate.fetching.multiple;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.junit.Test;
