@@ -34,10 +34,6 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     public static final String INSERT_POST_DETAILS = "insert into post_details (id, created_by, version) values (?, ?, ?)";
 
-    public static final String INSERT_DEPARTMENT = "insert into department (name, budget, id) values (?, ?, ?)";
-
-    public static final String INSERT_EMPLOYEE = "insert into employee (department_id, name, salary, id) values (?, ?, ?, ?)";
-
     protected final String isolationLevelName;
 
     protected final int isolationLevel;
@@ -75,8 +71,7 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJDBC(connection -> {
             try (
                     PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);

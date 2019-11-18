@@ -7,7 +7,6 @@ import com.vladmihalcea.book.hpjp.util.providers.LockType;
 import com.vladmihalcea.book.hpjp.util.transaction.*;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import net.sf.ehcache.Cache;
 import org.hibernate.Interceptor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -23,8 +22,6 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.cache.internal.QueryResultsCacheImpl;
 import org.hibernate.cache.jcache.internal.JCacheAccessImpl;
-import org.hibernate.cache.spi.QueryResultsRegion;
-import org.hibernate.cache.spi.Region;
 import org.hibernate.cache.spi.entry.CollectionCacheEntry;
 import org.hibernate.cache.spi.entry.StandardCacheEntryImpl;
 import org.hibernate.cache.spi.support.*;
@@ -35,10 +32,6 @@ import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.hibernate.stat.CacheRegionStatistics;
-import org.hibernate.stat.QueryStatistics;
-import org.hibernate.stat.SecondLevelCacheStatistics;
-import org.hibernate.stat.Statistics;
-import org.hibernate.stat.internal.CacheRegionStatisticsImpl;
 import org.hibernate.type.BasicType;
 import org.hibernate.type.Type;
 import org.hibernate.usertype.CompositeUserType;
@@ -55,7 +48,6 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.sql.DataSource;
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.URL;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -774,6 +766,17 @@ public abstract class AbstractTest {
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    protected void ddl(String sql) {
+        doInJDBC(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                statement.setQueryTimeout(1);
+                statement.executeUpdate(sql);
+            } catch (SQLException e) {
+                LOGGER.error("Statement failed", e);
+            }
+        });
     }
 
     protected void executeStatement(Connection connection, String sql) {

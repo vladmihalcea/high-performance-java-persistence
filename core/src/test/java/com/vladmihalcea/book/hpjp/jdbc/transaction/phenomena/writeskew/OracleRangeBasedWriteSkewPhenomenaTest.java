@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.jdbc.transaction.phenomena.linearizabilty;
+package com.vladmihalcea.book.hpjp.jdbc.transaction.phenomena.writeskew;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,13 +17,11 @@ import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
 import static org.junit.Assert.assertEquals;
 
 /**
- * OraclePhenomenaTest - Test to validate Oracle phenomena
- *
  * @author Vlad Mihalcea
  */
-public class OracleLinearizabilityPhenomenaTest extends AbstractLinearizabilityPhenomenaTest {
+public class OracleRangeBasedWriteSkewPhenomenaTest extends AbstractRangeBasedWriteSkewPhenomenaTest {
 
-    public OracleLinearizabilityPhenomenaTest(String isolationLevelName, int isolationLevel) {
+    public OracleRangeBasedWriteSkewPhenomenaTest(String isolationLevelName, int isolationLevel) {
         super(isolationLevelName, isolationLevel);
     }
 
@@ -49,7 +47,7 @@ public class OracleLinearizabilityPhenomenaTest extends AbstractLinearizabilityP
     }
 
     @Test
-    public void testPhantomWriteAggregateNTimes() {
+    public void testWriteSkewAggregateNTimes() {
         if (isolationLevel != Connection.TRANSACTION_SERIALIZABLE) {
             return;
         }
@@ -115,11 +113,11 @@ public class OracleLinearizabilityPhenomenaTest extends AbstractLinearizabilityP
             doInJDBC(aliceConnection -> {
                 long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
                 if(99_000 != salaryCount) {
-                    LOGGER.info("Isolation level {} allows Phantom Write since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
+                    LOGGER.info("Isolation level {} allows Write Skew since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
                     fail.incrementAndGet();
                 }
                 else {
-                    LOGGER.info("Isolation level {} prevents Phantom Write {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
+                    LOGGER.info("Isolation level {} prevents Write Skew {}", isolationLevelName, preventedByLocking.get() ? "due to locking" : "");
                     ok.incrementAndGet();
                 }
             });
