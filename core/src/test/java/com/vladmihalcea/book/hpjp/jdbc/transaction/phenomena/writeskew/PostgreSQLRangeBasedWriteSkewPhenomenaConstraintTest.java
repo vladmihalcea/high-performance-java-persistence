@@ -87,7 +87,7 @@ public class PostgreSQLRangeBasedWriteSkewPhenomenaConstraintTest extends Abstra
                                     int employeeId = 4;
                                     int index = 0;
                                     employeeStatement.setLong(++index, 1);
-                                    employeeStatement.setString(++index, "Carol");
+                                    employeeStatement.setString(++index, "Dave");
                                     employeeStatement.setLong(++index, 9_000);
                                     employeeStatement.setLong(++index, employeeId);
                                     employeeStatement.executeUpdate();
@@ -172,7 +172,7 @@ public class PostgreSQLRangeBasedWriteSkewPhenomenaConstraintTest extends Abstra
                                     int employeeId = 4;
                                     int index = 0;
                                     employeeStatement.setLong(++index, 1);
-                                    employeeStatement.setString(++index, "Carol");
+                                    employeeStatement.setString(++index, "Dave");
                                     employeeStatement.setLong(++index, 9_000);
                                     employeeStatement.setLong(++index, employeeId);
                                     employeeStatement.executeUpdate();

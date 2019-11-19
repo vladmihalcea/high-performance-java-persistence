@@ -69,11 +69,6 @@ public abstract class AbstractDepartmentEmployeePhenomenaTest extends AbstractTe
         return "UPDATE employee SET salary = salary * 1.1 WHERE department_id = 1";
     }
 
-    private List<String> employeeNames = Arrays.asList(
-        "Alice",
-        "Bob"
-    );
-
     @Override
     public void afterInit() {
         doInJDBC(connection -> {
@@ -87,14 +82,30 @@ public abstract class AbstractDepartmentEmployeePhenomenaTest extends AbstractTe
                 departmentStatement.setLong(++index, 1);
                 departmentStatement.executeUpdate();
 
-                for (int i = 0; i < 2; i++) {
-                    index = 0;
-                    employeeStatement.setLong(++index, 1);
-                    employeeStatement.setString(++index, String.format(employeeNames.get(i), i));
-                    employeeStatement.setLong(++index, 45_000);
-                    employeeStatement.setLong(++index, i);
-                    employeeStatement.executeUpdate();
-                }
+                index = 0;
+
+                employeeStatement.setLong(++index, 1);
+                employeeStatement.setString(++index, "Alice");
+                employeeStatement.setLong(++index, 40_000);
+                employeeStatement.setLong(++index, 1);
+                employeeStatement.executeUpdate();
+
+                index = 0;
+
+                employeeStatement.setLong(++index, 1);
+                employeeStatement.setString(++index, "Bob");
+                employeeStatement.setLong(++index, 30_000);
+                employeeStatement.setLong(++index, 2);
+                employeeStatement.executeUpdate();
+
+                index = 0;
+
+                employeeStatement.setLong(++index, 1);
+                employeeStatement.setString(++index, "Carol");
+                employeeStatement.setLong(++index, 20_000);
+                employeeStatement.setLong(++index, 3);
+                employeeStatement.executeUpdate();
+
             } catch (SQLException e) {
                 fail(e.getMessage());
             }
