@@ -28,7 +28,7 @@ public class PostgreSQLRangeBasedWriteSkewPhenomenaConstraintTest extends Abstra
         super.afterInit();
 
         doInJDBC(connection -> {
-            ddl("DROP TRIGGER IF EXISTS validate_department_budget ON employee;");
+            ddl("DROP TRIGGER IF EXISTS check_department_budget_trigger ON employee;");
             ddl("DROP FUNCTION check_department_budget();");
 
             ddl("CREATE OR REPLACE FUNCTION check_department_budget() RETURNS trigger AS $$ " +
@@ -48,7 +48,7 @@ public class PostgreSQLRangeBasedWriteSkewPhenomenaConstraintTest extends Abstra
                 "$$ LANGUAGE plpgsql;"
             );
 
-            ddl("CREATE TRIGGER validate_department_budget " +
+            ddl("CREATE TRIGGER check_department_budget_trigger " +
                 "AFTER INSERT OR UPDATE ON employee " +
                 "FOR EACH ROW EXECUTE PROCEDURE check_department_budget();"
             );
@@ -57,7 +57,7 @@ public class PostgreSQLRangeBasedWriteSkewPhenomenaConstraintTest extends Abstra
 
     @Override
     public void destroy() {
-        ddl("DROP TRIGGER IF EXISTS validate_department_budget ON employee;");
+        ddl("DROP TRIGGER IF EXISTS check_department_budget_trigger ON employee;");
         ddl("DROP FUNCTION check_department_budget();");
         super.destroy();
     }
