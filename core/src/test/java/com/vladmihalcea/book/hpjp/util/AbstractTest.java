@@ -769,14 +769,25 @@ public abstract class AbstractTest {
     }
 
     protected void ddl(String sql) {
-        doInJDBC(connection -> {
-            try (Statement statement = connection.createStatement()) {
-                statement.setQueryTimeout(1);
+        EntityManagerFactory emf = entityManagerFactory();
+        if(emf != null && emf.isOpen()) {
+            doInJDBC(connection -> {
+                try (Statement statement = connection.createStatement()) {
+                    statement.setQueryTimeout(1);
+                    statement.executeUpdate(sql);
+                } catch (SQLException e) {
+                    LOGGER.error("Statement failed", e);
+                }
+            });
+        }
+        else {
+            try (Connection connection = newDataSource().getConnection();
+                 Statement statement = connection.createStatement()) {
                 statement.executeUpdate(sql);
             } catch (SQLException e) {
                 LOGGER.error("Statement failed", e);
             }
-        });
+        }
     }
 
     protected void executeStatement(Connection connection, String sql) {

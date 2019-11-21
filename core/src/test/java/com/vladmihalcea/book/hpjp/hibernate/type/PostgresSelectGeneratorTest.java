@@ -1,8 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -14,7 +14,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vlad Mihalcea
  */
-public class PostgresUUIDTest extends AbstractPostgreSQLIntegrationTest {
+public class PostgresSelectGeneratorTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -25,29 +25,27 @@ public class PostgresUUIDTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     public void init() {
-        ddl("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"");
+        ddl("CREATE SEQUENCE event_sequence START 1");
         super.init();
     }
 
     @Override
     public void destroy() {
-        doInJPA(entityManager -> {
-            entityManager.createNativeQuery(
-                "DROP EXTENSION \"uuid-ossp\" CASCADE"
-            ).executeUpdate();
-        });
         super.destroy();
+        ddl("DROP SEQUENCE event_sequence");
     }
 
     @Test
     public void test() {
-        Event _event = doInJPA(entityManager -> {
+        Long id = doInJPA(entityManager -> {
             Event event = new Event();
+            event.name = "Hypersistence";
             entityManager.persist(event);
-            return event;
+
+            return event.id;
         });
 
-        assertNotNull(_event.uuid);
+        assertNotNull(id);
     }
 
     @Entity(name = "Event")
@@ -55,12 +53,13 @@ public class PostgresUUIDTest extends AbstractPostgreSQLIntegrationTest {
     public static class Event {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(generator = "select")
+        @GenericGenerator(name = "select", strategy = "select")
+        @Column(columnDefinition = "BIGINT DEFAULT nextval('event_sequence')")
         private Long id;
 
-        @Generated(GenerationTime.INSERT)
-        @Column(columnDefinition = "UUID NOT NULL DEFAULT uuid_generate_v4()", insertable = false)
-        private UUID uuid;
+        @NaturalId
+        private String name;
 
     }
 }

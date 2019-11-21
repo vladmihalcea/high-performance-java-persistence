@@ -11,6 +11,7 @@ import com.vladmihalcea.book.hpjp.util.providers.queries.SQLServerQueries;
  * @author Vlad Mihalcea
  */
 public class SQLServerDataSourceProvider implements DataSourceProvider {
+
 	@Override
 	public String hibernateDialect() {
 		return "org.hibernate.dialect.SQLServer2012Dialect";
