@@ -1,14 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.Arrays;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -72,13 +71,7 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
                     });
                 });
             } catch (Exception e) {
-                assertEquals(
-                    1,
-                    Arrays.stream(ExceptionUtils.getThrowables(e))
-                    .map(Throwable::getClass)
-                    .filter(clazz -> clazz.equals(LockTimeoutException.class))
-                    .count()
-                );
+                assertTrue(ExceptionUtil.rootCause(e).getMessage().contains("could not obtain lock on row in relation \"post\""));
             }
         });
     }
