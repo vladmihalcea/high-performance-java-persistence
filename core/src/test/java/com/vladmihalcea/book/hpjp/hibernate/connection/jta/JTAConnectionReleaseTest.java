@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = JTAConnectionReleaseConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class JtaConnectionReleaseTest {
+public class JTAConnectionReleaseTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
