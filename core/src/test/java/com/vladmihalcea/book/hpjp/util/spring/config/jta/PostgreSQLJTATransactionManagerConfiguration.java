@@ -16,28 +16,28 @@ import java.util.Properties;
 public abstract class PostgreSQLJTATransactionManagerConfiguration extends AbstractJTATransactionManagerConfiguration {
 
     @Value("${jdbc.dataSourceClassName}")
-    private String dataSourceClassName;
+    protected String dataSourceClassName;
 
     @Value("${btm.config.journal:disk}")
-    private String btmJournal;
+    protected String btmJournal;
 
     @Value("${jdbc.username}")
-    private String jdbcUser;
+    protected String jdbcUser;
 
     @Value("${jdbc.password}")
-    private String jdbcPassword;
+    protected String jdbcPassword;
 
     @Value("${jdbc.database}")
-    private String jdbcDatabase;
+    protected String jdbcDatabase;
 
     @Value("${jdbc.host}")
-    private String jdbcHost;
+    protected String jdbcHost;
 
     @Value("${jdbc.port}")
-    private String jdbcPort;
+    protected String jdbcPort;
 
     @Value("${hibernate.dialect}")
-    private String hibernateDialect;
+    protected String hibernateDialect;
 
     public DataSource actualDataSource() {
         PoolingDataSource poolingDataSource = new PoolingDataSource();
