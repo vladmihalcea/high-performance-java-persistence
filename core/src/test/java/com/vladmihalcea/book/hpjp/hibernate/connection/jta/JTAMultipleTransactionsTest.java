@@ -65,7 +65,7 @@ public class JTAMultipleTransactionsTest {
     protected final ExecutorService executorService = Executors.newFixedThreadPool(3);
 
     @Test
-    public void testSameJTATransactionMultipleSessionsSameConection() {
+    public void testSameJTATransactionMultipleSessionsSameConnection() {
         try(Session session1 = entityManagerFactory.unwrap(SessionFactory.class).openSession()) {
             session1.beginTransaction();
 
