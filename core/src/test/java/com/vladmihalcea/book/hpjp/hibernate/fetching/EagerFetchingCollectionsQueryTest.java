@@ -1,35 +1,45 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
 import javax.persistence.*;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
  * @author Vlad Mihalcea
  */
-public class EagerFetchingSetTest extends AbstractTest {
+public class EagerFetchingCollectionsQueryTest extends AbstractTest {
+
+    public static final int POST_COUNT = 50;
+    public static final int POST_COMMENT_COUNT = 20;
+    public static final int TAG_COUNT = 10;
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostComment.class,
-                Tag.class
+            Post.class,
+            PostComment.class,
+            Tag.class
         };
     }
+
+    @Override
+    protected void additionalProperties(Properties properties) {
+        properties.put("hibernate.jdbc.batch_size", "50");
+        properties.put("hibernate.order_inserts", "true");
+        properties.put("hibernate.order_updates", "true");
+    }
+
     @Override
     public void afterInit() {
         doInJPA(entityManager -> {
 
             List<Tag> tags = new ArrayList<>();
 
-            for (long i = 1; i <= 3; i++) {
+            for (long i = 1; i <= TAG_COUNT; i++) {
                 Tag tag = new Tag()
                     .setId(i)
                     .setName(String.format("Tag nr. %d", i + 1));
@@ -40,48 +50,59 @@ public class EagerFetchingSetTest extends AbstractTest {
 
             long commentId = 0;
 
-            Post post = new Post()
-                .setId(1L)
-                .setTitle(String.format("Post nr. %d", 1L));
+            for (long postId = 1; postId <= POST_COUNT; postId++) {
+                Post post = new Post()
+                    .setId(postId)
+                    .setTitle(String.format("Post nr. %d", postId));
 
 
-            for (long i = 0; i < 2; i++) {
-                post.addComment(
-                    new PostComment()
-                        .setId(++commentId)
-                        .setReview("Excellent!")
-                );
+                for (long i = 0; i < POST_COMMENT_COUNT; i++) {
+                    post.addComment(
+                        new PostComment()
+                            .setId(++commentId)
+                            .setReview("Excellent!")
+                    );
+                }
+
+                for (int i = 0; i < TAG_COUNT; i++) {
+                    post.getTags().add(tags.get(i));
+                }
+
+                entityManager.persist(post);
             }
-
-            for (int i = 0; i < 3; i++) {
-                post.getTags().add(tags.get(i));
-            }
-
-            entityManager.persist(post);
         });
     }
 
     @Test
-    public void testFindEntityById() {
-        Post post = doInJPA(entityManager -> {
-            return entityManager.find(Post.class, 1L);
-        });
-        assertFalse(post.getComments().isEmpty());
-        assertFalse(post.getTags().isEmpty());
-    }
-
-    @Test
-    public void testQueryEntityById() {
-        Post post = doInJPA(entityManager -> {
+    public void testJoinFetch() {
+        List<Post> posts = doInJPA(entityManager -> {
             return entityManager.createQuery(
                 "select p " +
                 "from Post p " +
-                "where p.id = :id", Post.class)
-            .setParameter("id", 1L)
-            .getSingleResult();
+                "left join fetch p.comments " +
+                "left join fetch p.tags", Post.class)
+            .getResultList();
         });
-        assertFalse(post.getComments().isEmpty());
-        assertFalse(post.getTags().isEmpty());
+
+        assertFalse(posts.isEmpty());
+
+        assertFalse(posts.get(0).getComments().isEmpty());
+        assertFalse(posts.get(0).getTags().isEmpty());
+    }
+
+    @Test
+    public void testWithoutJoinFetch() {
+        List<Post> posts = doInJPA(entityManager -> {
+            return entityManager.createQuery(
+                "select p " +
+                "from Post p ", Post.class)
+            .getResultList();
+        });
+
+        assertFalse(posts.isEmpty());
+
+        assertFalse(posts.get(0).getComments().isEmpty());
+        assertFalse(posts.get(0).getTags().isEmpty());
     }
 
     @Entity(name = "Post")
