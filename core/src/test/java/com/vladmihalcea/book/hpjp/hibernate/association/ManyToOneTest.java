@@ -1,11 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import java.util.List;
-
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
 import javax.persistence.*;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -80,6 +81,36 @@ public class ManyToOneTest extends AbstractTest {
                 "where pc.post.id = :postId", PostComment.class)
             .setParameter( "postId", 1L )
             .getResultList();
+        });
+    }
+
+    @Test
+    public void testPersistAndQuery() {
+        Post post = new Post();
+        post.setTitle("High-Performance Java Persistence");
+
+        PostComment comment = new PostComment();
+        comment.setReview("Amazing book!");
+        comment.setPost(post);
+
+        doInJPA(entityManager -> {
+            entityManager.persist(post);
+            entityManager.persist(comment);
+        });
+
+        doInJPA(entityManager -> {
+            PostComment postComment = entityManager
+            .createQuery(
+                "select pc " +
+                "from PostComment pc " +
+                "join fetch pc.post " +
+                "where pc.id = :id", PostComment.class)
+            .setParameter("id", comment.getId())
+            .getSingleResult();
+
+            assertEquals("High-Performance Java Persistence", postComment.getPost().getTitle());
+            assertEquals("Amazing book!", postComment.getReview());
+
         });
     }
     

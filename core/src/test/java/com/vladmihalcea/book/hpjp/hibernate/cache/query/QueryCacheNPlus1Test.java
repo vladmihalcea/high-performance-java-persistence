@@ -94,6 +94,7 @@ public class QueryCacheNPlus1Test extends AbstractTest {
         doInJPA(entityManager -> {
             printQueryCacheRegionStatistics();
             assertEquals(3, getLatestPostComments(entityManager).size());
+            printQueryCacheRegionStatistics();
         });
 
         doInJPA(entityManager -> {

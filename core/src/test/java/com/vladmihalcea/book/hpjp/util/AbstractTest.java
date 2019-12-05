@@ -185,7 +185,7 @@ public abstract class AbstractTest {
         final List<Type> additionalTypes = additionalTypes();
         if (additionalTypes != null) {
             additionalTypes.stream().forEach(type -> {
-                metadataBuilder.applyTypes((typeContributions, serviceRegistry1) -> {
+                metadataBuilder.applyTypes((typeContributions, sr) -> {
                     if(type instanceof BasicType) {
                         typeContributions.contributeType((BasicType) type);
                     } else if (type instanceof UserType ){
