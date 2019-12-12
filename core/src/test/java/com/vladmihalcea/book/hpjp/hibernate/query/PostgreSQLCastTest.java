@@ -71,6 +71,26 @@ public class PostgreSQLCastTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
+    public void testCastEscapeOperator() {
+        doInJPA(entityManager -> {
+            List<Post> posts = entityManager.createNativeQuery(
+                "SELECT * " +
+                "FROM post " +
+                "WHERE " +
+                "   date_part('dow', created_on) = " +
+                "   date_part('dow', :datetime\\:\\:date)", Post.class)
+            .setParameter("datetime", Timestamp.valueOf(
+                LocalDateTime.now().with(
+                    TemporalAdjusters.next(DayOfWeek.MONDAY)))
+                )
+            .getResultList();
+
+            assertEquals(1, posts.size());
+            assertEquals("High-Performance Java Persistence, Part 1", posts.get(0).getTitle());
+        });
+    }
+
+    @Test
     public void testCastFunction() {
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createNativeQuery(

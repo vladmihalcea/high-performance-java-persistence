@@ -12,9 +12,9 @@ import java.util.List;
  */
 public class ClassImportIntegrator implements Integrator {
 
-	private final List<Class> classImportList;
+	private final List<? extends Class> classImportList;
 
-	public ClassImportIntegrator(List<Class> classImportList) {
+	public ClassImportIntegrator(List<? extends Class> classImportList) {
 		this.classImportList = classImportList;
 	}
 
