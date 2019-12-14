@@ -12,7 +12,7 @@ import java.util.List;
 @Service
 public interface ReleaseAfterStatementForumService {
 
-    Post newPost(String title, String... tags);
+    Post newPost(String title);
 
     PostDTO savePostTitle(Long id, String title);
 }

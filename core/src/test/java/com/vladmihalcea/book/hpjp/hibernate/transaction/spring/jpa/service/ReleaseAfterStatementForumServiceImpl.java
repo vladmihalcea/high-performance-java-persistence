@@ -48,7 +48,7 @@ public class ReleaseAfterStatementForumServiceImpl implements ReleaseAfterStatem
 
     @Override
     @Transactional
-    public Post newPost(String title, String... tags) {
+    public Post newPost(String title) {
         Post post = new Post();
         post.setTitle(title);
         return postDAO.persist(post);

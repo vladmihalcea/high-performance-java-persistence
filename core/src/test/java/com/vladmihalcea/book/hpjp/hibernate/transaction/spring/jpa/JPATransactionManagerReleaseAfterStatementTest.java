@@ -16,6 +16,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertEquals;
 
 /**
+ * This test case demonstrates what happens when you enable the AFTER_STATEMENT
+ * Hibernate connection release mode when using a RESOURCE_LOCAL JPA transaction
+ * with Spring.
+ *
+ * Currently, this mode is disabled, as it will make the test fail.
+ * To enable the AFTER_STATEMENT release mode, open the {@link JPATransactionManagerReleaseAfterStatementConfiguration}
+ * file and pass the {@code DELAYED_ACQUISITION_AND_RELEASE_AFTER_STATEMENT} setting to the
+ * {@code CONNECTION_HANDLING} Hibernate configuration property.
+ *
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -30,9 +39,20 @@ public class JPATransactionManagerReleaseAfterStatementTest {
 
     @Test
     public void test() {
-        Post newPost = releaseAfterStatementForumService.newPost("High-Performance Java Persistence", "hibernate", "jpa");
+        Post newPost = releaseAfterStatementForumService
+        .newPost(
+            "High-Performance Java Persistence"
+        );
 
-        PostDTO postDTO = releaseAfterStatementForumService.savePostTitle(newPost.getId(), "High-Performance Java Persistence, 2nd edition");
-        assertEquals("High-Performance Java Persistence, 2nd edition", postDTO.getTitle());
+        PostDTO postDTO = releaseAfterStatementForumService
+        .savePostTitle(
+            newPost.getId(),
+            "High-Performance Java Persistence, 2nd edition"
+        );
+
+        assertEquals(
+            "High-Performance Java Persistence, 2nd edition",
+            postDTO.getTitle()
+        );
     }
 }
