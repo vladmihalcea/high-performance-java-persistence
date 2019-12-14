@@ -34,7 +34,7 @@ import java.util.Properties;
  * @author Vlad Mihalcea
  */
 @Configuration
-@PropertySource({"/META-INF/jdbc-mysql.properties"})
+@PropertySource({"/META-INF/jdbc-postgresql.properties"})
 @ComponentScan(basePackages = {
     "com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao",
     "com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.service",

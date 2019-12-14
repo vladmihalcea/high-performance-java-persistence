@@ -44,6 +44,19 @@ public class ResourceLocalReleaseAfterStatementTest {
             "High-Performance Java Persistence"
         );
 
+        /*
+         * At this point, if we enable the {@code DELAYED_ACQUISITION_AND_RELEASE_AFTER_STATEMENT}
+         * connection release mode, there won't be any Post available because the previous @Transactional
+         * block did not commit the database transaction for the same JDBC Connection that was used
+         * to persist the Post entity.
+         *
+         * So, basically, the Post entity is persisted using one JDBC Connection, which is also sent
+         * back to the pool after the flush is done, and by the time the TransactionInterceptor
+         * tries to commit the connection, no {@code physicalConnection} will be found in
+         * {@link LogicalConnectionManagedImpl}, so a new JDBC Connection will be fetched from the ppol
+         * only to commit that instead of the one that contained the modifications.
+         */
+
         PostDTO postDTO = releaseAfterStatementForumService
         .savePostTitle(
             newPost.getId(),
