@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.jpa.QueryHints;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -137,6 +138,19 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
         verifyResults();
     }
 
+    @Test
+    public void testPostMerge() {
+        Post post = fetchPostWithComments(1L);
+
+        modifyPostComments(post);
+
+        doInJPA(entityManager -> {
+            entityManager.merge(post);
+        });
+
+        verifyResults();
+    }
+
     public List<PostComment> fetchPostComments(Long postId) {
         return doInJPA(entityManager -> {
             return entityManager.createQuery(
@@ -150,6 +164,20 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
         });
     }
 
+    public Post fetchPostWithComments(Long postId) {
+        return doInJPA(entityManager -> {
+            return entityManager.createQuery(
+                "select distinct p " +
+                "from Post p " +
+                "join fetch p.comments " +
+                "where p.id = :postId ", Post.class)
+            .setHint(QueryHints.HINT_READONLY, true)
+            .setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false)
+            .setParameter("postId", postId)
+            .getSingleResult();
+        });
+    }
+
     private void modifyComments(List<PostComment> comments) {
         comments.get(0)
         .setReview("The JDBC part is a must have!");
@@ -157,6 +185,20 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
         comments.remove(2);
 
         comments.add(
+            new PostComment()
+            .setReview(
+                "The last part is about jOOQ and " +
+                "how to get the most of your relational database."
+            )
+        );
+    }
+
+    private void modifyPostComments(Post post) {
+        post.getComments().get(0).setReview("The JDBC part is a must have!");
+
+        post.removeComment(post.getComments().get(2));
+
+        post.addComment(
             new PostComment()
             .setReview(
                 "The last part is about jOOQ and " +
