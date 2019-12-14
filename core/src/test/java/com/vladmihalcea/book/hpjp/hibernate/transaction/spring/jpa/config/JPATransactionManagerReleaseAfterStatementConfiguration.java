@@ -1,16 +1,18 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config;
 
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.ClassImportIntegrator;
 import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.logging.LoggingStatementInspector;
-import com.vladmihalcea.book.hpjp.hibernate.forum.dto.ClassImportIntegrator;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
+import org.hibernate.resource.jdbc.spi.PhysicalConnectionHandlingMode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -32,14 +34,14 @@ import java.util.Properties;
  * @author Vlad Mihalcea
  */
 @Configuration
-@PropertySource({"/META-INF/jdbc-hsqldb.properties"})
+@PropertySource({"/META-INF/jdbc-mysql.properties"})
 @ComponentScan(basePackages = {
     "com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.dao",
     "com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.service",
 })
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-public class JPATransactionManagerConfiguration {
+public class JPATransactionManagerReleaseAfterStatementConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 
@@ -73,8 +75,11 @@ public class JPATransactionManagerConfiguration {
         Properties properties = new Properties();
         properties.put("dataSourceClassName", dataSourceClassName);
         properties.put("dataSourceProperties", driverProperties);
-        properties.setProperty("maximumPoolSize", String.valueOf(3));
-        return new HikariDataSource(new HikariConfig(properties));
+        properties.setProperty("maximumPoolSize", String.valueOf(5));
+
+        HikariConfig hikariConfig = new HikariConfig(properties);
+        hikariConfig.setAutoCommit(false);
+        return new HikariDataSource(hikariConfig);
     }
 
     @Bean
@@ -127,6 +132,11 @@ public class JPATransactionManagerConfiguration {
                 (IntegratorProvider) () -> Collections.singletonList(
                     new ClassImportIntegrator(Arrays.asList(PostDTO.class))
                 )
+        );
+        properties.put(
+            AvailableSettings.CONNECTION_HANDLING,
+            //PhysicalConnectionHandlingMode.DELAYED_ACQUISITION_AND_RELEASE_AFTER_STATEMENT
+            PhysicalConnectionHandlingMode.DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION
         );
         return properties;
     }
