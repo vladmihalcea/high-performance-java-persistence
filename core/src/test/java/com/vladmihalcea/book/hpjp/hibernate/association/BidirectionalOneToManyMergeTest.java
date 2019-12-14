@@ -180,7 +180,7 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
 
     private void modifyComments(List<PostComment> comments) {
         comments.get(0)
-        .setReview("The JDBC part is a must have!");
+        .setReview("The JDBC part is a must-have!");
 
         comments.remove(2);
 
@@ -194,7 +194,7 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
     }
 
     private void modifyPostComments(Post post) {
-        post.getComments().get(0).setReview("The JDBC part is a must have!");
+        post.getComments().get(0).setReview("The JDBC part is a must-have!");
 
         post.removeComment(post.getComments().get(2));
 
@@ -221,7 +221,7 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
             assertEquals(4, post.getComments().size());
 
             assertEquals(
-                "The JDBC part is a must have!",
+                "The JDBC part is a must-have!",
                 post.getComments().get(0).getReview()
             );
 
