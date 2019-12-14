@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa;
 
 import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
-import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config.JPATransactionManagerReleaseAfterStatementConfiguration;
+import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config.ResourceLocalReleaseAfterStatementConfiguration;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.service.ReleaseAfterStatementForumService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,16 +21,16 @@ import static org.junit.Assert.assertEquals;
  * with Spring.
  *
  * Currently, this mode is disabled, as it will make the test fail.
- * To enable the AFTER_STATEMENT release mode, open the {@link JPATransactionManagerReleaseAfterStatementConfiguration}
+ * To enable the AFTER_STATEMENT release mode, open the {@link ResourceLocalReleaseAfterStatementConfiguration}
  * file and pass the {@code DELAYED_ACQUISITION_AND_RELEASE_AFTER_STATEMENT} setting to the
  * {@code CONNECTION_HANDLING} Hibernate configuration property.
  *
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = JPATransactionManagerReleaseAfterStatementConfiguration.class)
+@ContextConfiguration(classes = ResourceLocalReleaseAfterStatementConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class JPATransactionManagerReleaseAfterStatementTest {
+public class ResourceLocalReleaseAfterStatementTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 

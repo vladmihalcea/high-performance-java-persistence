@@ -41,7 +41,7 @@ import java.util.Properties;
 })
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-public class JPATransactionManagerReleaseAfterStatementConfiguration {
+public class ResourceLocalReleaseAfterStatementConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 
