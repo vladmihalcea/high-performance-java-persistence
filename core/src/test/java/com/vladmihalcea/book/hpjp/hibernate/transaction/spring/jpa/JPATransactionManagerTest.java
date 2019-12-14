@@ -84,5 +84,8 @@ public class JPATransactionManagerTest {
 
         PostDTO postDTO = forumService.getPostDTOById(newPost.getId());
         assertEquals("High-Performance Java Persistence", postDTO.getTitle());
+
+        postDTO = forumService.savePostTitle(newPost.getId(), "High-Performance Java Persistence, 2nd edition");
+        assertEquals("High-Performance Java Persistence, 2nd edition", postDTO.getTitle());
     }
 }

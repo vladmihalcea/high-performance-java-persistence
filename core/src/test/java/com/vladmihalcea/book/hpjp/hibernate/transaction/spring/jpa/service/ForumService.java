@@ -19,4 +19,6 @@ public interface ForumService {
     Post findById(Long id);
 
     PostDTO getPostDTOById(Long id);
+
+    PostDTO savePostTitle(Long id, String title);
 }

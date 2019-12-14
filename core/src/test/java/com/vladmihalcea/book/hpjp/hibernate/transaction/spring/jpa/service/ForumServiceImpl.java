@@ -76,6 +76,16 @@ public class ForumServiceImpl implements ForumService {
         return postDAO.getPostDTOById(id);
     }
 
+    @Override
+    @Transactional
+    public PostDTO savePostTitle(Long id, String title) {
+        Post post = postDAO.findById(id);
+
+        post.setTitle(title);
+
+        return postDAO.getPostDTOById(id);
+    }
+
     private org.hibernate.engine.spi.PersistenceContext getHibernatePersistenceContext() {
         SharedSessionContractImplementor session = entityManager.unwrap(
             SharedSessionContractImplementor.class
