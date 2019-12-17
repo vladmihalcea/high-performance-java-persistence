@@ -28,8 +28,15 @@ public class HiloIdentifierTest extends AbstractTest {
     @Test
     public void testHiloIdentifierGenerator() {
         doInJPA(entityManager -> {
-            for(int i = 0; i < 4; i++) {
+            for (int i = 0; i < 4; i++) {
                 Post post = new Post();
+                post.setTitle(
+                    String.format(
+                        "High-Performance Java Persistence, Part %d",
+                        i + 1
+                    )
+                );
+
                 entityManager.persist(post);
             }
         });
@@ -39,10 +46,10 @@ public class HiloIdentifierTest extends AbstractTest {
     public static class Post {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hilo")
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_sequence")
         @GenericGenerator(
-            name = "hilo",
-            strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+            name = "post_sequence",
+            strategy = "sequence",
             parameters = {
                 @Parameter(name = "sequence_name", value = "post_sequence"),
                 @Parameter(name = "initial_value", value = "1"),
@@ -51,7 +58,23 @@ public class HiloIdentifierTest extends AbstractTest {
             }
         )
         private Long id;
+
+        private String title;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
     }
-
-
 }

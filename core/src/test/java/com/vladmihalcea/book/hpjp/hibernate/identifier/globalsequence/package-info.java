@@ -1,6 +1,6 @@
 @GenericGenerator(
 	name = "pooled",
-	strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+	strategy = "sequence",
 	parameters = {
 		@Parameter(name = "sequence_name", value = "sequence"),
 		@Parameter(name = "initial_value", value = "1"),

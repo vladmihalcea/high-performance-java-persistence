@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
-import com.vladmihalcea.book.hpjp.hibernate.identifier.batch.AbstractBatchIdentifierTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
@@ -18,11 +17,15 @@ public class SimpleSequenceIdentifierTest extends AbstractTest {
     @Test
     public void testSequenceIdentifierGenerator() {
         doInJPA(entityManager -> {
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 4; i++) {
                 Post post = new Post();
                 post.setTitle(
-                        String.format("High-Performance Java Persistence, Part %d", i + 1)
+                    String.format(
+                        "High-Performance Java Persistence, Part %d",
+                        i + 1
+                    )
                 );
+
                 entityManager.persist(post);
             }
         });
@@ -34,7 +37,13 @@ public class SimpleSequenceIdentifierTest extends AbstractTest {
 
         @Id
         @GeneratedValue(
-            strategy = GenerationType.SEQUENCE
+            strategy = GenerationType.SEQUENCE,
+            generator = "post_sequence"
+        )
+        @SequenceGenerator(
+            name = "post_sequence",
+            sequenceName = "post_sequence",
+            allocationSize = 1
         )
         private Long id;
 

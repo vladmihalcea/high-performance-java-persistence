@@ -35,12 +35,12 @@ public class PooledLoSequenceIdentifierTest extends AbstractPooledSequenceIdenti
         @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pooled-lo")
         @GenericGenerator(
                 name = "pooled-lo",
-                strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+                strategy = "sequence",
                 parameters = {
-                        @Parameter(name = "sequence_name", value = "post_sequence"),
-                        @Parameter(name = "initial_value", value = "1"),
-                        @Parameter(name = "increment_size", value = "3"),
-                        @Parameter(name = "optimizer", value = "pooled-lo")
+                    @Parameter(name = "sequence_name", value = "post_sequence"),
+                    @Parameter(name = "initial_value", value = "1"),
+                    @Parameter(name = "increment_size", value = "3"),
+                    @Parameter(name = "optimizer", value = "pooled-lo")
                 }
         )
         private Long id;
