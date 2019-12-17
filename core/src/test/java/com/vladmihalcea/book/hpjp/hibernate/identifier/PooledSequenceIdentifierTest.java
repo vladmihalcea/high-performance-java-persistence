@@ -14,7 +14,7 @@ public class PooledSequenceIdentifierTest extends AbstractPooledSequenceIdentifi
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
-                Post.class,
+            Post.class,
         };
     }
 
@@ -27,6 +27,16 @@ public class PooledSequenceIdentifierTest extends AbstractPooledSequenceIdentifi
         insertSequences();
     }
 
+    @Test
+    public void testPooledIdentifierGenerator() {
+        doInJPA(entityManager -> {
+            for(int i = 0; i < 4; i++) {
+                Post post = new Post();
+                entityManager.persist(post);
+            }
+        });
+    }
+
     @Entity(name = "Post")
     public static class Post {
 
@@ -36,7 +46,7 @@ public class PooledSequenceIdentifierTest extends AbstractPooledSequenceIdentifi
             name = "pooled",
             strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
             parameters = {
-                @Parameter(name = "sequence_name", value = "sequence"),
+                @Parameter(name = "sequence_name", value = "post_sequence"),
                 @Parameter(name = "initial_value", value = "1"),
                 @Parameter(name = "increment_size", value = "3"),
                 @Parameter(name = "optimizer", value = "pooled")

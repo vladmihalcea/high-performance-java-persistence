@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.junit.Test;
@@ -17,6 +18,11 @@ public class HiloIdentifierTest extends AbstractTest {
         return new Class<?>[] {
             Post.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 
     @Test
@@ -38,7 +44,7 @@ public class HiloIdentifierTest extends AbstractTest {
             name = "hilo",
             strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
             parameters = {
-                @Parameter(name = "sequence_name", value = "sequence"),
+                @Parameter(name = "sequence_name", value = "post_sequence"),
                 @Parameter(name = "initial_value", value = "1"),
                 @Parameter(name = "increment_size", value = "3"),
                 @Parameter(name = "optimizer", value = "hilo")

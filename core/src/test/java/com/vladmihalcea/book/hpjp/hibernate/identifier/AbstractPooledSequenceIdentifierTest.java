@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Session;
 
 import java.sql.Statement;
@@ -12,6 +13,11 @@ import static org.junit.Assert.assertEquals;
 public abstract class AbstractPooledSequenceIdentifierTest extends AbstractTest {
 
     protected abstract Object newEntityInstance();
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
 
     @Override
     protected Properties properties() {
@@ -32,7 +38,7 @@ public abstract class AbstractPooledSequenceIdentifierTest extends AbstractTest 
 
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try(Statement statement = connection.createStatement()) {
-                    statement.executeUpdate("INSERT INTO Post VALUES NEXT VALUE FOR sequence");
+                    statement.executeUpdate("INSERT INTO Post VALUES NEXT VALUE FOR post_sequence");
                 }
             });
 

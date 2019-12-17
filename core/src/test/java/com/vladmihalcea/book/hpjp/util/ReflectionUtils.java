@@ -198,13 +198,13 @@ public final class ReflectionUtils {
      * @param property  property
      */
     public static <T> T invokeGetter(Object target, String property) {
-        Method setter = getGetter(target, property);
+        Method getter = getGetter(target, property);
         try {
-            return (T) setter.invoke(target);
+            return (T) getter.invoke(target);
         } catch (IllegalAccessException e) {
-            throw handleException(setter.getName(), e);
+            throw handleException(getter.getName(), e);
         } catch (InvocationTargetException e) {
-            throw handleException(setter.getName(), e);
+            throw handleException(getter.getName(), e);
         }
     }
 

@@ -29,7 +29,7 @@ public class PooledDefaultSequenceIdentifierTest extends AbstractPooledSequenceI
         @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pooled")
         @SequenceGenerator(
             name = "pooled",
-            sequenceName = "sequence",
+            sequenceName = "post_sequence",
             allocationSize = 3
         )
         private Long id;
