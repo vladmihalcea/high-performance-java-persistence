@@ -38,7 +38,7 @@ public abstract class AbstractPooledSequenceIdentifierTest extends AbstractTest 
 
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try(Statement statement = connection.createStatement()) {
-                    statement.executeUpdate("INSERT INTO Post VALUES NEXT VALUE FOR post_sequence");
+                    statement.executeUpdate("INSERT INTO Post (id) VALUES (nextval('post_sequence'))");
                 }
             });
 
