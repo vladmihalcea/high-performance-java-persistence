@@ -46,9 +46,11 @@ public abstract class AbstractJTATransactionManagerConfiguration {
     @Bean
     public bitronix.tm.Configuration btmConfig() {
         bitronix.tm.Configuration configuration = TransactionManagerServices.getConfiguration();
-        configuration.setServerId("spring-btm");
-        configuration.setWarnAboutZeroResourceTransaction(true);
-        configuration.setJournal(btmJournal);
+        if (!TransactionManagerServices.isTransactionManagerRunning()) {
+            configuration.setServerId("spring-btm");
+            configuration.setWarnAboutZeroResourceTransaction(true);
+            configuration.setJournal(btmJournal);
+        }
         return configuration;
     }
 
