@@ -80,6 +80,18 @@ public class LatestChildJoinFormulaTest extends AbstractPostgreSQLIntegrationTes
 
 			assertEquals("Awesome!", posts.get(0).getLatestComment().getReview());
 		} );
+
+		doInJPA( entityManager -> {
+			Post post = new Post();
+			post.setId(2L);
+			post.setTitle("High-Performance Java Persistence 2nd edition");
+			entityManager.persist(post);
+		} );
+
+		doInJPA( entityManager -> {
+			Post post = entityManager.find(Post.class, 2L);
+			assertNull(post.getLatestComment());
+		} );
 	}
 
 	@Entity(name = "Post")
