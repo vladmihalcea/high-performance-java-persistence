@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping;
 
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.hibernate.annotations.JoinFormula;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ import static org.junit.Assert.assertNull;
 /**
  * @author Vlad Mihalcea
  */
-public class LatestChildJoinFormulaTest extends AbstractPostgreSQLIntegrationTest {
+public class LatestChildJoinFormulaTest extends AbstractMySQLIntegrationTest {
 
 	@Override
 	protected Class<?>[] entities() {
@@ -92,6 +92,20 @@ public class LatestChildJoinFormulaTest extends AbstractPostgreSQLIntegrationTes
 			Post post = entityManager.find(Post.class, 2L);
 			assertNull(post.getLatestComment());
 		} );
+
+        doInJPA( entityManager -> {
+            List<Post> postsWithoutLatestComment = entityManager.createQuery(
+                    "select p from Post p", Post.class)
+                    .getResultList();
+
+            assertEquals(2, postsWithoutLatestComment.size());
+
+            List<Post> postsWithLatestComment = entityManager.createQuery(
+                    "select p from Post p join fetch p.latestComment", Post.class)
+                    .getResultList();
+
+            assertEquals(2, postsWithLatestComment.size());
+        });
 	}
 
 	@Entity(name = "Post")
