@@ -151,6 +151,16 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
         verifyResults();
     }
 
+    @Test
+    public void testFailMerge() {
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            post.addComment(new PostComment("This post rocks!"));
+            post.getComments().isEmpty(); // this fails
+            entityManager.merge(post);
+        });
+    }
+
     public List<PostComment> fetchPostComments(Long postId) {
         return doInJPA(entityManager -> {
             return entityManager.createQuery(
