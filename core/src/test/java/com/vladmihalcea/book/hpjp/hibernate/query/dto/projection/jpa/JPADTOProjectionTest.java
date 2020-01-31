@@ -138,4 +138,23 @@ public class JPADTOProjectionTest extends AbstractTest {
         });
     }
 
+    @Test
+    public void testDefaultNativeQuery() {
+        doInJPA(entityManager -> {
+            List<PostDTO> postDTOs = entityManager
+            .createNativeQuery(
+                "SELECT " +
+                "       p.id AS id, " +
+                "       p.title AS title " +
+                "FROM Post p " +
+                "WHERE p.created_on > :fromTimestamp"
+            )
+            .setParameter("fromTimestamp", Timestamp.from(
+                LocalDateTime.of(2020, 1, 1, 0, 0, 0).toInstant(ZoneOffset.UTC)))
+            .getResultList();
+
+            assertEquals(1, postDTOs.size());
+        });
+    }
+
 }
