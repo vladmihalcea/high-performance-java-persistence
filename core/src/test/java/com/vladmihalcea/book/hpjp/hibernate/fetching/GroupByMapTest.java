@@ -1,8 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
-import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.jpa.QueryHints;
 import org.hibernate.transform.ResultTransformer;
 import org.junit.Test;
 
@@ -11,7 +9,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -96,7 +93,7 @@ public class GroupByMapTest extends AbstractPostgreSQLIntegrationTest {
     @Test
     public void testGroupByResultTransformer() {
         doInJPA(entityManager -> {
-            Map<Integer, Integer> postCountByYearMap = (Map<Integer, Integer>) entityManager
+            Map<Number, Number> postCountByYearMap = (Map<Number, Number>) entityManager
             .createQuery(
                 "select " +
                 "   YEAR(p.createdOn) as year, " +
@@ -106,24 +103,7 @@ public class GroupByMapTest extends AbstractPostgreSQLIntegrationTest {
                 "   YEAR(p.createdOn)")
             .unwrap(org.hibernate.query.Query.class)
             .setResultTransformer(
-                new ResultTransformer() {
-
-                    Map<Integer, Integer> result = new HashMap<>();
-
-                    @Override
-                    public Object transformTuple(Object[] tuple, String[] aliases) {
-                        result.put(
-                            ((Number) tuple[0]).intValue(),
-                            ((Number) tuple[1]).intValue()
-                        );
-                        return tuple;
-                    }
-
-                    @Override
-                    public List transformList(List collection) {
-                        return Collections.singletonList(result);
-                    }
-                }
+                new MapResultTransformer<Number, Number>()
             )
             .getSingleResult();
 
@@ -204,11 +184,32 @@ public class GroupByMapTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @FunctionalInterface
-    public interface QueryResultTransformer extends ResultTransformer {
+    public interface ListResultTransformer extends ResultTransformer {
 
         @Override
         default List transformList(List collection) {
             return collection;
+        }
+    }
+
+    public class MapResultTransformer<K, V> implements ListResultTransformer {
+
+        Map<K, V> result = new HashMap<>();
+
+        @Override
+        public Object transformTuple(Object[] tuple, String[] aliases) {
+            K key = (K) tuple[0];
+            V value = (V) tuple[1];
+            result.put(
+                key,
+                value
+            );
+            return tuple;
+        }
+
+        @Override
+        public List transformList(List collection) {
+            return Collections.singletonList(result);
         }
     }
 

@@ -343,7 +343,7 @@
         <jackson.version>2.9.10</jackson.version>
 
         <flyway.version>3.2.1</flyway.version>
-        <hibernate-types.version>2.7.1</hibernate-types.version>
+        <hibernate-types.version>2.9.0</hibernate-types.version>
 
         <junit.version>4.12</junit.version>
     </properties>
