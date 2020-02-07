@@ -256,7 +256,7 @@ public abstract class AbstractTest {
 
     protected EntityManagerFactory newEntityManagerFactory() {
         PersistenceUnitInfo persistenceUnitInfo = persistenceUnitInfo(getClass().getSimpleName());
-        Map<String, Object> configuration = new HashMap<>();
+        Map configuration = properties();
         configuration.put(AvailableSettings.INTERCEPTOR, interceptor());
         Integrator integrator = integrator();
         if (integrator != null) {
