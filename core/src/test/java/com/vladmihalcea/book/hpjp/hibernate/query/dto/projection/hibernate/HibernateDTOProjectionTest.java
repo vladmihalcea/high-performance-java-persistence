@@ -1,16 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.hibernate;
 
+import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.transform.Transformers;
+import org.junit.Test;
+
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-
-import org.hibernate.transform.Transformers;
-
-import org.junit.Test;
-
-import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
 
 import static org.junit.Assert.assertEquals;
 

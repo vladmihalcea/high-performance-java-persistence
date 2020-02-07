@@ -2,9 +2,9 @@ package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.jpa.config;
 
 import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.logging.LoggingStatementInspector;
-import com.vladmihalcea.book.hpjp.hibernate.forum.dto.ClassImportIntegrator;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
+import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;

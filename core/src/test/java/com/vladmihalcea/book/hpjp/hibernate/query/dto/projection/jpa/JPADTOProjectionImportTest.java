@@ -1,9 +1,9 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa;
 
-import com.vladmihalcea.book.hpjp.hibernate.forum.dto.ClassImportIntegrator;
 import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
 import org.hibernate.integrator.spi.Integrator;
 import org.junit.Test;
 
