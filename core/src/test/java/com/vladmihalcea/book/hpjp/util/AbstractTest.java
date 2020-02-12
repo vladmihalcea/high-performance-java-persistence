@@ -257,7 +257,10 @@ public abstract class AbstractTest {
     protected EntityManagerFactory newEntityManagerFactory() {
         PersistenceUnitInfo persistenceUnitInfo = persistenceUnitInfo(getClass().getSimpleName());
         Map configuration = properties();
-        configuration.put(AvailableSettings.INTERCEPTOR, interceptor());
+        Interceptor interceptor = interceptor();
+        if (interceptor != null) {
+            configuration.put(AvailableSettings.INTERCEPTOR, interceptor);
+        }
         Integrator integrator = integrator();
         if (integrator != null) {
             configuration.put("hibernate.integrator_provider", (IntegratorProvider) () -> Collections.singletonList(integrator));
