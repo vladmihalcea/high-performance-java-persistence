@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping.calculated;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -14,11 +14,11 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class JPACalculatedPostLoadTest extends AbstractTest {
+public class JPACalculatedPostLoadTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
+        return new Class<?>[]{
             Account.class,
             User.class
         };
@@ -35,14 +35,14 @@ public class JPACalculatedPostLoadTest extends AbstractTest {
             entityManager.persist(user);
 
             Account account = new Account(
-                    1L,
-                    user,
-                    "ABC123",
-                    12345L,
-                    6.7,
-                    Timestamp.valueOf(
-                            LocalDateTime.now().minusMonths(3)
-                    )
+                1L,
+                user,
+                "ABC123",
+                12345L,
+                6.7,
+                Timestamp.valueOf(
+                    LocalDateTime.now().minusMonths(3)
+                )
             );
 
             entityManager.persist(account);
@@ -86,7 +86,9 @@ public class JPACalculatedPostLoadTest extends AbstractTest {
         public Account() {
         }
 
-        public Account(Long id, User owner, String iban, long cents, double interestRate, Timestamp createdOn) {
+        public Account(
+                Long id, User owner, String iban,
+                long cents, double interestRate, Timestamp createdOn) {
             this.id = id;
             this.owner = owner;
             this.iban = iban;
@@ -99,24 +101,30 @@ public class JPACalculatedPostLoadTest extends AbstractTest {
         private void postLoad() {
             this.dollars = cents / 100D;
 
-            long months = createdOn.toLocalDateTime().until(LocalDateTime.now(), ChronoUnit.MONTHS);
-            double interestUnrounded = ( ( interestRate / 100D ) * cents * months ) / 12;
-            this.interestCents = BigDecimal.valueOf(interestUnrounded).setScale(0, BigDecimal.ROUND_HALF_EVEN).longValue();
+            long months = createdOn.toLocalDateTime().until(
+                LocalDateTime.now(),
+                ChronoUnit.MONTHS)
+            ;
+
+            double interestUnrounded = (
+                (interestRate / 100D) * cents * months
+            ) / 12;
+
+            this.interestCents = BigDecimal.valueOf(interestUnrounded)
+                .setScale(0, BigDecimal.ROUND_HALF_EVEN)
+                .longValue();
 
             this.interestDollars = interestCents / 100D;
         }
 
-        @Transient
         public double getDollars() {
             return dollars;
         }
 
-        @Transient
         public long getInterestCents() {
             return interestCents;
         }
 
-        @Transient
         public double getInterestDollars() {
             return interestDollars;
         }

@@ -77,7 +77,9 @@ public class JpaCalculatedTest extends AbstractTest {
         public Account() {
         }
 
-        public Account(Long id, User owner, String iban, long cents, double interestRate, Timestamp createdOn) {
+        public Account(
+                Long id, User owner, String iban,
+                long cents, double interestRate, Timestamp createdOn) {
             this.id = id;
             this.owner = owner;
             this.iban = iban;
@@ -86,19 +88,25 @@ public class JpaCalculatedTest extends AbstractTest {
             this.createdOn = createdOn;
         }
 
-        @Transient
         public double getDollars() {
             return cents / 100D;
         }
 
-        @Transient
         public long getInterestCents() {
-            long months = createdOn.toLocalDateTime().until(LocalDateTime.now(), ChronoUnit.MONTHS);
-            double interestUnrounded = ( ( interestRate / 100D ) * cents * months ) / 12;
-            return BigDecimal.valueOf(interestUnrounded).setScale(0, BigDecimal.ROUND_HALF_EVEN).longValue();
+            long months = createdOn.toLocalDateTime().until(
+                LocalDateTime.now(),
+                ChronoUnit.MONTHS
+            );
+
+            double interestUnrounded = (
+                (interestRate / 100D) * cents * months
+            ) / 12;
+
+            return BigDecimal.valueOf(interestUnrounded)
+                .setScale(0, BigDecimal.ROUND_HALF_EVEN)
+                .longValue();
         }
 
-        @Transient
         public double getInterestDollars() {
             return getInterestCents() / 100D;
         }
