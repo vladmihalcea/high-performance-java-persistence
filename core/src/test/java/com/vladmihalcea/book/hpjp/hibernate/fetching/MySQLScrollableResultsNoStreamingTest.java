@@ -85,6 +85,7 @@ public class MySQLScrollableResultsNoStreamingTest extends AbstractMySQLIntegrat
                 entityManager.persist(post);
                 if(i % 50 == 0 && i > 0) {
                     entityManager.flush();
+                    entityManager.clear();
                 }
             });
         });

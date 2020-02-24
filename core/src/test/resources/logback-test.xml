@@ -36,6 +36,8 @@
     <!--<logger name="org.hibernate.SQL" level="debug"/>
     <logger name="org.hibernate.type.descriptor.sql" level="trace"/>-->
 
+    <logger name="org.hibernate.SQL_SLOW" level="info"/>
+
     <logger name="net.sf.ehcache" level="info"/>
 
     <logger name="com.vladmihalcea" level="debug"/>

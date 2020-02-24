@@ -95,6 +95,7 @@ public class MySQLScrollableResultsStreamingCustomFetchSizeTest extends Abstract
                 entityManager.persist(post);
                 if(i % 50 == 0 && i > 0) {
                     entityManager.flush();
+                    entityManager.clear();
                 }
             });
         });
