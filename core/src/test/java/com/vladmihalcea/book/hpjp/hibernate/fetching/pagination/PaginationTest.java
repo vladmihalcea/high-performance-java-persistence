@@ -76,11 +76,11 @@ public class PaginationTest extends AbstractTest {
     public void testLimit() {
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery(
-                    "select p " +
-                            "from Post p " +
-                            "order by p.createdOn ")
-                    .setMaxResults(10)
-                    .getResultList();
+                "select p " +
+                "from Post p " +
+                "order by p.createdOn ")
+            .setMaxResults(10)
+            .getResultList();
 
             assertEquals(10, posts.size());
             assertEquals("High-Performance Java Persistence - Chapter 1", posts.get(0).getTitle());
@@ -92,12 +92,12 @@ public class PaginationTest extends AbstractTest {
     public void testLimitNativeSql() {
         doInJPA(entityManager -> {
             List<String> posts = entityManager
-                    .createNativeQuery(
-                            "select p.title " +
-                                    "from post p " +
-                                    "order by p.created_on ")
-                    .setMaxResults(10)
-                    .getResultList();
+            .createNativeQuery(
+                "select p.title " +
+                "from post p " +
+                "order by p.created_on ")
+            .setMaxResults(10)
+            .getResultList();
 
             assertEquals(10, posts.size());
             assertEquals("High-Performance Java Persistence - Chapter 1", posts.get(0));
@@ -109,12 +109,12 @@ public class PaginationTest extends AbstractTest {
     public void testOffset() {
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery(
-                    "select p " +
-                            "from Post p " +
-                            "order by p.createdOn ")
-                    .setFirstResult(10)
-                    .setMaxResults(10)
-                    .getResultList();
+                "select p " +
+                "from Post p " +
+                "order by p.createdOn ")
+            .setFirstResult(10)
+            .setMaxResults(10)
+            .getResultList();
 
             assertEquals(10, posts.size());
             assertEquals("High-Performance Java Persistence - Chapter 11", posts.get(0).getTitle());
@@ -125,13 +125,16 @@ public class PaginationTest extends AbstractTest {
     @Test
     public void testOffsetNative() {
         doInJPA(entityManager -> {
-            List<Tuple> posts = entityManager.createNativeQuery(
-                    "select p.id as id, p.title as title " +
-                            "from post p " +
-                            "order by p.created_on", Tuple.class)
-                    .setFirstResult(10)
-                    .setMaxResults(10)
-                    .getResultList();
+            List<Tuple> posts = entityManager
+            .createNativeQuery(
+                "SELECT " +
+                "   p.id AS id, " +
+                "   p.title AS title " +
+                "from post p " +
+                "ORDER BY p.created_on", Tuple.class)
+            .setFirstResult(10)
+            .setMaxResults(10)
+            .getResultList();
 
             assertEquals(10, posts.size());
             assertEquals("High-Performance Java Persistence - Chapter 11", posts.get(0).get("title"));
@@ -143,15 +146,15 @@ public class PaginationTest extends AbstractTest {
     public void testDTO() {
         doInJPA(entityManager -> {
             List<PostCommentSummary> summaries = entityManager.createQuery(
-                    "select new " +
-                            "   com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary( " +
-                            "       p.id, p.title, c.review " +
-                            "   ) " +
-                            "from PostComment c " +
-                            "join c.post p " +
-                            "order by c.createdOn")
-                    .setMaxResults(10)
-                    .getResultList();
+                "select new " +
+                "   com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary( " +
+                "       p.id, p.title, c.review " +
+                "   ) " +
+                "from PostComment c " +
+                "join c.post p " +
+                "order by c.createdOn")
+            .setMaxResults(10)
+            .getResultList();
 
             assertEquals(10, summaries.size());
             assertEquals("High-Performance Java Persistence - Chapter 1", summaries.get(0).getTitle());
