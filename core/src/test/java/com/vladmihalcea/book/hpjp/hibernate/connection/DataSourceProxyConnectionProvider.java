@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.connection;
 
-import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
+import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl;
 

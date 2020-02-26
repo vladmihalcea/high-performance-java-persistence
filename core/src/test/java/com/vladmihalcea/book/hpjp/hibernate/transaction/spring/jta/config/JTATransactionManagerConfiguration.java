@@ -8,7 +8,7 @@ import com.vladmihalcea.book.hpjp.hibernate.logging.LoggingStatementInspector;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
-import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
+import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.engine.transaction.jta.platform.internal.BitronixJtaPlatform;
 import org.hibernate.jpa.HibernatePersistenceProvider;

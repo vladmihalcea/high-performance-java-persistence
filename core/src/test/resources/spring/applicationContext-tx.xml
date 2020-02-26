@@ -43,7 +43,7 @@
             <bean class="net.ttddyy.dsproxy.listener.ChainListener">
                 <property name="listeners">
                     <list>
-                        <bean class="net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener"/>
+                        <bean class="net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener"/>
                     </list>
                 </property>
             </bean>

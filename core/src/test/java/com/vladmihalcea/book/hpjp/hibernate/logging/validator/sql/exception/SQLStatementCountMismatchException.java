@@ -8,21 +8,21 @@ package com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.exception;
  */
 public class SQLStatementCountMismatchException extends RuntimeException {
 
-    private final int expected;
-    private final int recorded;
+    private final long expected;
+    private final long recorded;
 
-    public SQLStatementCountMismatchException(int expected, int recorded) {
+    public SQLStatementCountMismatchException(long expected, long recorded) {
         super(String.format("Expected %d statement(s) but recorded %d instead!",
             expected, recorded));
         this.expected = expected;
         this.recorded = recorded;
     }
 
-    public int getExpected() {
+    public long getExpected() {
         return expected;
     }
 
-    public int getRecorded() {
+    public long getRecorded() {
         return recorded;
     }
 }

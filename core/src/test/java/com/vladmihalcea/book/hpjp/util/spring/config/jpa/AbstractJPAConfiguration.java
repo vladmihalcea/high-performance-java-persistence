@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.util.spring.config.jpa;
 
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
-import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
+import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Value;

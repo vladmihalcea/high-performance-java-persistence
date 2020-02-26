@@ -1,12 +1,10 @@
 package com.vladmihalcea.book.hpjp.hibernate.logging.validator;
 
 import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
-import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.exception.SQLStatementCountMismatchException;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;

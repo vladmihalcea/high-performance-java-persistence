@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.util.spring.config.jta;
 import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.TransactionManagerServices;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
-import net.ttddyy.dsproxy.listener.SLF4JQueryLoggingListener;
+import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.engine.transaction.jta.platform.internal.BitronixJtaPlatform;
 import org.springframework.beans.factory.annotation.Value;

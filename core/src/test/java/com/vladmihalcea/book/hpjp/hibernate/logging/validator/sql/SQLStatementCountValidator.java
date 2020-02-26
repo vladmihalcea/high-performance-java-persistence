@@ -46,7 +46,7 @@ public class SQLStatementCountValidator {
      */
     public static void assertSelectCount(int expectedSelectCount) {
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        int recordedSelectCount = queryCount.getSelect();
+        long recordedSelectCount = queryCount.getSelect();
         if (expectedSelectCount != recordedSelectCount) {
             throw new SQLStatementCountMismatchException(expectedSelectCount, recordedSelectCount);
         }
@@ -59,7 +59,7 @@ public class SQLStatementCountValidator {
      */
     public static void assertInsertCount(int expectedInsertCount) {
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        int recordedInsertCount = queryCount.getInsert();
+        long recordedInsertCount = queryCount.getInsert();
         if (expectedInsertCount != recordedInsertCount) {
             throw new SQLStatementCountMismatchException(expectedInsertCount, recordedInsertCount);
         }
@@ -72,7 +72,7 @@ public class SQLStatementCountValidator {
      */
     public static void assertUpdateCount(int expectedUpdateCount) {
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        int recordedUpdateCount = queryCount.getUpdate();
+        long recordedUpdateCount = queryCount.getUpdate();
         if (expectedUpdateCount != recordedUpdateCount) {
             throw new SQLStatementCountMismatchException(expectedUpdateCount, recordedUpdateCount);
         }
@@ -85,7 +85,7 @@ public class SQLStatementCountValidator {
      */
     public static void assertDeleteCount(int expectedDeleteCount) {
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        int recordedDeleteCount = queryCount.getDelete();
+        long recordedDeleteCount = queryCount.getDelete();
         if (expectedDeleteCount != recordedDeleteCount) {
             throw new SQLStatementCountMismatchException(expectedDeleteCount, recordedDeleteCount);
         }
