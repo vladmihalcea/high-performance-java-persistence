@@ -37,18 +37,15 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQOracleSQLIntegratio
             sql.delete(POST_DETAILS).execute();
             sql.delete(POST).execute();
 
-            PostRecord postRecord = sql
+            sql
             .insertInto(POST).columns(POST.ID, POST.TITLE)
-            .values(HIBERNATE_SEQUENCE.nextval(), val("High-Performance Java Persistence"))
-            .returning(POST.ID)
-            .fetchOne();
-
-            final BigInteger postId = postRecord.getId();
+            .values(BigInteger.valueOf(1), "High-Performance Java Persistence")
+            .execute();
 
             sql
             .insertInto(POST_DETAILS)
             .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)
-            .values(postId, "Alice", Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)))
+            .values(BigInteger.valueOf(1), "Alice", Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)))
             .onDuplicateKeyIgnore()
             .execute();
 
@@ -62,7 +59,7 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQOracleSQLIntegratio
                         _sql
                         .insertInto(POST_DETAILS)
                         .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)
-                        .values(postId, "Bob", Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)))
+                        .values(BigInteger.valueOf(1), "Bob", Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)))
                         .onDuplicateKeyIgnore()
                         .execute();
                     });
@@ -78,7 +75,7 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQOracleSQLIntegratio
             awaitOnLatch(aliceLatch);
 
             PostDetailsRecord postDetailsRecord = sql.selectFrom(POST_DETAILS)
-                .where(field(POST_DETAILS.ID).eq(postId))
+                .where(field(POST_DETAILS.ID).eq(BigInteger.valueOf(1)))
                 .fetchOne();
 
             assertTrue(preventedByLocking.get());
