@@ -79,11 +79,12 @@ public class SlowQueryLogTest extends AbstractTest {
 
         doInJPA(entityManager -> {
             List<Post> posts = entityManager
-                .createQuery(
-                    "select p " +
-                    "from Post p " +
-                    "where lower(title) like :titlePattern " +
-                    "order by p.createdOn desc", Post.class)
+                .createQuery("""
+                    select p
+                    from Post p
+                    where lower(title) like :titlePattern
+                    order by p.createdOn desc
+                """, Post.class)
                 .setParameter("titlePattern", "%Java%book%review%".toLowerCase())
                 .setFirstResult(1000)
                 .setMaxResults(100)
@@ -128,15 +129,16 @@ public class SlowQueryLogTest extends AbstractTest {
 
         doInJPA(entityManager -> {
             List<Post> posts = entityManager
-                .createNativeQuery(
-                    "SELECT p.* " +
-                    "FROM post p " +
-                    "WHERE LOWER(p.title) LIKE :titlePattern " +
-                    "ORDER BY p.created_on DESC", Post.class)
-                .setParameter("titlePattern", "%Java%book%review%".toLowerCase())
-                .setFirstResult(1000)
-                .setMaxResults(100)
-                .getResultList();
+            .createNativeQuery("""
+                SELECT p.*
+                FROM post p
+                WHERE LOWER(p.title) LIKE :titlePattern
+                ORDER BY p.created_on DESC
+            """, Post.class)
+            .setParameter("titlePattern", "%Java%book%review%".toLowerCase())
+            .setFirstResult(1000)
+            .setMaxResults(100)
+            .getResultList();
 
             assertEquals(100, posts.size());
         });

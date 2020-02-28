@@ -8,6 +8,9 @@ import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.dialect.Oracle10gDialect;
+import org.hibernate.dialect.Oracle9iDialect;
+import org.hibernate.dialect.pagination.LimitHandler;
+import org.hibernate.dialect.pagination.SQL2008StandardLimitHandler;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -137,9 +140,8 @@ public class FollowOnLockingTest extends AbstractOracleIntegrationTest {
     public static class OracleDialect extends Oracle12CustomDialect {
 
         @Override
-        public boolean useFollowOnLocking() {
-            //return false;
-            return super.useFollowOnLocking();
+        public LimitHandler getLimitHandler() {
+            return new Oracle9iDialect().getLimitHandler();
         }
     }
 

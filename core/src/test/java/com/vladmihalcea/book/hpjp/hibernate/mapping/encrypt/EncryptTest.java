@@ -26,7 +26,7 @@ public class EncryptTest extends AbstractPostgreSQLIntegrationTest {
 	protected void afterInit() {
 		doInJPA(entityManager -> {
 			entityManager.createNativeQuery(
-				"CREATE EXTENSION IF NOT EXISTS uuid-ossp"
+				"CREATE EXTENSION IF NOT EXISTS pgcrypto"
 			).executeUpdate();
 		});
 	}
@@ -35,7 +35,7 @@ public class EncryptTest extends AbstractPostgreSQLIntegrationTest {
 	public void destroy() {
 		doInJPA(entityManager -> {
 			entityManager.createNativeQuery(
-					"DROP EXTENSION uuid-ossp CASCADE"
+					"DROP EXTENSION pgcrypto CASCADE"
 			).executeUpdate();
 		});
 		super.destroy();
