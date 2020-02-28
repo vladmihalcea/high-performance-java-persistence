@@ -44,17 +44,15 @@ Or, if you prefer reading books, you are going to love my [High-Performance Java
 
 ## Java
 
-All examples require at least Java 1.8. 
-
-**Javac compiler is required in order to run in in any IDE environment**.
- 
-Especially if you're using Eclipse, you must use the Oracle JDK compiler and not the Eclipse-based one which suffers from [this issue](https://bugs.eclipse.org/bugs/show_bug.cgi?id=434642).
+All examples require at least Java 13 because of the awesome [Text Blocks](https://openjdk.java.net/jeps/355) feature, which makes JPQL and SQL queries so much readable.
 
 ## IntelliJ IDEA
 
-On IntelliJ IDEA, the project runs just fine without any further requirements.
+On IntelliJ IDEA, the project runs just fine without any special settings.
 
 ## Eclipse
+
+If you're using Eclipse, you must use the Open JDK compiler and not the Eclipse-based one which suffers from [this issue](https://bugs.eclipse.org/bugs/show_bug.cgi?id=434642).
 
 However, on Eclipse it has been reported that you need to consider the following configurations (many thanks to [Urs Joss](https://github.com/ursjoss) for the hints):
 
@@ -70,7 +68,7 @@ The Integration Tests require some external configurations:
 
 - PostgreSQL
 
-    You should install PostgreSQL 9.5 (or later) and the password for the `postgres` user should be `admin`.
+    You should install PostgreSQL 11 (or newer) and the password for the `postgres` user should be `admin`.
 
     Now you need to create a `high_performance_java_persistence` database.
     
@@ -96,7 +94,7 @@ The Integration Tests require some external configurations:
 
 - MySQL
 
-    You should install MySQL 5.6 (or later) and the password for the `mysql` user should be `admin`.
+    You should install MySQL 8 (or newer) and the password for the `mysql` user should be `admin`.
 
     Now, you need to create a `high_performance_java_persistence` schema
 
@@ -135,6 +133,12 @@ To build the project, don't use *install* or *package*. Instead, just compile te
 
     mvn clean test-compile
     
-Then, just pick one test from the IDE and run it individually.
+Or you can just run the `build.bat` or `build.sh` scripts which run the above Maven command.
+    
+Afterward, just pick one test from the IDE and run it individually.
 
-Don't you run all tests at once (e.g. `mvn clean test`) because the test suite will take a long time to complete, and some tests will fail because the Bitronix config is cached by Spring. Therefore, just run tests individually, as that's how they were designed to be run.
+> Don't you run all tests at once (e.g. `mvn clean test`) because the test suite will take a very long time to complete.
+>
+> So, run the test you are interested in individually.
+
+Enjoy learning more about Java Persistence, Hibernate, and database systems!
