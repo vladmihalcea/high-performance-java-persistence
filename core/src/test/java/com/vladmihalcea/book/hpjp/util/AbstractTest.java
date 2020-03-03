@@ -178,9 +178,9 @@ public abstract class AbstractTest {
             }
         }
 
-        final MetadataBuilder metadataBuilder = metadataSources.getMetadataBuilder();
-        metadataBuilder.enableNewIdentifierGeneratorSupport(true);
-        metadataBuilder.applyImplicitNamingStrategy(ImplicitNamingStrategyLegacyJpaImpl.INSTANCE);
+        final MetadataBuilder metadataBuilder = metadataSources.getMetadataBuilder()
+        .enableNewIdentifierGeneratorSupport(true)
+        .applyImplicitNamingStrategy(ImplicitNamingStrategyLegacyJpaImpl.INSTANCE);
 
         final List<Type> additionalTypes = additionalTypes();
         if (additionalTypes != null) {
