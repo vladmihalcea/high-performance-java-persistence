@@ -1,19 +1,18 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.Session;
-import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Objects;
+import java.util.List;
 import java.util.Set;
 
 /**
  * @author Vlad Mihalcea
  */
-public class BidirectionalManyToManySetTest extends AbstractTest {
+public class UnidirectionalManyToManySetTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -32,17 +31,19 @@ public class BidirectionalManyToManySetTest extends AbstractTest {
             Tag tag1 = new Tag("Java");
             Tag tag2 = new Tag("Hibernate");
 
-            post1.addTag(tag1);
-            post1.addTag(tag2);
+            post1.getTags().add(tag1);
+            post1.getTags().add(tag2);
 
-            post2.addTag(tag1);
+            post2.getTags().add(tag1);
 
             entityManager.persist(post1);
             entityManager.persist(post2);
 
             entityManager.flush();
 
-            post1.removeTag(tag1);
+            LOGGER.info("Remove");
+
+            post1.getTags().remove(tag1);
         });
     }
 
@@ -55,10 +56,10 @@ public class BidirectionalManyToManySetTest extends AbstractTest {
             Tag tag1 = new Tag("Java");
             Tag tag2 = new Tag("Hibernate");
 
-            post1.addTag(tag1);
-            post1.addTag(tag2);
+            post1.getTags().add(tag1);
+            post1.getTags().add(tag2);
 
-            post2.addTag(tag1);
+            post2.getTags().add(tag1);
 
             entityManager.persist(post1);
             entityManager.persist(post2);
@@ -68,47 +69,7 @@ public class BidirectionalManyToManySetTest extends AbstractTest {
         doInJPA(entityManager -> {
             LOGGER.info("Remove");
             Post post1 = entityManager.find(Post.class, postId);
-
             entityManager.remove(post1);
-        });
-    }
-
-    @Test
-    public void testShuffle() {
-        final Long postId = doInJPA(entityManager -> {
-            Post post1 = new Post("JPA with Hibernate");
-            Post post2 = new Post("Native Hibernate");
-
-            Tag tag1 = new Tag("Java");
-            Tag tag2 = new Tag("Hibernate");
-
-            post1.addTag(tag1);
-            post1.addTag(tag2);
-
-            post2.addTag(tag1);
-
-            entityManager.persist(post1);
-            entityManager.persist(post2);
-
-            return post1.id;
-        });
-        doInJPA(entityManager -> {
-            LOGGER.info("Shuffle");
-
-            Post post1 = entityManager
-            .createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.tags " +
-                "where p.id = :id", Post.class)
-            .setParameter( "id", postId )
-            .getSingleResult();
-
-            Tag javaTag = entityManager.unwrap(Session.class)
-            .bySimpleNaturalId(Tag.class)
-            .getReference("Java");
-
-            post1.removeTag(javaTag);
         });
     }
 
@@ -123,6 +84,10 @@ public class BidirectionalManyToManySetTest extends AbstractTest {
         private String title;
 
         public Post() {}
+
+        public Post(Long id) {
+            this.id = id;
+        }
 
         public Post(String title) {
             this.title = title;
@@ -154,28 +119,6 @@ public class BidirectionalManyToManySetTest extends AbstractTest {
         public Set<Tag> getTags() {
             return tags;
         }
-
-        public void addTag(Tag tag) {
-            tags.add(tag);
-            tag.getPosts().add(this);
-        }
-
-        public void removeTag(Tag tag) {
-            tags.remove(tag);
-            tag.getPosts().remove(this);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Post)) return false;
-            return id != null && id.equals(((Post) o).getId());
-        }
-
-        @Override
-        public int hashCode() {
-            return 31;
-        }
     }
 
     @Entity(name = "Tag")
@@ -186,11 +129,7 @@ public class BidirectionalManyToManySetTest extends AbstractTest {
         @GeneratedValue
         private Long id;
 
-        @NaturalId
         private String name;
-
-        @ManyToMany(mappedBy = "tags")
-        private Set<Post> posts = new HashSet<>();
 
         public Tag() {}
 
@@ -212,23 +151,6 @@ public class BidirectionalManyToManySetTest extends AbstractTest {
 
         public void setName(String name) {
             this.name = name;
-        }
-
-        public Set<Post> getPosts() {
-            return posts;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Tag tag = (Tag) o;
-            return Objects.equals(name, tag.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name);
         }
     }
 }
