@@ -5,10 +5,7 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Vlad Mihalcea
@@ -78,8 +75,9 @@ public class BidirectionalManyToManyLinkEntityOrderColumnTest extends AbstractTe
         doInJPA(entityManager -> {
             LOGGER.info("Shuffle");
             Post post1 = entityManager.find(Post.class, postId);
-            post1.getTags().sort((postTag1, postTag2) ->
-                postTag2.getId().getTagId().compareTo(postTag1.getId().getTagId())
+            post1.getTags().sort(
+                Comparator.comparing((PostTag postTag) -> postTag.getId().getTagId())
+                .reversed()
             );
         });
     }
