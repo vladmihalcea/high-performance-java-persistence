@@ -1,64 +1,78 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.Session;
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.LongStream;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vlad Mihalcea
  */
-public class NamedNativeQueryParameterTest extends AbstractTest {
+public class NPlusOneEagerFetchingManyToOneFindEntityTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostComment.class,
+            Post.class,
+            PostComment.class
         };
     }
 
     @Test
-    public void testWithParameters() {
-        doInJPA(entityManager -> {
-            LongStream.range(0, 5).forEach(i -> {
-                Post post = new Post(i);
-                post.setTitle(String.format("Post nr. %d", i));
+    public void testNPlusOne() {
 
-                LongStream.range(0, 5).forEach(j -> {
-                    PostComment comment = new PostComment();
-                    comment.setId((i * 5) + j);
-                    comment.setReview(String.format("Good review nr. %d", comment.getId()));
-                    comment.setPost(post);
-                    entityManager.persist(comment);
-                });
-                entityManager.persist(post);
-            });
-        });
+        String review = "Excellent!";
+
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            List<PostComment> comments = session.getNamedQuery("findPostCommentsByPostTitle").setParameter("id", 0).list();
-            assertTrue(!comments.isEmpty());
+
+            for (long i = 1; i < 4; i++) {
+                Post post = new Post();
+                post.setId(i);
+                post.setTitle(String.format("Post nr. %d", i));
+                entityManager.persist(post);
+
+                PostComment comment = new PostComment();
+                comment.setId(i);
+                comment.setPost(post);
+                comment.setReview(review);
+                entityManager.persist(comment);
+            }
+        });
+
+        doInJPA(entityManager -> {
+            LOGGER.info("N+1 query problem");
+            List<PostComment> comments = entityManager
+            .createQuery("""
+                select pc
+                from PostComment pc
+                where pc.review = :review
+                """, PostComment.class)
+            .setParameter("review", review)
+            .getResultList();
+
+            LOGGER.info("Loaded {} comments", comments.size());
+        });
+
+        doInJPA(entityManager -> {
+            LOGGER.info("N+1 query problem fixed");
+            List<PostComment> comments = entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                join fetch pc.post p
+                where pc.review = :review
+                """, PostComment.class)
+            .setParameter("review", review)
+            .getResultList();
+            LOGGER.info("Loaded {} comments", comments.size());
+            for(PostComment comment : comments) {
+                LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
+            }
         });
     }
 
     @Entity(name = "Post")
     @Table(name = "post")
-    @NamedNativeQuery(
-        name = "findPostCommentsByPostTitle",
-        query = """
-            select c.*
-            from post_comment c
-            where c.id > :id
-        """,
-        resultClass = PostComment.class
-    )
     public static class Post {
 
         @Id
@@ -77,10 +91,6 @@ public class NamedNativeQueryParameterTest extends AbstractTest {
             this.title = title;
         }
 
-        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
-                orphanRemoval = true)
-        private List<PostComment> comments = new ArrayList<>();
-
         public Long getId() {
             return id;
         }
@@ -95,10 +105,6 @@ public class NamedNativeQueryParameterTest extends AbstractTest {
 
         public void setTitle(String title) {
             this.title = title;
-        }
-
-        public List<PostComment> getComments() {
-            return comments;
         }
     }
 

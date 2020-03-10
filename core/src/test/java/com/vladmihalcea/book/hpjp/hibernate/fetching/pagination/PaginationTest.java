@@ -75,10 +75,11 @@ public class PaginationTest extends AbstractTest {
     @Test
     public void testLimit() {
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "order by p.createdOn ")
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                order by p.createdOn
+            """, Post.class)
             .setMaxResults(10)
             .getResultList();
 
@@ -92,10 +93,11 @@ public class PaginationTest extends AbstractTest {
     public void testLimitNativeSql() {
         doInJPA(entityManager -> {
             List<String> posts = entityManager
-            .createNativeQuery(
-                "select p.title " +
-                "from post p " +
-                "order by p.created_on ")
+            .createNativeQuery("""
+                select p.title
+                from post p
+                order by p.created_on
+            """)
             .setMaxResults(10)
             .getResultList();
 
@@ -108,10 +110,11 @@ public class PaginationTest extends AbstractTest {
     @Test
     public void testOffset() {
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "order by p.createdOn ")
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                order by p.createdOn
+                """, Post.class)
             .setFirstResult(10)
             .setMaxResults(10)
             .getResultList();
@@ -126,12 +129,13 @@ public class PaginationTest extends AbstractTest {
     public void testOffsetNative() {
         doInJPA(entityManager -> {
             List<Tuple> posts = entityManager
-            .createNativeQuery(
-                "SELECT " +
-                "   p.id AS id, " +
-                "   p.title AS title " +
-                "from post p " +
-                "ORDER BY p.created_on", Tuple.class)
+            .createNativeQuery("""
+                SELECT
+                   p.id AS id,
+                   p.title AS title
+                from post p
+                ORDER BY p.created_on
+                """, Tuple.class)
             .setFirstResult(10)
             .setMaxResults(10)
             .getResultList();
@@ -145,14 +149,15 @@ public class PaginationTest extends AbstractTest {
     @Test
     public void testDTO() {
         doInJPA(entityManager -> {
-            List<PostCommentSummary> summaries = entityManager.createQuery(
-                "select new " +
-                "   com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary( " +
-                "       p.id, p.title, c.review " +
-                "   ) " +
-                "from PostComment c " +
-                "join c.post p " +
-                "order by c.createdOn")
+            List<PostCommentSummary> summaries = entityManager.createQuery("""
+                select new
+                   com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary(
+                       p.id, p.title, c.review
+                   )
+                from PostComment c
+                join c.post p
+                order by c.createdOn
+                """)
             .setMaxResults(10)
             .getResultList();
 
@@ -168,12 +173,13 @@ public class PaginationTest extends AbstractTest {
     @Test
     public void testFetchAndPaginate() {
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "left join fetch p.comments " +
-                "where p.title like :titlePattern " +
-                "order by p.createdOn", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                left join fetch p.comments
+                where p.title like :titlePattern
+                order by p.createdOn
+                """, Post.class)
             .setParameter("titlePattern", "High-Performance Java Persistence %")
             .setMaxResults(5)
             .getResultList();
@@ -190,21 +196,23 @@ public class PaginationTest extends AbstractTest {
     public void testFetchAndPaginateWithTwoQueries() {
         doInJPA(entityManager -> {
             List<Long> postIds = entityManager
-            .createQuery(
-                "select p.id " +
-                "from Post p " +
-                "where p.title like :titlePattern " +
-                "order by p.createdOn", Long.class)
+            .createQuery("""
+                select p.id
+                from Post p
+                where p.title like :titlePattern
+                order by p.createdOn
+                """, Long.class)
             .setParameter("titlePattern", "High-Performance Java Persistence %")
             .setMaxResults(5)
             .getResultList();
 
-            List<Post> posts = entityManager.createQuery(
-                "select distinct p " +
-                "from Post p " +
-                "left join fetch p.comments " +
-                "where p.id in (:postIds) "  +
-                "order by p.createdOn", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select distinct p
+                from Post p
+                left join fetch p.comments
+                where p.id in (:postIds)
+                order by p.createdOn
+                """, Post.class)
             .setParameter("postIds", postIds)
             .setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false)
             .getResultList();
@@ -287,21 +295,13 @@ public class PaginationTest extends AbstractTest {
     @Test
     public void testFetchAndPaginateUsingDenseRank() {
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager
-                    .createNamedQuery("PostWithCommentByRank")
-                    .setParameter(
-                            "titlePattern",
-                            "High-Performance Java Persistence %"
-                    )
-                    .setParameter(
-                            "rank",
-                            5
-                    )
-                    .unwrap(NativeQuery.class)
-                    .setResultTransformer(
-                            new DistinctPostResultTransformer(entityManager)
-                    )
-                    .getResultList();
+            List<Post> posts = entityManager.createNamedQuery("PostWithCommentByRank")
+            .setParameter("titlePattern", "High-Performance Java Persistence %")
+            .setParameter("rank", 5)
+            .unwrap(NativeQuery.class)
+            .setResultTransformer(
+                new DistinctPostResultTransformer(entityManager))
+            .getResultList();
 
             assertEquals(5, posts.size());
 

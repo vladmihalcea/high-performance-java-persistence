@@ -22,11 +22,6 @@ public class OneToOneMapsIdJoinColumnTest extends AbstractTest {
         };
     }
 
-    @Override
-    protected Database database() {
-        return Database.MYSQL;
-    }
-
     @Test
     public void testLifecycle() {
         doInJPA(entityManager -> {
@@ -96,7 +91,7 @@ public class OneToOneMapsIdJoinColumnTest extends AbstractTest {
         @Column(name = "created_by")
         private String createdBy;
 
-        @OneToOne
+        @OneToOne(fetch = FetchType.LAZY)
         @MapsId
         @JoinColumn(name = "id")
         private Post post;

@@ -1,12 +1,9 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Slf4jReporter;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.jpa.QueryHints;
-import org.hibernate.query.Query;
 import org.junit.Test;
 
 import javax.persistence.Column;
@@ -28,14 +25,6 @@ import static org.junit.Assert.assertEquals;
  */
 public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQLIntegrationTest {
 
-    private MetricRegistry metricRegistry = new MetricRegistry();
-
-    private Slf4jReporter logReporter = Slf4jReporter
-            .forRegistry(metricRegistry)
-            .outputTo(LOGGER)
-            .build();
-
-
     @Override
     protected Class<?>[] entities() {
         return new Class[]{
@@ -44,19 +33,18 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
-            entityManager.unwrap( Session.class ).doWork( connection -> {
-                try(Statement statement = connection.createStatement()) {
-                    statement.execute( "CREATE INDEX idx_post_created_on ON post ( created_on DESC )" );
+            entityManager.unwrap(Session.class).doWork(connection -> {
+                try (Statement statement = connection.createStatement()) {
+                    statement.execute("CREATE INDEX idx_post_created_on ON post ( created_on DESC )");
                 }
-            } );
+            });
             LongStream.range(0, 50 * 100).forEach(i -> {
                 Post post = new Post(i);
                 post.setTitle(String.format("Post nr. %d", i));
                 entityManager.persist(post);
-                if(i % 50 == 0 && i > 0) {
+                if (i % 50 == 0 && i > 0) {
                     entityManager.flush();
                     entityManager.clear();
                 }
@@ -65,99 +53,72 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
     }
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
+    protected void additionalProperties(Properties properties) {
         properties.put("hibernate.jdbc.batch_size", "50");
         properties.put("hibernate.order_inserts", "true");
         properties.put("hibernate.order_updates", "true");
-        return properties;
-    }
-
-    @Test
-    public void testStream() {
-        List<Post> posts = doInJPA(entityManager -> {
-            try(Stream<Post> postStream = entityManager
-                .createQuery(
-                    "select p " +
-                    "from Post p " +
-                    "order by p.createdOn desc", Post.class)
-                .setHint(QueryHints.HINT_FETCH_SIZE, 50)
-                .getResultStream()
-            ) {
-                return postStream
-                    .limit(50)
-                    .collect(Collectors.toList());
-            }
-        });
-
-        assertEquals(50, posts.size());
     }
 
     @Test
     public void testStreamExecutionPlan() {
-        List<String> executionPlanLines = doInJPA(entityManager -> {
-            try(Stream<String> postStream = entityManager
-                .createNativeQuery(
-                    "EXPLAIN ANALYZE " +
-                    "SELECT p " +
-                    "FROM post p " +
-                    "ORDER BY p.created_on DESC")
-                .setHint(QueryHints.HINT_FETCH_SIZE, 50)
-                .getResultStream()
-            ) {
-                return postStream.limit(50).collect(Collectors.toList());
-            }
-        });
+        doInJPA(entityManager -> {
+            executeDML(entityManager, """
+                SET session_preload_libraries = 'auto_explain';
+                SET auto_explain.log_analyze TO ON;
+                SET auto_explain.log_min_duration TO 1;
+                """);
 
-        LOGGER.info( "Execution plan: {}",
-                    executionPlanLines
-                    .stream()
-                    .collect(Collectors.joining( "\n" ))
-        );
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                order by p.createdOn desc
+                """, Post.class)
+            .setHint(QueryHints.HINT_FETCH_SIZE, 50)
+            .getResultStream()
+            .limit(50)
+            .collect(Collectors.toList());
+
+             assertEquals(50, posts.size());
+
+            //Read the execution plan from $PG_DATA/log/postgresql-yyyy-mm-dd_HHmmss.log
+        });
     }
 
     @Test
     public void testPaginationExecutionPlan() {
-        List<String> executionPlanLines = doInJPA(entityManager -> {
-            return entityManager
-                .createNativeQuery(
-                    "EXPLAIN ANALYZE " +
-                    "SELECT p " +
-                    "FROM post p " +
-                    "ORDER BY p.created_on DESC")
-                .setMaxResults( 50 )
-                .getResultList();
-        });
+        doInJPA(entityManager -> {
+            List<String> executionPlanLines = entityManager.createNativeQuery("""
+                EXPLAIN ANALYZE
+                SELECT p
+                FROM post p
+                ORDER BY p.created_on DESC""")
+            .setMaxResults(50)
+            .getResultList();
 
-        LOGGER.info( "Execution plan: {}",
-                     executionPlanLines
-                     .stream()
-                     .collect( Collectors.joining( "\n" ) )
-        );
+            LOGGER.info("Execution plan: \n{}",
+                String.join("\n", executionPlanLines)
+            );
+        });
     }
 
     @Test
     public void testStreamWithoutMaxResult() {
-        List<Post> posts = doInJPA(entityManager -> {
-            try(Stream<Post> postStream = entityManager
-                .createQuery(
-                    "select p " +
-                    "from Post p " +
-                    "order by p.createdOn desc", Post.class)
-                .unwrap(Query.class)
-                .stream()
-            ) {
-                return postStream.limit( 50 ).collect( Collectors.toList() );
-            }
-        });
+        doInJPA(entityManager -> {
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                order by p.createdOn desc
+                """, Post.class)
+            .getResultStream()
+            .limit(50)
+            .collect(Collectors.toList());
 
-        assertEquals(50, posts.size());
+            assertEquals(50, posts.size());
+        });
     }
 
     @Entity(name = "Post")
-    @Table(
-        name = "post"
-    )
+    @Table(name = "post")
     public static class Post {
 
         @Id

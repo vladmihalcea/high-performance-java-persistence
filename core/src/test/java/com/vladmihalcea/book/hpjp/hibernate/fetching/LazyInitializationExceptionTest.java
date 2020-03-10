@@ -23,13 +23,11 @@ public class LazyInitializationExceptionTest extends AbstractPostgreSQLIntegrati
         };
     }
 
-    @Test
-    public void testNPlusOne() {
+    private String review = "Excellent!";
 
-        String review = "Excellent!";
-
+    @Override
+    protected void afterInit() {
         doInJPA(entityManager -> {
-
             for (long i = 1; i < 4; i++) {
                 Post post = new Post();
                 post.setId(i);
@@ -43,6 +41,10 @@ public class LazyInitializationExceptionTest extends AbstractPostgreSQLIntegrati
                 entityManager.persist(comment);
             }
         });
+    }
+
+    @Test
+    public void testNPlusOne() {
 
         List<PostComment> comments = null;
 
@@ -70,6 +72,27 @@ public class LazyInitializationExceptionTest extends AbstractPostgreSQLIntegrati
                 entityManager.close();
             }
         }
+        try {
+            for(PostComment comment : comments) {
+                LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
+            }
+        } catch (LazyInitializationException expected) {
+            assertTrue(expected.getMessage().contains("could not initialize proxy"));
+        }
+    }
+
+    @Test
+    public void testNPlusOneSimplified() {
+
+        List<PostComment> comments = doInJPA(entityManager -> {
+            return entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                where pc.review = :review""", PostComment.class)
+            .setParameter("review", review)
+            .getResultList();
+        });
+
         try {
             for(PostComment comment : comments) {
                 LOGGER.info("The post title is '{}'", comment.getPost().getTitle());

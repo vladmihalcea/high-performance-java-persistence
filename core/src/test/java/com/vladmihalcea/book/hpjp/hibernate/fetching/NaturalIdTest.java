@@ -9,11 +9,12 @@ import org.hibernate.annotations.NaturalIdCache;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.List;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.Objects;
 import java.util.Properties;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -82,12 +83,32 @@ public class NaturalIdTest extends AbstractTest {
     @Test
     public void testFindWithQuery() {
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.slug is not null", Post.class)
-            .getResultList();
-            assertFalse(posts.isEmpty());
+            String slug = "high-performance-java-persistence";
+
+            Post post = entityManager.createQuery("""
+                select p
+                from Post p
+                where p.slug = :slug
+                """, Post.class)
+            .setParameter("slug", slug)
+            .getSingleResult();
+
+            assertNotNull(post);
+        });
+    }
+    
+    @Test
+    public void testFindWithCriteriaAPI() {
+        doInJPA(entityManager -> {
+            String slug = "high-performance-java-persistence";
+
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Post> criteria = builder.createQuery(Post.class);
+            Root<Post> p = criteria.from(Post.class);
+            criteria.where(builder.equal(p.get("slug"), slug));
+            Post post = entityManager.createQuery(criteria).getSingleResult();
+
+            assertNotNull(post);
         });
     }
 

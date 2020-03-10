@@ -42,13 +42,17 @@ public class NPlusOneLazyFetchingManyToOneFindEntityTest extends AbstractPostgre
 
         doInJPA(entityManager -> {
             LOGGER.info("N+1 query problem");
-            List<PostComment> comments = entityManager.createQuery(
-                "select pc " +
-                "from PostComment pc " +
-                "where pc.review = :review", PostComment.class)
+            List<PostComment> comments = entityManager
+            .createQuery("""
+                select pc
+                from PostComment pc
+                where pc.review = :review
+                """, PostComment.class)
             .setParameter("review", review)
             .getResultList();
+
             LOGGER.info("Loaded {} comments", comments.size());
+
             for(PostComment comment : comments) {
                 LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
             }

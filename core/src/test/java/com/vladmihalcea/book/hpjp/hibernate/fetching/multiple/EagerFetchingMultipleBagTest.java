@@ -83,12 +83,13 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
     public void testOneQueryTwoJoinFetch() {
         try {
             doInJPA(entityManager -> {
-                List<Post> posts = entityManager.createQuery(
-                    "select p " +
-                    "from Post p " +
-                    "left join fetch p.comments " +
-                    "left join fetch p.tags " +
-                    "where p.id between :minId and :maxId", Post.class)
+                List<Post> posts = entityManager.createQuery("""
+                    select p
+                    from Post p
+                    left join fetch p.comments
+                    left join fetch p.tags
+                    where p.id between :minId and :maxId
+                    """, Post.class)
                 .setParameter("minId", 1L)
                 .setParameter("maxId", 50L)
                 .getResultList();
@@ -105,34 +106,66 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
 
     @Test
     public void testTwoJoinFetchQueries() {
-        List<Post> posts = doInJPA(entityManager -> {
-            List<Post> _posts = entityManager
-            .createQuery(
-                "select distinct p " +
-                "from Post p " +
-                "left join fetch p.comments " +
-                "where p.id between :minId and :maxId ", Post.class)
+        List<Post> _posts = doInJPA(entityManager -> {
+            List<Post> posts = entityManager.createQuery("""
+                select distinct p
+                from Post p
+                left join fetch p.comments
+                where p.id between :minId and :maxId""", Post.class)
             .setParameter("minId", 1L)
             .setParameter("maxId", 50L)
             .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
             .getResultList();
 
-            _posts = entityManager
-            .createQuery(
-                "select distinct p " +
-                "from Post p " +
-                "left join fetch p.tags t " +
-                "where p in :posts ", Post.class)
-            .setParameter("posts", _posts)
+            posts = entityManager.createQuery("""
+                select distinct p
+                from Post p
+                left join fetch p.tags t
+                where p in :posts""", Post.class)
+            .setParameter("posts", posts)
             .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
             .getResultList();
 
-            return _posts;
+            assertEquals(POST_COUNT, posts.size());
+
+            return posts;
         });
 
-        assertEquals(POST_COUNT, posts.size());
+        for(Post post : _posts) {
+            assertEquals(POST_COMMENT_COUNT, post.getComments().size());
+            assertEquals(TAG_COUNT, post.getTags().size());
+        }
+    }
 
-        for(Post post : posts) {
+    @Test
+    public void testTwoJoinFetchQueriesWithoutInClause() {
+        List<Post> _posts = doInJPA(entityManager -> {
+            List<Post> posts = entityManager.createQuery("""
+                select distinct p
+                from Post p
+                left join fetch p.comments
+                where p.id between :minId and :maxId""", Post.class)
+            .setParameter("minId", 1L)
+            .setParameter("maxId", 50L)
+            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
+            .getResultList();
+
+            posts = entityManager.createQuery("""
+                select distinct p
+                from Post p
+                left join fetch p.tags t
+                where p.id between :minId and :maxId""", Post.class)
+            .setParameter("minId", 1L)
+            .setParameter("maxId", 50L)
+            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
+            .getResultList();
+
+            assertEquals(POST_COUNT, posts.size());
+
+            return posts;
+        });
+
+        for(Post post : _posts) {
             assertEquals(POST_COMMENT_COUNT, post.getComments().size());
             assertEquals(TAG_COUNT, post.getTags().size());
         }

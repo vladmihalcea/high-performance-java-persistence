@@ -1,13 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
 import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.LongStream;
 
 import static org.junit.Assert.assertEquals;
@@ -28,6 +28,15 @@ public class ProjectionTest extends AbstractPostgreSQLIntegrationTest {
         };
     }
 
+    @Override
+    protected void additionalProperties(Properties properties) {
+        properties.put(
+            "hibernate.integrator_provider",
+            (IntegratorProvider) () -> Collections.singletonList(
+                new ClassImportIntegrator(Collections.singletonList(PostCommentSummary.class))
+            )
+        );
+    }
 
     @Override
     public void init() {
@@ -53,14 +62,14 @@ public class ProjectionTest extends AbstractPostgreSQLIntegrationTest {
     @Test
     public void test() {
         doInJPA(entityManager -> {
-            List<PostCommentSummary> summaries = entityManager.createQuery(
-                "select new " +
-                "   com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary( " +
-                "       p.id, p.title, c.review ) " +
-                "from PostComment c " +
-                "join c.post p " +
-                "order by p.id")
+            List<PostCommentSummary> summaries = entityManager.createQuery("""
+                select new PostCommentSummary(p.id, p.title, c.review)
+                from PostComment c
+                join c.post p
+                order by p.id
+                """, PostCommentSummary.class)
             .getResultList();
+
             assertFalse(summaries.isEmpty());
         });
     }
@@ -71,16 +80,16 @@ public class ProjectionTest extends AbstractPostgreSQLIntegrationTest {
         int pageSize = 10;
 
         doInJPA(entityManager -> {
-            List<PostCommentSummary> summaries = entityManager.createQuery(
-                "select new " +
-                "   com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary( " +
-                "       p.id, p.title, c.review ) " +
-                "from PostComment c " +
-                "join c.post p " +
-                "order by p.id")
+            List<PostCommentSummary> summaries = entityManager.createQuery("""
+                select new PostCommentSummary(p.id, p.title, c.review)
+                from PostComment c
+                join c.post p
+                order by p.id
+                """, PostCommentSummary.class)
             .setFirstResult(pageStart)
             .setMaxResults(pageSize)
             .getResultList();
+
             assertEquals(pageSize, summaries.size());
         });
     }
@@ -91,13 +100,15 @@ public class ProjectionTest extends AbstractPostgreSQLIntegrationTest {
         int pageSize = 10;
 
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments")
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.comments
+                """)
             .setFirstResult(pageStart)
             .setMaxResults(pageSize)
             .getResultList();
+
             assertEquals(pageSize, posts.size());
         });
     }
@@ -108,16 +119,16 @@ public class ProjectionTest extends AbstractPostgreSQLIntegrationTest {
         int pageSize = 50;
 
         doInJPA(entityManager -> {
-            List<PostCommentSummary> summaries = entityManager.createQuery(
-                "select new " +
-                "   com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary( " +
-                "       p.id, p.title, c.review ) " +
-                "from PostComment c " +
-                "join c.post p")
+            List<PostCommentSummary> summaries = entityManager.createQuery("""
+                select new PostCommentSummary(p.id, p.title, c.review)
+                from PostComment c
+                join c.post p
+                """)
             .setFirstResult(pageStart)
             .setMaxResults(pageSize)
             .setHint(QueryHints.HINT_FETCH_SIZE, pageSize)
             .getResultList();
+
             assertEquals(pageSize, summaries.size());
         });
     }

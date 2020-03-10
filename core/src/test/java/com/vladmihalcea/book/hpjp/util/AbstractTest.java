@@ -979,4 +979,19 @@ public abstract class AbstractTest {
         }
         throw new IllegalArgumentException("Unsupported region: " + region);
     }
+
+    protected void executeDML(EntityManager entityManager, String... sqls) {
+        Session session = entityManager.unwrap(Session.class);
+        for (String sql : sqls) {
+            try {
+                session.doWork(connection -> {
+                    executeStatement(connection, sql);
+                });
+            } catch (Exception e) {
+                LOGGER.error(
+                        String.format("Error executing statement: %s", sql), e
+                );
+            }
+        }
+    }
 }

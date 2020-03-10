@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -68,10 +69,11 @@ public class EagerFetchingManyToOneTest extends AbstractPostgreSQLIntegrationTes
     @Test
     public void testFindOneWithQuery() {
         doInJPA(entityManager -> {
-            PostComment comment = entityManager.createQuery(
-                "select pc " +
-                "from PostComment pc " +
-                "where pc.id = :id", PostComment.class)
+            PostComment comment = entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                where pc.id = :id
+                """, PostComment.class)
             .setParameter("id", 1L)
             .getSingleResult();
 
@@ -82,11 +84,12 @@ public class EagerFetchingManyToOneTest extends AbstractPostgreSQLIntegrationTes
     @Test
     public void testFindWithQuery() {
         doInJPA(entityManager -> {
-            List<PostComment> comments = entityManager.createQuery(
-                "select pc " +
-                "from PostComment pc " +
-                "join pc.post p " +
-                "where p.title like :titlePatttern", PostComment.class)
+            List<PostComment> comments = entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                join pc.post p
+                where p.title like :titlePatttern
+                """, PostComment.class)
             .setParameter("titlePatttern", "High-Performance Java Persistence%")
             .getResultList();
 
@@ -98,13 +101,14 @@ public class EagerFetchingManyToOneTest extends AbstractPostgreSQLIntegrationTes
     public void testFindWithQueryAndFetch() {
         doInJPA(entityManager -> {
             Long commentId = 1L;
-            PostComment comment = entityManager.createQuery(
-                "select pc " +
-                    "from PostComment pc " +
-                    "left join fetch pc.post p " +
-                    "where pc.id = :id", PostComment.class)
-                .setParameter("id", commentId)
-                .getSingleResult();
+            PostComment comment = entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                left join fetch pc.post p
+                where pc.id = :id
+                """, PostComment.class)
+            .setParameter("id", commentId)
+            .getSingleResult();
             assertNotNull(comment);
         });
     }
@@ -112,20 +116,22 @@ public class EagerFetchingManyToOneTest extends AbstractPostgreSQLIntegrationTes
     @Test
     public void testNPlusOneDetection() {
         try {
-            String review = "Excellent!";
+            LOGGER.info("Detect N+1");
+            SQLStatementCountValidator.reset();
 
-            doInJPA(entityManager -> {
-                LOGGER.info("Detect N+1");
-                SQLStatementCountValidator.reset();
-                List<PostComment> comments = entityManager.createQuery(
-                    "select pc " +
-                        "from PostComment pc " +
-                        "join fetch pc.post " +
-                        "where pc.review = :review", PostComment.class)
-                    .setParameter("review", review)
-                    .getResultList();
-                SQLStatementCountValidator.assertSelectCount(1);
+            List<PostComment> comments = doInJPA(entityManager -> {
+                return entityManager.createQuery("""
+                    select pc
+                    from PostComment pc
+                    where pc.review like :reviewPattern
+                    """, PostComment.class)
+                .setParameter("reviewPattern", "%excellent")
+                .getResultList();
             });
+
+            assertEquals(3, comments.size());
+
+            SQLStatementCountValidator.assertSelectCount(1);
         } catch (Exception expected) {
             LOGGER.error("Exception", expected);
         }

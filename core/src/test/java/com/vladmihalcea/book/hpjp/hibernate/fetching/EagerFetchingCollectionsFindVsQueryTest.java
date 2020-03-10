@@ -64,25 +64,24 @@ public class EagerFetchingCollectionsFindVsQueryTest extends AbstractTest {
 
     @Test
     public void testFindEntityById() {
-        Post post = doInJPA(entityManager -> {
-            return entityManager.find(Post.class, 1L);
+        doInJPA(entityManager -> {
+            Post post =  entityManager.find(Post.class, 1L);
+
+            assertFalse(post.getComments().isEmpty());
+            assertFalse(post.getTags().isEmpty());
         });
-        assertFalse(post.getComments().isEmpty());
-        assertFalse(post.getTags().isEmpty());
     }
 
     @Test
     public void testQueryEntityById() {
-        Post post = doInJPA(entityManager -> {
-            return entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.id = :id", Post.class)
-            .setParameter("id", 1L)
+        doInJPA(entityManager -> {
+            Post post = entityManager.createQuery(
+                "select p from Post p where p.id = 1L", Post.class)
             .getSingleResult();
+
+            assertFalse(post.getComments().isEmpty());
+            assertFalse(post.getTags().isEmpty());
         });
-        assertFalse(post.getComments().isEmpty());
-        assertFalse(post.getTags().isEmpty());
     }
 
     @Entity(name = "Post")

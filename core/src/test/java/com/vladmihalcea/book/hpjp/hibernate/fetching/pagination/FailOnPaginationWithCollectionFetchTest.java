@@ -81,18 +81,20 @@ public class FailOnPaginationWithCollectionFetchTest extends AbstractTest {
     public void testFetchAndPaginate() {
         doInJPA(entityManager -> {
             try {
-                entityManager.createQuery(
-                    "select p " +
-                    "from Post p " +
-                    "left join fetch p.comments " +
-                    "where p.title like :titlePattern " +
-                    "order by p.createdOn", Post.class)
+                List<Post> posts  = entityManager.createQuery("""
+                    select p
+                    from Post p
+                    left join fetch p.comments
+                    where p.title like :titlePattern
+                    order by p.createdOn
+                """, Post.class)
                 .setParameter("titlePattern", "High-Performance Java Persistence %")
                 .setMaxResults(5)
                 .getResultList();
 
                 fail("Should have thrown Exception");
             } catch (Exception e) {
+                LOGGER.debug("Expected", e);
                 assertTrue(e.getMessage().contains("In memory pagination was about to be applied"));
             }
         });

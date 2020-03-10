@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.query;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
+import org.hibernate.cfg.AvailableSettings;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -11,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -103,6 +105,11 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
             PostComment comment = entityManager.find(PostComment.class, 1L);
             assertNotNull(comment);
         });
+    }
+
+    @Override
+    protected void additionalProperties(Properties properties) {
+        properties.setProperty(AvailableSettings.LOG_SLOW_QUERY, "1");
     }
 
     @Test

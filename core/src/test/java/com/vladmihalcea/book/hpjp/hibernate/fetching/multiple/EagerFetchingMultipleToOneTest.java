@@ -64,21 +64,20 @@ public class EagerFetchingMultipleToOneTest extends AbstractPostgreSQLIntegratio
 
     @Test
     public void testOneQueryTwoJoinFetch() {
-        List<PostComment> comments = doInJPA(entityManager -> {
-            List<PostComment> _comments = entityManager.createQuery(
-                "select pc " +
-                "from PostComment pc " +
-                "join fetch pc.post p " +
-                "join fetch p.details d " +
-                "where pc.id between :minId and :maxId", PostComment.class)
+        doInJPA(entityManager -> {
+            List<PostComment> comments = entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                join fetch pc.post p
+                join fetch p.details d
+                where pc.id between :minId and :maxId
+                """, PostComment.class)
             .setParameter("minId", 1L)
             .setParameter("maxId", 50L)
             .getResultList();
 
-            return _comments;
+            assertEquals(50, comments.size());
         });
-
-        assertEquals(50, comments.size());
     }
 
     @Entity(name = "Post")
