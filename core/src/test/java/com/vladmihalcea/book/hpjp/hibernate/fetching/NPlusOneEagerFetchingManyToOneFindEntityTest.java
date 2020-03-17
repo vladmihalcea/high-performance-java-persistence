@@ -27,16 +27,18 @@ public class NPlusOneEagerFetchingManyToOneFindEntityTest extends AbstractPostgr
         doInJPA(entityManager -> {
 
             for (long i = 1; i < 4; i++) {
-                Post post = new Post();
-                post.setId(i);
-                post.setTitle(String.format("Post nr. %d", i));
+                Post post = new Post()
+                    .setId(i)
+                    .setTitle(String.format("High-Performance Java Persistence, Part %d", i));
+
                 entityManager.persist(post);
 
-                PostComment comment = new PostComment();
-                comment.setId(i);
-                comment.setPost(post);
-                comment.setReview(review);
-                entityManager.persist(comment);
+                entityManager.persist(
+                    new PostComment()
+                        .setId(i)
+                        .setPost(post)
+                        .setReview(review)
+                );
             }
         });
 
@@ -80,31 +82,22 @@ public class NPlusOneEagerFetchingManyToOneFindEntityTest extends AbstractPostgr
 
         private String title;
 
-        public Post() {
-        }
-
-        public Post(Long id) {
-            this.id = id;
-        }
-
-        public Post(String title) {
-            this.title = title;
-        }
-
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
     }
 
@@ -120,35 +113,31 @@ public class NPlusOneEagerFetchingManyToOneFindEntityTest extends AbstractPostgr
 
         private String review;
 
-        public PostComment() {
-        }
-
-        public PostComment(String review) {
-            this.review = review;
-        }
-
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostComment setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public Post getPost() {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostComment setPost(Post post) {
             this.post = post;
+            return this;
         }
 
         public String getReview() {
             return review;
         }
 
-        public void setReview(String review) {
+        public PostComment setReview(String review) {
             this.review = review;
+            return this;
         }
     }
 }
