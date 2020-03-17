@@ -22,22 +22,29 @@ public class NPlusOneEagerFetchingManyToOneFindEntityTest extends AbstractPostgr
     @Test
     public void testNPlusOne() {
 
-        String review = "Excellent!";
-
         doInJPA(entityManager -> {
 
-            for (long i = 1; i < 4; i++) {
+            String[] reviews = new String[] {
+                    "Excellent book to understand Java Persistence",
+                    "Must-read for Java developers",
+                    "Five Stars",
+                    "A great reference book"
+            };
+
+            for (int i = 0; i < 4; i++) {
+                long id = i + 1;
+
                 Post post = new Post()
-                    .setId(i)
-                    .setTitle(String.format("High-Performance Java Persistence, Part %d", i));
+                    .setId(id)
+                    .setTitle(String.format("High-Performance Java Persistence - Part %d", id));
 
                 entityManager.persist(post);
 
                 entityManager.persist(
                     new PostComment()
-                        .setId(i)
+                        .setId(id)
                         .setPost(post)
-                        .setReview(review)
+                        .setReview(reviews[i])
                 );
             }
         });
@@ -48,9 +55,7 @@ public class NPlusOneEagerFetchingManyToOneFindEntityTest extends AbstractPostgr
             .createQuery("""
                 select pc
                 from PostComment pc
-                where pc.review = :review
                 """, PostComment.class)
-            .setParameter("review", review)
             .getResultList();
 
             LOGGER.info("Loaded {} comments", comments.size());
@@ -62,13 +67,11 @@ public class NPlusOneEagerFetchingManyToOneFindEntityTest extends AbstractPostgr
                 select pc
                 from PostComment pc
                 join fetch pc.post p
-                where pc.review = :review
                 """, PostComment.class)
-            .setParameter("review", review)
             .getResultList();
             LOGGER.info("Loaded {} comments", comments.size());
             for(PostComment comment : comments) {
-                LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
+                LOGGER.info("The Post '{}' got this review '{}'", comment.getPost().getTitle(), comment.getReview());
             }
         });
     }

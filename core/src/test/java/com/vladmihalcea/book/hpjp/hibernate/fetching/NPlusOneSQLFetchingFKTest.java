@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -9,7 +10,7 @@ import java.util.List;
 /**
  * @author Vlad Mihalcea
  */
-public class NPlusOneLazyFetchingManyToOneFindEntityTest extends AbstractPostgreSQLIntegrationTest {
+public class NPlusOneSQLFetchingFKTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -19,16 +20,21 @@ public class NPlusOneLazyFetchingManyToOneFindEntityTest extends AbstractPostgre
         };
     }
 
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
     @Test
     public void testNPlusOne() {
 
         doInJPA(entityManager -> {
 
             String[] reviews = new String[] {
-                    "Excellent book to understand Java Persistence",
-                    "Must-read for Java developers",
-                    "Five Stars",
-                    "A great reference book"
+                "Excellent book to understand Java Persistence",
+                "Must-read for Java developers",
+                "Five Stars",
+                "A great reference book"
             };
 
             for (int i = 0; i < 4; i++) {
@@ -51,33 +57,50 @@ public class NPlusOneLazyFetchingManyToOneFindEntityTest extends AbstractPostgre
 
         doInJPA(entityManager -> {
             LOGGER.info("N+1 query problem");
-            List<PostComment> comments = entityManager
-            .createQuery("""
-                select pc
-                from PostComment pc
-                """, PostComment.class)
+            List<Tuple> comments = entityManager.createNativeQuery("""
+                SELECT
+                    pc.id AS id,
+                    pc.review AS review,
+                    pc.post_id AS postId
+                FROM post_comment pc
+                """, Tuple.class)
             .getResultList();
 
-            LOGGER.info("Loaded {} comments", comments.size());
+            for (Tuple comment : comments) {
+                String review = (String) comment.get("review");
+                Long postId = ((Number) comment.get("postId")).longValue();
 
-            for(PostComment comment : comments) {
-                LOGGER.info("The Post '{}' got this review '{}'", comment.getPost().getTitle(), comment.getReview());
+                String postTitle = (String) entityManager.createNativeQuery("""
+                    SELECT
+                        p.title
+                    FROM post p
+                    WHERE p.id = :postId
+                    """)
+                .setParameter("postId", postId)
+                .getSingleResult();
+
+                LOGGER.info("The Post '{}' got this review '{}'", postTitle, review);
             }
         });
 
         doInJPA(entityManager -> {
             LOGGER.info("N+1 query problem fixed");
-            List<PostComment> comments = entityManager.createQuery("""
-                select pc
-                from PostComment pc
-                join fetch pc.post p
-                """, PostComment.class)
+
+            List<Tuple> comments = entityManager.createNativeQuery("""
+                SELECT
+                    pc.id AS id,
+                    pc.review AS review,
+                    p.title AS postTitle
+                FROM post_comment pc
+                JOIN post p ON pc.post_id = p.id
+                """, Tuple.class)
             .getResultList();
 
-            LOGGER.info("Loaded {} comments", comments.size());
+            for (Tuple comment : comments) {
+                String review = (String) comment.get("review");
+                String postTitle = (String) comment.get("postTitle");
 
-            for(PostComment comment : comments) {
-                LOGGER.info("The Post '{}' got this review '{}'", comment.getPost().getTitle(), comment.getReview());
+                LOGGER.info("The Post '{}' got this review '{}'", postTitle, review);
             }
         });
     }
@@ -117,7 +140,7 @@ public class NPlusOneLazyFetchingManyToOneFindEntityTest extends AbstractPostgre
         @Id
         private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY)
+        @ManyToOne
         private Post post;
 
         private String review;

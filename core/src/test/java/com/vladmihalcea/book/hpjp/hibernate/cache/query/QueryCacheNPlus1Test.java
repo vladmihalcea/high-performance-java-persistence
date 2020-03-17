@@ -69,10 +69,11 @@ public class QueryCacheNPlus1Test extends AbstractTest {
 
     public List<PostComment> getLatestPostComments(
             EntityManager entityManager) {
-        return entityManager.createQuery(
-            "select pc " +
-            "from PostComment pc " +
-            "order by pc.post.id desc", PostComment.class)
+        return entityManager.createQuery("""
+            select pc
+            from PostComment pc
+            order by pc.post.id desc
+            """, PostComment.class)
         .setMaxResults(10)
         .setHint(QueryHints.HINT_CACHEABLE, true)
         .getResultList();
