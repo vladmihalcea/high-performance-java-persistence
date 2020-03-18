@@ -1,19 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.logging.validator;
 
-import java.util.List;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
-import org.junit.Test;
-
 import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.junit.Test;
+
+import javax.persistence.*;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
@@ -132,13 +126,15 @@ public class SQLStatementCountValidatorJoinFetchTest extends AbstractTest {
 
             SQLStatementCountValidator.reset();
 
-            List<PostComment> comments = entityManager.createQuery(
-                "select pc " +
-                "from PostComment pc", PostComment.class )
+            List<PostComment> comments = entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                """, PostComment.class)
             .getResultList();
-            assertEquals( 2, comments.size() );
 
-            SQLStatementCountValidator.assertSelectCount( 1 );
+            assertEquals(2, comments.size());
+
+            SQLStatementCountValidator.assertSelectCount(1);
         } );
     }
 }
