@@ -76,7 +76,7 @@ public class SingleTableMySQLTriggerTest extends AbstractTest {
                     );
                     st.executeUpdate(
                         "CREATE " +
-                        "TRIGGER announcement_validUntil_check BEFORE INSERT " +
+                        "TRIGGER announcement_validUntil_insert_check BEFORE INSERT " +
                         "ON Topic " +
                         "FOR EACH ROW " +
                         "BEGIN " +
