@@ -1,18 +1,19 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching.pagination;
 
-import com.vladmihalcea.book.hpjp.hibernate.forum.Post_;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.ParameterExpression;
+import javax.persistence.criteria.Root;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -45,29 +46,34 @@ public class FailOnPaginationWithCollectionFetchTest extends AbstractTest {
     public void afterInit() {
         doInJPA(entityManager -> {
             LocalDateTime timestamp = LocalDateTime.of(
-                    2018, 10, 9, 12, 0, 0, 0
+                2018, 10, 9, 12, 0, 0, 0
             );
 
-            LongStream.range(1, 50).forEach(postId -> {
+            LongStream.rangeClosed(1, 50)
+            .forEach(postId -> {
                 Post post = new Post()
-                        .setId(postId)
-                        .setTitle(String.format("High-Performance Java Persistence - Chapter %d", postId))
-                        .setCreatedOn(
-                                Timestamp.valueOf(timestamp.plusMinutes(postId))
-                        );
+                .setId(postId)
+                .setTitle(
+                    String.format("High-Performance Java Persistence - Chapter %d",
+                    postId)
+                )
+                .setCreatedOn(
+                    Timestamp.valueOf(timestamp.plusMinutes(postId))
+                );
 
-                LongStream.range(1, COMMENT_COUNT + 1).forEach(commentOffset -> {
+                LongStream.rangeClosed(1, COMMENT_COUNT)
+                .forEach(commentOffset -> {
                     long commentId = ((postId - 1) * COMMENT_COUNT) + commentOffset;
 
                     post.addComment(
-                            new PostComment()
-                                    .setId(commentId)
-                                    .setReview(
-                                            String.format("Comment nr. %d - A must read!", commentId)
-                                    )
-                                    .setCreatedOn(
-                                            Timestamp.valueOf(timestamp.plusMinutes(commentId))
-                                    )
+                        new PostComment()
+                        .setId(commentId)
+                        .setReview(
+                            String.format("Comment nr. %d - A must read!", commentId)
+                        )
+                        .setCreatedOn(
+                            Timestamp.valueOf(timestamp.plusMinutes(commentId))
+                        )
                     );
 
                 });
@@ -87,7 +93,7 @@ public class FailOnPaginationWithCollectionFetchTest extends AbstractTest {
                     left join fetch p.comments
                     where p.title like :titlePattern
                     order by p.createdOn
-                """, Post.class)
+                    """, Post.class)
                 .setParameter("titlePattern", "High-Performance Java Persistence %")
                 .setMaxResults(5)
                 .getResultList();

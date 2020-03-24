@@ -48,38 +48,50 @@ public class HibernateDTOProjectionTest extends AbstractTest {
     @Test
     public void testJpqlResultTransformer() {
         doInJPA( entityManager -> {
-            List<PostDTO> postDTOs = entityManager.createQuery(
-                "select " +
-                "       p.id as id, " +
-                "       p.title as title " +
-                "from Post p " +
-                "where p.createdOn > :fromTimestamp")
-            .setParameter( "fromTimestamp", Timestamp.from(
-                LocalDateTime.of( 2016, 1, 1, 0, 0, 0 ).toInstant( ZoneOffset.UTC ) ))
-            .unwrap( org.hibernate.query.Query.class )
-            .setResultTransformer( Transformers.aliasToBean( PostDTO.class ) )
+            List<PostDTO> postDTOs = entityManager.createQuery("""
+                select
+                   p.id as id,
+                   p.title as title
+                from Post p
+                where p.createdOn > :fromTimestamp
+                """)
+            .setParameter(
+                "fromTimestamp",
+                Timestamp.from(
+                    LocalDateTime.of(2020, 1, 1, 0, 0, 0)
+                        .toInstant(ZoneOffset.UTC)
+                )
+            )
+            .unwrap(org.hibernate.query.Query.class)
+            .setResultTransformer(Transformers.aliasToBean(PostDTO.class))
             .getResultList();
 
-            assertEquals( 1, postDTOs.size() );
+            assertEquals(1, postDTOs.size());
         } );
     }
 
     @Test
     public void testNativeQueryResultTransformer() {
         doInJPA( entityManager -> {
-            List postDTOs = entityManager.createNativeQuery(
-                "select " +
-                "       p.id as \"id\", " +
-                "       p.title as \"title\" " +
-                "from Post p " +
-                "where p.created_on > :fromTimestamp")
-            .setParameter( "fromTimestamp", Timestamp.from(
-                LocalDateTime.of( 2016, 1, 1, 0, 0, 0 ).toInstant( ZoneOffset.UTC ) ))
-            .unwrap( org.hibernate.query.NativeQuery.class )
-            .setResultTransformer( Transformers.aliasToBean( PostDTO.class ) )
+            List<PostDTO> postDTOs = entityManager.createNativeQuery("""
+                select
+                   p.id as "id",
+                   p.title as "title"
+                from Post p
+                where p.created_on > :fromTimestamp
+                """)
+            .setParameter(
+                "fromTimestamp",
+                Timestamp.from(
+                    LocalDateTime.of(2020, 1, 1, 0, 0, 0)
+                        .toInstant(ZoneOffset.UTC)
+                )
+            )
+            .unwrap(org.hibernate.query.NativeQuery.class)
+            .setResultTransformer(Transformers.aliasToBean(PostDTO.class))
             .getResultList();
 
-            assertEquals( 1, postDTOs.size() );
+            assertEquals(1, postDTOs.size());
         } );
     }
 

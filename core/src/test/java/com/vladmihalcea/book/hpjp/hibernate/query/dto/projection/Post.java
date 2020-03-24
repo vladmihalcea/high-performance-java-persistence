@@ -10,12 +10,12 @@ import java.sql.Timestamp;
  */
 @NamedNativeQuery(
 	name = "PostDTO",
-	query =
-		"SELECT " +
-		"       p.id AS id, " +
-		"       p.title AS title " +
-		"FROM Post p " +
-		"WHERE p.created_on > :fromTimestamp",
+	query = """
+		SELECT
+		   p.id AS id,
+		   p.title AS title
+		FROM Post p
+		WHERE p.created_on > :fromTimestamp""",
 	resultSetMapping = "PostDTO"
 )
 @SqlResultSetMapping(

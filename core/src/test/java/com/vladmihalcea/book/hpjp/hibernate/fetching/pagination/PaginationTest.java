@@ -24,8 +24,8 @@ public class PaginationTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostComment.class,
+            Post.class,
+            PostComment.class,
         };
     }
 
@@ -40,29 +40,34 @@ public class PaginationTest extends AbstractTest {
     public void afterInit() {
         doInJPA(entityManager -> {
             LocalDateTime timestamp = LocalDateTime.of(
-                    2018, 10, 9, 12, 0, 0, 0
+                2018, 10, 9, 12, 0, 0, 0
             );
 
-            LongStream.range(1, 50).forEach(postId -> {
+            LongStream.rangeClosed(1, 50)
+            .forEach(postId -> {
                 Post post = new Post()
-                        .setId(postId)
-                        .setTitle(String.format("High-Performance Java Persistence - Chapter %d", postId))
-                        .setCreatedOn(
-                                Timestamp.valueOf(timestamp.plusMinutes(postId))
-                        );
+                .setId(postId)
+                .setTitle(
+                    String.format("High-Performance Java Persistence - Chapter %d",
+                    postId)
+                )
+                .setCreatedOn(
+                    Timestamp.valueOf(timestamp.plusMinutes(postId))
+                );
 
-                LongStream.range(1, COMMENT_COUNT + 1).forEach(commentOffset -> {
+                LongStream.rangeClosed(1, COMMENT_COUNT)
+                .forEach(commentOffset -> {
                     long commentId = ((postId - 1) * COMMENT_COUNT) + commentOffset;
 
                     post.addComment(
-                            new PostComment()
-                                    .setId(commentId)
-                                    .setReview(
-                                            String.format("Comment nr. %d - A must read!", commentId)
-                                    )
-                                    .setCreatedOn(
-                                            Timestamp.valueOf(timestamp.plusMinutes(commentId))
-                                    )
+                        new PostComment()
+                        .setId(commentId)
+                        .setReview(
+                            String.format("Comment nr. %d - A must read!", commentId)
+                        )
+                        .setCreatedOn(
+                            Timestamp.valueOf(timestamp.plusMinutes(commentId))
+                        )
                     );
 
                 });
@@ -195,8 +200,7 @@ public class PaginationTest extends AbstractTest {
     @Test
     public void testFetchAndPaginateWithTwoQueries() {
         doInJPA(entityManager -> {
-            List<Long> postIds = entityManager
-            .createQuery("""
+            List<Long> postIds = entityManager.createQuery("""
                 select p.id
                 from Post p
                 where p.title like :titlePattern
@@ -313,11 +317,11 @@ public class PaginationTest extends AbstractTest {
                 PostComment postComment1 = comments.get(i);
 
                 assertEquals(
-                        String.format(
-                                "Comment nr. %d - A must read!",
-                                i + 1
-                        ),
-                        postComment1.getReview()
+                    String.format(
+                        "Comment nr. %d - A must read!",
+                        i + 1
+                    ),
+                    postComment1.getReview()
                 );
             }
         });

@@ -173,6 +173,8 @@ public class ResultSetMappingTest extends AbstractOracleIntegrationTest {
                 Post post = (Post) postWithCommentCountList.get(i)[0];
                 int commentCount = (int) postWithCommentCountList.get(i)[1];
 
+                assertTrue(entityManager.contains(post));
+
                 assertEquals(i + 1, post.getId().intValue());
                 assertEquals(
                     String.format(
