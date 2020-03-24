@@ -1,14 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.sp;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.Oracle12CustomDialect;
-import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Oracle12CustomDialect;
 import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
-
+import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import org.hibernate.Session;
 import org.hibernate.annotations.NamedNativeQuery;
-import org.hibernate.dialect.Oracle12cDialect;
 import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.procedure.ProcedureCall;
 import org.hibernate.procedure.ProcedureOutputs;
@@ -311,18 +309,18 @@ public class OracleStoredProcedureTest extends AbstractOracleIntegrationTest {
             @EntityResult(
                 entityClass = Post.class,
                 fields = {
-                    @FieldResult( name = "id", column = "p.id" ),
-                    @FieldResult( name = "title", column = "p.title" ),
-                    @FieldResult( name = "version", column = "p.version" ),
+                    @FieldResult(name = "id", column = "p.id"),
+                    @FieldResult(name = "title", column = "p.title"),
+                    @FieldResult(name = "version", column = "p.version"),
                 }
             ),
             @EntityResult(
                 entityClass = PostComment.class,
                 fields = {
-                    @FieldResult( name = "id", column = "c.id" ),
-                    @FieldResult( name = "post", column = "c.post_id" ),
-                    @FieldResult( name = "version", column = "c.version" ),
-                    @FieldResult( name = "review", column = "c.review" ),
+                    @FieldResult(name = "id", column = "c.id"),
+                    @FieldResult(name = "post", column = "c.post_id"),
+                    @FieldResult(name = "version", column = "c.version"),
+                    @FieldResult(name = "review", column = "c.review"),
                 }
             )
         }
