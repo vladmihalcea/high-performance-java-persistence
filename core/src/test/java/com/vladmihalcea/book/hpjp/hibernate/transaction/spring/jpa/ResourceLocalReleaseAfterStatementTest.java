@@ -39,8 +39,7 @@ public class ResourceLocalReleaseAfterStatementTest {
 
     @Test
     public void test() {
-        Post newPost = releaseAfterStatementForumService
-        .newPost(
+        Post newPost = releaseAfterStatementForumService.newPost(
             "High-Performance Java Persistence"
         );
 
@@ -53,12 +52,11 @@ public class ResourceLocalReleaseAfterStatementTest {
          * So, basically, the Post entity is persisted using one JDBC Connection, which is also sent
          * back to the pool after the flush is done, and by the time the TransactionInterceptor
          * tries to commit the connection, no {@code physicalConnection} will be found in
-         * {@link LogicalConnectionManagedImpl}, so a new JDBC Connection will be fetched from the ppol
+         * {@link LogicalConnectionManagedImpl}, so a new JDBC Connection will be fetched from the pool
          * only to commit that instead of the one that contained the modifications.
          */
 
-        PostDTO postDTO = releaseAfterStatementForumService
-        .savePostTitle(
+        PostDTO postDTO = releaseAfterStatementForumService.savePostTitle(
             newPost.getId(),
             "High-Performance Java Persistence, 2nd edition"
         );

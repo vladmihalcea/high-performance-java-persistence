@@ -66,7 +66,7 @@ public class ResourceLocalReleaseAfterStatementConfiguration {
     }
 
     @Bean(destroyMethod = "close")
-    public DataSource actualDataSource() {
+    public HikariDataSource actualDataSource() {
         Properties driverProperties = new Properties();
         driverProperties.setProperty("url", jdbcUrl);
         driverProperties.setProperty("user", jdbcUser);
@@ -123,10 +123,6 @@ public class ResourceLocalReleaseAfterStatementConfiguration {
         Properties properties = new Properties();
         properties.setProperty("hibernate.dialect", hibernateDialect);
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-        properties.put(
-            "hibernate.session_factory.statement_inspector",
-            new LoggingStatementInspector("com.vladmihalcea.book.hpjp.hibernate.transaction")
-        );
         properties.put(
             "hibernate.integrator_provider",
                 (IntegratorProvider) () -> Collections.singletonList(

@@ -40,6 +40,7 @@ public class ReleaseAfterStatementForumServiceImpl implements ReleaseAfterStatem
 
     @Autowired
     private PostDAO postDAO;
+
     @PersistenceContext
     private EntityManager entityManager;
 
