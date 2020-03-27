@@ -1,9 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import com.vladmihalcea.book.hpjp.hibernate.sp.OracleStoredProcedureTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import net.ttddyy.dsproxy.QueryCount;
 import net.ttddyy.dsproxy.QueryCountHolder;
+import org.hibernate.annotations.Cascade;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -15,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class BidirectionalOneToManyTest extends AbstractTest {
+public class BidirectionalOneToManyOrphanRemovalWithoutCascadeTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -23,45 +22,6 @@ public class BidirectionalOneToManyTest extends AbstractTest {
                 Post.class,
                 PostComment.class,
         };
-    }
-
-    @Test
-    public void testLifecycle() {
-        doInJPA(entityManager -> {
-            Post post = new Post("First post");
-
-            post.addComment(new PostComment("My first review"));
-            post.addComment(
-                    new PostComment("My second review")
-            );
-            post.addComment(
-                    new PostComment("My third review")
-            );
-
-            entityManager.persist(post);
-        });
-    }
-
-    @Test
-    public void testRemove() {
-
-        doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setTitle("High-Performance Java Persistence");
-
-            PostComment comment = new PostComment();
-            comment.setReview("JPA and Hibernate");
-            post.addComment(comment);
-
-            entityManager.persist(post);
-        });
-
-        doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
-            PostComment comment = post.getComments().get(0);
-
-            post.removeComment(comment);
-        });
     }
 
     @Test
@@ -80,6 +40,8 @@ public class BidirectionalOneToManyTest extends AbstractTest {
             post.addComment(comment2);
 
             entityManager.persist(post);
+            entityManager.persist(comment1);
+            entityManager.persist(comment2);
         });
 
         QueryCountHolder.clear();
@@ -111,7 +73,8 @@ public class BidirectionalOneToManyTest extends AbstractTest {
 
         private String title;
 
-        @OneToMany(mappedBy = "post", orphanRemoval = true)
+        @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
+        //@OneToMany(mappedBy = "post", orphanRemoval = true)
         private List<PostComment> comments = new ArrayList<>();
 
         public Post() {
