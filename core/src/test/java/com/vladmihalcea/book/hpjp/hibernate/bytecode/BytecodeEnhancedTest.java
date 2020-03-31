@@ -25,20 +25,21 @@ public class BytecodeEnhancedTest extends AbstractTest {
     @Test
     public void testDirtyChecking() {
         doInJPA(entityManager -> {
-            Post post = new Post(1L);
-            post.setTitle("High-Performance Java Persistence");
-
-            PostComment comment1 = new PostComment();
-            comment1.setId(1L);
-            comment1.setReview("Good");
-
-            PostComment comment2 = new PostComment();
-            comment2.setId(2L);
-            comment2.setReview("Excellent");
-
-            post.addComment(comment1);
-            post.addComment(comment2);
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+                    .addComment(
+                        new PostComment()
+                            .setId(1L)
+                            .setReview("Good")
+                    )
+                    .addComment(
+                        new PostComment()
+                            .setId(2L)
+                            .setReview("Excellent")
+                    )
+            );
         });
 
         doInJPA(entityManager -> {

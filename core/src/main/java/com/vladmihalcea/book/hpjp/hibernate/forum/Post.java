@@ -19,26 +19,24 @@ public class Post {
 
     private String title;
 
-    public Post() {
-    }
-
-    public Post(Long id) {
-        this.id = id;
-    }
-
-    public Post(String title) {
-        this.title = title;
-    }
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
+    @OneToMany(
+        mappedBy = "post",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
     private List<PostComment> comments = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "post", fetch = FetchType.LAZY)
+    @OneToOne(
+        mappedBy = "post",
+        cascade = CascadeType.ALL,
+        fetch = FetchType.LAZY
+    )
     @LazyToOne(LazyToOneOption.NO_PROXY)
     private PostDetails details;
 
     @ManyToMany
-    @JoinTable(name = "post_tag",
+    @JoinTable(
+        name = "post_tag",
         joinColumns = @JoinColumn(name = "post_id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
@@ -48,16 +46,18 @@ public class Post {
         return id;
     }
 
-    public void setId(Long id) {
+    public Post setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
+    public Post setTitle(String title) {
         this.title = title;
+        return this;
     }
 
     public List<PostComment> getComments() {
@@ -68,16 +68,7 @@ public class Post {
         return details;
     }
 
-    public List<Tag> getTags() {
-        return tags;
-    }
-
-    public void addComment(PostComment comment) {
-        comments.add(comment);
-        comment.setPost(this);
-    }
-
-    public void setDetails(PostDetails details) {
+    public Post setDetails(PostDetails details) {
         if (details == null) {
             if (this.details != null) {
                 this.details.setPost(null);
@@ -87,5 +78,22 @@ public class Post {
             details.setPost(this);
         }
         this.details = details;
+        return this;
+    }
+
+    public List<Tag> getTags() {
+        return tags;
+    }
+
+    public Post addComment(PostComment comment) {
+        comments.add(comment);
+        comment.setPost(this);
+        return this;
+    }
+
+    public Post removeComment(PostComment comment) {
+        comments.remove(comment);
+        comment.setPost(null);
+        return this;
     }
 }

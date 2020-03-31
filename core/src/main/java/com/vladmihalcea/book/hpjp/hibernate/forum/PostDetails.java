@@ -20,43 +20,44 @@ public class PostDetails {
     @Column(name = "created_by")
     private String createdBy;
 
-    public PostDetails() {
-        createdOn = new Date();
-    }
-
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
+    @MapsId
+    @JoinColumn(name = "id")
     private Post post;
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public PostDetails setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public Post getPost() {
         return post;
     }
 
-    public void setPost(Post post) {
+    public PostDetails setPost(Post post) {
         this.post = post;
+        return this;
     }
 
     public Date getCreatedOn() {
         return createdOn;
     }
 
-    public void setCreatedOn(Date createdOn) {
+    public PostDetails setCreatedOn(Date createdOn) {
         this.createdOn = createdOn;
+        return this;
     }
 
     public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(String createdBy) {
+    public PostDetails setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
+        return this;
     }
 }

@@ -101,20 +101,32 @@ public class BytecodeEnhancementDirtyCheckingPerformanceTest extends AbstractTes
         super.init();
         doInJPA(entityManager -> {
             for (int i = 0; i < entityCount; i++) {
-                Post post = new Post("JPA with Hibernate");
-                post.setId(i * 10L);
+                Post post = new Post()
+                    .setId(i * 10L)
+                    .setTitle("JPA with Hibernate")
+                    .setDetails(
+                        new PostDetails()
+                            .setCreatedOn(new Date())
+                            .setCreatedBy("Vlad MIhalcea")
+                    )
+                    .addComment(
+                        new PostComment()
+                            .setId(i * 10L)
+                            .setReview("Good")
+                    )
+                    .addComment(
+                        new PostComment()
+                            .setId(i * 10L + 1)
+                            .setReview("Excellent")
+                    );
 
-                PostDetails details = new PostDetails();
-                details.setCreatedOn(new Date());
-                details.setCreatedBy("Vlad");
-                post.setDetails(details);
+                Tag tag1 = new Tag()
+                    .setId(i * 10L)
+                    .setName("Java");
 
-                Tag tag1 = new Tag();
-                tag1.setId(i * 10L);
-                tag1.setName("Java");
-                Tag tag2 = new Tag();
-                tag2.setId(i * 10L + 1);
-                tag2.setName("Hibernate");
+                Tag tag2 = new Tag()
+                    .setId(i * 10L + 1)
+                    .setName("Hibernate");
 
                 entityManager.persist(post);
 
@@ -124,17 +136,6 @@ public class BytecodeEnhancementDirtyCheckingPerformanceTest extends AbstractTes
                 post.getTags().add(tag1);
                 post.getTags().add(tag2);
 
-                PostComment comment1 = new PostComment();
-                comment1.setId(i * 10L);
-                comment1.setReview("Good");
-
-                PostComment comment2 = new PostComment();
-                comment2.setId(i * 10L + 1);
-                comment2.setReview("Excellent");
-
-                post.addComment(comment1);
-                post.addComment(comment2);
-
                 entityManager.flush();
                 postIds.add(post.getId());
             }
@@ -142,7 +143,7 @@ public class BytecodeEnhancementDirtyCheckingPerformanceTest extends AbstractTes
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testDirtyChecking() {
         doInJPA(entityManager -> {
             List<Post> posts = posts(entityManager);

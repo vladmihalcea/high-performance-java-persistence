@@ -20,15 +20,17 @@ public class Tag {
         return id;
     }
 
-    public void setId(Long id) {
+    public Tag setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public Tag setName(String name) {
         this.name = name;
+        return this;
     }
 }

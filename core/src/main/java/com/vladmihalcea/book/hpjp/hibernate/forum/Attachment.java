@@ -10,7 +10,6 @@ import javax.persistence.*;
 public class Attachment {
 
     @Id
-    @GeneratedValue
     private Long id;
 
     private String name;
@@ -27,31 +26,35 @@ public class Attachment {
         return id;
     }
 
-    public void setId(Long id) {
+    public Attachment setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public Attachment setName(String name) {
         this.name = name;
+        return this;
     }
 
     public MediaType getMediaType() {
         return mediaType;
     }
 
-    public void setMediaType(MediaType mediaType) {
+    public Attachment setMediaType(MediaType mediaType) {
         this.mediaType = mediaType;
+        return this;
     }
 
     public byte[] getContent() {
         return content;
     }
 
-    public void setContent(byte[] content) {
+    public Attachment setContent(byte[] content) {
         this.content = content;
+        return this;
     }
 }

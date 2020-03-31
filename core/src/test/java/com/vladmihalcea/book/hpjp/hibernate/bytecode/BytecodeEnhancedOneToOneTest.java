@@ -7,6 +7,9 @@ import com.vladmihalcea.book.hpjp.hibernate.forum.Tag;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 /**
  * @author Vlad Mihalcea
  */
@@ -25,11 +28,19 @@ public class BytecodeEnhancedOneToOneTest extends AbstractTest {
     @Test
     public void testDirtyChecking() {
         doInJPA(entityManager -> {
-            Post post = new Post("First post");
-            post.setId(1L);
-            PostDetails details = new PostDetails();
-            post.setDetails(details);
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+                    .setDetails(
+                        new PostDetails()
+                            .setCreatedBy("Vlad Mihalcea")
+                            .setCreatedOn(
+                                Timestamp.valueOf(
+                                    LocalDateTime.of(2016, 10, 12, 0, 0, 0))
+                            )
+                    )
+            );
         });
 
         doInJPA(entityManager -> {

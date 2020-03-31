@@ -17,34 +17,30 @@ public class PostComment {
 
     private String review;
 
-    public PostComment() {
-    }
-
-    public PostComment(String review) {
-        this.review = review;
-    }
-
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public PostComment setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public Post getPost() {
         return post;
     }
 
-    public void setPost(Post post) {
+    public PostComment setPost(Post post) {
         this.post = post;
+        return this;
     }
 
     public String getReview() {
         return review;
     }
 
-    public void setReview(String review) {
+    public PostComment setReview(String review) {
         this.review = review;
+        return this;
     }
 }
