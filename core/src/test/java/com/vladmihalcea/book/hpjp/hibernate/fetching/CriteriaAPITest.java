@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.*;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -35,16 +36,23 @@ public class CriteriaAPITest extends AbstractPostgreSQLIntegrationTest {
     public void init() {
         super.init();
         doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setId(1L);
-            post.setTitle("high-performance-java-persistence");
+            Post post = new Post()
+                .setId(1L)
+                .setTitle("High-Performance Java Persistence")
+                .setDetails(
+                    new PostDetails()
+                        .setCreatedOn(new Date())
+                        .setCreatedBy("Vlad Mihalcea")
+                );
+
             entityManager.persist(post);
 
             for (long i = 0; i < 5; i++) {
-                PostComment comment = new PostComment();
-                comment.setId(i + 1);
-                comment.setReview("Great");
-                post.addComment(comment);
+                post.addComment(
+                    new PostComment()
+                        .setId(i + 1)
+                        .setReview("Great")
+                );
             }
         });
     }
@@ -52,7 +60,7 @@ public class CriteriaAPITest extends AbstractPostgreSQLIntegrationTest {
     @Test
     public void testFind() {
         doInJPA(entityManager -> {
-            List<Post> posts = filterPosts(entityManager, "high-performance%");
+            List<Post> posts = filterPosts(entityManager, "High-Performance Java Persistence");
             assertFalse(posts.isEmpty());
         });
         doInJPA(entityManager -> {
@@ -62,16 +70,50 @@ public class CriteriaAPITest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
-    public void testFilterChild() {
+    public void testFilterChildWithoutMetamodel() {
         doInJPA(entityManager -> {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-            CriteriaQuery<PostComment> criteria = builder.createQuery(PostComment.class);
-            Root<PostComment> fromPostComment = criteria.from(PostComment.class);
 
-            Join<PostComment, Post> postJoin = fromPostComment.join("post");
+            CriteriaQuery<PostComment> query = builder.createQuery(PostComment.class);
+            Root<PostComment> postComment = query.from(PostComment.class);
 
-            criteria.where(builder.like(postJoin.get(Post_.title), "high-performance%"));
-            List<PostComment> comments = entityManager.createQuery(criteria).getResultList();
+            Join<PostComment, Post> post = postComment.join("post");
+
+            query.where(
+                builder.equal(
+                    post.get("title"),
+                    "High-Performance Java Persistence"
+                )
+            );
+
+            List<PostComment> comments = entityManager
+                .createQuery(query)
+                .getResultList();
+
+            assertEquals(5, comments.size());
+        });
+    }
+
+    @Test
+    public void testFilterChildWithMetamodel() {
+        doInJPA(entityManager -> {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+
+            CriteriaQuery<PostComment> query = builder.createQuery(PostComment.class);
+            Root<PostComment> postComment = query.from(PostComment.class);
+
+            Join<PostComment, Post> post = postComment.join(PostComment_.post);
+
+            query.where(
+                builder.equal(
+                    post.get(Post_.title),
+                    "High-Performance Java Persistence"
+                )
+            );
+
+            List<PostComment> comments = entityManager
+                .createQuery(query)
+                .getResultList();
 
             assertEquals(5, comments.size());
         });
@@ -102,7 +144,7 @@ public class CriteriaAPITest extends AbstractPostgreSQLIntegrationTest {
 
             Join<PostComment, Post> postJoin = root.join("post");
 
-            criteria.where(builder.like(postJoin.get(Post_.title), "high-performance%"));
+            criteria.where(builder.like(postJoin.get(Post_.title), "High-Performance Java Persistence"));
             List<Object[]> comments = entityManager.createQuery(criteria).getResultList();
 
             assertEquals(5, comments.size());
@@ -113,21 +155,33 @@ public class CriteriaAPITest extends AbstractPostgreSQLIntegrationTest {
     public void testFetchObjectArrayToDTO() {
         doInJPA(entityManager -> {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-            CriteriaQuery<Object[]> criteria = builder.createQuery(Object[].class);
 
-            Root<PostComment> root = criteria.from(PostComment.class);
-            Join<PostComment, Post> postJoin = root.join("post");
+            CriteriaQuery<Object[]> query = builder.createQuery(Object[].class);
 
-            criteria.multiselect(
-                root.get(PostComment_.id).alias("id"),
-                root.get(PostComment_.review).alias("review"),
-                postJoin.get(Post_.title).alias("title")
+            Root<PostComment> postComment = query.from(PostComment.class);
+            Join<PostComment, Post> post = postComment.join(PostComment_.post);
+
+            query.multiselect(
+                postComment.get(PostComment_.id).alias(PostComment_.ID),
+                postComment.get(PostComment_.review).alias(PostComment_.REVIEW),
+                post.get(Post_.title).alias(Post_.TITLE)
             );
 
-            criteria.where(builder.like(postJoin.get(Post_.title), "high-performance%"));
+            query.where(
+                builder.and(
+                    builder.like(
+                        post.get(Post_.title),
+                        "%Java Persistence%"
+                    ),
+                    builder.equal(
+                        post.get(Post_.details).get(PostDetails_.CREATED_BY),
+                        "Vlad Mihalcea"
+                    )
+                )
+            );
 
             List<PostCommentSummary> comments = entityManager
-                .createQuery(criteria)
+                .createQuery(query)
                 .unwrap(Query.class)
                 .setResultTransformer(Transformers.aliasToBean(PostCommentSummary.class))
                 .getResultList();
