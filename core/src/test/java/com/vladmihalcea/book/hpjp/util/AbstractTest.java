@@ -994,4 +994,16 @@ public abstract class AbstractTest {
             }
         }
     }
+
+    protected int intValue(Object number) {
+        return ((Number) number).intValue();
+    }
+
+    protected long longValue(Object number) {
+        return ((Number) number).longValue();
+    }
+
+    protected double doubleValue(Object number) {
+        return ((Number) number).doubleValue();
+    }
 }
