@@ -151,8 +151,7 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
                     SELECT_POST_COMMENT
             )) {
                 statement.setMaxRows(getMaxRows());
-                statement.execute();
-                ResultSet resultSet = statement.getResultSet();
+                ResultSet resultSet = statement.executeQuery();
                 int count = 0;
                 while (resultSet.next()) {
                     resultSet.getLong(1);

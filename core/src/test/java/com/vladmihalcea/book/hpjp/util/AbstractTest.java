@@ -804,6 +804,21 @@ public abstract class AbstractTest {
         }
     }
 
+    protected void executeStatement(EntityManager entityManager, String... sqls) {
+        Session session = entityManager.unwrap(Session.class);
+        for (String sql : sqls) {
+            try {
+                session.doWork(connection -> {
+                    executeStatement(connection, sql);
+                });
+            } catch (Exception e) {
+                LOGGER.error(
+                    String.format("Error executing statement: %s", sql), e
+                );
+            }
+        }
+    }
+
     protected int update(Connection connection, String sql, Object[] params) {
         try {
             try(PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -1005,5 +1020,26 @@ public abstract class AbstractTest {
 
     protected double doubleValue(Object number) {
         return ((Number) number).doubleValue();
+    }
+
+    protected List<Map<String, String>> parseResultSet(ResultSet resultSet) {
+        List<Map<String, String>> rows = new ArrayList<>();
+
+        try {
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+
+            while (resultSet.next()) {
+                Map<String, String> row = new LinkedHashMap<>();
+                for (int i = 1; i <= columnCount; i++) {
+                    row.put(metaData.getColumnName(i), resultSet.getString(i));
+                }
+                rows.add(row);
+            }
+        } catch (SQLException e) {
+            throw new IllegalArgumentException(e);
+        }
+
+        return rows;
     }
 }
