@@ -17,7 +17,6 @@ import java.sql.Timestamp;
 				p.title
 			)
 		from Post p
-		where p.createdOn > :fromTimestamp
 		"""
 )
 @NamedNativeQuery(
@@ -27,7 +26,6 @@ import java.sql.Timestamp;
 		   p.id AS id,
 		   p.title AS title
 		FROM Post p
-		WHERE p.created_on > :fromTimestamp
 		""",
 	resultSetMapping = "PostDTOMapping"
 )

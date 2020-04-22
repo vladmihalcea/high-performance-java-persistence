@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import javax.persistence.Tuple;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
@@ -68,22 +67,13 @@ public class JPADTOProjectionTest extends AbstractTest {
 
     @Test
     public void testDefaultProjection() {
-        doInJPA( entityManager -> {
+        doInJPA(entityManager -> {
             List<Object[]> tuples = entityManager.createQuery("""
                 select 
                     p.id,
                     p.title
                 from Post p
-                where p.createdOn > :fromTimestamp
                 """)
-            .setParameter(
-                "fromTimestamp",
-                Timestamp.from(
-                    LocalDate.of(2016, 1, 1)
-                        .atStartOfDay()
-                        .toInstant(ZoneOffset.UTC)
-                )
-            )
             .getResultList();
 
             assertEquals(1, tuples.size());
@@ -91,7 +81,7 @@ public class JPADTOProjectionTest extends AbstractTest {
             Object[] tuple = tuples.get(0);
             assertEquals(1L, ((Number) tuple[0]).longValue());
             assertEquals("High-Performance Java Persistence", tuple[1]);
-        } );
+        });
     }
 
     @Test
@@ -102,15 +92,7 @@ public class JPADTOProjectionTest extends AbstractTest {
                    p.id AS id,
                    p.title AS title
                 FROM Post p
-                WHERE p.created_on > :fromTimestamp
                 """
-            )
-            .setParameter(
-                "fromTimestamp",
-                Timestamp.from(
-                    LocalDateTime.of(2016, 1, 1, 0, 0, 0)
-                        .toInstant(ZoneOffset.UTC)
-                )
             )
             .getResultList();
 
@@ -130,16 +112,7 @@ public class JPADTOProjectionTest extends AbstractTest {
                    p.id as id,
                    p.title as title
                 from Post p
-                where p.createdOn > :fromTimestamp
                 """, Tuple.class)
-            .setParameter(
-                "fromTimestamp",
-                Timestamp.from(
-                    LocalDate.of(2016, 1, 1)
-                        .atStartOfDay()
-                        .toInstant(ZoneOffset.UTC)
-                )
-            )
             .getResultList();
 
             assertEquals(1, tuples.size());
@@ -158,16 +131,7 @@ public class JPADTOProjectionTest extends AbstractTest {
                    p.id AS id,
                    p.title AS title
                 FROM Post p
-                WHERE p.created_on > :fromTimestamp
                 """, Tuple.class)
-            .setParameter(
-                "fromTimestamp",
-                Timestamp.from(
-                    LocalDate.of(2016, 1, 1)
-                        .atStartOfDay()
-                        .toInstant(ZoneOffset.UTC)
-                )
-            )
             .getResultList();
 
             assertEquals(1, tuples.size());
@@ -180,23 +144,14 @@ public class JPADTOProjectionTest extends AbstractTest {
 
     @Test
     public void testConstructorExpression() {
-        doInJPA( entityManager -> {
+        doInJPA(entityManager -> {
             List<PostDTO> postDTOs = entityManager.createQuery("""
                 select new com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO(
                     p.id,
                     p.title
                 )
                 from Post p
-                where p.createdOn > :fromTimestamp
                 """, PostDTO.class)
-            .setParameter(
-                "fromTimestamp",
-                Timestamp.from(
-                    LocalDate.of(2016, 1, 1)
-                        .atStartOfDay()
-                        .toInstant(ZoneOffset.UTC)
-                )
-            )
             .getResultList();
 
             assertEquals(1, postDTOs.size());
@@ -204,28 +159,19 @@ public class JPADTOProjectionTest extends AbstractTest {
             PostDTO postDTO = postDTOs.get(0);
             assertEquals(1L, postDTO.getId().longValue());
             assertEquals("High-Performance Java Persistence", postDTO.getTitle());
-        } );
+        });
     }
 
     @Test
     public void testConstructorExpressionSimpleClassName() {
-        doInJPA( entityManager -> {
+        doInJPA(entityManager -> {
             List<PostDTO> postDTOs = entityManager.createQuery("""
                 select new PostDTO(
                     p.id,
                     p.title
                 )
                 from Post p
-                where p.createdOn > :fromTimestamp
                 """, PostDTO.class)
-            .setParameter(
-                "fromTimestamp",
-                Timestamp.from(
-                    LocalDate.of(2016, 1, 1)
-                        .atStartOfDay()
-                        .toInstant(ZoneOffset.UTC)
-                )
-            )
             .getResultList();
 
             assertEquals(1, postDTOs.size());
@@ -233,7 +179,7 @@ public class JPADTOProjectionTest extends AbstractTest {
             PostDTO postDTO = postDTOs.get(0);
             assertEquals(1L, postDTO.getId().longValue());
             assertEquals("High-Performance Java Persistence", postDTO.getTitle());
-        } );
+        });
     }
 
     @Test
@@ -241,14 +187,6 @@ public class JPADTOProjectionTest extends AbstractTest {
         doInJPA(entityManager -> {
             List<PostDTO> postDTOs = entityManager.createNamedQuery(
                 "PostDTOEntityQuery", PostDTO.class)
-            .setParameter(
-                "fromTimestamp",
-                Timestamp.from(
-                    LocalDate.of(2016, 1, 1)
-                        .atStartOfDay()
-                        .toInstant(ZoneOffset.UTC)
-                )
-            )
             .getResultList();
 
             assertEquals(1, postDTOs.size());
@@ -264,14 +202,6 @@ public class JPADTOProjectionTest extends AbstractTest {
         doInJPA(entityManager -> {
             List<PostDTO> postDTOs = entityManager.createNamedQuery(
                 "PostDTONativeQuery")
-            .setParameter(
-                "fromTimestamp",
-                Timestamp.from(
-                    LocalDate.of(2016, 1, 1)
-                        .atStartOfDay()
-                        .toInstant(ZoneOffset.UTC)
-                )
-            )
             .getResultList();
 
             assertEquals(1, postDTOs.size());

@@ -84,7 +84,7 @@ public class PaginationTest extends AbstractTest {
                 select p
                 from Post p
                 order by p.createdOn
-            """, Post.class)
+                """, Post.class)
             .setMaxResults(10)
             .getResultList();
 
@@ -97,12 +97,11 @@ public class PaginationTest extends AbstractTest {
     @Test
     public void testLimitNativeSql() {
         doInJPA(entityManager -> {
-            List<String> posts = entityManager
-            .createNativeQuery("""
+            List<String> posts = entityManager.createNativeQuery("""
                 select p.title
                 from post p
                 order by p.created_on
-            """)
+                """)
             .setMaxResults(10)
             .getResultList();
 
@@ -133,12 +132,12 @@ public class PaginationTest extends AbstractTest {
     @Test
     public void testOffsetNative() {
         doInJPA(entityManager -> {
-            List<Tuple> posts = entityManager
-            .createNativeQuery("""
+            List<Tuple> posts = entityManager.createNativeQuery("""
                 SELECT
                    p.id AS id,
+                   p.created_on AS created_on,
                    p.title AS title
-                from post p
+                FROM post p
                 ORDER BY p.created_on
                 """, Tuple.class)
             .setFirstResult(10)
