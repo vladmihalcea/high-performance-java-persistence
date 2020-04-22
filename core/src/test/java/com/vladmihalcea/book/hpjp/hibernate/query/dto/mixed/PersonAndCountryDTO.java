@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.query.dto;
+package com.vladmihalcea.book.hpjp.hibernate.query.dto.mixed;
 
 /**
  * @author Vlad Mihalcea

@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.query.dto;
+package com.vladmihalcea.book.hpjp.hibernate.query.dto.mixed;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

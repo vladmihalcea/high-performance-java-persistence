@@ -1,10 +1,9 @@
-package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa;
+package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa.compact;
 
 import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
-import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.Test;
 
@@ -12,7 +11,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -34,9 +33,9 @@ public class JPADTOProjectionImportIntegratorProviderObjectTest extends Abstract
     protected void additionalProperties(Properties properties) {
         properties.put(
             "hibernate.integrator_provider",
-            (IntegratorProvider) () -> Arrays.asList(
+            (IntegratorProvider) () -> Collections.singletonList(
                 new ClassImportIntegrator(
-                    Arrays.asList(PostDTO.class)
+                    Collections.singletonList(PostDTO.class)
                 )
             )
         );
@@ -45,36 +44,41 @@ public class JPADTOProjectionImportIntegratorProviderObjectTest extends Abstract
     @Override
     public void afterInit() {
         doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setId(1L);
-            post.setTitle("High-Performance Java Persistence");
-            post.setCreatedBy("Vlad Mihalcea");
-            post.setCreatedOn(Timestamp.from(
-                LocalDateTime.of(2020, 11, 2, 12, 0, 0).toInstant(ZoneOffset.UTC)
-            ));
-            post.setUpdatedBy("Vlad Mihalcea");
-            post.setUpdatedOn(Timestamp.from(
-                LocalDateTime.now().toInstant(ZoneOffset.UTC)
-            ));
-
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+                    .setCreatedBy("Vlad Mihalcea")
+                    .setCreatedOn(
+                        Timestamp.from(
+                            LocalDateTime.of(2016, 11, 2, 12, 0, 0).toInstant(ZoneOffset.UTC)
+                        )
+                    )
+                    .setUpdatedBy("Vlad Mihalcea")
+                    .setUpdatedOn(
+                        Timestamp.from(
+                            LocalDateTime.now().toInstant(ZoneOffset.UTC)
+                        )
+                    )
+            );
         });
     }
 
     @Test
     public void testConstructorExpression() {
         doInJPA(entityManager -> {
-            List<PostDTO> postDTOs = entityManager.createQuery(
-                "select new PostDTO(" +
-                "    p.id, " +
-                "    p.title " +
-                ") " +
-                "from Post p " +
-                "where p.createdOn > :fromTimestamp", PostDTO.class)
+            List<PostDTO> postDTOs = entityManager.createQuery("""
+                select new PostDTO(
+                    p.id,
+                    p.title
+                )
+                from Post p
+                where p.createdOn > :fromTimestamp
+                """, PostDTO.class)
             .setParameter(
                 "fromTimestamp",
                 Timestamp.from(
-                    LocalDate.of(2020, 1, 1)
+                    LocalDate.of(2016, 1, 1)
                         .atStartOfDay()
                         .toInstant(ZoneOffset.UTC)
                 )
@@ -82,6 +86,10 @@ public class JPADTOProjectionImportIntegratorProviderObjectTest extends Abstract
             .getResultList();
 
             assertEquals(1, postDTOs.size());
+
+            PostDTO postDTO = postDTOs.get(0);
+            assertEquals(1L, postDTO.getId().longValue());
+            assertEquals("High-Performance Java Persistence", postDTO.getTitle());
         });
     }
 }

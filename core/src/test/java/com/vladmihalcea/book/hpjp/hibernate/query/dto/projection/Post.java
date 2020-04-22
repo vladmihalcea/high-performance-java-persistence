@@ -8,18 +8,31 @@ import java.sql.Timestamp;
 /**
  * @author Vlad Mihalcea
  */
+@NamedQuery(
+	name = "PostDTOEntityQuery",
+	query = """
+		select new
+			com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO(
+				p.id,
+				p.title
+			)
+		from Post p
+		where p.createdOn > :fromTimestamp
+		"""
+)
 @NamedNativeQuery(
-	name = "PostDTO",
+	name = "PostDTONativeQuery",
 	query = """
 		SELECT
 		   p.id AS id,
 		   p.title AS title
 		FROM Post p
-		WHERE p.created_on > :fromTimestamp""",
-	resultSetMapping = "PostDTO"
+		WHERE p.created_on > :fromTimestamp
+		""",
+	resultSetMapping = "PostDTOMapping"
 )
 @SqlResultSetMapping(
-	name = "PostDTO",
+	name = "PostDTOMapping",
 	classes = @ConstructorResult(
 		targetClass = PostDTO.class,
 		columns = {
@@ -55,55 +68,62 @@ public class Post {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public Post setId(Long id) {
 		this.id = id;
+		return this;
 	}
 
 	public String getTitle() {
 		return title;
 	}
 
-	public void setTitle(String title) {
+	public Post setTitle(String title) {
 		this.title = title;
+		return this;
 	}
 
 	public Timestamp getCreatedOn() {
 		return createdOn;
 	}
 
-	public void setCreatedOn(Timestamp createdOn) {
+	public Post setCreatedOn(Timestamp createdOn) {
 		this.createdOn = createdOn;
+		return this;
 	}
 
 	public String getCreatedBy() {
 		return createdBy;
 	}
 
-	public void setCreatedBy(String createdBy) {
+	public Post setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
+		return this;
 	}
 
 	public Timestamp getUpdatedOn() {
 		return updatedOn;
 	}
 
-	public void setUpdatedOn(Timestamp updatedOn) {
+	public Post setUpdatedOn(Timestamp updatedOn) {
 		this.updatedOn = updatedOn;
+		return this;
 	}
 
 	public String getUpdatedBy() {
 		return updatedBy;
 	}
 
-	public void setUpdatedBy(String updatedBy) {
+	public Post setUpdatedBy(String updatedBy) {
 		this.updatedBy = updatedBy;
+		return this;
 	}
 
 	public Integer getVersion() {
 		return version;
 	}
 
-	public void setVersion(Integer version) {
+	public Post setVersion(Integer version) {
 		this.version = version;
+		return this;
 	}
 }

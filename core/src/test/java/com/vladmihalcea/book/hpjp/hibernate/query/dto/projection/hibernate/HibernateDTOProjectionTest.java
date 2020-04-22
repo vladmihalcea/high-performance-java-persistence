@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
+@SuppressWarnings("unchecked")
 public class HibernateDTOProjectionTest extends AbstractTest {
 
     @Override
@@ -25,24 +26,26 @@ public class HibernateDTOProjectionTest extends AbstractTest {
     }
 
     @Override
-    public void init() {
-        super.init();
-
-        doInJPA( entityManager -> {
-            Post post = new Post();
-            post.setId( 1L );
-            post.setTitle( "High-Performance Java Persistence" );
-            post.setCreatedBy( "Vlad Mihalcea" );
-            post.setCreatedOn( Timestamp.from(
-                LocalDateTime.of( 2016, 11, 2, 12, 0, 0 ).toInstant( ZoneOffset.UTC)
-            ) );
-            post.setUpdatedBy( "Vlad Mihalcea" );
-            post.setUpdatedOn( Timestamp.from(
-                    LocalDateTime.now().toInstant( ZoneOffset.UTC)
-            ) );
-
-            entityManager.persist( post );
-        } );
+    public void afterInit() {
+        doInJPA(entityManager -> {
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+                    .setCreatedBy("Vlad Mihalcea")
+                    .setCreatedOn(
+                        Timestamp.from(
+                            LocalDateTime.of(2016, 11, 2, 12, 0, 0).toInstant(ZoneOffset.UTC)
+                        )
+                    )
+                    .setUpdatedBy("Vlad Mihalcea")
+                    .setUpdatedOn(
+                        Timestamp.from(
+                            LocalDateTime.now().toInstant(ZoneOffset.UTC)
+                        )
+                    )
+            );
+        });
     }
 
     @Test
@@ -58,7 +61,7 @@ public class HibernateDTOProjectionTest extends AbstractTest {
             .setParameter(
                 "fromTimestamp",
                 Timestamp.from(
-                    LocalDateTime.of(2020, 1, 1, 0, 0, 0)
+                    LocalDateTime.of(2016, 1, 1, 0, 0, 0)
                         .toInstant(ZoneOffset.UTC)
                 )
             )
@@ -74,16 +77,16 @@ public class HibernateDTOProjectionTest extends AbstractTest {
     public void testNativeQueryResultTransformer() {
         doInJPA( entityManager -> {
             List<PostDTO> postDTOs = entityManager.createNativeQuery("""
-                select
-                   p.id as "id",
-                   p.title as "title"
-                from Post p
-                where p.created_on > :fromTimestamp
+                SELECT
+                   p.id AS "id",
+                   p.title AS "title"
+                FROM Post p
+                WHERE p.created_on > :fromTimestamp
                 """)
             .setParameter(
                 "fromTimestamp",
                 Timestamp.from(
-                    LocalDateTime.of(2020, 1, 1, 0, 0, 0)
+                    LocalDateTime.of(2016, 1, 1, 0, 0, 0)
                         .toInstant(ZoneOffset.UTC)
                 )
             )
@@ -95,9 +98,6 @@ public class HibernateDTOProjectionTest extends AbstractTest {
         } );
     }
 
-    /**
-     * @author Vlad Mihalcea
-     */
     public static class PostDTO {
 
         private Long id;
