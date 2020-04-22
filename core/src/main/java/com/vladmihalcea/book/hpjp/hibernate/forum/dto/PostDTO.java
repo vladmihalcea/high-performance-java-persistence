@@ -5,9 +5,9 @@ package com.vladmihalcea.book.hpjp.hibernate.forum.dto;
  */
 public class PostDTO {
 
-	private Long id;
+	private final Long id;
 
-	private String title;
+	private final String title;
 
 	public PostDTO(Number id, String title) {
 		this.id = id.longValue();

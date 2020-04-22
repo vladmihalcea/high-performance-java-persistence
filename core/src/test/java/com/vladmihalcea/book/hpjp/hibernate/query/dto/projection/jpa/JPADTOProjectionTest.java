@@ -9,6 +9,7 @@ import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.Test;
 
 import javax.persistence.Tuple;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +37,10 @@ public class JPADTOProjectionTest extends AbstractTest {
             "hibernate.integrator_provider",
             (IntegratorProvider) () -> Collections.singletonList(
                 new ClassImportIntegrator(
-                    Collections.singletonList(PostDTO.class)
+                    List.of(
+                        PostDTO.class,
+                        PostRecord.class
+                    )
                 )
             )
         );
@@ -218,5 +222,31 @@ public class JPADTOProjectionTest extends AbstractTest {
             assertEquals(1L, postDTO.getId().longValue());
             assertEquals("High-Performance Java Persistence", postDTO.getTitle());
         });
+    }
+
+    @Test
+    public void testRecord() {
+        doInJPA(entityManager -> {
+            List<PostRecord> postRecords = entityManager.createQuery("""
+                select new PostRecord(
+                    p.id,
+                    p.title
+                )
+                from Post p
+                """, PostRecord.class)
+            .getResultList();
+
+            assertEquals(1, postRecords.size());
+
+            PostRecord postRecord = postRecords.get(0);
+            assertEquals(1L, postRecord.id().longValue());
+            assertEquals("High-Performance Java Persistence", postRecord.title());
+        });
+    }
+
+    public static record PostRecord(
+        Number id,
+        String title
+    ) {
     }
 }
