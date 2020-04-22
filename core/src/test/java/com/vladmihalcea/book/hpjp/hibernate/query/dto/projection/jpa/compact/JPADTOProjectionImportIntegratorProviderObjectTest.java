@@ -7,10 +7,8 @@ import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.Test;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -50,15 +48,11 @@ public class JPADTOProjectionImportIntegratorProviderObjectTest extends Abstract
                     .setTitle("High-Performance Java Persistence")
                     .setCreatedBy("Vlad Mihalcea")
                     .setCreatedOn(
-                        Timestamp.from(
-                            LocalDateTime.of(2016, 11, 2, 12, 0, 0).toInstant(ZoneOffset.UTC)
-                        )
+                        LocalDateTime.of(2016, 11, 2, 12, 0, 0)
                     )
                     .setUpdatedBy("Vlad Mihalcea")
                     .setUpdatedOn(
-                        Timestamp.from(
-                            LocalDateTime.now().toInstant(ZoneOffset.UTC)
-                        )
+                        LocalDateTime.now()
                     )
             );
         });
@@ -77,11 +71,7 @@ public class JPADTOProjectionImportIntegratorProviderObjectTest extends Abstract
                 """, PostDTO.class)
             .setParameter(
                 "fromTimestamp",
-                Timestamp.from(
-                    LocalDate.of(2016, 1, 1)
-                        .atStartOfDay()
-                        .toInstant(ZoneOffset.UTC)
-                )
+                LocalDate.of(2016, 1, 1).atStartOfDay()
             )
             .getResultList();
 

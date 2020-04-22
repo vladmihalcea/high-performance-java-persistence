@@ -34,15 +34,11 @@ public class HibernateDTOProjectionTest extends AbstractTest {
                     .setTitle("High-Performance Java Persistence")
                     .setCreatedBy("Vlad Mihalcea")
                     .setCreatedOn(
-                        Timestamp.from(
-                            LocalDateTime.of(2016, 11, 2, 12, 0, 0).toInstant(ZoneOffset.UTC)
-                        )
+                        LocalDateTime.of(2016, 11, 2, 12, 0, 0)
                     )
                     .setUpdatedBy("Vlad Mihalcea")
                     .setUpdatedOn(
-                        Timestamp.from(
-                            LocalDateTime.now().toInstant(ZoneOffset.UTC)
-                        )
+                        LocalDateTime.now()
                     )
             );
         });

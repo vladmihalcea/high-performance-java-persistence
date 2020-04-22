@@ -4,6 +4,7 @@ import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 /**
  * @author Vlad Mihalcea
@@ -48,13 +49,13 @@ public class Post {
 	private String title;
 
 	@Column(name = "created_on")
-	private Timestamp createdOn;
+	private LocalDateTime createdOn;
 
 	@Column(name = "created_by")
 	private String createdBy;
 
 	@Column(name = "updated_on")
-	private Timestamp updatedOn;
+	private LocalDateTime updatedOn;
 
 	@Column(name = "updated_by")
 	private String updatedBy;
@@ -80,11 +81,11 @@ public class Post {
 		return this;
 	}
 
-	public Timestamp getCreatedOn() {
+	public LocalDateTime getCreatedOn() {
 		return createdOn;
 	}
 
-	public Post setCreatedOn(Timestamp createdOn) {
+	public Post setCreatedOn(LocalDateTime createdOn) {
 		this.createdOn = createdOn;
 		return this;
 	}
@@ -98,11 +99,11 @@ public class Post {
 		return this;
 	}
 
-	public Timestamp getUpdatedOn() {
+	public LocalDateTime getUpdatedOn() {
 		return updatedOn;
 	}
 
-	public Post setUpdatedOn(Timestamp updatedOn) {
+	public Post setUpdatedOn(LocalDateTime updatedOn) {
 		this.updatedOn = updatedOn;
 		return this;
 	}

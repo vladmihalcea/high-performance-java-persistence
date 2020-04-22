@@ -8,9 +8,7 @@ import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.Test;
 
 import javax.persistence.Tuple;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -51,15 +49,11 @@ public class JPADTOProjectionTest extends AbstractTest {
                     .setTitle("High-Performance Java Persistence")
                     .setCreatedBy("Vlad Mihalcea")
                     .setCreatedOn(
-                        Timestamp.from(
-                            LocalDateTime.of(2016, 11, 2, 12, 0, 0).toInstant(ZoneOffset.UTC)
-                        )
+                        LocalDateTime.of(2016, 11, 2, 12, 0, 0)
                     )
                     .setUpdatedBy("Vlad Mihalcea")
                     .setUpdatedOn(
-                        Timestamp.from(
-                            LocalDateTime.now().toInstant(ZoneOffset.UTC)
-                        )
+                        LocalDateTime.now()
                     )
             );
         });
