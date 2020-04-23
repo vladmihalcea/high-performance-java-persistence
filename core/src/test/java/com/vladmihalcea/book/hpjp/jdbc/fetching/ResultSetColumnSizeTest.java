@@ -24,24 +24,34 @@ import static org.junit.Assert.fail;
  */
 public class ResultSetColumnSizeTest extends DataSourceProviderIntegrationTest {
 
-    public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
+    public static final String INSERT_POST = """
+        INSERT INTO post (title, version, id)
+        VALUES (?, ?, ?)
+        """;
 
-    public static final String INSERT_POST_COMMENT = "insert into post_comment (post_id, review, version, id) values (?, ?, ?, ?)";
+    public static final String INSERT_POST_COMMENT = """
+        INSERT INTO post_comment (post_id, review, version, id)
+        VALUES (?, ?, ?, ?)
+        """;
 
-    public static final String INSERT_POST_DETAILS= "insert into post_details (id, created_on, version) values (?, ?, ?)";
+    public static final String INSERT_POST_DETAILS= """
+        INSERT INTO post_details (id, created_on, version)
+        VALUES (?, ?, ?)
+        """;
 
-    public static final String SELECT_ALL =
-            "select *  " +
-                    "from post_comment pc " +
-                    "inner join post p on p.id = pc.post_id " +
-                    "inner join post_details pd on p.id = pd.id ";
+    public static final String SELECT_ALL = """
+        SELECT *
+        FROM post_comment pc
+        INNER JOIN post p ON p.id = pc.post_id
+        INNER JOIN post_details pd ON p.id = pd.id
+        """;
 
-    public static final String SELECT_ID =
-            "select pc.version  " +
-                    "from post_comment pc " +
-                    "inner join post p on p.id = pc.post_id " +
-                    "inner join post_details pd on p.id = pd.id ";
-
+    public static final String SELECT_ID = """
+        SELECT pc.version
+        FROM post_comment pc
+        INNER JOIN post p ON p.id = pc.post_id
+        INNER JOIN post_details pd ON p.id = pd.id
+        """;
 
     private MetricRegistry metricRegistry = new MetricRegistry();
 
@@ -64,8 +74,7 @@ public class ResultSetColumnSizeTest extends DataSourceProviderIntegrationTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJDBC(connection -> {
             LOGGER.info("{} supports CLOSE_CURSORS_AT_COMMIT {}",
                     dataSourceProvider().database(),
