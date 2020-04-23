@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.hibernate;
 
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.transform.Transformers;
@@ -45,7 +46,7 @@ public class HibernateDTOProjectionTest extends AbstractTest {
     }
 
     @Test
-    public void testJpqlResultTransformer() {
+    public void testJPQLResultTransformer() {
         doInJPA( entityManager -> {
             List<PostDTO> postDTOs = entityManager.createQuery("""
                 select
@@ -58,6 +59,10 @@ public class HibernateDTOProjectionTest extends AbstractTest {
             .getResultList();
 
             assertEquals(1, postDTOs.size());
+
+            PostDTO postDTO = postDTOs.get(0);
+            assertEquals(1L, postDTO.getId().longValue());
+            assertEquals("High-Performance Java Persistence", postDTO.getTitle());
         } );
     }
 
@@ -68,13 +73,17 @@ public class HibernateDTOProjectionTest extends AbstractTest {
                 SELECT
                    p.id AS "id",
                    p.title AS "title"
-                FROM Post p
+                FROM post p
                 """)
             .unwrap(org.hibernate.query.NativeQuery.class)
             .setResultTransformer(Transformers.aliasToBean(PostDTO.class))
             .getResultList();
 
             assertEquals(1, postDTOs.size());
+
+            PostDTO postDTO = postDTOs.get(0);
+            assertEquals(1L, postDTO.getId().longValue());
+            assertEquals("High-Performance Java Persistence", postDTO.getTitle());
         } );
     }
 

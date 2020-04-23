@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 		SELECT
 		   p.id AS id,
 		   p.title AS title
-		FROM Post p
+		FROM post p
 		""",
 	resultSetMapping = "PostDTOMapping"
 )
@@ -41,6 +41,7 @@ import java.time.LocalDateTime;
 	)
 )
 @Entity(name = "Post")
+@Table(name = "post")
 public class Post {
 
 	@Id

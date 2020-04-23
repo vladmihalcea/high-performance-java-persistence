@@ -73,8 +73,11 @@ public class JPADTOProjectionTest extends AbstractTest {
             assertEquals(1, tuples.size());
 
             Object[] tuple = tuples.get(0);
-            assertEquals(1L, ((Number) tuple[0]).longValue());
-            assertEquals("High-Performance Java Persistence", tuple[1]);
+            long id = ((Number) tuple[0]).longValue();
+            String title = (String) tuple[1];
+
+            assertEquals(1L, id);
+            assertEquals("High-Performance Java Persistence", title);
         });
     }
 
@@ -85,7 +88,7 @@ public class JPADTOProjectionTest extends AbstractTest {
                 SELECT
                    p.id AS id,
                    p.title AS title
-                FROM Post p
+                FROM post p
                 """
             )
             .getResultList();
@@ -93,8 +96,11 @@ public class JPADTOProjectionTest extends AbstractTest {
             assertEquals(1, tuples.size());
 
             Object[] tuple = tuples.get(0);
-            assertEquals(1L, ((Number) tuple[0]).longValue());
-            assertEquals("High-Performance Java Persistence", tuple[1]);
+            long id = ((Number) tuple[0]).longValue();
+            String title = (String) tuple[1];
+
+            assertEquals(1L, id);
+            assertEquals("High-Performance Java Persistence", title);
         });
     }
 
@@ -112,8 +118,11 @@ public class JPADTOProjectionTest extends AbstractTest {
             assertEquals(1, tuples.size());
 
             Tuple tuple = tuples.get(0);
-            assertEquals(1L, tuple.get("id"));
-            assertEquals("High-Performance Java Persistence", tuple.get("title"));
+            long id = ((Number) tuple.get("id")).longValue();
+            String title = (String) tuple.get("title");
+
+            assertEquals(1L, id);
+            assertEquals("High-Performance Java Persistence", title);
         });
     }
 
@@ -124,15 +133,18 @@ public class JPADTOProjectionTest extends AbstractTest {
                 SELECT
                    p.id AS id,
                    p.title AS title
-                FROM Post p
+                FROM post p
                 """, Tuple.class)
             .getResultList();
 
             assertEquals(1, tuples.size());
 
             Tuple tuple = tuples.get(0);
-            assertEquals(1L, ((Number) tuple.get("id")).longValue());
-            assertEquals("High-Performance Java Persistence", tuple.get("title"));
+            long id = ((Number) tuple.get("id")).longValue();
+            String title = (String) tuple.get("title");
+
+            assertEquals(1L, id);
+            assertEquals("High-Performance Java Persistence", title);
         });
     }
 
