@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.time;
+package com.vladmihalcea.book.hpjp.hibernate.time.utc;
 
 import org.hibernate.cfg.AvailableSettings;
 

@@ -1,6 +1,6 @@
-package com.vladmihalcea.book.hpjp.hibernate.time;
+package com.vladmihalcea.book.hpjp.hibernate.time.utc;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class DefaultMySQLTimestampTest extends AbstractMySQLIntegrationTest {
+public class DefaultPostgreSQLTimestampTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -32,7 +32,6 @@ public class DefaultMySQLTimestampTest extends AbstractMySQLIntegrationTest {
             TimeZone.setDefault(TimeZone.getTimeZone("US/Hawaii"));
             doInJPA(entityManager -> {
                 Book book = new Book();
-
                 book.setId(1L);
                 book.setTitle("High-Performance Java Persistence");
                 book.setCreatedBy("Vlad Mihalcea");
@@ -46,13 +45,11 @@ public class DefaultMySQLTimestampTest extends AbstractMySQLIntegrationTest {
                 session.doWork(connection -> {
                     try (Statement st = connection.createStatement()) {
                         try (ResultSet rs = st.executeQuery(
-                                "SELECT DATE_FORMAT(created_on, '%Y-%m-%d %H:%i:%s') " +
+                                "SELECT TO_CHAR(created_on, 'YYYY-MM-DD HH24:MI:SS') " +
                                 "FROM book")) {
                             while (rs.next()) {
                                 String timestamp = rs.getString(1);
-                                if(!expectedServerTimestamp().equals(timestamp))  {
-                                    LOGGER.error("Expected {}, but got {}", expectedServerTimestamp(), timestamp);
-                                }
+                                assertEquals(expectedServerTimestamp(), timestamp);
                             }
                         }
                     }
