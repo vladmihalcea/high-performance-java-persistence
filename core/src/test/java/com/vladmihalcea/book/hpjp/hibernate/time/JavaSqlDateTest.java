@@ -40,7 +40,7 @@ public class JavaSqlDateTest extends AbstractMySQLIntegrationTest {
                 .setTitle("High-Performance Java Persistence")
                 .setCreatedBy(user)
                 .setPublishedOn(
-                    parseTimestamp("2013-09-29 12:30:00")
+                    parseTimestamp("2020-05-01 12:30:00")
                 );
 
             entityManager.persist(user);
@@ -54,7 +54,7 @@ public class JavaSqlDateTest extends AbstractMySQLIntegrationTest {
             );
 
             assertEquals(
-                parseTimestamp("2013-09-29 12:30:00"),
+                parseTimestamp("2020-05-01 12:30:00"),
                 post.getPublishedOn()
             );
 

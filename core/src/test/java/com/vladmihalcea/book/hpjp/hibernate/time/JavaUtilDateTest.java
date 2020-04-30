@@ -37,7 +37,7 @@ public class JavaUtilDateTest extends AbstractMySQLIntegrationTest {
                 .setFirstName("Vlad")
                 .setLastName("Mihalcea")
                 .setSubscribedOn(
-                    parseDate("2013-09-29")
+                    parseDate("2020-05-01")
                 );
 
             Post post = new Post()
@@ -45,7 +45,7 @@ public class JavaUtilDateTest extends AbstractMySQLIntegrationTest {
                 .setTitle("High-Performance Java Persistence")
                 .setCreatedBy(user)
                 .setPublishedOn(
-                    parseTimestamp("2013-09-29 12:30:00")
+                    parseTimestamp("2020-05-01 12:30:00")
                 );
 
             entityManager.persist(user);
@@ -59,14 +59,14 @@ public class JavaUtilDateTest extends AbstractMySQLIntegrationTest {
             );
 
             assertEquals(
-                parseTimestamp("2013-09-29 12:30:00"),
+                parseTimestamp("2020-05-01 12:30:00"),
                 post.getPublishedOn()
             );
 
             UserAccount userAccount = post.getCreatedBy();
 
             assertEquals(
-                parseDate("2013-09-29"),
+                parseDate("2020-05-01"),
                 userAccount.getSubscribedOn()
             );
         });
