@@ -1,18 +1,20 @@
 package com.vladmihalcea.book.hpjp.hibernate.time;
 
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import org.hibernate.cfg.AvailableSettings;
 import org.junit.Test;
 
 import javax.persistence.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class JavaUtilDateTest extends AbstractPostgreSQLIntegrationTest {
+public class JavaUtilDateTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -20,6 +22,11 @@ public class JavaUtilDateTest extends AbstractPostgreSQLIntegrationTest {
             Post.class,
             UserAccount.class
         };
+    }
+
+    @Override
+    protected void additionalProperties(Properties properties) {
+        properties.setProperty(AvailableSettings.JDBC_TIME_ZONE, "UTC");
     }
 
     @Test

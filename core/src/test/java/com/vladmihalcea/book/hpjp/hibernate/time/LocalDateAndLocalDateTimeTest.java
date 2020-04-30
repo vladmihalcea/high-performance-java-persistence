@@ -7,7 +7,6 @@ import org.junit.Test;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -74,13 +73,12 @@ public class LocalDateAndLocalDateTimeTest extends AbstractMySQLIntegrationTest 
 
             UserAccount userAccount = post.getCreatedBy();
 
-            //https://hibernate.atlassian.net/browse/HHH-13987
-            /*assertEquals(
+            assertEquals(
                 LocalDate.of(
                     2013, 9, 29
                 ),
                 userAccount.getSubscribedOn()
-            );*/
+            );
         });
     }
 

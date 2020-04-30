@@ -5,7 +5,10 @@ import org.hibernate.cfg.AvailableSettings;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -72,13 +75,12 @@ public class ZonedDateTimeTest extends AbstractMySQLIntegrationTest {
 
             UserAccount userAccount = post.getCreatedBy();
 
-            //https://hibernate.atlassian.net/browse/HHH-13987
-            /*assertEquals(
+            assertEquals(
                 LocalDate.of(
                     2013, 9, 29
                 ),
                 userAccount.getSubscribedOn()
-            );*/
+            );
         });
     }
 

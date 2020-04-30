@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.time;
 
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class JavaSqlDateTest extends AbstractPostgreSQLIntegrationTest {
+public class JavaSqlDateTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
