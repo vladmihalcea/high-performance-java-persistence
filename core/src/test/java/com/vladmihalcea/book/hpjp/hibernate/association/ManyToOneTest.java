@@ -15,7 +15,7 @@ public class ManyToOneTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
+        return new Class<?>[]{
             Post.class,
             PostComment.class,
         };
@@ -24,24 +24,30 @@ public class ManyToOneTest extends AbstractTest {
     @Test
     public void testLifecycle() {
         doInJPA(entityManager -> {
-            Post post = new Post("First post");
+            Post post = new Post()
+                .setId(1L)
+                .setTitle("First post");
             entityManager.persist(post);
         });
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
-            PostComment comment = new PostComment("My review");
-            comment.setPost(post);
-            entityManager.persist(comment);
+
+            entityManager.persist(
+                new PostComment()
+                    .setId(1L)
+                    .setReview("My first review")
+                    .setPost(post)
+            );
         });
 
         doInJPA(entityManager -> {
-            PostComment comment = entityManager.find(PostComment.class, 2L);
+            PostComment comment = entityManager.find(PostComment.class, 1L);
 
             comment.setPost(null);
         });
 
         doInJPA(entityManager -> {
-            PostComment comment = entityManager.getReference(PostComment.class, 2L);
+            PostComment comment = entityManager.getReference(PostComment.class, 1L);
 
             entityManager.remove(comment);
         });
@@ -50,22 +56,34 @@ public class ManyToOneTest extends AbstractTest {
     @Test
     public void testThreePostComments() {
         doInJPA(entityManager -> {
-            Post post = new Post("First post");
+            Post post = new Post()
+                .setId(1L)
+                .setTitle("First post");
             entityManager.persist(post);
         });
         doInJPA(entityManager -> {
             Post post = entityManager.getReference(Post.class, 1L);
-            
-            PostComment comment1 = new PostComment( "My first review");
-            comment1.setPost( post );
-            PostComment comment2 = new PostComment( "My second review");
-            comment2.setPost( post );
-            PostComment comment3 = new PostComment( "My third review");
-            comment3.setPost( post );
 
-            entityManager.persist(comment1);
-            entityManager.persist(comment2);
-            entityManager.persist(comment3);
+            entityManager.persist(
+                new PostComment()
+                    .setId(1L)
+                    .setReview("My first review")
+                    .setPost(post)
+            );
+
+            entityManager.persist(
+                new PostComment()
+                    .setId(2L)
+                    .setReview("My second review")
+                    .setPost(post)
+            );
+
+            entityManager.persist(
+                new PostComment()
+                    .setId(3L)
+                    .setReview("My third review")
+                    .setPost(post)
+            );
         });
 
         doInJPA(entityManager -> {
@@ -79,17 +97,21 @@ public class ManyToOneTest extends AbstractTest {
                 "select pc " +
                 "from PostComment pc " +
                 "where pc.post.id = :postId", PostComment.class)
-            .setParameter( "postId", 1L )
-            .getResultList();
+                .setParameter("postId", 1L)
+                .getResultList();
+
+            assertEquals(2, comments.size());
         });
     }
 
     @Test
     public void testPersistAndQuery() {
         Post post = new Post();
+        post.setId(1L);
         post.setTitle("High-Performance Java Persistence");
 
         PostComment comment = new PostComment();
+        comment.setId(1L);
         comment.setReview("Amazing book!");
         comment.setPost(post);
 
@@ -100,50 +122,160 @@ public class ManyToOneTest extends AbstractTest {
 
         doInJPA(entityManager -> {
             PostComment postComment = entityManager
-            .createQuery(
-                "select pc " +
-                "from PostComment pc " +
-                "join fetch pc.post " +
-                "where pc.id = :id", PostComment.class)
-            .setParameter("id", comment.getId())
-            .getSingleResult();
+                .createQuery(
+                    "select pc " +
+                    "from PostComment pc " +
+                    "join fetch pc.post " +
+                    "where pc.id = :id", PostComment.class)
+                .setParameter("id", comment.getId())
+                .getSingleResult();
 
             assertEquals("High-Performance Java Persistence", postComment.getPost().getTitle());
             assertEquals("Amazing book!", postComment.getReview());
 
         });
     }
-    
+
+    @Test
+    public void testPersistWithFind() {
+        doInJPA(entityManager -> {
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+            );
+        });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+
+            entityManager.persist(
+                new PostComment()
+                    .setId(1L)
+                    .setReview("Amazing book!")
+                    .setPost(post)
+            );
+        });
+    }
+
+    @Test
+    public void testPersistWithProxy() {
+        doInJPA(entityManager -> {
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+            );
+        });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.getReference(Post.class, 1L);
+
+            entityManager.persist(
+                new PostComment()
+                    .setId(1L)
+                    .setReview("Amazing book!")
+                    .setPost(post)
+            );
+        });
+    }
+
+    @Test
+    public void testFetchEntityWithFind() {
+        doInJPA(entityManager -> {
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+            );
+        });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.getReference(Post.class, 1L);
+
+            entityManager.persist(
+                new PostComment()
+                    .setId(1L)
+                    .setReview("Amazing book!")
+                    .setPost(post)
+            );
+        });
+
+        doInJPA(entityManager -> {
+            PostComment comment = entityManager.find(PostComment.class, 1L);
+
+            LOGGER.info(
+                "The post '{}' got the following comment '{}'",
+                comment.getPost().getTitle(),
+                comment.getReview()
+            );
+        });
+    }
+
+    @Test
+    public void testFetchEntityWithJoinFetch() {
+        doInJPA(entityManager -> {
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+            );
+        });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.getReference(Post.class, 1L);
+
+            entityManager.persist(
+                new PostComment()
+                    .setId(1L)
+                    .setReview("Amazing book!")
+                    .setPost(post)
+            );
+        });
+
+        doInJPA(entityManager -> {
+            PostComment comment = entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                join fetch pc.post
+                where pc.id = :id
+                """, PostComment.class)
+            .setParameter("id", 1L)
+            .getSingleResult();
+
+            LOGGER.info(
+                "The post '{}' got the following comment '{}'",
+                comment.getPost().getTitle(),
+                comment.getReview()
+            );
+        });
+    }
+
     @Entity(name = "Post")
     @Table(name = "post")
     public static class Post {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         private String title;
-
-        public Post() {}
-
-        public Post(String title) {
-            this.title = title;
-        }
 
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
     }
 
@@ -152,7 +284,6 @@ public class ManyToOneTest extends AbstractTest {
     public static class PostComment {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         private String review;
@@ -161,34 +292,31 @@ public class ManyToOneTest extends AbstractTest {
         @JoinColumn(name = "post_id")
         private Post post;
 
-        public PostComment() {}
-
-        public PostComment(String review) {
-            this.review = review;
-        }
-
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostComment setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getReview() {
             return review;
         }
 
-        public void setReview(String review) {
+        public PostComment setReview(String review) {
             this.review = review;
+            return this;
         }
 
         public Post getPost() {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostComment setPost(Post post) {
             this.post = post;
+            return this;
         }
     }
 }
