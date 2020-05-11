@@ -1010,15 +1010,19 @@ public abstract class AbstractTest {
         }
     }
 
-    protected int intValue(Object number) {
+    public static String stringValue(Object value) {
+        return value.toString();
+    }
+
+    public static int intValue(Object number) {
         return ((Number) number).intValue();
     }
 
-    protected long longValue(Object number) {
+    public static long longValue(Object number) {
         return ((Number) number).longValue();
     }
 
-    protected double doubleValue(Object number) {
+    public static double doubleValue(Object number) {
         return ((Number) number).doubleValue();
     }
 

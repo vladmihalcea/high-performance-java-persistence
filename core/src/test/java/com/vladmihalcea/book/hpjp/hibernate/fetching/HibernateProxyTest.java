@@ -36,7 +36,7 @@ public class HibernateProxyTest extends AbstractTest {
             PostComment comment = new PostComment();
             comment.setId(1L);
             comment.setPost(post);
-            comment.setReview("A must read!");
+            comment.setReview("A must-read!");
             entityManager.persist(comment);
         });
 

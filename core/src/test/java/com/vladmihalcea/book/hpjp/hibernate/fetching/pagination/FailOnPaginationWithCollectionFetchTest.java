@@ -69,7 +69,7 @@ public class FailOnPaginationWithCollectionFetchTest extends AbstractTest {
                         new PostComment()
                         .setId(commentId)
                         .setReview(
-                            String.format("Comment nr. %d - A must read!", commentId)
+                            String.format("Comment nr. %d - A must-read!", commentId)
                         )
                         .setCreatedOn(
                             Timestamp.valueOf(timestamp.plusMinutes(commentId))

@@ -45,7 +45,7 @@ public class HibernateInitializeTest extends AbstractTest {
             post.addComment(
                 new PostComment()
                 .setId(1L)
-                .setReview("A must read!")
+                .setReview("A must-read!")
             );
 
             post.addComment(
@@ -80,7 +80,7 @@ public class HibernateInitializeTest extends AbstractTest {
             );
 
             assertEquals(
-                    "A must read!",
+                    "A must-read!",
                     comment.getReview()
             );
 
@@ -118,7 +118,7 @@ public class HibernateInitializeTest extends AbstractTest {
             .getSingleResult();
 
             assertEquals(
-                    "A must read!",
+                    "A must-read!",
                     comment.getReview()
             );
 
@@ -145,7 +145,7 @@ public class HibernateInitializeTest extends AbstractTest {
             );
 
             assertEquals(
-                    "A must read!",
+                    "A must-read!",
                     comment.getReview()
             );
 

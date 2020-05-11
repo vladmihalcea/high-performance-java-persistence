@@ -75,7 +75,7 @@ public class ResultSetMappingTest extends AbstractOracleIntegrationTest {
                         new PostComment()
                         .setId(commentId)
                         .setReview(
-                            String.format("Comment nr. %d - A must read!", commentId)
+                            String.format("Comment nr. %d - A must-read!", commentId)
                         )
                         .setCreatedOn(
                             Timestamp.valueOf(
@@ -120,7 +120,7 @@ public class ResultSetMappingTest extends AbstractOracleIntegrationTest {
 
                 assertEquals(
                     String.format(
-                        "Comment nr. %d - A must read!",
+                        "Comment nr. %d - A must-read!",
                         i + 1
                     ),
                     comment.getReview()

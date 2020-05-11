@@ -37,7 +37,7 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
         doInJPA(entityManager -> {
             entityManager
             .find(Post.class, 1L)
-            .addComment(new PostComment().setReview("JDBC section is a must read!"))
+            .addComment(new PostComment().setReview("JDBC section is a must-read!"))
             .addComment(new PostComment().setReview("The book size is larger than usual."))
             .addComment(new PostComment().setReview("Just half-way through."))
             .addComment(new PostComment().setReview("The book has over 450 pages."));

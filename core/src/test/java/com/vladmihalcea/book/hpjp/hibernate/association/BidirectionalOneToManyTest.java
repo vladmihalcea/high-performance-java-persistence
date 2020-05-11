@@ -76,7 +76,7 @@ public class BidirectionalOneToManyTest extends AbstractTest {
             post.addComment(comment1);
 
             PostComment comment2 = new PostComment();
-            comment2.setReview("A must read for every Java developer!");
+            comment2.setReview("A must-read for every Java developer!");
             post.addComment(comment2);
 
             entityManager.persist(post);

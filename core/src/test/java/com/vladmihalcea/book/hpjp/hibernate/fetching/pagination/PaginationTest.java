@@ -63,7 +63,7 @@ public class PaginationTest extends AbstractTest {
                         new PostComment()
                         .setId(commentId)
                         .setReview(
-                            String.format("Comment nr. %d - A must read!", commentId)
+                            String.format("Comment nr. %d - A must-read!", commentId)
                         )
                         .setCreatedOn(
                             Timestamp.valueOf(timestamp.plusMinutes(commentId))
@@ -167,10 +167,10 @@ public class PaginationTest extends AbstractTest {
 
             assertEquals(10, summaries.size());
             assertEquals("High-Performance Java Persistence - Chapter 1", summaries.get(0).getTitle());
-            assertEquals("Comment nr. 1 - A must read!", summaries.get(0).getReview());
+            assertEquals("Comment nr. 1 - A must-read!", summaries.get(0).getReview());
 
             assertEquals("High-Performance Java Persistence - Chapter 2", summaries.get(9).getTitle());
-            assertEquals("Comment nr. 10 - A must read!", summaries.get(9).getReview());
+            assertEquals("Comment nr. 10 - A must-read!", summaries.get(9).getReview());
         });
     }
 
@@ -231,7 +231,7 @@ public class PaginationTest extends AbstractTest {
 
                 assertEquals(
                         String.format(
-                                "Comment nr. %d - A must read!",
+                                "Comment nr. %d - A must-read!",
                                 i + 1
                         ),
                         postComment1.getReview()
@@ -317,7 +317,7 @@ public class PaginationTest extends AbstractTest {
 
                 assertEquals(
                     String.format(
-                        "Comment nr. %d - A must read!",
+                        "Comment nr. %d - A must-read!",
                         i + 1
                     ),
                     postComment1.getReview()
