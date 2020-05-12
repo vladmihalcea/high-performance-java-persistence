@@ -4,6 +4,7 @@ import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.PostComment;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
+import org.hibernate.jpa.QueryHints;
 import org.hibernate.transform.ResultTransformer;
 import org.hibernate.transform.Transformers;
 import org.junit.Test;
@@ -11,8 +12,6 @@ import org.junit.Test;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.vladmihalcea.book.hpjp.util.AbstractTest.stringValue;
-import static com.vladmihalcea.book.hpjp.util.AbstractTest.longValue;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -37,53 +36,48 @@ public class HibernateDTOProjectionTest extends AbstractTest {
     @Override
     public void afterInit() {
         doInJPA(entityManager -> {
-            Post post1 = new Post()
-                .setId(1L)
-                .setTitle("High-Performance Java Persistence")
-                .setCreatedBy("Vlad Mihalcea")
-                .setCreatedOn(
-                    LocalDateTime.of(2016, 11, 2, 12, 0, 0)
-                )
-                .setUpdatedBy("Vlad Mihalcea")
-                .setUpdatedOn(
-                    LocalDateTime.now()
-                );
-
-            entityManager.persist(post1);
-
             entityManager.persist(
-                new PostComment()
+                new Post()
                     .setId(1L)
-                    .setPost(post1)
-                    .setReview("Best book on JPA and Hibernate!")
+                    .setTitle("High-Performance Java Persistence")
+                    .setCreatedBy("Vlad Mihalcea")
+                    .setCreatedOn(
+                        LocalDateTime.of(2016, 11, 2, 12, 0, 0)
+                    )
+                    .setUpdatedBy("Vlad Mihalcea")
+                    .setUpdatedOn(
+                        LocalDateTime.now()
+                    )
+                    .addComment(
+                        new PostComment()
+                            .setId(1L)
+                            .setReview("Best book on JPA and Hibernate!")
+                    )
+                    .addComment(
+                        new PostComment()
+                            .setId(2L)
+                            .setReview("A must-read for every Java developer!")
+                    )
             );
 
+
             entityManager.persist(
-                new PostComment()
+                new Post()
                     .setId(2L)
-                    .setPost(post1)
-                    .setReview("A must-read for every Java developer!")
-            );
-
-            Post post2 = new Post()
-                .setId(2L)
-                .setTitle("Hypersistence Optimizer")
-                .setCreatedBy("Vlad Mihalcea")
-                .setCreatedOn(
-                    LocalDateTime.of(2019, 3, 19, 12, 0, 0)
-                )
-                .setUpdatedBy("Vlad Mihalcea")
-                .setUpdatedOn(
-                    LocalDateTime.now()
-                );
-
-            entityManager.persist(post2);
-
-            entityManager.persist(
-                new PostComment()
-                    .setId(3L)
-                    .setPost(post2)
-                    .setReview("It's like pair programming with Vlad!")
+                    .setTitle("Hypersistence Optimizer")
+                    .setCreatedBy("Vlad Mihalcea")
+                    .setCreatedOn(
+                        LocalDateTime.of(2019, 3, 19, 12, 0, 0)
+                    )
+                    .setUpdatedBy("Vlad Mihalcea")
+                    .setUpdatedOn(
+                        LocalDateTime.now()
+                    )
+                    .addComment(
+                        new PostComment()
+                            .setId(3L)
+                            .setReview("It's like pair programming with Vlad!")
+                    )
             );
         });
     }
@@ -133,12 +127,12 @@ public class HibernateDTOProjectionTest extends AbstractTest {
     }
 
     @Test
-    public void testParentChildResultTransformer() {
+    public void testParentChildDTOProjectionNativeQueryResultTransformer() {
         doInJPA( entityManager -> {
             List<PostDTO> postDTOs = entityManager.createNativeQuery("""
                 SELECT
-                   p.id AS "p.id", p.title AS "p.title",
-                   pc.id AS "pc.id", pc.review AS "pc.review"
+                   p.id AS p_id, p.title AS p_title,
+                   pc.id AS pc_id, pc.review AS pc_review
                 FROM post p
                 JOIN post_comment pc ON p.id = pc.post_id
                 ORDER BY pc.id
@@ -166,10 +160,75 @@ public class HibernateDTOProjectionTest extends AbstractTest {
         } );
     }
 
+    @Test
+    public void testParentChildDTOProjectionJPQLResultTransformer() {
+        doInJPA( entityManager -> {
+            List<PostDTO> postDTOs = entityManager.createQuery("""
+                select
+                   p.id as p_id, p.title as p_title,
+                   pc.id as pc_id, pc.review as pc_review
+                from PostComment pc
+                join pc.post p
+                order by pc.id
+                """)
+            .unwrap(org.hibernate.query.Query.class)
+            .setResultTransformer(new PostDTOResultTransformer())
+            .getResultList();
+
+            assertEquals(2, postDTOs.size());
+            assertEquals(2, postDTOs.get(0).getComments().size());
+            assertEquals(1, postDTOs.get(1).getComments().size());
+
+            PostDTO post1DTO = postDTOs.get(0);
+
+            assertEquals(1L, post1DTO.getId().longValue());
+            assertEquals(2, post1DTO.getComments().size());
+            assertEquals(1L, post1DTO.getComments().get(0).getId().longValue());
+            assertEquals(2L, post1DTO.getComments().get(1).getId().longValue());
+
+            PostDTO post2DTO = postDTOs.get(1);
+
+            assertEquals(2L, post2DTO.getId().longValue());
+            assertEquals(1, post2DTO.getComments().size());
+            assertEquals(3L, post2DTO.getComments().get(0).getId().longValue());
+        } );
+    }
+
+    @Test
+    public void testParentChildEntityProjectionJPQLResultTransformer() {
+        doInJPA( entityManager -> {
+            List<Post> posts = entityManager.createQuery("""
+                select distinct p
+                from Post p
+                join fetch p.comments pc
+                order by pc.id
+                """)
+            .setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false)
+            .getResultList();
+
+            assertEquals(2, posts.size());
+            assertEquals(2, posts.get(0).getComments().size());
+            assertEquals(1, posts.get(1).getComments().size());
+
+            Post post1 = posts.get(0);
+
+            assertEquals(1L, post1.getId().longValue());
+            assertEquals(2, post1.getComments().size());
+            assertEquals(1L, post1.getComments().get(0).getId().longValue());
+            assertEquals(2L, post1.getComments().get(1).getId().longValue());
+
+            Post post2 = posts.get(1);
+
+            assertEquals(2L, post2.getId().longValue());
+            assertEquals(1, post2.getComments().size());
+            assertEquals(3L, post2.getComments().get(0).getId().longValue());
+        } );
+    }
+
     public static class PostDTO {
 
-        public static final String ID_ALIAS = "p.id";
-        public static final String TITLE_ALIAS = "p.title";
+        public static final String ID_ALIAS = "p_id";
+        public static final String TITLE_ALIAS = "p_title";
 
         private Long id;
 
@@ -212,8 +271,8 @@ public class HibernateDTOProjectionTest extends AbstractTest {
     }
 
     public static class PostCommentDTO {
-        public static final String ID_ALIAS = "pc.id";
-        public static final String REVIEW_ALIAS = "pc.review";
+        public static final String ID_ALIAS = "pc_id";
+        public static final String REVIEW_ALIAS = "pc_review";
 
         private Long id;
 

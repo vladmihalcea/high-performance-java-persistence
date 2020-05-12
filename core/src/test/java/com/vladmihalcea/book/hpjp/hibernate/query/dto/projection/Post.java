@@ -1,10 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection;
 
+import com.vladmihalcea.book.hpjp.hibernate.association.BidirectionalOneToManyTest;
 import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Vlad Mihalcea
@@ -63,6 +66,9 @@ public class Post {
 
 	@Version
 	private Integer version;
+
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<PostComment> comments = new ArrayList<>();
 
 	public Long getId() {
 		return id;
@@ -124,6 +130,16 @@ public class Post {
 
 	public Post setVersion(Integer version) {
 		this.version = version;
+		return this;
+	}
+
+	public List<PostComment> getComments() {
+		return comments;
+	}
+
+	public Post addComment(PostComment comment) {
+		comments.add(comment);
+		comment.setPost(this);
 		return this;
 	}
 }
