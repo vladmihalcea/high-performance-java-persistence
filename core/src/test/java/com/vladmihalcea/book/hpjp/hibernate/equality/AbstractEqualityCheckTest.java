@@ -27,11 +27,19 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
         assertTrue(tuples.contains(entity));
 
         doInJPA(entityManager -> {
-            entityManager.persist(entity);
+
+            /**
+             * someone creates a DAO with a general way of putting both transient and detached objects in managed state, implementing it with entityManager.merge.
+             * For putting transient objects to managed state this means there is an object change: the returned object should be used for further logic.
+             */
+
+            T _entity = entityManager.merge(entity); //  instead of entityManager.persist(entity);
             entityManager.flush();
+
             assertTrue(
-                    "The entity is not found in the Set after it's persisted.",
-                    tuples.contains(entity)
+                    "The entity is not found in the Set after it's persisted. " +
+                            "This is because in the equals method it is not the same object (since merge returns a new object) and the id is not the same (since the transient object does not have one)",
+                    tuples.contains(_entity)
             );
         });
 
