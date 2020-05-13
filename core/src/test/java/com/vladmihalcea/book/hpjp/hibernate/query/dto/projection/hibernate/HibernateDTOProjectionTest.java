@@ -86,9 +86,8 @@ public class HibernateDTOProjectionTest extends AbstractTest {
     public void testJPQLResultTransformer() {
         doInJPA( entityManager -> {
             List<PostDTO> postDTOs = entityManager.createQuery("""
-                select
-                   p.id as id,
-                   p.title as title
+                select p.id as id,
+                       p.title as title
                 from Post p
                 order by p.id
                 """)
@@ -108,13 +107,12 @@ public class HibernateDTOProjectionTest extends AbstractTest {
     public void testNativeQueryResultTransformer() {
         doInJPA( entityManager -> {
             List<PostDTO> postDTOs = entityManager.createNativeQuery("""
-                SELECT
-                   p.id AS "id",
-                   p.title AS "title"
+                SELECT p.id AS id,
+                       p.title AS title
                 FROM post p
                 ORDER BY p.id
                 """)
-            .unwrap(org.hibernate.query.NativeQuery.class)
+            .unwrap(org.hibernate.query.Query.class)
             .setResultTransformer(Transformers.aliasToBean(PostDTO.class))
             .getResultList();
 
@@ -130,14 +128,15 @@ public class HibernateDTOProjectionTest extends AbstractTest {
     public void testParentChildDTOProjectionNativeQueryResultTransformer() {
         doInJPA( entityManager -> {
             List<PostDTO> postDTOs = entityManager.createNativeQuery("""
-                SELECT
-                   p.id AS p_id, p.title AS p_title,
-                   pc.id AS pc_id, pc.review AS pc_review
+                SELECT p.id AS p_id, 
+                       p.title AS p_title,
+                       pc.id AS pc_id, 
+                       pc.review AS pc_review
                 FROM post p
                 JOIN post_comment pc ON p.id = pc.post_id
                 ORDER BY pc.id
                 """)
-            .unwrap(org.hibernate.query.NativeQuery.class)
+            .unwrap(org.hibernate.query.Query.class)
             .setResultTransformer(new PostDTOResultTransformer())
             .getResultList();
 
@@ -164,9 +163,10 @@ public class HibernateDTOProjectionTest extends AbstractTest {
     public void testParentChildDTOProjectionJPQLResultTransformer() {
         doInJPA( entityManager -> {
             List<PostDTO> postDTOs = entityManager.createQuery("""
-                select
-                   p.id as p_id, p.title as p_title,
-                   pc.id as pc_id, pc.review as pc_review
+                select p.id as p_id, 
+                       p.title as p_title,
+                       pc.id as pc_id, 
+                       pc.review as pc_review
                 from PostComment pc
                 join pc.post p
                 order by pc.id
