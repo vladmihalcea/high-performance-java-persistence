@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa.compact;
 
 import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
+import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.PostComment;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
@@ -23,6 +24,7 @@ public class JPADTOProjectionImportIntegratorProviderClassTest extends AbstractT
     protected Class<?>[] entities() {
         return new Class<?>[]{
             Post.class,
+            PostComment.class
         };
     }
 

@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa;
 
 import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
+import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.PostComment;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
@@ -25,6 +26,7 @@ public class JPADTOProjectionTest extends AbstractTest {
     protected Class<?>[] entities() {
         return new Class<?>[] {
             Post.class,
+            PostComment.class
         };
     }
 
@@ -118,8 +120,8 @@ public class JPADTOProjectionTest extends AbstractTest {
             assertEquals(1, tuples.size());
 
             Tuple tuple = tuples.get(0);
-            long id = ((Number) tuple.get("id")).longValue();
-            String title = (String) tuple.get("title");
+            long id = tuple.get("id", Number.class).longValue();
+            String title = tuple.get("title", String.class);
 
             assertEquals(1L, id);
             assertEquals("High-Performance Java Persistence", title);
@@ -140,8 +142,8 @@ public class JPADTOProjectionTest extends AbstractTest {
             assertEquals(1, tuples.size());
 
             Tuple tuple = tuples.get(0);
-            long id = ((Number) tuple.get("id")).longValue();
-            String title = (String) tuple.get("title");
+            long id = tuple.get("id", Number.class).longValue();
+            String title = tuple.get("title", String.class);
 
             assertEquals(1L, id);
             assertEquals("High-Performance Java Persistence", title);
