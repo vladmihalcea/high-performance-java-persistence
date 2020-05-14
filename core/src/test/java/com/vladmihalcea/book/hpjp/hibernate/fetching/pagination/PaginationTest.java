@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching.pagination;
 import com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.NativeQuery;
 import org.junit.Test;
@@ -11,6 +12,7 @@ import javax.persistence.Tuple;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.LongStream;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -35,6 +37,14 @@ public class PaginationTest extends AbstractTest {
     }
 
     public static final int COMMENT_COUNT = 5;
+
+    @Override
+    protected void additionalProperties(Properties properties) {
+        properties.setProperty(
+            AvailableSettings.FAIL_ON_PAGINATION_OVER_COLLECTION_FETCH,
+            Boolean.FALSE.toString()
+        );
+    }
 
     @Override
     public void afterInit() {
