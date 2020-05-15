@@ -4,21 +4,21 @@ import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.PostComment;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
+import org.hibernate.integrator.spi.Integrator;
 import org.junit.Test;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class JPADTOProjectionImportIntegratorProviderClassTest extends AbstractTest {
+public class JPADTOProjectionClassImportIntegratorTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -29,11 +29,8 @@ public class JPADTOProjectionImportIntegratorProviderClassTest extends AbstractT
     }
 
     @Override
-    protected void additionalProperties(Properties properties) {
-        properties.put(
-            "hibernate.integrator_provider",
-            ClassImportIntegratorIntegratorProvider.class
-        );
+    protected Integrator integrator() {
+        return new ClassImportIntegrator(Collections.singletonList(PostDTO.class));
     }
 
     @Override

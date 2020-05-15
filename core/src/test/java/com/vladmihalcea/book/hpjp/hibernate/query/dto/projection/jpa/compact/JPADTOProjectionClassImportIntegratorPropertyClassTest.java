@@ -5,6 +5,7 @@ import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.PostComment;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
+import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.Test;
 
@@ -19,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class JPADTOProjectionImportIntegratorProviderObjectTest extends AbstractTest {
+public class JPADTOProjectionClassImportIntegratorPropertyClassTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -33,11 +34,7 @@ public class JPADTOProjectionImportIntegratorProviderObjectTest extends Abstract
     protected void additionalProperties(Properties properties) {
         properties.put(
             "hibernate.integrator_provider",
-            (IntegratorProvider) () -> Collections.singletonList(
-                new ClassImportIntegrator(
-                    Collections.singletonList(PostDTO.class)
-                )
-            )
+            ClassImportIntegratorIntegratorProvider.class
         );
     }
 
@@ -83,5 +80,15 @@ public class JPADTOProjectionImportIntegratorProviderObjectTest extends Abstract
             assertEquals(1L, postDTO.getId().longValue());
             assertEquals("High-Performance Java Persistence", postDTO.getTitle());
         });
+    }
+
+    public static class ClassImportIntegratorIntegratorProvider implements IntegratorProvider {
+
+        @Override
+        public List<Integrator> getIntegrators() {
+            return Collections.singletonList(
+                new ClassImportIntegrator(Collections.singletonList(PostDTO.class))
+            );
+        }
     }
 }

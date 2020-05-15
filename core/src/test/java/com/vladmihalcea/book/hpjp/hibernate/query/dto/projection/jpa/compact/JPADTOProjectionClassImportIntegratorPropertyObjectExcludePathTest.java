@@ -5,20 +5,21 @@ import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.PostComment;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
-import org.hibernate.integrator.spi.Integrator;
+import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class JPADTOProjectionImportTest extends AbstractTest {
+public class JPADTOProjectionClassImportIntegratorPropertyObjectExcludePathTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -29,8 +30,18 @@ public class JPADTOProjectionImportTest extends AbstractTest {
     }
 
     @Override
-    protected Integrator integrator() {
-        return new ClassImportIntegrator(Collections.singletonList(PostDTO.class));
+    protected void additionalProperties(Properties properties) {
+        properties.put(
+            "hibernate.integrator_provider",
+            (IntegratorProvider) () -> Collections.singletonList(
+                new ClassImportIntegrator(
+                    Collections.singletonList(
+                        PostDTO.class
+                    )
+                )
+                .excludePath("com.vladmihalcea.book.hpjp.hibernate")
+            )
+        );
     }
 
     @Override
@@ -56,7 +67,7 @@ public class JPADTOProjectionImportTest extends AbstractTest {
     public void testConstructorExpression() {
         doInJPA(entityManager -> {
             List<PostDTO> postDTOs = entityManager.createQuery("""
-                select new PostDTO(
+                select new forum.dto.PostDTO(
                     p.id,
                     p.title
                 )
