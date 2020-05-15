@@ -86,8 +86,12 @@ public class JPADTOProjectionClassImportIntegratorPropertyClassTest extends Abst
 
         @Override
         public List<Integrator> getIntegrators() {
-            return Collections.singletonList(
-                new ClassImportIntegrator(Collections.singletonList(PostDTO.class))
+            return List.of(
+                new ClassImportIntegrator(
+                    List.of(
+                        PostDTO.class
+                    )
+                )
             );
         }
     }

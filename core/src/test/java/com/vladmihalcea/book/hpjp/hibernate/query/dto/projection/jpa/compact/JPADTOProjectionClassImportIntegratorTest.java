@@ -30,7 +30,9 @@ public class JPADTOProjectionClassImportIntegratorTest extends AbstractTest {
 
     @Override
     protected Integrator integrator() {
-        return new ClassImportIntegrator(Collections.singletonList(PostDTO.class));
+        return new ClassImportIntegrator(
+            List.of(PostDTO.class)
+        );
     }
 
     @Override

@@ -33,9 +33,9 @@ public class JPADTOProjectionClassImportIntegratorPropertyObjectTest extends Abs
     protected void additionalProperties(Properties properties) {
         properties.put(
             "hibernate.integrator_provider",
-            (IntegratorProvider) () -> Collections.singletonList(
+            (IntegratorProvider) () -> List.of(
                 new ClassImportIntegrator(
-                    Collections.singletonList(PostDTO.class)
+                    List.of(PostDTO.class)
                 )
             )
         );
