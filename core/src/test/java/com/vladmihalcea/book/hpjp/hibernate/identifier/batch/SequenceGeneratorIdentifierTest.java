@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import javax.persistence.*;
 
-public class SequenceIdentifierTest extends AbstractBatchIdentifierTest {
+public class SequenceGeneratorIdentifierTest extends AbstractBatchIdentifierTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -41,7 +41,12 @@ public class SequenceIdentifierTest extends AbstractBatchIdentifierTest {
 
         @Id
         @GeneratedValue(
-            strategy = GenerationType.SEQUENCE
+            strategy = GenerationType.SEQUENCE,
+            generator = "seq_post"
+        )
+        @SequenceGenerator(
+            name = "seq_post",
+            allocationSize = 5
         )
         private Long id;
 
@@ -65,4 +70,5 @@ public class SequenceIdentifierTest extends AbstractBatchIdentifierTest {
             return this;
         }
     }
+
 }
