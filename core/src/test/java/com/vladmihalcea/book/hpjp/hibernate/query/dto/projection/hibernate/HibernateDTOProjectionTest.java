@@ -310,9 +310,13 @@ public class HibernateDTOProjectionTest extends AbstractTest {
 
         private Map<Long, PostDTO> postDTOMap = new LinkedHashMap<>();
 
+        private Map<String, Integer> aliasToIndexMap;
+
         @Override
         public Object transformTuple(Object[] tuple, String[] aliases) {
-            Map<String, Integer> aliasToIndexMap = aliasToIndexMap(aliases);
+            if (aliasToIndexMap == null) {
+                aliasToIndexMap = aliasToIndexMap(aliases);
+            }
             Long postId = longValue(tuple[aliasToIndexMap.get(PostDTO.ID_ALIAS)]);
 
             PostDTO postDTO = postDTOMap.computeIfAbsent(postId, id -> new PostDTO(tuple, aliasToIndexMap));
