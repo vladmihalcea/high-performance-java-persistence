@@ -3,14 +3,16 @@ package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.hibernate;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.PostComment;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.transform.ResultTransformer;
 import org.hibernate.transform.Transformers;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -26,11 +28,6 @@ public class HibernateDTOProjectionTest extends AbstractTest {
             Post.class,
             PostComment.class
         };
-    }
-
-    @Override
-    protected Database database() {
-        return Database.POSTGRESQL;
     }
 
     @Override
@@ -107,8 +104,8 @@ public class HibernateDTOProjectionTest extends AbstractTest {
     public void testNativeQueryResultTransformer() {
         doInJPA( entityManager -> {
             List<PostDTO> postDTOs = entityManager.createNativeQuery("""
-                SELECT p.id AS id,
-                       p.title AS title
+                SELECT p.id AS "id",
+                       p.title AS "title"
                 FROM post p
                 ORDER BY p.id
                 """)
@@ -128,10 +125,10 @@ public class HibernateDTOProjectionTest extends AbstractTest {
     public void testParentChildDTOProjectionNativeQueryResultTransformer() {
         doInJPA( entityManager -> {
             List<PostDTO> postDTOs = entityManager.createNativeQuery("""
-                SELECT p.id AS p_id, 
-                       p.title AS p_title,
-                       pc.id AS pc_id, 
-                       pc.review AS pc_review
+                SELECT p.id AS "p_id", 
+                       p.title AS "p_title",
+                       pc.id AS "pc_id", 
+                       pc.review AS "pc_review"
                 FROM post p
                 JOIN post_comment pc ON p.id = pc.post_id
                 ORDER BY pc.id
