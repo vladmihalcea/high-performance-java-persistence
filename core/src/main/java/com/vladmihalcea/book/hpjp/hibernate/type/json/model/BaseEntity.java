@@ -11,7 +11,7 @@ import org.hibernate.annotations.TypeDefs;
 import com.vladmihalcea.book.hpjp.hibernate.type.array.IntArrayType;
 import com.vladmihalcea.book.hpjp.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.JsonBinaryType;
-import com.vladmihalcea.book.hpjp.hibernate.type.json.JsonNodeBinaryType;
+import com.vladmihalcea.hibernate.type.json.JsonNodeBinaryType;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.JsonStringType;
 
 /**

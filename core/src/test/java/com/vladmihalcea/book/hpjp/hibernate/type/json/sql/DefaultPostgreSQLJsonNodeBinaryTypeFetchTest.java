@@ -3,10 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.type.json.sql;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.PostgreSQLJsonNodeBinaryTypeTest;
 import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
-import org.junit.Ignore;
 import org.junit.Test;
-
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
