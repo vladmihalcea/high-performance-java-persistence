@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import org.hibernate.Session;
-import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.junit.Test;
 
@@ -36,20 +35,97 @@ public class PostgreSQLJsonBinaryTypeNativeTest extends AbstractPostgreSQLIntegr
             entityManager.persist(
                 new Book()
                     .setId(1L)
-                    .setProperties(
-                        new BookProperties("978-9730228236")
-                    )
+                    .setIsbn("978-9730228236")
+                    .setTitle("High-Performance Java Persistence")
+                    .setAuthor("Vlad Mihalcea")
+                    .setPrice(new BigDecimal("44.99"))
+                    .setPublisher("Amazon KDP")
             );
         });
     }
 
     @Test
-    public void testUpdateUsingNativeSQL() {
+    public void testBasicParameters() {
+        doInJPA(entityManager -> {
+            Book book = entityManager.createQuery("""
+                select b
+                from Book b
+                where b.isbn = :isbn
+                """,
+                Book.class)
+            .setParameter("isbn", "978-9730228236")
+            .getSingleResult();
+
+            assertEquals("High-Performance Java Persistence", book.title);
+        });
+
+        doInJPA(entityManager -> {
+            List<Book> books = entityManager.createQuery("""
+                select b
+                from Book b
+                where b.publisher in (:publishers)
+                """,
+                Book.class)
+            .setParameter(
+                "publishers",
+                Arrays.asList(
+                    "O'Reilly",
+                    "Manning",
+                    "Amazon KDP"
+                )
+            )
+            .getResultList();
+
+            assertEquals(1, books.size());
+        });
+    }
+
+    @Test
+    public void testUpdateListUsingNativeSQL() {
 
         doInJPA(entityManager -> {
             Book book = entityManager.find(Book.class, 1L);
 
-            assertTrue(book.getProperties().getReviews().isEmpty());
+            assertTrue(book.getReviews().isEmpty());
+
+            int updateCount = entityManager.createNativeQuery("""
+                UPDATE 
+                    book
+                SET 
+                    reviews = :reviews
+                WHERE 
+                    isbn = :isbn AND
+                    jsonb_array_length(reviews) = 0             
+                """)
+                .setParameter("isbn", "978-9730228236")
+                .unwrap(org.hibernate.query.Query.class)
+                .setParameter(
+                    "reviews",
+                    Arrays.asList(
+                        new BookReview()
+                            .setReview("Excellent book to understand Java Persistence")
+                            .setRating(5),
+                        new BookReview()
+                            .setReview("The best JPA ORM book out there")
+                            .setRating(5)
+                    )
+                    //, JsonBinaryType.INSTANCE
+                )
+                .executeUpdate();
+
+            entityManager.refresh(book);
+
+            assertEquals(2, book.getReviews().size());
+        });
+    }
+
+    @Test
+    public void testUpdateSerializableUsingNativeSQL() {
+
+        doInJPA(entityManager -> {
+            Book book = entityManager.find(Book.class, 1L);
+
+            assertNull(book.getProperties());
 
             int updateCount = entityManager.createNativeQuery("""
                 UPDATE 
@@ -57,83 +133,51 @@ public class PostgreSQLJsonBinaryTypeNativeTest extends AbstractPostgreSQLIntegr
                 SET 
                     properties = :properties
                 WHERE 
-                    properties ->> 'isbn' = :isbn
+                    isbn = :isbn AND
+                    properties ->> 'weight' is null             
                 """)
                 .setParameter("isbn", "978-9730228236")
                 .unwrap(org.hibernate.query.Query.class)
                 .setParameter(
                     "properties",
-                    new BookProperties("978-9730228236")
-                        .setTitle("High-Performance Java Persistence")
-                        .setAuthor("Vlad Mihalcea")
-                        .setPrice(new BigDecimal("44.99"))
-                        .setPublisher("Amazon")
-                        .setReviews(
-                            List.of(
-                                "Excellent book to understand Java Persistence",
-                                "The best JPA ORM book out there"
-                            )
-                        )
-                    , JsonBinaryType.INSTANCE
+                    new BookProperties()
+                        .setWidth(new BigDecimal("8.5"))
+                        .setHeight(new BigDecimal("11"))
+                        .setWeight(new BigDecimal("2.5")),
+                    JsonBinaryType.INSTANCE
                 )
                 .executeUpdate();
 
             entityManager.refresh(book);
 
-            assertEquals(2, book.getProperties().getReviews().size());
+            BookProperties properties = book.getProperties();
+            assertEquals(new BigDecimal("2.5"), properties.getWeight());
         });
-    }
-
-    @Test
-    public void testUpdateUsingNativeSQLFails() {
-
-        try {
-            doInJPA(entityManager -> {
-                Book book = entityManager.find(Book.class, 1L);
-
-                assertTrue(book.getProperties().getReviews().isEmpty());
-
-                int updateCount = entityManager.createNativeQuery("""
-                    UPDATE 
-                        book
-                    SET 
-                        properties = :properties
-                    WHERE 
-                        properties ->> 'isbn' = :isbn
-                    """)
-                    .setParameter("isbn", "978-9730228236")
-                    .setParameter(
-                        "properties",
-                        new BookProperties("978-9730228236")
-                            .setTitle("High-Performance Java Persistence")
-                            .setAuthor("Vlad Mihalcea")
-                            .setPrice(new BigDecimal("44.99"))
-                            .setPublisher("Amazon")
-                            .setReviews(
-                                List.of(
-                                    "Excellent book to understand Java Persistence",
-                                    "The best JPA ORM book out there"
-                                )
-                            )
-                    )
-                    .executeUpdate();
-            });
-
-            fail("Failure expected!");
-        } catch (Exception e) {
-            Exception rootCause = ExceptionUtil.rootCause(e);
-            assertTrue(rootCause.getMessage().contains("column \"properties\" is of type jsonb but expression is of type bytea"));
-        }
     }
 
     @Entity(name = "Book")
     @Table(name = "book")
-    @TypeDef(typeClass = JsonBinaryType.class, defaultForType = BookProperties.class)
+    @TypeDef(typeClass = JsonBinaryType.class, name = "jsonb")
     public static class Book {
 
         @Id
         private Long id;
 
+        private String isbn;
+
+        private String title;
+
+        private String author;
+
+        private String publisher;
+
+        private BigDecimal price;
+
+        @Type(type = "jsonb")
+        @Column(columnDefinition = "jsonb")
+        private List<BookReview> reviews = new ArrayList<>();
+
+        @Type(type = "jsonb")
         @Column(columnDefinition = "jsonb")
         private BookProperties properties;
 
@@ -143,6 +187,60 @@ public class PostgreSQLJsonBinaryTypeNativeTest extends AbstractPostgreSQLIntegr
 
         public Book setId(Long id) {
             this.id = id;
+            return this;
+        }
+
+        public String getIsbn() {
+            return isbn;
+        }
+
+        public Book setIsbn(String isbn) {
+            this.isbn = isbn;
+            return this;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public Book setTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public String getAuthor() {
+            return author;
+        }
+
+        public Book setAuthor(String author) {
+            this.author = author;
+            return this;
+        }
+
+        public String getPublisher() {
+            return publisher;
+        }
+
+        public Book setPublisher(String publisher) {
+            this.publisher = publisher;
+            return this;
+        }
+
+        public BigDecimal getPrice() {
+            return price;
+        }
+
+        public Book setPrice(BigDecimal price) {
+            this.price = price;
+            return this;
+        }
+
+        public List<BookReview> getReviews() {
+            return reviews;
+        }
+
+        public Book setReviews(List<BookReview> reviews) {
+            this.reviews = reviews;
             return this;
         }
 
@@ -156,78 +254,63 @@ public class PostgreSQLJsonBinaryTypeNativeTest extends AbstractPostgreSQLIntegr
         }
     }
 
+    public static class BookReview implements Serializable {
+
+        private String review;
+
+        private int rating;
+
+        public String getReview() {
+            return review;
+        }
+
+        public BookReview setReview(String review) {
+            this.review = review;
+            return this;
+        }
+
+        public int getRating() {
+            return rating;
+        }
+
+        public BookReview setRating(int rating) {
+            this.rating = rating;
+            return this;
+        }
+    }
+
     public static class BookProperties implements Serializable {
 
-        private String isbn;
+        private BigDecimal width;
 
-        private String title;
+        private BigDecimal height;
 
-        private String author;
+        private BigDecimal weight;
 
-        private String publisher;
-
-        private BigDecimal price;
-
-        private List<String> reviews = new ArrayList<>();
-
-        private BookProperties() {
+        public BigDecimal getWidth() {
+            return width;
         }
 
-        public BookProperties(String isbn) {
-            this.isbn = isbn;
-        }
-
-        public String getIsbn() {
-            return isbn;
-        }
-
-        public BookProperties setIsbn(String isbn) {
-            this.isbn = isbn;
+        public BookProperties setWidth(BigDecimal width) {
+            this.width = width;
             return this;
         }
 
-        public String getTitle() {
-            return title;
+        public BigDecimal getHeight() {
+            return height;
         }
 
-        public BookProperties setTitle(String title) {
-            this.title = title;
+        public BookProperties setHeight(BigDecimal height) {
+            this.height = height;
             return this;
         }
 
-        public String getAuthor() {
-            return author;
+        public BigDecimal getWeight() {
+            return weight;
         }
 
-        public BookProperties setAuthor(String author) {
-            this.author = author;
-            return this;
-        }
-
-        public String getPublisher() {
-            return publisher;
-        }
-
-        public BookProperties setPublisher(String publisher) {
-            this.publisher = publisher;
-            return this;
-        }
-
-        public BigDecimal getPrice() {
-            return price;
-        }
-
-        public BookProperties setPrice(BigDecimal price) {
-            this.price = price;
-            return this;
-        }
-
-        public List<String> getReviews() {
-            return reviews;
-        }
-
-        public BookProperties setReviews(List<String> reviews) {
-            this.reviews = reviews;
+        public BookProperties setWeight(BigDecimal weight) {
+            this.weight = weight;
             return this;
         }
     }
