@@ -46,20 +46,10 @@ public class OneToManyJoinColumnNonPKTest extends AbstractTest {
             Customer customer = entityManager.createQuery(
                 "select c " +
                 "from Customer c " +
-                "inner join fetch c.orders o " +
+                "join fetch c.orders o " +
                 "where c.msisdn = :msisdn", Customer.class)
             .setParameter( "msisdn", "+306972333666" )
             .getSingleResult();
-
-            //assertEquals(
-            //    "amazon.co.uk",
-            //    publication.getPublisher()
-            //);
-			//
-            //assertEquals(
-            //    "High-Performance Java Persistence",
-            //    publication.getBook().getTitle()
-            //);
         });
     }
 
