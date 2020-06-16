@@ -42,7 +42,7 @@ public class ForumServiceImpl implements ForumService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Post> findAllByTitle(String title) {
+    public List<Post> findAllPostsByTitle(String title) {
         return entityManager.createQuery("""
             select p
             from Post p

@@ -14,5 +14,5 @@ public interface ForumService {
 
     Post newPost(String title, String... tags);
 
-    List<Post> findAllByTitle(String title);
+    List<Post> findAllPostsByTitle(String title);
 }

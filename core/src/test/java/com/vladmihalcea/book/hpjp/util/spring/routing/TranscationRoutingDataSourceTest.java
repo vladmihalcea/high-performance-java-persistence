@@ -9,10 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
-import java.util.concurrent.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TransactionRoutingConfiguration.class)
@@ -24,6 +22,8 @@ public class TranscationRoutingDataSourceTest {
     @Autowired
     private ForumService forumService;
 
+
+
     @Test
     public void test() {
         Post post = forumService.newPost(
@@ -31,7 +31,7 @@ public class TranscationRoutingDataSourceTest {
             "JDBC", "JPA", "Hibernate"
         );
 
-        List<Post> posts = forumService.findAllByTitle(
+        List<Post> posts = forumService.findAllPostsByTitle(
             "High-Performance Java Persistence"
         );
     }

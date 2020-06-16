@@ -34,7 +34,7 @@ import java.util.Properties;
 
 @Configuration
 @ComponentScan(basePackages = "com.vladmihalcea.book.hpjp.util.spring.routing")
-@PropertySource({"/META-INF/jdbc-postgresql-replication.properties"})
+@PropertySource("/META-INF/jdbc-postgresql-replication.properties")
 public class TransactionRoutingConfiguration extends AbstractJPAConfiguration {
 
     @Value("${jdbc.url.primary}")
@@ -82,7 +82,10 @@ public class TransactionRoutingConfiguration extends AbstractJPAConfiguration {
     @Override
     protected Properties additionalProperties() {
         Properties properties = super.additionalProperties();
-        properties.setProperty("hibernate.connection.provider_disables_autocommit", Boolean.TRUE.toString());
+        properties.setProperty(
+            "hibernate.connection.provider_disables_autocommit",
+            Boolean.TRUE.toString()
+        );
         return properties;
     }
 
