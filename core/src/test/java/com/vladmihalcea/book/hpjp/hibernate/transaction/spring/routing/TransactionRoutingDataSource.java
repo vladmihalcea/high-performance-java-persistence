@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.util.spring.routing;
+package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.routing;
 
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 import org.springframework.lang.Nullable;

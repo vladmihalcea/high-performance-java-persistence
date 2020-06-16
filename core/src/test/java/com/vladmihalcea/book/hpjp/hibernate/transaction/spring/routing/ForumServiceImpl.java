@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.util.spring.routing;
+package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.routing;
 
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Tag;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.vladmihalcea.book.hpjp.util.spring.routing;
+package com.vladmihalcea.book.hpjp.hibernate.transaction.spring.routing;
 
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.spring.config.jpa.AbstractJPAConfiguration;
@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Properties;
 
 @Configuration
-@ComponentScan(basePackages = "com.vladmihalcea.book.hpjp.util.spring.routing")
+@ComponentScan(basePackages = "com.vladmihalcea.book.hpjp.hibernate.transaction.spring.routing")
 @PropertySource("/META-INF/jdbc-postgresql-replication.properties")
 public class TransactionRoutingConfiguration extends AbstractJPAConfiguration {
 
