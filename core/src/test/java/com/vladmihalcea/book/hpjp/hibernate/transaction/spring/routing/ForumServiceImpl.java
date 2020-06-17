@@ -14,6 +14,7 @@ import java.util.List;
  * @author Vlad Mihalcea
  */
 @Service
+@Transactional(readOnly = true)
 public class ForumServiceImpl implements ForumService {
 
     @PersistenceContext
@@ -41,7 +42,6 @@ public class ForumServiceImpl implements ForumService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Post> findAllPostsByTitle(String title) {
         return entityManager.createQuery("""
             select p
