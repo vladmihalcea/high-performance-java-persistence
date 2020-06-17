@@ -9,8 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.UUID;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 public class AssignedUUIDIdentifierTest extends AbstractTest {
 
@@ -23,20 +22,32 @@ public class AssignedUUIDIdentifierTest extends AbstractTest {
 
     @Test
     public void testAssignedIdentifierGenerator() {
-        LOGGER.debug("testAssignedIdentifierGenerator");
         doInJPA(entityManager -> {
-            Post post = new Post();
-            LOGGER.debug("persist Post");
-            entityManager.persist(post);
-            entityManager.flush();
-            assertSame(post, entityManager
-                .createQuery("select p from Post p where p.id = :uuid", Post.class)
-                .setParameter("uuid", post.id)
-                .getSingleResult());
-            byte[] uuid = (byte[]) entityManager.createNativeQuery("select id from Post").getSingleResult();
+            entityManager.persist(
+                new Post()
+                    .setTitle("High-Performance Java Persistence")
+            );
+
+            assertEquals(
+                "High-Performance Java Persistence",
+                entityManager.createQuery("""
+                    select p 
+                    from Post p
+                    """, Post.class)
+                .getSingleResult()
+                .getTitle()
+            );
+
+            byte[] uuid = (byte[]) entityManager.createNativeQuery(
+                "select id from Post")
+            .getSingleResult();
+
             assertNotNull(uuid);
-            LOGGER.debug("merge Post");
-            entityManager.merge(new Post());
+
+            entityManager.merge(
+                new Post()
+                    .setTitle("High-Performance Java Persistence")
+            );
         });
     }
 
@@ -48,6 +59,24 @@ public class AssignedUUIDIdentifierTest extends AbstractTest {
         @Column(columnDefinition = "BINARY(16)")
         private UUID id = UUID.randomUUID();
 
-        public Post() {}
+        private String title;
+
+        public UUID getId() {
+            return id;
+        }
+
+        public Post setId(UUID id) {
+            this.id = id;
+            return this;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public Post setTitle(String title) {
+            this.title = title;
+            return this;
+        }
     }
 }

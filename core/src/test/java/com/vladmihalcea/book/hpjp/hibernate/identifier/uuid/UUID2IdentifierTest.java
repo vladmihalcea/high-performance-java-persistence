@@ -18,11 +18,16 @@ public class UUID2IdentifierTest extends AbstractTest {
 
     @Test
     public void testUUID2IdentifierGenerator() {
-        LOGGER.debug("testUUID2IdentifierGenerator");
         doInJPA(entityManager -> {
-            entityManager.persist(new Post());
+            entityManager.persist(
+                new Post()
+                    .setTitle("High-Performance Java Persistence")
+            );
             entityManager.flush();
-            entityManager.merge(new Post());
+            entityManager.merge(
+                new Post()
+                    .setTitle("High-Performance Java Persistence")
+            );
         });
     }
 
@@ -35,5 +40,25 @@ public class UUID2IdentifierTest extends AbstractTest {
         @GenericGenerator(name = "uuid2", strategy = "uuid2")
         @Column(columnDefinition = "BINARY(16)")
         private UUID id;
+
+        private String title;
+
+        public UUID getId() {
+            return id;
+        }
+
+        public Post setId(UUID id) {
+            this.id = id;
+            return this;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public Post setTitle(String title) {
+            this.title = title;
+            return this;
+        }
     }
 }
