@@ -10,8 +10,8 @@ import javax.persistence.*;
 public class Post {
 
     @Id
-    @GeneratedValue(generator = "sequence", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "sequence", allocationSize = 10)
+    @GeneratedValue(generator = "post_sequence", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "post_sequence", allocationSize = 10)
     private Long id;
 
     private String title;

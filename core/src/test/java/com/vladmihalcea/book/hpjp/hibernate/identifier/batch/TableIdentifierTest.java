@@ -32,6 +32,8 @@ public class TableIdentifierTest extends AbstractBatchIdentifierTest {
         @Id
         @GeneratedValue(strategy=GenerationType.TABLE)
         private Long id;
+
+        private String title;
     }
 
 }
