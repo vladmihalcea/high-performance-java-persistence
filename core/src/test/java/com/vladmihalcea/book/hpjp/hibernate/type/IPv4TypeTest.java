@@ -71,11 +71,12 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
     @Test
     public void testJPQLQuery() {
         doInJPA(entityManager -> {
-            Event event = entityManager.createQuery(
-                "select e " +
-                "from Event e " +
-                "where " +
-                "   ip is not null", Event.class)
+            Event event = entityManager.createQuery("""
+                select e
+                from Event e
+                where
+                   ip is not null
+                """, Event.class)
             .getSingleResult();
 
             assertEquals("192.168.0.123/24", event.getIp().getAddress());
@@ -85,11 +86,12 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
     @Test
     public void testNativeQuery() {
         doInJPA(entityManager -> {
-            Event event = (Event) entityManager.createNativeQuery(
-                "SELECT e.* " +
-                "FROM event e " +
-                "WHERE " +
-                "   e.ip && CAST(:network AS inet) = true", Event.class)
+            Event event = (Event) entityManager.createNativeQuery("""
+                SELECT e.*
+                FROM event e
+                WHERE
+                   e.ip && CAST(:network AS inet) = true
+                """, Event.class)
             .setParameter("network", "192.168.0.1/24")
             .getSingleResult();
 
@@ -103,11 +105,12 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
             session.doWork(connection -> {
-                try(PreparedStatement ps = connection.prepareStatement(
-                    "SELECT * " +
-                    "FROM Event e " +
-                    "WHERE " +
-                    "   e.ip && ?::inet = true"
+                try(PreparedStatement ps = connection.prepareStatement("""
+                    SELECT *
+                    FROM Event e
+                    WHERE
+                        e.ip && ?::inet = true
+                    """
                 )) {
                     ps.setObject(1, "192.168.0.1/24");
                     ResultSet rs = ps.executeQuery();
