@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.envers;
+package com.vladmihalcea.book.hpjp.hibernate.audit.envers;
 
 import java.util.Properties;
 
