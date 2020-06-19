@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.audit.trigger;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
+import org.hibernate.Session;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.query.AuditEntity;
@@ -38,6 +39,7 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
             	title VARCHAR(255),
             	REV_TYPE ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
             	REV_TIMESTAMP TIMESTAMP NOT NULL,
+            	REV_CREATED_BY VARCHAR(255) NOT NULL,
             	PRIMARY KEY (id, REV_TYPE, REV_TIMESTAMP)
             ) 
             """
@@ -51,13 +53,15 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
                 id,
                 title,
                 REV_TYPE,
-                REV_TIMESTAMP
+                REV_TIMESTAMP,
+                REV_CREATED_BY
             )
             VALUES(
                 NEW.id,
                 NEW.title,
                 'INSERT',
-                CURRENT_TIMESTAMP
+                CURRENT_TIMESTAMP,
+                @logged_user
             );
             END
             """
@@ -71,13 +75,15 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
                 id,
                 title,
                 REV_TYPE,
-                REV_TIMESTAMP
+                REV_TIMESTAMP,
+                REV_CREATED_BY
             )
             VALUES(
                 NEW.id,
                 NEW.title,
                 'UPDATE',
-                CURRENT_TIMESTAMP
+                CURRENT_TIMESTAMP,
+                @logged_user
             );
             END
             """
@@ -91,13 +97,15 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
                 id,
                 title,
                 REV_TYPE,
-                REV_TIMESTAMP
+                REV_TIMESTAMP,
+                REV_CREATED_BY
             )
             VALUES(
                 OLD.id,
                 OLD.title,
                 'DELETE',
-                CURRENT_TIMESTAMP
+                CURRENT_TIMESTAMP,
+                @logged_user
             );
             END
             """
@@ -107,6 +115,10 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
     @Test
     public void test() {
         doInJPA(entityManager -> {
+            entityManager.unwrap(Session.class).doWork(connection -> {
+                update(connection, "SET @logged_user = 'Vlad Mihalcea'");
+            });
+
             Post post = new Post();
             post.setId(1L);
             post.setTitle("High-Performance Java Persistence 1st edition");
@@ -120,6 +132,10 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
+            entityManager.unwrap(Session.class).doWork(connection -> {
+                update(connection, "SET @logged_user = 'Vlad Mihalcea'");
+            });
+
             Post post = entityManager.find(Post.class, 1L);
             post.setTitle("High-Performance Java Persistence 2nd edition");
         });
@@ -131,6 +147,10 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
+            entityManager.unwrap(Session.class).doWork(connection -> {
+                update(connection, "SET @logged_user = 'Vlad Mihalcea'");
+            });
+            
             entityManager.remove(
                 entityManager.getReference(Post.class, 1L)
             );
