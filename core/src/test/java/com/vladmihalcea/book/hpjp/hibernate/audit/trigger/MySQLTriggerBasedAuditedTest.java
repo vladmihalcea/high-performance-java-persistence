@@ -3,10 +3,10 @@ package com.vladmihalcea.book.hpjp.hibernate.audit.trigger;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Session;
-import org.hibernate.envers.AuditReaderFactory;
-import org.hibernate.envers.Audited;
-import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.junit.Test;
+import com.vladmihalcea.hibernate.type.util.ReflectionUtils;
 
 import javax.persistence.*;
 import java.util.List;
@@ -114,10 +114,10 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
 
     @Test
     public void test() {
+        LoggedUser.logIn("Vlad Mihalcea");
+
         doInJPA(entityManager -> {
-            entityManager.unwrap(Session.class).doWork(connection -> {
-                update(connection, "SET @logged_user = 'Vlad Mihalcea'");
-            });
+            setCurrentLoggedUser(entityManager);
 
             Post post = new Post();
             post.setId(1L);
@@ -132,9 +132,7 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
-            entityManager.unwrap(Session.class).doWork(connection -> {
-                update(connection, "SET @logged_user = 'Vlad Mihalcea'");
-            });
+            setCurrentLoggedUser(entityManager);
 
             Post post = entityManager.find(Post.class, 1L);
             post.setTitle("High-Performance Java Persistence 2nd edition");
@@ -147,10 +145,8 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
-            entityManager.unwrap(Session.class).doWork(connection -> {
-                update(connection, "SET @logged_user = 'Vlad Mihalcea'");
-            });
-            
+            setCurrentLoggedUser(entityManager);
+
             entityManager.remove(
                 entityManager.getReference(Post.class, 1L)
             );
@@ -163,12 +159,48 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
         });
     }
 
+    private void setCurrentLoggedUser(EntityManager entityManager) {
+        Session session = entityManager.unwrap(Session.class);
+        Dialect dialect = session.getSessionFactory().unwrap(SessionFactoryImplementor.class).getJdbcServices().getDialect();
+        String loggedUser = ReflectionUtils.invokeMethod(
+            dialect,
+            "escapeLiteral",
+            LoggedUser.get()
+        );
+
+        session.doWork(connection -> {
+            update(
+                connection,
+                String.format(
+                    "SET @logged_user = '%s'", loggedUser
+                )
+            );
+        });
+    }
+
     private List<Tuple> getPostRevisions(EntityManager entityManager) {
         return entityManager.createNativeQuery("""
             SELECT *
             FROM post_AUD 
             """, Tuple.class)
         .getResultList();
+    }
+
+    public static class LoggedUser {
+
+        private static final ThreadLocal<String> userHolder = new ThreadLocal<>();
+
+        public static void logIn(String user) {
+            userHolder.set(user);
+        }
+
+        public static void logOut() {
+            userHolder.remove();
+        }
+
+        public static String get() {
+            return userHolder.get();
+        }
     }
 
     @Entity(name = "Post")
