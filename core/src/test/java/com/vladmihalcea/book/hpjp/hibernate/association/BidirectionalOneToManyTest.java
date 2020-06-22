@@ -1,8 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import com.vladmihalcea.book.hpjp.hibernate.sp.OracleStoredProcedureTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import net.ttddyy.dsproxy.QueryCount;
 import net.ttddyy.dsproxy.QueryCountHolder;
 import org.junit.Test;
 
@@ -20,42 +18,47 @@ public class BidirectionalOneToManyTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostComment.class,
+            Post.class,
+            PostComment.class,
         };
+    }
+
+    @Override
+    protected void afterInit() {
+        doInJPA(entityManager -> {
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+                    .addComment(
+                        new PostComment()
+                            .setReview("Best book on JPA and Hibernate!")
+                    )
+                    .addComment(
+                        new PostComment()
+                            .setReview("A must-read for every Java developer!")
+                    )
+            );
+        });
     }
 
     @Test
     public void testLifecycle() {
         doInJPA(entityManager -> {
-            Post post = new Post("First post");
-
-            post.addComment(new PostComment("My first review"));
-            post.addComment(
-                    new PostComment("My second review")
-            );
-            post.addComment(
-                    new PostComment("My third review")
-            );
-
-            entityManager.persist(post);
+            Post post = entityManager.createQuery("""
+                select p 
+                from Post p
+                join fetch p.comments
+                where p.id = :id
+                """, Post.class)
+            .setParameter("id", 1L)
+            .getSingleResult();
+            assertEquals(2, post.getComments().size());
         });
     }
 
     @Test
     public void testRemove() {
-
-        doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setTitle("High-Performance Java Persistence");
-
-            PostComment comment = new PostComment();
-            comment.setReview("JPA and Hibernate");
-            post.addComment(comment);
-
-            entityManager.persist(post);
-        });
-
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             PostComment comment = post.getComments().get(0);
@@ -66,22 +69,6 @@ public class BidirectionalOneToManyTest extends AbstractTest {
 
     @Test
     public void testOrphanRemoval() {
-
-        doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setTitle("High-Performance Java Persistence");
-
-            PostComment comment1 = new PostComment();
-            comment1.setReview("Best book on JPA and Hibernate!");
-            post.addComment(comment1);
-
-            PostComment comment2 = new PostComment();
-            comment2.setReview("A must-read for every Java developer!");
-            post.addComment(comment2);
-
-            entityManager.persist(post);
-        });
-
         QueryCountHolder.clear();
 
         doInJPA(entityManager -> {
@@ -106,49 +93,45 @@ public class BidirectionalOneToManyTest extends AbstractTest {
     public static class Post {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         private String title;
 
-        @OneToMany(mappedBy = "post", orphanRemoval = true)
+        @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<PostComment> comments = new ArrayList<>();
-
-        public Post() {
-        }
-
-        public Post(String title) {
-            this.title = title;
-        }
 
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public List<PostComment> getComments() {
             return comments;
         }
 
-        public void addComment(PostComment comment) {
+        public Post addComment(PostComment comment) {
             comments.add(comment);
             comment.setPost(this);
+            return this;
         }
 
-        public void removeComment(PostComment comment) {
+        public Post removeComment(PostComment comment) {
             comments.remove(comment);
             comment.setPost(null);
+            return this;
         }
     }
 
@@ -166,13 +149,6 @@ public class BidirectionalOneToManyTest extends AbstractTest {
         @JoinColumn(name = "post_id")
         private Post post;
 
-        public PostComment() {
-        }
-
-        public PostComment(String review) {
-            this.review = review;
-        }
-
         public Long getId() {
             return id;
         }
@@ -185,16 +161,18 @@ public class BidirectionalOneToManyTest extends AbstractTest {
             return review;
         }
 
-        public void setReview(String review) {
+        public PostComment setReview(String review) {
             this.review = review;
+            return this;
         }
 
         public Post getPost() {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostComment setPost(Post post) {
             this.post = post;
+            return this;
         }
 
         @Override

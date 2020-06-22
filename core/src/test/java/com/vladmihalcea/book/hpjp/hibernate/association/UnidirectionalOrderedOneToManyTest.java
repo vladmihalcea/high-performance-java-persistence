@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -21,36 +21,64 @@ public class UnidirectionalOrderedOneToManyTest extends AbstractTest {
         };
     }
 
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
+    @Override
+    protected void afterInit() {
+        doInJPA(entityManager -> {
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+                    .addComment(
+                        new PostComment()
+                            .setReview("Best book on JPA and Hibernate!")
+                    )
+                    .addComment(
+                        new PostComment()
+                            .setReview("A must-read for every Java developer!")
+                    )
+                    .addComment(
+                        new PostComment()
+                            .setReview("A great reference book")
+                    )
+            );
+        });
+    }
+
     @Test
     public void testRemoveTail() {
+
         doInJPA(entityManager -> {
-            Post post = new Post("First post");
+            Post post = entityManager.createQuery("""
+                select p 
+                from Post p
+                join fetch p.comments
+                where p.id = :id
+                """, Post.class)
+                .setParameter("id", 1L)
+                .getSingleResult();
 
-            post.getComments().add(new PostComment("My first review"));
-            post.getComments().add(new PostComment("My second review"));
-            post.getComments().add(new PostComment("My third review"));
-
-            entityManager.persist(post);
-            entityManager.flush();
-
-            LOGGER.info("Remove tail");
             post.getComments().remove(2);
         });
     }
 
     @Test
     public void testRemoveHead() {
+
         doInJPA(entityManager -> {
-            Post post = new Post("First post");
+            Post post = entityManager.createQuery("""
+                select p 
+                from Post p
+                join fetch p.comments
+                where p.id = :id
+                """, Post.class)
+                .setParameter("id", 1L)
+                .getSingleResult();
 
-            post.getComments().add(new PostComment("My first review"));
-            post.getComments().add(new PostComment("My second review"));
-            post.getComments().add(new PostComment("My third review"));
-
-            entityManager.persist(post);
-            entityManager.flush();
-
-            LOGGER.info("Remove head");
             post.getComments().remove(0);
         });
     }
@@ -60,16 +88,9 @@ public class UnidirectionalOrderedOneToManyTest extends AbstractTest {
     public static class Post {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         private String title;
-
-        public Post() {}
-
-        public Post(String title) {
-            this.title = title;
-        }
 
         @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
         @OrderColumn(name = "entry")
@@ -79,20 +100,27 @@ public class UnidirectionalOrderedOneToManyTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public List<PostComment> getComments() {
             return comments;
+        }
+
+        public Post addComment(PostComment comment) {
+            comments.add(comment);
+            return this;
         }
     }
 
@@ -106,26 +134,22 @@ public class UnidirectionalOrderedOneToManyTest extends AbstractTest {
 
         private String review;
 
-        public PostComment() {}
-
-        public PostComment(String review) {
-            this.review = review;
-        }
-
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostComment setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getReview() {
             return review;
         }
 
-        public void setReview(String review) {
+        public PostComment setReview(String review) {
             this.review = review;
+            return this;
         }
     }
 }
