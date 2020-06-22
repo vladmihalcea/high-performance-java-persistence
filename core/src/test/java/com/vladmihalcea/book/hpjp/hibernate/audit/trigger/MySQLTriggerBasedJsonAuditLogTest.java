@@ -35,9 +35,9 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
         ddl("DROP TABLE IF EXISTS book_audit_log");
         ddl("""
             CREATE TABLE IF NOT EXISTS book_audit_log (
-                id bigint, 
-            	previous_state json,
-            	new_state json,
+                id BIGINT, 
+            	old_row_data JSON,
+            	new_row_data JSON,
             	dml_type ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
             	dml_timestamp TIMESTAMP NOT NULL,
             	dml_created_by VARCHAR(255) NOT NULL,
@@ -52,8 +52,8 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             FOR EACH ROW BEGIN
             INSERT INTO book_audit_log (
                 id,
-                previous_state,
-                new_state,
+                old_row_data,
+                new_row_data,
                 dml_type,
                 dml_timestamp,
                 dml_created_by
@@ -81,8 +81,8 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             FOR EACH ROW BEGIN
             INSERT INTO book_audit_log (
                 id,
-                previous_state,
-                new_state,
+                old_row_data,
+                new_row_data,
                 dml_type,
                 dml_timestamp,
                 dml_created_by
@@ -115,8 +115,8 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             FOR EACH ROW BEGIN
             INSERT INTO book_audit_log (
                 id,
-                previous_state,
-                new_state,
+                old_row_data,
+                new_row_data,
                 dml_type,
                 dml_timestamp,
                 dml_created_by
