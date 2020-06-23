@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -19,6 +20,11 @@ public class BidirectionalOneToOneTest extends AbstractTest {
             Post.class,
             PostDetails.class,
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 
     @Test
@@ -50,7 +56,11 @@ public class BidirectionalOneToOneTest extends AbstractTest {
 
         private String title;
 
-        @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+        @OneToOne(
+            mappedBy = "post",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL
+        )
         private PostDetails details;
 
         public Post() {}

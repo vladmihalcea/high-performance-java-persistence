@@ -1,25 +1,15 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.annotations.NaturalId;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Vlad Mihalcea
@@ -32,6 +22,11 @@ public class BidirectionalManyToManyListTest extends AbstractTest {
             Post.class,
             Tag.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 
     @Test
@@ -134,13 +129,13 @@ public class BidirectionalManyToManyListTest extends AbstractTest {
         doInJPA(entityManager -> {
             LOGGER.info("Shuffle");
             Tag tag1 = new Tag("Java");
-            Post post1 = entityManager
-            .createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.tags " +
-                "where p.id = :id", Post.class)
-            .setParameter( "id", postId )
+            Post post1 = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.tags
+                where p.id = :id
+                """, Post.class)
+            .setParameter("id", postId)
             .getSingleResult();
 
             post1.removeTag(tag1);
@@ -163,7 +158,7 @@ public class BidirectionalManyToManyListTest extends AbstractTest {
             this.title = title;
         }
 
-        @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE})
+        @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
         @JoinTable(name = "post_tag",
             joinColumns = @JoinColumn(name = "post_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")

@@ -22,6 +22,11 @@ public class OneToOneMapsIdJoinColumnTest extends AbstractTest {
         };
     }
 
+    @Override
+    protected Database database() {
+        return Database.MYSQL;
+    }
+
     @Test
     public void testLifecycle() {
         doInJPA(entityManager -> {

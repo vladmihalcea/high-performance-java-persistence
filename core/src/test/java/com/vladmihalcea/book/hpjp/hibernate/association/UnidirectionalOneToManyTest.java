@@ -62,7 +62,7 @@ public class UnidirectionalOneToManyTest extends AbstractTest {
             .setParameter("id", 1L)
             .getSingleResult();
 
-            post.getComments().remove(2);
+            post.getComments().remove(post.getComments().size() - 1);
         });
     }
 
