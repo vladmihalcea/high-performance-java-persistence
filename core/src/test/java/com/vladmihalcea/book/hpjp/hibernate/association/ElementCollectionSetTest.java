@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import javax.persistence.ElementCollection;
@@ -24,32 +25,39 @@ public class ElementCollectionSetTest extends AbstractMySQLIntegrationTest {
         };
     }
 
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
+    @Override
+    protected void afterInit() {
+        doInJPA(entityManager -> {
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+                    .addComment("Best book on JPA and Hibernate!")
+                    .addComment("A must-read for every Java developer!")
+                    .addComment("A great reference book")
+            );
+        });
+    }
+
     @Test
-    public void testLifecycle() {
-        doInJPA(entityManager -> {
-            Post post = new Post()
-                .setId(1L)
-                .setTitle("High-Performance Java Persistence");
-
-            post.getComments().add("My first review");
-            post.getComments().add("My second review");
-            post.getComments().add("My third review");
-
-            entityManager.persist(post);
-        });
+    public void testRemove() {
 
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
+            Post post = entityManager.createQuery("""
+                select p 
+                from Post p
+                join fetch p.comments
+                where p.id = :id
+                """, Post.class)
+                .setParameter("id", 1L)
+                .getSingleResult();
 
-            LOGGER.info("Remove tail");
-            post.getComments().remove("My third review");
-        });
-
-        doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
-
-            LOGGER.info("Remove head");
-            post.getComments().remove("My first review");
+            post.getComments().remove(post.getComments().iterator().next());
         });
     }
 
@@ -85,6 +93,11 @@ public class ElementCollectionSetTest extends AbstractMySQLIntegrationTest {
 
         public Set<String> getComments() {
             return comments;
+        }
+
+        public Post addComment(String comment) {
+            comments.add(comment);
+            return this;
         }
     }
 }
