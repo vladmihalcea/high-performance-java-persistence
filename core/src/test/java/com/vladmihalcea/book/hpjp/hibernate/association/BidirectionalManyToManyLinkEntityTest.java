@@ -1,6 +1,9 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
+import org.hibernate.Session;
+import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -21,75 +24,88 @@ public class BidirectionalManyToManyLinkEntityTest extends AbstractTest {
         };
     }
 
-    @Test
-    public void testLifecycle() {
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
+    @Override
+    protected void afterInit() {
         doInJPA(entityManager -> {
-            Post post1 = new Post("JPA with Hibernate");
-            Post post2 = new Post("Native Hibernate");
+            entityManager.persist(
+                new Tag().setName("JPA")
+            );
 
-            Tag tag1 = new Tag("Java");
-            Tag tag2 = new Tag("Hibernate");
+            entityManager.persist(
+                new Tag().setName("Hibernate")
+            );
+        });
 
-            entityManager.persist(post1);
-            entityManager.persist(post2);
+        doInJPA(entityManager -> {
+            Session session = entityManager.unwrap(Session.class);
 
-            entityManager.persist(tag1);
-            entityManager.persist(tag2);
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("JPA with Hibernate")
+                    .addTag(session.bySimpleNaturalId(Tag.class).getReference("JPA"))
+                    .addTag(session.bySimpleNaturalId(Tag.class).getReference("Hibernate"))
+            );
 
-            post1.addTag(tag1);
-            post1.addTag(tag2);
+            entityManager.persist(
+                new Post()
+                    .setId(2L)
+                    .addTag(session.bySimpleNaturalId(Tag.class).getReference("Hibernate"))
+            );
+        });
+    }
 
-            post2.addTag(tag1);
+    @Test
+    public void testRemoveTagReference() {
+        doInJPA(entityManager -> {
+            Post post1 = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.tags
+                where p.id = :id
+                """, Post.class)
+            .setParameter("id", 1L)
+            .getSingleResult();
 
-            entityManager.flush();
+            Session session = entityManager.unwrap(Session.class);
 
+            post1.removeTag(session.bySimpleNaturalId(Tag.class).getReference("JPA"));
+        });
+    }
+
+    @Test
+    public void testRemovePostEntity() {
+        doInJPA(entityManager -> {
             LOGGER.info("Remove");
-            post1.removeTag(tag1);
+            Post post1 = entityManager.getReference(Post.class, 1L);
+
+            entityManager.remove(post1);
         });
     }
 
     @Test
     public void testShuffle() {
-        final Long postId = doInJPA(entityManager -> {
-            Post post1 = new Post("JPA with Hibernate");
-            Post post2 = new Post("Native Hibernate");
-
-            Tag tag1 = new Tag("Java");
-            Tag tag2 = new Tag("Hibernate");
-
-            entityManager.persist(post1);
-            entityManager.persist(post2);
-
-            entityManager.persist(tag1);
-            entityManager.persist(tag2);
-
-            post1.addTag(tag1);
-            post1.addTag(tag2);
-
-            post2.addTag(tag1);
-
-            entityManager.flush();
-
-            return post1.getId();
-        });
         doInJPA(entityManager -> {
             LOGGER.info("Shuffle");
-            Post post1 = entityManager.find(Post.class, postId);
+            Post post1 = entityManager.find(Post.class, 1L);
 
             post1.getTags().sort(
                 Comparator.comparing((PostTag postTag) -> postTag.getId().getTagId())
                 .reversed()
             );
-
-            LOGGER.info("Flush after shuffle");
         });
     }
 
     @Entity(name = "Post")
+    @Table(name = "post")
     public static class Post {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         private String title;
@@ -97,51 +113,59 @@ public class BidirectionalManyToManyLinkEntityTest extends AbstractTest {
         @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<PostTag> tags = new ArrayList<>();
 
-        public Post() {
-        }
-
-        public Post(String title) {
-            this.title = title;
-        }
-
         public Long getId() {
             return id;
+        }
+
+        public Post setId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public Post setTitle(String title) {
+            this.title = title;
+            return this;
         }
 
         public List<PostTag> getTags() {
             return tags;
         }
 
-        public void addTag(Tag tag) {
+        public Post addTag(Tag tag) {
             PostTag postTag = new PostTag(this, tag);
             tags.add(postTag);
             tag.getPosts().add(postTag);
+            return this;
         }
 
-        public void removeTag(Tag tag) {
+        public Post removeTag(Tag tag) {
             for (Iterator<PostTag> iterator = tags.iterator(); iterator.hasNext(); ) {
                 PostTag postTag = iterator.next();
                 if (postTag.getPost().equals(this) &&
-                        postTag.getTag().equals(tag)) {
+                    postTag.getTag().equals(tag)) {
                     iterator.remove();
                     postTag.getTag().getPosts().remove(postTag);
                     postTag.setPost(null);
                     postTag.setTag(null);
                 }
             }
+            return this;
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Post post = (Post) o;
-            return Objects.equals(title, post.title);
+            if (!(o instanceof Post)) return false;
+            return id != null && id.equals(((Post) o).getId());
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(title);
+            return 31;
         }
     }
 
@@ -152,7 +176,7 @@ public class BidirectionalManyToManyLinkEntityTest extends AbstractTest {
 
         private Long tagId;
 
-        public PostTagId() {}
+        private PostTagId() {}
 
         public PostTagId(Long postId, Long tagId) {
             this.postId = postId;
@@ -182,7 +206,8 @@ public class BidirectionalManyToManyLinkEntityTest extends AbstractTest {
         }
     }
 
-    @Entity(name = "PostTag") @Table(name = "post_tag")
+    @Entity(name = "PostTag")
+    @Table(name = "post_tag")
     public static class PostTag {
 
         @EmbeddedId
@@ -240,38 +265,35 @@ public class BidirectionalManyToManyLinkEntityTest extends AbstractTest {
     }
 
     @Entity(name = "Tag")
+    @Table(name = "tag")
     public static class Tag {
 
         @Id
         @GeneratedValue
         private Long id;
 
+        @NaturalId
         private String name;
 
         @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<PostTag> posts = new ArrayList<>();
 
-        public Tag() {
-        }
-
-        public Tag(String name) {
-            this.name = name;
-        }
-
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Tag setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getName() {
             return name;
         }
 
-        public void setName(String name) {
+        public Tag setName(String name) {
             this.name = name;
+            return this;
         }
 
         public List<PostTag> getPosts() {
@@ -291,6 +313,4 @@ public class BidirectionalManyToManyLinkEntityTest extends AbstractTest {
             return Objects.hash(name);
         }
     }
-
-
 }
