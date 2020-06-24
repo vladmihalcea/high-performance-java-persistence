@@ -18,8 +18,15 @@ public class TableIdentifierTest extends AbstractBatchIdentifierTest {
         LOGGER.debug("testTableIdentifierGenerator");
         int batchSize = 2;
         doInJPA(entityManager -> {
-            for (int i = 0; i < batchSize; i++) {
-                entityManager.persist(new Post());
+            for (int i = 1; i <= 5; i++) {
+                entityManager.persist(
+                    new Post().setTitle(
+                        String.format(
+                            "High-Performance Java Persistence, Part %d",
+                            i
+                        )
+                    )
+                );
             }
             LOGGER.debug("Flush is triggered at commit-time");
         });
@@ -34,6 +41,24 @@ public class TableIdentifierTest extends AbstractBatchIdentifierTest {
         private Long id;
 
         private String title;
+
+        public Long getId() {
+            return id;
+        }
+
+        public Post setId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public Post setTitle(String title) {
+            this.title = title;
+            return this;
+        }
     }
 
 }

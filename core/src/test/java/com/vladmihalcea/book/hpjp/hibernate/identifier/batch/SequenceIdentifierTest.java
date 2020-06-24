@@ -40,9 +40,7 @@ public class SequenceIdentifierTest extends AbstractBatchIdentifierTest {
     public static class Post {
 
         @Id
-        @GeneratedValue(
-            strategy = GenerationType.SEQUENCE
-        )
+        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private Long id;
 
         private String title;

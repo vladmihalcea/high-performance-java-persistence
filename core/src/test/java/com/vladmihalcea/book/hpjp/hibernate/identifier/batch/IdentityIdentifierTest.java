@@ -16,12 +16,13 @@ public class IdentityIdentifierTest extends AbstractBatchIdentifierTest {
     @Test
     public void testIdentityIdentifierGenerator() {
         doInJPA(entityManager -> {
-            for (int i = 0; i < 3; i++) {
-                Post post = new Post();
-                post.setTitle(
-                    String.format("High-Performance Java Persistence, Part %d", i)
+            for (int i = 1; i <= 3; i++) {
+                entityManager.persist(
+                    new Post()
+                        .setTitle(
+                            String.format("High-Performance Java Persistence, Part %d", i)
+                        )
                 );
-                entityManager.persist(post);
             }
         });
     }
@@ -54,9 +55,7 @@ public class IdentityIdentifierTest extends AbstractBatchIdentifierTest {
     public static class Post {
 
         @Id
-        @GeneratedValue(
-            strategy = GenerationType.IDENTITY
-        )
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
         private String title;
@@ -65,16 +64,18 @@ public class IdentityIdentifierTest extends AbstractBatchIdentifierTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
     }
 }
