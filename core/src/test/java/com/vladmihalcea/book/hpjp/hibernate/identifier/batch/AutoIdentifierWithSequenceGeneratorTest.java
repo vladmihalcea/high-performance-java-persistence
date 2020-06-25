@@ -9,8 +9,8 @@ public class AutoIdentifierWithSequenceGeneratorTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
-                Post.class,
+        return new Class<?>[]{
+            Post.class,
         };
     }
 

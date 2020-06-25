@@ -22,12 +22,13 @@ public class AutoIdentifierMySQLTest extends AbstractMySQLIntegrationTest {
     @Test
     public void test() {
         doInJPA(entityManager -> {
-            for ( int i = 1; i <= 3; i++ ) {
+            for (int i = 1; i <= 3; i++) {
                 entityManager.persist(
-                        new Post(
-                                String.format(
-                                        "High-Performance Java Persistence, Part %d", i
-                                )
+                    new Post()
+                        .setTitle(
+                            String.format(
+                                "High-Performance Java Persistence, Part %d", i
+                            )
                         )
                 );
             }
@@ -44,10 +45,22 @@ public class AutoIdentifierMySQLTest extends AbstractMySQLIntegrationTest {
 
         private String title;
 
-        public Post() {}
+        public Long getId() {
+            return id;
+        }
 
-        public Post(String title) {
+        public Post setId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
     }
 }
