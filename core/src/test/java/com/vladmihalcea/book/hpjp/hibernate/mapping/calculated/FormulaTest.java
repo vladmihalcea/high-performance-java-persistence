@@ -75,23 +75,25 @@ public class FormulaTest extends AbstractPostgreSQLIntegrationTest {
         @Formula("cents::numeric / 100")
         private double dollars;
 
-        @Formula(
-            "round(" +
-            "   (interestRate::numeric / 100) * " +
-            "   cents * " +
-            "   date_part('month', age(now(), createdOn)" +
-            ") " +
-            "/ 12)")
+        @Formula("""
+            round(
+               (interestRate::numeric / 100) *
+               cents *
+               date_part('month', age(now(), createdOn)
+            )
+            / 12)
+            """)
         private long interestCents;
 
-        @Formula(
-            "round(" +
-            "   (interestRate::numeric / 100) * " +
-            "   cents * " +
-            "   date_part('month', age(now(), createdOn)" +
-            ") " +
-            "/ 12) " +
-            "/ 100::numeric")
+        @Formula("""
+            round(
+               (interestRate::numeric / 100) *
+               cents *
+               date_part('month', age(now(), createdOn)
+            )
+            / 12)
+            / 100::numeric
+            """)
         private double interestDollars;
 
         public Account() {
