@@ -52,9 +52,10 @@ public class BatchingTest extends AbstractTest {
 
         LOGGER.info("testUpdatePosts");
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p     
+                """, Post.class)
             .getResultList();
 
             posts.forEach(post -> post.setTitle(post.getTitle().replaceAll("no", "nr")));
@@ -67,10 +68,11 @@ public class BatchingTest extends AbstractTest {
 
         LOGGER.info("testUpdatePostsAndComments");
         doInJPA(entityManager -> {
-            List<PostComment> comments = entityManager.createQuery(
-                "select c " +
-                "from PostComment c " +
-                "join fetch c.post ", PostComment.class)
+            List<PostComment> comments = entityManager.createQuery("""
+                select c
+                from PostComment c
+                join fetch c.post  
+                """, PostComment.class)
             .getResultList();
 
             comments.forEach(comment -> {
@@ -87,9 +89,10 @@ public class BatchingTest extends AbstractTest {
 
         LOGGER.info("testDeletePosts");
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p     
+                """, Post.class)
             .getResultList();
 
             posts.forEach(entityManager::remove);
@@ -102,10 +105,11 @@ public class BatchingTest extends AbstractTest {
 
         LOGGER.info("testDeletePostsAndComments");
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.comments
+                """, Post.class)
             .getResultList();
 
             posts.forEach(entityManager::remove);
@@ -118,10 +122,11 @@ public class BatchingTest extends AbstractTest {
 
         LOGGER.info("testDeletePostsAndCommentsWithManualChildRemoval");
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.comments
+                """, Post.class)
             .getResultList();
 
             for (Post post : posts) {
