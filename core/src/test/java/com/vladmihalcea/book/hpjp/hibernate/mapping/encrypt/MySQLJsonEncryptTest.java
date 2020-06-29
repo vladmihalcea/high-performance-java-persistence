@@ -1,10 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping.encrypt;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.CryptoUtils;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.vladmihalcea.hibernate.type.util.ReflectionUtils;
 import org.hibernate.Session;
 import org.hibernate.annotations.ColumnTransformer;
+import org.hibernate.annotations.TypeDef;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.junit.Test;
@@ -16,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class MySQLEncryptTest extends AbstractTest {
+public class MySQLJsonEncryptTest extends AbstractTest {
 
 	@Override
 	protected Class<?>[] entities() {
@@ -34,31 +37,25 @@ public class MySQLEncryptTest extends AbstractTest {
 	@Test
 	public void test() {
 		doInJPA(entityManager -> {
-			setEncryptionKey(entityManager);
-
 			User user = new User()
 				.setId(1L)
 				.setUsername("vladmihalcea")
-				.setPassword("secretPassword");
-
-			entityManager.persist(user);
-
-			entityManager.persist(
-				new UserDetails()
-					.setUser(user)
+				.setPassword("secretPassword")
+				.setDetails(
+					new UserDetails()
 					.setFirstName("Vlad")
 					.setLastName("Mihalcea")
 					.setEmailAddress("vlad@vladmihalcea.com")
-			);
+				);
+
+			entityManager.persist(user);
 		});
 
 		doInJPA(entityManager -> {
-			setEncryptionKey(entityManager);
-			
 			UserDetails userDetails = entityManager.find(
-				UserDetails.class,
+				User.class,
 				1L
-			);
+			).getDetails();
 
 			assertEquals("Vlad", userDetails.getFirstName());
 			assertEquals("Mihalcea", userDetails.getLastName());
@@ -66,27 +63,9 @@ public class MySQLEncryptTest extends AbstractTest {
 		});
 	}
 
-	private void setEncryptionKey(EntityManager entityManager) {
-		Session session = entityManager.unwrap(Session.class);
-		Dialect dialect = session.getSessionFactory().unwrap(SessionFactoryImplementor.class).getJdbcServices().getDialect();
-		String encryptionKey = ReflectionUtils.invokeMethod(
-			dialect,
-			"escapeLiteral",
-			"encryptionKey"
-		);
-
-		session.doWork(connection -> {
-			update(
-				connection,
-				String.format(
-					"SET @encryption_key = '%s'", encryptionKey
-				)
-			);
-		});
-	}
-
 	@Entity
 	@Table(name = "users")
+	@TypeDef(typeClass = JsonStringType.class, defaultForType = UserDetails.class)
 	public static class User {
 
 		@Id
@@ -96,6 +75,8 @@ public class MySQLEncryptTest extends AbstractTest {
 
 		@ColumnTransformer(write = "MD5(?)")
 		private String password;
+
+		private UserDetails details;
 
 		public Long getId() {
 			return id;
@@ -123,59 +104,67 @@ public class MySQLEncryptTest extends AbstractTest {
 			this.password = password;
 			return this;
 		}
+
+		public UserDetails getDetails() {
+			return details;
+		}
+
+		public User setDetails(UserDetails details) {
+			this.details = details;
+			return this;
+		}
+
+		@PrePersist
+		@PreUpdate
+		private void encryptFields() {
+			if (details != null) {
+				if (details.getFirstName() != null) {
+					details.setFirstName(
+						CryptoUtils.encrypt(details.getFirstName())
+					);
+				}
+				if (details.getLastName() != null) {
+					details.setLastName(
+						CryptoUtils.encrypt(details.getLastName())
+					);
+				}
+				if (details.getEmailAddress() != null) {
+					details.setEmailAddress(
+						CryptoUtils.encrypt(details.getEmailAddress())
+					);
+				}
+			}
+		}
+
+		@PostLoad
+		private void decryptFields() {
+			if (details != null) {
+				if (details.getFirstName() != null) {
+					details.setFirstName(
+						CryptoUtils.decrypt(details.getFirstName())
+					);
+				}
+				if (details.getLastName() != null) {
+					details.setLastName(
+						CryptoUtils.decrypt(details.getLastName())
+					);
+				}
+				if (details.getEmailAddress() != null) {
+					details.setEmailAddress(
+						CryptoUtils.decrypt(details.getEmailAddress())
+					);
+				}
+			}
+		}
 	}
 
-	@Entity
-	@Table(name = "user_details")
 	public static class UserDetails {
 
-		@Id
-		private Long id;
-
-		@OneToOne(fetch = FetchType.LAZY)
-		@MapsId
-		@JoinColumn(name = "id")
-		private User user;
-
-		@ColumnTransformer(
-			read = "AES_DECRYPT(first_name, @encryption_key)",
-			write = "AES_ENCRYPT(?, @encryption_key)"
-		)
-		@Column(name = "first_name", columnDefinition = "VARBINARY(100)")
 		private String firstName;
 
-		@ColumnTransformer(
-			read = "AES_DECRYPT(last_name, @encryption_key)",
-			write = "AES_ENCRYPT(?, @encryption_key)"
-		)
-		@Column(name = "last_name", columnDefinition = "VARBINARY(100)")
 		private String lastName;
 
-		@ColumnTransformer(
-			read = "AES_DECRYPT(email_address, @encryption_key)",
-			write = "AES_ENCRYPT(?, @encryption_key)"
-		)
-		@Column(name = "email_address", columnDefinition = "VARBINARY(100)")
 		private String emailAddress;
-
-		public Long getId() {
-			return id;
-		}
-
-		public UserDetails setId(Long id) {
-			this.id = id;
-			return this;
-		}
-
-		public User getUser() {
-			return user;
-		}
-
-		public UserDetails setUser(User user) {
-			this.user = user;
-			this.id = user.getId();
-			return this;
-		}
 
 		public String getFirstName() {
 			return firstName;
