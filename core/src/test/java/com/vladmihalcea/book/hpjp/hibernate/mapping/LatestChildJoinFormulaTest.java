@@ -30,38 +30,49 @@ public class LatestChildJoinFormulaTest extends AbstractPostgreSQLIntegrationTes
 	public void test() {
 
 		doInJPA( entityManager -> {
-			Post post = new Post();
-			post.setId(1L);
-			post.setTitle("High-Performance Java Persistence");
+			Post post = new Post()
+				.setId(1L)
+				.setTitle("High-Performance Java Persistence");
+
 			entityManager.persist(post);
+
 			assertNull(post.getLatestComment());
 
-			PostComment comment1 = new PostComment();
-			comment1.setId(1L);
-			comment1.setPost(post);
-			comment1.setCreatedOn(Timestamp.valueOf(
-				LocalDateTime.of(2016, 11, 2, 12, 33, 14)
-			));
-			comment1.setReview("Woohoo!");
-			entityManager.persist(comment1);
+			entityManager.persist(
+				new PostComment()
+		 		.setId(1L)
+				.setPost(post)
+				.setCreatedOn(
+					Timestamp.valueOf(
+						LocalDateTime.of(2016, 11, 2, 12, 33, 14)
+					)
+				)
+				.setReview("Woohoo!")
+			);
 
-			PostComment comment2 = new PostComment();
-			comment2.setId(2L);
-			comment2.setPost(post);
-			comment2.setCreatedOn(Timestamp.valueOf(
-					LocalDateTime.of(2016, 11, 2, 15, 45, 58)
-			));
-			comment2.setReview("Finally!");
-			entityManager.persist(comment2);
+			entityManager.persist(
+				new PostComment()
+		 		.setId(2L)
+				.setPost(post)
+				.setCreatedOn(
+					Timestamp.valueOf(
+						LocalDateTime.of(2016, 11, 2, 15, 45, 58)
+					)
+				)
+				.setReview("Finally!")
+			);
 
-			PostComment comment3 = new PostComment();
-			comment3.setId(3L);
-			comment3.setPost(post);
-			comment3.setCreatedOn(Timestamp.valueOf(
-					LocalDateTime.of(2017, 2, 16, 16, 10, 21)
-			));
-			comment3.setReview("Awesome!");
-			entityManager.persist(comment3);
+			entityManager.persist(
+				new PostComment()
+		 		.setId(3L)
+				.setPost(post)
+				.setCreatedOn(
+					Timestamp.valueOf(
+						LocalDateTime.of(2017, 2, 16, 16, 10, 21)
+					)
+				)
+				.setReview("Awesome!")
+			);
 		} );
 
 		doInJPA( entityManager -> {
@@ -72,20 +83,22 @@ public class LatestChildJoinFormulaTest extends AbstractPostgreSQLIntegrationTes
 		} );
 
 		doInJPA( entityManager -> {
-			List<Post> posts = entityManager.createQuery(
-				"select p " +
-				"from Post p " +
-				"join fetch p.latestComment", Post.class)
+			List<Post> posts = entityManager.createQuery("""
+				select p
+				from Post p
+				join fetch p.latestComment
+				""", Post.class)
 			.getResultList();
 
 			assertEquals("Awesome!", posts.get(0).getLatestComment().getReview());
 		} );
 
 		doInJPA( entityManager -> {
-			Post post = new Post();
-			post.setId(2L);
-			post.setTitle("High-Performance Java Persistence 2nd edition");
-			entityManager.persist(post);
+			entityManager.persist(
+				new Post()
+					.setId(2L)
+					.setTitle("High-Performance Java Persistence 2nd edition")
+			);
 		} );
 
 		doInJPA( entityManager -> {
@@ -104,29 +117,32 @@ public class LatestChildJoinFormulaTest extends AbstractPostgreSQLIntegrationTes
 		private String title;
 
 		@ManyToOne(fetch = FetchType.LAZY)
-		@JoinFormula("(" +
-			"SELECT pc.id " +
-			"FROM post_comment pc " +
-			"WHERE pc.post_id = id " +
-			"ORDER BY pc.created_on DESC " +
-			"LIMIT 1" +
-		")")
+		@JoinFormula("""
+			(SELECT pc.id
+			FROM post_comment pc
+			WHERE pc.post_id = id
+			ORDER BY pc.created_on DESC
+			LIMIT 1)
+			"""
+		)
 		private PostComment latestComment;
 
 		public Long getId() {
 			return id;
 		}
 
-		public void setId(Long id) {
+		public Post setId(Long id) {
 			this.id = id;
+			return this;
 		}
 
 		public String getTitle() {
 			return title;
 		}
 
-		public void setTitle(String title) {
+		public Post setTitle(String title) {
 			this.title = title;
+			return this;
 		}
 
 		public PostComment getLatestComment() {
@@ -154,32 +170,36 @@ public class LatestChildJoinFormulaTest extends AbstractPostgreSQLIntegrationTes
 			return id;
 		}
 
-		public void setId(Long id) {
+		public PostComment setId(Long id) {
 			this.id = id;
+			return this;
 		}
 
 		public Post getPost() {
 			return post;
 		}
 
-		public void setPost(Post post) {
+		public PostComment setPost(Post post) {
 			this.post = post;
+			return this;
 		}
 
 		public String getReview() {
 			return review;
 		}
 
-		public void setReview(String review) {
+		public PostComment setReview(String review) {
 			this.review = review;
+			return this;
 		}
 
 		public Date getCreatedOn() {
 			return createdOn;
 		}
 
-		public void setCreatedOn(Date createdOn) {
+		public PostComment setCreatedOn(Date createdOn) {
 			this.createdOn = createdOn;
+			return this;
 		}
 	}
 }
