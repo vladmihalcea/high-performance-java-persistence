@@ -40,7 +40,6 @@ public class MySQLJsonEncryptTest extends AbstractTest {
 			User user = new User()
 				.setId(1L)
 				.setUsername("vladmihalcea")
-				.setPassword("secretPassword")
 				.setDetails(
 					new UserDetails()
 					.setFirstName("Vlad")
@@ -52,14 +51,18 @@ public class MySQLJsonEncryptTest extends AbstractTest {
 		});
 
 		doInJPA(entityManager -> {
-			UserDetails userDetails = entityManager.find(
+			User user = entityManager.find(
 				User.class,
 				1L
-			).getDetails();
+			);
+
+			UserDetails userDetails = user.getDetails();
 
 			assertEquals("Vlad", userDetails.getFirstName());
 			assertEquals("Mihalcea", userDetails.getLastName());
 			assertEquals("vlad@vladmihalcea.com", userDetails.getEmailAddress());
+
+			userDetails.setEmailAddress("me@vladmihalcea.com");
 		});
 	}
 
@@ -73,9 +76,7 @@ public class MySQLJsonEncryptTest extends AbstractTest {
 
 		private String username;
 
-		@ColumnTransformer(write = "MD5(?)")
-		private String password;
-
+		@Column(columnDefinition = "json")
 		private UserDetails details;
 
 		public Long getId() {
@@ -93,15 +94,6 @@ public class MySQLJsonEncryptTest extends AbstractTest {
 
 		public User setUsername(String username) {
 			this.username = username;
-			return this;
-		}
-
-		public String getPassword() {
-			return password;
-		}
-
-		public User setPassword(String password) {
-			this.password = password;
 			return this;
 		}
 

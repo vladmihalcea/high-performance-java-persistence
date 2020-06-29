@@ -38,8 +38,7 @@ public class MySQLEncryptTest extends AbstractTest {
 
 			User user = new User()
 				.setId(1L)
-				.setUsername("vladmihalcea")
-				.setPassword("secretPassword");
+				.setUsername("vladmihalcea");
 
 			entityManager.persist(user);
 
@@ -94,9 +93,6 @@ public class MySQLEncryptTest extends AbstractTest {
 
 		private String username;
 
-		@ColumnTransformer(write = "MD5(?)")
-		private String password;
-
 		public Long getId() {
 			return id;
 		}
@@ -112,15 +108,6 @@ public class MySQLEncryptTest extends AbstractTest {
 
 		public User setUsername(String username) {
 			this.username = username;
-			return this;
-		}
-
-		public String getPassword() {
-			return password;
-		}
-
-		public User setPassword(String password) {
-			this.password = password;
 			return this;
 		}
 	}
