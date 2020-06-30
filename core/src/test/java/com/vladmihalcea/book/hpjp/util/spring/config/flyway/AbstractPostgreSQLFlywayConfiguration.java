@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.util.spring.config.flyway;
 
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,8 +35,12 @@ public class AbstractPostgreSQLFlywayConfiguration extends AbstractFlywayConfigu
     @Value("${jdbc.port}")
     private String jdbcPort;
 
+    public AbstractPostgreSQLFlywayConfiguration() {
+        super(Database.POSTGRESQL);
+    }
+
     @Override
-    public DataSource actualDataSource() {
+    public DataSource dataSource() {
         Properties driverProperties = new Properties();
         driverProperties.setProperty("user", jdbcUser);
         driverProperties.setProperty("password", jdbcPassword);
@@ -50,10 +55,5 @@ public class AbstractPostgreSQLFlywayConfiguration extends AbstractFlywayConfigu
         properties.setProperty("maximumPoolSize", String.valueOf(3));
         properties.setProperty("connectionTimeout", String.valueOf(5000));
         return new HikariDataSource(new HikariConfig(properties));
-    }
-
-    @Override
-    protected String databaseType() {
-        return "postgresql";
     }
 }

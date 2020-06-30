@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.schema.flyway;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -35,7 +34,6 @@ public class FlywayTest {
     private TransactionTemplate transactionTemplate;
 
     @Test
-    @Ignore
     public void test() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {

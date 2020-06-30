@@ -1,18 +1,11 @@
 package com.vladmihalcea.book.hpjp.hibernate.schema.flyway;
 
-import javax.annotation.Resource;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
+import com.vladmihalcea.book.hpjp.util.spring.config.jpa.PostgreSQLJPAConfiguration;
 import org.hibernate.Session;
-
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.EncodedResource;
@@ -24,11 +17,15 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 /**
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = PostgreSQLFlywayConfiguration.class)
+@ContextConfiguration(classes = PostgreSQLJPAConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class DropPostgreSQLPublicSchemaTest {
 
@@ -46,7 +43,6 @@ public class DropPostgreSQLPublicSchemaTest {
     private boolean drop = true;
 
     @Test
-    @Ignore
     public void test() {
         if (drop) {
             try {
@@ -56,7 +52,7 @@ public class DropPostgreSQLPublicSchemaTest {
                         ScriptUtils.executeSqlScript(connection,
                             new EncodedResource(
                                 new ClassPathResource(
-                                    String.format("flyway/db/%1$s/drop/drop.sql", databaseType)
+                                    String.format("flyway/scripts/%1$s/drop/drop.sql", databaseType)
                                 )
                             ),
                             true, true,

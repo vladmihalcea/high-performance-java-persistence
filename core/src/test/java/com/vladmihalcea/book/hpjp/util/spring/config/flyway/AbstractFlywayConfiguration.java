@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.util.spring.config.flyway;
 
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.flywaydb.core.Flyway;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,8 +26,14 @@ import java.util.Properties;
 @EnableAspectJAutoProxy
 public abstract class AbstractFlywayConfiguration {
 
+    private final Database databaseType;
+
     @Value("${hibernate.dialect}")
     private String hibernateDialect;
+
+    protected AbstractFlywayConfiguration(Database databaseType) {
+        this.databaseType = databaseType;
+    }
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties() {
@@ -34,15 +41,14 @@ public abstract class AbstractFlywayConfiguration {
     }
 
     @Bean
-    public abstract DataSource actualDataSource();
-
+    public abstract DataSource dataSource();
 
     @Bean(initMethod = "migrate")
     public Flyway flyway() {
         Flyway flyway = new Flyway();
-        flyway.setDataSource(actualDataSource());
+        flyway.setDataSource(dataSource());
         flyway.setBaselineOnMigrate(true);
-        flyway.setLocations(String.format("classpath:/flyway/db/%1$s/migration", databaseType()));
+        flyway.setLocations(String.format("classpath:/flyway/scripts/%1$s/migration", databaseType.name().toLowerCase()));
         return flyway;
     }
 
@@ -51,7 +57,7 @@ public abstract class AbstractFlywayConfiguration {
         LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         localContainerEntityManagerFactoryBean.setPersistenceUnitName(getClass().getSimpleName());
         localContainerEntityManagerFactoryBean.setPersistenceProvider(new HibernatePersistenceProvider());
-        localContainerEntityManagerFactoryBean.setDataSource(actualDataSource());
+        localContainerEntityManagerFactoryBean.setDataSource(dataSource());
         localContainerEntityManagerFactoryBean.setPackagesToScan(packagesToScan());
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
@@ -87,7 +93,4 @@ public abstract class AbstractFlywayConfiguration {
     protected Class configurationClass() {
         return this.getClass();
     }
-
-    @Bean
-    protected abstract String databaseType();
 }

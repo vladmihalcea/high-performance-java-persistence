@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.util.spring.config.flyway;
 
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,9 +29,12 @@ public class AbstractHSQLDBFlywayConfiguration extends AbstractFlywayConfigurati
     @Value("${jdbc.password}")
     private String jdbcPassword;
 
+    public AbstractHSQLDBFlywayConfiguration() {
+        super(Database.HSQLDB);
+    }
 
     @Override
-    public DataSource actualDataSource() {
+    public DataSource dataSource() {
         Properties driverProperties = new Properties();
         driverProperties.setProperty("url", jdbcUrl);
         driverProperties.setProperty("user", jdbcUser);
@@ -43,10 +47,5 @@ public class AbstractHSQLDBFlywayConfiguration extends AbstractFlywayConfigurati
         properties.setProperty("maximumPoolSize", String.valueOf(3));
         properties.setProperty("connectionTimeout", String.valueOf(5000));
         return new HikariDataSource(new HikariConfig(properties));
-    }
-
-    @Override
-    protected String databaseType() {
-        return "hsqldb";
     }
 }
