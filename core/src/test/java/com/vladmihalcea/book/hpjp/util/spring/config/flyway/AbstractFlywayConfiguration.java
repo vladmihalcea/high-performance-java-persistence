@@ -45,11 +45,15 @@ public abstract class AbstractFlywayConfiguration {
 
     @Bean(initMethod = "migrate")
     public Flyway flyway() {
-        Flyway flyway = new Flyway();
-        flyway.setDataSource(dataSource());
-        flyway.setBaselineOnMigrate(true);
-        flyway.setLocations(String.format("classpath:/flyway/scripts/%1$s/migration", databaseType.name().toLowerCase()));
-        return flyway;
+        return Flyway.configure()
+            .dataSource(dataSource())
+            .baselineOnMigrate(true)
+            .locations(
+                String.format(
+                    "classpath:/flyway/scripts/%1$s/migration",
+                    databaseType.name().toLowerCase()
+                )
+        ).load();
     }
 
     @Bean @DependsOn("flyway")

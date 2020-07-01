@@ -1,7 +1,6 @@
 CREATE SEQUENCE hibernate_sequence
 START 1 INCREMENT 1;
 
-
 CREATE TABLE post (
     id int8 NOT NULL,
     title varchar(255),
