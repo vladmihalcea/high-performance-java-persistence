@@ -301,7 +301,7 @@ public class CascadeLockTest extends AbstractTest {
         private List<PostComment> comments = new ArrayList<>();
 
         @OneToOne(cascade = CascadeType.ALL, mappedBy = "post",
-                orphanRemoval = true, fetch = FetchType.LAZY, optional = false)
+                orphanRemoval = true, fetch = FetchType.LAZY)
         private PostDetails details;
 
         public Long getId() {
