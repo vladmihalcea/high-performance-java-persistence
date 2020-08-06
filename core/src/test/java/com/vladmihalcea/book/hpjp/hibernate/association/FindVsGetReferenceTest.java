@@ -1,12 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.LazyInitializationException;
 import org.junit.Test;
 
 import javax.persistence.*;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Vlad Mihalcea
@@ -43,6 +45,12 @@ public class FindVsGetReferenceTest extends AbstractTest {
 
             entityManager.persist(comment);
         });
+
+        Post post = doInJPA(entityManager -> {
+            return entityManager.find(Post.class, 1L);
+        });
+
+        assertEquals("High-Performance Java Persistence", post.getTitle());
     }
 
     @Test
@@ -56,6 +64,18 @@ public class FindVsGetReferenceTest extends AbstractTest {
 
             entityManager.persist(comment);
         });
+
+        Post post = doInJPA(entityManager -> {
+            return entityManager.getReference(Post.class, 1L);
+        });
+
+        try {
+            post.getTitle();
+
+            fail("Should throw LazyInitializationException");
+        } catch (LazyInitializationException e) {
+            LOGGER.info("Failure expected", e);
+        }
     }
     
     @Entity(name = "Post")
