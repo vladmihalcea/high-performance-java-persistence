@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.type;
+package com.vladmihalcea.book.hpjp.hibernate.type.attributeconverter;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.hibernate.Session;
@@ -43,16 +43,16 @@ public class MySQLYearMonthIntegerTest extends AbstractMySQLIntegrationTest {
         });
 
         doInJPA(entityManager -> {
-            Book book = entityManager
-                    .createQuery(
-                            "select b " +
-                                    "from Book b " +
-                                    "where " +
-                                    "   b.title = :title and " +
-                                    "   b.publishedOn = :publishedOn", Book.class)
-                    .setParameter("title", "High-Performance Java Persistence")
-                    .setParameter("publishedOn", YearMonth.of(2016, 10))
-                    .getSingleResult();
+            Book book = entityManager.createQuery("""
+                select b
+                from Book b
+                where
+                   b.title = :title and
+                   b.publishedOn = :publishedOn
+                """, Book.class)
+            .setParameter("title", "High-Performance Java Persistence")
+            .setParameter("publishedOn", YearMonth.of(2016, 10))
+            .getSingleResult();
 
             assertEquals("978-9730228236", book.getIsbn());
         });
@@ -114,14 +114,20 @@ public class MySQLYearMonthIntegerTest extends AbstractMySQLIntegrationTest {
 
         @Override
         public Integer convertToDatabaseColumn(YearMonth attribute) {
-            return (attribute.getYear() * 100) + attribute.getMonth().getValue();
+            if (attribute != null) {
+                return (attribute.getYear() * 100) + attribute.getMonth().getValue();
+            }
+            return null;
         }
 
         @Override
         public YearMonth convertToEntityAttribute(Integer dbData) {
-            int year = dbData / 100;
-            int month = dbData % 100;
-            return YearMonth.of(year, month);
+            if (dbData != null) {
+                int year = dbData / 100;
+                int month = dbData % 100;
+                return YearMonth.of(year, month);
+            }
+            return null;
         }
     }
 }

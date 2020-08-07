@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.type;
+package com.vladmihalcea.book.hpjp.hibernate.type.attributeconverter;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.hibernate.Session;
@@ -45,13 +45,13 @@ public class YearAndMonthTest extends AbstractMySQLIntegrationTest {
         });
 
         doInJPA(entityManager -> {
-            Publisher book = entityManager
-            .createQuery(
-                "select p " +
-                "from Publisher p " +
-                "where " +
-                "   p.estYear = :estYear and " +
-                "   p.salesMonth = :salesMonth", Publisher.class)
+            Publisher book = entityManager.createQuery("""
+                select p
+                from Publisher p
+                where
+                   p.estYear = :estYear and
+                   p.salesMonth = :salesMonth
+                """, Publisher.class)
             .setParameter("estYear", Year.of(2013))
             .setParameter("salesMonth", Month.NOVEMBER)
             .getSingleResult();
@@ -118,12 +118,18 @@ public class YearAndMonthTest extends AbstractMySQLIntegrationTest {
 
         @Override
         public Short convertToDatabaseColumn(Year attribute) {
-            return (short) attribute.getValue();
+            if (attribute != null) {
+                return (short) attribute.getValue();
+            }
+            return null;
         }
 
         @Override
         public Year convertToEntityAttribute(Short dbData) {
-            return Year.of(dbData);
+            if (dbData != null) {
+                return Year.of(dbData);
+            }
+            return null;
         }
     }
 }
