@@ -26,11 +26,11 @@ public class FindVsGetReferenceTest extends AbstractTest {
     @Override
     protected void afterInit() {
         doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setId(1L);
-            post.setTitle("High-Performance Java Persistence");
-
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+            );
         });
     }
 
@@ -87,26 +87,22 @@ public class FindVsGetReferenceTest extends AbstractTest {
 
         private String title;
 
-        public Post() {}
-
-        public Post(String title) {
-            this.title = title;
-        }
-
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
     }
 
@@ -123,34 +119,31 @@ public class FindVsGetReferenceTest extends AbstractTest {
         @ManyToOne(fetch = FetchType.LAZY)
         private Post post;
 
-        public PostComment() {}
-
-        public PostComment(String review) {
-            this.review = review;
-        }
-
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostComment setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getReview() {
             return review;
         }
 
-        public void setReview(String review) {
+        public PostComment setReview(String review) {
             this.review = review;
+            return this;
         }
 
         public Post getPost() {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostComment setPost(Post post) {
             this.post = post;
+            return this;
         }
     }
 }
