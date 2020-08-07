@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.type;
+package com.vladmihalcea.book.hpjp.hibernate.type.attributeconverter;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
@@ -102,15 +102,21 @@ public class AttributeConverterMonthDayAutoRegisterTest extends AbstractTest {
 
         @Override
         public java.sql.Date convertToDatabaseColumn(MonthDay monthDay) {
-            return java.sql.Date.valueOf(
-                monthDay.atYear(1)
-            );
+            if (monthDay != null) {
+                return java.sql.Date.valueOf(
+                    monthDay.atYear(1)
+                );
+            }
+            return null;
         }
 
         @Override
         public MonthDay convertToEntityAttribute(java.sql.Date date) {
-            LocalDate localDate = date.toLocalDate();
-            return MonthDay.of(localDate.getMonth(), localDate.getDayOfMonth());
+            if (date != null) {
+                LocalDate localDate = date.toLocalDate();
+                return MonthDay.of(localDate.getMonth(), localDate.getDayOfMonth());
+            }
+            return null;
         }
     }
 

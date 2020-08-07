@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.type;
+package com.vladmihalcea.book.hpjp.hibernate.type.attributeconverter;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
@@ -10,6 +10,7 @@ import java.time.Month;
 import java.time.MonthDay;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Vlad Mihalcea
@@ -45,6 +46,24 @@ public class AttributeConverterMonthDayTest extends AbstractTest {
             AnnualSubscription subscription = entityManager.find(AnnualSubscription.class, 1L);
 
             assertEquals(MonthDay.of(Month.AUGUST, 17), subscription.getPaymentDay());
+        });
+    }
+
+    @Test
+    public void testNull() {
+        doInJPA(entityManager -> {
+            entityManager.persist(
+                new AnnualSubscription()
+                    .setId(1L)
+                    .setPriceInCents(700)
+                    .setPaymentDay(null)
+            );
+        });
+
+        doInJPA(entityManager -> {
+            AnnualSubscription subscription = entityManager.find(AnnualSubscription.class, 1L);
+
+            assertNull(subscription.getPaymentDay());
         });
     }
 
@@ -95,15 +114,21 @@ public class AttributeConverterMonthDayTest extends AbstractTest {
 
         @Override
         public java.sql.Date convertToDatabaseColumn(MonthDay monthDay) {
-            return java.sql.Date.valueOf(
-                monthDay.atYear(1)
-            );
+            if (monthDay != null) {
+                return java.sql.Date.valueOf(
+                    monthDay.atYear(1)
+                );
+            }
+            return null;
         }
 
         @Override
         public MonthDay convertToEntityAttribute(java.sql.Date date) {
-            LocalDate localDate = date.toLocalDate();
-            return MonthDay.of(localDate.getMonth(), localDate.getDayOfMonth());
+            if (date != null) {
+                LocalDate localDate = date.toLocalDate();
+                return MonthDay.of(localDate.getMonth(), localDate.getDayOfMonth());
+            }
+            return null;
         }
     }
 }

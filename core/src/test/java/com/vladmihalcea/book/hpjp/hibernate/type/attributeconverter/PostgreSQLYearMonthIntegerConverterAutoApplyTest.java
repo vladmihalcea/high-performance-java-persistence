@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.type;
+package com.vladmihalcea.book.hpjp.hibernate.type.attributeconverter;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
@@ -37,7 +37,6 @@ public class PostgreSQLYearMonthIntegerConverterAutoApplyTest extends AbstractPo
     }
 
     @Test
-    @Ignore("Requires Hibernate 5.4.0 due to HHH-13040")
     public void test() {
         doInJPA(entityManager -> {
             Book book = new Book();
@@ -58,16 +57,16 @@ public class PostgreSQLYearMonthIntegerConverterAutoApplyTest extends AbstractPo
         });
 
         doInJPA(entityManager -> {
-            Book book = entityManager
-                    .createQuery(
-                            "select b " +
-                                    "from Book b " +
-                                    "where " +
-                                    "   b.title = :title and " +
-                                    "   b.publishedOn = :publishedOn", Book.class)
-                    .setParameter("title", "High-Performance Java Persistence")
-                    .setParameter("publishedOn", YearMonth.of(2016, 10))
-                    .getSingleResult();
+            Book book = entityManager.createQuery("""
+                select b
+                from Book b
+                where
+                   b.title = :title and
+                   b.publishedOn = :publishedOn
+                """, Book.class)
+            .setParameter("title", "High-Performance Java Persistence")
+            .setParameter("publishedOn", YearMonth.of(2016, 10))
+            .getSingleResult();
 
             assertEquals("978-9730228236", book.getIsbn());
         });
@@ -129,14 +128,20 @@ public class PostgreSQLYearMonthIntegerConverterAutoApplyTest extends AbstractPo
 
         @Override
         public Integer convertToDatabaseColumn(YearMonth attribute) {
-            return (attribute.getYear() * 100) + attribute.getMonth().getValue();
+            if (attribute != null) {
+                return (attribute.getYear() * 100) + attribute.getMonth().getValue();
+            }
+            return null;
         }
 
         @Override
         public YearMonth convertToEntityAttribute(Integer dbData) {
-            int year = dbData / 100;
-            int month = dbData % 100;
-            return YearMonth.of(year, month);
+            if (dbData != null) {
+                int year = dbData / 100;
+                int month = dbData % 100;
+                return YearMonth.of(year, month);
+            }
+            return null;
         }
     }
 }

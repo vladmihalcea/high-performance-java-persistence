@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.type;
+package com.vladmihalcea.book.hpjp.hibernate.type.attributeconverter;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
@@ -6,14 +6,16 @@ import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.time.YearMonth;
+import java.time.ZoneId;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class PostgreSQLYearMonthIntegerTest extends AbstractPostgreSQLIntegrationTest {
+public class PostgreSQLYearMonthDateTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -43,16 +45,16 @@ public class PostgreSQLYearMonthIntegerTest extends AbstractPostgreSQLIntegratio
         });
 
         doInJPA(entityManager -> {
-            Book book = entityManager
-                    .createQuery(
-                            "select b " +
-                                    "from Book b " +
-                                    "where " +
-                                    "   b.title = :title and " +
-                                    "   b.publishedOn = :publishedOn", Book.class)
-                    .setParameter("title", "High-Performance Java Persistence")
-                    .setParameter("publishedOn", YearMonth.of(2016, 10))
-                    .getSingleResult();
+            Book book = entityManager.createQuery("""
+                select b
+                from Book b
+                where
+                   b.title = :title and
+                   b.publishedOn = :publishedOn
+                """, Book.class)
+            .setParameter("title", "High-Performance Java Persistence")
+            .setParameter("publishedOn", YearMonth.of(2016, 10))
+            .getSingleResult();
 
             assertEquals("978-9730228236", book.getIsbn());
         });
@@ -72,8 +74,8 @@ public class PostgreSQLYearMonthIntegerTest extends AbstractPostgreSQLIntegratio
 
         private String title;
 
-        @Column(name = "published_on", columnDefinition = "integer")
-        @Convert(converter = YearMonthIntegerAttributeConverter.class)
+        @Column(name = "published_on", columnDefinition = "date")
+        @Convert(converter = YearMonthDateAttributeConverter.class)
         private YearMonth publishedOn;
 
         public Long getId() {
@@ -109,19 +111,25 @@ public class PostgreSQLYearMonthIntegerTest extends AbstractPostgreSQLIntegratio
         }
     }
 
-    public static class YearMonthIntegerAttributeConverter
-            implements AttributeConverter<YearMonth, Integer> {
+    public static class YearMonthDateAttributeConverter
+            implements AttributeConverter<YearMonth, java.sql.Date> {
 
         @Override
-        public Integer convertToDatabaseColumn(YearMonth attribute) {
-            return (attribute.getYear() * 100) + attribute.getMonth().getValue();
+        public java.sql.Date convertToDatabaseColumn(YearMonth attribute) {
+            if (attribute != null) {
+                return java.sql.Date.valueOf(attribute.atDay(1));
+            }
+            return null;
         }
 
         @Override
-        public YearMonth convertToEntityAttribute(Integer dbData) {
-            int year = dbData / 100;
-            int month = dbData % 100;
-            return YearMonth.of(year, month);
+        public YearMonth convertToEntityAttribute(java.sql.Date dbData) {
+            if (dbData != null) {
+                return YearMonth.from(Instant.ofEpochMilli(dbData.getTime())
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate());
+            }
+            return null;
         }
     }
 }
