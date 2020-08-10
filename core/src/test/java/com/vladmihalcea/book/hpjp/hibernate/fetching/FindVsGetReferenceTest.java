@@ -1,11 +1,10 @@
-package com.vladmihalcea.book.hpjp.hibernate.association;
+package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.LazyInitializationException;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;

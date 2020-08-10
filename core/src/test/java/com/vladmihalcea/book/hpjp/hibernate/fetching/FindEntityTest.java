@@ -17,11 +17,10 @@ public class FindEntityTest extends AbstractPostgreSQLIntegrationTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostComment.class,
+            Post.class,
+            PostComment.class,
         };
     }
-
 
     @Override
     public void afterInit() {
