@@ -34,7 +34,7 @@ public class Post {
     @LazyToOne(LazyToOneOption.NO_PROXY)
     private PostDetails details;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
         name = "post_tag",
         joinColumns = @JoinColumn(name = "post_id"),

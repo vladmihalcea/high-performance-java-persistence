@@ -12,9 +12,11 @@ import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -81,7 +83,7 @@ public class NaturalIdTest extends AbstractTest {
     }
 
     @Test
-    public void testFindWithQuery() {
+    public void testFindPostWithJPQL() {
         doInJPA(entityManager -> {
             String slug = "high-performance-java-persistence";
 
@@ -94,6 +96,61 @@ public class NaturalIdTest extends AbstractTest {
             .getSingleResult();
 
             assertNotNull(post);
+        });
+    }
+
+    @Test
+    public void testFindAllPostsWithJPQL() {
+        doInJPA(entityManager -> {
+            List<String> slugs = List.of(
+                "high-performance-java-persistence"
+            );
+
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                where p.slug in (:slugs)
+                """, Post.class)
+            .setParameter("slugs", slugs)
+            .getResultList();
+
+            assertEquals(1, posts.size());
+        });
+    }
+
+    @Test
+    public void testFindPostWithSQL() {
+        doInJPA(entityManager -> {
+            String slug = "high-performance-java-persistence";
+
+            Post post = (Post) entityManager.createNativeQuery("""
+                SELECT *
+                FROM post
+                WHERE slug = :slug
+                """, Post.class)
+            .setParameter("slug", slug)
+            .getSingleResult();
+
+            assertNotNull(post);
+        });
+    }
+
+    @Test
+    public void testFindAllPostsWithSQL() {
+        doInJPA(entityManager -> {
+            List<String> slugs = List.of(
+                "high-performance-java-persistence"
+            );
+
+            List<Post> posts = entityManager.createNativeQuery("""
+                SELECT *
+                FROM post
+                WHERE slug IN (:slugs)
+                """, Post.class)
+            .setParameter("slugs", slugs)
+            .getResultList();
+
+            assertEquals(1, posts.size());
         });
     }
     

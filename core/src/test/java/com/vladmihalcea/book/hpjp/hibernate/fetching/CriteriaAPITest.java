@@ -122,11 +122,13 @@ public class CriteriaAPITest extends AbstractPostgreSQLIntegrationTest {
     private List<Post> filterPosts(EntityManager entityManager, String titlePattern) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Post> criteria = builder.createQuery(Post.class);
-        Root<Post> fromPost = criteria.from(Post.class);
+        Root<Post> post = criteria.from(Post.class);
+
+        post.fetch(Post_.comments, JoinType.LEFT);
 
         Predicate titlePredicate = titlePattern == null ?
-            builder.isNull(fromPost.get(Post_.title)) :
-            builder.like(fromPost.get(Post_.title), titlePattern);
+            builder.isNull(post.get(Post_.title)) :
+            builder.like(post.get(Post_.title), titlePattern);
 
         criteria.where(titlePredicate);
         List<Post> posts = entityManager.createQuery(criteria).getResultList();

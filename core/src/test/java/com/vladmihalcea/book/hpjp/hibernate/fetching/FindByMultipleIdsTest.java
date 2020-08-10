@@ -71,17 +71,17 @@ public class FindByMultipleIdsTest extends AbstractTest {
     @Test
     public void testJPQL() {
         doInJPA(entityManager -> {
-            List<Book> books = entityManager
-                .createQuery(
-                    "select b " +
-                    "from Book b " +
-                    "where b.isbn in (:isbn)", Book.class)
-                .setParameter("isbn", Arrays.asList(
-                    "978-9730228236",
-                    "978-1934356555",
-                    "978-3950307825"
-                ))
-                .getResultList();
+            List<Book> books = entityManager.createQuery("""
+                select b
+                from Book b
+                where b.isbn in (:isbn)
+                """, Book.class)
+            .setParameter("isbn", Arrays.asList(
+                "978-9730228236",
+                "978-1934356555",
+                "978-3950307825"
+            ))
+            .getResultList();
 
             assertEquals(3, books.size());
         });
@@ -113,13 +113,28 @@ public class FindByMultipleIdsTest extends AbstractTest {
     @Test
     public void testByMultipleIds() {
         doInJPA(entityManager -> {
-            List<Book> books = entityManager
-                .unwrap(Session.class)
-                .byMultipleIds(Book.class)
+            Session session = entityManager.unwrap(Session.class);
+
+            List<Book> books = session.byMultipleIds(Book.class)
                 .multiLoad(
                     "978-9730228236",
                     "978-1934356555",
                     "978-3950307825"
+                );
+
+            assertEquals(3, books.size());
+        });
+
+        doInJPA(entityManager -> {
+            Session session = entityManager.unwrap(Session.class);
+
+            List<Book> books = session.byMultipleIds(Book.class)
+                .multiLoad(
+                    List.of(
+                        "978-9730228236",
+                        "978-1934356555",
+                        "978-3950307825"
+                    )
                 );
 
             assertEquals(3, books.size());
