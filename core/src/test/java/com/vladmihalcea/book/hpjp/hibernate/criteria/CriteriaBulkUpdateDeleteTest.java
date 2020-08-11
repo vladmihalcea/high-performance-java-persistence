@@ -29,28 +29,34 @@ public class CriteriaBulkUpdateDeleteTest extends AbstractTest {
 
     @Test
     public void testBulk() {
-        Post _post = doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setTitle("High-Performance Java Persistence");
-            post.setStatus(PostStatus.APPROVED);
-            entityManager.persist(post);
-
-            return post;
+        doInJPA(entityManager -> {
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+                    .setStatus(PostStatus.APPROVED)
+            );
         });
 
         doInJPA(entityManager -> {
-            Post spamPost1 = new Post();
-            spamPost1.setTitle("Spam title");
-            entityManager.persist(spamPost1);
+            entityManager.persist(
+                new Post()
+                    .setId(2L)
+                    .setTitle("Spam title")
+            );
 
-            Post spamPost2 = new Post();
-            spamPost2.setMessage("Spam message");
-            entityManager.persist(spamPost2);
+            entityManager.persist(
+                new Post()
+                    .setId(3L)
+                    .setMessage("Spam message")
+            );
 
-            PostComment spamComment = new PostComment();
-            spamComment.setPost(_post);
-            spamComment.setMessage("Spam comment");
-            entityManager.persist(spamComment);
+            entityManager.persist(
+                new PostComment()
+                    .setId(1L)
+                    .setPost(entityManager.getReference(Post.class, 1L))
+                    .setMessage("Spam comment")
+            );
         });
 
         doInJPA(entityManager -> {
@@ -60,20 +66,22 @@ public class CriteriaBulkUpdateDeleteTest extends AbstractTest {
 
         doInJPA(entityManager -> {
             assertEquals(2,
-                entityManager.createQuery(
-                    "update Post " +
-                    "set updatedOn = :timestamp " +
-                    "where status = :status")
+                entityManager.createQuery("""
+                    update Post
+                    set updatedOn = :timestamp
+                    where status = :status
+                    """)
                 .setParameter("timestamp", Timestamp.valueOf(LocalDateTime.now().minusDays(7)))
                 .setParameter("status", PostStatus.SPAM)
                 .executeUpdate()
             );
 
             assertEquals(1,
-                entityManager.createQuery(
-                    "update PostComment " +
-                    "set updatedOn = :timestamp " +
-                    "where status = :status")
+                entityManager.createQuery("""
+                    update PostComment
+                    set updatedOn = :timestamp
+                    where status = :status
+                    """)
                 .setParameter("timestamp", Timestamp.valueOf(LocalDateTime.now().minusDays(3)))
                 .setParameter("status", PostStatus.SPAM)
                 .executeUpdate()
@@ -136,7 +144,7 @@ public class CriteriaBulkUpdateDeleteTest extends AbstractTest {
     }
 
     @MappedSuperclass
-    public static abstract class PostModerate {
+    public static abstract class PostModerate<T extends PostModerate> {
 
         @Enumerated(EnumType.ORDINAL)
         @Column(columnDefinition = "tinyint")
@@ -149,25 +157,26 @@ public class CriteriaBulkUpdateDeleteTest extends AbstractTest {
             return status;
         }
 
-        public void setStatus(PostStatus status) {
+        public T setStatus(PostStatus status) {
             this.status = status;
+            return (T) this;
         }
 
         public Date getUpdatedOn() {
             return updatedOn;
         }
 
-        public void setUpdatedOn(Date updatedOn) {
+        public T setUpdatedOn(Date updatedOn) {
             this.updatedOn = updatedOn;
+            return (T) this;
         }
     }
 
     @Entity(name = "Post")
     @Table(name = "post")
-    public static class Post extends PostModerate {
+    public static class Post extends PostModerate<Post> {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         private String title;
@@ -178,33 +187,35 @@ public class CriteriaBulkUpdateDeleteTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public String getMessage() {
             return message;
         }
 
-        public void setMessage(String message) {
+        public Post setMessage(String message) {
             this.message = message;
+            return this;
         }
     }
 
     @Entity(name = "PostComment")
     @Table(name = "post_comment")
-    public static class PostComment extends PostModerate {
+    public static class PostComment extends PostModerate<PostComment> {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         @ManyToOne(fetch = FetchType.LAZY)
@@ -216,24 +227,27 @@ public class CriteriaBulkUpdateDeleteTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostComment setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public Post getPost() {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostComment setPost(Post post) {
             this.post = post;
+            return this;
         }
 
         public String getMessage() {
             return message;
         }
 
-        public void setMessage(String message) {
+        public PostComment setMessage(String message) {
             this.message = message;
+            return this;
         }
     }
 }
