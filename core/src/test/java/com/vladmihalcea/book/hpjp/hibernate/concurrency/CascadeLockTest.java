@@ -316,6 +316,22 @@ public class CascadeLockTest extends AbstractTest {
             return title;
         }
 
+        public String getBody() {
+            return body;
+        }
+
+        public void setBody(String body) {
+            this.body = body;
+        }
+
+        public int getVersion() {
+            return version;
+        }
+
+        public void setVersion(int version) {
+            this.version = version;
+        }
+
         public void setTitle(String title) {
             this.title = title;
         }
@@ -399,6 +415,14 @@ public class CascadeLockTest extends AbstractTest {
         public void setCreatedBy(String createdBy) {
             this.createdBy = createdBy;
         }
+
+        public int getVersion() {
+            return version;
+        }
+
+        public void setVersion(int version) {
+            this.version = version;
+        }
     }
 
     @Entity(name = "PostComment")
@@ -445,6 +469,14 @@ public class CascadeLockTest extends AbstractTest {
 
         public void setReview(String review) {
             this.review = review;
+        }
+
+        public int getVersion() {
+            return version;
+        }
+
+        public void setVersion(int version) {
+            this.version = version;
         }
     }
 }
