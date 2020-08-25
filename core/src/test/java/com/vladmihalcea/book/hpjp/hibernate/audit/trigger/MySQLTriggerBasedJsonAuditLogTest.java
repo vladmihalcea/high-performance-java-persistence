@@ -42,6 +42,7 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             	dml_type ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
             	dml_timestamp TIMESTAMP NOT NULL,
             	dml_created_by VARCHAR(255) NOT NULL,
+            	trx_timestamp timestamp NOT NULL,
             	PRIMARY KEY (book_id, dml_type, dml_timestamp)
             ) 
             """
@@ -57,7 +58,8 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
                     new_row_data,
                     dml_type,
                     dml_timestamp,
-                    dml_created_by
+                    dml_created_by,
+                    trx_timestamp
                 )
                 VALUES(
                     NEW.id,
@@ -70,7 +72,8 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
                     ),
                     'INSERT',
                     CURRENT_TIMESTAMP,
-                    @logged_user
+                    @logged_user,
+                    @transaction_timestamp
                 );
             END
             """
@@ -86,7 +89,8 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
                     new_row_data,
                     dml_type,
                     dml_timestamp,
-                    dml_created_by
+                    dml_created_by,
+                    trx_timestamp
                 )
                 VALUES(
                     NEW.id,
@@ -104,7 +108,8 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
                     ),
                     'UPDATE',
                     CURRENT_TIMESTAMP,
-                    @logged_user
+                    @logged_user,
+                    @transaction_timestamp
                 );
             END
             """
@@ -120,7 +125,8 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
                     new_row_data,
                     dml_type,
                     dml_timestamp,
-                    dml_created_by
+                    dml_created_by,
+                    trx_timestamp
                 )
                 VALUES(
                     OLD.id,
@@ -133,7 +139,8 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
                     null,
                     'DELETE',
                     CURRENT_TIMESTAMP,
-                    @logged_user
+                    @logged_user,
+                    @transaction_timestamp
                 );
             END
             """
@@ -201,6 +208,11 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
         );
 
         session.doWork(connection -> {
+            update(
+                connection,
+                "SET @transaction_timestamp = CURRENT_TIMESTAMP"
+            );
+
             update(
                 connection,
                 String.format(

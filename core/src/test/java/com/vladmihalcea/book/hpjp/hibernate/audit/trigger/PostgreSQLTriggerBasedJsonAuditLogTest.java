@@ -3,15 +3,12 @@ package com.vladmihalcea.book.hpjp.hibernate.audit.trigger;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import com.vladmihalcea.hibernate.type.util.ReflectionUtils;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.query.Query;
-import org.hibernate.type.EnumType;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
 import org.hibernate.type.TimestampType;
@@ -47,12 +44,13 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
         ddl("DROP TABLE IF EXISTS book_audit_log CASCADE");
         ddl("""
             CREATE TABLE IF NOT EXISTS book_audit_log (
-                book_id bigint NOT NULL, 
+                book_id bigint NOT NULL,
             	old_row_data jsonb,
             	new_row_data jsonb,
             	dml_type dml_type NOT NULL,
             	dml_timestamp timestamp NOT NULL,
             	dml_created_by varchar(255) NOT NULL,
+            	trx_timestamp timestamp NOT NULL,
             	PRIMARY KEY (book_id, dml_type, dml_timestamp)
             ) 
             """
@@ -71,15 +69,17 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
                        new_row_data,
                        dml_type,
                        dml_timestamp,
-                       dml_created_by
+                       dml_created_by,
+                       trx_timestamp
                    )
                    VALUES(
                        NEW.id,
                        null,
                        row_to_json(NEW),
                        'INSERT',
-                       CURRENT_TIMESTAMP,
-                       current_setting('var.logged_user')
+                       statement_timestamp(),
+                       current_setting('var.logged_user'),
+                       transaction_timestamp()
                    );
                         
                    RETURN NEW;
@@ -90,15 +90,17 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
                        new_row_data,
                        dml_type,
                        dml_timestamp,
-                       dml_created_by
+                       dml_created_by,
+                       trx_timestamp
                    )
                    VALUES(
                        NEW.id,
                        row_to_json(OLD),
                        row_to_json(NEW),
                        'UPDATE',
-                       CURRENT_TIMESTAMP,
-                       current_setting('var.logged_user')
+                       statement_timestamp(),
+                       current_setting('var.logged_user'),
+                       transaction_timestamp()
                    );
                         
                    RETURN NEW;
@@ -109,15 +111,17 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
                        new_row_data,
                        dml_type,
                        dml_timestamp,
-                       dml_created_by
+                       dml_created_by,
+                       trx_timestamp
                    )
                    VALUES(
                        OLD.id,
                        row_to_json(OLD),
                        null,
                        'DELETE',
-                       CURRENT_TIMESTAMP,
-                       current_setting('var.logged_user')
+                       statement_timestamp(),
+                       current_setting('var.logged_user'),
+                       transaction_timestamp()
                    );
                    
                    RETURN OLD;
@@ -215,7 +219,8 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             	new_row_data,
             	dml_type,
             	dml_timestamp,
-            	dml_created_by
+            	dml_created_by,
+            	trx_timestamp
             FROM book_audit_log 
             """, Tuple.class)
         .unwrap(org.hibernate.query.NativeQuery.class)
@@ -225,6 +230,7 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
         .addScalar("dml_type", StringType.INSTANCE)
         .addScalar("dml_timestamp", TimestampType.INSTANCE)
         .addScalar("dml_created_by", StringType.INSTANCE)
+        .addScalar("trx_timestamp", TimestampType.INSTANCE)
         .getResultList();
     }
 
