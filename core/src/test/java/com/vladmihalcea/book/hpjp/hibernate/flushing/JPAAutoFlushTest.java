@@ -36,11 +36,10 @@ public class JPAAutoFlushTest extends AbstractTest {
         doInJPA(entityManager -> {
             assertEquals(
                 0,
-                ((Number)
-                    entityManager
-                    .createQuery(
-                        "select count(p) " +
-                        "from Post p")
+                ((Number) entityManager.createQuery("""
+                        select count(p)
+                        from Post p
+                        """)
                     .getSingleResult()
                 ).intValue()
             );
@@ -50,18 +49,16 @@ public class JPAAutoFlushTest extends AbstractTest {
                 .setTitle("High-Performance Java Persistence")
             );
 
-            int tagCount = ((Number)
-            entityManager
-            .createQuery(
-                "select count(t) " +
-                "from Tag t")
+            int tagCount = ((Number) entityManager.createQuery("""
+                select count(t)
+                from Tag t
+                """)
             .getSingleResult()).intValue();
 
-            int postCount = ((Number)
-            entityManager
-            .createQuery(
-                "select count(p) " +
-                "from Post p")
+            int postCount = ((Number) entityManager.createQuery("""
+                select count(p)
+                from Post p
+                """)
             .getSingleResult()).intValue();
 
             assertEquals(1, postCount);
@@ -74,10 +71,10 @@ public class JPAAutoFlushTest extends AbstractTest {
             assertEquals(
                 0,
                 ((Number)
-                    entityManager
-                    .createQuery(
-                        "select count(p) " +
-                        "from Post p")
+                    entityManager.createQuery("""
+                        select count(p)
+                        from Post p
+                        """)
                     .getSingleResult()
                 ).intValue()
             );
@@ -87,18 +84,17 @@ public class JPAAutoFlushTest extends AbstractTest {
                 .setTitle("High-Performance Java Persistence")
             );
 
-            List<PostDetails> details = entityManager
-            .createQuery(
-                "select pd " +
-                "from PostDetails pd " +
-                "join fetch pd.post ")
+            List<PostDetails> details = entityManager.createQuery("""
+                select pd
+                from PostDetails pd
+                join fetch pd.post
+                """)
             .getResultList();
 
-            int postCount = ((Number)
-            entityManager
-            .createQuery(
-                "select count(p) " +
-                "from Post p")
+            int postCount = ((Number) entityManager.createQuery("""
+                select count(p)
+                from Post p
+                """)
             .getSingleResult()).intValue();
 
             assertEquals(1, postCount);
@@ -111,10 +107,10 @@ public class JPAAutoFlushTest extends AbstractTest {
             assertEquals(
                 0,
                 ((Number)
-                    entityManager
-                    .createNativeQuery(
-                        "select count(*) " +
-                        "from Post")
+                    entityManager.createNativeQuery("""
+                        SELECT COUNT(*)
+                        FROM Post
+                        """)
                     .getSingleResult()
                 ).intValue()
             );
@@ -124,18 +120,16 @@ public class JPAAutoFlushTest extends AbstractTest {
                 .setTitle("High-Performance Java Persistence")
             );
 
-            int tagCount = ((Number)
-            entityManager
-            .createNativeQuery(
-                "select count(*) " +
-                "from tag")
+            int tagCount = ((Number) entityManager.createNativeQuery("""
+                SELECT COUNT(*)
+                FROM tag
+                """)
             .getSingleResult()).intValue();
 
-            int postCount = ((Number)
-            entityManager
-            .createNativeQuery(
-                "select count(*) " +
-                "from post")
+            int postCount = ((Number) entityManager.createNativeQuery("""
+                SELECT COUNT(*)
+                FROM post
+                """)
             .getSingleResult()).intValue();
 
             assertEquals(1, postCount);

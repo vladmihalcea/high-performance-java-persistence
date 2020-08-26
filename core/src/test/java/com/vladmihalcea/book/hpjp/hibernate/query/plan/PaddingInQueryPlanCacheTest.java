@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.plan;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
 import org.junit.Test;
@@ -26,6 +27,11 @@ public class PaddingInQueryPlanCacheTest extends AbstractTest {
         return new Class<?>[]{
             Post.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 
     @Override
@@ -58,8 +64,8 @@ public class PaddingInQueryPlanCacheTest extends AbstractTest {
         doInJPA(entityManager -> {
             for (int i = 2; i < 16; i++) {
                 getPostByIds(
-                        entityManager,
-                        IntStream.range(1, i).boxed().toArray(Integer[]::new)
+                    entityManager,
+                    IntStream.range(1, i).boxed().toArray(Integer[]::new)
                 );
             }
             assertEquals(6L, statistics.getQueryPlanCacheMissCount());
@@ -70,11 +76,12 @@ public class PaddingInQueryPlanCacheTest extends AbstractTest {
         });
     }
 
-    List<Post> getPostByIds(EntityManager entityManager, Integer... ids) {
-        return entityManager.createQuery(
-            "select p " +
-            "from Post p " +
-            "where p.id in :ids", Post.class)
+    private List<Post> getPostByIds(EntityManager entityManager, Integer... ids) {
+        return entityManager.createQuery("""
+            select p
+            from Post p
+            where p.id in :ids
+            """, Post.class)
         .setParameter("ids", Arrays.asList(ids))
         .getResultList();
     }

@@ -184,13 +184,15 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
         AtomicInteger counter = new AtomicInteger();
         doInJDBC(connection -> {
             for (int i = 0; i < 2; i++) {
-                try (PreparedStatement statement = connection.prepareStatement(
-                        "select p.title, pd.created_on " +
-                                "from post p " +
-                                "left join post_details pd on p.id = pd.id " +
-                                "where EXISTS ( " +
-                                "   select 1 from post_comment where post_id > p.id and version = ?" +
-                                ")"
+                try (PreparedStatement statement = connection.prepareStatement("""
+                        SELECT p.title, pd.created_on
+                        FROM post p
+                        LEFT JOIN post_details pd ON p.id = pd.id
+                        WHERE EXISTS (
+                           SELECT 1 
+                           FROM post_comment 
+                           WHERE post_id > p.id AND version = ?
+                        )"""
                 )) {
                     statement.setPoolable(false);
                     statement.setInt(1, counter.incrementAndGet());

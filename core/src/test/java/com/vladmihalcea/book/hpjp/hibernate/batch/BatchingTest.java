@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.batch;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -22,6 +23,11 @@ public class BatchingTest extends AbstractTest {
             Post.class,
             PostComment.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 
     @Override
@@ -68,16 +74,15 @@ public class BatchingTest extends AbstractTest {
 
         LOGGER.info("testUpdatePostsAndComments");
         doInJPA(entityManager -> {
-            List<PostComment> comments = entityManager.createQuery("""
+            entityManager.createQuery("""
                 select c
                 from PostComment c
                 join fetch c.post  
                 """, PostComment.class)
-            .getResultList();
-
-            comments.forEach(comment -> {
-                comment.setReview(comment.getReview().replaceAll("Good", "Very good"));
-                Post post = comment.getPost();
+            .getResultList()
+            .forEach(c -> {
+                c.setReview(c.getReview().replaceAll("Good", "Very good"));
+                Post post = c.getPost();
                 post.setTitle(post.getTitle().replaceAll("no", "nr"));
             });
         });
@@ -144,18 +149,25 @@ public class BatchingTest extends AbstractTest {
 
     private void insertPosts() {
         doInJPA(entityManager -> {
-            for (int i = 0; i < 3; i++) {
-                entityManager.persist(new Post(String.format("Post no. %d", i + 1)));
+            for (long i = 1; i <= 3; i++) {
+                entityManager.persist(
+                    new Post()
+                        .setId(i)
+                        .setTitle(String.format("Post no. %d", i))
+                );
             }
         });
     }
 
     private void insertPostsAndComments() {
         doInJPA(entityManager -> {
-            for (int i = 0; i < 3; i++) {
-                Post post = new Post(String.format("Post no. %d", i));
-                post.addComment(new PostComment("Good"));
-                entityManager.persist(post);
+            for (long i = 1; i <= 3; i++) {
+                entityManager.persist(
+                    new Post()
+                        .setId(i)
+                        .setTitle(String.format("Post no. %d", i))
+                        .addComment(new PostComment("Good"))
+                );
             }
         });
     }
@@ -165,20 +177,9 @@ public class BatchingTest extends AbstractTest {
     public static class Post {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private Long id;
 
         private String title;
-
-        public Post() {}
-
-        public Post(Long id) {
-            this.id = id;
-        }
-
-        public Post(String title) {
-            this.title = title;
-        }
 
         @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
                 orphanRemoval = true)
@@ -188,25 +189,28 @@ public class BatchingTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public List<PostComment> getComments() {
             return comments;
         }
 
-        public void addComment(PostComment comment) {
+        public Post addComment(PostComment comment) {
             comments.add(comment);
             comment.setPost(this);
+            return this;
         }
     }
 

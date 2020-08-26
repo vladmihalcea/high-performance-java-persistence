@@ -24,10 +24,10 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
             assertEquals(
                 0,
                 ((Number)
-                    entityManager
-                    .createNativeQuery(
-                        "select count(*) " +
-                        "from post")
+                    entityManager.createNativeQuery("""
+                        SELECT COUNT(*)
+                        FROM post
+                        """)
                     .getSingleResult()
                 ).intValue()
             );
@@ -40,11 +40,11 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
             assertEquals(
                 0,
                 ((Number)
-                entityManager
-                .createNativeQuery(
-                    "select count(*) " +
-                    "from post")
-                .getSingleResult()
+                    entityManager.createNativeQuery("""
+                        SELECT COUNT(*)
+                        FROM post
+                        """)
+                    .getSingleResult()
                 ).intValue()
             );
         });
@@ -56,10 +56,10 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
             assertEquals(
                 0,
                 ((Number)
-                    entityManager
-                    .createNativeQuery(
-                        "select count(*) " +
-                        "from post")
+                    entityManager.createNativeQuery("""
+                        SELECT COUNT(*)
+                        FROM post
+                        """)
                     .getSingleResult()
                 ).intValue()
             );
@@ -72,11 +72,10 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
             assertEquals(
                 1,
                 ((Number)
-                    entityManager
-                    .createNativeQuery(
-                        "select count(*) " +
-                        "from post"
-                    )
+                    entityManager.createNativeQuery("""
+                        SELECT COUNT(*)
+                        FROM post
+                        """)
                     .unwrap(org.hibernate.query.Query.class)
                     .setHibernateFlushMode(FlushMode.ALWAYS)
                     .getSingleResult()
@@ -91,10 +90,10 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
             assertEquals(
                 0,
                 ((Number)
-                    entityManager
-                    .createNativeQuery(
-                        "select count(*) " +
-                        "from post")
+                    entityManager.createNativeQuery("""
+                        SELECT COUNT(*)
+                        FROM post
+                        """)
                     .getSingleResult()
                 ).intValue()
             );
@@ -111,10 +110,10 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
             assertEquals(
                 1,
                 ((Number)
-                    entityManager
-                    .createNativeQuery(
-                        "select count(*) " +
-                        "from post")
+                    entityManager.createNativeQuery("""
+                        SELECT COUNT(*)
+                        FROM post
+                        """)
                     .getSingleResult()
                 ).intValue()
             );
@@ -127,10 +126,10 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
             assertEquals(
                 0,
                 ((Number)
-                    entityManager
-                    .createNativeQuery(
-                        "select count(*) " +
-                        "from post")
+                    entityManager.createNativeQuery("""
+                        SELECT COUNT(*)
+                        FROM post
+                        """)
                     .getSingleResult()
                 ).intValue()
             );
@@ -140,12 +139,10 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
                 .setTitle("High-Performance Java Persistence")
             );
 
-            int postCount = ((Number)
-            entityManager
-            .unwrap(Session.class)
-            .createNativeQuery(
-                "select count(*) " +
-                "from post")
+            int postCount = ((Number) entityManager.unwrap(Session.class).createNativeQuery("""
+                SELECT COUNT(*)
+                FROM post
+                """)
             .addSynchronizedEntityClass(Post.class)
             .getSingleResult()).intValue();
 
@@ -159,10 +156,10 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
             assertEquals(
                 0,
                 ((Number)
-                    entityManager
-                    .createNativeQuery(
-                        "select count(*) " +
-                        "from post")
+                    entityManager.createNativeQuery("""
+                        SELECT COUNT(*)
+                        FROM post
+                        """)
                     .getSingleResult()
                 ).intValue()
             );
@@ -172,12 +169,10 @@ public class HibernateAutoFlushTest extends JPAAutoFlushTest {
                 .setTitle("High-Performance Java Persistence")
             );
 
-            int postCount = ((Number)
-            entityManager
-            .unwrap(Session.class)
-            .createNativeQuery(
-                "select count(*) " +
-                "from post")
+            int postCount = ((Number) entityManager.unwrap(Session.class).createNativeQuery("""
+                SELECT COUNT(*)
+                FROM post
+                """)
             .addSynchronizedQuerySpace("post")
             .getSingleResult()).intValue();
 

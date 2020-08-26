@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.cfg.AvailableSettings;
 
@@ -29,6 +30,11 @@ public class DefaultUpdateTest extends AbstractTest {
     }
 
     @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
+    @Override
     protected Properties properties() {
         Properties properties = super.properties();
         properties.put("hibernate.jdbc.batch_size", "5");
@@ -40,17 +46,18 @@ public class DefaultUpdateTest extends AbstractTest {
 
     @Test
     public void test() {
-
         doInJPA(entityManager -> {
-            Post post1 = new Post();
-            post1.setId(1L);
-            post1.setTitle("High-Performance Java Persistence");
-            entityManager.persist(post1);
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+            );
 
-            Post post2 = new Post();
-            post2.setId(2L);
-            post2.setTitle("Java Persistence with Hibernate");
-            entityManager.persist(post2);
+            entityManager.persist(
+                new Post()
+                    .setId(2L)
+                    .setTitle("Java Persistence with Hibernate")
+            );
         });
 
         doInJPA(entityManager -> {
@@ -59,6 +66,8 @@ public class DefaultUpdateTest extends AbstractTest {
 
             Post post2 = entityManager.find(Post.class, 2L);
             post2.setLikes(12);
+
+            entityManager.flush();
         });
     }
 
@@ -94,13 +103,14 @@ public class DefaultUpdateTest extends AbstractTest {
 
         @Override
         public String toString() {
-            return String.format(
-                "Post{\n" +
-                "  id=%d\n" +
-                "  title='%s'\n" +
-                "  likes=%d\n" +
-                "  creationTimestamp='%s'\n" +
-                '}', id, title, likes, getCreationTimestamp()
+            return String.format("""
+                Post{
+                  id=%d
+                  title='%s'
+                  likes=%d
+                  creationTimestamp='%s'
+                }"""
+                , id, title, likes, getCreationTimestamp()
             );
         }
 
@@ -108,24 +118,27 @@ public class DefaultUpdateTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public long getLikes() {
             return likes;
         }
 
-        public void setLikes(long likes) {
+        public Post setLikes(long likes) {
             this.likes = likes;
+            return this;
         }
 
         public Timestamp getCreatedOn() {

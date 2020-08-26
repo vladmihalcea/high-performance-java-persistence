@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.criteria.literal;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
@@ -23,6 +24,11 @@ public class DefaultCriteriaLiteralTest extends AbstractTest {
         return new Class<?>[] {
             Book.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 
     @Test

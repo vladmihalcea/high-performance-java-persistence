@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.List;
 
+import static org.junit.Assert.assertFalse;
+
 /**
  * @author Vlad Mihalcea
  */
@@ -36,10 +38,10 @@ public class ReadOnlyQueryTest extends AbstractTest {
     @Test
     public void testReadOnly() {
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager
-            .createQuery(
-                "select p " +
-                "from Post p", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                """, Post.class)
             .setHint(QueryHints.READ_ONLY, true)
             .getResultList();
         });
@@ -50,9 +52,12 @@ public class ReadOnlyQueryTest extends AbstractTest {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
             boolean isDefaultReadOnly = session.isDefaultReadOnly();
+            assertFalse(isDefaultReadOnly);
             session.setDefaultReadOnly(true);
-            List<Post> posts = entityManager.createQuery(
-                "select p from Post p", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                """, Post.class)
             .getResultList();
         });
     }

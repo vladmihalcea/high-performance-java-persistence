@@ -114,11 +114,12 @@ public class DefaultInQueryPlanCacheTest extends AbstractTest {
         }
     }
 
-    List<Post> getPostByIds(EntityManager entityManager, Integer... ids) {
-        return entityManager.createQuery(
-            "select p " +
-            "from Post p " +
-            "where p.id in :ids", Post.class)
+    private List<Post> getPostByIds(EntityManager entityManager, Integer... ids) {
+        return entityManager.createQuery("""
+            select p
+            from Post p
+            where p.id in :ids
+            """, Post.class)
         .setParameter("ids", Arrays.asList(ids))
         .getResultList();
     }

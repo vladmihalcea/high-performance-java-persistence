@@ -1,13 +1,9 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.annotations.*;
 import org.junit.Test;
 
 import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.Parameter;
-import javax.persistence.Table;
 import java.util.Properties;
 
 /**
@@ -47,7 +43,7 @@ public class BatchProcessingTest extends AbstractTest {
                     flush(entityManager);
                 }
 
-                Post post = new Post(String.format("Post %d", i + 1));
+                Post post = new Post().setTitle(String.format("Post %d", i + 1));
                 entityManager.persist(post);
             }
 
@@ -63,6 +59,7 @@ public class BatchProcessingTest extends AbstractTest {
     }
 
     private void flush(EntityManager entityManager) {
+        //Commit triggers a flush when using FlushType.AUTO
         entityManager.getTransaction().commit();
         entityManager.getTransaction().begin();
 
@@ -84,28 +81,22 @@ public class BatchProcessingTest extends AbstractTest {
 
         private String title;
 
-
-        public Post() {
-        }
-
-        public Post(String title) {
-            this.title = title;
-        }
-
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
     }
 }

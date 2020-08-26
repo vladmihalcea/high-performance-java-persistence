@@ -27,16 +27,20 @@ public class SimpleBatchTest extends AbstractPostgreSQLIntegrationTest {
         doInJDBC(connection -> {
             try (Statement statement = connection.createStatement()) {
 
-                statement.addBatch(
-                        "insert into post (title, version, id) " +
-                                "values ('Post no. 1', 0, 1)");
+                statement.addBatch("""
+                    INSERT INTO post (title, version, id)
+                    VALUES ('Post no. 1', 0, 1)
+                    """);
 
-                statement.addBatch(
-                        "insert into post_comment (post_id, review, version, id) " +
-                                "values (1, 'Post comment 1.1', 0, 1)");
-                statement.addBatch(
-                        "insert into post_comment (post_id, review, version, id) " +
-                                "values (1, 'Post comment 1.2', 0, 2)");
+                statement.addBatch("""
+                    INSERT INTO post (title, version, id)
+                    VALUES ('Post no. 2', 0, 2)
+                    """);
+
+                statement.addBatch("""
+                    INSERT INTO post (title, version, id)
+                    VALUES ('Post no. 3', 0, 3)
+                    """);
 
                 int[] updateCounts = statement.executeBatch();
 
@@ -49,25 +53,26 @@ public class SimpleBatchTest extends AbstractPostgreSQLIntegrationTest {
     public void testPreparedStatement() {
         LOGGER.info("Test Statement batch insert");
         doInJDBC(connection -> {
-            PreparedStatement postStatement = connection.prepareStatement(
-                    "insert into post (title, version, id) " +
-                            "values (?, ?, ?)");
+            try(PreparedStatement postStatement = connection.prepareStatement("""
+                INSERT INTO post (title, version, id)
+                VALUES (?, ?, ?)
+                """);) {
 
-            postStatement.setString(1, String.format("Post no. %1$d", 1));
-            postStatement.setInt(2, 0);
-            postStatement.setLong(3, 1);
-            postStatement.addBatch();
+                postStatement.setString(1, String.format("Post no. %1$d", 1));
+                postStatement.setInt(2, 0);
+                postStatement.setLong(3, 1);
+                postStatement.addBatch();
 
-            postStatement.setString(1, String.format("Post no. %1$d", 2));
-            postStatement.setInt(2, 0);
-            postStatement.setLong(3, 2);
-            postStatement.addBatch();
+                postStatement.setString(1, String.format("Post no. %1$d", 2));
+                postStatement.setInt(2, 0);
+                postStatement.setLong(3, 2);
+                postStatement.addBatch();
 
-            int[] updateCounts = postStatement.executeBatch();
+                int[] updateCounts = postStatement.executeBatch();
 
-            assertEquals(2, updateCounts.length);
+                assertEquals(2, updateCounts.length);
 
-            postStatement.close();
+            }
         });
     }
 }

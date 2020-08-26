@@ -43,9 +43,10 @@ public class DeletingWithSQLCascadeBatchingTest extends AbstractTest {
 
         LOGGER.info("testDeletePostsAndCommentsWithSQLCascade");
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                """, Post.class)
             .getResultList();
 
             posts.forEach(entityManager::remove);

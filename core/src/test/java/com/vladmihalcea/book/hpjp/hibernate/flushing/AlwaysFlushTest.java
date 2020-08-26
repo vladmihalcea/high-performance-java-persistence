@@ -1,9 +1,10 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.transform.Transformers;
 import org.jboss.logging.Logger;
 import org.junit.Test;
@@ -27,6 +28,11 @@ public class AlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
             Board.class,
             Post.class,
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 
     @Test
@@ -61,17 +67,16 @@ public class AlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
             post3.setBoard(board2);
             entityManager.persist(post3);
 
-            Session session = entityManager.unwrap(Session.class);
-            List<ForumCount> result = session.createNativeQuery(
-                "SELECT " +
-                "   b.name as forum, " +
-                "   COUNT (p) as count " +
-                "FROM post p " +
-                "JOIN board b on b.id = p.board_id " +
-                "GROUP BY forum")
+            List<ForumCount> result = entityManager.createNativeQuery("""
+                SELECT b.name as "forumName", COUNT (p) as "postCount"
+                FROM post p
+                JOIN board b on b.id = p.board_id
+                GROUP BY b.name
+                """)
+            .unwrap(NativeQuery.class)
             .setFlushMode(FlushMode.ALWAYS)
             .setResultTransformer( Transformers.aliasToBean(ForumCount.class))
-            .list();
+            .getResultList();
 
             assertEquals(result.size(), 2);
         });
@@ -109,18 +114,17 @@ public class AlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
             post3.setBoard(board2);
             entityManager.persist(post3);
 
-            Session session = entityManager.unwrap(Session.class);
-            List<ForumCount> result = session.createNativeQuery(
-                    "SELECT " +
-                    "   b.name as forum, " +
-                    "   COUNT (p) as count " +
-                    "FROM post p " +
-                    "JOIN board b on b.id = p.board_id " +
-                    "GROUP BY forum")
+            List<ForumCount> result = entityManager.createNativeQuery("""
+                SELECT b.name as "forumName", COUNT (p) as "postCount"
+                FROM post p
+                JOIN board b on b.id = p.board_id
+                GROUP BY b.name
+                """)
+            .unwrap(NativeQuery.class)
             .addSynchronizedEntityClass(Board.class)
             .addSynchronizedEntityClass(Post.class)
-            .setResultTransformer( Transformers.aliasToBean(ForumCount.class))
-            .list();
+            .setResultTransformer(Transformers.aliasToBean(ForumCount.class))
+            .getResultList();
 
             assertEquals(result.size(), 2);
         });
@@ -128,24 +132,24 @@ public class AlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
 
     public static class ForumCount {
 
-        private String forum;
+        private String forumName;
 
-        private BigInteger count;
+        private BigInteger postCount;
 
-        public String getForum() {
-            return forum;
+        public String getForumName() {
+            return forumName;
         }
 
-        public void setForum(String forum) {
-            this.forum = forum;
+        public void setForumName(String forumName) {
+            this.forumName = forumName;
         }
 
-        public BigInteger getCount() {
-            return count;
+        public BigInteger getPostCount() {
+            return postCount;
         }
 
-        public void setCount(BigInteger count) {
-            this.count = count;
+        public void setPostCount(BigInteger postCount) {
+            this.postCount = postCount;
         }
     }
 

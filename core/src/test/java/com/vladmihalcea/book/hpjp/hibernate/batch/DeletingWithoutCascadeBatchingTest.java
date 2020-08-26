@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.batch;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -24,11 +25,16 @@ public class DeletingWithoutCascadeBatchingTest extends AbstractTest {
     }
 
     @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
+    @Override
     protected Properties properties() {
         Properties properties = super.properties();
         properties.put("hibernate.jdbc.batch_size", "5");
-        properties.put("hibernate.order_inserts", "true");
-        properties.put("hibernate.order_updates", "true");
+        //properties.put("hibernate.order_inserts", "true");
+        //properties.put("hibernate.order_updates", "true");
         properties.put("hibernate.jdbc.batch_versioned_data", "true");
         return properties;
     }
@@ -39,16 +45,18 @@ public class DeletingWithoutCascadeBatchingTest extends AbstractTest {
 
         LOGGER.info("testDeletePostsAndCommentsWithBulkDelete");
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.title like 'Post no%'", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                where p.title like 'Post no%'
+                """, Post.class)
             .getResultList();
 
-            entityManager.createQuery(
-                "delete " +
-                "from PostComment c " +
-                "where c.post in :posts")
+            entityManager.createQuery("""
+                delete
+                from PostComment c
+                where c.post in :posts
+                """)
             .setParameter("posts", posts)
             .executeUpdate();
 
@@ -58,10 +66,13 @@ public class DeletingWithoutCascadeBatchingTest extends AbstractTest {
 
     private void insertPostsAndComments() {
         doInJPA(entityManager -> {
-            for (int i = 0; i < 3; i++) {
-                Post post = new Post(String.format("Post no. %d", i));
-                post.addComment(new PostComment("Good"));
-                entityManager.persist(post);
+            for (long i = 1; i <= 3; i++) {
+                entityManager.persist(
+                    new Post()
+                        .setId(i)
+                        .setTitle(String.format("Post no. %d", i))
+                        .addComment(new PostComment("Good"))
+                );
             }
         });
     }
@@ -71,47 +82,45 @@ public class DeletingWithoutCascadeBatchingTest extends AbstractTest {
     public static class Post {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private Long id;
 
         private String title;
 
-        public Post() {}
-
-        public Post(Long id) {
-            this.id = id;
-        }
-
-        public Post(String title) {
-            this.title = title;
-        }
-
-        @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "post")
+        @OneToMany(
+            mappedBy = "post",
+            cascade = {
+                CascadeType.PERSIST,
+                CascadeType.MERGE
+            }
+        )
         private List<PostComment> comments = new ArrayList<>();
 
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public List<PostComment> getComments() {
             return comments;
         }
 
-        public void addComment(PostComment comment) {
+        public Post addComment(PostComment comment) {
             comments.add(comment);
             comment.setPost(this);
+            return this;
         }
     }
 

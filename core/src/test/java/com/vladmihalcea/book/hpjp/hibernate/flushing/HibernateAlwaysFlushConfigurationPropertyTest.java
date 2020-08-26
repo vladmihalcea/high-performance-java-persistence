@@ -31,10 +31,10 @@ public class HibernateAlwaysFlushConfigurationPropertyTest extends JPAAutoFlushT
             assertEquals(
                 0,
                 ((Number)
-                    entityManager
-                    .createNativeQuery(
-                        "select count(*) " +
-                        "from post")
+                    entityManager.createNativeQuery("""
+                        select count(*)
+                        from post
+                        """)
                     .getSingleResult()
                 ).intValue()
             );
@@ -44,11 +44,10 @@ public class HibernateAlwaysFlushConfigurationPropertyTest extends JPAAutoFlushT
                 .setTitle("High-Performance Java Persistence")
             );
 
-            int postCount = ((Number)
-            entityManager
-            .createNativeQuery(
-                "select count(*) " +
-                "from post")
+            int postCount = ((Number) entityManager.createNativeQuery("""
+                select count(*)
+                from post
+                """)
             .getSingleResult()).intValue();
 
             assertEquals(1, postCount);

@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.query;
 
+import com.vladmihalcea.book.hpjp.hibernate.query.plan.DefaultInQueryPlanCacheTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
@@ -52,11 +53,12 @@ public class InQueryTest extends AbstractTest {
         });
     }
 
-    List<Post> getPostByIds(EntityManager entityManager, Integer... ids) {
-        return entityManager.createQuery(
-            "select p " +
-            "from Post p " +
-            "where p.id in :ids", Post.class)
+    private List<Post> getPostByIds(EntityManager entityManager, Integer... ids) {
+        return entityManager.createQuery("""
+            select p
+            from Post p
+            where p.id in :ids
+            """, Post.class)
         .setParameter("ids", Arrays.asList(ids))
         .getResultList();
     }
@@ -66,6 +68,7 @@ public class InQueryTest extends AbstractTest {
     public static class Post {
 
         @Id
+        @Column(name = "user_id")
         private Integer id;
 
         private String title;
