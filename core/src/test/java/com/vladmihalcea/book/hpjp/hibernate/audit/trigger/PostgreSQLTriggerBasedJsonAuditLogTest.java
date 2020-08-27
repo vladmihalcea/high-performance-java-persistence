@@ -75,7 +75,7 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
                    VALUES(
                        NEW.id,
                        null,
-                       row_to_json(NEW),
+                       to_jsonb(NEW),
                        'INSERT',
                        statement_timestamp(),
                        current_setting('var.logged_user'),
@@ -95,8 +95,8 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
                    )
                    VALUES(
                        NEW.id,
-                       row_to_json(OLD),
-                       row_to_json(NEW),
+                       to_jsonb(OLD),
+                       to_jsonb(NEW),
                        'UPDATE',
                        statement_timestamp(),
                        current_setting('var.logged_user'),
@@ -116,7 +116,7 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
                    )
                    VALUES(
                        OLD.id,
-                       row_to_json(OLD),
+                       to_jsonb(OLD),
                        null,
                        'DELETE',
                        statement_timestamp(),
