@@ -7,6 +7,7 @@ import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.vladmihalcea.hibernate.type.util.ReflectionUtils;
 import org.hibernate.Session;
 import org.hibernate.annotations.ColumnTransformer;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
@@ -44,7 +45,7 @@ public class MySQLJsonEncryptTest extends AbstractTest {
 					new UserDetails()
 					.setFirstName("Vlad")
 					.setLastName("Mihalcea")
-					.setEmailAddress("vlad@vladmihalcea.com")
+					.setEmailAddress("info@vladmihalcea.com")
 				);
 
 			entityManager.persist(user);
@@ -60,14 +61,19 @@ public class MySQLJsonEncryptTest extends AbstractTest {
 
 			assertEquals("Vlad", userDetails.getFirstName());
 			assertEquals("Mihalcea", userDetails.getLastName());
-			assertEquals("vlad@vladmihalcea.com", userDetails.getEmailAddress());
+			assertEquals("info@vladmihalcea.com", userDetails.getEmailAddress());
+		});
 
-			userDetails.setEmailAddress("me@vladmihalcea.com");
+		doInJPA(entityManager -> {
+			User user = entityManager.find(User.class, 1L);
+
+			user.getDetails().setEmailAddress("noreply@vladmihalcea.com");
 		});
 	}
 
 	@Entity
 	@Table(name = "users")
+	@DynamicUpdate
 	@TypeDef(typeClass = JsonStringType.class, defaultForType = UserDetails.class)
 	public static class User {
 
