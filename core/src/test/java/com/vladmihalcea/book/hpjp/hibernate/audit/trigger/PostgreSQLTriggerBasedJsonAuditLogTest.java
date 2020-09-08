@@ -205,7 +205,7 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             update(
                 connection,
                 String.format(
-                    "SET var.logged_user = '%s'", loggedUser
+                    "SET LOCAL var.logged_user = '%s'", loggedUser
                 )
             );
         });
