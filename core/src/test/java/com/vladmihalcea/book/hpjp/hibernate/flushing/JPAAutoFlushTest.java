@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
@@ -133,6 +134,41 @@ public class JPAAutoFlushTest extends AbstractTest {
             .getSingleResult()).intValue();
 
             assertEquals(1, postCount);
+        });
+    }
+
+    @Test
+    public void testFlushAutoDoWorkNativeSQL() {
+        doInJPA(entityManager -> {
+            assertEquals(
+                0,
+                ((Number)
+                    entityManager.createNativeQuery("""
+                        SELECT COUNT(*)
+                        FROM Post
+                        """)
+                    .getSingleResult()
+                ).intValue()
+            );
+
+            entityManager.persist(
+                new Post()
+                .setTitle("High-Performance Java Persistence")
+            );
+
+            int postCount = (entityManager.unwrap(Session.class).doReturningWork(connection ->
+                selectColumn(
+                    connection,
+                    """
+                    SELECT COUNT(*)
+                    FROM post
+                    """,
+                    Number.class
+                )
+            )).intValue();
+
+            //doWork does not trigger a flush.
+            assertEquals(0, postCount);
         });
     }
 
