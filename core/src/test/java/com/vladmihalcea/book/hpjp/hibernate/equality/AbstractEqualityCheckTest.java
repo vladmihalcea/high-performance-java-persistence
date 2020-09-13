@@ -56,7 +56,7 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
         doInJPA(entityManager -> {
             T _entity = entityManager.find(clazz, entity.getId());
             assertTrue(
-                    "The entity is not found in the Set after it's loaded in a subsequent Persistence Context.",
+                    "The entity is not found in the Set after it's loaded in a different Persistence Context.",
                     tuples.contains(_entity)
             );
         });
@@ -64,7 +64,7 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
         doInJPA(entityManager -> {
             T _entity = entityManager.getReference(clazz, entity.getId());
             assertTrue(
-                    "The entity is not in the Set found after it's loaded as a proxy in an other Persistence Context.",
+                    "The entity is not in the Set found after it's loaded as a proxy in a different Persistence Context.",
                     tuples.contains(_entity)
             );
         });
@@ -89,7 +89,7 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
         });
 
         assertTrue(
-                "The entity is found in not the Set even after it's deleted.",
+                "The entity is not found in the Set even after it's deleted.",
                 tuples.contains(deletedEntity)
         );
     }
