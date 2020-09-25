@@ -15,7 +15,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vlad Mihalcea
  */
-public class EntityHydratedStateTest extends AbstractTest {
+public class EntityCacheEntryLoadedStateTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -27,39 +27,45 @@ public class EntityHydratedStateTest extends AbstractTest {
     }
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
+    protected void additionalProperties(Properties properties) {
         properties.put("hibernate.cache.region.factory_class", "ehcache");
         properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
-        return properties;
     }
 
-    @Before
-    public void init() {
-        super.init();
+    @Override
+    protected void afterInit() {
         doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setId(1L);
-            post.setTitle("High-Performance Java Persistence");
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+            );
+        });
 
-            PostDetails details = new PostDetails();
-            details.setCreatedBy("Vlad Mihalcea");
-            details.setCreatedOn(new Date());
-            details.setPost(post);
-            entityManager.persist(details);
 
-            PostComment comment1 = new PostComment();
-            comment1.setId(1L);
-            comment1.setReview("JDBC part review");
-            comment1.setPost(post);
-            entityManager.persist(comment1);
+        doInJPA(entityManager -> {
+            Post post = entityManager.getReference(Post.class,1L);
 
-            PostComment comment2 = new PostComment();
-            comment2.setId(2L);
-            comment2.setReview("Hibernate part review");
-            comment2.setPost(post);
-            entityManager.persist(comment2);
+            entityManager.persist(
+                new PostDetails()
+                    .setCreatedBy("Vlad Mihalcea")
+                    .setCreatedOn(new Date())
+                    .setPost(post)
+            );
+
+            entityManager.persist(
+                new PostComment()
+                    .setId(1L)
+                    .setReview("Part one - JDBC and Database Essentials")
+                    .setPost(post)
+            );
+
+            entityManager.persist(
+                new PostComment()
+                    .setId(2L)
+                    .setReview("Part one - JPA and Hibernate")
+                    .setPost(post)
+            );
         });
     }
 
@@ -75,6 +81,8 @@ public class EntityHydratedStateTest extends AbstractTest {
             assertNotNull(comment);
         });
 
+        printCacheRegionStatistics(PostComment.class.getName());
+        printCacheRegionStatistics(PostDetails.class.getName());
         printCacheRegionStatistics(Post.class.getName());
 
         doInJPA(entityManager -> {
@@ -88,7 +96,6 @@ public class EntityHydratedStateTest extends AbstractTest {
         });
 
         printCacheRegionStatistics(Post.class.getName());
-
     }
 
     @Entity(name = "Post")
@@ -100,23 +107,22 @@ public class EntityHydratedStateTest extends AbstractTest {
 
         private String title;
 
-        @Version
-        private int version;
-
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
     }
 
@@ -141,32 +147,36 @@ public class EntityHydratedStateTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostDetails setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public Post getPost() {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostDetails setPost(Post post) {
             this.post = post;
+            return this;
         }
 
         public Date getCreatedOn() {
             return createdOn;
         }
 
-        public void setCreatedOn(Date createdOn) {
+        public PostDetails setCreatedOn(Date createdOn) {
             this.createdOn = createdOn;
+            return this;
         }
 
         public String getCreatedBy() {
             return createdBy;
         }
 
-        public void setCreatedBy(String createdBy) {
+        public PostDetails setCreatedBy(String createdBy) {
             this.createdBy = createdBy;
+            return this;
         }
     }
 
@@ -186,24 +196,27 @@ public class EntityHydratedStateTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostComment setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public Post getPost() {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostComment setPost(Post post) {
             this.post = post;
+            return this;
         }
 
         public String getReview() {
             return review;
         }
 
-        public void setReview(String review) {
+        public PostComment setReview(String review) {
             this.review = review;
+            return this;
         }
     }
 }
