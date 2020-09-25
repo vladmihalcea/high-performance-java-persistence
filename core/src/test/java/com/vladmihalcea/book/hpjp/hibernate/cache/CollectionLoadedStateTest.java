@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class CollectionHydratedStateTest extends AbstractTest {
+public class CollectionLoadedStateTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {

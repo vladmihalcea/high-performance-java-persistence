@@ -24,7 +24,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Vlad Mihalcea
  */
 @RunWith(Parameterized.class)
-public class HydratedStateBenchmarkTest extends AbstractTest {
+public class LoadedStateBenchmarkTest extends AbstractTest {
 
     private MetricRegistry metricRegistry = new MetricRegistry();
 
@@ -37,7 +37,7 @@ public class HydratedStateBenchmarkTest extends AbstractTest {
 
     private int insertCount;
 
-    public HydratedStateBenchmarkTest(int insertCount) {
+    public LoadedStateBenchmarkTest(int insertCount) {
         this.insertCount = insertCount;
     }
 

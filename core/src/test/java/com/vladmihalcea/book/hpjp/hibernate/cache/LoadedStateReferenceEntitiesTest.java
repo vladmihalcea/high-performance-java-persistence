@@ -4,14 +4,12 @@ import java.util.Properties;
 
 
 /**
- * ReadOnlyCacheConcurrencyStrategyReferenceEntitiesTest - Test to check CacheConcurrencyStrategy.READ_ONLY
- *     with hibernate.cache.use_reference_entries doesn't work because Commit has a collection of CommitChanges
  *
  * @author Vlad Mihalcea
  */
-public class HydratedStateReferenceEntitiesTest extends HydratedStateBenchmarkTest {
+public class LoadedStateReferenceEntitiesTest extends LoadedStateBenchmarkTest {
 
-    public HydratedStateReferenceEntitiesTest(int insertCount) {
+    public LoadedStateReferenceEntitiesTest(int insertCount) {
         super(insertCount);
     }
 
