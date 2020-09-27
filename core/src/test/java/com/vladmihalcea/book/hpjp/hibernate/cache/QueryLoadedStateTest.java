@@ -1,15 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.Session;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Version;
 import java.util.List;
 import java.util.Properties;
 
@@ -18,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class QueryHydratedStateTest extends AbstractTest {
+public class QueryLoadedStateTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -28,17 +26,13 @@ public class QueryHydratedStateTest extends AbstractTest {
     }
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
+    protected void additionalProperties(Properties properties) {
+        properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
         properties.put("hibernate.cache.region.factory_class", "ehcache");
-        properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
         properties.put("hibernate.cache.use_query_cache", Boolean.TRUE.toString());
-        return properties;
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Post post1 = new Post();
             post1.setId(1L);
@@ -58,42 +52,51 @@ public class QueryHydratedStateTest extends AbstractTest {
     public void test() {
 
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.title like :token", Post.class)
-            .setParameter("token", "High-Performance%")
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                where p.title like :titlePattern
+                """, Post.class)
+            .setParameter("titlePattern", "High-Performance%")
             .setHint("org.hibernate.cacheable", true)
             .getResultList();
 
             assertEquals(2, posts.size());
         });
+
+        printQueryCacheRegionStatistics();
 
         doInJPA(entityManager -> {
             LOGGER.info("Load from cache");
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.title like :token", Post.class)
-            .setParameter("token", "High-Performance%")
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                where p.title like :titlePattern
+                """, Post.class)
+            .setParameter("titlePattern", "High-Performance%")
             .setHint("org.hibernate.cacheable", true)
             .getResultList();
 
             assertEquals(2, posts.size());
         });
 
+        printQueryCacheRegionStatistics();
+
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            List<Post> posts = (List<Post>) session.createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.title like :token")
-            .setParameter("token", "High-Performance%")
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                where p.title like :titlePattern
+                """)
+            .setParameter("titlePattern", "High-Performance%")
+            .unwrap(org.hibernate.query.Query.class)
             .setCacheable(true)
-            .list();
+            .getResultList();
 
             assertEquals(2, posts.size());
         });
+
+        printQueryCacheRegionStatistics();
     }
 
     @Entity(name = "Post")
@@ -105,23 +108,22 @@ public class QueryHydratedStateTest extends AbstractTest {
 
         private String title;
 
-        @Version
-        private int version;
-
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
     }
 }

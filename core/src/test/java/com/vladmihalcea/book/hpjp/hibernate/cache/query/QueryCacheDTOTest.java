@@ -1,8 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache.query;
 
+import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
+import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa.compact.JPADTOProjectionClassImportIntegratorPropertyClassTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
+import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,8 +22,6 @@ import java.util.Properties;
 import static org.junit.Assert.assertEquals;
 
 /**
- * QueryCacheTest - Test to check the 2nd level query cache
- *
  * @author Vlad Mihalcea
  */
 public class QueryCacheDTOTest extends AbstractTest {
@@ -31,17 +35,22 @@ public class QueryCacheDTOTest extends AbstractTest {
     }
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
+    @Override
+    protected void additionalProperties(Properties properties) {
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
         properties.put("hibernate.cache.region.factory_class", "ehcache");
         properties.put("hibernate.cache.use_query_cache", Boolean.TRUE.toString());
-        return properties;
+        properties.put(
+            "hibernate.integrator_provider",
+            ClassImportIntegratorIntegratorProvider.class
+        );
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             for (int i = 0; i < 10; i++) {
                 Post post = new Post();
@@ -119,18 +128,13 @@ public class QueryCacheDTOTest extends AbstractTest {
                 EntityManager entityManager,
                 int maxResults,
                 boolean cacheable) {
-        List<PostSummary> latestPosts = entityManager.createQuery(
-            "select new " +
-            "   com.vladmihalcea.book.hpjp.hibernate.cache.query.PostSummary(" +
-            "       p.id, " +
-            "       p.title, " +
-            "       p.createdOn, " +
-            "       count(pc.id) " +
-            "   ) " +
-            "from PostComment pc " +
-            "left join pc.post p " +
-            "group by p.id, p.title " +
-            "order by p.createdOn desc ", PostSummary.class)
+        List<PostSummary> latestPosts = entityManager.createQuery("""
+            select new PostSummary(p.id, p.title, p.createdOn, count(pc.id))
+            from PostComment pc
+            left join pc.post p
+            group by p.id, p.title
+            order by p.createdOn desc
+            """, PostSummary.class)
         .setMaxResults(maxResults)
         .setHint(QueryHints.HINT_CACHEABLE, cacheable)
         .getResultList();
@@ -226,6 +230,20 @@ public class QueryCacheDTOTest extends AbstractTest {
 
         public void setReview(String review) {
             this.review = review;
+        }
+    }
+
+    public static class ClassImportIntegratorIntegratorProvider implements IntegratorProvider {
+
+        @Override
+        public List<Integrator> getIntegrators() {
+            return List.of(
+                new ClassImportIntegrator(
+                    List.of(
+                        PostSummary.class
+                    )
+                )
+            );
         }
     }
 }

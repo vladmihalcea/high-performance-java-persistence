@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -28,17 +27,13 @@ public class QueryCacheNPlus1Test extends AbstractTest {
     }
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
+    protected void additionalProperties(Properties properties) {
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
         properties.put("hibernate.cache.region.factory_class", "ehcache");
         properties.put("hibernate.cache.use_query_cache", Boolean.TRUE.toString());
-        return properties;
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Post post = new Post();
             post.setTitle("High-Performance Java Persistence");

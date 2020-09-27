@@ -27,42 +27,46 @@ public class CollectionLoadedStateTest extends AbstractTest {
     }
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
+    protected void additionalProperties(Properties properties) {
         properties.put("hibernate.cache.region.factory_class", "ehcache");
         properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
-        return properties;
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setId(1L);
-            post.setTitle("High-Performance Java Persistence");
-
-            PostComment comment1 = new PostComment();
-            comment1.setId(1L);
-            comment1.setReview("JDBC part review");
-            post.addComment(comment1);
-
-            PostComment comment2 = new PostComment();
-            comment2.setId(2L);
-            comment2.setReview("Hibernate part review");
-            post.addComment(comment2);
-
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+            );
+        });
+        doInJPA(entityManager -> {
+            Post post = entityManager
+                .find(Post.class, 1L)
+                .addComment(
+                    new PostComment()
+                        .setId(1L)
+                        .setReview("JDBC part review")
+                )
+                .addComment(
+                    new PostComment()
+                        .setId(2L)
+                        .setReview("Hibernate part review")
+                );
         });
     }
 
     @Test
     public void testEntityLoad() {
 
+        printCacheRegionStatistics(Post.class.getName() + ".comments");
+
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             assertEquals(2, post.getComments().size());
         });
+
+        printCacheRegionStatistics(Post.class.getName() + ".comments");
 
         doInJPA(entityManager -> {
             LOGGER.info("Load from cache");
@@ -82,10 +86,7 @@ public class CollectionLoadedStateTest extends AbstractTest {
 
         private String title;
 
-        @Version
-        private int version;
-
-        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
+        @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
         @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
         private List<PostComment> comments = new ArrayList<>();
 
@@ -93,25 +94,28 @@ public class CollectionLoadedStateTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public List<PostComment> getComments() {
             return comments;
         }
 
-        public void addComment(PostComment comment) {
+        public Post addComment(PostComment comment) {
             comments.add(comment);
             comment.setPost(this);
+            return this;
         }
     }
 
@@ -131,24 +135,27 @@ public class CollectionLoadedStateTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostComment setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public Post getPost() {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostComment setPost(Post post) {
             this.post = post;
+            return this;
         }
 
         public String getReview() {
             return review;
         }
 
-        public void setReview(String review) {
+        public PostComment setReview(String review) {
             this.review = review;
+            return this;
         }
     }
 }
