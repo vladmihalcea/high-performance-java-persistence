@@ -64,6 +64,8 @@ public class NaturalIdTest extends AbstractTest {
             .bySimpleNaturalId(Post.class)
             .load(slug);
 
+            printNaturalIdCacheRegionStatistics(Post.class);
+
             assertNotNull(post);
         });
     }

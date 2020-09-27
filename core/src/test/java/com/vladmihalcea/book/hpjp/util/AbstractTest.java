@@ -903,6 +903,10 @@ public abstract class AbstractTest {
         printCacheRegionStatisticsEntries("default-query-results-region");
     }
 
+    protected void printNaturalIdCacheRegionStatistics(Class<?> entityClass) {
+        printCacheRegionStatistics(entityClass.getName() + "##NaturalId");
+    }
+
     private void printCacheRegionStatisticsEntries(String regionName) {
         CacheRegionStatistics cacheRegionStatistics = "default-query-results-region".equals(regionName) ?
                 sessionFactory().getStatistics().getQueryRegionStatistics(regionName) :
