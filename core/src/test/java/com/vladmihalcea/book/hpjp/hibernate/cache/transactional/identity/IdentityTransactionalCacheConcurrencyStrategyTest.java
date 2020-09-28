@@ -70,7 +70,7 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
             entityManager.persist(post);
         });
         printCacheRegionStatistics(Post.class.getName());
-        printCacheRegionStatistics(Post.class.getName() + ".comments");
+        printCollectionCacheRegionStatistics(Post.class, "comments");
         LOGGER.info("Post entity inserted");
     }
 
@@ -96,8 +96,8 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, this.post.getId());
             assertEquals(2, post.getComments().size());
-            printCacheRegionStatistics(post.getClass().getName());
-            printCacheRegionStatistics(Post.class.getName() + ".comments");
+            printEntityCacheRegionStatistics(Post.class);
+            printCollectionCacheRegionStatistics(Post.class, "comments");
         });
     }
 
@@ -116,7 +116,7 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
 
             entityManager.detach(post);
             post = entityManager.find(Post.class, this.post.getId());
-            printCacheRegionStatistics(post.getClass().getName());
+            printEntityCacheRegionStatistics(Post.class);
         });
     }
 
@@ -131,13 +131,13 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
             entityManager.flush();
 
             printCacheRegionStatistics(Post.class.getName());
-            printCacheRegionStatistics(Post.class.getName() + ".comments");
+            printCollectionCacheRegionStatistics(Post.class, "comments");
             printCacheRegionStatistics(PostComment.class.getName());
 
             LOGGER.debug("Commit after flush");
         });
         printCacheRegionStatistics(Post.class.getName());
-        printCacheRegionStatistics(Post.class.getName() + ".comments");
+        printCollectionCacheRegionStatistics(Post.class, "comments");
         printCacheRegionStatistics(PostComment.class.getName());
     }
 
@@ -164,7 +164,7 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
         });
 
         printCacheRegionStatistics(Post.class.getName());
-        printCacheRegionStatistics(Post.class.getName() + ".comments");
+        printCollectionCacheRegionStatistics(Post.class, "comments");
         printCacheRegionStatistics(PostComment.class.getName());
 
         doInJPA(entityManager -> {
@@ -173,7 +173,7 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
         });
 
         printCacheRegionStatistics(Post.class.getName());
-        printCacheRegionStatistics(Post.class.getName() + ".comments");
+        printCollectionCacheRegionStatistics(Post.class, "comments");
         printCacheRegionStatistics(PostComment.class.getName());
 
         doInJPA(entityManager -> {

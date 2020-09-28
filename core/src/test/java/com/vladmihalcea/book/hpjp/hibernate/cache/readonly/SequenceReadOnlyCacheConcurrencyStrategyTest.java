@@ -50,7 +50,7 @@ public class SequenceReadOnlyCacheConcurrencyStrategyTest extends AbstractTest {
 
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
-            printCacheRegionStatistics(post.getClass().getName());
+            printEntityCacheRegionStatistics(Post.class);
         });
     }
 

@@ -99,6 +99,7 @@ public class EntityCacheEntryLoadedStateTest extends AbstractTest {
     }
 
     @Entity(name = "Post")
+    @Table(name = "post")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     public static class Post {
 
@@ -181,13 +182,14 @@ public class EntityCacheEntryLoadedStateTest extends AbstractTest {
     }
 
     @Entity(name = "PostComment")
+    @Table(name = "post_comment")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     public static class PostComment {
 
         @Id
         private Long id;
 
-        @ManyToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         private Post post;
 
         private String review;

@@ -59,14 +59,14 @@ public class CollectionLoadedStateTest extends AbstractTest {
     @Test
     public void testEntityLoad() {
 
-        printCacheRegionStatistics(Post.class.getName() + ".comments");
+        printCollectionCacheRegionStatistics(Post.class, "comments");
 
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             assertEquals(2, post.getComments().size());
         });
 
-        printCacheRegionStatistics(Post.class.getName() + ".comments");
+        printCollectionCacheRegionStatistics(Post.class, "comments");
 
         doInJPA(entityManager -> {
             LOGGER.info("Load from cache");
@@ -74,7 +74,7 @@ public class CollectionLoadedStateTest extends AbstractTest {
             assertEquals(2, post.getComments().size());
         });
 
-        printCacheRegionStatistics(Post.class.getName() + ".comments");
+        printCollectionCacheRegionStatistics(Post.class, "comments");
     }
 
     @Entity(name = "Post")

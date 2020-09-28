@@ -93,7 +93,7 @@ public class TransactionalCacheConcurrencyStrategyTest extends AbstractTest {
         doInJPA(entityManager -> {
             TransactionalEntities.Post post = entityManager.find(TransactionalEntities.Post.class, 1L);
             assertEquals(2, post.getComments().size());
-            printCacheRegionStatistics(post.getClass().getName());
+            printEntityCacheRegionStatistics(TransactionalEntities.Post.class);
             printCacheRegionStatistics(TransactionalEntities.Post.class.getName() + ".comments");
         });
     }
@@ -113,7 +113,7 @@ public class TransactionalCacheConcurrencyStrategyTest extends AbstractTest {
 
             entityManager.detach(post);
             post = entityManager.find(TransactionalEntities.Post.class, 1L);
-            printCacheRegionStatistics(post.getClass().getName());
+            printEntityCacheRegionStatistics(TransactionalEntities.Post.class);
         });
     }
 

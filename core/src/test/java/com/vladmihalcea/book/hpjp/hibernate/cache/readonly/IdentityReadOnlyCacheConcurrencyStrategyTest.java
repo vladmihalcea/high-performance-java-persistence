@@ -10,8 +10,6 @@ import java.util.Properties;
 
 
 /**
- * CacheConcurrencyStrategyTest - Test to check CacheConcurrencyStrategy.READ_ONLY
- *
  * @author Vlad Mihalcea
  */
 public class IdentityReadOnlyCacheConcurrencyStrategyTest extends AbstractTest {
@@ -24,16 +22,12 @@ public class IdentityReadOnlyCacheConcurrencyStrategyTest extends AbstractTest {
     }
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
+    protected void additionalProperties(Properties properties) {
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
         properties.put("hibernate.cache.region.factory_class", "ehcache");
-        return properties;
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Post post = new Post();
             post.setTitle("High-Performance Java Persistence");
@@ -50,7 +44,7 @@ public class IdentityReadOnlyCacheConcurrencyStrategyTest extends AbstractTest {
 
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
-            printCacheRegionStatistics(post.getClass().getName());
+            printEntityCacheRegionStatistics(Post.class);
         });
     }
 

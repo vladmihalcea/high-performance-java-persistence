@@ -50,7 +50,7 @@ public class IdentityReadWriteCacheConcurrencyStrategyTest extends AbstractTest 
         LOGGER.info("Load Post entity and comments collection");
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
-            printCacheRegionStatistics(post.getClass().getName());
+            printEntityCacheRegionStatistics(Post.class);
         });
     }
 

@@ -52,7 +52,7 @@ public class SequenceReadWriteCacheConcurrencyStrategyTest extends AbstractTest 
             entityManager.persist(post);
         });
         printCacheRegionStatistics(Post.class.getName());
-        printCacheRegionStatistics(Post.class.getName() + ".comments");
+        printCollectionCacheRegionStatistics(Post.class, "comments");
         LOGGER.info("Post entity inserted");
     }
 
@@ -63,8 +63,8 @@ public class SequenceReadWriteCacheConcurrencyStrategyTest extends AbstractTest 
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             assertEquals(2, post.getComments().size());
-            printCacheRegionStatistics(post.getClass().getName());
-            printCacheRegionStatistics(Post.class.getName() + ".comments");
+            printEntityCacheRegionStatistics(Post.class);
+            printCollectionCacheRegionStatistics(Post.class, "comments");
         });
     }
 
