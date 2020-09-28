@@ -1,8 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache.readwrite;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -18,29 +18,42 @@ public class IdentityReadWriteCacheConcurrencyStrategyTest extends AbstractTest 
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
+        return new Class<?>[]{
             Post.class,
             PostComment.class
         };
     }
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
+    protected void additionalProperties(Properties properties) {
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
         properties.put("hibernate.cache.region.factory_class", "ehcache");
-        return properties;
     }
 
-    @Before
-    public void init() {
-        super.init();
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
+    public void afterInit() {
         doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setTitle("High-Performance Java Persistence");
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                    .setTitle("High-Performance Java Persistence")
+                    .addComment(
+                        new PostComment()
+                            .setReview("JDBC part review")
+                    )
+                    .addComment(
+                        new PostComment()
+                            .setReview("Hibernate part review")
+                    )
+            );
         });
-        printCacheRegionStatistics(Post.class.getName());
+        printEntityCacheRegionStatistics(Post.class);
+        printEntityCacheRegionStatistics(PostComment.class);
+        printCollectionCacheRegionStatistics(Post.class, "comments");
+
         LOGGER.info("Post entity inserted");
     }
 
@@ -65,9 +78,6 @@ public class IdentityReadWriteCacheConcurrencyStrategyTest extends AbstractTest 
 
         private String title;
 
-        @Version
-        private int version;
-
         @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
         @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
         private List<PostComment> comments = new ArrayList<>();
@@ -76,25 +86,28 @@ public class IdentityReadWriteCacheConcurrencyStrategyTest extends AbstractTest 
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public List<PostComment> getComments() {
             return comments;
         }
 
-        public void addComment(PostComment comment) {
+        public Post addComment(PostComment comment) {
             comments.add(comment);
             comment.setPost(this);
+            return this;
         }
     }
 
@@ -116,24 +129,27 @@ public class IdentityReadWriteCacheConcurrencyStrategyTest extends AbstractTest 
             return id;
         }
 
-        public void setId(Long id) {
+        public PostComment setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public Post getPost() {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostComment setPost(Post post) {
             this.post = post;
+            return this;
         }
 
         public String getReview() {
             return review;
         }
 
-        public void setReview(String review) {
+        public PostComment setReview(String review) {
             this.review = review;
+            return this;
         }
     }
 }

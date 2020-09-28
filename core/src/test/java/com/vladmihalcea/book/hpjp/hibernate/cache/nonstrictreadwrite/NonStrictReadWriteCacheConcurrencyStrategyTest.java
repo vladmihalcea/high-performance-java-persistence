@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.cache.nonstrictreadwrite;
 
-import com.vladmihalcea.book.hpjp.hibernate.cache.readonly.ReadOnlyCacheConcurrencyStrategyTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
