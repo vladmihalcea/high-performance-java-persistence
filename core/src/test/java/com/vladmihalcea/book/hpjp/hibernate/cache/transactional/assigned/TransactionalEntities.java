@@ -21,9 +21,6 @@ public class TransactionalEntities {
 
         private String title;
 
-        @Version
-        private int version;
-
         @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
         @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
         private List<PostComment> comments = new ArrayList<>();
@@ -32,25 +29,28 @@ public class TransactionalEntities {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public List<PostComment> getComments() {
             return comments;
         }
 
-        public void addComment(PostComment comment) {
+        public Post addComment(PostComment comment) {
             comments.add(comment);
             comment.setPost(this);
+            return this;
         }
     }
 
@@ -71,24 +71,27 @@ public class TransactionalEntities {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostComment setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public Post getPost() {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostComment setPost(Post post) {
             this.post = post;
+            return this;
         }
 
         public String getReview() {
             return review;
         }
 
-        public void setReview(String review) {
+        public PostComment setReview(String review) {
             this.review = review;
+            return this;
         }
     }
 }
