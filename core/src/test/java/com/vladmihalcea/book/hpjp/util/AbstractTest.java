@@ -947,29 +947,10 @@ public abstract class AbstractTest {
 
                     if (cacheValue instanceof QueryResultsCacheImpl.CacheItem) {
                         QueryResultsCacheImpl.CacheItem queryValue = (QueryResultsCacheImpl.CacheItem) cacheValue;
-                        List results = ReflectionUtils.getFieldValue(queryValue, "results");
 
-                        cacheEntriesBuilder.append("{");
-                        cacheEntriesBuilder.append(key);
-                        cacheEntriesBuilder.append("=");
-
-                        boolean firstCacheEntry = true;
-
-                        cacheEntriesBuilder.append("[");
-                        for (Object value : results) {
-                            if (firstCacheEntry) {
-                                firstCacheEntry = false;
-                            } else {
-                                cacheEntriesBuilder.append(", ");
-                            }
-                            cacheEntriesBuilder.append(
-                                Object[].class.isAssignableFrom(value.getClass()) ?
-                                    Arrays.toString((Object[]) value) :
-                                    value
-                            );
-                        }
-                        cacheEntriesBuilder.append("]");
-                        cacheEntriesBuilder.append("}");
+                        cacheEntriesBuilder.append(
+                            ToStringBuilder.reflectionToString(queryValue, ToStringStyle.SHORT_PREFIX_STYLE)
+                        );
                     } else if (cacheValue instanceof StandardCacheEntryImpl) {
                         StandardCacheEntryImpl standardCacheEntry = (StandardCacheEntryImpl) cacheValue;
 

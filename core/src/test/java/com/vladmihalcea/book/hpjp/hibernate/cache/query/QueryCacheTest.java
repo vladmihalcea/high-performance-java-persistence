@@ -5,7 +5,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.NativeQuery;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -30,28 +29,24 @@ public class QueryCacheTest extends AbstractTest {
     }
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
+    protected void additionalProperties(Properties properties) {
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
         properties.put("hibernate.cache.region.factory_class", "ehcache");
         properties.put("hibernate.cache.use_query_cache", Boolean.TRUE.toString());
-        return properties;
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setId(1L);
-            post.setTitle("High-Performance Java Persistence");
-
-            PostComment comment = new PostComment();
-            comment.setId(1L);
-            comment.setReview("JDBC part review");
-            post.addComment(comment);
-
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+                    .addComment(
+                        new PostComment()
+                            .setId(1L)
+                            .setReview("JDBC part review")
+                    )
+            );
         });
     }
 
@@ -62,20 +57,22 @@ public class QueryCacheTest extends AbstractTest {
     }
 
     public List<PostComment> getLatestPostComments(EntityManager entityManager) {
-        return entityManager.createQuery(
-            "select pc " +
-            "from PostComment pc " +
-            "order by pc.post.id desc", PostComment.class)
+        return entityManager.createQuery("""
+            select pc
+            from PostComment pc
+            order by pc.post.id desc
+            """, PostComment.class)
         .setMaxResults(10)
         .setHint(QueryHints.HINT_CACHEABLE, true)
         .getResultList();
     }
     
     private List<PostComment> getLatestPostCommentsByPostId(EntityManager entityManager) {
-        return entityManager.createQuery(
-            "select pc " +
-            "from PostComment pc " +
-            "where pc.post.id = :postId", PostComment.class)
+        return entityManager.createQuery("""
+            select pc
+            from PostComment pc
+            where pc.post.id = :postId
+            """, PostComment.class)
         .setParameter("postId", 1L)
         .setMaxResults(10)
         .setHint(QueryHints.HINT_CACHEABLE, true)
@@ -84,28 +81,30 @@ public class QueryCacheTest extends AbstractTest {
     
     private List<PostComment> getLatestPostCommentsByPost(EntityManager entityManager) {
         Post post = entityManager.find(Post.class, 1L);
-        return entityManager.createQuery(
-            "select pc " +
-            "from PostComment pc " +
-            "where pc.post = :post ", PostComment.class)
-            .setParameter("post", post)
+        return entityManager.createQuery("""
+            select pc
+            from PostComment pc
+            where pc.post = :post
+            """, PostComment.class)
+        .setParameter("post", post)
         .setMaxResults(10)
         .setHint(QueryHints.HINT_CACHEABLE, true)
         .getResultList();
     }
 
     private List<PostCommentSummary> getPostCommentSummaryByPost(EntityManager entityManager, Long postId) {
-        return entityManager.createQuery(
-            "select new " +
-            "   com.vladmihalcea.book.hpjp.hibernate.cache.query.PostCommentSummary(" +
-            "       pc.id, " +
-            "       p.title, " +
-            "       pc.review" +
-            "   ) " +
-            "from PostComment pc " +
-            "left join pc.post p " +
-            "where p.id = :postId ", PostCommentSummary.class)
-            .setParameter("postId", postId)
+        return entityManager.createQuery("""
+            select new
+               com.vladmihalcea.book.hpjp.hibernate.cache.query.PostCommentSummary(
+                   pc.id,
+                   p.title,
+                   pc.review
+               )
+            from PostComment pc
+            left join pc.post p
+            where p.id = :postId
+            """, PostCommentSummary.class)
+        .setParameter("postId", postId)
         .setMaxResults(10)
         .setHint(QueryHints.HINT_CACHEABLE, true)
         .getResultList();
@@ -204,11 +203,12 @@ public class QueryCacheTest extends AbstractTest {
             printQueryCacheRegionStatistics();
 
             LOGGER.info("Insert a new PostComment");
-            PostComment newComment = new PostComment();
-            newComment.setId(2L);
-            newComment.setReview("JDBC part review");
             Post post = entityManager.find(Post.class, 1L);
-            post.addComment(newComment);
+            post.addComment(
+                new PostComment()
+                    .setId(2L)
+                    .setReview("JDBC part review")
+            );
             entityManager.flush();
 
             assertEquals(2, getLatestPostComments(entityManager).size());
@@ -283,9 +283,6 @@ public class QueryCacheTest extends AbstractTest {
 
         private String title;
 
-        @Version
-        private int version;
-
         @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
         @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
         private List<PostComment> comments = new ArrayList<>();
@@ -294,25 +291,28 @@ public class QueryCacheTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public List<PostComment> getComments() {
             return comments;
         }
 
-        public void addComment(PostComment comment) {
+        public Post addComment(PostComment comment) {
             comments.add(comment);
             comment.setPost(this);
+            return this;
         }
     }
 
@@ -333,24 +333,27 @@ public class QueryCacheTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostComment setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public Post getPost() {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostComment setPost(Post post) {
             this.post = post;
+            return this;
         }
 
         public String getReview() {
             return review;
         }
 
-        public void setReview(String review) {
+        public PostComment setReview(String review) {
             this.review = review;
+            return this;
         }
     }
 }
