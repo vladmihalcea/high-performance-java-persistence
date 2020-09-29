@@ -246,8 +246,10 @@ public class QueryCacheTest extends AbstractTest {
             assertEquals(1, getLatestPostComments(entityManager).size());
             printQueryCacheRegionStatistics();
 
-            entityManager.createNativeQuery(
-                "UPDATE post SET title = '\"'||title||'\"' ")
+            entityManager.createNativeQuery("""
+                UPDATE post 
+                SET title = '\"'||title||'\"'
+                """)
             .executeUpdate();
 
             assertEquals(1, getLatestPostComments(entityManager).size());
@@ -262,8 +264,10 @@ public class QueryCacheTest extends AbstractTest {
             printQueryCacheRegionStatistics();
 
             LOGGER.info("Execute native query with synchronization");
-            entityManager.createNativeQuery(
-                "UPDATE post SET title = '\"'||title||'\"' ")
+            entityManager.createNativeQuery("""
+                UPDATE post 
+                SET title = '\"'||title||'\"'
+                """)
             .unwrap(NativeQuery.class)
             .addSynchronizedEntityClass(Post.class)
             .executeUpdate();
