@@ -43,9 +43,9 @@ public abstract class AbstractFlywayConfiguration {
     @Bean
     public abstract DataSource dataSource();
 
-    @Bean(initMethod = "migrate")
+    @Bean
     public Flyway flyway() {
-        return Flyway.configure()
+        Flyway flyway = Flyway.configure()
             .dataSource(dataSource())
             .baselineOnMigrate(true)
             .locations(
@@ -54,6 +54,8 @@ public abstract class AbstractFlywayConfiguration {
                     databaseType.name().toLowerCase()
                 )
         ).load();
+        flyway.migrate();
+        return flyway;
     }
 
     @Bean @DependsOn("flyway")
