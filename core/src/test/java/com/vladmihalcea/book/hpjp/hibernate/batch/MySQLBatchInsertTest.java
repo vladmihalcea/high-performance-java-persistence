@@ -1,21 +1,20 @@
 package com.vladmihalcea.book.hpjp.hibernate.batch;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Session;
-import org.hibernate.jdbc.Work;
 import org.junit.Test;
 
-import javax.persistence.*;
-import java.sql.*;
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.sql.BatchUpdateException;
+import java.sql.PreparedStatement;
+import java.util.Properties;
 
 /**
  * @author Vlad Mihalcea
  */
-public class BatchExceptionTest extends AbstractTest {
+public class MySQLBatchInsertTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -25,8 +24,13 @@ public class BatchExceptionTest extends AbstractTest {
     }
 
     @Override
-    protected Database database() {
-        return super.database();
+    protected Properties properties() {
+        Properties properties = super.properties();
+        properties.put("hibernate.jdbc.batch_size", "5");
+        properties.put("hibernate.order_inserts", "true");
+        properties.put("hibernate.order_updates", "true");
+        properties.put("hibernate.jdbc.batch_versioned_data", "true");
+        return properties;
     }
 
     @Test
