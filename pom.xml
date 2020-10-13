@@ -381,7 +381,7 @@
         <flyway.version>6.4.4</flyway.version>
         <hibernate-types.version>2.9.10</hibernate-types.version>
 
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
     </properties>
 
     <build>
