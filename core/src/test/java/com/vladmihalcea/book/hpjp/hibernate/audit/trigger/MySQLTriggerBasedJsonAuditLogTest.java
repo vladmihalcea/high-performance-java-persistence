@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
@@ -162,12 +163,15 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
                     .setPriceInCents(3990)
                     .setAuthor("Vlad Mihalcea")
             );
+
+            sleep(TimeUnit.SECONDS.toMillis(1));
         });
 
         doInJPA(entityManager -> {
             List<Tuple> revisions = getPostRevisions(entityManager);
 
             assertEquals(1, revisions.size());
+
         });
 
         doInJPA(entityManager -> {
@@ -175,6 +179,8 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
 
             Book book = entityManager.find(Book.class, 1L)
                 .setPriceInCents(4499);
+
+            sleep(TimeUnit.SECONDS.toMillis(1));
         });
 
         doInJPA(entityManager -> {
@@ -189,12 +195,40 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             entityManager.remove(
                 entityManager.getReference(Book.class, 1L)
             );
+
+            sleep(TimeUnit.SECONDS.toMillis(1));
         });
 
         doInJPA(entityManager -> {
             List<Tuple> revisions = getPostRevisions(entityManager);
 
             assertEquals(3, revisions.size());
+
+            List<Tuple> bookRevisions = entityManager.createNativeQuery("""
+                SELECT
+                   book_audit_log.dml_timestamp as version_timestamp,
+                   r.*
+                FROM
+                    book_audit_log
+                LEFT JOIN
+                    JSON_TABLE(
+                        new_row_data,
+                        '$'
+                        COLUMNS (
+                            title VARCHAR(255) PATH '$.title',
+                            author VARCHAR(255) PATH '$.author',
+                            price_in_cents INT(11) PATH '$.price_in_cents',
+                            publisher VARCHAR(255) PATH '$.publisher'
+                        )
+                    ) AS r ON true
+                WHERE
+                    book_audit_log.book_id = :bookId
+                ORDER BY version_timestamp
+			    """, Tuple.class)
+                .setParameter("bookId", 1L)
+                .getResultList();
+
+            assertEquals(3, bookRevisions.size());
         });
     }
 
