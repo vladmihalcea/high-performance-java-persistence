@@ -347,7 +347,7 @@
         <logback.version>1.2.3</logback.version>
         <commons-lang.version>3.3.2</commons-lang.version>
         <hibernate.version>5.4.22.Final</hibernate.version>
-        <hibernate.validator.version>5.3.5.Final</hibernate.validator.version>
+        <hibernate.validator.version>5.3.6.Final</hibernate.validator.version>
         <javassist.version>3.18.1-GA</javassist.version>
         <!--<ehcache3.version>3.4.0</ehcache3.version>-->
         <ehcache.version>2.10.6</ehcache.version>
