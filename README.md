@@ -128,7 +128,7 @@ The Integration Tests require some external configurations:
     ````
     CREATE USER 'mysql'@'localhost';
     
-    SET PASSWORD for 'mysql'@'localhost' = PASSWORD('admin');
+    SET PASSWORD for 'mysql'@'localhost'='admin';
     
     GRANT ALL PRIVILEGES ON high_performance_java_persistence.* TO 'mysql'@'localhost';
     
