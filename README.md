@@ -128,7 +128,7 @@ The Integration Tests require some external configurations:
     ````
     CREATE USER 'mysql'@'localhost';
     
-    SET PASSWORD for 'mysql'@'localhost' = PASSWORD('admin');
+    SET PASSWORD for 'mysql'@'localhost'='admin';
     
     GRANT ALL PRIVILEGES ON high_performance_java_persistence.* TO 'mysql'@'localhost';
     
@@ -136,8 +136,6 @@ The Integration Tests require some external configurations:
     
     FLUSH PRIVILEGES;
     ````
-
-    Exact instructions can be found in [here](https://github.com/vladmihalcea/high-performance-java-persistence/blob/master/MYSQL.md).
 
 - SQL Server
 
