@@ -222,6 +222,7 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             	dml_created_by,
             	trx_timestamp
             FROM book_audit_log 
+            ORDER BY dml_timestamp
             """, Tuple.class)
         .unwrap(org.hibernate.query.NativeQuery.class)
         .addScalar("book_id", LongType.INSTANCE)

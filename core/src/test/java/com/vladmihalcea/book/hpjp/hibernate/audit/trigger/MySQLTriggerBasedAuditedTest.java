@@ -181,7 +181,8 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
     private List<Tuple> getPostRevisions(EntityManager entityManager) {
         return entityManager.createNativeQuery("""
             SELECT *
-            FROM post_AUD 
+            FROM post_AUD
+            ORDER BY REV_TIMESTAMP 
             """, Tuple.class)
         .getResultList();
     }

@@ -259,7 +259,8 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
     private List<Tuple> getPostRevisions(EntityManager entityManager) {
         return entityManager.createNativeQuery("""
             SELECT *
-            FROM book_audit_log 
+            FROM book_audit_log
+            ORDER BY dml_timestamp 
             """, Tuple.class)
         .getResultList();
     }
