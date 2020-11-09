@@ -58,15 +58,16 @@ public class ForumServiceImpl implements ForumService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Post findById(Long id) {
         Post post = postDAO.findById(id);
 
         org.hibernate.engine.spi.PersistenceContext persistenceContext = getHibernatePersistenceContext();
 
         EntityEntry entityEntry = persistenceContext.getEntry(post);
-        assertNotNull(entityEntry.getLoadedState());
+        assertNull(entityEntry.getLoadedState());
 
+        post.setTitle(null);
         return post;
     }
 

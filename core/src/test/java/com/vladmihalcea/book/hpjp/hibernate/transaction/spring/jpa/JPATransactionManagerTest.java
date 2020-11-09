@@ -50,6 +50,9 @@ public class JPATransactionManagerTest {
     @Autowired
     private TagDAO tagDAO;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Before
     public void init() {
         try {
@@ -80,7 +83,11 @@ public class JPATransactionManagerTest {
         assertEquals(1, posts.size());
 
         Post post = forumService.findById(newPost.getId());
-        assertEquals("High-Performance Java Persistence", post.getTitle());
+        //Check if the post was updated
+        assertEquals(
+            "High-Performance Java Persistence",
+            entityManager.find(Post.class, post.getId()).getTitle()
+        );
 
         PostDTO postDTO = forumService.getPostDTOById(newPost.getId());
         assertEquals("High-Performance Java Persistence", postDTO.getTitle());
