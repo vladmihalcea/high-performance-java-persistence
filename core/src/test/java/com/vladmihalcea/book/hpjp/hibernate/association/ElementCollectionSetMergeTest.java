@@ -5,10 +5,8 @@ import org.hibernate.Session;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.Serializable;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,7 +25,7 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
 
     @Override
     protected Database database() {
-        return Database.POSTGRESQL;
+        return Database.HSQLDB;
     }
 
     @Override
@@ -44,11 +42,11 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
                 new Post()
                     .setId(1L)
                     .setTitle("High-Performance Java Persistence")
-                    .addComment("Best book on JPA and Hibernate!")
-                    .addComment("A must-read for every Java developer!")
-                    .addComment("A great reference book")
-                    .addTag("JPA")
-                    .addTag("Hibernate")
+                    .addComment(new Comment().setComment("Best book on JPA and Hibernate!").setAuthor("Alice"))
+                    .addComment(new Comment().setComment("A must-read for every Java developer!").setAuthor("Bob"))
+                    .addComment(new Comment().setComment("A great reference book").setAuthor("Carol"))
+                    .addTag(new Tag().setName("JPA").setAuthor("Alice"))
+                    .addTag(new Tag().setName("Hibernate").setAuthor("Alice"))
                 .addCategory(category1)
                 .addCategory(category2)
             );
@@ -68,8 +66,8 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
             .getSingleResult();
         });
 
-        detachedPost.addComment("Extra comment");
-        detachedPost.addTag("Extra tag");
+        detachedPost.addComment(new Comment().setComment("Extra comment@").setAuthor("Alice"));
+        detachedPost.addTag(new Tag().setName("Extra tag").setAuthor("Alice"));
         detachedPost.getCategories().remove(detachedPost.getCategories().iterator().next());
 
         doInJPA(entityManager -> {
@@ -106,10 +104,10 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
         private String title;
 
         @ElementCollection(fetch = FetchType.EAGER)
-        private Set<String> comments = new HashSet<>();
+        private Set<Comment> comments = new HashSet<>();
 
         @ElementCollection(fetch = FetchType.EAGER)
-        private Set<String> tags = new HashSet<>();
+        private Set<Tag> tags = new HashSet<>();
 
         @ManyToMany(fetch = FetchType.EAGER)
         private Set<PostCategory> categories = new HashSet<>();
@@ -132,28 +130,28 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
             return this;
         }
 
-        public Set<String> getComments() {
+        public Set<Comment> getComments() {
             return comments;
         }
 
-        public void setComments(Set<String> comments) {
+        public void setComments(Set<Comment> comments) {
             this.comments = comments;
         }
 
-        public Set<String> getTags() {
+        public Set<Tag> getTags() {
             return tags;
         }
 
-        public void setTags(Set<String> tags) {
+        public void setTags(Set<Tag> tags) {
             this.tags = tags;
         }
 
-        public Post addComment(String comment) {
+        public Post addComment(Comment comment) {
             comments.add(comment);
             return this;
         }
 
-        public Post addTag(String tag) {
+        public Post addTag(Tag tag) {
             tags.add(tag);
             return this;
         }
@@ -197,6 +195,86 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
         public PostCategory setCategory(String category) {
             this.category = category;
             return this;
+        }
+    }
+
+    @Embeddable
+    public static class Comment implements Serializable {
+
+        private String comment;
+
+        private String author;
+
+        public String getComment() {
+            return comment;
+        }
+
+        public Comment setComment(String comment) {
+            this.comment = comment;
+            return this;
+        }
+
+        public String getAuthor() {
+            return author;
+        }
+
+        public Comment setAuthor(String author) {
+            this.author = author;
+            return this;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Comment)) return false;
+            Comment comment1 = (Comment) o;
+            return Objects.equals(comment, comment1.comment) &&
+                   Objects.equals(author, comment1.author);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(comment, author);
+        }
+    }
+
+    @Embeddable
+    public static class Tag implements Serializable {
+
+        private String name;
+
+        private String author;
+
+        public String getName() {
+            return name;
+        }
+
+        public Tag setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public String getAuthor() {
+            return author;
+        }
+
+        public Tag setAuthor(String author) {
+            this.author = author;
+            return this;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Tag)) return false;
+            Tag tag = (Tag) o;
+            return Objects.equals(name, tag.name) &&
+                   Objects.equals(author, tag.author);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, author);
         }
     }
 }
