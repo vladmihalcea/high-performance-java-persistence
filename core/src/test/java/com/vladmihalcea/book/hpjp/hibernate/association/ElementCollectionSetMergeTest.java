@@ -3,6 +3,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Session;
 import org.junit.Test;
+import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -56,26 +57,18 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
     @Test
     public void testMerge() {
 
-        Post dtoEntity = doInJPA(entityManager -> {
-            return entityManager.createQuery("""
-                select p 
-                from Post p
-                where p.id = :id
-                """, Post.class)
-            .setParameter("id", 1L)
-            .getSingleResult();
-        });
+        PostDTO postDTO = getPostDTO();
 
-        dtoEntity.addComment(new Comment().setComment("Extra comment@").setAuthor("Alice"));
-        dtoEntity.addTag(new Tag().setName("Extra tag").setAuthor("Alice"));
-        dtoEntity.getCategories().remove(dtoEntity.getCategories().iterator().next());
+        postDTO.addComment(new Comment().setComment("Extra comment").setAuthor("Alice"));
+        postDTO.addTag(new Tag().setName("Extra tag").setAuthor("Alice"));
+        postDTO.getCategories().remove(postDTO.getCategories().iterator().next());
 
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
 
-            post.setTags(dtoEntity.getTags());
-            post.setComments(dtoEntity.getComments());
-            post.setCategories(dtoEntity.getCategories());
+            post.setTags(postDTO.getTags());
+            post.setComments(postDTO.getComments());
+            post.setCategories(postDTO.getCategories());
             entityManager.detach(post);
 
             Post mergedEntity = entityManager.merge(post);
@@ -91,6 +84,22 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
             assertEquals(4, post.getComments().size());
             assertEquals(1, post.getCategories().size());
         });
+    }
+
+    private PostDTO getPostDTO() {
+        Post post = doInJPA(entityManager -> {
+            return entityManager.createQuery("""
+                select p 
+                from Post p
+                where p.id = :id
+                """, Post.class)
+                .setParameter("id", 1L)
+                .getSingleResult();
+        });
+
+        PostDTO postDTO = new PostDTO();
+        BeanUtils.copyProperties(post, postDTO);
+        return postDTO;
     }
 
     @Entity(name = "Post")
@@ -145,6 +154,14 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
             this.tags = tags;
         }
 
+        public Set<PostCategory> getCategories() {
+            return categories;
+        }
+
+        public void setCategories(Set<PostCategory> categories) {
+            this.categories = categories;
+        }
+
         public Post addComment(Comment comment) {
             comments.add(comment);
             return this;
@@ -155,6 +172,56 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
             return this;
         }
 
+        public Post addCategory(PostCategory category) {
+            categories.add(category);
+            return this;
+        }
+    }
+
+    public static class PostDTO {
+
+        private Long id;
+
+        private String title;
+
+        private Set<Comment> comments = new HashSet<>();
+
+        private Set<Tag> tags = new HashSet<>();
+
+        private Set<PostCategory> categories = new HashSet<>();
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public Set<Comment> getComments() {
+            return comments;
+        }
+
+        public void setComments(Set<Comment> comments) {
+            this.comments = comments;
+        }
+
+        public Set<Tag> getTags() {
+            return tags;
+        }
+
+        public void setTags(Set<Tag> tags) {
+            this.tags = tags;
+        }
+
         public Set<PostCategory> getCategories() {
             return categories;
         }
@@ -163,7 +230,17 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
             this.categories = categories;
         }
 
-        public Post addCategory(PostCategory category) {
+        public PostDTO addComment(Comment comment) {
+            comments.add(comment);
+            return this;
+        }
+
+        public PostDTO addTag(Tag tag) {
+            tags.add(tag);
+            return this;
+        }
+
+        public PostDTO addCategory(PostCategory category) {
             categories.add(category);
             return this;
         }
