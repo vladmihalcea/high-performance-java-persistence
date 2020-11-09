@@ -43,11 +43,6 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
                 new Post()
                     .setId(1L)
                     .setTitle("High-Performance Java Persistence")
-                    .addComment(new Comment().setComment("Best book on JPA and Hibernate!").setAuthor("Alice"))
-                    .addComment(new Comment().setComment("A must-read for every Java developer!").setAuthor("Bob"))
-                    .addComment(new Comment().setComment("A great reference book").setAuthor("Carol"))
-                    .addTag(new Tag().setName("JPA").setAuthor("Alice"))
-                    .addTag(new Tag().setName("Hibernate").setAuthor("Alice"))
                 .addCategory(category1)
                 .addCategory(category2)
             );
@@ -57,49 +52,55 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
     @Test
     public void testMerge() {
 
-        PostDTO postDTO = getPostDTO();
-
-        postDTO.addComment(new Comment().setComment("Extra comment").setAuthor("Alice"));
-        postDTO.addTag(new Tag().setName("Extra tag").setAuthor("Alice"));
-        postDTO.getCategories().remove(postDTO.getCategories().iterator().next());
+        PostDTO postDTO = getPostDTO()
+            .addComment(new Comment().setComment("Best book on JPA and Hibernate!").setAuthor("Alice"))
+            .addComment(new Comment().setComment("A must-read for every Java developer!").setAuthor("Bob"))
+            .addComment(new Comment().setComment("A great reference book").setAuthor("Carol"))
+            .addTag(new Tag().setName("JPA").setAuthor("Alice"))
+            .addTag(new Tag().setName("Hibernate").setAuthor("Alice"));
 
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
+            PostCategory postCategory = post.getCategories().iterator().next();
+            postCategory.setCategory("New category");
+            BeanUtils.copyProperties(postDTO, post);
+            update(entityManager, postCategory);
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                join p.categories c
+                where c.id = :categoryId
+                """, Post.class)
+            .setParameter("categoryId", postCategory.getId())
+            .getResultList();
 
-            post.setTags(postDTO.getTags());
-            post.setComments(postDTO.getComments());
-            post.setCategories(postDTO.getCategories());
-            entityManager.detach(post);
-
-            Post mergedEntity = entityManager.merge(post);
-            entityManager.detach(mergedEntity);
-
-            entityManager.merge(mergedEntity);
+            BeanUtils.copyProperties(postDTO, post);
+            update(entityManager, post);
         });
 
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
 
-            assertEquals(3, post.getTags().size());
-            assertEquals(4, post.getComments().size());
-            assertEquals(1, post.getCategories().size());
+            assertEquals(2, post.getTags().size());
+            assertEquals(3, post.getComments().size());
+            assertEquals(2, post.getCategories().size());
         });
     }
 
     private PostDTO getPostDTO() {
         Post post = doInJPA(entityManager -> {
-            return entityManager.createQuery("""
-                select p 
-                from Post p
-                where p.id = :id
-                """, Post.class)
-                .setParameter("id", 1L)
-                .getSingleResult();
+            return entityManager.find(Post.class, 1L);
         });
 
         PostDTO postDTO = new PostDTO();
         BeanUtils.copyProperties(post, postDTO);
         return postDTO;
+    }
+
+    private void update(EntityManager entityManager, Object object) {
+        Object mergedEntity = entityManager.merge(object);
+        entityManager.detach(object);
+        entityManager.merge(mergedEntity);
     }
 
     @Entity(name = "Post")
@@ -112,12 +113,25 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
         private String title;
 
         @ElementCollection(fetch = FetchType.EAGER)
+        @CollectionTable(
+            name = "post_comment",
+            joinColumns = @JoinColumn(name = "post_id")
+        )
         private Set<Comment> comments = new HashSet<>();
 
         @ElementCollection(fetch = FetchType.EAGER)
+        @CollectionTable(
+            name = "post_tag",
+            joinColumns = @JoinColumn(name = "post_id")
+        )
         private Set<Tag> tags = new HashSet<>();
 
         @ManyToMany(fetch = FetchType.EAGER)
+        @JoinTable(
+            name = "post_categories",
+            joinColumns = @JoinColumn(name = "category_id"),
+            inverseJoinColumns = @JoinColumn(name = "post_id")
+        )
         private Set<PostCategory> categories = new HashSet<>();
 
         public Long getId() {
