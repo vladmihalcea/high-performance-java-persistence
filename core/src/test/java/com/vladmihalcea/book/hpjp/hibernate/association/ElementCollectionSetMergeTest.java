@@ -56,7 +56,7 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
     @Test
     public void testMerge() {
 
-        Post detachedPost = doInJPA(entityManager -> {
+        Post dtoEntity = doInJPA(entityManager -> {
             return entityManager.createQuery("""
                 select p 
                 from Post p
@@ -66,23 +66,22 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
             .getSingleResult();
         });
 
-        detachedPost.addComment(new Comment().setComment("Extra comment@").setAuthor("Alice"));
-        detachedPost.addTag(new Tag().setName("Extra tag").setAuthor("Alice"));
-        detachedPost.getCategories().remove(detachedPost.getCategories().iterator().next());
+        dtoEntity.addComment(new Comment().setComment("Extra comment@").setAuthor("Alice"));
+        dtoEntity.addTag(new Tag().setName("Extra tag").setAuthor("Alice"));
+        dtoEntity.getCategories().remove(dtoEntity.getCategories().iterator().next());
 
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
 
-            post.setTags(detachedPost.getTags());
-            post.setComments(detachedPost.getComments());
-            post.setCategories(detachedPost.getCategories());
+            post.setTags(dtoEntity.getTags());
+            post.setComments(dtoEntity.getComments());
+            post.setCategories(dtoEntity.getCategories());
             entityManager.detach(post);
 
             Post mergedEntity = entityManager.merge(post);
             entityManager.detach(mergedEntity);
 
-            Session session = entityManager.unwrap(Session.class);
-            session.update(mergedEntity);
+            entityManager.merge(mergedEntity);
         });
 
         doInJPA(entityManager -> {
