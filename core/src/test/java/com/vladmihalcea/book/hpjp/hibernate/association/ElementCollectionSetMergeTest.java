@@ -1,20 +1,22 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.Database;
-import org.hibernate.Session;
+
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest {
+public class ElementCollectionSetMergeTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -22,11 +24,6 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
             Post.class,
             PostCategory.class
         };
-    }
-
-    @Override
-    protected Database database() {
-        return Database.HSQLDB;
     }
 
     @Override
@@ -43,8 +40,9 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
                 new Post()
                     .setId(1L)
                     .setTitle("High-Performance Java Persistence")
-                .addCategory(category1)
-                .addCategory(category2)
+                    .addCategory(category1)
+                    .addCategory(category2)
+                    .addComment(new Comment().setComment("firstComment"))
             );
         });
     }
@@ -52,30 +50,29 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
     @Test
     public void testMerge() {
 
-        PostDTO postDTO = getPostDTO()
-            .addComment(new Comment().setComment("Best book on JPA and Hibernate!").setAuthor("Alice"))
-            .addComment(new Comment().setComment("A must-read for every Java developer!").setAuthor("Bob"))
-            .addComment(new Comment().setComment("A great reference book").setAuthor("Carol"))
-            .addTag(new Tag().setName("JPA").setAuthor("Alice"))
-            .addTag(new Tag().setName("Hibernate").setAuthor("Alice"));
+        PostDTO postDTO = getPostDTO();
+
 
         doInJPA(entityManager -> {
+
+            //second find and copy from dto
             Post post = entityManager.find(Post.class, 1L);
-            PostCategory postCategory = post.getCategories().iterator().next();
-            postCategory.setCategory("New category");
             BeanUtils.copyProperties(postDTO, post);
-            update(entityManager, postCategory);
+
+            // find posts by category
             List<Post> posts = entityManager.createQuery("""
                 select p
                 from Post p
                 join p.categories c
                 where c.id = :categoryId
                 """, Post.class)
-            .setParameter("categoryId", postCategory.getId())
-            .getResultList();
+                .setParameter("categoryId", post.categories.iterator().next().id)
+                .getResultList();
 
+            // update post
+            post = entityManager.find(Post.class, 1L);
             BeanUtils.copyProperties(postDTO, post);
-            update(entityManager, post);
+            Object mergedEntity = update(entityManager, post);
         });
 
         doInJPA(entityManager -> {
@@ -93,14 +90,24 @@ public class ElementCollectionSetMergeTest extends AbstractMySQLIntegrationTest 
         });
 
         PostDTO postDTO = new PostDTO();
-        BeanUtils.copyProperties(post, postDTO);
+        postDTO.id = post.id;
+        postDTO.title = post.title;
+        postDTO.categories = post.categories;
+        postDTO.tags = post.tags;
+        postDTO.comments = new HashSet<>();
+        postDTO.addComment(new Comment().setComment("Best book on JPA and Hibernate!").setAuthor("Alice"))
+            .addComment(new Comment().setComment("A must-read for every Java developer!").setAuthor("Bob"))
+            .addComment(new Comment().setComment("A great reference book").setAuthor("Carol"))
+            .addTag(new Tag().setName("JPA").setAuthor("Alice"))
+            .addTag(new Tag().setName("Hibernate").setAuthor("Alice"));
         return postDTO;
     }
 
-    private void update(EntityManager entityManager, Object object) {
+    private Object update(EntityManager entityManager, Object object) {
         Object mergedEntity = entityManager.merge(object);
         entityManager.detach(object);
-        entityManager.merge(mergedEntity);
+        Object merged2 = entityManager.merge(mergedEntity);
+        return merged2;
     }
 
     @Entity(name = "Post")
