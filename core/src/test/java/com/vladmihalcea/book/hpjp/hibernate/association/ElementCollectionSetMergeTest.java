@@ -84,6 +84,44 @@ public class ElementCollectionSetMergeTest extends AbstractTest {
         });
     }
 
+    @Test
+    public void testMergeWorking() {
+
+        PostDTO postDTO = getPostDTO();
+
+
+        doInJPA(entityManager -> {
+
+            //second find and copy from dto
+            Post post = entityManager.find(Post.class, 1L);
+
+            // find posts by category
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                join p.categories c
+                where c.id = :categoryId
+                """, Post.class)
+                .setParameter("categoryId", post.categories.iterator().next().id)
+                .getResultList();
+
+            BeanUtils.copyProperties(postDTO, post);
+
+            // update post
+            post = entityManager.find(Post.class, 1L);
+            BeanUtils.copyProperties(postDTO, post);
+            Object mergedEntity = update(entityManager, post);
+        });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+
+            assertEquals(2, post.getTags().size());
+            assertEquals(3, post.getComments().size());
+            assertEquals(2, post.getCategories().size());
+        });
+    }
+
     private PostDTO getPostDTO() {
         Post post = doInJPA(entityManager -> {
             return entityManager.find(Post.class, 1L);
