@@ -35,10 +35,11 @@ public class ACIDWithCheckFirstTest extends AbstractTest {
     protected void afterInit() {
         doInJDBC(connection -> {
             try(Statement st = connection.createStatement()) {
-                st.executeUpdate(
-                    "ALTER TABLE account " +
-                    "ADD CONSTRAINT account_balance_check " +
-                    "CHECK (balance >= 0)"
+                st.executeUpdate("""
+                    ALTER TABLE account
+                    ADD CONSTRAINT account_balance_check
+                    CHECK (balance >= 0)
+                    """
                 );
             }
         });
@@ -125,10 +126,11 @@ public class ACIDWithCheckFirstTest extends AbstractTest {
 
     private long getBalance(final String iban) {
         return doInJDBC(connection -> {
-            try(PreparedStatement statement = connection.prepareStatement(
-                "SELECT balance " +
-                "FROM account " +
-                "WHERE iban = ?")
+            try(PreparedStatement statement = connection.prepareStatement("""
+                    SELECT balance
+                    FROM account
+                    WHERE iban = ?
+                    """)
             ) {
                 statement.setString(1, iban);
                 ResultSet resultSet = statement.executeQuery();
@@ -142,10 +144,11 @@ public class ACIDWithCheckFirstTest extends AbstractTest {
 
     private void addBalance(final String iban, long balance) {
         doInJDBC(connection -> {
-            try(PreparedStatement statement = connection.prepareStatement(
-                "UPDATE account " +
-                "SET balance = balance + ? " +
-                "WHERE iban = ?")
+            try(PreparedStatement statement = connection.prepareStatement("""
+                    UPDATE account
+                    SET balance = balance + ?
+                    WHERE iban = ?
+                    """)
             ) {
                 statement.setLong(1, balance);
                 statement.setString(2, iban);

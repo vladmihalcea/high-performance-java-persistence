@@ -1,15 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency.acid;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
 import org.junit.Test;
-import org.postgresql.ds.PGSimpleDataSource;
 
-import javax.persistence.*;
-import javax.sql.DataSource;
-
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.concurrent.CountDownLatch;
@@ -64,10 +61,11 @@ public class ACIDReadModifyWriteFailureTest extends AbstractTest {
 
     private long getBalance(final String iban) {
         return doInJDBC(connection -> {
-            try(PreparedStatement statement = connection.prepareStatement(
-                "SELECT balance " +
-                "FROM account " +
-                "WHERE iban = ?")
+            try(PreparedStatement statement = connection.prepareStatement("""
+                    SELECT balance
+                    FROM account
+                    WHERE iban = ?
+                    """)
             ) {
                 statement.setString(1, iban);
                 ResultSet resultSet = statement.executeQuery();
@@ -81,10 +79,11 @@ public class ACIDReadModifyWriteFailureTest extends AbstractTest {
 
     private void addBalance(final String iban, long balance) {
         doInJDBC(connection -> {
-            try(PreparedStatement statement = connection.prepareStatement(
-                "UPDATE account " +
-                "SET balance = balance + ? " +
-                "WHERE iban = ?")
+            try(PreparedStatement statement = connection.prepareStatement("""
+                    UPDATE account
+                    SET balance = balance + ?
+                    WHERE iban = ?
+                    """)
             ) {
                 statement.setLong(1, balance);
                 statement.setString(2, iban);
