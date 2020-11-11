@@ -80,4 +80,10 @@ public class ForumServiceImpl implements ForumService {
     public PostDTO getPostDTOById(Long id) {
         return postDAO.getPostDTOById(id);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void processData() {
+        //Application-level processing
+    }
 }

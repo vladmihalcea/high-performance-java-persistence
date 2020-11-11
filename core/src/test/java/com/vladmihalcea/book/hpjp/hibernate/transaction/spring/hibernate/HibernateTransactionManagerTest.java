@@ -16,6 +16,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -74,5 +75,8 @@ public class HibernateTransactionManagerTest {
 
         PostDTO postDTO = forumService.getPostDTOById(newPost.getId());
         assertEquals("High-Performance Java Persistence", postDTO.getTitle());
+
+        //Do nothing in the transaction to check the no statement warning
+        forumService.processData();
     }
 }
