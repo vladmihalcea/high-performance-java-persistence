@@ -6,6 +6,7 @@ import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.*;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import net.sourceforge.jtds.jdbcx.JtdsDataSource;
+import oracle.jdbc.pool.OracleDataSource;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
@@ -37,14 +38,14 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
 
         @Override
         public DataSource dataSource() {
-            DataSource dataSource = super.dataSource();
+            OracleDataSource dataSource = (OracleDataSource) super.dataSource();
             try {
-                Properties connectionProperties = ReflectionUtils.invokeGetter(dataSource, "connectionProperties");
+                Properties connectionProperties = dataSource.getConnectionProperties();
                 if(connectionProperties == null) {
                     connectionProperties = new Properties();
                 }
                 connectionProperties.put("oracle.jdbc.implicitStatementCacheSize", Integer.toString(cacheSize));
-                ReflectionUtils.invokeSetter(dataSource, "connectionProperties", connectionProperties);
+                dataSource.setConnectionProperties(connectionProperties);
             } catch (Exception e) {
                 fail(e.getMessage());
             }

@@ -1,8 +1,8 @@
 package com.vladmihalcea.book.hpjp.util.providers;
 
-import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.queries.OracleQueries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
+import oracle.jdbc.pool.OracleDataSource;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -19,35 +19,29 @@ public class OracleDataSourceProvider implements DataSourceProvider {
 	@Override
 	public DataSource dataSource() {
 		try {
-			DataSource dataSource = ReflectionUtils.newInstance( "oracle.jdbc.pool.OracleDataSource" );
-			ReflectionUtils.invokeSetter( dataSource, "databaseName", "high_performance_java_persistence" );
-			ReflectionUtils.invokeSetter( dataSource, "URL", url() );
-			ReflectionUtils.invokeSetter( dataSource, "user", "oracle" );
-			ReflectionUtils.invokeSetter( dataSource, "password", "admin" );
+			OracleDataSource dataSource = new OracleDataSource();
+			dataSource.setDatabaseName("high_performance_java_persistence");
+			dataSource.setURL(url());
+			dataSource.setUser(username());
+			dataSource.setPassword(password());
 			return dataSource;
-		}
-		catch (Exception e) {
-			throw new IllegalStateException( e );
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
 		}
 	}
 
 	@Override
 	public Class<? extends DataSource> dataSourceClassName() {
-		try {
-			return (Class<? extends DataSource>) Class.forName( "oracle.jdbc.pool.OracleDataSource" );
-		}
-		catch (ClassNotFoundException e) {
-			throw new IllegalArgumentException( e );
-		}
+		return OracleDataSource.class;
 	}
 
 	@Override
 	public Properties dataSourceProperties() {
 		Properties properties = new Properties();
-		properties.setProperty( "databaseName", "high_performance_java_persistence" );
-		properties.setProperty( "URL", url() );
-		properties.setProperty( "user", username() );
-		properties.setProperty( "password", password() );
+		properties.setProperty("databaseName", "high_performance_java_persistence");
+		properties.setProperty("URL", url());
+		properties.setProperty("user", username());
+		properties.setProperty("password", password());
 		return properties;
 	}
 
