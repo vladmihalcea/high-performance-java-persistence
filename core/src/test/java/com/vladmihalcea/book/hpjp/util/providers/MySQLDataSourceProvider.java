@@ -93,6 +93,8 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
     @Override
     public DataSource dataSource() {
         MysqlDataSource dataSource = new MysqlDataSource();
+        // TODO: recheck tests using this
+        // dataSource.setPrepStmtCacheSize(cacheSize);
         String url = "jdbc:mysql://localhost/high_performance_java_persistence?useSSL=false&" +
             "rewriteBatchedStatements=" + rewriteBatchedStatements +
             "&cachePrepStmts=" + cachePrepStmts +
