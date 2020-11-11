@@ -17,7 +17,7 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class[] {
+        return new Class[]{
             Post.class,
             PostComment.class,
         };
@@ -93,7 +93,7 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
         super.init();
         doInJPA(entityManager -> {
             Post post1 = new Post();
-            post1.setId( 1L );
+            post1.setId(1L);
             post1.setTitle("Post one");
 
             entityManager.persist(post1);
@@ -101,12 +101,12 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
             PostComment comment1 = new PostComment();
             comment1.setId(1L);
             comment1.setReview("Good");
-            comment1.setPost( post1 );
+            comment1.setPost(post1);
 
             entityManager.persist(comment1);
 
             Post post2 = new Post();
-            post2.setId( 2L );
+            post2.setId(2L);
             post2.setTitle("Post two");
 
             entityManager.persist(post2);
@@ -114,7 +114,7 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
             PostComment comment2 = new PostComment();
             comment2.setId(2L);
             comment2.setReview("Excellent");
-            comment2.setPost( post2 );
+            comment2.setPost(post2);
 
             entityManager.persist(comment2);
         });
@@ -122,32 +122,36 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
 
     @Test
     public void testNPlusOne() {
-        doInJPA( entityManager -> {
-            LOGGER.info( "Detect N+1" );
-
+        doInJPA(entityManager -> {
+            LOGGER.info("Detect N+1");
             SQLStatementCountValidator.reset();
 
-            List<PostComment> comments = entityManager.createQuery(
-                "select pc " +
-                "from PostComment pc", PostComment.class )
+            List<PostComment> comments = entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                """, PostComment.class)
             .getResultList();
-            assertEquals( 2, comments.size() );
 
-            SQLStatementCountValidator.assertSelectCount( 1 );
-        } );
+            assertEquals(2, comments.size());
+
+            SQLStatementCountValidator.assertSelectCount(1);
+        });
     }
 
     @Test
     public void testJoinFetch() {
-
         doInJPA(entityManager -> {
             LOGGER.info("Join fetch to prevent N+1");
             SQLStatementCountValidator.reset();
-            List<PostComment> postComments = entityManager
-                    .createQuery("select pc from PostComment pc join fetch pc.post", PostComment.class)
-                    .getResultList();
 
-            for(PostComment postComment : postComments) {
+            List<PostComment> postComments = entityManager.createQuery("""
+                select pc 
+                from PostComment pc 
+                join fetch pc.post
+                """, PostComment.class)
+            .getResultList();
+
+            for (PostComment postComment : postComments) {
                 assertNotNull(postComment.getPost());
             }
 
