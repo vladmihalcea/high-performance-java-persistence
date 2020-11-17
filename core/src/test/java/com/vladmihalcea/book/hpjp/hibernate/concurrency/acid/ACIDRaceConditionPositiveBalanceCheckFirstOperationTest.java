@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class ACIDWithPositiveBalanceCheckFirstOperationTest extends AbstractTest {
+public class ACIDRaceConditionPositiveBalanceCheckFirstOperationTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {

@@ -9,7 +9,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertEquals;
@@ -17,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class ACIDWithPositiveBalanceCheckLastOperationTest extends AbstractTest {
+public class ACIDRaceConditionTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -33,16 +32,6 @@ public class ACIDWithPositiveBalanceCheckLastOperationTest extends AbstractTest 
 
     @Override
     protected void afterInit() {
-        doInJDBC(connection -> {
-            try(Statement st = connection.createStatement()) {
-                st.executeUpdate(
-                    "ALTER TABLE account " +
-                    "ADD CONSTRAINT account_balance_check " +
-                    "CHECK (balance >= 0)"
-                );
-            }
-        });
-
         doInJPA(entityManager -> {
             Account from = new Account();
             from.setIban("Alice-123");
@@ -57,6 +46,50 @@ public class ACIDWithPositiveBalanceCheckLastOperationTest extends AbstractTest 
             to.setBalance(0L);
 
             entityManager.persist(to);
+        });
+    }
+
+    public void transfer(String fromIban, String toIban, Long transferCents) {
+        Long fromBalance = getBalance(fromIban);
+
+        if(fromBalance >= transferCents) {
+            addBalance(fromIban, (-1) * transferCents);
+
+            addBalance(toIban, transferCents);
+        }
+    }
+
+    private long getBalance(final String iban) {
+        return doInJDBC(connection -> {
+            try(PreparedStatement statement = connection.prepareStatement("""
+                    SELECT balance
+                    FROM account
+                    WHERE iban = ?
+                    """)
+            ) {
+                statement.setString(1, iban);
+                ResultSet resultSet = statement.executeQuery();
+                if(resultSet.next()) {
+                    return resultSet.getLong(1);
+                }
+            }
+            throw new IllegalArgumentException("Can't find account with IBAN: " + iban);
+        });
+    }
+
+    private void addBalance(final String iban, long balance) {
+        doInJDBC(connection -> {
+            try(PreparedStatement statement = connection.prepareStatement("""
+                    UPDATE account
+                    SET balance = balance + ?
+                    WHERE iban = ?
+                    """)
+            ) {
+                statement.setLong(1, balance);
+                statement.setString(2, iban);
+
+                statement.executeUpdate();
+            }
         });
     }
 
@@ -81,8 +114,6 @@ public class ACIDWithPositiveBalanceCheckLastOperationTest extends AbstractTest 
         assertEquals(10L, getBalance("Bob-456"));
     }
 
-    int threadCount = 16;
-
     @Test
     public void testParallelExecution() {
         assertEquals(10L, getBalance("Alice-123"));
@@ -94,6 +125,8 @@ public class ACIDWithPositiveBalanceCheckLastOperationTest extends AbstractTest 
         LOGGER.info("Bob's balance {}", getBalance("Bob-456"));
     }
 
+    int threadCount = 8;
+
     public void parallelExecution() {
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch endLatch = new CountDownLatch(threadCount);
@@ -101,58 +134,15 @@ public class ACIDWithPositiveBalanceCheckLastOperationTest extends AbstractTest 
         for (int i = 0; i < threadCount; i++) {
             new Thread(() -> {
                 awaitOnLatch(startLatch);
-                try {
-                    transfer("Alice-123", "Bob-456", 5L);
-                } finally {
-                    endLatch.countDown();
-                }
+
+                transfer("Alice-123", "Bob-456", 5L);
+
+                endLatch.countDown();
             }).start();
         }
-
+        LOGGER.info("Starting threads");
         startLatch.countDown();
         awaitOnLatch(endLatch);
-    }
-
-    public void transfer(String fromIban, String toIban, Long transferCents) {
-        Long fromBalance = getBalance(fromIban);
-
-        if(fromBalance >= transferCents) {
-            addBalance(toIban, transferCents);
-
-            addBalance(fromIban, (-1) * transferCents);
-        }
-    }
-
-    private long getBalance(final String iban) {
-        return doInJDBC(connection -> {
-            try(PreparedStatement statement = connection.prepareStatement(
-                "SELECT balance " +
-                "FROM account " +
-                "WHERE iban = ?")
-            ) {
-                statement.setString(1, iban);
-                ResultSet resultSet = statement.executeQuery();
-                if(resultSet.next()) {
-                    return resultSet.getLong(1);
-                }
-            }
-            throw new IllegalArgumentException("Can't find account with IBAN: " + iban);
-        });
-    }
-
-    private void addBalance(final String iban, long balance) {
-        doInJDBC(connection -> {
-            try(PreparedStatement statement = connection.prepareStatement(
-                "UPDATE account " +
-                "SET balance = balance + ? " +
-                "WHERE iban = ?")
-            ) {
-                statement.setLong(1, balance);
-                statement.setString(2, iban);
-
-                statement.executeUpdate();
-            }
-        });
     }
 
     @Entity(name = "Account")
@@ -164,7 +154,7 @@ public class ACIDWithPositiveBalanceCheckLastOperationTest extends AbstractTest 
 
         private String owner;
 
-        private volatile long balance;
+        private long balance;
 
         public String getIban() {
             return iban;

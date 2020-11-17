@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class ACIDReadModifyWriteDefaultIsolationLevelTest extends AbstractTest {
+public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {

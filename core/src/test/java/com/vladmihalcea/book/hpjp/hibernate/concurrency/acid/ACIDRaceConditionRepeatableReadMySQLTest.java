@@ -5,7 +5,7 @@ import com.vladmihalcea.book.hpjp.util.providers.Database;
 /**
  * @author Vlad Mihalcea
  */
-public class ACIDReadModifyWriteRepeatableReadMySQLTest extends ACIDReadModifyWriteRepeatableReadTest {
+public class ACIDRaceConditionRepeatableReadMySQLTest extends ACIDReadModifyWriteRepeatableReadTest {
 
     @Override
     protected Database database() {

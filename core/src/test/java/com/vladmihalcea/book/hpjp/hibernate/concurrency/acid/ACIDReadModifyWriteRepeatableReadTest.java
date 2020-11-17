@@ -6,7 +6,7 @@ import java.sql.SQLException;
 /**
  * @author Vlad Mihalcea
  */
-public class ACIDReadModifyWriteRepeatableReadTest extends ACIDReadModifyWriteDefaultIsolationLevelTest {
+public class ACIDReadModifyWriteRepeatableReadTest extends ACIDRaceConditionDefaultIsolationLevelTest {
 
     @Override
     protected void setIsolationLevel(Connection connection) throws SQLException {
