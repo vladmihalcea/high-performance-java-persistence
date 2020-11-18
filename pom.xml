@@ -425,6 +425,10 @@
                 <configuration>
                     <release>${jdk.version}</release>
 
+                    <compilerArgs>
+                        <compilerArg>--enable-preview</compilerArg>
+                    </compilerArgs>
+
                     <annotationProcessorPaths>
                         <annotationProcessorPath>
                             <groupId>org.hibernate</groupId>
@@ -441,6 +445,7 @@
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <argLine>-Xms1024m -Xmx1024m</argLine>
+                    <argLine>--enable-preview</argLine>
 
                     <systemPropertyVariables>
                         <bitronix.tm.journal.disk.logPart1Filename>${project.build.directory}/btm1.log</bitronix.tm.journal.disk.logPart1Filename>

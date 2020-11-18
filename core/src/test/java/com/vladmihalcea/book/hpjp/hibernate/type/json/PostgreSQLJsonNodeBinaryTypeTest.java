@@ -64,7 +64,7 @@ public class PostgreSQLJsonNodeBinaryTypeTest extends AbstractPostgreSQLIntegrat
                    "author": "Vlad Mihalcea",
                    "publisher": "Amazon",
                    "price": 44.99,
-                   "url": "https://www.amazon.com/High-Performance-Java-Persistence-Vlad-Mihalcea/dp/973022823X/"
+                   "url": "https://www.amazon.com/dp/973022823X/"
                 }
                 """
             ));

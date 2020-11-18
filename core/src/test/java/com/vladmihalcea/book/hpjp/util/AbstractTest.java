@@ -47,6 +47,8 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.sql.DataSource;
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -1038,11 +1040,22 @@ public abstract class AbstractTest {
     }
 
     public static long longValue(Object number) {
+        if(number instanceof String) {
+            return Long.parseLong((String) number);
+        }
         return ((Number) number).longValue();
     }
 
     public static double doubleValue(Object number) {
         return ((Number) number).doubleValue();
+    }
+
+    public static URL urlValue(String url) {
+        try {
+            return url != null ? new URL(url) : null;
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     protected List<Map<String, String>> parseResultSet(ResultSet resultSet) {
