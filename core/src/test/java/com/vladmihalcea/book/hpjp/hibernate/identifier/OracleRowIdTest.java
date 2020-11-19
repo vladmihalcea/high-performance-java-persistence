@@ -165,7 +165,7 @@ public class OracleRowIdTest extends AbstractOracleIntegrationTest {
 
         @Override
         public int hashCode() {
-            return 31;
+            return getClass().hashCode();
         }
     }
 }

@@ -275,7 +275,7 @@ public class HibernateInitializeTest extends AbstractTest {
 
         @Override
         public int hashCode() {
-            return 31;
+            return getClass().hashCode();
         }
     }
 
@@ -328,7 +328,7 @@ public class HibernateInitializeTest extends AbstractTest {
 
         @Override
         public int hashCode() {
-            return 31;
+            return getClass().hashCode();
         }
 
         @Override

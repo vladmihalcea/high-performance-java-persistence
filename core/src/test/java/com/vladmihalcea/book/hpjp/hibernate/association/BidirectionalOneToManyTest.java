@@ -184,7 +184,7 @@ public class BidirectionalOneToManyTest extends AbstractTest {
 
         @Override
         public int hashCode() {
-            return 31;
+            return getClass().hashCode();
         }
     }
 }

@@ -169,7 +169,7 @@ public class BidirectionalOneToManyOrphanRemovalWithoutCascadeTest extends Abstr
 
         @Override
         public int hashCode() {
-            return 31;
+            return getClass().hashCode();
         }
     }
 }

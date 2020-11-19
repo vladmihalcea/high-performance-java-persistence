@@ -56,7 +56,7 @@ public class IdEqualityTest
 
         @Override
         public int hashCode() {
-            return 31;
+            return getClass().hashCode();
         }
 
         public Long getId() {
