@@ -10,11 +10,12 @@ import javax.persistence.Table;
 import java.sql.BatchUpdateException;
 import java.sql.PreparedStatement;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Vlad Mihalcea
  */
-public class MySQLBatchInsertTest extends AbstractTest {
+public class BatchInsertFailureTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -36,24 +37,27 @@ public class MySQLBatchInsertTest extends AbstractTest {
     @Test
     public void testInsertConstraintViolation() {
         LOGGER.info("testInsertPosts");
-        doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            session.doWork(connection -> {
-                try (PreparedStatement st = connection.prepareStatement("""
-                        INSERT INTO post (id, title)
-                        VALUES (?, ?)
-                        """)) {
-                    for (long i = 1; i <= 3; i++) {
-                        st.setLong(1, i % 2);
-                        st.setString(2, String.format("High-Performance Java Persistence, Part %d", i));
-                        st.addBatch();
+        AtomicLong id = new AtomicLong(1);
+        for (int it = 1; it <= 100; it++) {
+            doInJPA(entityManager -> {
+                Session session = entityManager.unwrap(Session.class);
+                session.doWork(connection -> {
+                    try (PreparedStatement st = connection.prepareStatement("""
+                            INSERT INTO post (id, title)
+                            VALUES (?, ?)
+                            """)) {
+                        for (long i = 1; i <= 3; i++) {
+                            st.setLong(1, i % 2);
+                            st.setString(2, String.format("High-Performance Java Persistence, Part %d", i));
+                            st.addBatch();
+                        }
+                        st.executeBatch();
+                    } catch (BatchUpdateException e) {
+                        LOGGER.info("Batch has managed to process {} entries", e.getUpdateCounts().length);
                     }
-                    st.executeBatch();
-                } catch (BatchUpdateException e) {
-                    LOGGER.info("Batch has managed to process {} entries", e.getUpdateCounts().length);
-                }
+                });
             });
-        });
+        }
     }
 
     @Entity(name = "Post")
