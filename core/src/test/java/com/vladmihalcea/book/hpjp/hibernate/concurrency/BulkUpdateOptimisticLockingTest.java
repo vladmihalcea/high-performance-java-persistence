@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.transaction.VoidCallable;
 import org.junit.Test;
 
@@ -25,6 +26,11 @@ public class BulkUpdateOptimisticLockingTest extends AbstractTest {
         };
     }
 
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
     public void afterInit() {
         doInJPA(entityManager -> {
             for (long i = 1; i <= SPAM_POST_COUNT; i++) {
@@ -46,13 +52,13 @@ public class BulkUpdateOptimisticLockingTest extends AbstractTest {
 
             executeSync(() -> doInJPA(
                 _entityManager -> {
-                    int updateCount = entityManager
-                    .createQuery(
-                        "update Post " +
-                        "set status = :newStatus " +
-                        "where " +
-                        "   status = :oldStatus and " +
-                        "   lower(title) like :pattern")
+                    int updateCount = entityManager.createQuery("""
+                        update Post
+                        set status = :newStatus
+                        where
+                           status = :oldStatus and
+                           lower(title) like :pattern
+                        """)
                     .setParameter("oldStatus", PostStatus.PENDING)
                     .setParameter("newStatus", PostStatus.SPAM)
                     .setParameter("pattern", "%spam%")
@@ -69,23 +75,24 @@ public class BulkUpdateOptimisticLockingTest extends AbstractTest {
     @Test
     public void testJPQL() {
         doInJPA(entityManager -> {
-            int zeroVersionCount = entityManager.createQuery(
-                "select count(p) " +
-                "from Post p " +
-                "where p.version = :version", Number.class)
+            int zeroVersionCount = entityManager.createQuery("""
+                select count(p)
+                from Post p
+                where p.version = :version
+			    """, Number.class)
             .setParameter("version", (short) 0)
             .getSingleResult()
             .intValue();
 
             assertEquals(SPAM_POST_COUNT, zeroVersionCount);
 
-            int updateCount = entityManager
-            .createQuery(
-                "update Post " +
-                "set status = :newStatus " +
-                "where " +
-                "   status = :oldStatus and " +
-                "   lower(title) like :pattern")
+            int updateCount = entityManager.createQuery("""
+                update Post
+                set status = :newStatus
+                where
+                   status = :oldStatus and
+                   lower(title) like :pattern
+                """)
             .setParameter("oldStatus", PostStatus.PENDING)
             .setParameter("newStatus", PostStatus.SPAM)
             .setParameter("pattern", "%spam%")
@@ -93,10 +100,11 @@ public class BulkUpdateOptimisticLockingTest extends AbstractTest {
 
             assertEquals(SPAM_POST_COUNT, updateCount);
 
-            int oneVersionCount = entityManager.createQuery(
-                "select count(p) " +
-                "from Post p " +
-                "where p.version = :version", Number.class)
+            int oneVersionCount = entityManager.createQuery("""
+                select count(p)
+                from Post p
+                where p.version = :version
+			    """, Number.class)
             .setParameter("version", (short) 1)
             .getSingleResult()
             .intValue();
@@ -108,25 +116,26 @@ public class BulkUpdateOptimisticLockingTest extends AbstractTest {
     @Test
     public void testJPQLWithVersion() {
         doInJPA(entityManager -> {
-            int zeroVersionCount = entityManager.createQuery(
-                "select count(p) " +
-                "from Post p " +
-                "where p.version = :version", Number.class)
+            int zeroVersionCount = entityManager.createQuery("""
+                select count(p)
+                from Post p
+                where p.version = :version
+                """, Number.class)
             .setParameter("version", (short) 0)
             .getSingleResult()
             .intValue();
 
             assertEquals(SPAM_POST_COUNT, zeroVersionCount);
 
-            int updateCount = entityManager
-            .createQuery(
-                "update Post " +
-                "set " +
-                "   status = :newStatus," +
-                "   version = version + 1 " +
-                "where " +
-                "   status = :oldStatus and " +
-                "   lower(title) like :pattern")
+            int updateCount = entityManager.createQuery("""
+                update Post
+                set
+                   status = :newStatus,   
+                   version = version + 1
+                where
+                   status = :oldStatus and
+                   lower(title) like :pattern
+                """)
             .setParameter("oldStatus", PostStatus.PENDING)
             .setParameter("newStatus", PostStatus.SPAM)
             .setParameter("pattern", "%spam%")
@@ -134,10 +143,11 @@ public class BulkUpdateOptimisticLockingTest extends AbstractTest {
 
             assertEquals(SPAM_POST_COUNT, updateCount);
 
-            int oneVersionCount = entityManager.createQuery(
-                "select count(p) " +
-                "from Post p " +
-                "where p.version = :version", Number.class)
+            int oneVersionCount = entityManager.createQuery("""
+                select count(p)
+                from Post p
+                where p.version = :version
+			    """, Number.class)
             .setParameter("version", (short) 1)
             .getSingleResult()
             .intValue();
@@ -149,22 +159,24 @@ public class BulkUpdateOptimisticLockingTest extends AbstractTest {
     @Test
     public void testHQL() {
         doInJPA(entityManager -> {
-            int zeroVersionCount = entityManager.createQuery(
-                "select count(p) " +
-                "from Post p " +
-                "where p.version = :version", Number.class)
+            int zeroVersionCount = entityManager.createQuery("""
+                select count(p)
+                from Post p
+                where p.version = :version
+			    """, Number.class)
             .setParameter("version", (short) 0)
             .getSingleResult()
             .intValue();
 
             assertEquals(SPAM_POST_COUNT, zeroVersionCount);
 
-            int updateCount = entityManager.createQuery(
-                "update versioned Post " +
-                "set status = :newStatus " +
-                "where " +
-                "   status = :oldStatus and " +
-                "   lower(title) like :pattern")
+            int updateCount = entityManager.createQuery("""
+                update versioned Post
+                set status = :newStatus
+                where
+                   status = :oldStatus and
+                   lower(title) like :pattern
+                """)
             .setParameter("oldStatus", PostStatus.PENDING)
             .setParameter("newStatus", PostStatus.SPAM)
             .setParameter("pattern", "%spam%")
@@ -172,10 +184,11 @@ public class BulkUpdateOptimisticLockingTest extends AbstractTest {
 
             assertEquals(SPAM_POST_COUNT, updateCount);
 
-            int oneVersionCount = entityManager.createQuery(
-                "select count(p) " +
-                "from Post p " +
-                "where p.version = :version", Number.class)
+            int oneVersionCount = entityManager.createQuery("""
+                select count(p)
+                from Post p
+                where p.version = :version
+			    """, Number.class)
             .setParameter("version", (short) 1)
             .getSingleResult()
             .intValue();
@@ -187,10 +200,11 @@ public class BulkUpdateOptimisticLockingTest extends AbstractTest {
     @Test
     public void testCriteriaAPI() {
         doInJPA(entityManager -> {
-            int zeroVersionCount = entityManager.createQuery(
-                "select count(p) " +
-                "from Post p " +
-                "where p.version = :version", Number.class)
+            int zeroVersionCount = entityManager.createQuery("""
+                select count(p)
+                from Post p
+                where p.version = :version
+			    """, Number.class)
             .setParameter("version", (short) 0)
             .getSingleResult()
             .intValue();
@@ -219,10 +233,11 @@ public class BulkUpdateOptimisticLockingTest extends AbstractTest {
 
             assertEquals(SPAM_POST_COUNT, updateCount);
 
-            int oneVersionCount = entityManager.createQuery(
-                "select count(p) " +
-                "from Post p " +
-                "where p.version = :version", Number.class)
+            int oneVersionCount = entityManager.createQuery("""
+                select count(p)
+                from Post p
+                where p.version = :version
+			    """, Number.class)
             .setParameter("version", (short) 1)
             .getSingleResult()
             .intValue();
@@ -241,7 +256,7 @@ public class BulkUpdateOptimisticLockingTest extends AbstractTest {
         private String title;
 
         @Enumerated(EnumType.ORDINAL)
-        @Column(columnDefinition = "tinyint")
+        @Column(columnDefinition = "smallint")
         private PostStatus status = PostStatus.PENDING;
 
         @Version

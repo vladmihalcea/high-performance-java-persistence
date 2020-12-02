@@ -7,6 +7,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -187,6 +190,25 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
                 "where" +
                 "   p.title = '" + title + "'", Post.class)
             .getResultList();
+        });
+    }
+
+    private <T> List<T> getPostsByTitle(Class<T> entityClass, String title) {
+        return doInJPA(entityManager -> {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+
+            CriteriaQuery<T> query = builder.createQuery(entityClass);
+            Root<T> root = query.from(entityClass);
+            query.where(
+                builder.equal(
+                    root.get("title"),
+                    title
+                )
+            );
+
+            return entityManager
+                .createQuery(query)
+                .getResultList();
         });
     }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.JacksonUtil;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.StaleStateException;
 import org.junit.Test;
 
@@ -22,6 +23,11 @@ public class DefaultOptimisticLockingTest extends AbstractTest {
         return new Class<?>[]{
                 Post.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 
     @Test
@@ -44,7 +50,7 @@ public class DefaultOptimisticLockingTest extends AbstractTest {
     }
 
     @Test
-    public void testStaleStateException() {
+    public void testOptimisticLockExceptionUpdate() {
 
         doInJPA(entityManager -> {
             Post post = new Post();
@@ -75,7 +81,39 @@ public class DefaultOptimisticLockingTest extends AbstractTest {
     }
 
     @Test
-    public void testStaleStateExceptionMerge() {
+    public void testOptimisticLockExceptionRemove() {
+
+        doInJPA(entityManager -> {
+            Post post = new Post();
+            post.setId(1L);
+            post.setTitle("High-Performance Java Persistence");
+            entityManager.persist(post);
+        });
+
+        try {
+            doInJPA(entityManager -> {
+                Post post = entityManager.find(Post.class, 1L);
+
+                executeSync(() -> {
+                    doInJPA(_entityManager -> {
+                        Post _post = _entityManager.find(Post.class, 1L);
+
+                        _entityManager.remove(_post);
+                    });
+                });
+
+                post.setTitle("High-Performance Hibernate");
+            });
+        } catch (Exception expected) {
+            LOGGER.error("Throws", expected);
+
+            assertEquals(OptimisticLockException.class, expected.getCause().getClass());
+            assertTrue(StaleStateException.class.isAssignableFrom(expected.getCause().getCause().getClass()));
+        }
+    }
+
+    @Test
+    public void testOptimisticLockExceptionMerge() {
 
         Post _post = doInJPA(entityManager -> {
             Post post = new Post();
@@ -106,7 +144,7 @@ public class DefaultOptimisticLockingTest extends AbstractTest {
     }
 
     @Test
-    public void testStaleStateExceptionMergeJsonTransform() {
+    public void testOptimisticLockExceptionMergeJsonTransform() {
 
         String postJsonString = doInJPA(entityManager -> {
             Post post = new Post();
