@@ -7,6 +7,7 @@ import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
 import org.hibernate.dialect.MySQL8Dialect;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Properties;
 
 /**
@@ -28,6 +29,8 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
 
     private boolean useCursorFetch = false;
 
+    private Integer prepStmtCacheSqlLimit = null;
+
     public boolean isRewriteBatchedStatements() {
         return rewriteBatchedStatements;
     }
@@ -40,48 +43,63 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
         return cachePrepStmts;
     }
 
-    public void setCachePrepStmts(boolean cachePrepStmts) {
+    public MySQLDataSourceProvider setCachePrepStmts(boolean cachePrepStmts) {
         this.cachePrepStmts = cachePrepStmts;
+        return this;
     }
 
     public boolean isUseServerPrepStmts() {
         return useServerPrepStmts;
     }
 
-    public void setUseServerPrepStmts(boolean useServerPrepStmts) {
+    public MySQLDataSourceProvider setUseServerPrepStmts(boolean useServerPrepStmts) {
         this.useServerPrepStmts = useServerPrepStmts;
+        return this;
     }
 
     public boolean isUseTimezone() {
         return useTimezone;
     }
 
-    public void setUseTimezone(boolean useTimezone) {
+    public MySQLDataSourceProvider setUseTimezone(boolean useTimezone) {
         this.useTimezone = useTimezone;
+        return this;
     }
 
     public boolean isUseJDBCCompliantTimezoneShift() {
         return useJDBCCompliantTimezoneShift;
     }
 
-    public void setUseJDBCCompliantTimezoneShift(boolean useJDBCCompliantTimezoneShift) {
+    public MySQLDataSourceProvider setUseJDBCCompliantTimezoneShift(boolean useJDBCCompliantTimezoneShift) {
         this.useJDBCCompliantTimezoneShift = useJDBCCompliantTimezoneShift;
+        return this;
     }
 
     public boolean isUseLegacyDatetimeCode() {
         return useLegacyDatetimeCode;
     }
 
-    public void setUseLegacyDatetimeCode(boolean useLegacyDatetimeCode) {
+    public MySQLDataSourceProvider setUseLegacyDatetimeCode(boolean useLegacyDatetimeCode) {
         this.useLegacyDatetimeCode = useLegacyDatetimeCode;
+        return this;
     }
 
     public boolean isUseCursorFetch() {
         return useCursorFetch;
     }
 
-    public void setUseCursorFetch(boolean useCursorFetch) {
+    public MySQLDataSourceProvider setUseCursorFetch(boolean useCursorFetch) {
         this.useCursorFetch = useCursorFetch;
+        return this;
+    }
+
+    public Integer getPrepStmtCacheSqlLimit() {
+        return prepStmtCacheSqlLimit;
+    }
+
+    public MySQLDataSourceProvider setPrepStmtCacheSqlLimit(Integer prepStmtCacheSqlLimit) {
+        this.prepStmtCacheSqlLimit = prepStmtCacheSqlLimit;
+        return this;
     }
 
     @Override
@@ -91,28 +109,33 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
 
     @Override
     public DataSource dataSource() {
-        MysqlDataSource dataSource = new MysqlDataSource();
-        // TODO: recheck tests using this
-        // dataSource.setPrepStmtCacheSize(cacheSize);
-        String url = "jdbc:mysql://localhost/high_performance_java_persistence?useSSL=false&" +
-            "rewriteBatchedStatements=" + rewriteBatchedStatements +
-            "&cachePrepStmts=" + cachePrepStmts +
-            "&useServerPrepStmts=" + useServerPrepStmts;
+        try {
+            MysqlDataSource dataSource = new MysqlDataSource();
 
-        if(useCursorFetch) {
-            url += "&useCursorFetch=true";
+            String url = "jdbc:mysql://localhost/high_performance_java_persistence?useSSL=false";
+
+            if(!MySQL8Dialect.class.isAssignableFrom(ReflectionUtils.getClass(hibernateDialect()))) {
+                url += "&useTimezone=" + useTimezone +
+                        "&useJDBCCompliantTimezoneShift=" + useJDBCCompliantTimezoneShift +
+                        "&useLegacyDatetimeCode=" + useLegacyDatetimeCode;
+            }
+
+            dataSource.setURL(url);
+            dataSource.setUser(username());
+            dataSource.setPassword(password());
+
+            dataSource.setRewriteBatchedStatements(rewriteBatchedStatements);
+            dataSource.setUseCursorFetch(useCursorFetch);
+            dataSource.setCachePrepStmts(cachePrepStmts);
+            dataSource.setUseServerPrepStmts(useServerPrepStmts);
+            if (prepStmtCacheSqlLimit != null) {
+                dataSource.setPrepStmtCacheSqlLimit(prepStmtCacheSqlLimit);
+            }
+
+            return dataSource;
+        } catch (SQLException e) {
+            throw new IllegalArgumentException(e);
         }
-
-        if(!MySQL8Dialect.class.isAssignableFrom(ReflectionUtils.getClass(hibernateDialect()))) {
-            url += "&useTimezone=" + useTimezone +
-                    "&useJDBCCompliantTimezoneShift=" + useJDBCCompliantTimezoneShift +
-                    "&useLegacyDatetimeCode=" + useLegacyDatetimeCode;
-        }
-
-        dataSource.setURL(url);
-        dataSource.setUser(username());
-        dataSource.setPassword(password());
-        return dataSource;
     }
 
     @Override
@@ -150,13 +173,9 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
     @Override
     public String toString() {
         return "MySQLDataSourceProvider{" +
-                "rewriteBatchedStatements=" + rewriteBatchedStatements +
-                ", cachePrepStmts=" + cachePrepStmts +
+                "cachePrepStmts=" + cachePrepStmts +
                 ", useServerPrepStmts=" + useServerPrepStmts +
-                ", useTimezone=" + useTimezone +
-                ", useJDBCCompliantTimezoneShift=" + useJDBCCompliantTimezoneShift +
-                ", useLegacyDatetimeCode=" + useLegacyDatetimeCode +
-                ", useCursorFetch=" + useCursorFetch +
+                ", rewriteBatchedStatements=" + rewriteBatchedStatements +
                 '}';
     }
 
