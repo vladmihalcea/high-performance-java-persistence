@@ -5,7 +5,6 @@ import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.queries.MySQLQueries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
 import org.hibernate.dialect.MySQL8Dialect;
-import org.hibernate.dialect.MySQLDialect;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -15,7 +14,7 @@ import java.util.Properties;
  */
 public class MySQLDataSourceProvider implements DataSourceProvider {
 
-    private boolean rewriteBatchedStatements = true;
+    private boolean rewriteBatchedStatements = false;
 
     private boolean cachePrepStmts = false;
 

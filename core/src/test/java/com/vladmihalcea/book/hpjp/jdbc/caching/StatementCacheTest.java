@@ -2,7 +2,6 @@ package com.vladmihalcea.book.hpjp.jdbc.caching;
 
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.*;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import net.sourceforge.jtds.jdbcx.JtdsDataSource;
@@ -14,13 +13,16 @@ import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -161,10 +163,10 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
                 new CachingPostgreSQLDataSourceProvider(0)
         });
         MySQLDataSourceProvider mySQLCachingDataSourceProvider = new MySQLDataSourceProvider();
-        mySQLCachingDataSourceProvider.setUseServerPrepStmts(false);
+        mySQLCachingDataSourceProvider.setUseServerPrepStmts(true);
         mySQLCachingDataSourceProvider.setCachePrepStmts(true);
         providers.add(new DataSourceProvider[]{
-                mySQLCachingDataSourceProvider
+            mySQLCachingDataSourceProvider
         });
         MySQLDataSourceProvider mySQLNoCachingDataSourceProvider = new MySQLDataSourceProvider();
         mySQLNoCachingDataSourceProvider.setUseServerPrepStmts(false);
@@ -182,8 +184,12 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    protected boolean connectionPooling() {
+        return true;
+    }
+
+    @Override
+    public void afterInit() {
         doInJDBC(connection -> {
             try (
                     PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
@@ -220,20 +226,21 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
 
     @Test
     @Ignore
-    public void selectWhenCaching() {
+    public void testStatementCachingComplex() {
         long ttlMillis = System.currentTimeMillis() + getRunMillis();
         AtomicInteger counter = new AtomicInteger();
         doInJDBC(connection -> {
             while (System.currentTimeMillis() < ttlMillis)
-                try (PreparedStatement statement = connection.prepareStatement(
-                        "select p.title, pd.created_on " +
-                        "from post p " +
-                        "left join post_details pd on p.id = pd.id " +
-                        "where EXISTS ( " +
-                        "   select 1 from post_comment where post_id > p.id and version = ?" +
-                        ")"
+                try (PreparedStatement statement = connection.prepareStatement("""
+                    select p.title, pd.created_on
+                    from post p
+                    left join post_details pd on p.id = pd.id
+                    where EXISTS (
+                        select 1 from post_comment where post_id > p.id and version = ?
+                    )
+                    """
                 )) {
-                    statement.setInt(1, counter.incrementAndGet());
+                    statement.setInt(1, (int) (Math.random() * getPostCount()));
                     statement.execute();
                 } catch (SQLException e) {
                     fail(e.getMessage());
@@ -242,6 +249,36 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
         LOGGER.info("When using {}, throughput is {} statements",
                 dataSourceProvider(),
                 counter.get());
+    }
+
+    @Test
+    @Ignore
+    public void testStatementCachingSimple() {
+        long ttlMillis = System.currentTimeMillis() + getRunMillis();
+        AtomicLong counterHolder = new AtomicLong();
+        doInJDBC(connection -> {
+            long statementCount = 0;
+            while (System.currentTimeMillis() < ttlMillis) {
+                try (PreparedStatement statement = connection.prepareStatement("""
+                    select p.title
+                    from post p
+                    where p.id = ?
+                    """
+                )) {
+                    statement.setInt(1, (int) (Math.random() * getPostCount()));
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        assertTrue(resultSet.next());
+                    }
+                    statementCount++;
+                } catch (SQLException e) {
+                    fail(e.getMessage());
+                }
+            }
+            counterHolder.set(statementCount);
+        });
+        LOGGER.info("When using {}, throughput is {} statements per minute",
+                dataSourceProvider(),
+                counterHolder.get());
     }
 
     protected int getPostCount() {
