@@ -9,10 +9,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.hibernate.Interceptor;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import org.hibernate.*;
 import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.SessionFactoryBuilder;
@@ -565,6 +562,8 @@ public abstract class AbstractTest {
         Transaction txn = null;
         try {
             session = sessionFactory().openSession();
+            session.setDefaultReadOnly(true);
+            session.setHibernateFlushMode(FlushMode.MANUAL);
             txn = session.beginTransaction();
             session.doWork(callable::execute);
             if ( !txn.getRollbackOnly() ) {
