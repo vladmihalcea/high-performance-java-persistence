@@ -1,5 +1,8 @@
 package com.vladmihalcea.book.hpjp.jdbc.caching;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Slf4jReporter;
+import com.codahale.metrics.Timer;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.*;
@@ -19,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -26,11 +30,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * StatementCacheTest - Test Statement cache
- *
  * @author Vlad Mihalcea
  */
 public class StatementCacheTest extends DataSourceProviderIntegrationTest {
+
     public static class CachingOracleDataSourceProvider extends OracleDataSourceProvider {
         private final int cacheSize;
 
@@ -137,6 +140,15 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
+    private MetricRegistry metricRegistry = new MetricRegistry();
+
+    private Slf4jReporter logReporter = Slf4jReporter
+        .forRegistry(metricRegistry)
+        .outputTo(LOGGER)
+        .build();
+
+    private Timer queryTimer = metricRegistry.timer("queryTimer");
+
     public StatementCacheTest(DataSourceProvider dataSourceProvider) {
         super(dataSourceProvider);
     }
@@ -144,7 +156,7 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
     @Parameterized.Parameters
     public static Collection<DataSourceProvider[]> rdbmsDataSourceProvider() {
         List<DataSourceProvider[]> providers = new ArrayList<>();
-        providers.add(new DataSourceProvider[]{
+        /*providers.add(new DataSourceProvider[]{
                 new CachingOracleDataSourceProvider(1)
         });
         providers.add(new DataSourceProvider[]{
@@ -161,18 +173,32 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
         });
         providers.add(new DataSourceProvider[]{
                 new CachingPostgreSQLDataSourceProvider(0)
-        });
-        MySQLDataSourceProvider mySQLCachingDataSourceProvider = new MySQLDataSourceProvider();
-        mySQLCachingDataSourceProvider.setUseServerPrepStmts(true);
-        mySQLCachingDataSourceProvider.setCachePrepStmts(true);
+        });*/
+
         providers.add(new DataSourceProvider[]{
-            mySQLCachingDataSourceProvider
+            new MySQLDataSourceProvider()
+                .setUseServerPrepStmts(false)
+                .setCachePrepStmts(false)
         });
-        MySQLDataSourceProvider mySQLNoCachingDataSourceProvider = new MySQLDataSourceProvider();
-        mySQLNoCachingDataSourceProvider.setUseServerPrepStmts(false);
-        mySQLNoCachingDataSourceProvider.setCachePrepStmts(false);
+
         providers.add(new DataSourceProvider[]{
-                mySQLNoCachingDataSourceProvider
+            new MySQLDataSourceProvider()
+                .setUseServerPrepStmts(true)
+                .setCachePrepStmts(false)
+        });
+
+        providers.add(new DataSourceProvider[]{
+            new MySQLDataSourceProvider()
+                .setUseServerPrepStmts(false)
+                .setCachePrepStmts(true)
+                .setPrepStmtCacheSqlLimit(2048)
+        });
+
+        providers.add(new DataSourceProvider[]{
+            new MySQLDataSourceProvider()
+                .setUseServerPrepStmts(true)
+                .setCachePrepStmts(true)
+                .setPrepStmtCacheSqlLimit(2048)
         });
 
         return providers;
@@ -226,35 +252,90 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
 
     @Test
     @Ignore
-    public void testStatementCachingComplex() {
-        long ttlMillis = System.currentTimeMillis() + getRunMillis();
-        AtomicInteger counter = new AtomicInteger();
+    public void testMySQLStatementCaching() {
+        if(dataSourceProvider().database() != Database.MYSQL) {
+            return;
+        }
+        AtomicInteger queryCount = new AtomicInteger();
         doInJDBC(connection -> {
-            while (System.currentTimeMillis() < ttlMillis)
+            long ttlNanos = System.nanoTime() + getRunNanos();
+            while (System.nanoTime() < ttlNanos) {
+                long startNanos = System.nanoTime();
                 try (PreparedStatement statement = connection.prepareStatement("""
-                    select p.title, pd.created_on
-                    from post p
-                    left join post_details pd on p.id = pd.id
-                    where EXISTS (
-                        select 1 from post_comment where post_id > p.id and version = ?
+                    SELECT p.title, pd.created_on
+                    FROM post p
+                    LEFT JOIN post_details pd ON p.id = pd.id
+                    WHERE EXISTS (
+                        SELECT 1 FROM post_comment WHERE post_id = p.id
                     )
+                    ORDER BY p.id
+                    LIMIT ?
+                    OFFSET ?
                     """
                 )) {
-                    statement.setInt(1, (int) (Math.random() * getPostCount()));
-                    statement.execute();
-                } catch (SQLException e) {
-                    fail(e.getMessage());
+                    statement.setInt(1, 1);
+                    statement.setInt(2, 100);
+                    try(ResultSet resultSet = statement.executeQuery()) {
+                        queryCount.incrementAndGet();
+                    } finally {
+                        queryTimer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
+                    }
                 }
+            }
         });
         LOGGER.info("When using {}, throughput is {} statements",
                 dataSourceProvider(),
-                counter.get());
+                queryCount.get()
+        );
+        logReporter.report();
     }
 
     @Test
     @Ignore
-    public void testStatementCachingSimple() {
-        long ttlMillis = System.currentTimeMillis() + getRunMillis();
+    public void testPostgreSQLStatementCaching() {
+        if(dataSourceProvider().database() != Database.POSTGRESQL) {
+            return;
+        }
+        AtomicInteger queryCount = new AtomicInteger();
+        doInJDBC(connection -> {
+            long ttlNanos = System.nanoTime() + getRunNanos();
+            while (System.nanoTime() < ttlNanos) {
+                long startNanos = System.nanoTime();
+                try (PreparedStatement statement = connection.prepareStatement("""
+                    SELECT p.title, pd.created_on
+                    FROM post p
+                    LEFT JOIN post_details pd ON p.id = pd.id
+                    WHERE EXISTS (
+                        SELECT 1 FROM post_comment WHERE post_id = p.id
+                    )
+                    ORDER BY p.id
+                    LIMIT ?
+                    OFFSET ?
+                    """
+                )) {
+                    statement.setInt(1, 1);
+                    statement.setInt(2, 100);
+                    try(ResultSet resultSet = statement.executeQuery()) {
+                        queryCount.incrementAndGet();
+                    } finally {
+                        queryTimer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
+                    }
+                } catch (SQLException e) {
+                    fail(e.getMessage());
+                }
+            }
+        });
+        LOGGER.info("When using {}, throughput is {} statements",
+            dataSourceProvider(),
+            queryCount.get()
+        );
+        logReporter.report();
+    }
+
+    @Test
+    @Ignore
+    public void testStatementCaching2() {
+        long ttlMillis = System.currentTimeMillis() + getRunNanos();
         AtomicLong counterHolder = new AtomicLong();
         doInJDBC(connection -> {
             long statementCount = 0;
@@ -289,8 +370,8 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
         return 5;
     }
 
-    protected int getRunMillis() {
-        return 60 * 1000;
+    protected long getRunNanos() {
+        return TimeUnit.MINUTES.toNanos(5);
     }
 
     @Override

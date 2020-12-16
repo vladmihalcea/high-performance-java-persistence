@@ -11,6 +11,7 @@ import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.Post;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.PostComment;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.PostDetails;
 import org.hibernate.annotations.QueryHints;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -151,6 +152,7 @@ public class MySQLStatementCacheTest extends DataSourceProviderIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testStatementCachingJPA() {
         long ttlMillis = System.currentTimeMillis() + getRunMillis();
         AtomicInteger transactionCount = new AtomicInteger();
@@ -239,6 +241,7 @@ public class MySQLStatementCacheTest extends DataSourceProviderIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testStatementCachingJDBC() {
         for (long i = 1; i <= getRunCount(); i++) {
             doInJDBC(connection -> {
