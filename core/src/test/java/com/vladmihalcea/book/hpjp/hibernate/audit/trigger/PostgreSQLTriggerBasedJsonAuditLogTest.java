@@ -189,6 +189,24 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             List<Tuple> revisions = getPostRevisions(entityManager);
 
             assertEquals(3, revisions.size());
+
+            List<Tuple> bookRevisions = entityManager.createNativeQuery("""
+                SELECT
+                    dml_timestamp as version_timestamp,
+                    new_row_data ->> 'title' as title,
+                    new_row_data ->> 'author' as author,
+                    cast(new_row_data ->> 'price_in_cents' as int) as price_in_cents,
+                    new_row_data ->> 'publisher' as publisher
+                FROM 
+                    book_audit_log
+                WHERE
+                    book_audit_log.book_id = :bookId
+                ORDER BY dml_timestamp
+			    """, Tuple.class)
+            .setParameter("bookId", 1L)
+            .getResultList();
+
+            assertEquals(3, bookRevisions.size());
         });
     }
 

@@ -225,8 +225,8 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
                     book_audit_log.book_id = :bookId
                 ORDER BY version_timestamp
 			    """, Tuple.class)
-                .setParameter("bookId", 1L)
-                .getResultList();
+            .setParameter("bookId", 1L)
+            .getResultList();
 
             assertEquals(3, bookRevisions.size());
         });
