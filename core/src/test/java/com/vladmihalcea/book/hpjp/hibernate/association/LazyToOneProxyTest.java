@@ -3,27 +3,17 @@ package com.vladmihalcea.book.hpjp.hibernate.association;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.LazyToOne;
 import org.hibernate.annotations.LazyToOneOption;
-import org.hibernate.testing.bytecode.enhancement.BytecodeEnhancerRunner;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import java.util.Date;
 
-import static junit.framework.TestCase.assertNull;
-import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(BytecodeEnhancerRunner.class)
-public class BidirectionalOneToOneLazyNoProxyTest extends AbstractTest {
-
-    //Needed as otherwise we get a No unique field [LOGGER] error
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+public class LazyToOneProxyTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -35,34 +25,26 @@ public class BidirectionalOneToOneLazyNoProxyTest extends AbstractTest {
 
     @Test
     public void testLazyLoadingNoProxy() {
+        final Post post = new Post()
+            .setId(1L)
+            .setTitle("High-Performance Java Persistence, 1st Part");
+
         doInJPA(entityManager -> {
+            entityManager.persist(post);
+
             entityManager.persist(
-                new Post()
-                    .setId(1L)
-                    .setTitle("High-Performance Java Persistence, 1st Part")
-                    .setDetails(
-                        new PostDetails()
-                            .setCreatedBy("Vlad Mihalcea")
-                    )
+                new PostDetails()
+                    .setPost(post)
+                    .setCreatedBy("Vlad Mihalcea")
             );
         });
 
-        Post post = doInJPA(entityManager -> {
-            return entityManager.createQuery("""
-                select p
-                from Post p
-                where p.title like 'High-Performance Java Persistence%'
-                """, Post.class)
-            .getSingleResult();
+        PostDetails details = doInJPA(entityManager -> {
+            return entityManager.find(PostDetails.class, post.getId());
         });
 
-        try {
-            assertNotNull(post.getDetails());
-
-            fail("Should throw LazyInitializationException");
-        } catch (Exception expected) {
-            LOGGER.info("The @OneToOne association was fetched lazily");
-        }
+        assertNotNull(details.getPost());
+        LOGGER.info("PostDetail Proxy class: {}", details.getPost().getClass());
     }
 
     @Entity(name = "Post")
@@ -73,14 +55,6 @@ public class BidirectionalOneToOneLazyNoProxyTest extends AbstractTest {
         private Long id;
 
         private String title;
-
-        @OneToOne(
-            mappedBy = "post",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL
-        )
-        @LazyToOne(LazyToOneOption.NO_PROXY)
-        private PostDetails details;
 
         public Long getId() {
             return id;
@@ -99,23 +73,6 @@ public class BidirectionalOneToOneLazyNoProxyTest extends AbstractTest {
             this.title = title;
             return this;
         }
-
-        public PostDetails getDetails() {
-            return details;
-        }
-
-        public Post setDetails(PostDetails details) {
-            if (details == null) {
-                if (this.details != null) {
-                    this.details.setPost(null);
-                }
-            }
-            else {
-                details.setPost(this);
-            }
-            this.details = details;
-            return this;
-        }
     }
 
     @Entity(name = "PostDetails")
@@ -123,7 +80,6 @@ public class BidirectionalOneToOneLazyNoProxyTest extends AbstractTest {
     public static class PostDetails {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         @Column(name = "created_on")
@@ -133,7 +89,9 @@ public class BidirectionalOneToOneLazyNoProxyTest extends AbstractTest {
         private String createdBy;
 
         @OneToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "post_id")
+        @LazyToOne(LazyToOneOption.PROXY)
+        @MapsId
+        @JoinColumn(name = "id")
         private Post post;
 
         public Long getId() {
