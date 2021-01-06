@@ -1,7 +1,11 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import org.hibernate.annotations.LazyToOne;
+import org.hibernate.annotations.LazyToOneOption;
+import org.hibernate.testing.bytecode.enhancement.BytecodeEnhancerRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -14,7 +18,8 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vlad Mihalcea
  */
-public class EagerFetchingManyToOneEntityGraphTest extends AbstractPostgreSQLIntegrationTest {
+@RunWith(BytecodeEnhancerRunner.class)
+public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -58,6 +63,9 @@ public class EagerFetchingManyToOneEntityGraphTest extends AbstractPostgreSQLInt
     @Test
     public void testFindWithNamedEntityFetchGraph() {
         PostComment comment = doInJPA(entityManager -> {
+            EntityGraph<PostComment> postCommentGraph = entityManager.createEntityGraph(PostComment.class);
+            postCommentGraph.addAttributeNodes("post");
+
             return entityManager.find(PostComment.class, 1L,
                 Collections.singletonMap(
                     "javax.persistence.fetchgraph",
@@ -65,6 +73,7 @@ public class EagerFetchingManyToOneEntityGraphTest extends AbstractPostgreSQLInt
                 )
             );
         });
+
         assertNotNull(comment.getPost());
     }
 
@@ -83,6 +92,10 @@ public class EagerFetchingManyToOneEntityGraphTest extends AbstractPostgreSQLInt
 
     @Entity(name = "Post")
     @Table(name = "post")
+    @NamedEntityGraph(
+        name = "Post.details",
+        attributeNodes = @NamedAttributeNode("details")
+    )
     public static class Post {
 
         @Id
@@ -96,6 +109,7 @@ public class EagerFetchingManyToOneEntityGraphTest extends AbstractPostgreSQLInt
             orphanRemoval = true,
             fetch = FetchType.LAZY
         )
+        @LazyToOne(LazyToOneOption.NO_PROXY)
         private PostDetails details;
 
         @OneToMany(
@@ -206,7 +220,10 @@ public class EagerFetchingManyToOneEntityGraphTest extends AbstractPostgreSQLInt
 
     @Entity(name = "PostComment")
     @Table(name = "post_comment")
-    @NamedEntityGraph(name = "PostComment.post", attributeNodes = @NamedAttributeNode("post"))
+    @NamedEntityGraph(
+        name = "PostComment.post",
+        attributeNodes = @NamedAttributeNode("post")
+    )
     public static class PostComment {
 
         @Id

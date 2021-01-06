@@ -20,11 +20,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
- * EntityGraphMapperTest - Test mapping to entity
- *
  * @author Vlad Mihalcea
  */
-public class EntityGraphMapperTest extends AbstractTest {
+public class EntityBindingTest extends AbstractTest {
 
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 
