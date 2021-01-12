@@ -2,12 +2,15 @@ package com.vladmihalcea.book.hpjp.hibernate.bytecode;
 
 import com.vladmihalcea.book.hpjp.hibernate.forum.Tag;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.testing.bytecode.enhancement.BytecodeEnhancerRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * @author Vlad Mihalcea
  */
-public class DirtyCheckingTest extends AbstractTest {
+@RunWith(BytecodeEnhancerRunner.class)
+public class BytecodeEnhancementDirtyCheckingTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {

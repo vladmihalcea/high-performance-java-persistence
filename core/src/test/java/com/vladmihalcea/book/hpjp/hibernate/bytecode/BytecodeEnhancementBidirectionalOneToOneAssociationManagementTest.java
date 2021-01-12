@@ -4,6 +4,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.LazyToOne;
 import org.hibernate.annotations.LazyToOneOption;
 import org.hibernate.testing.bytecode.enhancement.BytecodeEnhancerRunner;
+import org.hibernate.testing.bytecode.enhancement.EnhancementOptions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -13,13 +14,16 @@ import javax.persistence.*;
 import java.util.Date;
 
 import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
  */
 @RunWith(BytecodeEnhancerRunner.class)
-public class BytecodeEnhancedOneToOneTest extends AbstractTest {
+@EnhancementOptions(
+    biDirectionalAssociationManagement = true
+)
+public class BytecodeEnhancementBidirectionalOneToOneAssociationManagementTest extends AbstractTest {
 
     //Needed as otherwise we get a No unique field [LOGGER] error
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -33,30 +37,52 @@ public class BytecodeEnhancedOneToOneTest extends AbstractTest {
     }
 
     @Test
-    public void testLazyLoadingNoProxy() {
+    public void testSetParentAssociation() {
         doInJPA(entityManager -> {
-            entityManager.persist(
-                new Post()
-                    .setId(1L)
-                    .setTitle("High-Performance Java Persistence, 1st Part")
-                    .setDetails(
-                        new PostDetails()
-                            .setCreatedBy("Vlad Mihalcea")
-                    )
-            );
+            Post post = new Post()
+                .setId(1L)
+                .setTitle("High-Performance Java Persistence");
+
+            PostDetails details = new PostDetails()
+                .setCreatedBy("Vlad Mihalcea");
+
+            assertNull(details.getPost());
+            post.setDetails(details);
+            assertSame(post, details.getPost());
+
+            entityManager.persist(post);
         });
 
-        Post post = doInJPA(entityManager -> {
-            return entityManager.find(Post.class, 1L);
+        doInJPA(entityManager -> {
+            PostDetails details = entityManager.find(PostDetails.class, 1L);
+            assertEquals("High-Performance Java Persistence", details.getPost().getTitle());
+            assertEquals("Vlad Mihalcea", details.getCreatedBy());
+        });
+    }
+
+    @Test
+    public void testSetChildAssociation() {
+        doInJPA(entityManager -> {
+            Post post = new Post()
+                .setId(1L)
+                .setTitle("High-Performance Java Persistence");
+
+            PostDetails details = new PostDetails()
+                .setCreatedBy("Vlad Mihalcea");
+
+            assertNull(post.getDetails());
+            details.setPost(post);
+            assertSame(details, post.getDetails());
+
+            entityManager.persist(post);
         });
 
-        try {
-            assertNotNull(post.getDetails().getCreatedOn());
+        doInJPA(entityManager -> {
+            PostDetails details = entityManager.find(PostDetails.class, 1L);
 
-            fail("Should throw LazyInitializationException");
-        } catch (Exception expected) {
-            LOGGER.info("The @OneToOne association was fetched lazily", expected);
-        }
+            assertEquals("High-Performance Java Persistence", details.getPost().getTitle());
+            assertEquals("Vlad Mihalcea", details.getCreatedBy());
+        });
     }
 
     @Entity(name = "Post")
@@ -99,14 +125,6 @@ public class BytecodeEnhancedOneToOneTest extends AbstractTest {
         }
 
         public Post setDetails(PostDetails details) {
-            if (details == null) {
-                if (this.details != null) {
-                    this.details.setPost(null);
-                }
-            }
-            else {
-                details.setPost(this);
-            }
             this.details = details;
             return this;
         }
