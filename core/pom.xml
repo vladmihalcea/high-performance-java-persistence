@@ -49,6 +49,7 @@
                             <enableLazyInitialization>false</enableLazyInitialization>
                             <enableDirtyTracking>false</enableDirtyTracking>
                             <enableAssociationManagement>false</enableAssociationManagement>
+                            <enableExtendedEnhancement>false</enableExtendedEnhancement>
                         </configuration>
                         <goals>
                             <goal>enhance</goal>
