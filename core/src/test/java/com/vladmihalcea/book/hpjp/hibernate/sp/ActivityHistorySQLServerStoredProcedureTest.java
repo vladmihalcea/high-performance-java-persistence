@@ -216,6 +216,11 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
     private final int ACT_HI_PROCINST_ROOT_COUNT = 10;
     private final int ACT_HI_ACTINST_PER_PROC_COUNT = 5;
     private final int ACT_HI_TASKINST_PER_PROC_COUNT = 5;
+    private final int ACT_HI_VARINST_PER_TASK_COUNT = 5;
+    private final int ACT_HI_DETAIL_PER_TASK_COUNT = 5;
+    private final int ACT_HI_COMMENT_PER_TASK_COUNT = 5;
+    private final int ACT_HI_ATTACHMENT_PER_TASK_COUNT = 5;
+    private final int ACT_HI_IDENTITYLINK_PER_TASK_COUNT = 5;
 
     private void insertData() {
         doInJPA(entityManager -> {
@@ -287,7 +292,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                 .executeUpdate();
         }
 
-        int taskId = (procId * 100);
+        int taskId = (procId * (ACT_HI_ACTINST_PER_PROC_COUNT + 1) * (ACT_HI_TASKINST_PER_PROC_COUNT + 1));
 
         for (int j = 1; j <= ACT_HI_TASKINST_PER_PROC_COUNT; j++) {
             //Add a new root task
@@ -325,17 +330,153 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
         .setParameter("start_time_", Timestamp.valueOf(LocalDate.of(2020, 12, 25).atStartOfDay().plusHours(procId).plusMinutes(taskId)))
         .executeUpdate();
 
+        int varId = (taskId * (ACT_HI_VARINST_PER_TASK_COUNT + 1));
+        for (int i = 1; i <= ACT_HI_VARINST_PER_TASK_COUNT; i++) {
+            insertVarInst(entityManager, procId, taskId, varId++);
+        }
+
+        int detailId = (taskId * (ACT_HI_DETAIL_PER_TASK_COUNT + 1));
+        for (int i = 1; i <= ACT_HI_DETAIL_PER_TASK_COUNT; i++) {
+            insertDetail(entityManager, procId, taskId, detailId++);
+        }
+
+        int commentId = (taskId * (ACT_HI_COMMENT_PER_TASK_COUNT + 1));
+        for (int i = 1; i <= ACT_HI_COMMENT_PER_TASK_COUNT; i++) {
+            insertComment(entityManager, procId, taskId, commentId++);
+        }
+
+        int attachmentId = (taskId * (ACT_HI_ATTACHMENT_PER_TASK_COUNT + 1));
+        for (int i = 1; i <= ACT_HI_ATTACHMENT_PER_TASK_COUNT; i++) {
+            insertAttachment(entityManager, procId, taskId, attachmentId++);
+        }
+
+        int identityLinkId = (taskId * (ACT_HI_IDENTITYLINK_PER_TASK_COUNT + 1));
+        for (int i = 1; i <= ACT_HI_IDENTITYLINK_PER_TASK_COUNT; i++) {
+            insertIdentityLink(entityManager, procId, taskId, identityLinkId++);
+        }
+
         return taskId;
     }
 
-    /**
-     * TODO
-     * ACT_HI_VARINST
-     * ACT_HI_DETAIL
-     * ACT_HI_COMMENT
-     * ACT_HI_ATTACHMENT
-     * ACT_HI_IDENTITYLINK
-     */
+    private int insertVarInst(EntityManager entityManager, int procId, int taskId, int id) {
+        entityManager.createNativeQuery("""
+            INSERT INTO [ACT_HI_VARINST] (
+                [ID_],
+                [PROC_INST_ID_],
+                [TASK_ID_],
+                [NAME_],
+                [CREATE_TIME_])
+            VALUES (
+                :id,
+                :proc_inst_id_,
+                :task_id_, 
+                :name_, 
+                :create_time_
+            )
+            """)
+            .setParameter("id", String.valueOf(id))
+            .setParameter("proc_inst_id_", String.valueOf(procId))
+            .setParameter("task_id_", taskId)
+            .setParameter("name_", String.format("Var: %d", id))
+            .setParameter("create_time_", Timestamp.valueOf(LocalDate.of(2020, 12, 25).atStartOfDay().plusHours(procId).plusMinutes(taskId).plusSeconds(id)))
+            .executeUpdate();
+
+        return id;
+    }
+
+    private int insertDetail(EntityManager entityManager, int procId, int taskId, int id) {
+        entityManager.createNativeQuery("""
+            INSERT INTO [ACT_HI_DETAIL] (
+                [ID_],
+                [TYPE_],
+                [PROC_INST_ID_],
+                [TASK_ID_],
+                [NAME_],
+                [TIME_])
+            VALUES (
+                :id,
+                'Type',
+                :proc_inst_id_,
+                :task_id_, 
+                :name_, 
+                :time_
+            )
+            """)
+            .setParameter("id", String.valueOf(id))
+            .setParameter("proc_inst_id_", String.valueOf(procId))
+            .setParameter("task_id_", taskId)
+            .setParameter("name_", String.format("Detail: %d", id))
+            .setParameter("time_", Timestamp.valueOf(LocalDate.of(2020, 12, 25).atStartOfDay().plusHours(procId).plusMinutes(taskId).plusSeconds(id)))
+            .executeUpdate();
+
+        return id;
+    }
+
+    private int insertComment(EntityManager entityManager, int procId, int taskId, int id) {
+        entityManager.createNativeQuery("""
+            INSERT INTO [ACT_HI_COMMENT] (
+                [ID_],
+                [PROC_INST_ID_],
+                [TASK_ID_],
+                [TIME_])
+            VALUES (
+                :id,
+                :proc_inst_id_,
+                :task_id_, 
+                :time_
+            )
+            """)
+            .setParameter("id", String.valueOf(id))
+            .setParameter("proc_inst_id_", String.valueOf(procId))
+            .setParameter("task_id_", taskId)
+            .setParameter("time_", Timestamp.valueOf(LocalDate.of(2020, 12, 25).atStartOfDay().plusHours(procId).plusMinutes(taskId).plusSeconds(id)))
+            .executeUpdate();
+
+        return id;
+    }
+
+    private int insertAttachment(EntityManager entityManager, int procId, int taskId, int id) {
+        entityManager.createNativeQuery("""
+            INSERT INTO [ACT_HI_ATTACHMENT] (
+                [ID_],
+                [PROC_INST_ID_],
+                [TASK_ID_],
+                [TIME_])
+            VALUES (
+                :id,
+                :proc_inst_id_,
+                :task_id_, 
+                :time_
+            )
+            """)
+            .setParameter("id", String.valueOf(id))
+            .setParameter("proc_inst_id_", String.valueOf(procId))
+            .setParameter("task_id_", taskId)
+            .setParameter("time_", Timestamp.valueOf(LocalDate.of(2020, 12, 25).atStartOfDay().plusHours(procId).plusMinutes(taskId).plusSeconds(id)))
+            .executeUpdate();
+
+        return id;
+    }
+
+    private int insertIdentityLink(EntityManager entityManager, int procId, int taskId, int id) {
+        entityManager.createNativeQuery("""
+            INSERT INTO [ACT_HI_IDENTITYLINK] (
+                [ID_],
+                [PROC_INST_ID_],
+                [TASK_ID_])
+            VALUES (
+                :id,
+                :proc_inst_id_,
+                :task_id_
+            )
+            """)
+            .setParameter("id", String.valueOf(id))
+            .setParameter("proc_inst_id_", String.valueOf(procId))
+            .setParameter("task_id_", taskId)
+            .executeUpdate();
+
+        return id;
+    }
 
     @Test
     public void testStoredProcedureReturnValue() {
