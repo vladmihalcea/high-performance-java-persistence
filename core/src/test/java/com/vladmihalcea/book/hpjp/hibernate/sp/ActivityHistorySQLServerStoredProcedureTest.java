@@ -8,6 +8,7 @@ import org.junit.Test;
 import javax.persistence.EntityManager;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.junit.Assert.*;
 
@@ -24,54 +25,55 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
     @Before
     public void init() {
         super.init();
-        ddl("DROP table ACT_HI_PROCINST");
-        ddl("DROP table ACT_HI_ACTINST");
-        ddl("DROP table ACT_HI_TASKINST");
-        ddl("DROP table ACT_HI_VARINST");
-        ddl("DROP table ACT_HI_DETAIL");
-        ddl("DROP table ACT_HI_COMMENT");
-        ddl("DROP table ACT_HI_ATTACHMENT");
-        ddl("DROP table ACT_HI_IDENTITYLINK");
+        if (recreateTables()) {
+            ddl("DROP table ACT_HI_PROCINST");
+            ddl("DROP table ACT_HI_ACTINST");
+            ddl("DROP table ACT_HI_TASKINST");
+            ddl("DROP table ACT_HI_VARINST");
+            ddl("DROP table ACT_HI_DETAIL");
+            ddl("DROP table ACT_HI_COMMENT");
+            ddl("DROP table ACT_HI_ATTACHMENT");
+            ddl("DROP table ACT_HI_IDENTITYLINK");
 
-        ddl("""
-            create table ACT_HI_PROCINST (
-                ID_ nvarchar(64) not null,
-                PROC_INST_ID_ nvarchar(64) not null,
-                BUSINESS_KEY_ nvarchar(255),
-                PROC_DEF_ID_ nvarchar(64) not null,
-                START_TIME_ datetime not null,
-                END_TIME_ datetime,
-                DURATION_ numeric(19,0),
-                START_USER_ID_ nvarchar(255),
-                START_ACT_ID_ nvarchar(255),
-                END_ACT_ID_ nvarchar(255),
-                SUPER_PROCESS_INSTANCE_ID_ nvarchar(64),
-                DELETE_REASON_ nvarchar(4000),
-                TENANT_ID_ nvarchar(255) default '',
-                NAME_ nvarchar(255),
-                primary key (ID_),
-                unique (PROC_INST_ID_)
-            )
-            """);
-        ddl("""
-            create table ACT_HI_ACTINST (
-                ID_ nvarchar(64) not null,
-                PROC_DEF_ID_ nvarchar(64) not null,
-                PROC_INST_ID_ nvarchar(64) not null,
-                EXECUTION_ID_ nvarchar(64) not null,
-                ACT_ID_ nvarchar(255) not null,
-                TASK_ID_ nvarchar(64),
-                CALL_PROC_INST_ID_ nvarchar(64),
-                ACT_NAME_ nvarchar(255),
-                ACT_TYPE_ nvarchar(255) not null,
-                ASSIGNEE_ nvarchar(255),
-                START_TIME_ datetime not null,
-                END_TIME_ datetime,
-                DURATION_ numeric(19,0),
-                TENANT_ID_ nvarchar(255) default '',
-                primary key (ID_)
-            )
-            """);
+            ddl("""
+                create table ACT_HI_PROCINST (
+                    ID_ nvarchar(64) not null,
+                    PROC_INST_ID_ nvarchar(64) not null,
+                    BUSINESS_KEY_ nvarchar(255),
+                    PROC_DEF_ID_ nvarchar(64) not null,
+                    START_TIME_ datetime not null,
+                    END_TIME_ datetime,
+                    DURATION_ numeric(19,0),
+                    START_USER_ID_ nvarchar(255),
+                    START_ACT_ID_ nvarchar(255),
+                    END_ACT_ID_ nvarchar(255),
+                    SUPER_PROCESS_INSTANCE_ID_ nvarchar(64),
+                    DELETE_REASON_ nvarchar(4000),
+                    TENANT_ID_ nvarchar(255) default '',
+                    NAME_ nvarchar(255),
+                    primary key (ID_),
+                    unique (PROC_INST_ID_)
+                )
+                """);
+            ddl("""
+                create table ACT_HI_ACTINST (
+                    ID_ nvarchar(64) not null,
+                    PROC_DEF_ID_ nvarchar(64) not null,
+                    PROC_INST_ID_ nvarchar(64) not null,
+                    EXECUTION_ID_ nvarchar(64) not null,
+                    ACT_ID_ nvarchar(255) not null,
+                    TASK_ID_ nvarchar(64),
+                    CALL_PROC_INST_ID_ nvarchar(64),
+                    ACT_NAME_ nvarchar(255),
+                    ACT_TYPE_ nvarchar(255) not null,
+                    ASSIGNEE_ nvarchar(255),
+                    START_TIME_ datetime not null,
+                    END_TIME_ datetime,
+                    DURATION_ numeric(19,0),
+                    TENANT_ID_ nvarchar(255) default '',
+                    primary key (ID_)
+                )
+                """);
             ddl("""                         
                 create table ACT_HI_TASKINST (
                     ID_ nvarchar(64) not null,
@@ -116,26 +118,26 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     primary key (ID_)
                 )
                 """);
-              ddl("""                          
-                create table ACT_HI_DETAIL (
-                    ID_ nvarchar(64) not null,
-                    TYPE_ nvarchar(255) not null,
-                    PROC_INST_ID_ nvarchar(64),
-                    EXECUTION_ID_ nvarchar(64),
-                    TASK_ID_ nvarchar(64),
-                    ACT_INST_ID_ nvarchar(64),
-                    NAME_ nvarchar(255) not null,
-                    VAR_TYPE_ nvarchar(255),
-                    REV_ int,
-                    TIME_ datetime not null,
-                    BYTEARRAY_ID_ nvarchar(64),
-                    DOUBLE_ double precision,
-                    LONG_ numeric(19,0),
-                    TEXT_ nvarchar(4000),
-                    TEXT2_ nvarchar(4000),
-                    primary key (ID_)
-                )
-                """);
+            ddl("""                          
+              create table ACT_HI_DETAIL (
+                  ID_ nvarchar(64) not null,
+                  TYPE_ nvarchar(255) not null,
+                  PROC_INST_ID_ nvarchar(64),
+                  EXECUTION_ID_ nvarchar(64),
+                  TASK_ID_ nvarchar(64),
+                  ACT_INST_ID_ nvarchar(64),
+                  NAME_ nvarchar(255) not null,
+                  VAR_TYPE_ nvarchar(255),
+                  REV_ int,
+                  TIME_ datetime not null,
+                  BYTEARRAY_ID_ nvarchar(64),
+                  DOUBLE_ double precision,
+                  LONG_ numeric(19,0),
+                  TEXT_ nvarchar(4000),
+                  TEXT2_ nvarchar(4000),
+                  primary key (ID_)
+              )
+              """);
             ddl("""                            
                 create table ACT_HI_COMMENT (
                     ID_ nvarchar(64) not null,
@@ -150,22 +152,22 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     primary key (ID_)
                 )
                 """);
-             ddl("""                           
-                create table ACT_HI_ATTACHMENT (
-                    ID_ nvarchar(64) not null,
-                    REV_ integer,
-                    USER_ID_ nvarchar(255),
-                    NAME_ nvarchar(255),
-                    DESCRIPTION_ nvarchar(4000),
-                    TYPE_ nvarchar(255),
-                    TASK_ID_ nvarchar(64),
-                    PROC_INST_ID_ nvarchar(64),
-                    URL_ nvarchar(4000),
-                    CONTENT_ID_ nvarchar(64),
-                    TIME_ datetime,
-                    primary key (ID_)
-                )
-                """);
+            ddl("""                           
+               create table ACT_HI_ATTACHMENT (
+                   ID_ nvarchar(64) not null,
+                   REV_ integer,
+                   USER_ID_ nvarchar(255),
+                   NAME_ nvarchar(255),
+                   DESCRIPTION_ nvarchar(4000),
+                   TYPE_ nvarchar(255),
+                   TASK_ID_ nvarchar(64),
+                   PROC_INST_ID_ nvarchar(64),
+                   URL_ nvarchar(4000),
+                   CONTENT_ID_ nvarchar(64),
+                   TIME_ datetime,
+                   primary key (ID_)
+               )
+               """);
             ddl("""                            
                 create table ACT_HI_IDENTITYLINK (
                     ID_ nvarchar(64),
@@ -178,39 +180,59 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                 )
                 """);
 
-        insertData();
+            insertData();
 
-        ddl("create index ACT_IDX_HI_PRO_INST_END on ACT_HI_PROCINST(END_TIME_)");
-        ddl("create index ACT_IDX_HI_PRO_I_BUSKEY on ACT_HI_PROCINST(BUSINESS_KEY_)");
-        ddl("create index ACT_IDX_HI_ACT_INST_START on ACT_HI_ACTINST(START_TIME_)");
-        ddl("create index ACT_IDX_HI_ACT_INST_END on ACT_HI_ACTINST(END_TIME_)");
-        ddl("create index ACT_IDX_HI_DETAIL_PROC_INST on ACT_HI_DETAIL(PROC_INST_ID_)");
-        ddl("create index ACT_IDX_HI_DETAIL_ACT_INST on ACT_HI_DETAIL(ACT_INST_ID_)");
-        ddl("create index ACT_IDX_HI_DETAIL_TIME on ACT_HI_DETAIL(TIME_)");
-        ddl("create index ACT_IDX_HI_DETAIL_NAME on ACT_HI_DETAIL(NAME_)");
-        ddl("create index ACT_IDX_HI_DETAIL_TASK_ID on ACT_HI_DETAIL(TASK_ID_)");
-        ddl("create index ACT_IDX_HI_PROCVAR_PROC_INST on ACT_HI_VARINST(PROC_INST_ID_)");
-        ddl("create index ACT_IDX_HI_PROCVAR_NAME_TYPE on ACT_HI_VARINST(NAME_, VAR_TYPE_)");
-        ddl("create index ACT_IDX_HI_PROCVAR_TASK_ID on ACT_HI_VARINST(TASK_ID_)");
-        ddl("create index ACT_IDX_HI_ACT_INST_PROCINST on ACT_HI_ACTINST(PROC_INST_ID_, ACT_ID_)");
-        ddl("create index ACT_IDX_HI_ACT_INST_EXEC on ACT_HI_ACTINST(EXECUTION_ID_, ACT_ID_)");
-        ddl("create index ACT_IDX_HI_IDENT_LNK_USER on ACT_HI_IDENTITYLINK(USER_ID_)");
-        ddl("create index ACT_IDX_HI_IDENT_LNK_TASK on ACT_HI_IDENTITYLINK(TASK_ID_)");
-        ddl("create index ACT_IDX_HI_IDENT_LNK_PROCINST on ACT_HI_IDENTITYLINK(PROC_INST_ID_)");
-        ddl("create index ACT_IDX_HI_TASK_INST_PROCINST on ACT_HI_TASKINST(PROC_INST_ID_)");
+            ddl("create index ACT_IDX_HI_PRO_INST_END on ACT_HI_PROCINST(END_TIME_)");
+            ddl("create index ACT_IDX_HI_PRO_I_BUSKEY on ACT_HI_PROCINST(BUSINESS_KEY_)");
+            ddl("create index ACT_IDX_HI_ACT_INST_START on ACT_HI_ACTINST(START_TIME_)");
+            ddl("create index ACT_IDX_HI_ACT_INST_END on ACT_HI_ACTINST(END_TIME_)");
+            ddl("create index ACT_IDX_HI_DETAIL_PROC_INST on ACT_HI_DETAIL(PROC_INST_ID_)");
+            ddl("create index ACT_IDX_HI_DETAIL_ACT_INST on ACT_HI_DETAIL(ACT_INST_ID_)");
+            ddl("create index ACT_IDX_HI_DETAIL_TIME on ACT_HI_DETAIL(TIME_)");
+            ddl("create index ACT_IDX_HI_DETAIL_NAME on ACT_HI_DETAIL(NAME_)");
+            ddl("create index ACT_IDX_HI_DETAIL_TASK_ID on ACT_HI_DETAIL(TASK_ID_)");
+            ddl("create index ACT_IDX_HI_PROCVAR_PROC_INST on ACT_HI_VARINST(PROC_INST_ID_)");
+            ddl("create index ACT_IDX_HI_PROCVAR_NAME_TYPE on ACT_HI_VARINST(NAME_, VAR_TYPE_)");
+            ddl("create index ACT_IDX_HI_PROCVAR_TASK_ID on ACT_HI_VARINST(TASK_ID_)");
+            ddl("create index ACT_IDX_HI_ACT_INST_PROCINST on ACT_HI_ACTINST(PROC_INST_ID_, ACT_ID_)");
+            ddl("create index ACT_IDX_HI_ACT_INST_EXEC on ACT_HI_ACTINST(EXECUTION_ID_, ACT_ID_)");
+            ddl("create index ACT_IDX_HI_IDENT_LNK_USER on ACT_HI_IDENTITYLINK(USER_ID_)");
+            ddl("create index ACT_IDX_HI_IDENT_LNK_TASK on ACT_HI_IDENTITYLINK(TASK_ID_)");
+            ddl("create index ACT_IDX_HI_IDENT_LNK_PROCINST on ACT_HI_IDENTITYLINK(PROC_INST_ID_)");
+            ddl("create index ACT_IDX_HI_TASK_INST_PROCINST on ACT_HI_TASKINST(PROC_INST_ID_)");
+        }
 
         ddl("DROP PROCEDURE delete_activity_history_before_date");
-        /*ddl(
-            "CREATE PROCEDURE delete_activity_history_before_date " +
-            "   @postId INT, " +
-            "   @commentCount INT OUTPUT " +
-            "AS " +
-            "BEGIN " +
-            "   SELECT @commentCount = COUNT(*)  " +
-            "   FROM post_comment  " +
-            "   WHERE post_id = @postId " +
-            "END"
-        );*/
+
+        ddl("""
+            CREATE PROCEDURE delete_activity_history_before_date(@BeforeStartTimestamp DATETIME)
+               AS
+               BEGIN
+               DECLARE @BatchSize INT;
+               DECLARE @PROC_INST_ID_ NVARCHAR(64);
+               DECLARE @DeletedRowCount INT;
+                          
+               SET @BatchSize=100;
+               
+               CREATE TABLE #PROC_INST_ID_ARRAY (PROC_INST_ID_ NVARCHAR(64));
+                                                    
+               INSERT INTO #PROC_INST_ID_ARRAY (PROC_INST_ID_)
+               SELECT TOP (@BatchSize) PROC_INST_ID_
+               FROM ACT_HI_PROCINST
+               WHERE START_TIME_ <= @BeforeStartTimestamp;
+               
+               SET @DeletedRowCount = (SELECT COUNT(*) FROM #PROC_INST_ID_ARRAY);
+               PRINT CAST(@DeletedRowCount AS NVARCHAR(64)); 
+                         
+               DELETE FROM ACT_HI_IDENTITYLINK
+               WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_ARRAY)               
+            END
+            """
+        );
+    }
+
+    protected boolean recreateTables() {
+        return false;
     }
 
     private final int ACT_HI_PROCINST_ROOT_COUNT = 10;
@@ -482,15 +504,18 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
     public void testStoredProcedureReturnValue() {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
-            int commentCount = session.doReturningWork(connection -> {
-                try (CallableStatement function = connection.prepareCall("{ ? = call fn_count_comments(?) }")) {
-                    function.registerOutParameter(1, Types.INTEGER);
-                    function.setInt(2, 1);
+
+            int deletedRowCount = session.doReturningWork(connection -> {
+                try (CallableStatement function = connection.prepareCall("{ call delete_activity_history_before_date(?) }")) {
+                    int i = 1;
+                    //function.registerOutParameter(i++, Types.INTEGER);
+                    function.setTimestamp(i++, Timestamp.valueOf(LocalDateTime.now()));
                     function.execute();
-                    return function.getInt(1);
+                    //return function.getInt(i);
+                    return 0;
                 }
             });
-            assertEquals(2, commentCount);
+            //assertEquals(70, deletedRowCount);
         });
     }
 }
