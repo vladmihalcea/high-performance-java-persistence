@@ -214,10 +214,21 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                 BEGIN                         
                 SET @DeletedRowCount=0;
                            
-                DECLARE @ROOT_PROC_INST_ID_TABLE TABLE(PROC_INST_ID_ NVARCHAR(64));
-            	DECLARE @PROC_INST_ID_TABLE TABLE(PROC_INST_ID_ NVARCHAR(64));
+                BEGIN TRY
+                DROP TABLE #ROOT_PROC_INST_ID_TABLE
+                END TRY
+                BEGIN CATCH SELECT 1 END CATCH;
+                           
+                CREATE TABLE #ROOT_PROC_INST_ID_TABLE (PROC_INST_ID_ NVARCHAR(64));
+                
+                BEGIN TRY
+                DROP TABLE #PROC_INST_ID_TABLE
+                END TRY
+                BEGIN CATCH SELECT 1 END CATCH;
+                
+                CREATE TABLE #PROC_INST_ID_TABLE (PROC_INST_ID_ NVARCHAR(64));
                                                                
-                INSERT INTO @ROOT_PROC_INST_ID_TABLE (PROC_INST_ID_)
+                INSERT INTO #ROOT_PROC_INST_ID_TABLE
                 SELECT TOP (@BatchSize) PROC_INST_ID_
                 FROM ACT_HI_PROCINST
                 WHERE
@@ -225,68 +236,68 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     AND END_TIME_ IS NOT NULL
                     AND SUPER_PROCESS_INSTANCE_ID_ IS NULL;
                                 
-                WHILE (SELECT COUNT(*) FROM @ROOT_PROC_INST_ID_TABLE) > 0
+                WHILE (SELECT COUNT(*) FROM #ROOT_PROC_INST_ID_TABLE) > 0
                 BEGIN
-                    DELETE FROM @PROC_INST_ID_TABLE;
+                    DELETE FROM #PROC_INST_ID_TABLE;
                                     
                     WITH ACT_HI_PROCINST_HIERARCHY(PROC_INST_ID_)
                     AS (
                         SELECT PROC_INST_ID_
-                        FROM @ROOT_PROC_INST_ID_TABLE
+                        FROM #ROOT_PROC_INST_ID_TABLE
                         UNION ALL
                         SELECT ACT_HI_PROCINST.PROC_INST_ID_
                         FROM ACT_HI_PROCINST
                         INNER JOIN ACT_HI_PROCINST_HIERARCHY ON ACT_HI_PROCINST_HIERARCHY.PROC_INST_ID_ = ACT_HI_PROCINST.SUPER_PROCESS_INSTANCE_ID_
                     )
-                    INSERT INTO @PROC_INST_ID_TABLE(PROC_INST_ID_)
+                    INSERT INTO #PROC_INST_ID_TABLE
                     SELECT PROC_INST_ID_
                     FROM ACT_HI_PROCINST_HIERARCHY;    
                            
                     DELETE FROM ACT_HI_IDENTITYLINK
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM @PROC_INST_ID_TABLE);
+                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
                                
                     SET @DeletedRowCount+=@@ROWCOUNT;
                                
                     DELETE FROM ACT_HI_ATTACHMENT
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM @PROC_INST_ID_TABLE);
+                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
                                
                     SET @DeletedRowCount+=@@ROWCOUNT;
                                
                     DELETE FROM ACT_HI_COMMENT
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM @PROC_INST_ID_TABLE);
+                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
                                
                     SET @DeletedRowCount+=@@ROWCOUNT;
                                
                     DELETE FROM ACT_HI_DETAIL
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM @PROC_INST_ID_TABLE);
+                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
                                
                     SET @DeletedRowCount+=@@ROWCOUNT;
                                
                     DELETE FROM ACT_HI_VARINST
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM @PROC_INST_ID_TABLE);
+                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
                                
                     SET @DeletedRowCount+=@@ROWCOUNT; 
                                
                     DELETE FROM ACT_HI_TASKINST
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM @PROC_INST_ID_TABLE);
+                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
                                
                     SET @DeletedRowCount+=@@ROWCOUNT; 
                                
                     DELETE FROM ACT_HI_ACTINST
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM @PROC_INST_ID_TABLE);
+                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
                                
                     SET @DeletedRowCount+=@@ROWCOUNT;
                                
                     DELETE FROM ACT_HI_PROCINST
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM @PROC_INST_ID_TABLE);
+                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
                                
                     SET @DeletedRowCount+=@@ROWCOUNT;
                                                                
                     COMMIT;
                                
-                    DELETE FROM @ROOT_PROC_INST_ID_TABLE;
+                    DELETE FROM #ROOT_PROC_INST_ID_TABLE;
                     
-                    INSERT INTO @ROOT_PROC_INST_ID_TABLE (PROC_INST_ID_)
+                    INSERT INTO #ROOT_PROC_INST_ID_TABLE
                     SELECT TOP (@BatchSize) PROC_INST_ID_
                     FROM ACT_HI_PROCINST
                     WHERE
