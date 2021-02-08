@@ -249,87 +249,106 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     SELECT PROC_INST_ID_
                     FROM ACT_HI_PROCINST_HIERARCHY;
                     
-                    BEGIN TRAN;
-                    
-                    DELETE FROM ACT_HI_DETAIL
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                               
-                    SET @DeletedRowCount+=@@ROWCOUNT;
-                    
-                    DELETE FROM ACT_HI_VARINST
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                               
-                    SET @DeletedRowCount+=@@ROWCOUNT;
-                    
-                    DELETE FROM ACT_HI_ACTINST
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                               
-                    SET @DeletedRowCount+=@@ROWCOUNT;
-                    
-                    -- Delete ACT_HI_TASKINST rows recursive along with their associated: ACT_HI_DETAIL, ACT_HI_VARINST, ACT_HI_COMMENT, ACT_HI_ATTACHMENT, ACT_HI_IDENTITYLINK
-                    BEGIN
-                        WITH ACT_HI_TASKINST_HIERARCHY(ID_)
-                        AS (
-                            SELECT ID_
-                            FROM ACT_HI_TASKINST
-                            WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE)
-                            UNION ALL
-                            SELECT ACT_HI_TASKINST.ID_
-                            FROM ACT_HI_TASKINST
-                            INNER JOIN ACT_HI_TASKINST_HIERARCHY ON ACT_HI_TASKINST_HIERARCHY.ID_ = ACT_HI_TASKINST.PARENT_TASK_ID_
-                        )
-                        INSERT INTO #TASK_INST_ID_TABLE
-                        SELECT ID_
-                        FROM ACT_HI_TASKINST_HIERARCHY;
+                    BEGIN TRY
+                        BEGIN TRANSACTION;
                         
                         DELETE FROM ACT_HI_DETAIL
-                        WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                        WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
                                    
                         SET @DeletedRowCount+=@@ROWCOUNT;
                         
                         DELETE FROM ACT_HI_VARINST
-                        WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                        WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
                                    
                         SET @DeletedRowCount+=@@ROWCOUNT;
                         
-                        DELETE FROM ACT_HI_COMMENT
-                        WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                        DELETE FROM ACT_HI_ACTINST
+                        WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
                                    
                         SET @DeletedRowCount+=@@ROWCOUNT;
                         
-                        DELETE FROM ACT_HI_ATTACHMENT
-                        WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
-                                   
-                        SET @DeletedRowCount+=@@ROWCOUNT;
-                        
+                        -- Delete ACT_HI_TASKINST rows recursive along with their associated: ACT_HI_DETAIL, ACT_HI_VARINST, ACT_HI_COMMENT, ACT_HI_ATTACHMENT, ACT_HI_IDENTITYLINK
+                        BEGIN
+                            WITH ACT_HI_TASKINST_HIERARCHY(ID_)
+                            AS (
+                                SELECT ID_
+                                FROM ACT_HI_TASKINST
+                                WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE)
+                                UNION ALL
+                                SELECT ACT_HI_TASKINST.ID_
+                                FROM ACT_HI_TASKINST
+                                INNER JOIN ACT_HI_TASKINST_HIERARCHY ON ACT_HI_TASKINST_HIERARCHY.ID_ = ACT_HI_TASKINST.PARENT_TASK_ID_
+                            )
+                            INSERT INTO #TASK_INST_ID_TABLE
+                            SELECT ID_
+                            FROM ACT_HI_TASKINST_HIERARCHY;
+                            
+                            DELETE FROM ACT_HI_DETAIL
+                            WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                                       
+                            SET @DeletedRowCount+=@@ROWCOUNT;
+                            
+                            DELETE FROM ACT_HI_VARINST
+                            WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                                       
+                            SET @DeletedRowCount+=@@ROWCOUNT;
+                            
+                            DELETE FROM ACT_HI_COMMENT
+                            WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                                       
+                            SET @DeletedRowCount+=@@ROWCOUNT;
+                            
+                            DELETE FROM ACT_HI_ATTACHMENT
+                            WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                                       
+                            SET @DeletedRowCount+=@@ROWCOUNT;
+                            
+                            DELETE FROM ACT_HI_IDENTITYLINK
+                            WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                                       
+                            SET @DeletedRowCount+=@@ROWCOUNT;
+                            
+                            DELETE FROM ACT_HI_TASKINST
+                            WHERE ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                                       
+                            SET @DeletedRowCount+=@@ROWCOUNT;
+                            
+                        END;
+                               
                         DELETE FROM ACT_HI_IDENTITYLINK
-                        WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                        WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
                                    
                         SET @DeletedRowCount+=@@ROWCOUNT;
-                        
-                        DELETE FROM ACT_HI_TASKINST
-                        WHERE ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                                   
+                        DELETE FROM ACT_HI_COMMENT
+                        WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
                                    
                         SET @DeletedRowCount+=@@ROWCOUNT;
-                        
-                    END;
-                           
-                    DELETE FROM ACT_HI_IDENTITYLINK
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                               
-                    SET @DeletedRowCount+=@@ROWCOUNT;
-                               
-                    DELETE FROM ACT_HI_COMMENT
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                               
-                    SET @DeletedRowCount+=@@ROWCOUNT;
-                               
-                    DELETE FROM ACT_HI_PROCINST
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                               
-                    SET @DeletedRowCount+=@@ROWCOUNT;
-                                                               
-                    COMMIT;
+                                   
+                        DELETE FROM ACT_HI_PROCINST
+                        WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
+                                   
+                        SET @DeletedRowCount+=@@ROWCOUNT;
+                                                                   
+                        COMMIT TRANSACTION;
+                    END TRY
+                    BEGIN CATCH
+                        IF (XACT_STATE()) = -1
+                            -- The current transaction cannot be committed.
+                            BEGIN
+                                PRINT
+                                    N'The transaction cannot be committed. Rolling back transaction.'
+                                ROLLBACK TRANSACTION;
+                            END;
+                        ELSE
+                            IF (XACT_STATE()) = 1
+                            -- The current transaction can be committed.
+                                BEGIN
+                                    PRINT
+                                        N'Exception was caught, but the trasaction can be committed.'
+                                    COMMIT TRANSACTION;   
+                                END;
+                    END CATCH;
                                
                     TRUNCATE TABLE #ROOT_PROC_INST_ID_TABLE;
                     
