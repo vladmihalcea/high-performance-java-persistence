@@ -214,25 +214,13 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
             BEGIN                         
                 SET @DeletedRowCount=0;
                            
-                BEGIN TRY
-                DROP TABLE #ROOT_PROC_INST_ID_TABLE
-                END TRY
-                BEGIN CATCH SELECT 1 END CATCH;
-                           
+                DROP TABLE IF EXISTS #ROOT_PROC_INST_ID_TABLE;
                 CREATE TABLE #ROOT_PROC_INST_ID_TABLE (PROC_INST_ID_ NVARCHAR(64));
                 
-                BEGIN TRY
-                DROP TABLE #PROC_INST_ID_TABLE
-                END TRY
-                BEGIN CATCH SELECT 1 END CATCH;
-                
+                DROP TABLE IF EXISTS #PROC_INST_ID_TABLE;
                 CREATE TABLE #PROC_INST_ID_TABLE (PROC_INST_ID_ NVARCHAR(64));
-                
-                BEGIN TRY
-                DROP TABLE #TASK_INST_ID_TABLE
-                END TRY
-                BEGIN CATCH SELECT 1 END CATCH;
-                
+
+                DROP TABLE IF EXISTS #TASK_INST_ID_TABLE;
                 CREATE TABLE #TASK_INST_ID_TABLE (ID_ NVARCHAR(64));
                 
                 BEGIN TRAN;
