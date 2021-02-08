@@ -222,8 +222,6 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
 
                 DROP TABLE IF EXISTS #TASK_INST_ID_TABLE;
                 CREATE TABLE #TASK_INST_ID_TABLE (ID_ NVARCHAR(64));
-                
-                BEGIN TRAN;
                                                                
                 INSERT INTO #ROOT_PROC_INST_ID_TABLE
                 SELECT TOP (@BatchSize) PROC_INST_ID_
@@ -250,6 +248,8 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     INSERT INTO #PROC_INST_ID_TABLE
                     SELECT PROC_INST_ID_
                     FROM ACT_HI_PROCINST_HIERARCHY;
+                    
+                    BEGIN TRAN;
                     
                     DELETE FROM ACT_HI_DETAIL
                     WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
@@ -340,9 +340,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                         END_TIME_ <= @BeforeStartTimestamp
                         AND END_TIME_ IS NOT NULL
                         AND SUPER_PROCESS_INSTANCE_ID_ IS NULL;
-                END
-                
-                COMMIT;                                         
+                END                                        
             END
             """
         );
