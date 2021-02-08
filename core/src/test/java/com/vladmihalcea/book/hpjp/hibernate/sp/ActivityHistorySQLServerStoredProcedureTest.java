@@ -267,7 +267,8 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                                    
                         SET @DeletedRowCount+=@@ROWCOUNT;
                         
-                        -- Delete ACT_HI_TASKINST rows recursive along with their associated: ACT_HI_DETAIL, ACT_HI_VARINST, ACT_HI_COMMENT, ACT_HI_ATTACHMENT, ACT_HI_IDENTITYLINK
+                        -- Delete ACT_HI_TASKINST rows recursive along with their associated: 
+                        -- ACT_HI_DETAIL, ACT_HI_VARINST, ACT_HI_COMMENT, ACT_HI_ATTACHMENT, ACT_HI_IDENTITYLINK
                         BEGIN
                             WITH ACT_HI_TASKINST_HIERARCHY(ID_)
                             AS (
