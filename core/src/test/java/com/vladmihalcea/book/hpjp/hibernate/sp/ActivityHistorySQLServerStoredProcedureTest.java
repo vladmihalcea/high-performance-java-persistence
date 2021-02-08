@@ -228,6 +228,13 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                 
                 CREATE TABLE #PROC_INST_ID_TABLE (PROC_INST_ID_ NVARCHAR(64));
                 
+                BEGIN TRY
+                DROP TABLE #TASK_INST_ID_TABLE
+                END TRY
+                BEGIN CATCH SELECT 1 END CATCH;
+                
+                CREATE TABLE #TASK_INST_ID_TABLE (ID_ NVARCHAR(64));
+                
                 BEGIN TRAN;
                                                                
                 INSERT INTO #ROOT_PROC_INST_ID_TABLE
@@ -253,39 +260,78 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     )
                     INSERT INTO #PROC_INST_ID_TABLE
                     SELECT PROC_INST_ID_
-                    FROM ACT_HI_PROCINST_HIERARCHY;    
+                    FROM ACT_HI_PROCINST_HIERARCHY;
+                    
+                    DELETE FROM ACT_HI_DETAIL
+                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
+                               
+                    SET @DeletedRowCount+=@@ROWCOUNT;
+                    
+                    DELETE FROM ACT_HI_VARINST
+                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
+                               
+                    SET @DeletedRowCount+=@@ROWCOUNT;
+                    
+                    DELETE FROM ACT_HI_ACTINST
+                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
+                               
+                    SET @DeletedRowCount+=@@ROWCOUNT;
+                    
+                    -- Delete ACT_HI_TASKINST rows recursive along with their associated: ACT_HI_DETAIL, ACT_HI_VARINST, ACT_HI_COMMENT, ACT_HI_ATTACHMENT, ACT_HI_IDENTITYLINK
+                    BEGIN
+                    
+                        WITH ACT_HI_TASKINST_HIERARCHY(ID_)
+                        AS (
+                            SELECT ID_
+                            FROM ACT_HI_TASKINST
+                            WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE)
+                            UNION ALL
+                            SELECT ACT_HI_TASKINST.ID_
+                            FROM ACT_HI_TASKINST
+                            INNER JOIN ACT_HI_TASKINST_HIERARCHY ON ACT_HI_TASKINST_HIERARCHY.ID_ = ACT_HI_TASKINST.PARENT_TASK_ID_
+                        )
+                        INSERT INTO #TASK_INST_ID_TABLE
+                        SELECT ID_
+                        FROM ACT_HI_TASKINST_HIERARCHY;
+                        
+                        DELETE FROM ACT_HI_DETAIL
+                        WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                                   
+                        SET @DeletedRowCount+=@@ROWCOUNT;
+                        
+                        DELETE FROM ACT_HI_VARINST
+                        WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                                   
+                        SET @DeletedRowCount+=@@ROWCOUNT;
+                        
+                        DELETE FROM ACT_HI_COMMENT
+                        WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                                   
+                        SET @DeletedRowCount+=@@ROWCOUNT;
+                        
+                        DELETE FROM ACT_HI_ATTACHMENT
+                        WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                                   
+                        SET @DeletedRowCount+=@@ROWCOUNT;
+                        
+                        DELETE FROM ACT_HI_IDENTITYLINK
+                        WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                                   
+                        SET @DeletedRowCount+=@@ROWCOUNT;
+                        
+                        DELETE FROM ACT_HI_TASKINST
+                        WHERE ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                                   
+                        SET @DeletedRowCount+=@@ROWCOUNT;
+                        
+                    END;
                            
                     DELETE FROM ACT_HI_IDENTITYLINK
                     WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
                                
                     SET @DeletedRowCount+=@@ROWCOUNT;
                                
-                    DELETE FROM ACT_HI_ATTACHMENT
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                               
-                    SET @DeletedRowCount+=@@ROWCOUNT;
-                               
                     DELETE FROM ACT_HI_COMMENT
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                               
-                    SET @DeletedRowCount+=@@ROWCOUNT;
-                               
-                    DELETE FROM ACT_HI_DETAIL
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                               
-                    SET @DeletedRowCount+=@@ROWCOUNT;
-                               
-                    DELETE FROM ACT_HI_VARINST
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                               
-                    SET @DeletedRowCount+=@@ROWCOUNT; 
-                               
-                    DELETE FROM ACT_HI_TASKINST
-                    WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                               
-                    SET @DeletedRowCount+=@@ROWCOUNT; 
-                               
-                    DELETE FROM ACT_HI_ACTINST
                     WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
                                
                     SET @DeletedRowCount+=@@ROWCOUNT;
@@ -432,23 +478,23 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
             )
             """)
         .setParameter("id", String.valueOf(taskId))
-        .setParameter("proc_inst_id_", String.valueOf(procId))
+        .setParameter("proc_inst_id_", parentTaskId != null ? null : String.valueOf(procId))
         .setParameter("parent_task_id_", parentTaskId != null ? String.valueOf(parentTaskId) : null)
         .setParameter("start_time_", Timestamp.valueOf(LocalDate.of(2020, 11, 25).atStartOfDay().plusHours(procId).plusMinutes(taskId)))
         .executeUpdate();
 
         entityManager.unwrap(Session.class).doWork(connection -> {
-            insertVarInsts(connection, procId, taskId);
-            insertDetails(connection, procId, taskId);
-            insertComments(connection, procId, taskId);
-            insertAttachments(connection, procId, taskId);
-            insertIdentityLinks(connection, procId, taskId);
+            insertVarInsts(connection, procId, taskId, parentTaskId != null);
+            insertDetails(connection, procId, taskId, parentTaskId != null);
+            insertComments(connection, procId, taskId, parentTaskId != null);
+            insertAttachments(connection, procId, taskId, parentTaskId != null);
+            insertIdentityLinks(connection, procId, taskId, parentTaskId != null);
         });
 
         return taskId;
     }
 
-    private void insertVarInsts(Connection connection, int procId, int taskId) throws SQLException {
+    private void insertVarInsts(Connection connection, int procId, int taskId, boolean subTask) throws SQLException {
         try(PreparedStatement preparedStatement = connection.prepareStatement("""
             INSERT INTO [ACT_HI_VARINST] (
                 [ID_],
@@ -471,7 +517,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                 id++;
                 int index = 1;
                 preparedStatement.setString(index++, String.valueOf(id));
-                preparedStatement.setString(index++, String.valueOf(procId));
+                preparedStatement.setString(index++, subTask ? null : String.valueOf(procId));
                 preparedStatement.setString(index++, String.valueOf(taskId));
                 preparedStatement.setString(index++, String.format("Var: %d", id));
                 preparedStatement.setTimestamp(index++, Timestamp.valueOf(LocalDate.of(2020, 11, 25).atStartOfDay().plusHours(procId).plusMinutes(taskId).plusSeconds(id)));
@@ -482,7 +528,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
         }
     }
 
-    private void insertDetails(Connection connection, int procId, int taskId) throws SQLException {
+    private void insertDetails(Connection connection, int procId, int taskId, boolean subTask) throws SQLException {
         try(PreparedStatement preparedStatement = connection.prepareStatement("""
             INSERT INTO [ACT_HI_DETAIL] (
                 [ID_],
@@ -508,7 +554,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                 id++;
                 int index = 1;
                 preparedStatement.setString(index++, String.valueOf(id));
-                preparedStatement.setString(index++, String.valueOf(procId));
+                preparedStatement.setString(index++, subTask ? null : String.valueOf(procId));
                 preparedStatement.setString(index++, String.valueOf(taskId));
                 preparedStatement.setString(index++, String.format("Detail: %d", id));
                 preparedStatement.setTimestamp(index++, Timestamp.valueOf(LocalDate.of(2020, 11, 25).atStartOfDay().plusHours(procId).plusMinutes(taskId).plusSeconds(id)));
@@ -519,7 +565,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
         }
     }
 
-    private void insertComments(Connection connection, int procId, int taskId) throws SQLException {
+    private void insertComments(Connection connection, int procId, int taskId, boolean subTask) throws SQLException {
         try(PreparedStatement preparedStatement = connection.prepareStatement("""
             INSERT INTO [ACT_HI_COMMENT] (
                 [ID_],
@@ -540,7 +586,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                 id++;
                 int index = 1;
                 preparedStatement.setString(index++, String.valueOf(id));
-                preparedStatement.setString(index++, String.valueOf(procId));
+                preparedStatement.setString(index++, subTask ? null : String.valueOf(procId));
                 preparedStatement.setString(index++, String.valueOf(taskId));
                 preparedStatement.setTimestamp(index++, Timestamp.valueOf(LocalDate.of(2020, 11, 25).atStartOfDay().plusHours(procId).plusMinutes(taskId).plusSeconds(id)));
 
@@ -550,7 +596,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
         }
     }
 
-    private void insertAttachments(Connection connection, int procId, int taskId) throws SQLException {
+    private void insertAttachments(Connection connection, int procId, int taskId, boolean subTask) throws SQLException {
         try(PreparedStatement preparedStatement = connection.prepareStatement("""
             INSERT INTO [ACT_HI_ATTACHMENT] (
                 [ID_],
@@ -572,7 +618,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                 id++;
                 int index = 1;
                 preparedStatement.setString(index++, String.valueOf(id));
-                preparedStatement.setString(index++, String.valueOf(procId));
+                preparedStatement.setString(index++, subTask ? null : String.valueOf(procId));
                 preparedStatement.setString(index++, String.valueOf(taskId));
                 preparedStatement.setTimestamp(index++, Timestamp.valueOf(LocalDate.of(2020, 11, 25).atStartOfDay().plusHours(procId).plusMinutes(taskId).plusSeconds(id)));
 
@@ -582,7 +628,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
         }
     }
 
-    private void insertIdentityLinks(Connection connection, int procId, int taskId) throws SQLException {
+    private void insertIdentityLinks(Connection connection, int procId, int taskId, boolean subTask) throws SQLException {
         try(PreparedStatement preparedStatement = connection.prepareStatement("""
             INSERT INTO [ACT_HI_IDENTITYLINK] (
                 [ID_],
@@ -602,7 +648,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                 id++;
                 int index = 1;
                 preparedStatement.setString(index++, String.valueOf(id));
-                preparedStatement.setString(index++, String.valueOf(procId));
+                preparedStatement.setString(index++, subTask ? null : String.valueOf(procId));
                 preparedStatement.setString(index++, String.valueOf(taskId));
 
                 preparedStatement.addBatch();
