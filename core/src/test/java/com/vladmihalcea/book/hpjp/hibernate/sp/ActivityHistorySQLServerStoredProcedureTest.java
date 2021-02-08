@@ -371,9 +371,17 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
     private final int ACT_HI_ATTACHMENT_PER_TASK_COUNT = 5;
     private final int ACT_HI_IDENTITYLINK_PER_TASK_COUNT = 5;
 
+    private int procInstId = 1;
+    private int actInstId = 1;
+    private int taskInstId = 1;
+    private int varInstId = 1;
+    private int detailId = 1;
+    private int commentId = 1;
+    private int attachmentId = 1;
+    private int identityLinkId = 1;
+
     private void insertData() {
         doInJPA(entityManager -> {
-            int procInstId = 0;
             int procInstRootCount = 0;
             while (procInstRootCount < ACT_HI_PROCINST_ROOT_COUNT) {
                 //Add a new root process
@@ -419,7 +427,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
             .executeUpdate();
 
         for (int j = 1; j <= ACT_HI_ACTINST_PER_PROC_COUNT; j++) {
-            int actId = (procId * 10) + j;
+            int actId = actInstId++;
             entityManager.createNativeQuery("""
                 INSERT INTO [ACT_HI_ACTINST] (
                     [ID_],
@@ -439,31 +447,34 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     :start_time_
                 )
                 """)
-                .setParameter("id", String.valueOf(actId))
-                .setParameter("proc_inst_id_", String.valueOf(actId))
-                .setParameter("start_time_", Timestamp.valueOf(LocalDate.of(2020, 11, 25).atStartOfDay().plusHours(procId).plusMinutes(j)))
-                .executeUpdate();
+            .setParameter("id", String.valueOf(actId))
+            .setParameter("proc_inst_id_", String.valueOf(actId))
+            .setParameter("start_time_", Timestamp.valueOf(LocalDate.of(2020, 11, 25).atStartOfDay().plusHours(procId).plusMinutes(j)))
+            .executeUpdate();
         }
-
-        int taskId = (procId * (ACT_HI_ACTINST_PER_PROC_COUNT + 1) * (ACT_HI_TASKINST_PER_PROC_COUNT + 1));
 
         for (int j = 1; j <= ACT_HI_TASKINST_PER_PROC_COUNT; j++) {
             //Add a new root task
-            int rootId  = insertTaskInst(entityManager, procId, taskId++, null);
+            int rootId  = insertTaskInst(entityManager, procId, null);
             //Add two child task instances
-            int child1Id = insertTaskInst(entityManager, procId, taskId++, rootId);
-            int child2Id = insertTaskInst(entityManager, procId, taskId++, rootId);
+            int child1Id = insertTaskInst(entityManager, procId, rootId);
+            int child2Id = insertTaskInst(entityManager, procId, rootId);
             //Add two grandchild task instances per child
-            insertTaskInst(entityManager, procId, taskId++, child1Id);
-            insertTaskInst(entityManager, procId, taskId++, child1Id);
-            insertTaskInst(entityManager, procId, taskId++, child2Id);
-            insertTaskInst(entityManager, procId, taskId++, child2Id);
+            insertTaskInst(entityManager, procId, child1Id);
+            insertTaskInst(entityManager, procId, child1Id);
+            insertTaskInst(entityManager, procId, child2Id);
+            insertTaskInst(entityManager, procId, child2Id);
         }
+
+        insertIdentityLinks(entityManager, procId);
+        insertComments(entityManager, procId);
 
         return procId;
     }
 
-    private int insertTaskInst(EntityManager entityManager, int procId, int taskId, Integer parentTaskId) {
+    private int insertTaskInst(EntityManager entityManager, int procId, Integer parentTaskId) {
+        int taskId = taskInstId++;
+
         entityManager.createNativeQuery("""
             INSERT INTO [ACT_HI_TASKINST] (
                 [ID_],
@@ -511,10 +522,8 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
             )
             """
         )) {
-            int id = (taskId * (ACT_HI_VARINST_PER_TASK_COUNT + 1));
-
             for (int i = 1; i <= ACT_HI_VARINST_PER_TASK_COUNT; i++) {
-                id++;
+                int id = varInstId++;
                 int index = 1;
                 preparedStatement.setString(index++, String.valueOf(id));
                 preparedStatement.setString(index++, subTask ? null : String.valueOf(procId));
@@ -548,10 +557,8 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
             )
             """
         )) {
-            int id = (taskId * (ACT_HI_DETAIL_PER_TASK_COUNT + 1));
-
             for (int i = 1; i <= ACT_HI_DETAIL_PER_TASK_COUNT; i++) {
-                id++;
+                int id = detailId++;
                 int index = 1;
                 preparedStatement.setString(index++, String.valueOf(id));
                 preparedStatement.setString(index++, subTask ? null : String.valueOf(procId));
@@ -580,10 +587,8 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
             )
             """
         )) {
-            int id = (taskId * (ACT_HI_COMMENT_PER_TASK_COUNT + 1));
-
             for (int i = 1; i <= ACT_HI_COMMENT_PER_TASK_COUNT; i++) {
-                id++;
+                int id = commentId++;
                 int index = 1;
                 preparedStatement.setString(index++, String.valueOf(id));
                 preparedStatement.setString(index++, subTask ? null : String.valueOf(procId));
@@ -594,6 +599,26 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
             }
             preparedStatement.executeBatch();
         }
+    }
+
+    private void insertComments(EntityManager entityManager, int procId) {
+        int id = commentId++;
+        entityManager.createNativeQuery("""
+            INSERT INTO [ACT_HI_COMMENT] (
+                [ID_],
+                [PROC_INST_ID_],
+                [TIME_]
+            )
+            VALUES (
+                :id,
+                :proc_inst_id_,
+                :time
+            )
+        """)
+        .setParameter("id", String.valueOf(id))
+        .setParameter("proc_inst_id_", String.valueOf(procId))
+        .setParameter("time", Timestamp.valueOf(LocalDate.of(2020, 11, 25).atStartOfDay().plusHours(procId).plusMinutes(id)))
+        .executeUpdate();
     }
 
     private void insertAttachments(Connection connection, int procId, int taskId, boolean subTask) throws SQLException {
@@ -612,10 +637,8 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
             )
             """
         )) {
-            int id = (taskId * (ACT_HI_ATTACHMENT_PER_TASK_COUNT + 1));
-
             for (int i = 1; i <= ACT_HI_ATTACHMENT_PER_TASK_COUNT; i++) {
-                id++;
+                int id = attachmentId++;
                 int index = 1;
                 preparedStatement.setString(index++, String.valueOf(id));
                 preparedStatement.setString(index++, subTask ? null : String.valueOf(procId));
@@ -642,10 +665,8 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
             )
             """
         )) {
-            int id = (taskId * (ACT_HI_IDENTITYLINK_PER_TASK_COUNT + 1));
-
             for (int i = 1; i <= ACT_HI_IDENTITYLINK_PER_TASK_COUNT; i++) {
-                id++;
+                int id = identityLinkId++;
                 int index = 1;
                 preparedStatement.setString(index++, String.valueOf(id));
                 preparedStatement.setString(index++, subTask ? null : String.valueOf(procId));
@@ -655,6 +676,24 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
             }
             preparedStatement.executeBatch();
         }
+    }
+
+    private void insertIdentityLinks(EntityManager entityManager, int procId) {
+        int id = identityLinkId++;
+
+        entityManager.createNativeQuery("""
+            INSERT INTO [ACT_HI_IDENTITYLINK] (
+                [ID_],
+                [PROC_INST_ID_]
+            )
+            VALUES (
+                :id,
+                :proc_inst_id_
+            )
+        """)
+        .setParameter("id", String.valueOf(id))
+        .setParameter("proc_inst_id_", String.valueOf(procId))
+        .executeUpdate();
     }
 
     @Test
