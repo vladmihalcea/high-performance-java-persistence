@@ -210,8 +210,8 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                 @BatchSize INT,
                 @DeletedRowCount INT OUTPUT
             )
-                AS
-                BEGIN                         
+            AS
+            BEGIN                         
                 SET @DeletedRowCount=0;
                            
                 BEGIN TRY
@@ -227,6 +227,8 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                 BEGIN CATCH SELECT 1 END CATCH;
                 
                 CREATE TABLE #PROC_INST_ID_TABLE (PROC_INST_ID_ NVARCHAR(64));
+                
+                BEGIN TRAN;
                                                                
                 INSERT INTO #ROOT_PROC_INST_ID_TABLE
                 SELECT TOP (@BatchSize) PROC_INST_ID_
@@ -304,7 +306,9 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                         END_TIME_ <= @BeforeStartTimestamp
                         AND END_TIME_ IS NOT NULL
                         AND SUPER_PROCESS_INSTANCE_ID_ IS NULL;
-                END                                         
+                END
+                
+                COMMIT;                                         
             END
             """
         );
@@ -609,16 +613,15 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
 
     @Test
     public void testDeleteActivityHistory() {
-        doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            session.doWork(connection -> {
-                deleteActivityHistoryBeforeDate(
-                    connection,
-                    Timestamp.valueOf(LocalDateTime.now()),
-                    10
-                );
-            });
-        });
+        try(Connection connection = dataSourceProvider().dataSource().getConnection()) {
+            deleteActivityHistoryBeforeDate(
+                connection,
+                Timestamp.valueOf(LocalDateTime.now()),
+                10
+            );
+        } catch (SQLException e) {
+            LOGGER.error("Error getting database connection", e);
+        }
     }
 
     private int deleteActivityHistoryBeforeDate(Connection connection, Timestamp olderThanTimestamp, int batchSize) {
