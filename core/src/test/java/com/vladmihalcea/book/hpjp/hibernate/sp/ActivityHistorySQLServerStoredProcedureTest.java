@@ -247,7 +247,8 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                                 
                 WHILE (SELECT COUNT(*) FROM #ROOT_PROC_INST_ID_TABLE) > 0
                 BEGIN
-                    DELETE FROM #PROC_INST_ID_TABLE;
+                    TRUNCATE TABLE #PROC_INST_ID_TABLE;
+                    TRUNCATE TABLE #TASK_INST_ID_TABLE;
                                     
                     WITH ACT_HI_PROCINST_HIERARCHY(PROC_INST_ID_)
                     AS (
@@ -279,7 +280,6 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     
                     -- Delete ACT_HI_TASKINST rows recursive along with their associated: ACT_HI_DETAIL, ACT_HI_VARINST, ACT_HI_COMMENT, ACT_HI_ATTACHMENT, ACT_HI_IDENTITYLINK
                     BEGIN
-                    
                         WITH ACT_HI_TASKINST_HIERARCHY(ID_)
                         AS (
                             SELECT ID_
@@ -343,7 +343,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                                                                
                     COMMIT;
                                
-                    DELETE FROM #ROOT_PROC_INST_ID_TABLE;
+                    TRUNCATE TABLE #ROOT_PROC_INST_ID_TABLE;
                     
                     INSERT INTO #ROOT_PROC_INST_ID_TABLE
                     SELECT TOP (@BatchSize) PROC_INST_ID_
