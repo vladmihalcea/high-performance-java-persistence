@@ -49,7 +49,7 @@ public class MergeJoinSqlTest extends AbstractPostgreSQLIntegrationTest {
             int postCommentCount = 10;
             long postCommentId = 1;
 
-            for (long postId = 1; postId < postCount; postId++) {
+            for (long postId = 1; postId <= postCount; postId++) {
                 Post post = new Post()
                     .setId(postId)
                     .setTitle(String.format("Post no. %d", postId));
