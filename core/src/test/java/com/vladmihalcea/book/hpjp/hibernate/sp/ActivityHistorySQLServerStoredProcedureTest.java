@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Vlad Mihalcea
  */
@@ -796,6 +798,18 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
         } catch (SQLException e) {
             LOGGER.error("Error getting database connection", e);
         }
+
+        doInJPA(entityManager -> {
+            assertEquals(0, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM ACT_HI_PROCINST").getSingleResult()).intValue());
+            assertEquals(0, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM ACT_HI_ACTINST").getSingleResult()).intValue());
+            assertEquals(0, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM ACT_HI_TASKINST").getSingleResult()).intValue());
+            assertEquals(0, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM ACT_GE_BYTEARRAY").getSingleResult()).intValue());
+            assertEquals(0, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM ACT_HI_VARINST").getSingleResult()).intValue());
+            assertEquals(0, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM ACT_HI_DETAIL").getSingleResult()).intValue());
+            assertEquals(0, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM ACT_HI_COMMENT").getSingleResult()).intValue());
+            assertEquals(0, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM ACT_HI_ATTACHMENT").getSingleResult()).intValue());
+            assertEquals(0, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM ACT_HI_IDENTITYLINK").getSingleResult()).intValue());
+        });
     }
 
     private int deleteActivityHistoryBeforeDate(Connection connection, Timestamp olderThanTimestamp, int batchSize) {
