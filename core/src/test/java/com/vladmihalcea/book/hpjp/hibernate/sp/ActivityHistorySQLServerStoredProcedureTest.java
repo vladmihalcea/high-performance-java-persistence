@@ -29,6 +29,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
             ddl("DROP table ACT_HI_PROCINST");
             ddl("DROP table ACT_HI_ACTINST");
             ddl("DROP table ACT_HI_TASKINST");
+            ddl("DROP table ACT_GE_BYTEARRAY");
             ddl("DROP table ACT_HI_VARINST");
             ddl("DROP table ACT_HI_DETAIL");
             ddl("DROP table ACT_HI_COMMENT");
@@ -179,6 +180,17 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     primary key (ID_)
                 )
                 """);
+            ddl("""                            
+                create table ACT_GE_BYTEARRAY (
+                    ID_ nvarchar(64),
+                    REV_ int,
+                    NAME_ nvarchar(255),
+                    DEPLOYMENT_ID_ nvarchar(64),
+                    BYTES_  varbinary(max),
+                    GENERATED_ tinyint,
+                    primary key (ID_)
+                );
+                """);
 
             insertData();
 
@@ -257,9 +269,17 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                                    
                         SET @DeletedRowCount+=@@ROWCOUNT;
                         
+                        DELETE FROM ACT_GE_BYTEARRAY
+                        WHERE ID_ IN (
+                            SELECT BYTEARRAY_ID_ FROM ACT_HI_VARINST
+                            WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE)
+                        );
+                        
+                        SET @DeletedRowCount+=@@ROWCOUNT;
+                        
                         DELETE FROM ACT_HI_VARINST
                         WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                                   
+                                                                      
                         SET @DeletedRowCount+=@@ROWCOUNT;
                         
                         DELETE FROM ACT_HI_ACTINST
@@ -289,6 +309,14 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                                        
                             SET @DeletedRowCount+=@@ROWCOUNT;
                             
+                            DELETE FROM ACT_GE_BYTEARRAY
+                            WHERE ID_ IN (
+                                SELECT BYTEARRAY_ID_ FROM ACT_HI_VARINST
+                                WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE)
+                            );
+                                       
+                            SET @DeletedRowCount+=@@ROWCOUNT;
+                            
                             DELETE FROM ACT_HI_VARINST
                             WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
                                        
@@ -296,6 +324,14 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                             
                             DELETE FROM ACT_HI_COMMENT
                             WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
+                                       
+                            SET @DeletedRowCount+=@@ROWCOUNT;
+                            
+                            DELETE FROM ACT_GE_BYTEARRAY
+                            WHERE ID_ IN (
+                                SELECT CONTENT_ID_ FROM ACT_HI_ATTACHMENT
+                                WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE)
+                            );
                                        
                             SET @DeletedRowCount+=@@ROWCOUNT;
                             
@@ -360,7 +396,11 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                         END_TIME_ <= @BeforeStartTimestamp
                         AND END_TIME_ IS NOT NULL
                         AND SUPER_PROCESS_INSTANCE_ID_ IS NULL;
-                END                                        
+                END
+                
+                DROP TABLE IF EXISTS #ROOT_PROC_INST_ID_TABLE;                
+                DROP TABLE IF EXISTS #PROC_INST_ID_TABLE;
+                DROP TABLE IF EXISTS #TASK_INST_ID_TABLE;
             END
             """
         );
@@ -385,6 +425,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
     private int commentId = 1;
     private int attachmentId = 1;
     private int identityLinkId = 1;
+    private int byteArrayId = 1;
 
     private void insertData() {
         doInJPA(entityManager -> {
@@ -454,7 +495,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                 )
                 """)
             .setParameter("id", String.valueOf(actId))
-            .setParameter("proc_inst_id_", String.valueOf(actId))
+            .setParameter("proc_inst_id_", String.valueOf(procId))
             .setParameter("start_time_", Timestamp.valueOf(LocalDate.of(2020, 11, 25).atStartOfDay().plusHours(procId).plusMinutes(j)))
             .executeUpdate();
         }
@@ -512,34 +553,55 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
     }
 
     private void insertVarInsts(Connection connection, int procId, int taskId, boolean subTask) throws SQLException {
-        try(PreparedStatement preparedStatement = connection.prepareStatement("""
+        try(PreparedStatement varInstPreparedStatement = connection.prepareStatement("""
             INSERT INTO [ACT_HI_VARINST] (
                 [ID_],
                 [PROC_INST_ID_],
                 [TASK_ID_],
                 [NAME_],
+                [BYTEARRAY_ID_],
                 [CREATE_TIME_])
             VALUES (
                 ?,
                 ?,
                 ?, 
                 ?, 
+                ?, 
                 ?
             )
-            """
-        )) {
+            """);
+            PreparedStatement byteArrayPreparedStatement = connection.prepareStatement("""
+                INSERT INTO [ACT_GE_BYTEARRAY] (
+                    [ID_],
+                    [NAME_])
+                VALUES (
+                    ?,
+                    ?
+                )
+                """
+            )
+        ) {
             for (int i = 1; i <= ACT_HI_VARINST_PER_TASK_COUNT; i++) {
                 int id = varInstId++;
+                byteArrayId++;
                 int index = 1;
-                preparedStatement.setString(index++, String.valueOf(id));
-                preparedStatement.setString(index++, subTask ? null : String.valueOf(procId));
-                preparedStatement.setString(index++, String.valueOf(taskId));
-                preparedStatement.setString(index++, String.format("Var: %d", id));
-                preparedStatement.setTimestamp(index++, Timestamp.valueOf(LocalDate.of(2020, 11, 25).atStartOfDay().plusHours(procId).plusMinutes(taskId).plusSeconds(id)));
+                varInstPreparedStatement.setString(index++, String.valueOf(id));
+                varInstPreparedStatement.setString(index++, subTask ? null : String.valueOf(procId));
+                varInstPreparedStatement.setString(index++, String.valueOf(taskId));
+                varInstPreparedStatement.setString(index++, String.format("Var: %d", id));
+                varInstPreparedStatement.setString(index++, String.valueOf(byteArrayId));
+                varInstPreparedStatement.setTimestamp(index++, Timestamp.valueOf(LocalDate.of(2020, 11, 25).atStartOfDay().plusHours(procId).plusMinutes(taskId).plusSeconds(id)));
 
-                preparedStatement.addBatch();
+                varInstPreparedStatement.addBatch();
+
+                index = 1;
+                byteArrayPreparedStatement.setString(index++, String.valueOf(byteArrayId));
+                byteArrayPreparedStatement.setString(index++, String.format("Var: %d", id));
+
+                byteArrayPreparedStatement.addBatch();
             }
-            preparedStatement.executeBatch();
+            varInstPreparedStatement.executeBatch();
+            byteArrayPreparedStatement.executeBatch();
         }
     }
 
@@ -628,32 +690,53 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
     }
 
     private void insertAttachments(Connection connection, int procId, int taskId, boolean subTask) throws SQLException {
-        try(PreparedStatement preparedStatement = connection.prepareStatement("""
+        try(PreparedStatement attachmentPreparedStatement = connection.prepareStatement("""
             INSERT INTO [ACT_HI_ATTACHMENT] (
                 [ID_],
                 [PROC_INST_ID_],
                 [TASK_ID_],
+                [CONTENT_ID_],
                 [TIME_]
             )
             VALUES (
                 ?,
                 ?,
                 ?,
+                ?,
                 ?
             )
-            """
-        )) {
+            """);
+            PreparedStatement byteArrayPreparedStatement = connection.prepareStatement("""
+                INSERT INTO [ACT_GE_BYTEARRAY] (
+                    [ID_],
+                    [NAME_])
+                VALUES (
+                    ?,
+                    ?
+                )
+                """
+            )
+        ) {
             for (int i = 1; i <= ACT_HI_ATTACHMENT_PER_TASK_COUNT; i++) {
                 int id = attachmentId++;
+                byteArrayId++;
                 int index = 1;
-                preparedStatement.setString(index++, String.valueOf(id));
-                preparedStatement.setString(index++, subTask ? null : String.valueOf(procId));
-                preparedStatement.setString(index++, String.valueOf(taskId));
-                preparedStatement.setTimestamp(index++, Timestamp.valueOf(LocalDate.of(2020, 11, 25).atStartOfDay().plusHours(procId).plusMinutes(taskId).plusSeconds(id)));
+                attachmentPreparedStatement.setString(index++, String.valueOf(id));
+                attachmentPreparedStatement.setString(index++, subTask ? null : String.valueOf(procId));
+                attachmentPreparedStatement.setString(index++, String.valueOf(taskId));
+                attachmentPreparedStatement.setString(index++, String.valueOf(byteArrayId));
+                attachmentPreparedStatement.setTimestamp(index++, Timestamp.valueOf(LocalDate.of(2020, 11, 25).atStartOfDay().plusHours(procId).plusMinutes(taskId).plusSeconds(id)));
 
-                preparedStatement.addBatch();
+                attachmentPreparedStatement.addBatch();
+
+                index = 1;
+                byteArrayPreparedStatement.setString(index++, String.valueOf(byteArrayId));
+                byteArrayPreparedStatement.setString(index++, String.format("Var: %d", id));
+
+                byteArrayPreparedStatement.addBatch();
             }
-            preparedStatement.executeBatch();
+            attachmentPreparedStatement.executeBatch();
+            byteArrayPreparedStatement.executeBatch();
         }
     }
 
