@@ -204,22 +204,22 @@ public class SQLServerTriggerBasedJsonAuditLogTest extends AbstractTest {
                    BookAuditLog.DmlTimestamp as VersionTimestamp,
                    r.*
                 FROM
-                    BookAuditLog
+                   BookAuditLog
                 OUTER APPLY
-                    OPENJSON (
-                        JSON_QUERY(
-                          NewRowData,
-                          '$'
-                        )
-                      )
-                      WITH (
-                        title varchar(255) '$.title',
-                        author varchar(255) '$.author',
-                        price_in_cents bigint '$.price_in_cents',
-                        publisher varchar(255) '$.publisher'
-                      ) AS r
+                   OPENJSON (
+                     JSON_QUERY(
+                        NewRowData,
+                        '$'
+                     )
+                   )
+                   WITH (
+                      title varchar(255) '$.Title',
+                      author varchar(255) '$.Author',
+                      price_in_cents bigint '$.PriceInCents',
+                      publisher varchar(255) '$.Publisher'
+                   ) AS r
                 WHERE
-                    BookAuditLog.BookId = :bookId
+                 BookAuditLog.BookId = 1
                 ORDER BY VersionTimestamp
 			    """, Tuple.class)
                 .setParameter("bookId", 1L)
