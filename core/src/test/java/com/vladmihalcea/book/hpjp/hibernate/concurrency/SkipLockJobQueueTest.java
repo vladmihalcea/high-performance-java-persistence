@@ -4,7 +4,6 @@ import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -26,9 +25,7 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
         };
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             for (long i = 1; i <= 10; i++) {
                 Post post = new Post();

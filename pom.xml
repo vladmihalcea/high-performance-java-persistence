@@ -47,6 +47,12 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-testing</artifactId>
             <version>${hibernate.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
