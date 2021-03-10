@@ -124,7 +124,7 @@ public class JPATransactionManagerConfiguration {
                     @Override
                     public void afterClose(MethodExecutionContext executionContext) {
                         if(executionContext.getTarget() instanceof Connection) {
-                            queryCountHolder.set(new LongAdder());
+                            queryCountHolder.remove();
                         }
                     }
                 })

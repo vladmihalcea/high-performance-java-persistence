@@ -121,4 +121,19 @@ public class JPATransactionManagerTest {
     public void testTransactionNoStatement() {
         transactionTemplate.execute(status -> null);
     }
+
+    @Test
+    public void testJdbcTemplateWithoutTransaction() {
+        int postCountBefore = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM post", Number.class).intValue();
+
+        transactionTemplate.execute(status -> {
+            jdbcTemplate.execute("DELETE FROM post");
+
+            return null;
+        });
+
+        int postCountAfter = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM post", Number.class).intValue();
+
+        assertEquals(0, postCountAfter);
+    }
 }
