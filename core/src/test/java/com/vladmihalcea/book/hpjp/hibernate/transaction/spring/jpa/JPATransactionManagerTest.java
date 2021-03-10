@@ -113,8 +113,12 @@ public class JPATransactionManagerTest {
             int postCountAfterPersist = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM post", Number.class).intValue();
 
             assertEquals(postCountAfterPersist, postCountBeforePersist + 1);
-
             return null;
         });
+    }
+
+    @Test
+    public void testTransactionNoStatement() {
+        transactionTemplate.execute(status -> null);
     }
 }
