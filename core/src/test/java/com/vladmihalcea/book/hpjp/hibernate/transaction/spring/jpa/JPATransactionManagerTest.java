@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -24,9 +25,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import java.util.List;
+import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
@@ -52,6 +53,9 @@ public class JPATransactionManagerTest {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Before
     public void init() {
@@ -94,5 +98,23 @@ public class JPATransactionManagerTest {
 
         postDTO = forumService.savePostTitle(newPost.getId(), "High-Performance Java Persistence, 2nd edition");
         assertEquals("High-Performance Java Persistence, 2nd edition", postDTO.getTitle());
+    }
+
+    @Test
+    public void testJdbcTemplate() {
+        transactionTemplate.execute(status -> {
+            int postCountBeforePersist = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM post", Number.class).intValue();
+
+            Post post = new Post();
+            post.setTitle("Latest post!");
+            entityManager.persist(post);
+            entityManager.flush();
+
+            int postCountAfterPersist = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM post", Number.class).intValue();
+
+            assertEquals(postCountAfterPersist, postCountBeforePersist + 1);
+
+            return null;
+        });
     }
 }

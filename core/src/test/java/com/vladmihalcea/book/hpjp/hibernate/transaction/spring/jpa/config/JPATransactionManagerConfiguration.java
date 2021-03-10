@@ -14,6 +14,7 @@ import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -64,7 +65,7 @@ public class JPATransactionManagerConfiguration {
     }
 
     @Bean(destroyMethod = "close")
-    public DataSource actualDataSource() {
+    public HikariDataSource actualDataSource() {
         Properties driverProperties = new Properties();
         driverProperties.setProperty("url", jdbcUrl);
         driverProperties.setProperty("user", jdbcUser);
@@ -112,6 +113,11 @@ public class JPATransactionManagerConfiguration {
     @Bean
     public TransactionTemplate transactionTemplate(EntityManagerFactory entityManagerFactory) {
         return new TransactionTemplate(transactionManager(entityManagerFactory));
+    }
+
+    @Bean
+    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
     }
 
     protected Properties additionalProperties() {
