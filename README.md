@@ -44,7 +44,7 @@ Or, if you prefer reading books, you are going to love my [High-Performance Java
 
 ## Java
 
-All examples require at least Java 13 because of the awesome [Text Blocks](https://openjdk.java.net/jeps/355) feature, which makes JPQL and SQL queries so much readable.
+All examples require at least Java 15 because of the awesome [Text Blocks](https://openjdk.java.net/jeps/355) feature, which makes JPQL and SQL queries so much readable.
 
 ## Maven
 
