@@ -1,8 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.annotations.LazyToOne;
-import org.hibernate.annotations.LazyToOneOption;
 import org.hibernate.testing.bytecode.enhancement.BytecodeEnhancerRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +11,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
@@ -25,18 +23,21 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
     protected Class<?>[] entities() {
         return new Class<?>[]{
             Post.class,
+            PostDetails.class,
             PostComment.class,
-            PostDetails.class
+            PostCommentDetails.class
         };
     }
 
     @Override
     public void afterInit() {
         doInJPA(entityManager -> {
+            long postId = 1;
+            long commentId = 1L;
             for (long i = 1; i <= 3; i++) {
                 entityManager.persist(
                     new Post()
-                        .setId(i++)
+                        .setId(postId++)
                         .setTitle(String.format("High-Performance Java Persistence, part %d", i))
                         .setDetails(
                             new PostDetails()
@@ -45,15 +46,21 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
                         )
                         .addComment(
                             new PostComment()
+                                .setId(commentId++)
                                 .setReview("The first part is about JDBC")
+                                .setDetails(new PostCommentDetails().setViewCount(1))
                         )
                         .addComment(
                             new PostComment()
+                                .setId(commentId++)
                                 .setReview("The second part is about JPA")
+                                .setDetails(new PostCommentDetails().setViewCount(2))
                         )
                         .addComment(
                             new PostComment()
+                                .setId(commentId++)
                                 .setReview("The third part is about jOOQ")
+                                .setDetails(new PostCommentDetails().setViewCount(3))
                         )
                 );
             }
@@ -90,11 +97,39 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
         assertNotNull(comment.getPost());
     }
 
+    @Test
+    public void testFindPostWithAllAssociations() {
+        Post post = doInJPA(entityManager -> {
+            return entityManager.find(Post.class, 1L,
+                Collections.singletonMap(
+                    "javax.persistence.fetchgraph",
+                    entityManager.getEntityGraph("Post.all")
+                )
+            );
+        });
+
+        assertEquals("High-Performance Java Persistence, part 1", post.getTitle());
+        assertEquals("Vlad Mihalcea", post.getDetails().getCreatedBy());
+        assertEquals(3, post.getComments().size());
+        assertTrue(post.getComments().get(0).getDetails().getViewCount() > 0);
+    }
+
     @Entity(name = "Post")
     @Table(name = "post")
     @NamedEntityGraph(
         name = "Post.details",
         attributeNodes = @NamedAttributeNode("details")
+    )
+    @NamedEntityGraph(
+        name = "Post.all",
+        attributeNodes = {
+            @NamedAttributeNode("details"),
+            @NamedAttributeNode(value = "comments", subgraph = "Post.comment.details"),
+        },
+        subgraphs = @NamedSubgraph(
+            name = "Post.comment.details",
+            attributeNodes = @NamedAttributeNode("details")
+        )
     )
     public static class Post {
 
@@ -109,7 +144,6 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
             orphanRemoval = true,
             fetch = FetchType.LAZY
         )
-        @LazyToOne(LazyToOneOption.NO_PROXY)
         private PostDetails details;
 
         @OneToMany(
@@ -166,6 +200,7 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Entity(name = "PostDetails")
+    @Table(name = "post_details")
     public static class PostDetails {
 
         @Id
@@ -227,11 +262,13 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
     public static class PostComment {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         @ManyToOne(fetch = FetchType.LAZY)
         private Post post;
+
+        @OneToOne(mappedBy = "comment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        private PostCommentDetails details;
 
         private String review;
 
@@ -253,12 +290,72 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
             return this;
         }
 
+        public PostCommentDetails getDetails() {
+            return details;
+        }
+
+        public PostComment setDetails(PostCommentDetails details) {
+            if (details == null) {
+                if (this.details != null) {
+                    this.details.setComment(null);
+                }
+            }
+            else {
+                details.setComment(this);
+            }
+            this.details = details;
+            return this;
+        }
+
         public String getReview() {
             return review;
         }
 
         public PostComment setReview(String review) {
             this.review = review;
+            return this;
+        }
+    }
+
+    @Entity(name = "PostCommentDetails")
+    @Table(name = "post_comment_details")
+    public static class PostCommentDetails {
+
+        @Id
+        private Long id;
+
+        @OneToOne(fetch = FetchType.LAZY)
+        @MapsId
+        @JoinColumn(name = "id")
+        private PostComment comment;
+
+        @Column(name = "view_count")
+        private int viewCount;
+
+        public Long getId() {
+            return id;
+        }
+
+        public PostCommentDetails setId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public PostComment getComment() {
+            return comment;
+        }
+
+        public PostCommentDetails setComment(PostComment comment) {
+            this.comment = comment;
+            return this;
+        }
+
+        public int getViewCount() {
+            return viewCount;
+        }
+
+        public PostCommentDetails setViewCount(int views) {
+            this.viewCount = views;
             return this;
         }
     }
