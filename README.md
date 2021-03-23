@@ -91,7 +91,7 @@ The Integration Tests require some external configurations:
 
 - PostgreSQL
 
-    You should install PostgreSQL 11 (or newer) and the password for the `postgres` user should be `admin`.
+    You should install PostgreSQL and the password for the `postgres` user should be `admin`.
 
     Now you need to create a `high_performance_java_persistence` database.
     
@@ -117,11 +117,11 @@ The Integration Tests require some external configurations:
 
 - MySQL
 
-    You should install MySQL 8 (or newer) and the password for the `mysql` user should be `admin`.
+    You should install MySQL 8 and the password for the `mysql` user should be `admin`.
 
     Now, you need to create a `high_performance_java_persistence` schema
 
-    Besides having all privileges on this schema, the `mysql` user also requires select permission on `mysql.PROC`.
+    Beside having all privileges on this schema, the `mysql` user also requires select permission on `mysql.PROC`.
     
     If you don't have a `mysql` user created at database installation time, you can create one as follows:
     
