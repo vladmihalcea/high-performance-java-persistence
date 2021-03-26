@@ -39,6 +39,7 @@ public class DeadLockTest extends AbstractTest {
             comment.setId(1L);
             comment.setReview("Awesome!");
             comment.setPost(post);
+            entityManager.persist(comment);
         });
     }
 
