@@ -2,12 +2,14 @@ package com.vladmihalcea.book.hpjp.hibernate.concurrency.deadlock;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
+import org.hibernate.testing.util.ExceptionUtil;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.*;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -48,7 +50,7 @@ public class DeadLockTest extends AbstractTest {
                 LOGGER.info("Alice locks the Post entity");
                 Post post = entityManager.find(Post.class, 1L, LockModeType.PESSIMISTIC_WRITE);
 
-                executeAsync(() -> {
+                Future<?> future = executeAsync(() -> {
                     doInJPA(_entityManager -> {
                         LOGGER.info("Bob locks the PostComment entity");
                         PostComment _comment = _entityManager.find(PostComment.class, 1L, LockModeType.PESSIMISTIC_WRITE);
@@ -61,9 +63,15 @@ public class DeadLockTest extends AbstractTest {
                 awaitOnLatch(bobStart);
                 LOGGER.info("Alice wants to lock the PostComment entity");
                 PostComment comment = entityManager.find(PostComment.class, 1L, LockModeType.PESSIMISTIC_WRITE);
+
+                try {
+                    future.get();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             });
         } catch (Exception e) {
-            LOGGER.info("Deadlock detected", e);
+            LOGGER.info("Deadlock detected", ExceptionUtil.rootCause(e));
         }
     }
 

@@ -2,10 +2,19 @@ package com.vladmihalcea.book.hpjp.hibernate.concurrency.deadlock;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
+import com.vladmihalcea.hibernate.type.util.ListResultTransformer;
+import com.vladmihalcea.hibernate.type.util.StringUtils;
+import org.hibernate.Session;
+import org.hibernate.testing.util.ExceptionUtil;
 import org.junit.Test;
 
 import javax.persistence.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * @author Vlad Mihalcea
@@ -51,14 +60,16 @@ public class SQLServerDeadLockTest extends AbstractTest {
      */
     @Test
     public void testDeadLock() {
+        List<ErrorLogMessage> beforeDeadLockErrorLogLines = errorLogMessages();
         ddl("DBCC TRACEON (1204, 1222, -1)");
+
         CountDownLatch bobStart = new CountDownLatch(1);
         try {
             doInJPA(entityManager -> {
                 LOGGER.info("Alice locks the Post entity");
                 Post post = entityManager.find(Post.class, 1L, LockModeType.PESSIMISTIC_WRITE);
 
-                executeAsync(() -> {
+                Future<?> future = executeAsync(() -> {
                     doInJPA(_entityManager -> {
                         LOGGER.info("Bob locks the PostComment entity");
                         PostComment _comment = _entityManager.find(PostComment.class, 1L, LockModeType.PESSIMISTIC_WRITE);
@@ -71,9 +82,64 @@ public class SQLServerDeadLockTest extends AbstractTest {
                 awaitOnLatch(bobStart);
                 LOGGER.info("Alice wants to lock the PostComment entity");
                 PostComment comment = entityManager.find(PostComment.class, 1L, LockModeType.PESSIMISTIC_WRITE);
+
+                try {
+                    future.get();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             });
         } catch (Exception e) {
-            LOGGER.info("Deadlock detected", e);
+            LOGGER.info("Deadlock detected", ExceptionUtil.rootCause(e));
+            List<ErrorLogMessage> afterDeadLockErrorLogLines = errorLogMessages();
+            afterDeadLockErrorLogLines.removeAll(beforeDeadLockErrorLogLines);
+
+            LOGGER.info(
+                "Deadlock trace info: {}",
+                afterDeadLockErrorLogLines.stream().map(ErrorLogMessage::getMessage).collect(Collectors.joining(StringUtils.LINE_SEPARATOR))
+            );
+        } finally {
+            ddl("DBCC TRACEOFF (1204, 1222, -1)");
+        }
+    }
+
+    private List<ErrorLogMessage> errorLogMessages() {
+        try(Session session = entityManagerFactory().createEntityManager().unwrap(Session.class)) {
+            return session
+                .createNativeQuery("sp_readerrorlog")
+                .setResultTransformer((ListResultTransformer) (tuple, aliases) -> new ErrorLogMessage((Date) tuple[0], (String) tuple[2]))
+                .getResultList();
+        }
+    }
+
+    private static class ErrorLogMessage {
+        private final Date timestamp;
+        private final String message;
+
+        public ErrorLogMessage(Date timestamp, String message) {
+            this.timestamp = timestamp;
+            this.message = message;
+        }
+
+        public Date getTimestamp() {
+            return timestamp;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof ErrorLogMessage)) return false;
+            ErrorLogMessage that = (ErrorLogMessage) o;
+            return Objects.equals(timestamp, that.timestamp) && Objects.equals(message, that.message);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(timestamp, message);
         }
     }
 
