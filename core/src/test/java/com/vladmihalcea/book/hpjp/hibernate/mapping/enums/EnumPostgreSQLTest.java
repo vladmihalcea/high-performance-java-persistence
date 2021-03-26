@@ -27,22 +27,8 @@ public class EnumPostgreSQLTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     public void init() {
-        DataSource dataSource = newDataSource();
-        try (Connection connection = dataSource.getConnection()) {
-            try (Statement statement = connection.createStatement()) {
-                try {
-                    statement.executeUpdate(
-                            "DROP TYPE post_status_info CASCADE"
-                    );
-                } catch (SQLException ignore) {
-                }
-                statement.executeUpdate(
-                        "CREATE TYPE post_status_info AS ENUM ('PENDING', 'APPROVED', 'SPAM')"
-                );
-            }
-        } catch (SQLException e) {
-            fail(e.getMessage());
-        }
+        ddl("DROP TYPE post_status_info CASCADE");
+        ddl("CREATE TYPE post_status_info AS ENUM ('PENDING', 'APPROVED', 'SPAM')");
         super.init();
     }
 

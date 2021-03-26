@@ -1,25 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping.generated;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.Session;
-import org.hibernate.annotations.GenerationTime;
-import org.hibernate.annotations.GeneratorType;
-import org.hibernate.tuple.ValueGenerator;
 import org.junit.Test;
 
-import javax.persistence.*;
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 /**
  * @author Vlad Mihalcea
@@ -34,24 +23,13 @@ public class SequenceDefaultColumnValueTest extends AbstractPostgreSQLIntegratio
     }
 
     public void init() {
-        DataSource dataSource = newDataSource();
-        try (Connection connection = dataSource.getConnection()) {
-            try (Statement statement = connection.createStatement()) {
-                try {
-                    statement.executeUpdate(
-                        "DROP SEQUENCE sensor_seq"
-                    );
-                } catch (SQLException ignore) {
-                }
-                statement.executeUpdate(
-                    "CREATE SEQUENCE " +
-                    "   sensor_seq " +
-                    "START 100"
-                );
-            }
-        } catch (SQLException e) {
-            fail(e.getMessage());
-        }
+        ddl("DROP SEQUENCE sensor_seq");
+        ddl("""
+            CREATE SEQUENCE
+               sensor_seq
+            START 100
+            """
+        );
         super.init();
     }
 

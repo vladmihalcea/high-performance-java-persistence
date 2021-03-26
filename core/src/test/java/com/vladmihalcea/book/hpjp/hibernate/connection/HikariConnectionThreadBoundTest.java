@@ -16,7 +16,7 @@ public class HikariConnectionThreadBoundTest extends AbstractTest {
     public void test() throws InterruptedException, ExecutionException {
         doInJPA(entityManager -> {
             entityManager.unwrap(Session.class).doWork(connection -> {
-                try(Connection anotherConnection = dataSource.getConnection()) {
+                try(Connection anotherConnection = dataSource().getConnection()) {
                     LOGGER.info("Connections got from RESOURCE_LOCAL transactions are{} bound to thread", connection == anotherConnection ? "" : " not");
                 }
             });
@@ -27,13 +27,6 @@ public class HikariConnectionThreadBoundTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class[]{};
-    }
-
-    private DataSource dataSource;
-
-    protected DataSource newDataSource() {
-        dataSource = super.newDataSource();
-        return dataSource;
     }
 
     @Override

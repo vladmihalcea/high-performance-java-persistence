@@ -1,21 +1,16 @@
-package com.vladmihalcea.book.hpjp.hibernate.concurrency;
+package com.vladmihalcea.book.hpjp.hibernate.concurrency.deadlock;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.persistence.*;
-
 import java.util.concurrent.CountDownLatch;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * @author Vlad Mihalcea
  */
-public class DeadLockTest extends AbstractTest {
+public class SQLServerDeadLockTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -56,6 +51,7 @@ public class DeadLockTest extends AbstractTest {
      */
     @Test
     public void testDeadLock() {
+        ddl("DBCC TRACEON (1204, 1222, -1)");
         CountDownLatch bobStart = new CountDownLatch(1);
         try {
             doInJPA(entityManager -> {

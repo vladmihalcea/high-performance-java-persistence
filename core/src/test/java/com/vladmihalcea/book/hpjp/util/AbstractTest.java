@@ -72,6 +72,8 @@ public abstract class AbstractTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
+    private DataSource dataSource;
+
     private EntityManagerFactory emf;
 
     private SessionFactory sf;
@@ -294,7 +296,7 @@ public abstract class AbstractTest {
         //log settings
         properties.put("hibernate.hbm2ddl.auto", "create-drop");
         //data source settings
-        DataSource dataSource = newDataSource();
+        DataSource dataSource = dataSource();
         if (dataSource != null) {
             properties.put("hibernate.connection.datasource", dataSource);
         }
@@ -312,6 +314,13 @@ public abstract class AbstractTest {
 
     protected DataSourceProxyType dataSourceProxyType() {
         return DataSourceProxyType.DATA_SOURCE_PROXY;
+    }
+
+    protected DataSource dataSource() {
+        if(dataSource == null) {
+            dataSource = newDataSource();
+        }
+        return dataSource;
     }
 
     protected DataSource newDataSource() {
@@ -648,7 +657,7 @@ public abstract class AbstractTest {
     protected  void transact(Consumer<Connection> callback, Consumer<Connection> before) {
         Connection connection = null;
         try {
-            connection = newDataSource().getConnection();
+            connection = dataSource().getConnection();
             if (before != null) {
                 before.accept(connection);
             }
@@ -775,24 +784,11 @@ public abstract class AbstractTest {
     }
 
     protected void ddl(String sql) {
-        EntityManagerFactory emf = entityManagerFactory();
-        if(emf != null && emf.isOpen()) {
-            doInJDBC(connection -> {
-                try (Statement statement = connection.createStatement()) {
-                    statement.setQueryTimeout(1);
-                    statement.executeUpdate(sql);
-                } catch (SQLException e) {
-                    LOGGER.error("Statement failed", e);
-                }
-            });
-        }
-        else {
-            try (Connection connection = newDataSource().getConnection();
-                 Statement statement = connection.createStatement()) {
-                statement.executeUpdate(sql);
-            } catch (SQLException e) {
-                LOGGER.error("Statement failed", e);
-            }
+        try (Connection connection = dataSource().getConnection();
+             Statement statement = connection.createStatement()) {
+            statement.executeUpdate(sql);
+        } catch (SQLException e) {
+            LOGGER.error("Statement failed", e);
         }
     }
 

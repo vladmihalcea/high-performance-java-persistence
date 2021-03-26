@@ -21,8 +21,6 @@ public class AutoCommitTest extends AbstractTest {
 
     private BankEntityProvider entityProvider = new BankEntityProvider();
 
-    private DataSource dataSource = newDataSource();
-
     @Override
     protected Class<?>[] entities() {
         return entityProvider.entities();
@@ -56,7 +54,7 @@ public class AutoCommitTest extends AbstractTest {
         long fromAccountId = 1;
         long toAccountId = 2;
 
-        DataSource dataSource = newDataSource();
+        DataSource dataSource = dataSource();
 
         try(Connection connection = dataSource.getConnection();
             PreparedStatement transferStatement = connection.prepareStatement(
@@ -81,7 +79,7 @@ public class AutoCommitTest extends AbstractTest {
         long fromAccountId = 1;
         long toAccountId = 2;
 
-        DataSource dataSource = newDataSource();
+        DataSource dataSource = dataSource();
 
         try(Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
