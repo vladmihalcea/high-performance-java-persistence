@@ -26,12 +26,14 @@ public class PostCommentScoreFetchProjectionPerformanceStreamTest extends Abstra
         long startNanos = System.nanoTime();
         AtomicLong startInMemoryProcessingNanos = new AtomicLong();
         List<PostCommentScore> roots = doInJPA(entityManager -> {
-            List<PostCommentScore> postCommentScores = entityManager.createQuery(
-                "select new " +
-                "   com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore(" +
-                "   pc.id, pc.parent.id, pc.review, pc.createdOn, pc.score ) " +
-                "from PostComment pc " +
-                "where pc.post.id = :postId ")
+            List<PostCommentScore> postCommentScores = entityManager.createQuery("""
+                select new
+                    com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore(   
+                        pc.id, pc.parent.id, pc.review, pc.createdOn, pc.score 
+                    )
+                from PostComment pc
+                where pc.post.id = :postId
+                """)
             .setParameter("postId", postId)
             .getResultList();
 

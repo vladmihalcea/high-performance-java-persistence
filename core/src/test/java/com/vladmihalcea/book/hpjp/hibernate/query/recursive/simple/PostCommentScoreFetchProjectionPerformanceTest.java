@@ -20,12 +20,14 @@ public class PostCommentScoreFetchProjectionPerformanceTest extends AbstractPost
     protected List<PostCommentScore> postCommentScores(Long postId, int rank) {
         return doInJPA(entityManager -> {
             long startNanos = System.nanoTime();
-            List<PostCommentScore> postCommentScores = entityManager.createQuery(
-                "select new " +
-                "   com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore(" +
-                "   pc.id, pc.parent.id, pc.review, pc.createdOn, pc.score ) " +
-                "from PostComment pc " +
-                "where pc.post.id = :postId ")
+            List<PostCommentScore> postCommentScores = entityManager.createQuery("""
+                select new
+                    com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore(   
+                        pc.id, pc.parent.id, pc.review, pc.createdOn, pc.score 
+                    )
+                from PostComment pc
+                where pc.post.id = :postId
+                """)
             .setParameter("postId", postId)
             .getResultList();
 
