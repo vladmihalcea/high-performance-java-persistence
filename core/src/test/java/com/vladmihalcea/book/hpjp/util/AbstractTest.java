@@ -853,30 +853,38 @@ public abstract class AbstractTest {
      * @param connection JDBC Connection time out
      */
     public void setJdbcTimeout(Connection connection) {
+        setJdbcTimeout(connection, 1000);
+    }
+
+    /**
+     * Set JDBC Connection or Statement timeout
+     *
+     * @param connection JDBC Connection time out
+     * @param timoutMillis millis to wait
+     */
+    public void setJdbcTimeout(Connection connection, long timoutMillis) {
         try (Statement st = connection.createStatement()) {
             DataSourceProvider dataSourceProvider = dataSourceProvider();
 
-            switch ( dataSourceProvider.database() ) {
+            switch (dataSourceProvider.database()) {
                 case POSTGRESQL:
-                    st.execute( "SET statement_timeout TO 1000" );
+                    st.execute(String.format("SET statement_timeout TO %d", timoutMillis));
                     break;
                 case MYSQL:
-                    connection.setNetworkTimeout( Executors.newSingleThreadExecutor(), 1000 );
-                    st.execute( "SET SESSION innodb_lock_wait_timeout = 1" );
+                    connection.setNetworkTimeout(Executors.newSingleThreadExecutor(), (int) timoutMillis);
+                    st.execute(String.format("SET SESSION innodb_lock_wait_timeout = %d", TimeUnit.MILLISECONDS.toSeconds(timoutMillis)));
                     break;
                 case SQLSERVER:
-                    st.execute( "SET LOCK_TIMEOUT 1" );
+                    st.execute(String.format("SET LOCK_TIMEOUT %d", timoutMillis));
                     break;
                 default:
                     try {
-                        connection.setNetworkTimeout( Executors.newSingleThreadExecutor(), 1000 );
-                    }
-                    catch (Throwable ignore) {
+                        connection.setNetworkTimeout(Executors.newSingleThreadExecutor(), (int) timoutMillis);
+                    } catch (Throwable ignore) {
                         ignore.fillInStackTrace();
                     }
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             fail(e.getMessage());
         }
     }

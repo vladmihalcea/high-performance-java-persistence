@@ -8,8 +8,8 @@ import org.junit.Test;
 
 import javax.persistence.*;
 import java.sql.Connection;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
+import java.util.List;
+import java.util.concurrent.*;
 
 import static org.junit.Assert.fail;
 
@@ -19,6 +19,12 @@ import static org.junit.Assert.fail;
 public class SQLServerFKParentLockRCSITest extends AbstractTest {
 
     private final int ISOLATION_LEVEL = Connection.TRANSACTION_READ_COMMITTED;
+
+    public static final String LOCK_TABLE_TEMPLATE = """
+        | table_name | blocking_session_id | wait_type | resource_type | request_status | request_mode | request_session_id |
+        |------------|---------------------|-----------|---------------|----------------|--------------|--------------------|
+        |%1$12s|%2$21s|%3$11s|%4$15s|%5$16s|%6$14s|%7$20s|
+        """;
 
     @Override
     protected Class<?>[] entities() {
@@ -67,19 +73,26 @@ public class SQLServerFKParentLockRCSITest extends AbstractTest {
         super.destroy();
     }
 
+    protected final ExecutorService monitoringExecutorService = Executors.newSingleThreadExecutor(r -> {
+        Thread bob = new Thread(r);
+        bob.setName("Monitoring");
+        return bob;
+    });
+
+    /*
+     */
     @Test
     public void test() {
        CountDownLatch bobStart = new CountDownLatch(1);
+       CountDownLatch monitoringStart = new CountDownLatch(1);
         try {
             doInJPA(entityManager -> {
-                prepareConnection(entityManager);
-
                 LOGGER.info("Alice updates the Post entity");
                 Post post = entityManager.find(Post.class, 1L);
                 post.setTitle("High-Performance Java Persistence 2nd edition");
                 entityManager.flush();
 
-                Future<?> future = executeAsync(() -> {
+                Future<?> bobFuture = executeAsync(() -> {
                     doInJPA(_entityManager -> {
                         prepareConnection(_entityManager);
 
@@ -87,25 +100,77 @@ public class SQLServerFKParentLockRCSITest extends AbstractTest {
                         PostComment _comment = _entityManager.find(PostComment.class, 1L);
                         _comment.setReview("Great!");
                         bobStart.countDown();
-                        _entityManager.flush();
+                        try {
+                            _entityManager.flush();
+                        } catch (Exception e) {
+                            Exception rootException = ExceptionUtil.rootCause(e);
+                            if(ExceptionUtil.isLockTimeout(rootException)) {
+                                LOGGER.info("Lock timeout detected", rootException);
+                            }
+                        }
+                    });
+                });
+
+                Future<?> monitoringFuture = monitoringExecutorService.submit(() -> {
+                    doInJPA(_entityManager -> {
+                        awaitOnLatch(monitoringStart);
+
+                        List<Tuple> lockInfo = _entityManager.createNativeQuery("""
+                            SELECT
+                                table_name = schema_name(o.schema_id) + '.' + o.name,
+                                wt.blocking_session_id,
+                                wt.wait_type,
+                                tm.resource_type,
+                                tm.request_status,
+                                tm.request_mode,
+                                tm.request_session_id
+                            FROM sys.dm_tran_locks AS tm
+                            INNER JOIN sys.dm_os_waiting_tasks as wt ON tm.lock_owner_address = wt.resource_address
+                            LEFT OUTER JOIN sys.partitions AS p on p.hobt_id = tm.resource_associated_entity_id
+                            LEFT OUTER JOIN sys.objects o on o.object_id = p.object_id or tm.resource_associated_entity_id = o.object_id
+                            WHERE resource_database_id = DB_ID()
+                            """, Tuple.class)
+                        .getResultList();
+
+                        if (!lockInfo.isEmpty()) {
+                            Tuple result = lockInfo.get(0);
+
+                            int i = 0;
+                            LOGGER.info(
+                                "Lock waiting info: \n{}",
+                                String.format(
+                                    LOCK_TABLE_TEMPLATE,
+                                    result.get(i++),
+                                    result.get(i++),
+                                    result.get(i++),
+                                    result.get(i++),
+                                    result.get(i++),
+                                    result.get(i++),
+                                    result.get(i)
+                                )
+                            );
+                        }
                     });
                 });
 
                 awaitOnLatch(bobStart);
 
                 try {
-                    future.get();
+                    monitoringStart.countDown();
+                    bobFuture.get();
+                    monitoringFuture.get();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             });
         } catch (RuntimeException e) {
             Exception rootException = ExceptionUtil.rootCause(e);
-            if(ExceptionUtil.isLockTimeout(rootException)) {
-                LOGGER.info("Lock timeout detected", rootException);
-            } else {
+            if(!ExceptionUtil.isLockTimeout(rootException)) {
                 fail("Expected a lock timeout exception");
             }
+        } finally {
+            monitoringExecutorService.shutdownNow();
+            executorService.shutdownNow();
         }
     }
 
