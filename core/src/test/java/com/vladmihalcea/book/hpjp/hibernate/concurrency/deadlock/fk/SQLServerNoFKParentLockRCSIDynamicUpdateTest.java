@@ -1,26 +1,25 @@
-package com.vladmihalcea.book.hpjp.hibernate.concurrency.deadlock;
+package com.vladmihalcea.book.hpjp.hibernate.concurrency.deadlock.fk;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.hibernate.type.util.ListResultTransformer;
-import com.vladmihalcea.hibernate.type.util.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.testing.util.ExceptionUtil;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.sql.Connection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
+
+import static org.junit.Assert.fail;
 
 /**
  * @author Vlad Mihalcea
  */
-public class SQLServerFKBlockOnMVCCWithoutDynamicUpdateTest extends AbstractTest {
+public class SQLServerNoFKParentLockRCSIDynamicUpdateTest extends AbstractTest {
+
+    private final int ISOLATION_LEVEL = Connection.TRANSACTION_READ_COMMITTED;
 
     @Override
     protected Class<?>[] entities() {
@@ -63,47 +62,37 @@ public class SQLServerFKBlockOnMVCCWithoutDynamicUpdateTest extends AbstractTest
         ddl("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT ON");
     }
 
-    /**
-     * For SQL Server, enable the following trace options:
-     *
-     * DBCC TRACEON (1204, 1222, -1)
-     *
-     * And, read the error log using the following SP:
-     *
-     * sp_readerrorlog
-     */
-    @Test
-    public void testDeadLock() {
-        List<ErrorLogMessage> beforeDeadLockErrorLogLines = errorLogMessages();
-        ddl("DBCC TRACEON (1204, 1222, -1)");
+    @Override
+    public void destroy() {
+        ddl("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT OFF");
+        super.destroy();
+    }
 
+    @Test
+    public void test() {
         CountDownLatch bobStart = new CountDownLatch(1);
         try {
             doInJPA(entityManager -> {
-                LOGGER.info("Alice locks the Post entity");
+                prepareConnection(entityManager);
+
+                LOGGER.info("Alice updates the Post entity");
                 Post post = entityManager.find(Post.class, 1L);
                 post.setTitle("High-Performance Java Persistence 2nd edition");
                 entityManager.flush();
 
                 Future<?> future = executeAsync(() -> {
                     doInJPA(_entityManager -> {
-                        LOGGER.info("Bob locks the PostComment entity");
+                        prepareConnection(_entityManager);
+
+                        LOGGER.info("Bob updates the PostComment entity");
                         PostComment _comment = _entityManager.find(PostComment.class, 1L);
                         _comment.setReview("Great!");
-                        _entityManager.flush();
                         bobStart.countDown();
-                        LOGGER.info("Bob wants to lock the Post entity");
-                        Post _post = _entityManager.find(Post.class, 1L);
-                        _post.setTitle("High-Performance Java Persistence 3rd edition");
                         _entityManager.flush();
                     });
                 });
 
                 awaitOnLatch(bobStart);
-                LOGGER.info("Alice wants to lock the PostComment entity");
-                PostComment comment = entityManager.find(PostComment.class, 1L);
-                comment.setReview("Amazing!");
-                entityManager.flush();
 
                 try {
                     future.get();
@@ -111,58 +100,21 @@ public class SQLServerFKBlockOnMVCCWithoutDynamicUpdateTest extends AbstractTest
                     throw new RuntimeException(e);
                 }
             });
-        } catch (Exception e) {
-            LOGGER.info("Deadlock detected", ExceptionUtil.rootCause(e));
-            List<ErrorLogMessage> afterDeadLockErrorLogLines = errorLogMessages();
-            afterDeadLockErrorLogLines.removeAll(beforeDeadLockErrorLogLines);
-
-            LOGGER.info(
-                "Deadlock trace info: {}",
-                afterDeadLockErrorLogLines.stream().map(ErrorLogMessage::getMessage).collect(Collectors.joining(StringUtils.LINE_SEPARATOR))
-            );
-        } finally {
-            ddl("DBCC TRACEOFF (1204, 1222, -1)");
+        } catch (RuntimeException e) {
+            Exception rootException = ExceptionUtil.rootCause(e);
+            if (ExceptionUtil.isLockTimeout(rootException)) {
+                fail("Should not throw a lock timeout exception");
+            } else {
+                throw e;
+            }
         }
     }
 
-    private List<ErrorLogMessage> errorLogMessages() {
-        try(Session session = entityManagerFactory().createEntityManager().unwrap(Session.class)) {
-            return session
-                .createNativeQuery("sp_readerrorlog")
-                .setResultTransformer((ListResultTransformer) (tuple, aliases) -> new ErrorLogMessage((Date) tuple[0], (String) tuple[2]))
-                .getResultList();
-        }
-    }
-
-    private static class ErrorLogMessage {
-        private final Date timestamp;
-        private final String message;
-
-        public ErrorLogMessage(Date timestamp, String message) {
-            this.timestamp = timestamp;
-            this.message = message;
-        }
-
-        public Date getTimestamp() {
-            return timestamp;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof ErrorLogMessage)) return false;
-            ErrorLogMessage that = (ErrorLogMessage) o;
-            return Objects.equals(timestamp, that.timestamp) && Objects.equals(message, that.message);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(timestamp, message);
-        }
+    protected void prepareConnection(EntityManager entityManager) {
+        entityManager.unwrap(Session.class).doWork(connection -> {
+            connection.setTransactionIsolation(ISOLATION_LEVEL);
+            setJdbcTimeout(connection);
+        });
     }
 
     @Entity(name = "Post")
@@ -199,6 +151,7 @@ public class SQLServerFKBlockOnMVCCWithoutDynamicUpdateTest extends AbstractTest
             columnList = "post_id"
         )
     )
+    @DynamicUpdate
     public static class PostComment {
 
         @Id

@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
@@ -11,7 +12,7 @@ import java.util.List;
 /**
  * @author Vlad Mihalcea
  */
-public class ElementCollectionListTest extends AbstractMySQLIntegrationTest {
+public class ElementCollectionListTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -22,7 +23,7 @@ public class ElementCollectionListTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Database database() {
-        return Database.POSTGRESQL;
+        return Database.SQLSERVER;
     }
 
     @Override
@@ -53,6 +54,8 @@ public class ElementCollectionListTest extends AbstractMySQLIntegrationTest {
                 .getSingleResult();
 
             post.getComments().remove(post.getComments().size() - 1);
+            entityManager.flush();
+            entityManager.getDelegate();
         });
     }
 
