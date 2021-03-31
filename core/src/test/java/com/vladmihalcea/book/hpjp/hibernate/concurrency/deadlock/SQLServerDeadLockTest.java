@@ -1,10 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency.deadlock;
 
+import com.vladmihalcea.book.hpjp.hibernate.association.AllAssociationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.hibernate.type.util.ListResultTransformer;
 import com.vladmihalcea.hibernate.type.util.StringUtils;
 import org.hibernate.Session;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.testing.util.ExceptionUtil;
 import org.junit.Test;
 
@@ -25,7 +27,7 @@ public class SQLServerDeadLockTest extends AbstractTest {
     protected Class<?>[] entities() {
         return new Class<?>[] {
             Post.class,
-            PostComment.class
+            PostDetails.class
         };
     }
 
@@ -42,11 +44,18 @@ public class SQLServerDeadLockTest extends AbstractTest {
             post.setTitle("High-Performance Java Persistence");
             entityManager.persist(post);
 
-            PostComment comment = new PostComment();
-            comment.setId(1L);
-            comment.setReview("Awesome!");
-            comment.setPost(post);
+            PostDetails details = new PostDetails();
+            details.setId(1L);
+            details.setPost(post);
+            entityManager.persist(details);
         });
+        ddl("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT ON");
+    }
+
+    @Override
+    public void destroy() {
+        ddl("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT OFF");
+        super.destroy();
     }
 
     /**
@@ -59,29 +68,41 @@ public class SQLServerDeadLockTest extends AbstractTest {
      * sp_readerrorlog
      */
     @Test
-    public void testDeadLock() {
+    public void testDeadLock_1204() {
+        LOGGER.info("Check flag: 1204");
         List<ErrorLogMessage> beforeDeadLockErrorLogLines = errorLogMessages();
-        ddl("DBCC TRACEON (1204, 1222, -1)");
 
-        CountDownLatch bobStart = new CountDownLatch(1);
         try {
+            CountDownLatch bobStart = new CountDownLatch(1);
+
+            ddl("DBCC TRACEON (1204, -1)");
+
             doInJPA(entityManager -> {
-                LOGGER.info("Alice locks the Post entity");
-                Post post = entityManager.find(Post.class, 1L, LockModeType.PESSIMISTIC_WRITE);
+                LOGGER.info("Alice updates the PostDetails entity");
+                PostDetails details = entityManager.find(PostDetails.class, 1L);
+                details.setUpdatedBy("Alice");
+                entityManager.flush();
 
                 Future<?> future = executeAsync(() -> {
                     doInJPA(_entityManager -> {
-                        LOGGER.info("Bob locks the PostComment entity");
-                        PostComment _comment = _entityManager.find(PostComment.class, 1L, LockModeType.PESSIMISTIC_WRITE);
+                        LOGGER.info("Bob updates the Post entity");
+                        Post _post = _entityManager.find(Post.class, 1L);
+                        _post.setTitle("ACID");
+                        _entityManager.flush();
+
                         bobStart.countDown();
-                        LOGGER.info("Bob wants to lock the Post entity");
-                        Post _post = _entityManager.find(Post.class, 1L, LockModeType.PESSIMISTIC_WRITE);
+                        LOGGER.info("Bob wants to update the PostDetails entity");
+                        PostDetails _details = _entityManager.find(PostDetails.class, 1L);
+                        _details.setUpdatedBy("Bob");
+                        _entityManager.flush();
                     });
                 });
 
                 awaitOnLatch(bobStart);
-                LOGGER.info("Alice wants to lock the PostComment entity");
-                PostComment comment = entityManager.find(PostComment.class, 1L, LockModeType.PESSIMISTIC_WRITE);
+                LOGGER.info("Alice wants to update the Post entity");
+                Post post = entityManager.find(Post.class, 1L);
+                post.setTitle("BASE");
+                entityManager.flush();
 
                 try {
                     future.get();
@@ -95,11 +116,69 @@ public class SQLServerDeadLockTest extends AbstractTest {
             afterDeadLockErrorLogLines.removeAll(beforeDeadLockErrorLogLines);
 
             LOGGER.info(
-                "Deadlock trace info: {}",
+                "Deadlock trace info for flag 1204: {}",
                 afterDeadLockErrorLogLines.stream().map(ErrorLogMessage::getMessage).collect(Collectors.joining(StringUtils.LINE_SEPARATOR))
             );
         } finally {
-            ddl("DBCC TRACEOFF (1204, 1222, -1)");
+            ddl("DBCC TRACEOFF (1204, -1)");
+        }
+    }
+
+    @Test
+    public void testDeadLock_1222() {
+
+        LOGGER.info("Check flag: 1222");
+        List<ErrorLogMessage> beforeDeadLockErrorLogLines = errorLogMessages();
+
+        try {
+            CountDownLatch bobStart = new CountDownLatch(1);
+
+            ddl("DBCC TRACEON (1222, -1)");
+
+            doInJPA(entityManager -> {
+                LOGGER.info("Alice updates the PostDetails entity");
+                PostDetails details = entityManager.find(PostDetails.class, 1L);
+                details.setUpdatedBy("Alice");
+                entityManager.flush();
+
+                Future<?> future = executeAsync(() -> {
+                    doInJPA(_entityManager -> {
+                        LOGGER.info("Bob updates the Post entity");
+                        Post _post = _entityManager.find(Post.class, 1L);
+                        _post.setTitle("ACID");
+                        _entityManager.flush();
+
+                        bobStart.countDown();
+                        LOGGER.info("Bob wants to update the PostDetails entity");
+                        PostDetails _details = _entityManager.find(PostDetails.class, 1L);
+                        _details.setUpdatedBy("Bob");
+                        _entityManager.flush();
+                    });
+                });
+
+                awaitOnLatch(bobStart);
+                LOGGER.info("Alice wants to update the Post entity");
+                Post post = entityManager.find(Post.class, 1L);
+                post.setTitle("BASE");
+                entityManager.flush();
+
+                try {
+                    future.get();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (Exception e) {
+            LOGGER.info("Deadlock detected", ExceptionUtil.rootCause(e));
+            List<ErrorLogMessage> afterDeadLockErrorLogLines = errorLogMessages();
+            afterDeadLockErrorLogLines.removeAll(beforeDeadLockErrorLogLines);
+
+            LOGGER.info(
+                "Deadlock trace info for flag 1222: {}",
+                afterDeadLockErrorLogLines.stream().map(ErrorLogMessage::getMessage).collect(Collectors.joining(StringUtils.LINE_SEPARATOR))
+            );
+        } finally {
+            ddl("DBCC TRACEOFF (1222, -1)");
         }
     }
 
@@ -145,6 +224,7 @@ public class SQLServerDeadLockTest extends AbstractTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
+    @DynamicUpdate
     public static class Post {
 
         @Id
@@ -169,40 +249,46 @@ public class SQLServerDeadLockTest extends AbstractTest {
         }
     }
 
-    @Entity(name = "PostComment")
-    @Table(name = "post_comment")
-    public static class PostComment {
+    @Entity(name = "PostDetails")
+    @Table(name = "post_details")
+    @DynamicUpdate
+    public static class PostDetails {
 
         @Id
         private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        private Post post;
+        @Column(name = "updated_by")
+        private String updatedBy;
 
-        private String review;
+        @OneToOne(fetch = FetchType.LAZY)
+        @MapsId
+        private Post post;
 
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostDetails setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public Post getPost() {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostDetails setPost(Post post) {
             this.post = post;
+            return this;
         }
 
-        public String getReview() {
-            return review;
+        public String getUpdatedBy() {
+            return updatedBy;
         }
 
-        public void setReview(String review) {
-            this.review = review;
+        public PostDetails setUpdatedBy(String updatedBy) {
+            this.updatedBy = updatedBy;
+            return this;
         }
     }
 }
