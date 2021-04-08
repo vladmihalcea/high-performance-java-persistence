@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency.version;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import javax.persistence.Entity;
@@ -20,6 +21,11 @@ public class DefaultMinValueShortVersionTest extends AbstractTest {
         return new Class<?>[]{
                 Product.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.MYSQL;
     }
 
     @Test
