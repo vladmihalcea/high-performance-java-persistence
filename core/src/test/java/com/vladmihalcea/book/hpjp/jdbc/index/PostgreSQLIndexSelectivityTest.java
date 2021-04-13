@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
  *
  * @author Vlad Mihalcea
  */
-public class PostgresIndexSelectivityTest extends AbstractPostgreSQLIntegrationTest {
+public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegrationTest {
 
     public static final String INSERT_TASK = "insert into Task (id, status) values (?, ?)";
 

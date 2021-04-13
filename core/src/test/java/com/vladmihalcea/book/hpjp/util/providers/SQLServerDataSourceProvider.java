@@ -1,16 +1,26 @@
 package com.vladmihalcea.book.hpjp.util.providers;
 
-import java.util.Properties;
-import javax.sql.DataSource;
-
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.SQLServerQueries;
+
+import javax.sql.DataSource;
+import java.util.Properties;
 
 /**
  * @author Vlad Mihalcea
  */
 public class SQLServerDataSourceProvider implements DataSourceProvider {
+
+	private boolean sendStringParametersAsUnicode = false;
+
+	public boolean isSendStringParametersAsUnicode() {
+		return sendStringParametersAsUnicode;
+	}
+
+	public void setSendStringParametersAsUnicode(boolean sendStringParametersAsUnicode) {
+		this.sendStringParametersAsUnicode = sendStringParametersAsUnicode;
+	}
 
 	@Override
 	public String hibernateDialect() {
@@ -20,10 +30,9 @@ public class SQLServerDataSourceProvider implements DataSourceProvider {
 	@Override
 	public DataSource dataSource() {
 		SQLServerDataSource dataSource = new SQLServerDataSource();
-		dataSource.setURL(
-				"jdbc:sqlserver://localhost;instance=SQLEXPRESS;" +
-				"databaseName=high_performance_java_persistence;"
-		);
+		String url = "jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence;";
+		url += "sendStringParametersAsUnicode=" + sendStringParametersAsUnicode;
+		dataSource.setURL(url);
 		dataSource.setUser("sa");
 		dataSource.setPassword("adm1n");
 		return dataSource;
@@ -60,6 +69,7 @@ public class SQLServerDataSourceProvider implements DataSourceProvider {
 	public Database database() {
 		return Database.SQLSERVER;
 	}
+
 
 	@Override
 	public Queries queries() {
