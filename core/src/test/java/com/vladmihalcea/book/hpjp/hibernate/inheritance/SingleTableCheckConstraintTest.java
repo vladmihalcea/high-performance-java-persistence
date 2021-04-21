@@ -44,35 +44,37 @@ public class SingleTableCheckConstraintTest extends AbstractTest {
         doInJPA(entityManager -> {
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try(Statement st = connection.createStatement()) {
-                    st.executeUpdate(
-                        "ALTER TABLE topic " +
-                        "ADD CONSTRAINT post_content_check CHECK " +
-                        "( " +
-                        "    CASE " +
-                        "        WHEN DTYPE = 'Post' THEN " +
-                        "        CASE " +
-                        "           WHEN content IS NOT NULL " +
-                        "           THEN 1 " +
-                        "           ELSE 0 " +
-                        "           END " +
-                        "        ELSE 1 " +
-                        "    END = 1 " +
-                        ")"
+                    st.executeUpdate("""
+                        ALTER TABLE topic
+                        ADD CONSTRAINT post_content_check CHECK
+                        (
+                            CASE
+                                WHEN DTYPE = 'Post' THEN
+                                CASE
+                                   WHEN content IS NOT NULL
+                                   THEN 1
+                                   ELSE 0
+                                   END
+                                ELSE 1
+                            END = 1
+                        )
+                        """
                     );
-                    st.executeUpdate(
-                        "ALTER TABLE topic " +
-                        "ADD CONSTRAINT announcement_validUntil_check CHECK " +
-                        "( " +
-                        "    CASE " +
-                        "        WHEN DTYPE = 'Announcement' THEN " +
-                        "        CASE " +
-                        "           WHEN validUntil IS NOT NULL " +
-                        "           THEN 1 " +
-                        "           ELSE 0 " +
-                        "           END " +
-                        "        ELSE 1 " +
-                        "    END = 1 " +
-                        ")"
+                    st.executeUpdate("""
+                        ALTER TABLE topic
+                        ADD CONSTRAINT announcement_validUntil_check CHECK
+                        (
+                            CASE
+                                WHEN DTYPE = 'Announcement' THEN
+                                CASE
+                                   WHEN validUntil IS NOT NULL
+                                   THEN 1
+                                   ELSE 0
+                                   END
+                                ELSE 1
+                            END = 1
+                        )
+                        """
                     );
                 }
             });

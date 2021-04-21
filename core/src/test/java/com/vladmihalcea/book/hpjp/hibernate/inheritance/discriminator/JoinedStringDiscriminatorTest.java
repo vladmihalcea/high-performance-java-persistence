@@ -46,21 +46,21 @@ public class JoinedStringDiscriminatorTest extends AbstractMySQLIntegrationTest 
         });
 
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager
-            .createQuery(
-                "select p " +
-                "from Post p ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                """, Post.class)
             .getResultList();
 
             assertEquals(1, posts.size());
         });
 
         doInJPA(entityManager -> {
-            List<Topic> posts = entityManager
-            .createQuery(
-                "select t " +
-                "from Topic t " +
-                "where type(t) = Post", Topic.class)
+            List<Topic> posts = entityManager.createQuery("""
+                select t
+                from Topic t
+                where type(t) = Post
+                """, Topic.class)
             .getResultList();
 
             assertEquals(1, posts.size());

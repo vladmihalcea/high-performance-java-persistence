@@ -51,10 +51,10 @@ public class DefaultDiscriminatorTest extends AbstractMySQLIntegrationTest {
         });
 
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager
-            .createQuery(
-                "select p " +
-                "from Post p ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                """, Post.class)
             .getResultList();
 
             assertEquals(1, posts.size());
@@ -64,37 +64,39 @@ public class DefaultDiscriminatorTest extends AbstractMySQLIntegrationTest {
     private void addConsistencyTriggers(EntityManager entityManager) {
         entityManager.unwrap(Session.class).doWork(connection -> {
             try (Statement st = connection.createStatement()) {
-                st.executeUpdate(
-                    "CREATE " +
-                    "TRIGGER post_content_check BEFORE INSERT " +
-                    "ON Topic " +
-                    "FOR EACH ROW " +
-                    "BEGIN " +
-                    "   IF NEW.DTYPE = 'Post' " +
-                    "   THEN " +
-                    "       IF NEW.content IS NULL " +
-                    "       THEN " +
-                    "           signal sqlstate '45000' " +
-                    "           set message_text = 'Post content cannot be NULL'; " +
-                    "       END IF; " +
-                    "   END IF; " +
-                    "END;"
+                st.executeUpdate("""
+                    CREATE
+                    TRIGGER post_content_check BEFORE INSERT
+                    ON Topic
+                    FOR EACH ROW
+                    BEGIN
+                       IF NEW.DTYPE = 'Post'
+                       THEN
+                           IF NEW.content IS NULL
+                           THEN
+                               signal sqlstate '45000'
+                               set message_text = 'Post content cannot be NULL';
+                           END IF;
+                       END IF;
+                    END;
+                    """
                 );
-                st.executeUpdate(
-                    "CREATE " +
-                    "TRIGGER announcement_validUntil_check BEFORE INSERT " +
-                    "ON Topic " +
-                    "FOR EACH ROW " +
-                    "BEGIN " +
-                    "   IF NEW.DTYPE = 'Announcement' " +
-                    "   THEN " +
-                    "       IF NEW.validUntil IS NULL " +
-                    "       THEN " +
-                    "           signal sqlstate '45000' " +
-                    "           set message_text = 'Announcement validUntil cannot be NULL'; " +
-                    "       END IF; " +
-                    "   END IF; " +
-                    "END;"
+                st.executeUpdate("""
+                    CREATE
+                    TRIGGER announcement_validUntil_check BEFORE INSERT
+                    ON Topic
+                    FOR EACH ROW
+                    BEGIN
+                       IF NEW.DTYPE = 'Announcement'
+                       THEN
+                           IF NEW.validUntil IS NULL
+                           THEN
+                               signal sqlstate '45000'
+                               set message_text = 'Announcement validUntil cannot be NULL';
+                           END IF;
+                       END IF;
+                    END;
+                    """
                 );
             }
         });
