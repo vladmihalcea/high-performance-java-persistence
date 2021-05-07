@@ -87,6 +87,10 @@ public class SQLServerFKParentLockRCSITest extends AbstractTest {
        CountDownLatch monitoringStart = new CountDownLatch(1);
         try {
             doInJPA(entityManager -> {
+                LOGGER.info(
+                    "Alice session id: {}",
+                    entityManager.createNativeQuery("SELECT @@SPID").getSingleResult()
+                );
                 LOGGER.info("Alice updates the Post entity");
                 Post post = entityManager.find(Post.class, 1L);
                 post.setTitle("High-Performance Java Persistence 2nd edition");
@@ -95,7 +99,10 @@ public class SQLServerFKParentLockRCSITest extends AbstractTest {
                 Future<?> bobFuture = executeAsync(() -> {
                     doInJPA(_entityManager -> {
                         prepareConnection(_entityManager);
-
+                        LOGGER.info(
+                            "Bob session id: {}",
+                            _entityManager.createNativeQuery("SELECT @@SPID").getSingleResult()
+                        );
                         LOGGER.info("Bob updates the PostComment entity");
                         PostComment _comment = _entityManager.find(PostComment.class, 1L);
                         _comment.setReview("Great!");
@@ -126,8 +133,8 @@ public class SQLServerFKParentLockRCSITest extends AbstractTest {
                                 tm.request_session_id
                             FROM sys.dm_tran_locks AS tm
                             INNER JOIN sys.dm_os_waiting_tasks as wt ON tm.lock_owner_address = wt.resource_address
-                            LEFT OUTER JOIN sys.partitions AS p on p.hobt_id = tm.resource_associated_entity_id
-                            LEFT OUTER JOIN sys.objects o on o.object_id = p.object_id or tm.resource_associated_entity_id = o.object_id
+                            LEFT OUTER JOIN sys.partitions AS p ON p.hobt_id = tm.resource_associated_entity_id
+                            LEFT OUTER JOIN sys.objects o ON o.object_id = p.object_id OR tm.resource_associated_entity_id = o.object_id
                             WHERE resource_database_id = DB_ID()
                             """, Tuple.class)
                         .getResultList();
@@ -182,12 +189,14 @@ public class SQLServerFKParentLockRCSITest extends AbstractTest {
     }
 
     @Entity(name = "Post")
-    @Table(name = "post")
+    @Table(name = "Post")
     public static class Post {
 
         @Id
+        @Column(name = "PostID")
         private Long id;
 
+        @Column(name = "Title")
         private String title;
 
         public Long getId() {
@@ -209,21 +218,24 @@ public class SQLServerFKParentLockRCSITest extends AbstractTest {
 
     @Entity(name = "PostComment")
     @Table(
-        name = "post_comment",
+        name = "PostComment",
         indexes = @Index(
-            name = "FK_post_comment_post_id",
-            columnList = "post_id"
+            name = "FK_PostComment_PostID",
+            columnList = "PostID"
         )
     )
     public static class PostComment {
 
         @Id
+        @Column(name = "PostCommentID")
         private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        private Post post;
-
+        @Column(name = "Review")
         private String review;
+
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "PostID")
+        private Post post;
 
         public Long getId() {
             return id;
@@ -233,20 +245,20 @@ public class SQLServerFKParentLockRCSITest extends AbstractTest {
             this.id = id;
         }
 
-        public Post getPost() {
-            return post;
-        }
-
-        public void setPost(Post post) {
-            this.post = post;
-        }
-
         public String getReview() {
             return review;
         }
 
         public void setReview(String review) {
             this.review = review;
+        }
+
+        public Post getPost() {
+            return post;
+        }
+
+        public void setPost(Post post) {
+            this.post = post;
         }
     }
 }
