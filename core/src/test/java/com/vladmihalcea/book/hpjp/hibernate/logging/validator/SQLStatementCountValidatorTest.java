@@ -89,8 +89,7 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Post post1 = new Post();
             post1.setId(1L);
