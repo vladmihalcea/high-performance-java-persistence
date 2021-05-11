@@ -15,7 +15,7 @@ import java.util.List;
  * @author Vlad Mihalcea
  */
 public class TablePerClassTest extends AbstractTest {
-
+    
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
@@ -38,34 +38,39 @@ public class TablePerClassTest extends AbstractTest {
     @Test
     public void test() {
         Topic topic = doInJPA(entityManager -> {
-            Board board = new Board();
-            board.setName("Hibernate");
+            Board board = new Board()
+                .setId(1L)
+                .setName("Hibernate");
 
             entityManager.persist(board);
 
-            Post post = new Post();
-            post.setOwner("John Doe");
-            post.setTitle("Inheritance");
-            post.setContent("Best practices");
-            post.setBoard(board);
+            Post post = new Post()
+                .setOwner("Vlad Mihalcea")
+                .setTitle("High-Performance Java Persistence")
+                .setContent("Best practices")
+                .setBoard(board);
 
             entityManager.persist(post);
 
-            Announcement announcement = new Announcement();
-            announcement.setOwner("John Doe");
-            announcement.setTitle("Release x.y.z.Final");
-            announcement.setValidUntil(Timestamp.valueOf(LocalDateTime.now().plusMonths(1)));
-            announcement.setBoard(board);
+            Announcement announcement = new Announcement()
+                .setOwner("Vlad Mihalcea")
+                .setTitle("Release 1.2.3")
+                .setValidUntil(Timestamp.valueOf(LocalDateTime.now().plusMonths(1)))
+                .setBoard(board);
 
             entityManager.persist(announcement);
 
-            TopicStatistics postStatistics = new TopicStatistics(post);
-            postStatistics.incrementViews();
-            entityManager.persist(postStatistics);
+            entityManager.persist(
+                new TopicStatistics()
+                    .setTopic(post)
+                    .incrementViews()
+            );
 
-            TopicStatistics announcementStatistics = new TopicStatistics(announcement);
-            announcementStatistics.incrementViews();
-            entityManager.persist(announcementStatistics);
+            entityManager.persist(
+                new TopicStatistics()
+                    .setTopic(announcement)
+                    .incrementViews()
+            );
 
             return post;
         });
@@ -73,11 +78,11 @@ public class TablePerClassTest extends AbstractTest {
         doInJPA(entityManager -> {
             Board board = topic.getBoard();
             LOGGER.info("Fetch Topics");
-            List<Topic> topics = entityManager
-            .createQuery(
-                "select t " +
-                "from Topic t " +
-                "where t.board = :board", Topic.class)
+            List<Topic> topics = entityManager.createQuery("""
+                select t
+                from Topic t
+                where t.board = :board
+                """, Topic.class)
             .setParameter("board", board)
             .getResultList();
         });
@@ -90,19 +95,27 @@ public class TablePerClassTest extends AbstractTest {
         doInJPA(entityManager -> {
             LOGGER.info("Fetch Board topics eagerly");
             Long id = topic.getBoard().getId();
-            Board board = entityManager.createQuery(
-                    "select b from Board b join fetch b.topics where b.id = :id", Board.class)
-                    .setParameter("id", id)
-                    .getSingleResult();
+            Board board = entityManager.createQuery("""
+                select b 
+                from Board b 
+                join fetch b.topics 
+                where b.id = :id
+                """, Board.class)
+            .setParameter("id", id)
+            .getSingleResult();
         });
 
         doInJPA(entityManager -> {
             Long topicId = topic.getId();
             LOGGER.info("Fetch statistics");
-            TopicStatistics statistics = entityManager
-                    .createQuery("select s from TopicStatistics s join fetch s.topic t where t.id = :topicId", TopicStatistics.class)
-                    .setParameter("topicId", topicId)
-                    .getSingleResult();
+            TopicStatistics statistics = entityManager.createQuery("""
+                select s 
+                from TopicStatistics s 
+                join fetch s.topic t 
+                where t.id = :topicId
+                """, TopicStatistics.class)
+            .setParameter("topicId", topicId)
+            .getSingleResult();
         });
     }
 
@@ -111,7 +124,6 @@ public class TablePerClassTest extends AbstractTest {
     public static class Board {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         private String name;
@@ -123,16 +135,18 @@ public class TablePerClassTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public Board setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getName() {
             return name;
         }
 
-        public void setName(String name) {
+        public Board setName(String name) {
             this.name = name;
+            return this;
         }
 
         public List<Topic> getTopics() {
@@ -143,7 +157,7 @@ public class TablePerClassTest extends AbstractTest {
     @Entity(name = "Topic")
     @Table(name = "topic")
     @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-    public static class Topic {
+    public static class Topic<T extends Topic<T>> {
 
         @Id
         @GeneratedValue
@@ -171,38 +185,42 @@ public class TablePerClassTest extends AbstractTest {
             return title;
         }
 
-        public void setTitle(String title) {
+        public T setTitle(String title) {
             this.title = title;
+            return (T) this;
         }
 
         public String getOwner() {
             return owner;
         }
 
-        public void setOwner(String owner) {
+        public T setOwner(String owner) {
             this.owner = owner;
+            return (T) this;
         }
 
         public Date getCreatedOn() {
             return createdOn;
         }
 
-        public void setCreatedOn(Date createdOn) {
+        public T setCreatedOn(Date createdOn) {
             this.createdOn = createdOn;
+            return (T) this;
         }
 
         public Board getBoard() {
             return board;
         }
 
-        public void setBoard(Board board) {
+        public T setBoard(Board board) {
             this.board = board;
+            return (T) this;
         }
     }
 
     @Entity(name = "Post")
     @Table(name = "post")
-    public static class Post extends Topic {
+    public static class Post extends Topic<Post> {
 
         private String content;
 
@@ -210,14 +228,15 @@ public class TablePerClassTest extends AbstractTest {
             return content;
         }
 
-        public void setContent(String content) {
+        public Post setContent(String content) {
             this.content = content;
+            return this;
         }
     }
 
     @Entity(name = "Announcement")
     @Table(name = "announcement")
-    public static class Announcement extends Topic {
+    public static class Announcement extends Topic<Announcement> {
 
         @Temporal(TemporalType.TIMESTAMP)
         private Date validUntil;
@@ -226,8 +245,9 @@ public class TablePerClassTest extends AbstractTest {
             return validUntil;
         }
 
-        public void setValidUntil(Date validUntil) {
+        public Announcement setValidUntil(Date validUntil) {
             this.validUntil = validUntil;
+            return this;
         }
     }
 
@@ -245,26 +265,31 @@ public class TablePerClassTest extends AbstractTest {
 
         private long views;
 
-        public TopicStatistics() {}
-
-        public TopicStatistics(Topic topic) {
-            this.topic = topic;
-        }
-
         public Long getId() {
             return id;
+        }
+
+        public TopicStatistics setId(Long id) {
+            this.id = id;
+            return this;
         }
 
         public Topic getTopic() {
             return topic;
         }
 
+        public TopicStatistics setTopic(Topic topic) {
+            this.topic = topic;
+            return this;
+        }
+
         public long getViews() {
             return views;
         }
 
-        public void incrementViews() {
+        public TopicStatistics incrementViews() {
             this.views++;
+            return this;
         }
     }
 }

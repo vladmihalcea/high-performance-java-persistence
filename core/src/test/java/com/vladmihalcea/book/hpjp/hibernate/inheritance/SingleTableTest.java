@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -32,38 +33,39 @@ public class SingleTableTest extends AbstractTest {
     @Override
     protected void afterInit() {
         doInJPA(entityManager -> {
-
-            Board board = new Board();
-            board.setId(1L);
-            board.setName("Hibernate");
+            Board board = new Board()
+                .setId(1L)
+                .setName("Hibernate");
 
             entityManager.persist(board);
 
-            Post post = new Post();
-            post.setOwner("John Doe");
-            post.setTitle("Inheritance");
-            post.setContent("Best practices");
-            post.setBoard(board);
+            Post post = new Post()
+                .setOwner("Vlad Mihalcea")
+                .setTitle("High-Performance Java Persistence")
+                .setContent("Best practices")
+                .setBoard(board);
 
             entityManager.persist(post);
 
-            Announcement announcement = new Announcement();
-            announcement.setOwner("John Doe");
-            announcement.setTitle("Release x.y.z.Final");
-            announcement.setValidUntil(Timestamp.valueOf(LocalDateTime.now().plusMonths(1)));
-            announcement.setBoard(board);
+            Announcement announcement = new Announcement()
+                .setOwner("Vlad Mihalcea")
+                .setTitle("Release 1.2.3")
+                .setValidUntil(Timestamp.valueOf(LocalDateTime.now().plusMonths(1)))
+                .setBoard(board);
 
             entityManager.persist(announcement);
 
-            TopicStatistics postStatistics = new TopicStatistics(post);
-            postStatistics.incrementViews();
+            entityManager.persist(
+                new TopicStatistics()
+                    .setTopic(post)
+                    .incrementViews()
+            );
 
-            entityManager.persist(postStatistics);
-
-            TopicStatistics announcementStatistics = new TopicStatistics(announcement);
-            announcementStatistics.incrementViews();
-
-            entityManager.persist(announcementStatistics);
+            entityManager.persist(
+                new TopicStatistics()
+                    .setTopic(announcement)
+                    .incrementViews()
+            );
         });
     }
 
@@ -72,11 +74,11 @@ public class SingleTableTest extends AbstractTest {
         doInJPA(entityManager -> {
             Board board = entityManager.getReference(Board.class, 1L);
 
-            List<Topic> topics = entityManager
-            .createQuery(
-                "select t " +
-                "from Topic t" +
-                " where t.board = :board", Topic.class)
+            List<Topic> topics = entityManager.createQuery("""
+                select t
+                from Topic t
+                where t.board = :board
+                """, Topic.class)
             .setParameter("board", board)
             .getResultList();
 
@@ -89,11 +91,11 @@ public class SingleTableTest extends AbstractTest {
         doInJPA(entityManager -> {
             Board board = entityManager.getReference(Board.class, 1L);
 
-            List<Post> posts = entityManager
-            .createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.board = :board", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                where p.board = :board
+                """, Post.class)
             .setParameter("board", board)
             .getResultList();
 
@@ -106,12 +108,12 @@ public class SingleTableTest extends AbstractTest {
     @Test
     public void testPolymorphicAssociation() {
         doInJPA(entityManager -> {
-            Board board = entityManager
-            .createQuery(
-                "select b " +
-                "from Board b " +
-                "join fetch b.topics " +
-                "where b.id = :id", Board.class)
+            Board board = entityManager.createQuery("""
+                select b
+                from Board b
+                join fetch b.topics
+                where b.id = :id
+                """, Board.class)
             .setParameter("id", 1L)
             .getSingleResult();
 
@@ -119,11 +121,11 @@ public class SingleTableTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
-            List<TopicStatistics> statistics = entityManager
-            .createQuery(
-                "select s " +
-                "from TopicStatistics s " +
-                "join fetch s.topic t ", TopicStatistics.class)
+            List<TopicStatistics> statistics = entityManager.createQuery("""
+                select s
+                from TopicStatistics s
+                join fetch s.topic t
+                """, TopicStatistics.class)
             .getResultList();
 
             assertEquals(2, statistics.size());
@@ -135,12 +137,12 @@ public class SingleTableTest extends AbstractTest {
         doInJPA(entityManager -> {
             Board board = entityManager.getReference(Board.class, 1L);
 
-            List<Topic> topics = entityManager
-            .createQuery(
-                "select t " +
-                "from Topic t " +
-                "where t.board = :board " +
-                "order by t.class", Topic.class)
+            List<Topic> topics = entityManager.createQuery("""
+                select t
+                from Topic t
+                where t.board = :board
+                order by t.class
+                """, Topic.class)
             .setParameter("board", board)
             .getResultList();
 
@@ -167,16 +169,18 @@ public class SingleTableTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public Board setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getName() {
             return name;
         }
 
-        public void setName(String name) {
+        public Board setName(String name) {
             this.name = name;
+            return this;
         }
 
         public List<Topic> getTopics() {
@@ -187,7 +191,7 @@ public class SingleTableTest extends AbstractTest {
     @Entity(name = "Topic")
     @Table(name = "topic")
     @Inheritance
-    public static class Topic {
+    public static class Topic<T extends Topic<T>> {
 
         @Id
         @GeneratedValue
@@ -215,37 +219,41 @@ public class SingleTableTest extends AbstractTest {
             return title;
         }
 
-        public void setTitle(String title) {
+        public T setTitle(String title) {
             this.title = title;
+            return (T) this;
         }
 
         public String getOwner() {
             return owner;
         }
 
-        public void setOwner(String owner) {
+        public T setOwner(String owner) {
             this.owner = owner;
+            return (T) this;
         }
 
         public Date getCreatedOn() {
             return createdOn;
         }
 
-        public void setCreatedOn(Date createdOn) {
+        public T setCreatedOn(Date createdOn) {
             this.createdOn = createdOn;
+            return (T) this;
         }
 
         public Board getBoard() {
             return board;
         }
 
-        public void setBoard(Board board) {
+        public T setBoard(Board board) {
             this.board = board;
+            return (T) this;
         }
     }
 
     @Entity(name = "Post")
-    public static class Post extends Topic {
+    public static class Post extends Topic<Post> {
 
         private String content;
 
@@ -253,13 +261,14 @@ public class SingleTableTest extends AbstractTest {
             return content;
         }
 
-        public void setContent(String content) {
+        public Post setContent(String content) {
             this.content = content;
+            return this;
         }
     }
 
     @Entity(name = "Announcement")
-    public static class Announcement extends Topic {
+    public static class Announcement extends Topic<Announcement> {
 
         @Temporal(TemporalType.TIMESTAMP)
         private Date validUntil;
@@ -268,8 +277,9 @@ public class SingleTableTest extends AbstractTest {
             return validUntil;
         }
 
-        public void setValidUntil(Date validUntil) {
+        public Announcement setValidUntil(Date validUntil) {
             this.validUntil = validUntil;
+            return this;
         }
     }
 
@@ -282,30 +292,36 @@ public class SingleTableTest extends AbstractTest {
 
         @OneToOne(fetch = FetchType.LAZY)
         @MapsId
+        @JoinColumn(name = "id")
         private Topic topic;
 
         private long views;
 
-        public TopicStatistics() {}
-
-        public TopicStatistics(Topic topic) {
-            this.topic = topic;
-        }
-
         public Long getId() {
             return id;
+        }
+
+        public TopicStatistics setId(Long id) {
+            this.id = id;
+            return this;
         }
 
         public Topic getTopic() {
             return topic;
         }
 
+        public TopicStatistics setTopic(Topic topic) {
+            this.topic = topic;
+            return this;
+        }
+
         public long getViews() {
             return views;
         }
 
-        public void incrementViews() {
+        public TopicStatistics incrementViews() {
             this.views++;
+            return this;
         }
     }
 }

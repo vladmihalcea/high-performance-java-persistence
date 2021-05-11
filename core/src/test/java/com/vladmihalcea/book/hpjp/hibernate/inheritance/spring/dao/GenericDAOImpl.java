@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.dao;
 
-import org.hibernate.criterion.Order;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +19,7 @@ import java.util.List;
 public abstract class GenericDAOImpl<T, ID extends Serializable> implements GenericDAO<T, ID> {
 
     private final Class<T> entityClass;
+
     @PersistenceContext
     private EntityManager entityManager;
 

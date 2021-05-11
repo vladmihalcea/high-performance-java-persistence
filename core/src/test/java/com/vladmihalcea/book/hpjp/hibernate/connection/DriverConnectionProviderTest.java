@@ -35,7 +35,7 @@ public class DriverConnectionProviderTest extends AbstractTest {
 
     protected void appendDriverProperties(Properties properties) {
         DataSourceProvider dataSourceProvider = dataSourceProvider();
-        properties.put("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
+        properties.put("hibernate.connection.driver_class", "org.hsqldb.jdbc.JDBCDriver");
         properties.put("hibernate.connection.url", dataSourceProvider.url());
         properties.put("hibernate.connection.username", dataSourceProvider.username());
         properties.put("hibernate.connection.password", dataSourceProvider.password());

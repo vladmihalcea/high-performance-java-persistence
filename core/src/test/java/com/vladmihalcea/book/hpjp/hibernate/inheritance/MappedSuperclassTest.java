@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -27,40 +28,47 @@ public class MappedSuperclassTest extends AbstractTest {
         };
     }
 
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
     @Test
     public void test() {
         Topic topic = doInJPA(entityManager -> {
-            Board board = new Board();
-            board.setId(1L);
-            board.setName("Hibernate");
+            Board board = new Board()
+                .setId(1L)
+                .setName("Hibernate");
 
             entityManager.persist(board);
 
-            Post post = new Post();
-            post.setId(1L);
-            post.setOwner("John Doe");
-            post.setTitle("Inheritance");
-            post.setContent("Best practices");
-            post.setBoard(board);
+            Post post = new Post()
+                .setOwner("Vlad Mihalcea")
+                .setTitle("High-Performance Java Persistence")
+                .setContent("Best practices")
+                .setBoard(board);
 
             entityManager.persist(post);
 
-            Announcement announcement = new Announcement();
-            announcement.setId(2L);
-            announcement.setOwner("John Doe");
-            announcement.setTitle("Release x.y.z.Final");
-            announcement.setValidUntil(Timestamp.valueOf(LocalDateTime.now().plusMonths(1)));
-            announcement.setBoard(board);
+            Announcement announcement = new Announcement()
+                .setOwner("Vlad Mihalcea")
+                .setTitle("Release 1.2.3")
+                .setValidUntil(Timestamp.valueOf(LocalDateTime.now().plusMonths(1)))
+                .setBoard(board);
 
             entityManager.persist(announcement);
 
-            TopicStatistics postStatistics = new PostStatistics(post);
-            postStatistics.incrementViews();
-            entityManager.persist(postStatistics);
+            entityManager.persist(
+                new PostStatistics()
+                    .setTopic(post)
+                    .incrementViews()
+            );
 
-            TopicStatistics announcementStatistics = new AnnouncementStatistics(announcement);
-            announcementStatistics.incrementViews();
-            entityManager.persist(announcementStatistics);
+            entityManager.persist(
+                new AnnouncementStatistics()
+                    .setTopic(announcement)
+                    .incrementViews()
+            );
 
             return post;
         });
@@ -68,11 +76,11 @@ public class MappedSuperclassTest extends AbstractTest {
         doInJPA(entityManager -> {
             Board board = topic.getBoard();
 
-            List<Post> posts = entityManager
-            .createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.board = :board", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                where p.board = :board
+                """, Post.class)
             .setParameter("board", board)
             .getResultList();
         });
@@ -80,12 +88,12 @@ public class MappedSuperclassTest extends AbstractTest {
         doInJPA(entityManager -> {
             Long postId = topic.getId();
             LOGGER.info("Fetch statistics");
-            PostStatistics postStatistics = entityManager
-            .createQuery(
-                "select ps " +
-                "from PostStatistics ps " +
-                "join fetch ps.topic t " +
-                "where t.id = :postId", PostStatistics.class)
+            PostStatistics postStatistics = entityManager.createQuery("""
+                select ps
+                from PostStatistics ps
+                join fetch ps.topic t
+                where t.id = :postId
+                """, PostStatistics.class)
             .setParameter("postId", postId)
             .getSingleResult();
 
@@ -106,23 +114,26 @@ public class MappedSuperclassTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public Board setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getName() {
             return name;
         }
 
-        public void setName(String name) {
+        public Board setName(String name) {
             this.name = name;
+            return this;
         }
     }
 
     @MappedSuperclass
-    public static abstract class Topic {
+    public static abstract class Topic<T extends Topic<T>> {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         private String title;
@@ -147,38 +158,42 @@ public class MappedSuperclassTest extends AbstractTest {
             return title;
         }
 
-        public void setTitle(String title) {
+        public T setTitle(String title) {
             this.title = title;
+            return (T) this;
         }
 
         public String getOwner() {
             return owner;
         }
 
-        public void setOwner(String owner) {
+        public T setOwner(String owner) {
             this.owner = owner;
+            return (T) this;
         }
 
         public Date getCreatedOn() {
             return createdOn;
         }
 
-        public void setCreatedOn(Date createdOn) {
+        public T setCreatedOn(Date createdOn) {
             this.createdOn = createdOn;
+            return (T) this;
         }
 
         public Board getBoard() {
             return board;
         }
 
-        public void setBoard(Board board) {
+        public T setBoard(Board board) {
             this.board = board;
+            return (T) this;
         }
     }
 
     @Entity(name = "Post")
     @Table(name = "post")
-    public static class Post extends Topic {
+    public static class Post extends Topic<Post> {
 
         private String content;
 
@@ -186,14 +201,15 @@ public class MappedSuperclassTest extends AbstractTest {
             return content;
         }
 
-        public void setContent(String content) {
+        public Post setContent(String content) {
             this.content = content;
+            return this;
         }
     }
 
     @Entity(name = "Announcement")
     @Table(name = "announcement")
-    public static class Announcement extends Topic {
+    public static class Announcement extends Topic<Announcement> {
 
         @Temporal(TemporalType.TIMESTAMP)
         private Date validUntil;
@@ -202,8 +218,9 @@ public class MappedSuperclassTest extends AbstractTest {
             return validUntil;
         }
 
-        public void setValidUntil(Date validUntil) {
+        public Announcement setValidUntil(Date validUntil) {
             this.validUntil = validUntil;
+            return this;
         }
     }
 
@@ -225,8 +242,9 @@ public class MappedSuperclassTest extends AbstractTest {
             return views;
         }
 
-        public void incrementViews() {
+        public TopicStatistics incrementViews() {
             this.views++;
+            return this;
         }
     }
 
@@ -239,15 +257,14 @@ public class MappedSuperclassTest extends AbstractTest {
         @JoinColumn(name = "id")
         private Post topic;
 
-        public PostStatistics() {}
-
-        public PostStatistics(Post topic) {
-            this.topic = topic;
-        }
-
         @Override
         public Post getTopic() {
             return topic;
+        }
+
+        public PostStatistics setTopic(Post topic) {
+            this.topic = topic;
+            return this;
         }
     }
 
@@ -260,15 +277,14 @@ public class MappedSuperclassTest extends AbstractTest {
         @JoinColumn(name = "id")
         private Announcement topic;
 
-        public AnnouncementStatistics() {}
-
-        public AnnouncementStatistics(Announcement topic) {
-            this.topic = topic;
-        }
-
         @Override
         public Announcement getTopic() {
             return topic;
+        }
+
+        public AnnouncementStatistics setTopic(Announcement topic) {
+            this.topic = topic;
+            return this;
         }
     }
 }

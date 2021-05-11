@@ -63,6 +63,5 @@ public class BehaviorDrivenInheritanceTest {
         }
 
         campaignService.send("Black Friday", "High-Performance Java Persistence is 40% OFF");
-
     }
 }
