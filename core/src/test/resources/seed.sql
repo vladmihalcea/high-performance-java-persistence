@@ -1,0 +1,1 @@
+insert into car(id, description) values (1, 'honda');
