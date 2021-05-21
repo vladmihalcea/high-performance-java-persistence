@@ -57,16 +57,16 @@ You need to use Maven 3.6.2 or newer and configure [Maven Toolchains](https://ma
           <toolchain>
             <type>jdk</type>
             <provides>
-              <id>Java13</id>
-              <version>13</version>
+              <id>Java15</id>
+              <version>15</version>
             </provides>
             <configuration>
-              <jdkHome>${env.JAVA_HOME_13}</jdkHome>
+              <jdkHome>${env.JAVA_HOME_15}</jdkHome>
             </configuration>
           </toolchain>
         </toolchains>
 
-> In my example, the `JAVA_HOME_13` is an environment variable pointing to a local folder where Java 13 is installed.
+> In my example, the `JAVA_HOME_15` is an environment variable pointing to a local folder where Java 15 is installed.
 
 For more details about using Maven Toolchains, check out [this article](https://vladmihalcea.com/maven-and-java-multi-version-modules/).
 
