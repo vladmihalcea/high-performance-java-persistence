@@ -783,7 +783,7 @@ public abstract class AbstractTest {
         }
     }
 
-    protected void ddl(String sql) {
+    protected void executeStatement(String sql) {
         try (Connection connection = dataSource().getConnection();
              Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);

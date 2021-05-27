@@ -81,10 +81,11 @@ public class DefaultInQueryPlanCacheTest extends AbstractTest {
         statistics.clear();
 
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.id in :ids", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                where p.id in :ids
+                """, Post.class)
             .setParameter("ids", Arrays.asList(1, 2, 3))
             .getResultList();
         });
@@ -108,6 +109,31 @@ public class DefaultInQueryPlanCacheTest extends AbstractTest {
             criteria.where(builder.in(fromPost.get("id")).value(Arrays.asList(1, 2, 3)));
             List<Post> posts = entityManager.createQuery(criteria).getResultList();
         });
+
+        for (String query : statistics.getQueries()) {
+            LOGGER.info("Executed query: {}", query);
+        }
+    }
+
+    @Test
+    public void testSQLQueryCachePlan() {
+        SessionFactory sessionFactory = entityManagerFactory().unwrap(SessionFactory.class);
+        Statistics statistics = sessionFactory.getStatistics();
+        statistics.clear();
+
+        doInJPA(entityManager -> {
+            for (int i = 1; i < 16; i++) {
+                List<Post> posts = entityManager.createNativeQuery("""
+                    select p.*
+                    from post p
+                    where p.id = :id
+                    """, Post.class)
+                .setParameter("id", 1)
+                .getResultList();
+            }
+        });
+
+        assertEquals(1, statistics.getQueryPlanCacheMissCount());
 
         for (String query : statistics.getQueries()) {
             LOGGER.info("Executed query: {}", query);

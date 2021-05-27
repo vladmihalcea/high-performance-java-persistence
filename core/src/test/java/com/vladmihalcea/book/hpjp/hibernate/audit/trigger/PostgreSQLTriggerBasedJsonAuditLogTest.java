@@ -38,11 +38,11 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
 
     @Override
     protected void afterInit() {
-        ddl("DROP TYPE dml_type CASCADE");
-        ddl("CREATE TYPE dml_type AS ENUM ('INSERT', 'UPDATE', 'DELETE')");
+        executeStatement("DROP TYPE dml_type CASCADE");
+        executeStatement("CREATE TYPE dml_type AS ENUM ('INSERT', 'UPDATE', 'DELETE')");
 
-        ddl("DROP TABLE IF EXISTS book_audit_log CASCADE");
-        ddl("""
+        executeStatement("DROP TABLE IF EXISTS book_audit_log CASCADE");
+        executeStatement("""
             CREATE TABLE IF NOT EXISTS book_audit_log (
                 book_id bigint NOT NULL,
             	old_row_data jsonb,
@@ -56,9 +56,9 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             """
         );
 
-        ddl("DROP FUNCTION IF EXISTS book_audit_trigger_func cascade");
+        executeStatement("DROP FUNCTION IF EXISTS book_audit_trigger_func cascade");
 
-        ddl("""          
+        executeStatement("""          
             CREATE OR REPLACE FUNCTION book_audit_trigger_func()
             RETURNS trigger AS $body$
             BEGIN
@@ -133,7 +133,7 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             """
         );
 
-        ddl("""
+        executeStatement("""
             CREATE TRIGGER book_audit_trigger
             AFTER INSERT OR UPDATE OR DELETE ON book
             FOR EACH ROW EXECUTE FUNCTION book_audit_trigger_func();

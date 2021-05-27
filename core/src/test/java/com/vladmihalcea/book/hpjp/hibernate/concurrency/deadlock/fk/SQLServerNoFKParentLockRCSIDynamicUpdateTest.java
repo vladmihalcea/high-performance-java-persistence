@@ -59,12 +59,12 @@ public class SQLServerNoFKParentLockRCSIDynamicUpdateTest extends AbstractTest {
                 }
             }
         });
-        ddl("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT ON");
+        executeStatement("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT ON");
     }
 
     @Override
     public void destroy() {
-        ddl("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT OFF");
+        executeStatement("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT OFF");
         super.destroy();
     }
 

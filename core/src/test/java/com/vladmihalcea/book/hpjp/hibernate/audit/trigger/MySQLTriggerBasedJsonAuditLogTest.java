@@ -34,8 +34,8 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
 
     @Override
     protected void afterInit() {
-        ddl("DROP TABLE IF EXISTS book_audit_log");
-        ddl("""
+        executeStatement("DROP TABLE IF EXISTS book_audit_log");
+        executeStatement("""
             CREATE TABLE IF NOT EXISTS book_audit_log (
                 book_id BIGINT NOT NULL, 
             	old_row_data JSON,
@@ -49,7 +49,7 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             """
         );
 
-        ddl("""          
+        executeStatement("""          
             CREATE TRIGGER book_insert_audit_trigger
             AFTER INSERT ON book FOR EACH ROW 
             BEGIN
@@ -80,7 +80,7 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             """
         );
 
-        ddl("""
+        executeStatement("""
             CREATE TRIGGER book_update_audit_trigger
             AFTER UPDATE ON book FOR EACH ROW 
             BEGIN
@@ -116,7 +116,7 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             """
         );
 
-        ddl("""
+        executeStatement("""
             CREATE TRIGGER book_delete_audit_trigger
             AFTER DELETE ON book FOR EACH ROW 
             BEGIN

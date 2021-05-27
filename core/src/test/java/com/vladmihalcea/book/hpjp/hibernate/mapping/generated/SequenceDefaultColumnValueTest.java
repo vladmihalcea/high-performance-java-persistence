@@ -23,8 +23,8 @@ public class SequenceDefaultColumnValueTest extends AbstractPostgreSQLIntegratio
     }
 
     public void init() {
-        ddl("DROP SEQUENCE sensor_seq");
-        ddl("""
+        executeStatement("DROP SEQUENCE sensor_seq");
+        executeStatement("""
             CREATE SEQUENCE
                sensor_seq
             START 100

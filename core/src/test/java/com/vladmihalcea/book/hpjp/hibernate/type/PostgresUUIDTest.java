@@ -1,13 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import org.hibernate.Session;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.junit.Test;
 
 import javax.persistence.*;
+import java.util.Properties;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -25,7 +26,7 @@ public class PostgresUUIDTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     public void init() {
-        ddl("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"");
+        executeStatement("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"");
         super.init();
     }
 

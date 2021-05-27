@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency.deadlock;
 
-import com.vladmihalcea.book.hpjp.hibernate.association.AllAssociationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.hibernate.type.util.ListResultTransformer;
@@ -49,12 +48,12 @@ public class SQLServerDeadLockTest extends AbstractTest {
             details.setPost(post);
             entityManager.persist(details);
         });
-        ddl("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT ON");
+        executeStatement("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT ON");
     }
 
     @Override
     public void destroy() {
-        ddl("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT OFF");
+        executeStatement("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT OFF");
         super.destroy();
     }
 
@@ -75,7 +74,7 @@ public class SQLServerDeadLockTest extends AbstractTest {
         try {
             CountDownLatch bobStart = new CountDownLatch(1);
 
-            ddl("DBCC TRACEON (1204, -1)");
+            executeStatement("DBCC TRACEON (1204, -1)");
 
             doInJPA(entityManager -> {
                 LOGGER.info("Alice updates the PostDetails entity");
@@ -120,7 +119,7 @@ public class SQLServerDeadLockTest extends AbstractTest {
                 afterDeadLockErrorLogLines.stream().map(ErrorLogMessage::getMessage).collect(Collectors.joining(StringUtils.LINE_SEPARATOR))
             );
         } finally {
-            ddl("DBCC TRACEOFF (1204, -1)");
+            executeStatement("DBCC TRACEOFF (1204, -1)");
         }
     }
 
@@ -133,7 +132,7 @@ public class SQLServerDeadLockTest extends AbstractTest {
         try {
             CountDownLatch bobStart = new CountDownLatch(1);
 
-            ddl("DBCC TRACEON (1222, -1)");
+            executeStatement("DBCC TRACEON (1222, -1)");
 
             doInJPA(entityManager -> {
                 LOGGER.info("Alice updates the PostDetails entity");
@@ -178,7 +177,7 @@ public class SQLServerDeadLockTest extends AbstractTest {
                 afterDeadLockErrorLogLines.stream().map(ErrorLogMessage::getMessage).collect(Collectors.joining(StringUtils.LINE_SEPARATOR))
             );
         } finally {
-            ddl("DBCC TRACEOFF (1222, -1)");
+            executeStatement("DBCC TRACEOFF (1222, -1)");
         }
     }
 

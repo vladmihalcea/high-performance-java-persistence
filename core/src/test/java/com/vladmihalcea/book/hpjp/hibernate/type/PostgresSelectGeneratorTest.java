@@ -6,8 +6,6 @@ import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -25,14 +23,14 @@ public class PostgresSelectGeneratorTest extends AbstractPostgreSQLIntegrationTe
 
     @Override
     public void init() {
-        ddl("CREATE SEQUENCE event_sequence START 1");
+        executeStatement("CREATE SEQUENCE event_sequence START 1");
         super.init();
     }
 
     @Override
     public void destroy() {
         super.destroy();
-        ddl("DROP SEQUENCE event_sequence");
+        executeStatement("DROP SEQUENCE event_sequence");
     }
 
     @Test

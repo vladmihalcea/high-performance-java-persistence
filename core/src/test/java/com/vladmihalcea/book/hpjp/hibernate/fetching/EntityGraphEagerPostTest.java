@@ -101,7 +101,7 @@ public class EntityGraphEagerPostTest extends AbstractPostgreSQLIntegrationTest 
     }
 
     @Test
-    public void testFindWithDeclaredEntityraph() {
+    public void testFindWithDeclaredEntityGraph() {
         PostComment comment = doInJPA(entityManager -> {
             return entityManager.find(
                 PostComment.class,

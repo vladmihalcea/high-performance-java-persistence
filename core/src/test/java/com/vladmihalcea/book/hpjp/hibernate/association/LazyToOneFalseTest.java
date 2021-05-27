@@ -19,7 +19,7 @@ public class LazyToOneFalseTest extends AbstractTest {
     protected Class<?>[] entities() {
         return new Class<?>[]{
             Post.class,
-            PostDetails.class
+            PostComment.class
         };
     }
 
@@ -33,17 +33,18 @@ public class LazyToOneFalseTest extends AbstractTest {
             entityManager.persist(post);
 
             entityManager.persist(
-                new PostDetails()
+                new PostComment()
+                    .setId(1L)
+                    .setReview("Amazing!")
                     .setPost(post)
-                    .setCreatedBy("Vlad Mihalcea")
             );
         });
 
-        PostDetails details = doInJPA(entityManager -> {
-            return entityManager.find(PostDetails.class, post.getId());
+        PostComment comment = doInJPA(entityManager -> {
+            return entityManager.find(PostComment.class, 1L);
         });
 
-        assertNotNull(details.getPost());
+        assertNotNull(comment.getPost());
     }
 
     @Entity(name = "Post")
@@ -74,31 +75,35 @@ public class LazyToOneFalseTest extends AbstractTest {
         }
     }
 
-    @Entity(name = "PostDetails")
-    @Table(name = "post_details")
-    public static class PostDetails {
+    @Entity(name = "PostComment")
+    @Table(name = "post_comment")
+    public static class PostComment {
 
         @Id
         private Long id;
 
-        @Column(name = "created_on")
-        private Date createdOn = new Date();
+        private String review;
 
-        @Column(name = "created_by")
-        private String createdBy;
-
-        @OneToOne(fetch = FetchType.LAZY)
-        @LazyToOne(LazyToOneOption.FALSE)
-        @MapsId
-        @JoinColumn(name = "id")
+        @ManyToOne(fetch = FetchType.LAZY)
+        //@LazyToOne(LazyToOneOption.FALSE)
+        @JoinColumn(name = "post_id")
         private Post post;
 
         public Long getId() {
             return id;
         }
 
-        public PostDetails setId(Long id) {
+        public PostComment setId(Long id) {
             this.id = id;
+            return this;
+        }
+
+        public String getReview() {
+            return review;
+        }
+
+        public PostComment setReview(String review) {
+            this.review = review;
             return this;
         }
 
@@ -106,26 +111,8 @@ public class LazyToOneFalseTest extends AbstractTest {
             return post;
         }
 
-        public PostDetails setPost(Post post) {
+        public PostComment setPost(Post post) {
             this.post = post;
-            return this;
-        }
-
-        public Date getCreatedOn() {
-            return createdOn;
-        }
-
-        public PostDetails setCreatedOn(Date createdOn) {
-            this.createdOn = createdOn;
-            return this;
-        }
-
-        public String getCreatedBy() {
-            return createdBy;
-        }
-
-        public PostDetails setCreatedBy(String createdBy) {
-            this.createdBy = createdBy;
             return this;
         }
     }

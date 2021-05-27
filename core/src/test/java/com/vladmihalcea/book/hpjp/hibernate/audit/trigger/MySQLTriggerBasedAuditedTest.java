@@ -32,8 +32,8 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
 
     @Override
     protected void afterInit() {
-        ddl("DROP TABLE IF EXISTS post_AUD");
-        ddl("""
+        executeStatement("DROP TABLE IF EXISTS post_AUD");
+        executeStatement("""
             CREATE TABLE IF NOT EXISTS post_AUD (
             	id BIGINT NOT NULL,
             	title VARCHAR(255),
@@ -45,7 +45,7 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
             """
         );
 
-        ddl("""          
+        executeStatement("""          
             CREATE TRIGGER post_insert_audit_trigger
             AFTER INSERT ON post
             FOR EACH ROW BEGIN
@@ -67,7 +67,7 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
             """
         );
 
-        ddl("""
+        executeStatement("""
             CREATE TRIGGER post_update_audit_trigger
             AFTER UPDATE ON post
             FOR EACH ROW BEGIN
@@ -89,7 +89,7 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
             """
         );
 
-        ddl("""
+        executeStatement("""
             CREATE TRIGGER post_delete_audit_trigger
             AFTER DELETE ON post
             FOR EACH ROW BEGIN

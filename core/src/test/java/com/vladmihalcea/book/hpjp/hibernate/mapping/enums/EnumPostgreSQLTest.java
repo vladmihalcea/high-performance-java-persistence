@@ -6,10 +6,6 @@ import org.hibernate.annotations.TypeDef;
 import org.junit.Test;
 
 import javax.persistence.*;
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -27,8 +23,8 @@ public class EnumPostgreSQLTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     public void init() {
-        ddl("DROP TYPE post_status_info CASCADE");
-        ddl("CREATE TYPE post_status_info AS ENUM ('PENDING', 'APPROVED', 'SPAM')");
+        executeStatement("DROP TYPE post_status_info CASCADE");
+        executeStatement("CREATE TYPE post_status_info AS ENUM ('PENDING', 'APPROVED', 'SPAM')");
         super.init();
     }
 

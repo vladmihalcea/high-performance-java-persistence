@@ -34,37 +34,37 @@ public class PostgreSQLRangeBasedWriteSkewReadCommittedTest extends AbstractDepa
         super.afterInit();
 
         doInJDBC(connection -> {
-            ddl("DROP TRIGGER IF EXISTS check_department_budget_trigger ON employee;");
-            ddl("DROP FUNCTION check_department_budget();");
+            executeStatement("DROP TRIGGER IF EXISTS check_department_budget_trigger ON employee;");
+            executeStatement("DROP FUNCTION check_department_budget();");
 
-            ddl("CREATE OR REPLACE FUNCTION check_department_budget() RETURNS trigger AS $$ " +
-                "DECLARE " +
-                "    allowed_budget BIGINT; " +
-                "    new_budget BIGINT; " +
-                "BEGIN " +
-                "    SELECT INTO allowed_budget budget FROM department where id = NEW.department_id; " +
-                "    SELECT INTO new_budget SUM(salary) FROM employee where department_id = NEW.department_id; " +
-                "    IF new_budget > allowed_budget THEN " +
-                "        RAISE EXCEPTION 'Overbudget department [id:%] by [%]', " +
-                "                        NEW.department_id, " +
-                "                        (new_budget - allowed_budget);" +
-                "    END IF; " +
-                "   RETURN NEW;" +
-                "END; " +
-                "$$ LANGUAGE plpgsql;"
+            executeStatement("CREATE OR REPLACE FUNCTION check_department_budget() RETURNS trigger AS $$ " +
+                             "DECLARE " +
+                             "    allowed_budget BIGINT; " +
+                             "    new_budget BIGINT; " +
+                             "BEGIN " +
+                             "    SELECT INTO allowed_budget budget FROM department where id = NEW.department_id; " +
+                             "    SELECT INTO new_budget SUM(salary) FROM employee where department_id = NEW.department_id; " +
+                             "    IF new_budget > allowed_budget THEN " +
+                             "        RAISE EXCEPTION 'Overbudget department [id:%] by [%]', " +
+                             "                        NEW.department_id, " +
+                             "                        (new_budget - allowed_budget);" +
+                             "    END IF; " +
+                             "   RETURN NEW;" +
+                             "END; " +
+                             "$$ LANGUAGE plpgsql;"
             );
 
-            ddl("CREATE TRIGGER check_department_budget_trigger " +
-                "AFTER INSERT OR UPDATE ON employee " +
-                "FOR EACH ROW EXECUTE PROCEDURE check_department_budget();"
+            executeStatement("CREATE TRIGGER check_department_budget_trigger " +
+                             "AFTER INSERT OR UPDATE ON employee " +
+                             "FOR EACH ROW EXECUTE PROCEDURE check_department_budget();"
             );
         });
     }
 
     @Override
     public void destroy() {
-        ddl("DROP TRIGGER IF EXISTS check_department_budget_trigger ON employee;");
-        ddl("DROP FUNCTION check_department_budget();");
+        executeStatement("DROP TRIGGER IF EXISTS check_department_budget_trigger ON employee;");
+        executeStatement("DROP FUNCTION check_department_budget();");
         super.destroy();
     }
 

@@ -10,7 +10,6 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,17 +27,17 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
     public void init() {
         super.init();
         if (recreateTables) {
-            ddl("DROP table ACT_HI_PROCINST");
-            ddl("DROP table ACT_HI_ACTINST");
-            ddl("DROP table ACT_HI_TASKINST");
-            ddl("DROP table ACT_GE_BYTEARRAY");
-            ddl("DROP table ACT_HI_VARINST");
-            ddl("DROP table ACT_HI_DETAIL");
-            ddl("DROP table ACT_HI_COMMENT");
-            ddl("DROP table ACT_HI_ATTACHMENT");
-            ddl("DROP table ACT_HI_IDENTITYLINK");
+            executeStatement("DROP table ACT_HI_PROCINST");
+            executeStatement("DROP table ACT_HI_ACTINST");
+            executeStatement("DROP table ACT_HI_TASKINST");
+            executeStatement("DROP table ACT_GE_BYTEARRAY");
+            executeStatement("DROP table ACT_HI_VARINST");
+            executeStatement("DROP table ACT_HI_DETAIL");
+            executeStatement("DROP table ACT_HI_COMMENT");
+            executeStatement("DROP table ACT_HI_ATTACHMENT");
+            executeStatement("DROP table ACT_HI_IDENTITYLINK");
 
-            ddl("""
+            executeStatement("""
                 create table ACT_HI_PROCINST (
                     ID_ nvarchar(64) not null,
                     PROC_INST_ID_ nvarchar(64) not null,
@@ -58,7 +57,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     unique (PROC_INST_ID_)
                 )
                 """);
-            ddl("""
+            executeStatement("""
                 create table ACT_HI_ACTINST (
                     ID_ nvarchar(64) not null,
                     PROC_DEF_ID_ nvarchar(64) not null,
@@ -77,7 +76,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     primary key (ID_)
                 )
                 """);
-            ddl("""                         
+            executeStatement("""                         
                 create table ACT_HI_TASKINST (
                     ID_ nvarchar(64) not null,
                     PROC_DEF_ID_ nvarchar(64),
@@ -102,7 +101,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     primary key (ID_)
                 )
                 """);
-            ddl("""                             
+            executeStatement("""                             
                 create table ACT_HI_VARINST (
                     ID_ nvarchar(64) not null,
                     PROC_INST_ID_ nvarchar(64),
@@ -121,7 +120,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     primary key (ID_)
                 )
                 """);
-            ddl("""                          
+            executeStatement("""                          
               create table ACT_HI_DETAIL (
                   ID_ nvarchar(64) not null,
                   TYPE_ nvarchar(255) not null,
@@ -141,7 +140,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                   primary key (ID_)
               )
               """);
-            ddl("""                            
+            executeStatement("""                            
                 create table ACT_HI_COMMENT (
                     ID_ nvarchar(64) not null,
                     TYPE_ nvarchar(255),
@@ -155,7 +154,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     primary key (ID_)
                 )
                 """);
-            ddl("""                           
+            executeStatement("""                           
                create table ACT_HI_ATTACHMENT (
                    ID_ nvarchar(64) not null,
                    REV_ integer,
@@ -171,7 +170,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                    primary key (ID_)
                )
                """);
-            ddl("""                            
+            executeStatement("""                            
                 create table ACT_HI_IDENTITYLINK (
                     ID_ nvarchar(64),
                     GROUP_ID_ nvarchar(255),
@@ -182,7 +181,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     primary key (ID_)
                 )
                 """);
-            ddl("""                            
+            executeStatement("""                            
                 create table ACT_GE_BYTEARRAY (
                     ID_ nvarchar(64),
                     REV_ int,
@@ -196,29 +195,29 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
 
             insertData();
 
-            ddl("create index ACT_IDX_HI_PRO_INST_END on ACT_HI_PROCINST(END_TIME_)");
-            ddl("create index ACT_IDX_HI_PRO_I_BUSKEY on ACT_HI_PROCINST(BUSINESS_KEY_)");
-            ddl("create index ACT_IDX_HI_ACT_INST_START on ACT_HI_ACTINST(START_TIME_)");
-            ddl("create index ACT_IDX_HI_ACT_INST_END on ACT_HI_ACTINST(END_TIME_)");
-            ddl("create index ACT_IDX_HI_DETAIL_PROC_INST on ACT_HI_DETAIL(PROC_INST_ID_)");
-            ddl("create index ACT_IDX_HI_DETAIL_ACT_INST on ACT_HI_DETAIL(ACT_INST_ID_)");
-            ddl("create index ACT_IDX_HI_DETAIL_TIME on ACT_HI_DETAIL(TIME_)");
-            ddl("create index ACT_IDX_HI_DETAIL_NAME on ACT_HI_DETAIL(NAME_)");
-            ddl("create index ACT_IDX_HI_DETAIL_TASK_ID on ACT_HI_DETAIL(TASK_ID_)");
-            ddl("create index ACT_IDX_HI_PROCVAR_PROC_INST on ACT_HI_VARINST(PROC_INST_ID_)");
-            ddl("create index ACT_IDX_HI_PROCVAR_NAME_TYPE on ACT_HI_VARINST(NAME_, VAR_TYPE_)");
-            ddl("create index ACT_IDX_HI_PROCVAR_TASK_ID on ACT_HI_VARINST(TASK_ID_)");
-            ddl("create index ACT_IDX_HI_ACT_INST_PROCINST on ACT_HI_ACTINST(PROC_INST_ID_, ACT_ID_)");
-            ddl("create index ACT_IDX_HI_ACT_INST_EXEC on ACT_HI_ACTINST(EXECUTION_ID_, ACT_ID_)");
-            ddl("create index ACT_IDX_HI_IDENT_LNK_USER on ACT_HI_IDENTITYLINK(USER_ID_)");
-            ddl("create index ACT_IDX_HI_IDENT_LNK_TASK on ACT_HI_IDENTITYLINK(TASK_ID_)");
-            ddl("create index ACT_IDX_HI_IDENT_LNK_PROCINST on ACT_HI_IDENTITYLINK(PROC_INST_ID_)");
-            ddl("create index ACT_IDX_HI_TASK_INST_PROCINST on ACT_HI_TASKINST(PROC_INST_ID_)");
+            executeStatement("create index ACT_IDX_HI_PRO_INST_END on ACT_HI_PROCINST(END_TIME_)");
+            executeStatement("create index ACT_IDX_HI_PRO_I_BUSKEY on ACT_HI_PROCINST(BUSINESS_KEY_)");
+            executeStatement("create index ACT_IDX_HI_ACT_INST_START on ACT_HI_ACTINST(START_TIME_)");
+            executeStatement("create index ACT_IDX_HI_ACT_INST_END on ACT_HI_ACTINST(END_TIME_)");
+            executeStatement("create index ACT_IDX_HI_DETAIL_PROC_INST on ACT_HI_DETAIL(PROC_INST_ID_)");
+            executeStatement("create index ACT_IDX_HI_DETAIL_ACT_INST on ACT_HI_DETAIL(ACT_INST_ID_)");
+            executeStatement("create index ACT_IDX_HI_DETAIL_TIME on ACT_HI_DETAIL(TIME_)");
+            executeStatement("create index ACT_IDX_HI_DETAIL_NAME on ACT_HI_DETAIL(NAME_)");
+            executeStatement("create index ACT_IDX_HI_DETAIL_TASK_ID on ACT_HI_DETAIL(TASK_ID_)");
+            executeStatement("create index ACT_IDX_HI_PROCVAR_PROC_INST on ACT_HI_VARINST(PROC_INST_ID_)");
+            executeStatement("create index ACT_IDX_HI_PROCVAR_NAME_TYPE on ACT_HI_VARINST(NAME_, VAR_TYPE_)");
+            executeStatement("create index ACT_IDX_HI_PROCVAR_TASK_ID on ACT_HI_VARINST(TASK_ID_)");
+            executeStatement("create index ACT_IDX_HI_ACT_INST_PROCINST on ACT_HI_ACTINST(PROC_INST_ID_, ACT_ID_)");
+            executeStatement("create index ACT_IDX_HI_ACT_INST_EXEC on ACT_HI_ACTINST(EXECUTION_ID_, ACT_ID_)");
+            executeStatement("create index ACT_IDX_HI_IDENT_LNK_USER on ACT_HI_IDENTITYLINK(USER_ID_)");
+            executeStatement("create index ACT_IDX_HI_IDENT_LNK_TASK on ACT_HI_IDENTITYLINK(TASK_ID_)");
+            executeStatement("create index ACT_IDX_HI_IDENT_LNK_PROCINST on ACT_HI_IDENTITYLINK(PROC_INST_ID_)");
+            executeStatement("create index ACT_IDX_HI_TASK_INST_PROCINST on ACT_HI_TASKINST(PROC_INST_ID_)");
         }
 
-        ddl("DROP PROCEDURE usp_DeleteActivityHistory");
+        executeStatement("DROP PROCEDURE usp_DeleteActivityHistory");
 
-        ddl("""
+        executeStatement("""
             CREATE PROCEDURE usp_DeleteActivityHistory(
                 @BeforeStartTimestamp DATETIME,
                 @BatchSize INT,

@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.join.algorithm;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.Session;
 import org.junit.Test;
 
@@ -66,10 +65,10 @@ public class HashJoinSqlTest extends AbstractPostgreSQLIntegrationTest {
                 }
             }
         });
-        ddl("CREATE INDEX IDX_post_id ON post (id)");
-        ddl("CREATE INDEX IDX_post_comment_id ON post_comment (id)");
-        ddl("CREATE INDEX IDX_post_comment_post_id ON post_comment (post_id)");
-        ddl("VACUUM ANALYZE");
+        executeStatement("CREATE INDEX IDX_post_id ON post (id)");
+        executeStatement("CREATE INDEX IDX_post_comment_id ON post_comment (id)");
+        executeStatement("CREATE INDEX IDX_post_comment_post_id ON post_comment (post_id)");
+        executeStatement("VACUUM ANALYZE");
     }
 
     /**

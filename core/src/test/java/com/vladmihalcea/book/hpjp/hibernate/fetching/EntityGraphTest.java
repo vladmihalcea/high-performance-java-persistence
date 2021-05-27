@@ -85,6 +85,26 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
+    public void testFindUsingNestedEntityGraph() {
+        PostCommentDetails commentDetails = doInJPA(entityManager -> {
+            EntityGraph<PostCommentDetails> commentDetailsGraph = entityManager.createEntityGraph(PostCommentDetails.class);
+            commentDetailsGraph.addAttributeNodes("comment");
+            Subgraph<PostComment> commentSubgraph = commentDetailsGraph.addSubgraph("comment");
+            commentSubgraph.addAttributeNodes("post");
+
+            return entityManager.find(PostCommentDetails.class, 1L,
+                Collections.singletonMap(
+                    "javax.persistence.loadgraph",
+                    commentDetailsGraph
+                )
+            );
+        });
+
+        assertNotNull(commentDetails.getComment());
+        assertNotNull(commentDetails.getComment().getPost());
+    }
+
+    @Test
     public void testFindWithNamedEntityLoadGraph() {
         PostComment comment = doInJPA(entityManager -> {
             return entityManager.find(PostComment.class, 1L,

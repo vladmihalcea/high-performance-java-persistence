@@ -34,8 +34,8 @@ public class SQLServerTriggerBasedJsonAuditLogTest extends AbstractTest {
 
     @Override
     protected void afterInit() {
-        ddl("DROP TABLE BookAuditLog");
-        ddl("""
+        executeStatement("DROP TABLE BookAuditLog");
+        executeStatement("""
             CREATE TABLE BookAuditLog (
                 BookId bigint NOT NULL, 
             	OldRowData nvarchar(1000) CHECK(ISJSON(OldRowData) = 1),
@@ -49,7 +49,7 @@ public class SQLServerTriggerBasedJsonAuditLogTest extends AbstractTest {
             """
         );
 
-        ddl("""       
+        executeStatement("""       
             CREATE TRIGGER TR_Book_Insert_AuditLog ON Book
             FOR INSERT AS 
             BEGIN
@@ -80,7 +80,7 @@ public class SQLServerTriggerBasedJsonAuditLogTest extends AbstractTest {
             """
         );
 
-        ddl("""
+        executeStatement("""
             CREATE TRIGGER TR_Book_Update_AuditLog ON Book
             FOR UPDATE AS 
             BEGIN
@@ -111,7 +111,7 @@ public class SQLServerTriggerBasedJsonAuditLogTest extends AbstractTest {
             """
         );
 
-        ddl("""
+        executeStatement("""
             CREATE TRIGGER TR_Book_Delete_AuditLog ON Book
             FOR DELETE AS 
             BEGIN
@@ -219,7 +219,7 @@ public class SQLServerTriggerBasedJsonAuditLogTest extends AbstractTest {
                       publisher varchar(255) '$.Publisher'
                    ) AS r
                 WHERE
-                 BookAuditLog.BookId = 1
+                 BookAuditLog.BookId = :bookId
                 ORDER BY VersionTimestamp
 			    """, Tuple.class)
                 .setParameter("bookId", 1L)

@@ -65,10 +65,10 @@ public class NestedLoopsSqlTest extends AbstractPostgreSQLIntegrationTest {
                 }
             }
         });
-        ddl("CREATE INDEX IDX_post_id ON post (id)");
-        ddl("CREATE INDEX IDX_post_comment_id ON post_comment (id)");
-        ddl("CREATE INDEX IDX_post_comment_post_id ON post_comment (post_id)");
-        ddl("VACUUM ANALYZE");
+        executeStatement("CREATE INDEX IDX_post_id ON post (id)");
+        executeStatement("CREATE INDEX IDX_post_comment_id ON post_comment (id)");
+        executeStatement("CREATE INDEX IDX_post_comment_post_id ON post_comment (post_id)");
+        executeStatement("VACUUM ANALYZE");
     }
 
     /**
