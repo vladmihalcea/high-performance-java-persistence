@@ -346,7 +346,7 @@
     </dependencies>
 
     <properties>
-        <jdk.version>15</jdk.version>
+        <jdk.version>16</jdk.version>
 
         <maven-toolchains-plugin.version>3.0.0</maven-toolchains-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
@@ -412,7 +412,7 @@
                 <configuration>
                     <toolchains>
                         <jdk>
-                            <version>[15,)</version>
+                            <version>${jdk.version}</version>
                         </jdk>
                     </toolchains>
                 </configuration>

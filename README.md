@@ -44,7 +44,7 @@ Or, if you prefer reading books, you are going to love my [High-Performance Java
 
 ## Java
 
-All examples require at least Java 15 because of the awesome [Text Blocks](https://openjdk.java.net/jeps/355) feature, which makes JPQL and SQL queries so much readable.
+All examples require at least Java 16 because of the awesome [Text Blocks](https://openjdk.java.net/jeps/355) feature, which makes JPQL and SQL queries so much readable.
 
 ## Maven
 
@@ -57,16 +57,16 @@ You need to use Maven 3.6.2 or newer and configure [Maven Toolchains](https://ma
           <toolchain>
             <type>jdk</type>
             <provides>
-              <id>Java15</id>
-              <version>15</version>
+              <id>Java16</id>
+              <version>16</version>
             </provides>
             <configuration>
-              <jdkHome>${env.JAVA_HOME_15}</jdkHome>
+              <jdkHome>${env.JAVA_HOME_16}</jdkHome>
             </configuration>
           </toolchain>
         </toolchains>
 
-> In my example, the `JAVA_HOME_15` is an environment variable pointing to a local folder where Java 15 is installed.
+> In my example, the `JAVA_HOME_16` is an environment variable pointing to a local folder where Java 16 is installed.
 
 For more details about using Maven Toolchains, check out [this article](https://vladmihalcea.com/maven-and-java-multi-version-modules/).
 
