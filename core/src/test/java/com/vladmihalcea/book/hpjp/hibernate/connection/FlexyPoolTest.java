@@ -61,7 +61,6 @@ public class FlexyPoolTest {
     }
 
     @Test
-    @Ignore
     public void test() throws InterruptedException, ExecutionException {
         long startNanos = System.nanoTime();
 

@@ -46,7 +46,6 @@ public class HikariCPPostgreSQLJPAConfiguration extends AbstractJPAConfiguration
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setDataSourceClassName(dataSourceClassName);
         hikariConfig.setDataSourceProperties(dataSourceProperties);
-        hikariConfig.setMinimumPoolSize(1);
         hikariConfig.setMaximumPoolSize(3);
 
         return new HikariDataSource(hikariConfig);
