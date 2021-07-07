@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.criteria.blaze;
 
+import com.blazebit.persistence.CTE;
 import com.blazebit.persistence.Criteria;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.JoinType;
@@ -184,21 +185,32 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
             List<Tuple> tuples = cbf
                 .create(entityManager, Tuple.class)
                 .from(Post.class, "p1")
-                .leftJoinLateralSubquery(Post.class, "p_c")
+                .leftJoinOnSubquery(PostCommentCountCTE.class, "p_c")
                     .from(Post.class, "p")
+                    .bind("title").select("p.title")
+                    .bind("commentCount").select("count(pc.id)")
                     .leftJoinOn(PostComment.class, "pc").onExpression("pc.post = p").end()
                     .joinOn(PostDetails.class, "pd", JoinType.INNER).onExpression("pd = p").end()
                     .where("pd.createdBy").eqExpression(":createdBy")
                     .whereExpression("p.title = p1.title")
                     .groupBy("p.title")
+                    .end()
                 .end()
-                .select("p.title", "post_title")
-                .select("count(pc.id)", "comment_count")
+                .select("p1.title", "post_title")
+                .select("p_c.commentCount", "comment_count")
                 .setParameter("createdBy", "Vlad Mihalcea")
                 .getResultList();
 
             assertEquals(1, tuples.size());
         });
+    }
+
+    @CTE
+    @Entity
+    public static class PostCommentCountCTE {
+        @Id
+        private String postTitle;
+        private Long commentCount;
     }
 
     @Entity(name = "Post")
