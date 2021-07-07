@@ -2,7 +2,9 @@ package com.vladmihalcea.book.hpjp.hibernate.criteria.blaze;
 
 import com.blazebit.persistence.Criteria;
 import com.blazebit.persistence.CriteriaBuilderFactory;
+import com.blazebit.persistence.JoinType;
 import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
+import com.vladmihalcea.book.hpjp.hibernate.association.AllAssociationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import org.junit.Test;
 
@@ -41,19 +43,34 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
     @Override
     public void afterInit() {
         doInJPA(entityManager -> {
+            Post post = new Post()
+                .setId(1L)
+                .setTitle("High-Performance Java Persistence")
+                .addComment(
+                    new PostComment()
+                        .setReview("Best book on JPA and Hibernate!")
+                )
+                .addComment(
+                    new PostComment()
+                        .setReview("A must-read for every Java developer!")
+                );
+
+            entityManager.persist(post);
+
             entityManager.persist(
-                new Post()
-                    .setId(1L)
-                    .setTitle("High-Performance Java Persistence")
-                    .addComment(
-                        new PostComment()
-                            .setReview("Best book on JPA and Hibernate!")
-                    )
-                    .addComment(
-                        new PostComment()
-                            .setReview("A must-read for every Java developer!")
-                    )
+                new PostDetails()
+                    .setPost(post)
+                    .setCreatedBy("Vlad Mihalcea")
             );
+
+            Tag java = new Tag().setName("Java");
+            Tag hibernate = new Tag().setName("Hibernate");
+
+            entityManager.persist(java);
+            entityManager.persist(hibernate);
+
+            post.getTags().add(java);
+            post.getTags().add(hibernate);
         });
     }
 
@@ -98,7 +115,43 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
 
             assertEquals(1, tuples.size());
         });
+    }
 
+    @Test
+    public void testGroupBy() {
+        doInJPA(entityManager -> {
+            List<Tuple> tuples = entityManager
+                .createNativeQuery("""
+                 select
+                     p.title as post_title,
+                     count(pc.id) as comment_count
+                 from post p
+                 left join post_comment pc on pc.post_id = p.id
+                 join post_details pd on p.id = pd.id
+                 where pd.created_by = :createdBy
+                 group by p.title
+			    """, Tuple.class)
+                .setParameter("createdBy", "Vlad Mihalcea")
+                .getResultList();
+
+            assertEquals(1, tuples.size());
+        });
+
+        doInJPA(entityManager -> {
+            List<Tuple> tuples = cbf
+                .create(entityManager, Tuple.class)
+                .from(Post.class, "p")
+                .leftJoinOn(PostComment.class, "pc").onExpression("pc.post = p").end()
+                .joinOn(PostDetails.class, "pd", JoinType.INNER).onExpression("pd = p").end()
+                .where("pd.createdBy").eqExpression(":createdBy")
+                .groupBy("p.title")
+                .select("p.title", "post_title")
+                .select("count(pc.id)", "comment_count")
+                .setParameter("createdBy", "Vlad Mihalcea")
+                .getResultList();
+
+            assertEquals(1, tuples.size());
+        });
     }
 
     @Entity(name = "Post")
@@ -177,6 +230,10 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
             this.details = null;
 
             return this;
+        }
+
+        public List<Tag> getTags() {
+            return tags;
         }
     }
 
@@ -260,38 +317,43 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
 
         @OneToOne(fetch = FetchType.LAZY)
         @MapsId
+        @JoinColumn(name = "id")
         private Post post;
 
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostDetails setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public Post getPost() {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostDetails setPost(Post post) {
             this.post = post;
+            return this;
         }
 
         public Date getCreatedOn() {
             return createdOn;
         }
 
-        public void setCreatedOn(Date createdOn) {
+        public PostDetails setCreatedOn(Date createdOn) {
             this.createdOn = createdOn;
+            return this;
         }
 
         public String getCreatedBy() {
             return createdBy;
         }
 
-        public void setCreatedBy(String createdBy) {
+        public PostDetails setCreatedBy(String createdBy) {
             this.createdBy = createdBy;
+            return this;
         }
     }
 
@@ -300,6 +362,7 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
     public static class Tag {
 
         @Id
+        @GeneratedValue
         private Long id;
 
         private String name;
@@ -308,8 +371,9 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
             return name;
         }
 
-        public void setName(String name) {
+        public Tag setName(String name) {
             this.name = name;
+            return this;
         }
     }
 }
