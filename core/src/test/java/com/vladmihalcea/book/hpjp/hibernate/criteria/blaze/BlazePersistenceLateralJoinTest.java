@@ -154,6 +154,53 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
         });
     }
 
+    @Test
+    public void testJoinGroupBy() {
+        doInJPA(entityManager -> {
+            List<Tuple> tuples = entityManager
+                .createNativeQuery("""
+                 select 
+                    p1.title,
+                    p_c.comment_count
+                 from post p1
+                 join (
+                    select
+                         p.title as post_title,
+                         count(pc.id) as comment_count
+                     from post p
+                     left join post_comment pc on pc.post_id = p.id
+                     join post_details pd on p.id = pd.id
+                     where pd.created_by = :createdBy
+                     group by p.title
+                 ) p_c on p1.title = p_c.post_title
+			    """, Tuple.class)
+                .setParameter("createdBy", "Vlad Mihalcea")
+                .getResultList();
+
+            assertEquals(1, tuples.size());
+        });
+
+        doInJPA(entityManager -> {
+            List<Tuple> tuples = cbf
+                .create(entityManager, Tuple.class)
+                .from(Post.class, "p1")
+                .leftJoinLateralSubquery(Post.class, "p_c")
+                    .from(Post.class, "p")
+                    .leftJoinOn(PostComment.class, "pc").onExpression("pc.post = p").end()
+                    .joinOn(PostDetails.class, "pd", JoinType.INNER).onExpression("pd = p").end()
+                    .where("pd.createdBy").eqExpression(":createdBy")
+                    .whereExpression("p.title = p1.title")
+                    .groupBy("p.title")
+                .end()
+                .select("p.title", "post_title")
+                .select("count(pc.id)", "comment_count")
+                .setParameter("createdBy", "Vlad Mihalcea")
+                .getResultList();
+
+            assertEquals(1, tuples.size());
+        });
+    }
+
     @Entity(name = "Post")
     @Table(name = "post")
     public static class Post {
