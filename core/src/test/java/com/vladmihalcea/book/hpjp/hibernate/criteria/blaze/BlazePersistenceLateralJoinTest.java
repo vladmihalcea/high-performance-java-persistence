@@ -196,6 +196,7 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
                     .where("pd.createdBy").eqExpression(":createdBy")
                     .groupBy("p.title")
                     .end()
+                .onExpression("p_c.id = p1.id")
                 .end()
                 .select("p1.title", "post_title")
                 .select("p_c.commentCount", "comment_count")
