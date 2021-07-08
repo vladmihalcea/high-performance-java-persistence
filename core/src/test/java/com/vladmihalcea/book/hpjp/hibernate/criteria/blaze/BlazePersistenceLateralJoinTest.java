@@ -194,7 +194,7 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
                     .leftJoinOn(PostComment.class, "pc").onExpression("pc.post = p").end()
                     .joinOn(PostDetails.class, "pd", JoinType.INNER).onExpression("pd = p").end()
                     .where("pd.createdBy").eqExpression(":createdBy")
-                    .groupBy("p.title")
+                    .groupBy("p.title", "p.id")
                     .end()
                 .onExpression("p_c.id = p1.id")
                 .end()
