@@ -29,7 +29,8 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
             Post.class,
             PostDetails.class,
             PostComment.class,
-            Tag.class
+            Tag.class,
+            PostCommentCountCTE.class
         };
     }
 
@@ -187,12 +188,12 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
                 .from(Post.class, "p1")
                 .leftJoinOnSubquery(PostCommentCountCTE.class, "p_c")
                     .from(Post.class, "p")
-                    .bind("title").select("p.title")
+                    .bind("id").select("p.id")
+                    .bind("postTitle").select("p.title")
                     .bind("commentCount").select("count(pc.id)")
                     .leftJoinOn(PostComment.class, "pc").onExpression("pc.post = p").end()
                     .joinOn(PostDetails.class, "pd", JoinType.INNER).onExpression("pd = p").end()
                     .where("pd.createdBy").eqExpression(":createdBy")
-                    .whereExpression("p.title = p1.title")
                     .groupBy("p.title")
                     .end()
                 .end()
@@ -209,6 +210,7 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
     @Entity
     public static class PostCommentCountCTE {
         @Id
+        private Long id;
         private String postTitle;
         private Long commentCount;
     }
