@@ -9,8 +9,10 @@ public class OracleQueries implements Queries {
 
     @Override
     public String transactionId() {
-        return "SELECT RAWTOHEX(tx.xid) " +
-                "FROM v$transaction tx " +
-                "JOIN v$session s ON tx.ses_addr = s.saddr";
+        return """
+            SELECT RAWTOHEX(tx.xid)
+            FROM v$transaction tx
+            JOIN v$session s ON tx.ses_addr = s.saddr
+            """ ;
     }
 }
