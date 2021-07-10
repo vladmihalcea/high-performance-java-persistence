@@ -20,6 +20,7 @@ import static org.junit.Assert.fail;
 public class OraclePreparedStatementLifecycleTest extends AbstractOracleIntegrationTest {
 
     public static final String INSERT_POST = "INSERT INTO post (id, title) VALUES (:1 , :2 )";
+    public static final String INSERT_POST_PREFIX = "INSERT INTO post";
 
     @Override
     protected Class<?>[] entities() {
@@ -31,49 +32,59 @@ public class OraclePreparedStatementLifecycleTest extends AbstractOracleIntegrat
     @Test
     public void testPreparedStatement() {
         doInJDBC(connection -> {
-            assertEquals(0, getOpenCursorsForStatement(INSERT_POST).size());
-            PreparedStatement preparedStatement = null;
+            // This setting doesn't influence the outcome
+            executeStatement("ALTER SESSION SET session_cached_cursors=0");
+            assertEquals(0, getOpenCursorsForStatement(INSERT_POST_PREFIX).size());
+            PreparedStatement preparedStatement1 = null;
+            PreparedStatement preparedStatement2 = null;
             try {
-                preparedStatement = connection.prepareStatement(INSERT_POST);
-                assertEquals(0, getOpenCursorsForStatement(INSERT_POST).size());
+                preparedStatement1 = connection.prepareStatement(INSERT_POST);
+                assertEquals(0, getOpenCursorsForStatement(INSERT_POST_PREFIX).size());
 
                 int index  = 0;
-                preparedStatement.setLong(++index, 1L);
-                preparedStatement.setString(++index, "High-Performance SQL");
+                preparedStatement1.setLong(++index, 1L);
+                preparedStatement1.setString(++index, "High-Performance SQL");
+                preparedStatement1.executeUpdate();
 
-                preparedStatement.executeUpdate();
+                preparedStatement2 = connection.prepareStatement("INSERT INTO post (id) VALUES (:1)");
+                preparedStatement2.setLong(1, 2L);
+                preparedStatement2.executeUpdate();
 
-                List<Tuple> openCursors = getOpenCursorsForStatement(INSERT_POST);
-                assertEquals(1, openCursors.size());
+                List<Tuple> openCursors = getOpenCursorsForStatement(INSERT_POST_PREFIX);
+                assertEquals(2, openCursors.size());
             } catch (SQLException e) {
                 fail(e.getMessage());
             } finally {
-                if (preparedStatement != null) {
-                    preparedStatement.close();
+                if (preparedStatement1 != null) {
+                    preparedStatement1.close();
                 }
-                assertEquals(1, getOpenCursorsForStatement(INSERT_POST).size());
+                if (preparedStatement2 != null) {
+                    preparedStatement2.close();
+                }
+                assertEquals(2, getOpenCursorsForStatement(INSERT_POST_PREFIX).size());
+                connection.commit();
+                assertEquals(0, getOpenCursorsForStatement(INSERT_POST_PREFIX).size());
             }
         });
-        assertEquals(0, getOpenCursorsForStatement(INSERT_POST).size());
     }
 
-    private List<Tuple> getOpenCursorsForStatement(String sql) {
+    private List<Tuple> getOpenCursorsForStatement(String sqlPrefix) {
         return doInJPA(entityManager -> {
             return entityManager.createNativeQuery("""
                 SELECT  
                     sql_text, 
-                    count(*) AS "OPEN CURSORS", 
-                    user_name 
+                    count(*) AS "OPEN CURSORS"
                 FROM v$open_cursor oc
                 WHERE 
-                    sql_text = :sql
+                    user_name= 'ORACLE' AND 
+                    sql_text LIKE :sqlPrefix
                 GROUP BY 
                     sql_text, 
                     user_name 
                 ORDER BY 
                     count(*) DESC
                 """, Tuple.class)
-            .setParameter("sql", sql)
+            .setParameter("sqlPrefix", sqlPrefix + "%")
             .getResultList();
         });
     }
