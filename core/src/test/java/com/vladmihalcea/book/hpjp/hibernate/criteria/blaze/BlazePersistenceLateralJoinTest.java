@@ -5,7 +5,10 @@ import com.blazebit.persistence.Criteria;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.JoinType;
 import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
+import com.vladmihalcea.book.hpjp.hibernate.fetching.GroupByMapTest;
 import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
+import com.vladmihalcea.hibernate.type.util.ListResultTransformer;
+import org.hibernate.query.NativeQuery;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -81,13 +84,15 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
             List<Tuple> tuples = entityManager
                 .createNativeQuery("""
                     SELECT
-                      p.id AS post_id,
-                      p.title AS post_title,
-                      pc3.latest_comment_review AS latest_comment_review
+                      p.id AS "p.id",
+                      p.title AS "p.title",
+                      pc3.latest_comment_id AS "pc.id",
+                      pc3.latest_comment_review AS "pc.review"
                     FROM
                       post p,
                       LATERAL (
                       	SELECT
+                      	  pc2.post_comment_id AS latest_comment_id,
                       	  pc2.post_comment_review AS latest_comment_review
                       	FROM (
                       	  SELECT
@@ -102,6 +107,20 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
                       WHERE pc2.post_comment_id = pc2.max_post_comment_id
                     ) pc3
 			    """, Tuple.class)
+                .unwrap(NativeQuery.class)
+                .setResultTransformer(new ListResultTransformer() {
+                    @Override
+                    public Object transformTuple(Object[] tuple, String[] aliases) {
+                        return new PostComment()
+                            .setId(((Number) tuple[2]).longValue())
+                            .setReview((String) tuple[3])
+                            .setPost(
+                                new Post()
+                                    .setId(((Number) tuple[0]).longValue())
+                                    .setTitle((String) tuple[1])
+                            );
+                    }
+                })
                 .getResultList();
 
             assertEquals(1, tuples.size());
