@@ -5,7 +5,6 @@ import com.blazebit.persistence.Criteria;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.JoinType;
 import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
-import com.vladmihalcea.book.hpjp.hibernate.association.AllAssociationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import org.junit.Test;
 
@@ -81,19 +80,27 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
         doInJPA(entityManager -> {
             List<Tuple> tuples = entityManager
                 .createNativeQuery("""
-                 select 
-                    p.id as post_id, 
-                    p.title as post_title,
-                    pc.review as latest_comment_review
-                 from post p,
-                 lateral (
-                     select *
-                     from post_comment pc1
-                     where pc1.id = (
-                         select max(pc2.id)
-                         from post_comment pc2
-                     )
-                 ) pc
+                    SELECT
+                      p.id AS post_id,
+                      p.title AS post_title,
+                      pc3.latest_comment_review AS latest_comment_review
+                    FROM
+                      post p,
+                      LATERAL (
+                      	SELECT
+                      	  pc2.post_comment_review AS latest_comment_review
+                      	FROM (
+                      	  SELECT
+                      	  	pc1.id AS post_comment_id,
+                      	  	pc1.review AS post_comment_review,
+                      	  	MAX(pc1.id) OVER (
+                      	  	  PARTITION BY pc1.post_id
+                      	  	) AS max_post_comment_id
+                      	  FROM post_comment pc1
+                      	  WHERE pc1.post_id = p.id
+                      	) pc2
+                      WHERE pc2.post_comment_id = pc2.max_post_comment_id
+                    ) pc3
 			    """, Tuple.class)
                 .getResultList();
 
