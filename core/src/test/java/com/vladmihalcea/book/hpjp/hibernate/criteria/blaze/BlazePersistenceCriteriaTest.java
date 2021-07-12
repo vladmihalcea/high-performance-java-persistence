@@ -5,7 +5,8 @@ import com.blazebit.persistence.Criteria;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.JoinType;
 import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
-import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.hibernate.type.util.ListResultTransformer;
 import org.hibernate.query.NativeQuery;
 import org.junit.Test;
@@ -20,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Georgeta Mihalcea
  */
-public class BlazePersistenceCriteriaTest extends AbstractOracleIntegrationTest {
+public class BlazePersistenceCriteriaTest extends AbstractMySQLIntegrationTest {
 
     private CriteriaBuilderFactory cbf;
 
@@ -59,6 +60,11 @@ public class BlazePersistenceCriteriaTest extends AbstractOracleIntegrationTest 
                 .addComment(
                     new PostComment()
                         .setId(2L)
+                        .setReview("A great reference book.")
+                )
+                .addComment(
+                    new PostComment()
+                        .setId(3L)
                         .setReview("A must-read for every Java developer!")
                 );
 
