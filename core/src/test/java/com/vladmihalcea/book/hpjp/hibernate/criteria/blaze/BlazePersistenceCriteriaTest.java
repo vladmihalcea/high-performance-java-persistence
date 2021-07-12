@@ -5,7 +5,6 @@ import com.blazebit.persistence.Criteria;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.JoinType;
 import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
-import com.vladmihalcea.book.hpjp.hibernate.fetching.GroupByMapTest;
 import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import com.vladmihalcea.hibernate.type.util.ListResultTransformer;
 import org.hibernate.query.NativeQuery;
@@ -21,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Georgeta Mihalcea
  */
-public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTest {
+public class BlazePersistenceCriteriaTest extends AbstractOracleIntegrationTest {
 
     private CriteriaBuilderFactory cbf;
 
@@ -32,7 +31,9 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
             PostDetails.class,
             PostComment.class,
             Tag.class,
-            PostCommentCountCTE.class
+            PostCommentCountCTE.class,
+            LatestPostCommentCTE.class,
+            PostCommentMaxIdCTE.class
         };
     }
 
@@ -52,10 +53,12 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
                 .setTitle("High-Performance Java Persistence")
                 .addComment(
                     new PostComment()
+                        .setId(1L)
                         .setReview("Best book on JPA and Hibernate!")
                 )
                 .addComment(
                     new PostComment()
+                        .setId(2L)
                         .setReview("A must-read for every Java developer!")
                 );
 
@@ -81,8 +84,7 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
     @Test
     public void testLateralJoinBlaze() {
         doInJPA(entityManager -> {
-            List<Tuple> tuples = entityManager
-                .createNativeQuery("""
+            List<Tuple> tuples = entityManager.createNativeQuery("""
                     SELECT
                       p.id AS "p.id",
                       p.title AS "p.title",
@@ -98,13 +100,13 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
                       	  SELECT
                       	  	pc1.id AS post_comment_id,
                       	  	pc1.review AS post_comment_review,
-                      	  	MAX(pc1.id) OVER (
-                      	  	  PARTITION BY pc1.post_id
-                      	  	) AS max_post_comment_id
+                      	  	pc1.post_id AS post_comment_post_id,
+                      	  	MAX(pc1.id) OVER (PARTITION BY pc1.post_id) AS max_post_comment_id
                       	  FROM post_comment pc1
-                      	  WHERE pc1.post_id = p.id
                       	) pc2
-                      WHERE pc2.post_comment_id = pc2.max_post_comment_id
+                        WHERE 
+                          pc2.post_comment_id = pc2.max_post_comment_id AND 
+                          pc2.post_comment_post_id = p.id
                     ) pc3
 			    """, Tuple.class)
                 .unwrap(NativeQuery.class)
@@ -125,23 +127,59 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
 
             assertEquals(1, tuples.size());
         });
+    }
+
+    @Test
+    public void testDerivedTableJoinBlaze() {
+        doInJPA(entityManager -> {
+            List<Tuple> tuples = entityManager.createNativeQuery("""
+                SELECT
+                   p.id AS post_id,
+                   p.title AS post_title,
+                   pc2.review AS comment_review
+                FROM (
+                   SELECT
+                      pc1.id AS id,
+                      pc1.review AS review,
+                      pc1.post_id AS post_id,
+                      MAX(pc1.id) OVER (PARTITION BY pc1.post_id) AS max_id
+                   FROM post_comment pc1
+                ) pc2
+                JOIN post p ON p.id = pc2.post_id
+                WHERE 
+                   pc2.id = pc2.max_id   
+			    """, Tuple.class)
+                .getResultList();
+
+            assertEquals(1, tuples.size());
+            Tuple tuple = tuples.get(0);
+            assertEquals(1L, longValue(tuple.get("post_id")));
+            assertEquals("High-Performance Java Persistence", tuple.get("post_title"));
+            assertEquals("A must-read for every Java developer!", tuple.get("comment_review"));
+        });
 
         doInJPA(entityManager -> {
             List<Tuple> tuples = cbf
                 .create(entityManager, Tuple.class)
-                .from(Post.class, "p")
-                .leftJoinLateralEntitySubquery(PostComment.class, "pc1", "pc")
-                    .where("id").in()
-                        .from(PostComment.class, "pc2")
-                        .select("max(pc2.id)")
-                    .end()
+                .fromSubquery(PostCommentMaxIdCTE.class, "pc2")
+                    .from(PostComment.class, "pc1")
+                    .bind("id").select("pc1.id")
+                    .bind("review").select("pc1.review")
+                    .bind("postId").select("pc1.post.id")
+                    .bind("maxId").select("MAX(pc1.id) OVER (PARTITION BY pc1.post.id)")
                 .end()
+                .joinOn(Post.class, "p", JoinType.INNER).onExpression("p.id = pc2.postId").end()
+                .where("pc2.id").eqExpression("pc2.maxId")
                 .select("p.id", "post_id")
                 .select("p.title", "post_title")
-                .select("pc1.review", "latest_comment_review")
+                .select("pc2.review", "comment_review")
                 .getResultList();
 
             assertEquals(1, tuples.size());
+            Tuple tuple = tuples.get(0);
+            assertEquals(1L, longValue(tuple.get("post_id")));
+            assertEquals("High-Performance Java Persistence", tuple.get("post_title"));
+            assertEquals("A must-read for every Java developer!", tuple.get("comment_review"));
         });
     }
 
@@ -231,6 +269,24 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
 
             assertEquals(1, tuples.size());
         });
+    }
+
+    @CTE
+    @Entity
+    public static class PostCommentMaxIdCTE {
+        @Id
+        private Long id;
+        private String review;
+        private Long postId;
+        private Long maxId;
+    }
+
+    @CTE
+    @Entity
+    public static class LatestPostCommentCTE {
+        @Id
+        private Long id;
+        private String review;
     }
 
     @CTE
@@ -330,7 +386,6 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
     public static class PostComment {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         private String review;
@@ -338,13 +393,6 @@ public class BlazePersistenceLateralJoinTest extends AbstractOracleIntegrationTe
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "post_id")
         private Post post;
-
-        public PostComment() {
-        }
-
-        public PostComment(String review) {
-            this.review = review;
-        }
 
         public Long getId() {
             return id;
