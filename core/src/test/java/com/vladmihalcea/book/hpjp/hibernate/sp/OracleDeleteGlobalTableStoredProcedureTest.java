@@ -17,41 +17,20 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
 public class OracleDeleteGlobalTableStoredProcedureTest extends AbstractOracleIntegrationTest {
 
-    private final int infoEntryCount;
-    private final int errorEntryCount;
-    private final int warnEntryCount;
+    private int infoEntryCount;
+    private int errorEntryCount;
+    private int warnEntryCount;
 
-    private final int totalEntryCount;
+    private int multiplier = 1;
+
+    private int totalEntryCount;
 
     private Date timestamp = Timestamp.valueOf(LocalDateTime.now().minusDays(60));
     private long millisStep;
 
     private int batchSize = 50;
-
-    public OracleDeleteGlobalTableStoredProcedureTest(int multiplier) {
-        infoEntryCount = 100 * multiplier;
-        errorEntryCount = 50 * multiplier;
-        warnEntryCount = 100 * multiplier;
-
-        totalEntryCount = ( infoEntryCount + errorEntryCount + warnEntryCount ) * 2;
-        millisStep = ( new Date().getTime() - timestamp.getTime() ) / totalEntryCount;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Integer[]> parameters() {
-        List<Integer[]> multipliers = new ArrayList<>();
-        multipliers.add(new Integer[] {1});
-        multipliers.add(new Integer[] {10});
-        multipliers.add(new Integer[] {50});
-        multipliers.add(new Integer[] {100});
-        multipliers.add(new Integer[] {500});
-        multipliers.add(new Integer[] {1000});
-        multipliers.add(new Integer[] {2000});
-        return multipliers;
-    }
 
     @Override
     protected Class<?>[] entities() {
@@ -60,64 +39,55 @@ public class OracleDeleteGlobalTableStoredProcedureTest extends AbstractOracleIn
         };
     }
 
-    @Before
-    public void init() {
-        super.init();
-        doInJDBC(connection -> {
-            try(Statement statement = connection.createStatement()) {
-                statement.executeUpdate(
-                    "drop table deletable_rowid"
-                );
-                statement.executeUpdate(
-                    "create global temporary table deletable_rowid(rid urowid) on commit preserve rows "
-                );
-            }
-        });
+    public void afterInit() {
+        executeStatement("DROP TABLE deletable_rowid");
+        executeStatement("CREATE GLOBAL TEMPORARY TABLE deletable_rowid(rid urowid) ON COMMIT PRESERVE ROWS");
+        executeStatement("""
+            CREATE OR REPLACE PROCEDURE delete_log_entries (
+                logLevel IN VARCHAR2,
+                daysOld IN NUMBER,
+                batchSize IN NUMBER,
+                deletedCount OUT NUMBER 
+            ) AS
+                v_row deletable_rowid%rowtype;
+            BEGIN    
+                 INSERT INTO deletable_rowid 
+                 SELECT rowid FROM log_entry 
+                 WHERE 
+                    log_level = 'INFO' AND 
+                    created_on < (SELECT sysdate - 30 FROM dual);
+                 COMMIT;
+                
+                 deletedCount:=0;
+                
+                 FOR v_row IN (SELECT * FROM deletable_rowid x)
+                 LOOP
+                    deletedCount:=deletedCount+1;
+                    DELETE FROM log_entry WHERE rowid = v_row.rid;
+                    IF mod(deletedCount, batchSize)=0 THEN
+                      COMMIT;
+                    END IF;
+                 END LOOP;
+                 COMMIT;
+            END;
+            """);
 
-        doInJDBC(connection -> {
-            try(Statement statement = connection.createStatement()) {
-                statement.executeUpdate(
-                    "CREATE OR REPLACE PROCEDURE delete_log_entries ( " +
-                    "    logLevel IN VARCHAR2,  " +
-                    "    daysOld IN NUMBER,  " +
-                    "    batchSize IN NUMBER,  " +
-                    "    deletedCount OUT NUMBER      " +
-                    ") AS  " +
-                    "    v_row deletable_rowid%rowtype;  " +
-                    "BEGIN      " +
-                    "     insert into deletable_rowid SELECT rowid FROM log_entry WHERE log_level = 'INFO' AND created_on < (SELECT sysdate - 30 FROM dual); " +
-                    "     commit; " +
-                    "      " +
-                    "     deletedCount:=0; " +
-                    "      " +
-                    "     for v_row in (select * from deletable_rowid x) " +
-                    "     loop " +
-                    "        deletedCount:=deletedCount+1; " +
-                    "        delete from log_entry where rowid=v_row.rid; " +
-                    "        if mod(deletedCount,batchSize)=0 then " +
-                    "          commit; " +
-                    "        end if; " +
-                    "     end loop; " +
-                    "     commit; " +
-                    "END; "
-                );
-            }
-        });
+        infoEntryCount = 100 * multiplier;
+        errorEntryCount = 50 * multiplier;
+        warnEntryCount = 100 * multiplier;
 
-        EntityManager entityManager = entityManagerFactory().createEntityManager();
-        EntityTransaction txn = entityManager.getTransaction();
-        txn.begin();
+        totalEntryCount = ( infoEntryCount + errorEntryCount + warnEntryCount ) * 2;
+        millisStep = ( new Date().getTime() - timestamp.getTime() ) / totalEntryCount;
 
-        try {
-
+        doInJPA(entityManager -> {
             int oldEntryThreshold = totalEntryCount / 2;
 
             long logTimestamp = timestamp.getTime();
 
             for (int i = 0; i < totalEntryCount; i++) {
                 if(i % batchSize == 0 && i > 0) {
-                    txn.commit();
-                    txn.begin();
+                    entityManager.getTransaction().commit();
+                    entityManager.getTransaction().begin();
                     entityManager.clear();
                 }
 
@@ -136,14 +106,10 @@ public class OracleDeleteGlobalTableStoredProcedureTest extends AbstractOracleIn
                 log.setCreatedOn(new Date(logTimestamp));
                 entityManager.persist(log);
             }
-        } finally {
-            txn.commit();
-            entityManager.close();
-        }
+        });
     }
 
     @Test
-    @Ignore
     public void testStoredProcedureOutParameter() {
         doInJPA(entityManager -> {
             long startNanos = System.nanoTime();
@@ -169,9 +135,11 @@ public class OracleDeleteGlobalTableStoredProcedureTest extends AbstractOracleIn
     public void testBulkDelete() {
         doInJPA(entityManager -> {
             long startNanos = System.nanoTime();
-            int deleteCount = entityManager.createQuery(
-                "DELETE FROM LogEntry " +
-                "WHERE level = :level AND createdOn < :timestamp")
+            int deleteCount = entityManager.createQuery("""
+                    DELETE FROM LogEntry
+                    WHERE level = :level
+                    AND createdOn < :timestamp
+                    """)
                 .setParameter("level", LogLevel.INFO)
                 .setParameter("timestamp", Timestamp.valueOf(LocalDateTime.now().minusDays(30)))
                 .executeUpdate();
