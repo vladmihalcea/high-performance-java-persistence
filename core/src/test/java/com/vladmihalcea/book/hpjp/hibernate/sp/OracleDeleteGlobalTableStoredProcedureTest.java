@@ -47,10 +47,10 @@ public class OracleDeleteGlobalTableStoredProcedureTest extends AbstractOracleIn
                 logLevel IN VARCHAR2,
                 daysOld IN NUMBER,
                 batchSize IN NUMBER,
-                deletedCount OUT NUMBER 
+                deletedCount OUT NUMBER
             ) AS
                 v_row deletable_rowid%rowtype;
-            BEGIN    
+            BEGIN   
                  INSERT INTO deletable_rowid 
                  SELECT rowid FROM log_entry 
                  WHERE 
@@ -131,7 +131,6 @@ public class OracleDeleteGlobalTableStoredProcedureTest extends AbstractOracleIn
     }
 
     @Test
-    @Ignore
     public void testBulkDelete() {
         doInJPA(entityManager -> {
             long startNanos = System.nanoTime();

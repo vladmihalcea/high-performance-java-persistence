@@ -61,9 +61,12 @@ public class OracleDeleteStoredProcedureTest extends AbstractOracleIntegrationTe
                     FORALL i IN 1 .. ids.COUNT
                     DELETE FROM log_entry WHERE id = ids(i);
                     deletedCount := deletedCount + sql%rowcount;
-                    COMMIT;
+                    IF mod(deletedCount, batchSize)=0 THEN
+                      COMMIT;
+                    END IF;
                     EXIT WHEN select_cursor%NOTFOUND;
                 END LOOP;
+                COMMIT;
             CLOSE select_cursor;
             EXCEPTION
                 WHEN NO_DATA_FOUND THEN NULL;
