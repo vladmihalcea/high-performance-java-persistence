@@ -108,11 +108,13 @@ public class BlazeKeysetPaginationTest extends AbstractTest {
     @Test
     public void testKeysetPagination() {
         doInJPA(entityManager -> {
+            int pageSize = 10;
+
             PagedList<Post> postPage = cbf
                 .create(entityManager, Post.class)
                 .orderByAsc("createdOn")
                 .orderByAsc("id")
-                .page(0, 10)
+                .page(0, pageSize)
                 .withKeysetExtraction(true)
                 .getResultList();
 
@@ -125,9 +127,11 @@ public class BlazeKeysetPaginationTest extends AbstractTest {
                 .create(entityManager, Post.class)
                 .orderByAsc("createdOn")
                 .orderByAsc("id")
-                .page(0, postPage.getMaxResults())
-                .afterKeyset(postPage.getKeysetPage().getHighest())
-                .withKeysetExtraction(true)
+                .page(
+                    postPage.getKeysetPage(),
+                    postPage.getPage() * postPage.getMaxResults(),
+                    postPage.getMaxResults()
+                )
                 .getResultList();
 
             LOGGER.info("Current page number: {}", postPage.getPage());
@@ -137,8 +141,11 @@ public class BlazeKeysetPaginationTest extends AbstractTest {
                 .create(entityManager, Post.class)
                 .orderByAsc("createdOn")
                 .orderByAsc("id")
-                .page(0, postPage.getMaxResults())
-                .afterKeyset(postPage.getKeysetPage().getHighest())
+                .page(
+                    postPage.getKeysetPage(),
+                    postPage.getPage() * postPage.getMaxResults(),
+                    postPage.getMaxResults()
+                )
                 .withKeysetExtraction(true)
                 .getResultList();
 
