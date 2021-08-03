@@ -1,30 +1,22 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching.pagination.blaze;
 
-import com.blazebit.persistence.*;
+import com.blazebit.persistence.Criteria;
+import com.blazebit.persistence.CriteriaBuilderFactory;
+import com.blazebit.persistence.PagedList;
 import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
-import com.vladmihalcea.book.hpjp.hibernate.criteria.blaze.BlazePersistenceCriteriaTest;
-import com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary;
-import com.vladmihalcea.book.hpjp.hibernate.fetching.pagination.DistinctPostResultTransformer;
 import com.vladmihalcea.book.hpjp.hibernate.fetching.pagination.Post;
 import com.vladmihalcea.book.hpjp.hibernate.fetching.pagination.PostComment;
+import com.vladmihalcea.book.hpjp.hibernate.fetching.pagination.Post_;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.jpa.QueryHints;
-import org.hibernate.query.NativeQuery;
 import org.junit.Test;
 
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Tuple;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
 import java.util.stream.LongStream;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -112,21 +104,25 @@ public class BlazeKeysetPaginationTest extends AbstractTest {
 
             PagedList<Post> postPage = cbf
                 .create(entityManager, Post.class)
-                .orderByAsc("createdOn")
-                .orderByAsc("id")
+                .orderByAsc(Post_.CREATED_ON)
+                .orderByAsc(Post_.ID)
                 .page(0, pageSize)
                 .withKeysetExtraction(true)
                 .getResultList();
 
-            LOGGER.info("Post ids: {}", postPage.stream().map(Post::getId).collect(Collectors.toList()));
-            LOGGER.info("Entry count: {}", postPage.getTotalSize());
+            LOGGER.info("Matching entity count: {}", postPage.getTotalSize());
             LOGGER.info("Page count: {}", postPage.getTotalPages());
             LOGGER.info("Current page number: {}", postPage.getPage());
+            LOGGER.info("Post ids: {}",
+                postPage.stream()
+                    .map(Post::getId)
+                    .toList()
+            );
 
             postPage = cbf
                 .create(entityManager, Post.class)
-                .orderByAsc("createdOn")
-                .orderByAsc("id")
+                .orderByAsc(Post_.CREATED_ON)
+                .orderByAsc(Post_.ID)
                 .page(
                     postPage.getKeysetPage(),
                     postPage.getPage() * postPage.getMaxResults(),
@@ -135,12 +131,16 @@ public class BlazeKeysetPaginationTest extends AbstractTest {
                 .getResultList();
 
             LOGGER.info("Current page number: {}", postPage.getPage());
-            LOGGER.info("Post ids: {}", postPage.stream().map(Post::getId).collect(Collectors.toList()));
+            LOGGER.info("Post ids: {}",
+                postPage.stream()
+                    .map(Post::getId)
+                    .toList()
+            );
 
             postPage = cbf
                 .create(entityManager, Post.class)
-                .orderByAsc("createdOn")
-                .orderByAsc("id")
+                .orderByAsc(Post_.CREATED_ON)
+                .orderByAsc(Post_.ID)
                 .page(
                     postPage.getKeysetPage(),
                     postPage.getPage() * postPage.getMaxResults(),
@@ -150,7 +150,11 @@ public class BlazeKeysetPaginationTest extends AbstractTest {
                 .getResultList();
 
             LOGGER.info("Current page number: {}", postPage.getPage());
-            LOGGER.info("Post ids: {}", postPage.stream().map(Post::getId).collect(Collectors.toList()));
+            LOGGER.info("Post ids: {}",
+                postPage.stream()
+                    .map(Post::getId)
+                    .toList()
+            );
         });
     }
 }
