@@ -3,7 +3,6 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching.maxrows;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.jpa.QueryHints;
 import org.junit.Test;
 
 import javax.persistence.Column;
@@ -14,9 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
 import static org.junit.Assert.assertEquals;
@@ -63,7 +60,7 @@ public class PostgreSQLSetMaxRowsTest extends AbstractPostgreSQLIntegrationTest 
     @Test
     public void testSetMaxSize() {
         doInJPA(entityManager -> {
-            executeDML(entityManager, """
+            executeStatement(entityManager, """
                 SET session_preload_libraries = 'auto_explain';
                 SET auto_explain.log_analyze TO ON;
                 SET auto_explain.log_min_duration TO 0;
@@ -95,7 +92,7 @@ public class PostgreSQLSetMaxRowsTest extends AbstractPostgreSQLIntegrationTest 
     @Test
     public void testLimit() {
         doInJPA(entityManager -> {
-            executeDML(entityManager, """
+            executeStatement(entityManager, """
                 SET session_preload_libraries = 'auto_explain';
                 SET auto_explain.log_analyze TO ON;
                 SET auto_explain.log_min_duration TO 0;

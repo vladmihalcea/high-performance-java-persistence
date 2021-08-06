@@ -795,8 +795,30 @@ public abstract class AbstractTest {
     protected void executeStatement(Connection connection, String sql) {
         try {
             try(Statement statement = connection.createStatement()) {
-                statement.setQueryTimeout(1);
                 statement.execute(sql);
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected void executeStatement(Connection connection, String sql, int timeout) {
+        try {
+            try(Statement statement = connection.createStatement()) {
+                statement.setQueryTimeout(timeout);
+                statement.execute(sql);
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected void executeStatement(Connection connection, String... sqls) {
+        try {
+            try (Statement statement = connection.createStatement()) {
+                for (String sql : sqls) {
+                    statement.execute(sql);
+                }
             }
         } catch (SQLException e) {
             throw new IllegalStateException(e);
@@ -1018,21 +1040,6 @@ public abstract class AbstractTest {
             return domainDataRegionTemplate.getCacheStorageAccess();
         }
         throw new IllegalArgumentException("Unsupported region: " + region);
-    }
-
-    protected void executeDML(EntityManager entityManager, String... sqls) {
-        Session session = entityManager.unwrap(Session.class);
-        for (String sql : sqls) {
-            try {
-                session.doWork(connection -> {
-                    executeStatement(connection, sql);
-                });
-            } catch (Exception e) {
-                LOGGER.error(
-                        String.format("Error executing statement: %s", sql), e
-                );
-            }
-        }
     }
 
     public static String stringValue(Object value) {

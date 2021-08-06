@@ -89,15 +89,16 @@ public class MergeJoinSqlTest extends AbstractPostgreSQLIntegrationTest {
             List<String> planLines = entityManager
             .unwrap(Session.class)
             .doReturningWork(connection -> selectColumnList(
-                connection,
-                "EXPLAIN ANALYZE\n" +
-                "SELECT\n" +
-                "   p.id AS post_id,\n" +
-                "   p.title AS post_title,\n" +
-                "   pc.review  AS review\n" +
-                "FROM post p\n" +
-                "INNER JOIN post_comment pc ON pc.post_id = p.id\n" +
-                "ORDER BY pc.post_id",
+                connection, """
+                    EXPLAIN ANALYZE
+                    SELECT
+                       p.id AS post_id,
+                       p.title AS post_title,
+                       pc.review  AS review
+                    FROM post p
+                    INNER JOIN post_comment pc ON pc.post_id = p.id
+                    ORDER BY pc.post_id
+                    """,
                 String.class
                 )
             );

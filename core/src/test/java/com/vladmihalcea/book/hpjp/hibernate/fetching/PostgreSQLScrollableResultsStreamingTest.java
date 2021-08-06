@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -62,7 +61,7 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
     @Test
     public void testStreamExecutionPlan() {
         doInJPA(entityManager -> {
-            executeDML(entityManager, """
+            executeStatement(entityManager, """
                 SET session_preload_libraries = 'auto_explain';
                 SET auto_explain.log_analyze TO ON;
                 SET auto_explain.log_min_duration TO 1;
