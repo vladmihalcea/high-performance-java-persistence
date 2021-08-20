@@ -51,6 +51,7 @@ public class SQLServerLockTimeoutTest extends AbstractSQLServerIntegrationTest {
 
                     fail("Should have thrown a lock acquisition timeout!");
                 } catch (Exception e) {
+                    LOGGER.info("Timeout triggered", e);
                     assertTrue(ExceptionUtil.isLockTimeout(e));
                 }
 

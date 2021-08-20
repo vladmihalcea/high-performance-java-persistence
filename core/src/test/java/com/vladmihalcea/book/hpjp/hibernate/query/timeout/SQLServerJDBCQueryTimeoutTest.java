@@ -40,6 +40,7 @@ public class SQLServerJDBCQueryTimeoutTest extends AbstractSQLServerIntegrationT
                 LOGGER.info("Done waiting");
             });
         } catch (Exception e) {
+            LOGGER.info("Timeout triggered", e);
             assertTrue(ExceptionUtil.rootCause(e).getMessage().contains("Read timed out"));
         }
     }

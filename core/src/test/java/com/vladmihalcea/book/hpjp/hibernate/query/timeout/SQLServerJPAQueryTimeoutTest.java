@@ -43,6 +43,7 @@ public class SQLServerJPAQueryTimeoutTest extends AbstractSQLServerIntegrationTe
 
                 fail("Should have thrown a query timeout!");
             } catch (Exception e) {
+                LOGGER.info("Timeout triggered", e);
                 assertTrue(ExceptionUtil.rootCause(e).getMessage().contains("The query has timed out"));
             }
 
