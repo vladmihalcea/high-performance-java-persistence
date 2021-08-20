@@ -5,9 +5,7 @@ import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Session;
 import org.junit.Test;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.sql.BatchUpdateException;
 import java.sql.PreparedStatement;
 import java.util.Properties;
@@ -41,26 +39,45 @@ public class MySQLBatchInsertLoadTest extends AbstractTest {
     @Test
     public void test() {
         LOGGER.info("testInsertPosts");
-        AtomicLong id = new AtomicLong();
-        for (int it = 1; it <= 1000; it++) {
-            doInJPA(entityManager -> {
-                Session session = entityManager.unwrap(Session.class);
-                session.doWork(connection -> {
-                    try (PreparedStatement st = connection.prepareStatement("""
+        doInJPA(entityManager -> {
+            Session session = entityManager.unwrap(Session.class);
+            session.doWork(connection -> {
+                try (PreparedStatement st = connection.prepareStatement("""
                             INSERT INTO post (id, title)
                             VALUES (?, ?)
                             """)) {
-                        for (long i = 1; i <= 3; i++) {
-                            st.setLong(1, id.incrementAndGet());
-                            st.setString(2, String.format("High-Performance Java Persistence, Part %d", i));
-                            st.addBatch();
-                        }
-                        st.executeBatch();
+                    for (long i = 1; i <= 3; i++) {
+                        st.setString(2, String.format("High-Performance Java Persistence, Part %d", i));
+                        st.addBatch();
                     }
-                });
-                session.createQuery("select p from Post p").getResultList();
+                    st.executeBatch();
+                }
             });
-            sleep(1000);
+            session.createQuery("select p from Post p").getResultList();
+        });
+    }
+
+    @Test
+    public void testTransactionless() {
+        EntityManager entityManager = entityManagerFactory().createEntityManager();
+
+        for (long i = 1; i <= 3; i++) {
+            entityManager.persist(
+                new Post()
+                    .setTitle(
+                        String.format(
+                            "High-Performance Java Persistence, part %d",
+                            i
+                        )
+                    )
+            );
+        }
+
+        try {
+            entityManager.getTransaction().begin();
+            entityManager.getTransaction().commit();
+        } catch (Exception e) {
+            entityManager.getTransaction().rollback();
         }
     }
 
@@ -69,6 +86,7 @@ public class MySQLBatchInsertLoadTest extends AbstractTest {
     public static class Post {
 
         @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
         private String title;
@@ -77,16 +95,18 @@ public class MySQLBatchInsertLoadTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
     }
 }
