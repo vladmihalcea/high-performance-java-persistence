@@ -893,11 +893,12 @@ public abstract class AbstractTest {
                     st.execute(String.format("SET statement_timeout TO %d", timoutMillis));
                     break;
                 case MYSQL:
-                    connection.setNetworkTimeout(Executors.newSingleThreadExecutor(), (int) timoutMillis);
                     st.execute(String.format("SET SESSION innodb_lock_wait_timeout = %d", TimeUnit.MILLISECONDS.toSeconds(timoutMillis)));
+                    connection.setNetworkTimeout(Executors.newSingleThreadExecutor(), (int) timoutMillis);
                     break;
                 case SQLSERVER:
                     st.execute(String.format("SET LOCK_TIMEOUT %d", timoutMillis));
+                    connection.setNetworkTimeout(Executors.newSingleThreadExecutor(), (int) timoutMillis);
                     break;
                 default:
                     try {
