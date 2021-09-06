@@ -90,14 +90,16 @@ public class NestedLoopsSqlTest extends AbstractPostgreSQLIntegrationTest {
             .unwrap(Session.class)
             .doReturningWork(connection -> selectColumnList(
                 connection,
-                "EXPLAIN ANALYZE\n" +
-                "SELECT\n" +
-                "   p.id AS post_id,\n" +
-                "   p.title AS post_title,\n" +
-                "   pc.review  AS review\n" +
-                "FROM post p\n" +
-                "INNER JOIN post_comment pc ON pc.post_id = p.id\n" +
-                "WHERE p.id BETWEEN 1 AND 10",
+                """
+                EXPLAIN ANALYZE
+                SELECT
+                   p.id AS post_id,
+                   p.title AS post_title,
+                   pc.review  AS review
+                FROM post p
+                INNER JOIN post_comment pc ON pc.post_id = p.id
+                WHERE p.id BETWEEN 1 AND 10
+                """,
                 String.class)
             );
 
