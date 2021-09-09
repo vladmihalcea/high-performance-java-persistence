@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @author Georgeta Mihalcea
+ * @author Vlad Mihalcea
  */
 public class HashJoinSqlTest extends AbstractPostgreSQLIntegrationTest {
 

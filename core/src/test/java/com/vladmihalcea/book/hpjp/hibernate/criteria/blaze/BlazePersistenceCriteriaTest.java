@@ -19,7 +19,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * @author Georgeta Mihalcea
+ * @author Vlad Mihalcea
  */
 public class BlazePersistenceCriteriaTest extends AbstractMySQLIntegrationTest {
 
