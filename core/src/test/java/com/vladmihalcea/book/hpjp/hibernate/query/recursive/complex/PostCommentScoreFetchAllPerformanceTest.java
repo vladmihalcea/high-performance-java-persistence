@@ -20,12 +20,15 @@ public class PostCommentScoreFetchAllPerformanceTest extends AbstractPostComment
     protected List<PostCommentScore> postCommentScores(Long postId, int rank) {
         return doInJPA(entityManager -> {
             long startNanos = System.nanoTime();
-            List<PostCommentVote> postCommentVotes = entityManager.createQuery(
-                "select pcv " +
-                "from PostCommentVote pcv " +
-                "left join fetch pcv.comment pc " +
-                "left join fetch pc.parent pcp " +
-                "where pc.post.id = :postId", PostCommentVote.class)
+            List<PostCommentVote> postCommentVotes = entityManager.createQuery("""
+                    select pcv
+                    from PostCommentVote pcv
+                    left join fetch pcv.comment pc
+                    left join fetch pc.parent pcp
+                    join fetch pc.post p
+                    where p.id = :postId
+                    order by pc.id
+                    """, PostCommentVote.class)
             .setParameter("postId", postId)
             .getResultList();
 

@@ -27,6 +27,7 @@ public class PostCommentScoreFetchProjectionPerformanceTest extends AbstractPost
                     )
                 from PostComment pc
                 where pc.post.id = :postId
+                order by pc.id
                 """)
             .setParameter("postId", postId)
             .getResultList();
