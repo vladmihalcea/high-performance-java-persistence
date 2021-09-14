@@ -373,6 +373,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!--<dependency>
+            <groupId>io.hypersistence</groupId>
+            <artifactId>hypersistence-optimizer</artifactId>
+            <version>${hypersistence-optimizer.version}</version>
+            <scope>test</scope>
+        </dependency>-->
+
     </dependencies>
 
     <properties>
@@ -424,6 +431,8 @@
         <hibernate-types.version>2.11.1</hibernate-types.version>
 
         <blaze-persistence.version>1.6.0</blaze-persistence.version>
+
+        <hypersistence-optimizer.version>2.4.2</hypersistence-optimizer.version>
 
         <junit.version>4.13.1</junit.version>
     </properties>

@@ -2,6 +2,8 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import io.hypersistence.optimizer.HypersistenceOptimizer;
+import io.hypersistence.optimizer.core.config.JpaConfig;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
 import org.junit.Test;
 
@@ -9,8 +11,7 @@ import javax.persistence.*;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
@@ -57,6 +58,16 @@ public class EagerFetchingManyToOneTest extends AbstractPostgreSQLIntegrationTes
         });
     }
 
+    /*private HypersistenceOptimizer hypersistenceOptimizer;
+
+    protected EntityManagerFactory newEntityManagerFactory() {
+        EntityManagerFactory emf = super.newEntityManagerFactory();
+        hypersistenceOptimizer = new HypersistenceOptimizer(
+            new JpaConfig(emf)
+        );
+        return emf;
+    }*/
+
     @Test
     public void testFindOne() {
         doInJPA(entityManager -> {
@@ -64,6 +75,8 @@ public class EagerFetchingManyToOneTest extends AbstractPostgreSQLIntegrationTes
 
             assertNotNull(comment);
         });
+
+        //assertTrue(hypersistenceOptimizer.getEvents().isEmpty());
     }
 
     @Test
