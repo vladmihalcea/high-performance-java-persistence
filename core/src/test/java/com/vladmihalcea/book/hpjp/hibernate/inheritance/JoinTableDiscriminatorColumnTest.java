@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -27,6 +28,11 @@ public class JoinTableDiscriminatorColumnTest extends AbstractTest {
                 Announcement.class,
                 TopicStatistics.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 
     @Test
@@ -253,6 +259,7 @@ public class JoinTableDiscriminatorColumnTest extends AbstractTest {
     @Table(name = "topic")
     @Inheritance(strategy = InheritanceType.JOINED)
     @DiscriminatorColumn
+    @DiscriminatorValue("100")
     public static class Topic {
 
         @Id
@@ -312,6 +319,7 @@ public class JoinTableDiscriminatorColumnTest extends AbstractTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
+    @DiscriminatorValue("101")
     public static class Post extends Topic {
 
         private String content;
@@ -327,6 +335,7 @@ public class JoinTableDiscriminatorColumnTest extends AbstractTest {
 
     @Entity(name = "Announcement")
     @Table(name = "announcement")
+    @DiscriminatorValue("102")
     public static class Announcement extends Topic {
 
         @Temporal(TemporalType.TIMESTAMP)
