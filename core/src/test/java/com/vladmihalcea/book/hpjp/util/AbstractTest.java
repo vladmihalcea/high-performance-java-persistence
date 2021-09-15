@@ -31,6 +31,7 @@ import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.hibernate.stat.CacheRegionStatistics;
+import org.hibernate.stat.NaturalIdStatistics;
 import org.hibernate.type.BasicType;
 import org.hibernate.type.Type;
 import org.hibernate.usertype.CompositeUserType;
@@ -938,7 +939,15 @@ public abstract class AbstractTest {
     }
 
     protected void printNaturalIdCacheRegionStatistics(Class<?> entityClass) {
-        printCacheRegionStatistics(entityClass.getName() + "##NaturalId");
+        NaturalIdStatistics cacheRegionStatistics = sessionFactory().getStatistics().getNaturalIdStatistics(entityClass.getName());
+
+        if (cacheRegionStatistics != null) {
+            LOGGER.debug(
+                "\nRegion: {},\nStatistics: {}",
+                cacheRegionStatistics.getCacheRegionName(),
+                cacheRegionStatistics
+            );
+        }
     }
 
     protected void printCacheRegionStatistics(String region) {

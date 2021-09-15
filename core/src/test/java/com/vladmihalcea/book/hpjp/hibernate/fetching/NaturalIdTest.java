@@ -45,13 +45,14 @@ public class NaturalIdTest extends AbstractTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setTitle("High-Performance Java persistence");
-            post.setSlug("high-performance-java-persistence");
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java persistence")
+                    .setSlug("high-performance-java-persistence")
+            );
         });
     }
 
@@ -186,12 +187,11 @@ public class NaturalIdTest extends AbstractTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @NaturalIdCache
+    //@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    //@NaturalIdCache
     public static class Post {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         private String title;
@@ -204,24 +204,27 @@ public class NaturalIdTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public String getSlug() {
             return slug;
         }
 
-        public void setSlug(String slug) {
+        public Post setSlug(String slug) {
             this.slug = slug;
+            return this;
         }
 
         @Override
