@@ -394,7 +394,7 @@
 
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
-        <commons-lang.version>3.3.2</commons-lang.version>
+        <commons-lang.version>3.12.0</commons-lang.version>
         <hibernate.version>5.4.32.Final</hibernate.version>
         <hibernate.validator.version>5.3.6.Final</hibernate.validator.version>
         <javassist.version>3.18.1-GA</javassist.version>

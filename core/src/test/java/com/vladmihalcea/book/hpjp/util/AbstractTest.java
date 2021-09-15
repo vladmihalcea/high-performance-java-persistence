@@ -992,16 +992,19 @@ public abstract class AbstractTest {
                             ToStringBuilder.reflectionToString(collectionCacheEntry, ToStringStyle.SHORT_PREFIX_STYLE)
                         );
                     } else if (cacheValue instanceof AbstractReadWriteAccess.Item) {
-                        AbstractReadWriteAccess.Item value = (AbstractReadWriteAccess.Item) cacheValue;
+                        AbstractReadWriteAccess.Item valueItem = (AbstractReadWriteAccess.Item) cacheValue;
+                        Object value = valueItem.getValue();
 
-                        if (value.getValue() instanceof StandardCacheEntryImpl) {
-                            StandardCacheEntryImpl standardCacheEntry = ((StandardCacheEntryImpl) value.getValue());
+                        if (value instanceof StandardCacheEntryImpl) {
+                            StandardCacheEntryImpl standardCacheEntry = ((StandardCacheEntryImpl) value);
                             cacheEntriesBuilder.append(
                                 ToStringBuilder.reflectionToString(standardCacheEntry, ToStringStyle.SHORT_PREFIX_STYLE)
                             );
+                        } else if(value.getClass().getPackageName().startsWith("java")) {
+                            cacheEntriesBuilder.append(value);
                         } else {
                             cacheEntriesBuilder.append(
-                                ToStringBuilder.reflectionToString(value.getValue(), ToStringStyle.SHORT_PREFIX_STYLE)
+                                ToStringBuilder.reflectionToString(valueItem.getValue(), ToStringStyle.SHORT_PREFIX_STYLE)
                             );
                         }
                     } else if (cacheValue instanceof AbstractReadWriteAccess.Lockable) {
