@@ -19,11 +19,12 @@ public class TaskEntityProvider implements EntityProvider {
     @Override
     public Class<?>[] entities() {
         return new Class<?>[]{
-                Task.class
+            Task.class
         };
     }
 
-    @Entity(name = "task")
+    @Entity(name = "Task")
+    @Table(name = "task", indexes = @Index(name = "IDX_task_status", columnList = "status"))
     public static class Task {
 
         @Id
