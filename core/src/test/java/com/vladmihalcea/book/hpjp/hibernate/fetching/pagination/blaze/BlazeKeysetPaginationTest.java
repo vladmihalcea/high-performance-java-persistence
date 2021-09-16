@@ -60,7 +60,7 @@ public class BlazeKeysetPaginationTest extends AbstractTest {
     public void afterInit() {
         doInJPA(entityManager -> {
             LocalDateTime timestamp = LocalDateTime.of(
-                2018, 10, 9, 12, 0, 0, 0
+                2021, 10, 9, 12, 0, 0, 0
             );
 
             LongStream.rangeClosed(1, 50)

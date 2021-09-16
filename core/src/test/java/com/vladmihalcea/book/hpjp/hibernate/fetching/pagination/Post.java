@@ -68,7 +68,7 @@ public class Post implements Identifiable<Long> {
 
     private String title;
 
-    @Column(name = "created_on")
+    @Column(name = "created_on", nullable = false)
     private Timestamp createdOn;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
