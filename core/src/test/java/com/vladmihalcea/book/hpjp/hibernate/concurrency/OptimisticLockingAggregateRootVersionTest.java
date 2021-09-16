@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * @author Vlad Mihalcea
  */
-public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
+public class OptimisticLockingAggregateRootVersionTest extends AbstractTest {
 
     public static class RootAwareEventListenerIntegrator implements org.hibernate.integrator.spi.Integrator {
 
@@ -179,12 +179,13 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
-            PostCommentDetails postCommentDetails = entityManager.createQuery(
-                "select pcd " +
-                "from PostCommentDetails pcd " +
-                "join fetch pcd.comment pc " +
-                "join fetch pc.post p " +
-                "where pcd.id = :id", PostCommentDetails.class)
+            PostCommentDetails postCommentDetails = entityManager.createQuery("""
+                    select pcd
+                    from PostCommentDetails pcd
+                    join fetch pcd.comment pc
+                    join fetch pc.post p
+                    where pcd.id = :id
+                    """, PostCommentDetails.class)
             .setParameter("id", 2L)
             .getSingleResult();
 
@@ -192,11 +193,12 @@ public class OptimisticLockingChildUpdatesRootVersionTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
-            PostComment postComment = entityManager.createQuery(
-                "select pc " +
-                "from PostComment pc " +
-                "join fetch pc.post p " +
-                "where pc.id = :id", PostComment.class)
+            PostComment postComment = entityManager.createQuery("""
+                    select pc
+                    from PostComment pc
+                    join fetch pc.post p
+                    where pc.id = :id
+                    """, PostComment.class)
             .setParameter("id", 2L)
             .getSingleResult();
 
