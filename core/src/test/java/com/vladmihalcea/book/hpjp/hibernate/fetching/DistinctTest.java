@@ -57,7 +57,7 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
 
             entityManager.persist(
                 new Post()
-                    .setId(3L)
+                    .setId(4L)
                     .setTitle("High-Performance Java Persistence Mach 2 video course has been released!")
                     .setCreatedOn(LocalDate.of(2018, 5, 8))
             );
