@@ -158,7 +158,7 @@ public class BlazePersistenceTabInstanceTest extends AbstractOracleIntegrationTe
             ORDER BY tabobject1_.tab_acronym ASC
              */
 
-            List tabVer = List.of(3L, 4L, 5L);
+            List<Long> tabVer = List.of(3L, 4L, 5L);
 
             List<TabInstance> tabInstances = cbf.create(entityManager, TabInstance.class)
                 .from(TabInstance.class, "tabinstanc0_")
