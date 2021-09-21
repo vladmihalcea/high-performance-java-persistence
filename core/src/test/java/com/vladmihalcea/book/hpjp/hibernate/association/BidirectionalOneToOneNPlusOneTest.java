@@ -19,24 +19,42 @@ public class BidirectionalOneToOneNPlusOneTest extends AbstractTest {
         return new Class<?>[] {
             Post.class,
             PostDetails.class,
+            PostSummary.class
         };
     }
 
-    @Test
-    public void test() {
+    @Override
+    protected void afterInit() {
         doInJPA(entityManager -> {
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 100; i++) {
                 Post post = new Post(String.format("Post nr. %d", i));
                 post.setDetails(new PostDetails("Excellent!"));
 
                 entityManager.persist(post);
             }
         });
+    }
 
+    @Test
+    public void testNPlusOne() {
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p from Post p " +
-                "where p.title like 'Post nr.%'", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                where p.title like 'Post nr.%'
+                """, Post.class)
+            .getResultList();
+        });
+    }
+
+    @Test
+    public void testWithoutNPlusOne() {
+        doInJPA(entityManager -> {
+            List<PostSummary> posts = entityManager.createQuery("""
+                select p
+                from PostSummary p
+                where p.title like 'Post nr.%'
+                """, PostSummary.class)
             .getResultList();
         });
     }
@@ -90,6 +108,33 @@ public class BidirectionalOneToOneNPlusOneTest extends AbstractTest {
                 details.setPost(this);
             }
             this.details = details;
+        }
+    }
+
+    @Entity(name = "PostSummary")
+    @Table(name = "post")
+    public static class PostSummary {
+
+        @Id
+        @GeneratedValue
+        private Long id;
+
+        private String title;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
         }
     }
 
