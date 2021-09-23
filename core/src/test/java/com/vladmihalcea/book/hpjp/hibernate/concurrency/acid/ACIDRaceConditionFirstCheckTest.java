@@ -33,16 +33,12 @@ public class ACIDRaceConditionFirstCheckTest extends AbstractTest {
 
     @Override
     protected void afterInit() {
-        doInJDBC(connection -> {
-            try(Statement st = connection.createStatement()) {
-                st.executeUpdate("""
-                    ALTER TABLE account
-                    ADD CONSTRAINT account_balance_check
-                    CHECK (balance >= 0)
-                    """
-                );
-            }
-        });
+        executeStatement("""
+            ALTER TABLE account
+            ADD CONSTRAINT account_balance_check
+            CHECK (balance >= 0)
+            """
+        );
 
         doInJPA(entityManager -> {
             Account from = new Account();
@@ -82,7 +78,7 @@ public class ACIDRaceConditionFirstCheckTest extends AbstractTest {
         assertEquals(10L, getBalance("Bob-456"));
     }
 
-    int threadCount = 16;
+    int threadCount = 8;
 
     @Test
     public void testParallelExecution() {
@@ -114,8 +110,8 @@ public class ACIDRaceConditionFirstCheckTest extends AbstractTest {
         awaitOnLatch(endLatch);
     }
 
-    public void transfer(String fromIban, String toIban, Long transferCents) {
-        Long fromBalance = getBalance(fromIban);
+    public void transfer(String fromIban, String toIban, long transferCents) {
+        long fromBalance = getBalance(fromIban);
 
         if(fromBalance >= transferCents) {
             addBalance(toIban, transferCents);

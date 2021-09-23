@@ -33,15 +33,12 @@ public class ACIDRaceConditionPositiveBalanceCheckLastOperationTest extends Abst
 
     @Override
     protected void afterInit() {
-        doInJDBC(connection -> {
-            try(Statement st = connection.createStatement()) {
-                st.executeUpdate(
-                    "ALTER TABLE account " +
-                    "ADD CONSTRAINT account_balance_check " +
-                    "CHECK (balance >= 0)"
-                );
-            }
-        });
+        executeStatement("""
+            ALTER TABLE account
+            ADD CONSTRAINT account_balance_check
+            CHECK (balance >= 0)
+            """
+        );
 
         doInJPA(entityManager -> {
             Account from = new Account();
@@ -81,7 +78,7 @@ public class ACIDRaceConditionPositiveBalanceCheckLastOperationTest extends Abst
         assertEquals(10L, getBalance("Bob-456"));
     }
 
-    int threadCount = 16;
+    int threadCount = 8;
 
     @Test
     public void testParallelExecution() {
@@ -113,8 +110,8 @@ public class ACIDRaceConditionPositiveBalanceCheckLastOperationTest extends Abst
         awaitOnLatch(endLatch);
     }
 
-    public void transfer(String fromIban, String toIban, Long transferCents) {
-        Long fromBalance = getBalance(fromIban);
+    public void transfer(String fromIban, String toIban, long transferCents) {
+        long fromBalance = getBalance(fromIban);
 
         if(fromBalance >= transferCents) {
             addBalance(toIban, transferCents);
@@ -125,10 +122,11 @@ public class ACIDRaceConditionPositiveBalanceCheckLastOperationTest extends Abst
 
     private long getBalance(final String iban) {
         return doInJDBC(connection -> {
-            try(PreparedStatement statement = connection.prepareStatement(
-                "SELECT balance " +
-                "FROM account " +
-                "WHERE iban = ?")
+            try(PreparedStatement statement = connection.prepareStatement("""
+                    SELECT balance
+                    FROM account
+                    WHERE iban = ? 
+                    """)
             ) {
                 statement.setString(1, iban);
                 ResultSet resultSet = statement.executeQuery();
@@ -142,10 +140,11 @@ public class ACIDRaceConditionPositiveBalanceCheckLastOperationTest extends Abst
 
     private void addBalance(final String iban, long balance) {
         doInJDBC(connection -> {
-            try(PreparedStatement statement = connection.prepareStatement(
-                "UPDATE account " +
-                "SET balance = balance + ? " +
-                "WHERE iban = ?")
+            try(PreparedStatement statement = connection.prepareStatement("""
+                    UPDATE account
+                    SET balance = balance + ?
+                    WHERE iban = ?
+                    """)
             ) {
                 statement.setLong(1, balance);
                 statement.setString(2, iban);

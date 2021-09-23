@@ -49,8 +49,8 @@ public class ACIDRaceConditionTest extends AbstractTest {
         });
     }
 
-    public void transfer(String fromIban, String toIban, Long transferCents) {
-        Long fromBalance = getBalance(fromIban);
+    public void transfer(String fromIban, String toIban, long transferCents) {
+        long fromBalance = getBalance(fromIban);
 
         if(fromBalance >= transferCents) {
             addBalance(fromIban, (-1) * transferCents);
@@ -64,7 +64,7 @@ public class ACIDRaceConditionTest extends AbstractTest {
             try(PreparedStatement statement = connection.prepareStatement("""
                     SELECT balance
                     FROM account
-                    WHERE iban = ?
+                    WHERE iban = ? 
                     """)
             ) {
                 statement.setString(1, iban);

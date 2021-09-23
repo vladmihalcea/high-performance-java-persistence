@@ -62,13 +62,13 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         LOGGER.info("Bob's balance {}", getBalance("Bob-456"));
     }
 
-    int threadCount = 16;
+    int threadCount = 8;
 
     public void parallelExecution() {
 
         String fromIban = "Alice-123";
         String toIban = "Bob-456";
-        Long transferCents = 5L;
+        long transferCents = 5L;
 
         CountDownLatch workerThreadWaitsAfterReadingBalanceLatch = new CountDownLatch(threadCount);
         CountDownLatch workerThreadsWriteBalanceLatch = new CountDownLatch(1);
@@ -85,7 +85,7 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
                         awaitOnLatch(workerThreadsWriteBalanceLatch);
                         LOGGER.info("Running thread");
 
-                        Long fromBalance = getBalance(connection, fromIban);
+                        long fromBalance = getBalance(connection, fromIban);
 
                         if(fromBalance >= transferCents) {
                             addBalance(connection, fromIban, (-1) * transferCents);
@@ -117,7 +117,7 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
 
         switch (isolationLevelIntegerValue) {
             case Connection.TRANSACTION_READ_UNCOMMITTED:
-                isolationLevelStringValue = "READ_UNCOMMITTE";
+                isolationLevelStringValue = "READ_UNCOMMITTED";
                 break;
             case Connection.TRANSACTION_READ_COMMITTED:
                 isolationLevelStringValue = "READ_COMMITTED";
@@ -134,10 +134,11 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
     }
 
     private long getBalance(Connection connection, final String iban) {
-        try(PreparedStatement statement = connection.prepareStatement(
-            "SELECT balance " +
-            "FROM account " +
-            "WHERE iban = ?")
+        try(PreparedStatement statement = connection.prepareStatement("""
+            SELECT balance
+            FROM account
+            WHERE iban = ?
+            """)
         ) {
             statement.setString(1, iban);
             ResultSet resultSet = statement.executeQuery();
@@ -157,10 +158,10 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
     }
 
     private void addBalance(Connection connection, final String iban, long balance) {
-        try(PreparedStatement statement = connection.prepareStatement(
-            "UPDATE account " +
-            "SET balance = balance + ? " +
-            "WHERE iban = ?")
+        try(PreparedStatement statement = connection.prepareStatement("""
+            UPDATE account
+            SET balance = balance + ?vWHERE iban = ?
+            """)
         ) {
             statement.setLong(1, balance);
             statement.setString(2, iban);
