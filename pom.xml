@@ -401,7 +401,7 @@
         <!--<ehcache3.version>3.4.0</ehcache3.version>-->
         <ehcache.version>2.10.6</ehcache.version>
         <datasource-proxy.version>1.6</datasource-proxy.version>
-        <p6spy.version>2.1.4</p6spy.version>
+        <p6spy.version>3.9.1</p6spy.version>
 
         <hsqldb.version>2.4.0</hsqldb.version>
         <postgresql.version>42.2.1</postgresql.version>
