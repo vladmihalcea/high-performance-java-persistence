@@ -56,20 +56,19 @@ public class EnumOrdinalDescriptionTest extends AbstractMySQLIntegrationTest {
             assertEquals(PostStatus.PENDING, post.getStatus());
             assertEquals("PENDING", post.getStatusInfo().getName());
 
-            Tuple tuple = (Tuple) entityManager
-                    .createNativeQuery(
-                        "SELECT " +
-                        "    p.id, " +
-                        "    p.title, " +
-                        "    p.status, " +
-                        "    psi.name, " +
-                        "    psi.description " +
-                        "FROM post p " +
-                        "INNER JOIN post_status_info psi ON p.status = psi.id " +
-                        "WHERE p.id = :postId", Tuple.class
-                    )
-                    .setParameter("postId", 1L)
-                    .getSingleResult();
+            Tuple tuple = (Tuple) entityManager.createNativeQuery("""
+                SELECT
+                    p.id,
+                    p.title,
+                    p.status,
+                    psi.name,
+                    psi.description
+                FROM post p
+                INNER JOIN post_status_info psi ON p.status = psi.id
+                WHERE p.id = :postId
+                """, Tuple.class)
+            .setParameter("postId", 1L)
+            .getSingleResult();
 
             assertEquals("PENDING", tuple.get("name"));
             assertEquals("Posts waiting to be approved by the admin", tuple.get("description"));

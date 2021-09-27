@@ -16,25 +16,26 @@ public class EnumOrdinalTest extends AbstractMySQLIntegrationTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class
+            Post.class
         };
     }
 
     @Test
     public void test() {
         doInJPA(entityManager -> {
-            Post post = new Post();
+                Post post = new Post();
             post.setId(1L);
-            post.setTitle("High-Performance Java Persistence");
+                post.setTitle("High-Performance Java Persistence");
             post.setStatus(PostStatus.PENDING);
-            entityManager.persist(post);
+                entityManager.persist(post);
         });
 
         doInJPA(entityManager -> {
-            Post post = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.status = :status", Post.class)
+            Post post = entityManager.createQuery("""
+                select p
+                from Post p
+                where p.status = :status
+                """, Post.class)
             .setParameter("status", PostStatus.PENDING)
             .getSingleResult();
 
@@ -58,7 +59,7 @@ public class EnumOrdinalTest extends AbstractMySQLIntegrationTest {
         private String title;
 
         @Enumerated(EnumType.ORDINAL)
-        @Column(columnDefinition = "tinyint")
+        @Column(columnDefinition = "tinyint unsigned")
         private PostStatus status;
 
         public Long getId() {

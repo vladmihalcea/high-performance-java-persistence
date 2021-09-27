@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
@@ -71,14 +72,15 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
     @Test
     public void testJPQLQuery() {
         doInJPA(entityManager -> {
-            Event event = entityManager.createQuery("""
+            List<Event> events = entityManager.createQuery("""
                 select e
                 from Event e
                 where
                    ip is not null
                 """, Event.class)
-            .getSingleResult();
+            .getResultList();
 
+            Event event = events.get(0);
             assertEquals("192.168.0.123/24", event.getIp().getAddress());
         });
     }
@@ -86,15 +88,16 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
     @Test
     public void testNativeQuery() {
         doInJPA(entityManager -> {
-            Event event = (Event) entityManager.createNativeQuery("""
+            List<Event> events = entityManager.createNativeQuery("""
                 SELECT e.*
                 FROM event e
                 WHERE
                    e.ip && CAST(:network AS inet) = true
                 """, Event.class)
             .setParameter("network", "192.168.0.1/24")
-            .getSingleResult();
+            .getResultList();
 
+            Event event = events.get(0);
             assertEquals("192.168.0.123/24", event.getIp().getAddress());
         });
     }
