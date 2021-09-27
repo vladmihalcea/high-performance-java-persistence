@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.transaction.VoidCallable;
+import org.hibernate.annotations.DynamicUpdate;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -248,6 +249,7 @@ public class BulkUpdateOptimisticLockingTest extends AbstractTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
+    @DynamicUpdate
     public static class Post {
 
         @Id
