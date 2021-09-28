@@ -15,8 +15,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
@@ -97,8 +96,12 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
             .setParameter("network", "192.168.0.1/24")
             .getResultList();
 
-            Event event = events.get(0);
-            assertEquals("192.168.0.123/24", event.getIp().getAddress());
+            assertTrue(
+                events
+                    .stream()
+                    .map(Event::getIp)
+                    .anyMatch(ip -> ip.getAddress().equals("192.168.0.123/24"))
+            );
         });
     }
 

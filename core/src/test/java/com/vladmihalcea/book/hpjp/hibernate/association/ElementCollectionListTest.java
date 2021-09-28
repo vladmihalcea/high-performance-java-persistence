@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
@@ -23,7 +22,7 @@ public class ElementCollectionListTest extends AbstractTest {
 
     @Override
     protected Database database() {
-        return Database.SQLSERVER;
+        return Database.POSTGRESQL;
     }
 
     @Override
@@ -44,6 +43,17 @@ public class ElementCollectionListTest extends AbstractTest {
     public void testRemoveTail() {
 
         doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+
+            List<String> comments = post.getComments();
+            comments.remove(comments.size() - 1);
+        });
+    }
+    
+    @Test
+    public void testFetchAndRemoveTail() {
+
+        doInJPA(entityManager -> {
             Post post = entityManager.createQuery("""
                 select p 
                 from Post p
@@ -54,17 +64,15 @@ public class ElementCollectionListTest extends AbstractTest {
                 .getSingleResult();
 
             post.getComments().remove(post.getComments().size() - 1);
-            entityManager.flush();
-            entityManager.getDelegate();
         });
     }
 
     @Test
-    public void testRemoveHead() {
+    public void testFetchAndRemoveHead() {
 
         doInJPA(entityManager -> {
             Post post = entityManager.createQuery("""
-                select p 
+                select p
                 from Post p
                 join fetch p.comments
                 where p.id = :id
@@ -86,6 +94,7 @@ public class ElementCollectionListTest extends AbstractTest {
         private String title;
 
         @ElementCollection
+        @JoinTable(name = "post_comments")
         private List<String> comments = new ArrayList<>();
 
         public Long getId() {
