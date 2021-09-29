@@ -50,6 +50,8 @@ public class InQueryTest extends AbstractTest {
             assertEquals(4, getPostByIds(entityManager, 1, 2, 3, 4).size());
             assertEquals(5, getPostByIds(entityManager, 1, 2, 3, 4, 5).size());
             assertEquals(6, getPostByIds(entityManager, 1, 2, 3, 4, 5, 6).size());
+            assertEquals(7, getPostByIds(entityManager, 1, 2, 3, 4, 5, 6, 7).size());
+            assertEquals(8, getPostByIds(entityManager, 1, 2, 3, 4, 5, 6, 7, 8).size());
         });
     }
 
