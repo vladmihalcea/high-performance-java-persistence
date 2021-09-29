@@ -1,12 +1,15 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
+import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -26,7 +29,7 @@ public class BidirectionalOneToOneNPlusOneTest extends AbstractTest {
     @Override
     protected void afterInit() {
         doInJPA(entityManager -> {
-            for (int i = 0; i < 100; i++) {
+            for (int i = 1; i <= 100; i++) {
                 Post post = new Post(String.format("Post nr. %d", i));
                 post.setDetails(new PostDetails("Excellent!"));
 
@@ -36,27 +39,38 @@ public class BidirectionalOneToOneNPlusOneTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testNPlusOne() {
-        doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery("""
+        SQLStatementCountValidator.reset();
+
+        List<Post> posts = doInJPA(entityManager -> {
+            return entityManager.createQuery("""
                 select p
                 from Post p
                 where p.title like 'Post nr.%'
                 """, Post.class)
             .getResultList();
         });
+
+        assertEquals(100, posts.size());
+        SQLStatementCountValidator.assertSelectCount(1);
     }
 
     @Test
     public void testWithoutNPlusOne() {
-        doInJPA(entityManager -> {
-            List<PostSummary> posts = entityManager.createQuery("""
+        SQLStatementCountValidator.reset();
+
+        List<PostSummary> posts = doInJPA(entityManager -> {
+            return entityManager.createQuery("""
                 select p
                 from PostSummary p
                 where p.title like 'Post nr.%'
                 """, PostSummary.class)
             .getResultList();
         });
+
+        assertEquals(100, posts.size());
+        SQLStatementCountValidator.assertSelectCount(1);
     }
 
     @Entity(name = "Post")
