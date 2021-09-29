@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.hibernate.flushing;
+package com.vladmihalcea.book.hpjp.hibernate.flushing.order;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.Session;
