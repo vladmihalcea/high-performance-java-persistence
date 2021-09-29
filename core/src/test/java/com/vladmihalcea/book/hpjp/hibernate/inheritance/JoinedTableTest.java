@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Vlad Mihalcea
  */
-public class JoinTableTest extends AbstractTest {
+public class JoinedTableTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {

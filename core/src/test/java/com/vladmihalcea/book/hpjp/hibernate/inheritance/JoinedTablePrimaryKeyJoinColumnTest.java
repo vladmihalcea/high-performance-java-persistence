@@ -11,11 +11,12 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vlad Mihalcea
  */
-public class JoinTableBulkDeleteTest extends AbstractTest {
+public class JoinedTablePrimaryKeyJoinColumnTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -24,6 +25,7 @@ public class JoinTableBulkDeleteTest extends AbstractTest {
                 Topic.class,
                 Post.class,
                 Announcement.class,
+                TopicStatistics.class
         };
     }
 
@@ -51,14 +53,62 @@ public class JoinTableBulkDeleteTest extends AbstractTest {
 
             entityManager.persist(announcement);
 
+            TopicStatistics postStatistics = new TopicStatistics(post);
+            postStatistics.incrementViews();
+            entityManager.persist(postStatistics);
+
+            TopicStatistics announcementStatistics = new TopicStatistics(announcement);
+            announcementStatistics.incrementViews();
+            entityManager.persist(announcementStatistics);
+
             return post;
         });
 
         doInJPA(entityManager -> {
-            int updateCount = entityManager
-                    .createQuery("delete from Topic")
-                    .executeUpdate();
-            assertEquals(2, updateCount);
+            Board board = topic.getBoard();
+            LOGGER.info("Fetch Topics");
+            List<Topic> topics = entityManager
+                    .createQuery("select t from Topic t where t.board = :board", Topic.class)
+                    .setParameter("board", board)
+                    .getResultList();
+        });
+
+        doInJPA(entityManager -> {
+            Board board = topic.getBoard();
+            LOGGER.info("Fetch Topic projection");
+            List<String> titles = entityManager
+            .createQuery("select t.title from Topic t where t.board = :board", String.class)
+            .setParameter("board", board)
+            .getResultList();
+            assertEquals(2, titles.size());
+        });
+
+        doInJPA(entityManager -> {
+            LOGGER.info("Fetch just one Topic");
+            Topic _topic = entityManager.find(Topic.class, topic.getId());
+        });
+
+        doInJPA(entityManager -> {
+            LOGGER.info("Fetch Board topics");
+            entityManager.find(Board.class, topic.getBoard().getId()).getTopics().size();
+        });
+
+        doInJPA(entityManager -> {
+            LOGGER.info("Fetch Board topics eagerly");
+            Long id = topic.getBoard().getId();
+            Board board = entityManager.createQuery(
+                    "select b from Board b join fetch b.topics where b.id = :id", Board.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+        });
+
+        doInJPA(entityManager -> {
+            Long topicId = topic.getId();
+            LOGGER.info("Fetch statistics");
+            TopicStatistics statistics = entityManager
+                    .createQuery("select s from TopicStatistics s join fetch s.topic t where t.id = :topicId", TopicStatistics.class)
+                    .setParameter("topicId", topicId)
+                    .getSingleResult();
         });
     }
 
@@ -158,6 +208,7 @@ public class JoinTableBulkDeleteTest extends AbstractTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
+    @PrimaryKeyJoinColumn(name = "topic_id", referencedColumnName = "id")
     public static class Post extends Topic {
 
         private String content;
@@ -173,6 +224,7 @@ public class JoinTableBulkDeleteTest extends AbstractTest {
 
     @Entity(name = "Announcement")
     @Table(name = "announcement")
+    @PrimaryKeyJoinColumn(name = "topic_id")
     public static class Announcement extends Topic {
 
         @Temporal(TemporalType.TIMESTAMP)
@@ -184,6 +236,42 @@ public class JoinTableBulkDeleteTest extends AbstractTest {
 
         public void setValidUntil(Date validUntil) {
             this.validUntil = validUntil;
+        }
+    }
+
+    @Entity(name = "TopicStatistics")
+    @Table(name = "topic_statistics")
+    public static class TopicStatistics {
+
+        @Id
+        private Long id;
+
+        @OneToOne(fetch = FetchType.LAZY)
+        @MapsId
+        private Topic topic;
+
+        private long views;
+
+        public TopicStatistics() {}
+
+        public TopicStatistics(Topic topic) {
+            this.topic = topic;
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public Topic getTopic() {
+            return topic;
+        }
+
+        public long getViews() {
+            return views;
+        }
+
+        public void incrementViews() {
+            this.views++;
         }
     }
 }

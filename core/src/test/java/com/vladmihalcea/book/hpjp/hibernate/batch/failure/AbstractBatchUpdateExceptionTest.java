@@ -1,32 +1,25 @@
-package com.vladmihalcea.book.hpjp.hibernate.batch;
+package com.vladmihalcea.book.hpjp.hibernate.batch.failure;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Session;
-import org.hibernate.jdbc.Work;
 import org.junit.Test;
 
-import javax.persistence.*;
-import java.sql.*;
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.sql.BatchUpdateException;
+import java.sql.PreparedStatement;
 
 /**
  * @author Vlad Mihalcea
  */
-public class BatchExceptionTest extends AbstractTest {
+public abstract class AbstractBatchUpdateExceptionTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
             Post.class
         };
-    }
-
-    @Override
-    protected Database database() {
-        return super.database();
     }
 
     @Test
@@ -46,11 +39,13 @@ public class BatchExceptionTest extends AbstractTest {
                     }
                     st.executeBatch();
                 } catch (BatchUpdateException e) {
-                    LOGGER.info("Batch has managed to process {} entries", e.getUpdateCounts().length);
+                    onBatchUpdateException(e);
                 }
             });
         });
     }
+
+    protected abstract void onBatchUpdateException(BatchUpdateException e);
 
     @Entity(name = "Post")
     @Table(name = "post")

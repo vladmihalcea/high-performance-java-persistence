@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -16,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Vlad Mihalcea
  */
-public class JoinTablePrimaryKeyJoinColumnTest extends AbstractTest {
+public class JoinedTableDiscriminatorColumnTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -27,6 +28,11 @@ public class JoinTablePrimaryKeyJoinColumnTest extends AbstractTest {
                 Announcement.class,
                 TopicStatistics.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 
     @Test
@@ -110,6 +116,109 @@ public class JoinTablePrimaryKeyJoinColumnTest extends AbstractTest {
                     .setParameter("topicId", topicId)
                     .getSingleResult();
         });
+
+        TopicStatistics statistics = doInJPA(entityManager -> {
+            Long topicId = topic.getId();
+            LOGGER.info("Fetch one TopicStatistic");
+            return entityManager.find(TopicStatistics.class, topicId);
+        });
+
+        try {
+            statistics.getTopic().getCreatedOn();
+        }
+        catch (Exception expected) {
+            LOGGER.info( "Topic was not fetched" );
+        }
+
+        doInJPA(entityManager -> {
+
+            List<Tuple> results = entityManager
+            .createQuery(
+                "select count(t), t.class " +
+                "from Topic t " +
+                "group by t.class " +
+                "order by t.class ")
+            .getResultList();
+
+            assertEquals(2, results.size());
+        });
+
+        doInJPA(entityManager -> {
+            Board board = topic.getBoard();
+
+            List<Topic> topics = entityManager
+            .createQuery(
+                "select t " +
+                "from Topic t " +
+                "where t.board = :board " +
+                "order by t.class", Topic.class)
+            .setParameter("board", board)
+            .getResultList();
+
+            assertEquals(2, topics.size());
+            assertTrue(topics.get(0) instanceof Announcement);
+            assertTrue(topics.get(1) instanceof Post);
+        });
+    }
+
+    @Test
+    public void testQueryUsingAll() {
+        doInJPA(entityManager -> {
+            Board board1 = new Board();
+            board1.setName("Hibernate");
+
+            entityManager.persist(board1);
+
+            Post post1 = new Post();
+            post1.setOwner("John Doe");
+            post1.setTitle("Inheritance");
+            post1.setContent("Best practices");
+            post1.setBoard(board1);
+
+            entityManager.persist(post1);
+
+            Announcement announcement1 = new Announcement();
+            announcement1.setOwner("John Doe");
+            announcement1.setTitle("Release x.y.z.Final");
+            announcement1.setValidUntil(Timestamp.valueOf(LocalDateTime.now().plusMonths(1)));
+            announcement1.setBoard(board1);
+
+            entityManager.persist(announcement1);
+
+            Board board2 = new Board();
+            board2.setName("JPA");
+
+            entityManager.persist(board2);
+
+            Post post2 = new Post();
+            post2.setOwner("John Doe");
+            post2.setTitle("Inheritance");
+            post2.setContent("Best practices");
+            post2.setBoard(board2);
+
+            entityManager.persist(post2);
+
+            Post post3 = new Post();
+            post3.setOwner("John Doe");
+            post3.setTitle("Inheritance");
+            post3.setContent("More best practices");
+            post3.setBoard(board2);
+
+            entityManager.persist(post3);
+        });
+
+        doInJPA(entityManager -> {
+            List<Board> postOnlyBoards = entityManager
+            .createQuery(
+                "select distinct b " +
+                "from Board b " +
+                "where Post = all (" +
+                "   select type(t) from Topic t where t.board = b" +
+                ")", Board.class)
+            .getResultList();
+            assertEquals(1, postOnlyBoards.size());
+            assertEquals("JPA", postOnlyBoards.get(0).getName());
+        });
     }
 
     @Entity(name = "Board")
@@ -149,6 +258,8 @@ public class JoinTablePrimaryKeyJoinColumnTest extends AbstractTest {
     @Entity(name = "Topic")
     @Table(name = "topic")
     @Inheritance(strategy = InheritanceType.JOINED)
+    @DiscriminatorColumn
+    @DiscriminatorValue("100")
     public static class Topic {
 
         @Id
@@ -208,7 +319,7 @@ public class JoinTablePrimaryKeyJoinColumnTest extends AbstractTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
-    @PrimaryKeyJoinColumn(name = "topic_id", referencedColumnName = "id")
+    @DiscriminatorValue("101")
     public static class Post extends Topic {
 
         private String content;
@@ -224,7 +335,7 @@ public class JoinTablePrimaryKeyJoinColumnTest extends AbstractTest {
 
     @Entity(name = "Announcement")
     @Table(name = "announcement")
-    @PrimaryKeyJoinColumn(name = "topic_id")
+    @DiscriminatorValue("102")
     public static class Announcement extends Topic {
 
         @Temporal(TemporalType.TIMESTAMP)

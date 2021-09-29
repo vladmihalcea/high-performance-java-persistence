@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class JoinTableDiscriminatorTest extends AbstractTest {
+public class JoinedTableDiscriminatorTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {

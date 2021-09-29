@@ -32,8 +32,6 @@ public class IntegerDiscriminatorDescriptionTest extends AbstractMySQLIntegratio
 
     @Override
     protected void afterInit() {
-        doInJPA(this::addConsistencyTriggers);
-
         doInJPA(entityManager -> {
             for (Class entityClass : entities()) {
                 if (Topic.class.isAssignableFrom(entityClass)) {
@@ -43,7 +41,7 @@ public class IntegerDiscriminatorDescriptionTest extends AbstractMySQLIntegratio
 
                     TopicType topicType = new TopicType();
                     topicType.setId(Byte.valueOf(discriminatorValue.value()));
-                    topicType.setName(entityClass.getName());
+                    topicType.setName(entityClass.getSimpleName());
                     topicType.setDescription(
                         Topic.class.equals(entityClass) ?
                             "Topic is the base class of the Topic entity hierarchy" :
@@ -78,24 +76,24 @@ public class IntegerDiscriminatorDescriptionTest extends AbstractMySQLIntegratio
         });
 
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager
-            .createQuery(
-                "select p " +
-                "from Post p ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                """, Post.class)
             .getResultList();
 
             assertEquals(1, posts.size());
 
-            List<Tuple> results = entityManager
-            .createNativeQuery(
-                "SELECT " +
-                "    t.*, " +
-                "    CAST(tt.id AS SIGNED) AS \"discriminator\", " +
-                "    tt.name AS \"type_name\", " +
-                "    tt.description AS \"type_description\" " +
-                "FROM topic t " +
-                "INNER JOIN topic_type tt ON t.topic_type_id = tt.id " +
-                "WHERE t.content IS NOT NULL", Tuple.class)
+            List<Tuple> results = entityManager.createNativeQuery("""
+                SELECT
+                    t.*,     
+                    CAST(tt.id AS SIGNED) AS "discriminator",
+                    tt.name AS "type_name",
+                    tt.description AS "type_description"
+                FROM topic t
+                INNER JOIN topic_type tt ON t.topic_type_id = tt.id
+                WHERE t.content IS NOT NULL
+                """, Tuple.class)
             .getResultList();
 
             assertEquals(1, results.size());
@@ -120,44 +118,4 @@ public class IntegerDiscriminatorDescriptionTest extends AbstractMySQLIntegratio
             );
         });
     }
-
-    private void addConsistencyTriggers(EntityManager entityManager) {
-        entityManager.unwrap(Session.class).doWork(connection -> {
-            try (Statement st = connection.createStatement()) {
-                st.executeUpdate(
-                    "CREATE " +
-                    "TRIGGER post_content_check BEFORE INSERT " +
-                    "ON Topic " +
-                    "FOR EACH ROW " +
-                    "BEGIN " +
-                    "   IF NEW.topic_type_id = 1 " +
-                    "   THEN " +
-                    "       IF NEW.content IS NULL " +
-                    "       THEN " +
-                    "           signal sqlstate '45000' " +
-                    "           set message_text = 'Post content cannot be NULL'; " +
-                    "       END IF; " +
-                    "   END IF; " +
-                    "END;"
-                );
-                st.executeUpdate(
-                    "CREATE " +
-                    "TRIGGER announcement_validUntil_check BEFORE INSERT " +
-                    "ON Topic " +
-                    "FOR EACH ROW " +
-                    "BEGIN " +
-                    "   IF NEW.topic_type_id = 2 " +
-                    "   THEN " +
-                    "       IF NEW.validUntil IS NULL " +
-                    "       THEN " +
-                    "           signal sqlstate '45000' " +
-                    "           set message_text = 'Announcement validUntil cannot be NULL'; " +
-                    "       END IF; " +
-                    "   END IF; " +
-                    "END;"
-                );
-            }
-        });
-    }
-
 }
