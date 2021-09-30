@@ -29,7 +29,7 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
 
     @Override
     protected Database database() {
-        return Database.POSTGRESQL;
+        return Database.SQLSERVER;
     }
 
     @Override
@@ -107,7 +107,7 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
     }
 
     protected void setIsolationLevel(Connection connection) throws SQLException {
-        //By default, we don't set the isolation level
+
     }
 
     private void printIsolationLevel(Connection connection) throws SQLException {
@@ -160,7 +160,8 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
     private void addBalance(Connection connection, final String iban, long balance) {
         try(PreparedStatement statement = connection.prepareStatement("""
             UPDATE account
-            SET balance = balance + ?vWHERE iban = ?
+            SET balance = balance + ? 
+            WHERE iban = ?
             """)
         ) {
             statement.setLong(1, balance);
