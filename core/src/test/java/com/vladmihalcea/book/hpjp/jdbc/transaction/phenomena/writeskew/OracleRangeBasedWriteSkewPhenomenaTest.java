@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.jdbc.transaction.phenomena.writeskew;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -71,7 +72,7 @@ public class OracleRangeBasedWriteSkewPhenomenaTest extends AbstractRangeBasedWr
                         return;
                     }
                     prepareConnection(aliceConnection);
-                    long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                    long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class, Duration.ofSeconds(1)).longValue();
                     assertEquals(90_000, salaryCount);
 
                     try {
@@ -79,7 +80,7 @@ public class OracleRangeBasedWriteSkewPhenomenaTest extends AbstractRangeBasedWr
                             doInJDBC(bobConnection -> {
                                 prepareConnection(bobConnection);
                                 try {
-                                    long _salaryCount = selectColumn(bobConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                                    long _salaryCount = selectColumn(bobConnection, sumEmployeeSalarySql(), Number.class, Duration.ofSeconds(1)).longValue();
                                     assertEquals(90_000, _salaryCount);
 
                                     try (
@@ -111,7 +112,7 @@ public class OracleRangeBasedWriteSkewPhenomenaTest extends AbstractRangeBasedWr
                 preventedByLocking.set(true);
             }
             doInJDBC(aliceConnection -> {
-                long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class, Duration.ofSeconds(1)).longValue();
                 if(99_000 != salaryCount) {
                     LOGGER.info("Isolation level {} allows Write Skew since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
                     fail.incrementAndGet();

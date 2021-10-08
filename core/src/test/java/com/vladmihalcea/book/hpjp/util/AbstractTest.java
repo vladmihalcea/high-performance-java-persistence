@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.*;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -742,9 +743,15 @@ public abstract class AbstractTest {
     }
 
     protected <T> T selectColumn(Connection connection, String sql, Class<T> clazz) {
+        return selectColumn(connection, sql, clazz, null);
+    }
+
+    protected <T> T selectColumn(Connection connection, String sql, Class<T> clazz, Duration timeout) {
         try {
             try(Statement statement = connection.createStatement()) {
-                statement.setQueryTimeout(1);
+                if (timeout != null) {
+                    statement.setQueryTimeout((int) timeout.toSeconds());
+                }
                 ResultSet resultSet = statement.executeQuery(sql);
                 if(!resultSet.next()) {
                     throw new IllegalArgumentException("There was no row to be selected!");

@@ -5,6 +5,7 @@ import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertEquals;
@@ -126,7 +127,7 @@ public class PostgreSQLRangeBasedWriteSkewPhenomenaConstraintTest extends Abstra
             }
         }
         doInJDBC(aliceConnection -> {
-            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class, Duration.ofSeconds(1)).longValue();
             if (99_000 != salaryCount) {
                 LOGGER.info("Isolation level {} allows overbudgeting since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
             } else {
@@ -158,7 +159,7 @@ public class PostgreSQLRangeBasedWriteSkewPhenomenaConstraintTest extends Abstra
                     return;
                 }
                 prepareConnection(aliceConnection);
-                long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class, Duration.ofSeconds(1)).longValue();
                 assertEquals(90_000, salaryCount);
 
                 try {
@@ -211,7 +212,7 @@ public class PostgreSQLRangeBasedWriteSkewPhenomenaConstraintTest extends Abstra
             }
         }
         doInJDBC(aliceConnection -> {
-            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class, Duration.ofSeconds(1)).longValue();
             if (99_000 != salaryCount) {
                 LOGGER.info("Isolation level {} allows overbudgeting since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
             } else {

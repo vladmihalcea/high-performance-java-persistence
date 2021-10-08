@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction.phenomena.writeskew;
 
 import java.sql.PreparedStatement;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -35,7 +36,7 @@ public abstract class AbstractRangeBasedWriteSkewPhenomenaTest extends AbstractD
                     return;
                 }
                 prepareConnection(aliceConnection);
-                long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class, Duration.ofSeconds(1)).longValue();
                 assertEquals(90_000, salaryCount);
 
                 try {
@@ -43,7 +44,7 @@ public abstract class AbstractRangeBasedWriteSkewPhenomenaTest extends AbstractD
                         doInJDBC(bobConnection -> {
                             prepareConnection(bobConnection);
                             try {
-                                long _salaryCount = selectColumn(bobConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                                long _salaryCount = selectColumn(bobConnection, sumEmployeeSalarySql(), Number.class, Duration.ofSeconds(1)).longValue();
                                 assertEquals(90_000, _salaryCount);
 
                                 try (
@@ -89,7 +90,7 @@ public abstract class AbstractRangeBasedWriteSkewPhenomenaTest extends AbstractD
             }
         }
         doInJDBC(aliceConnection -> {
-            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class, Duration.ofSeconds(1)).longValue();
             if(99_000 != salaryCount) {
                 LOGGER.info("Isolation level {} allows Write Skew since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
             }
@@ -111,7 +112,7 @@ public abstract class AbstractRangeBasedWriteSkewPhenomenaTest extends AbstractD
                     return;
                 }
                 prepareConnection(aliceConnection);
-                long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class, Duration.ofSeconds(1)).longValue();
                 assertEquals(90_000, salaryCount);
 
                 try {
@@ -119,7 +120,7 @@ public abstract class AbstractRangeBasedWriteSkewPhenomenaTest extends AbstractD
                         doInJDBC(bobConnection -> {
                             prepareConnection(bobConnection);
                             try {
-                                long _salaryCount = selectColumn(bobConnection, sumEmployeeSalarySql(), Number.class).longValue();
+                                long _salaryCount = selectColumn(bobConnection, sumEmployeeSalarySql(), Number.class, Duration.ofSeconds(1)).longValue();
                                 assertEquals(90_000, _salaryCount);
 
                                 try (
@@ -175,7 +176,7 @@ public abstract class AbstractRangeBasedWriteSkewPhenomenaTest extends AbstractD
             }
         }
         doInJDBC(aliceConnection -> {
-            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class, Duration.ofSeconds(1)).longValue();
             if(99_000 != salaryCount) {
                 LOGGER.info("Isolation level {} allows Write Skew since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
             }
@@ -252,7 +253,7 @@ public abstract class AbstractRangeBasedWriteSkewPhenomenaTest extends AbstractD
             }
         }
         doInJDBC(aliceConnection -> {
-            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class, Duration.ofSeconds(1)).longValue();
             if(99_000 != salaryCount) {
                 LOGGER.info("Isolation level {} allows Write Skew since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
             }
@@ -326,7 +327,7 @@ public abstract class AbstractRangeBasedWriteSkewPhenomenaTest extends AbstractD
             }
         }
         doInJDBC(aliceConnection -> {
-            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class, Duration.ofSeconds(1)).longValue();
             if(99_000 != salaryCount) {
                 LOGGER.info("Isolation level {} allows Write Skew since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
             }

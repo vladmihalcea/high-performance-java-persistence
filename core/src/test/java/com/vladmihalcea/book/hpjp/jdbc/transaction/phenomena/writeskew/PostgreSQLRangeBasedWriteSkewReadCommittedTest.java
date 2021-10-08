@@ -7,6 +7,7 @@ import org.junit.runners.Parameterized;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -149,7 +150,7 @@ public class PostgreSQLRangeBasedWriteSkewReadCommittedTest extends AbstractDepa
             }
         }
         doInJDBC(aliceConnection -> {
-            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class).longValue();
+            long salaryCount = selectColumn(aliceConnection, sumEmployeeSalarySql(), Number.class, Duration.ofSeconds(1)).longValue();
             if (99_000 != salaryCount) {
                 LOGGER.info("Isolation level {} allows overbudgeting since the salary count is {} instead of 99000", isolationLevelName, salaryCount);
             } else {
