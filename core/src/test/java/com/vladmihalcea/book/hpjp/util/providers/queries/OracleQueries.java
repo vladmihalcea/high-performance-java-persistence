@@ -12,7 +12,7 @@ public class OracleQueries implements Queries {
         return """
             SELECT RAWTOHEX(tx.xid)
             FROM v$transaction tx
-            JOIN v$session s ON tx.ses_addr = s.saddr
+            JOIN v$session s ON tx.addr=s.taddr
             """ ;
     }
 }
