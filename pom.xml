@@ -139,6 +139,12 @@
             <version>${hibernate.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.marschall</groupId>
+            <artifactId>hibernate-batch-sequence-generator</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+
         <!-- Database -->
 
         <dependency>
@@ -331,6 +337,8 @@
             <artifactId>blaze-persistence-core-api</artifactId>
             <version>${blaze-persistence.version}</version>
         </dependency>
+
+        <!-- Blaze Persistence -->
 
         <dependency>
             <groupId>com.blazebit</groupId>
