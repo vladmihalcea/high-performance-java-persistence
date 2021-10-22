@@ -56,7 +56,7 @@ public class TransactionIdTest extends AbstractTest {
             post.setTitle("High-Performance Java Persistence");
             entityManager.persist(post);
 
-            LOGGER.info("Current transaction id: {}", String.valueOf(transactionId(entityManager)));
+            LOGGER.info("Current transaction id: {}", transactionId(entityManager));
         });
     }
 

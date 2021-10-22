@@ -921,8 +921,7 @@ public abstract class AbstractTest {
 
     protected String transactionId(EntityManager entityManager) {
         return String.valueOf(
-            entityManager
-            .createNativeQuery(
+            entityManager.createNativeQuery(
                 dataSourceProvider()
                 .queries()
                 .transactionId()
