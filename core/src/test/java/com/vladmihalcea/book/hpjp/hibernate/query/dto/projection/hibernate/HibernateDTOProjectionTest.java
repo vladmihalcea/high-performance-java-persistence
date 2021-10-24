@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.PostComment;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.hibernate.type.util.ListResultTransformer;
+import com.vladmihalcea.hibernate.query.ListResultTransformer;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.transform.ResultTransformer;
 import org.hibernate.transform.Transformers;

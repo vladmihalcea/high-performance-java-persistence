@@ -82,14 +82,14 @@ public class OracleExplicitStatementCacheTest extends AbstractOracleIntegrationT
             for (int i = 0; i < 5; i++) {
                 ReflectionUtils.invokeSetter(connection,"explicitCachingEnabled", true);
                 ReflectionUtils.invokeSetter(connection,"statementCacheSize", 1);
-                PreparedStatement statement = ReflectionUtils.invoke(connection, ReflectionUtils.getMethod(connection, "getStatementWithKey", String.class), SELECT_POST_REVIEWS_KEY);
+                PreparedStatement statement = ReflectionUtils.invokeMethod(connection, ReflectionUtils.getMethod(connection, "getStatementWithKey", String.class), SELECT_POST_REVIEWS_KEY);
                 if (statement == null)
                     statement = connection.prepareStatement(SELECT_POST_REVIEWS);
                 try {
                     statement.setInt(1, 10);
                     statement.execute();
                 } finally {
-                    ReflectionUtils.invoke(statement, ReflectionUtils.getMethod(statement, "closeWithKey", String.class), SELECT_POST_REVIEWS_KEY);
+                    ReflectionUtils.invokeMethod(statement, ReflectionUtils.getMethod(statement, "closeWithKey", String.class), SELECT_POST_REVIEWS_KEY);
                 }
             }
         });

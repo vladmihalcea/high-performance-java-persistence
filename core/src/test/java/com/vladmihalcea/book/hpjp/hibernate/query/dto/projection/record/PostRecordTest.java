@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.record;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
-import com.vladmihalcea.hibernate.type.util.ListResultTransformer;
+import com.vladmihalcea.hibernate.query.ListResultTransformer;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.hibernate.query.Query;
 import org.junit.Test;

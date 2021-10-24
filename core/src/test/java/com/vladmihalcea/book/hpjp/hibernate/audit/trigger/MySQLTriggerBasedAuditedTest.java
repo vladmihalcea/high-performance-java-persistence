@@ -6,7 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.junit.Test;
-import com.vladmihalcea.hibernate.type.util.ReflectionUtils;
+import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 
 import javax.persistence.*;
 import java.util.List;

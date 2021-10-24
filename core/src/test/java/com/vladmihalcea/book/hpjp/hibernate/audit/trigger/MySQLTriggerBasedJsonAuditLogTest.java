@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.audit.trigger;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.hibernate.type.util.ReflectionUtils;
+import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.dialect.Dialect;

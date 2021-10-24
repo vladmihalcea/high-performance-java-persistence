@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.dto.mixed;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.hibernate.type.util.ListResultTransformer;
+import com.vladmihalcea.hibernate.query.ListResultTransformer;
 import org.hibernate.query.Query;
 import org.junit.Test;
 

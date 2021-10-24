@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.CryptoUtils;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
-import com.vladmihalcea.hibernate.type.util.ReflectionUtils;
+import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import org.hibernate.Session;
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.DynamicUpdate;

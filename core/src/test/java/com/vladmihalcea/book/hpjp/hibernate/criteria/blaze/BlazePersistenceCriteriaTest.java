@@ -7,7 +7,7 @@ import com.blazebit.persistence.JoinType;
 import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.hibernate.type.util.ListResultTransformer;
+import com.vladmihalcea.hibernate.query.ListResultTransformer;
 import org.hibernate.query.NativeQuery;
 import org.junit.Test;
 
