@@ -577,9 +577,16 @@ public final class ReflectionUtils {
      * @return class package name
      */
     public static String getClassPackageName(String className) {
-        Package classPackage = getClass(className).getPackage();
-
-        return classPackage != null ? classPackage.getName() : null;
+        try {
+            Class clazz = getClassOrNull(className);
+            if(clazz == null) {
+                return null;
+            }
+            Package classPackage = clazz.getPackage();
+            return classPackage != null ? classPackage.getName() : null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
