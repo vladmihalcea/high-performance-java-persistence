@@ -87,11 +87,11 @@ public class DeletingAfterFetchWithoutSQLCascadeTest extends AbstractDeletingChe
     protected void createTables() {
         super.createTables();
         executeStatement("""
-                CREATE TABLE lessons(
-                    id          BIGINT PRIMARY KEY,
-                    audience_id INTEGER NOT NULL REFERENCES audiences (id),
-                    group_id    INTEGER NOT NULL REFERENCES groups (id)
-                )
-                """);
+            CREATE TABLE lessons(
+                id          BIGINT PRIMARY KEY,
+                audience_id INTEGER NOT NULL REFERENCES audiences (id),
+                group_id    INTEGER NOT NULL REFERENCES groups (id)
+            )
+            """);
     }
 }

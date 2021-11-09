@@ -28,9 +28,9 @@ public class AbstractDeletingCheckTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Audience.class,
-                Group.class,
-                Lesson.class
+            Audience.class,
+            Group.class,
+            Lesson.class
         };
     }
 
@@ -78,17 +78,17 @@ public class AbstractDeletingCheckTest extends AbstractTest {
         executeStatement("DROP TABLE IF EXISTS groups");
 
         executeStatement("""
-                CREATE TABLE groups(
-                    id   BIGINT PRIMARY KEY,
-                    name VARCHAR
-                )
-                """);
+            CREATE TABLE groups(
+                id   BIGINT PRIMARY KEY,
+                name VARCHAR
+            )
+            """);
         executeStatement("""
-                CREATE TABLE audiences(
-                    id     BIGINT PRIMARY KEY,
-                    number INTEGER
-                )
-                """);
+            CREATE TABLE audiences(
+                id     BIGINT PRIMARY KEY,
+                number INTEGER
+            )
+            """);
     }
 
     protected void insertData() {
@@ -102,7 +102,6 @@ public class AbstractDeletingCheckTest extends AbstractTest {
     public static class Audience {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private Long id;
 
         @Column
@@ -143,7 +142,6 @@ public class AbstractDeletingCheckTest extends AbstractTest {
     public static class Group {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private Long id;
 
         @Column
@@ -184,7 +182,6 @@ public class AbstractDeletingCheckTest extends AbstractTest {
     public static class Lesson {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private Long id;
 
         @ManyToOne
