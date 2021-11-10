@@ -36,7 +36,7 @@ public class InheritedEntityReferenceEqualityTest extends AbstractTest {
     }
 
     @Test
-    public void testInheritedEntityReferenceEqualityInOnTransaction() {
+    public void testInheritedEntityReferenceEqualityInOneTransaction() {
         doInJPA(entityManager -> {
             entityManager.persist(new Post(1L, "Title", "Content"));
 
