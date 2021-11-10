@@ -46,7 +46,7 @@ public class DeletingAfterFetchWithoutSQLCascadeTest extends AbstractDeletingChe
     }
 
     @Test
-    public void testDeleteParentAfterEagerInnerFetchInChildWithoutSQLCascadeThenSaveAnotherEntityInSeveralTransactions() {
+    public void testDeleteParentAfterEagerInnerFetchInChildWithoutSQLCascadeThenSaveAnotherEntityInDifferentTransactions() {
         createTables();
         insertData();
 

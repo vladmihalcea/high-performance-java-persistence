@@ -14,7 +14,7 @@ import static org.junit.Assert.fail;
 public class DeletingAfterFetchWithSQLCascadeTest extends AbstractDeletingCheckTest {
 
     @Test
-    public void testDeleteParentAfterEagerInnerFetchInChildWithSQLCascadeChildInOneTransaction() {
+    public void testDeleteParentAfterEagerInnerFetchInChildWithSQLCascadeInOneTransaction() {
         createTables();
         insertData();
 
@@ -42,7 +42,7 @@ public class DeletingAfterFetchWithSQLCascadeTest extends AbstractDeletingCheckT
     }
 
     @Test
-    public void testDeleteParentAfterEagerInnerFetchInChildWithSQLCascadeThenSaveAnotherEntityInSeveralTransactions() {
+    public void testDeleteParentAfterEagerInnerFetchInChildWithSQLCascadeThenSaveAnotherEntityInDifferentTransactions() {
         createTables();
         insertData();
 
