@@ -3,10 +3,17 @@ package com.vladmihalcea.book.hpjp.hibernate.flushing.order;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.engine.spi.EntityEntry;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.*;
+
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
@@ -21,8 +28,7 @@ public class FlushOrderTest extends AbstractTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Post post = new Post();
             post.setId(1L);
@@ -72,7 +78,24 @@ public class FlushOrderTest extends AbstractTest {
             .load("high-performance-java-persistence");
 
             post.setTitle("High-Performance Java Persistence Book");
+
+            org.hibernate.engine.spi.PersistenceContext persistenceContext = getHibernatePersistenceContext(
+                entityManager
+            );
+
+            EntityEntry entityEntry = persistenceContext.getEntry(post);
+            Object[] loadedState = entityEntry.getLoadedState();
+            assertNotNull(loadedState);
         });
+    }
+
+    private org.hibernate.engine.spi.PersistenceContext getHibernatePersistenceContext(
+        EntityManager entityManager
+    ) {
+        SharedSessionContractImplementor session = entityManager.unwrap(
+            SharedSessionContractImplementor.class
+        );
+        return session.getPersistenceContext();
     }
 
     @Entity(name = "Post")
