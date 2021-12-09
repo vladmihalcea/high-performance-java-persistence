@@ -437,7 +437,7 @@
         <aspectj.version>1.8.7</aspectj.version>
         <spring.version>5.3.8</spring.version>
 
-        <jackson.version>2.9.10.5</jackson.version>
+        <jackson.version>2.9.10.8</jackson.version>
 
         <flyway.version>6.4.4</flyway.version>
         <hibernate-types.version>2.14.0</hibernate-types.version>
