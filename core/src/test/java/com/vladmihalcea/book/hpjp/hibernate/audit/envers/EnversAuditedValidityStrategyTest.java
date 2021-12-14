@@ -11,12 +11,10 @@ import org.hibernate.envers.strategy.internal.ValidityAuditStrategy;
 public class EnversAuditedValidityStrategyTest extends EnversAuditedDefaultStrategyTest {
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
+    protected void additionalProperties(Properties properties) {
         properties.setProperty(
             EnversSettings.AUDIT_STRATEGY,
             ValidityAuditStrategy.class.getName()
         );
-        return properties;
     }
 }
