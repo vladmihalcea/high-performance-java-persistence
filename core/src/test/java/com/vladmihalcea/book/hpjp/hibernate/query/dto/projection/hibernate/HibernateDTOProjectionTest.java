@@ -2,16 +2,16 @@ package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.hibernate;
 
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.PostComment;
+import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTO;
+import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTOResultTransformer;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.hibernate.query.ListResultTransformer;
 import org.hibernate.jpa.QueryHints;
-import org.hibernate.transform.ResultTransformer;
 import org.hibernate.transform.Transformers;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -281,119 +281,6 @@ public class HibernateDTOProjectionTest extends AbstractTest {
             assertEquals(1, post2.getComments().size());
             assertEquals(3L, post2.getComments().get(0).getId().longValue());
         } );
-    }
-
-    public static class PostDTO {
-
-        public static final String ID_ALIAS = "p_id";
-        public static final String TITLE_ALIAS = "p_title";
-
-        private Long id;
-
-        private String title;
-
-        private List<PostCommentDTO> comments = new ArrayList<>();
-
-        public PostDTO() {
-        }
-
-        public PostDTO(Long id, String title) {
-            this.id = id;
-            this.title = title;
-        }
-
-        public PostDTO(Object[] tuples, Map<String, Integer> aliasToIndexMap) {
-            this.id = longValue(tuples[aliasToIndexMap.get(ID_ALIAS)]);
-            this.title = stringValue(tuples[aliasToIndexMap.get(TITLE_ALIAS)]);
-        }
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Number id) {
-            this.id = id.longValue();
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public List<PostCommentDTO> getComments() {
-            return comments;
-        }
-    }
-
-    public static class PostCommentDTO {
-        public static final String ID_ALIAS = "pc_id";
-        public static final String REVIEW_ALIAS = "pc_review";
-
-        private Long id;
-
-        private String review;
-
-        public PostCommentDTO(Long id, String review) {
-            this.id = id;
-            this.review = review;
-        }
-
-        public PostCommentDTO(Object[] tuples, Map<String, Integer> aliasToIndexMap) {
-            this.id = longValue(tuples[aliasToIndexMap.get(ID_ALIAS)]);
-            this.review = stringValue(tuples[aliasToIndexMap.get(REVIEW_ALIAS)]);
-        }
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Number id) {
-            this.id = id.longValue();
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public String getReview() {
-            return review;
-        }
-
-        public void setReview(String review) {
-            this.review = review;
-        }
-    }
-
-    public static class PostDTOResultTransformer implements ResultTransformer {
-
-        private Map<Long, PostDTO> postDTOMap = new LinkedHashMap<>();
-
-        @Override
-        public Object transformTuple(Object[] tuple, String[] aliases) {
-            Map<String, Integer> aliasToIndexMap = aliasToIndexMap(aliases);
-            Long postId = longValue(tuple[aliasToIndexMap.get(PostDTO.ID_ALIAS)]);
-
-            PostDTO postDTO = postDTOMap.computeIfAbsent(postId, id -> new PostDTO(tuple, aliasToIndexMap));
-            postDTO.getComments().add(new PostCommentDTO(tuple, aliasToIndexMap));
-
-            return postDTO;
-        }
-
-        @Override
-        public List transformList(List collection) {
-            return new ArrayList<>(postDTOMap.values());
-        }
-    }
-
-    public static Map<String, Integer> aliasToIndexMap(String[] aliases) {
-        Map<String, Integer> aliasToIndexMap = new LinkedHashMap<>();
-        for (int i = 0; i < aliases.length; i++) {
-            aliasToIndexMap.put(aliases[i], i);
-        }
-        return aliasToIndexMap;
     }
 
     public static record PostRecord(

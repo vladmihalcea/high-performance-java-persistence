@@ -47,16 +47,18 @@ public class Post {
         return id;
     }
 
-    public void setId(Long id) {
+    public Post setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
+    public Post setTitle(String title) {
         this.title = title;
+        return this;
     }
 
     public List<PostComment> getComments() {
@@ -71,18 +73,24 @@ public class Post {
         return tags;
     }
 
-    public void addComment(PostComment comment) {
+    public Post addComment(PostComment comment) {
         comments.add(comment);
         comment.setPost(this);
+
+        return this;
     }
 
-    public void addDetails(PostDetails details) {
+    public Post addDetails(PostDetails details) {
         this.details = details;
         details.setPost(this);
+
+        return this;
     }
 
-    public void removeDetails() {
+    public Post removeDetails() {
         this.details.setPost(null);
         this.details = null;
+
+        return this;
     }
 }
