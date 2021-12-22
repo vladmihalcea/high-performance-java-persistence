@@ -9,6 +9,6 @@ public class PostgreSQLQueries implements Queries {
 
     @Override
     public String transactionId() {
-        return "SELECT CAST(txid_current() AS text)";
+        return "SELECT CAST(pg_current_xact_id_if_assigned() AS text)";
     }
 }
