@@ -235,10 +235,10 @@ public class BulkUpdateOptimisticLockingTest extends AbstractTest {
             assertEquals(SPAM_POST_COUNT, updateCount);
 
             int oneVersionCount = entityManager.createQuery("""
-                select count(p)
+                select count(*)
                 from Post p
                 where p.version = :version
-			    """, Number.class)
+                """, Number.class)
             .setParameter("version", (short) 1)
             .getSingleResult()
             .intValue();
