@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.spring.data.repository;
+package com.vladmihalcea.book.hpjp.spring.data.custom.repository;
 
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTOResultTransformer;

@@ -1,10 +1,10 @@
-package com.vladmihalcea.book.hpjp.spring.data;
+package com.vladmihalcea.book.hpjp.spring.data.custom;
 
 import com.vladmihalcea.book.hpjp.hibernate.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.forum.PostComment;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTO;
-import com.vladmihalcea.book.hpjp.spring.data.config.SpringDataJPACustomRepositoryConfiguration;
-import com.vladmihalcea.book.hpjp.spring.data.service.ForumService;
+import com.vladmihalcea.book.hpjp.spring.data.custom.config.SpringDataJPACustomRepositoryConfiguration;
+import com.vladmihalcea.book.hpjp.spring.data.custom.service.ForumService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

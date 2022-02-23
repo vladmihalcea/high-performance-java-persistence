@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.spring.data.config;
+package com.vladmihalcea.book.hpjp.spring.data.custom.config;
 
 import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
@@ -45,12 +45,12 @@ import java.util.concurrent.atomic.LongAdder;
 @PropertySource({"/META-INF/jdbc-hsqldb.properties"})
 @ComponentScan(
     basePackages = {
-        "com.vladmihalcea.book.hpjp.spring.data.service",
+        "com.vladmihalcea.book.hpjp.spring.data.custom.service",
     }
 )
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-@EnableJpaRepositories("com.vladmihalcea.book.hpjp.spring.data.repository")
+@EnableJpaRepositories("com.vladmihalcea.book.hpjp.spring.data.custom.repository")
 public class SpringDataJPACustomRepositoryConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();

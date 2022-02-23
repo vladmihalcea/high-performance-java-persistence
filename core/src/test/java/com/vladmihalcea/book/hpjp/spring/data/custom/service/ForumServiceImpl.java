@@ -1,8 +1,8 @@
-package com.vladmihalcea.book.hpjp.spring.data.service;
+package com.vladmihalcea.book.hpjp.spring.data.custom.service;
 
 import com.vladmihalcea.book.hpjp.hibernate.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTO;
-import com.vladmihalcea.book.hpjp.spring.data.repository.PostRepository;
+import com.vladmihalcea.book.hpjp.spring.data.custom.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
