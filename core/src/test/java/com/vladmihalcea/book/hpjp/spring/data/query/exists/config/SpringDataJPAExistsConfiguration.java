@@ -18,7 +18,7 @@ import java.util.Properties;
     }
 )
 @EnableJpaRepositories("com.vladmihalcea.book.hpjp.spring.data.query.exists.repository")
-@PropertySource({"/META-INF/jdbc-mysql.properties"})
+@PropertySource({"/META-INF/jdbc-postgresql.properties"})
 public class SpringDataJPAExistsConfiguration extends SpringDataJPABaseConfiguration {
 
     @Override

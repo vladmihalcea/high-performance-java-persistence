@@ -25,8 +25,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                 FROM post 
                 WHERE slug = :slug
             ) 
-            THEN TRUE 
-            ELSE FALSE
+            THEN 'true' 
+            ELSE 'false'
             END
         """,
         nativeQuery = true
@@ -34,7 +34,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     boolean existsBySlugWithCase(@Param("slug") String slug);
 
     @Query(value = """
-        select count(p.id) > 0 
+        select count(p.id) = 1 
         from Post p
         where p.slug = :slug
         """
