@@ -215,6 +215,7 @@ public class JoinedTableTest extends AbstractTest {
     public void testQueryUsingAll() {
         doInJPA(entityManager -> {
             Board board1 = new Board();
+            board1.setId(1L);
             board1.setName("Hibernate");
 
             entityManager.persist(board1);
@@ -236,6 +237,7 @@ public class JoinedTableTest extends AbstractTest {
             entityManager.persist(announcement1);
 
             Board board2 = new Board();
+            board2.setId(2L);
             board2.setName("JPA");
 
             entityManager.persist(board2);
@@ -258,13 +260,13 @@ public class JoinedTableTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
-            List<Board> postOnlyBoards = entityManager
-            .createQuery(
-                "select distinct b " +
-                "from Board b " +
-                "where Post = all (" +
-                "   select type(t) from Topic t where t.board = b" +
-                ")", Board.class)
+            List<Board> postOnlyBoards = entityManager.createQuery("""
+                select distinct b
+                from Board b
+                where Post = all (
+                   select type(t) from Topic t where t.board = b
+                )
+                """, Board.class)
             .getResultList();
             assertEquals(1, postOnlyBoards.size());
             assertEquals("JPA", postOnlyBoards.get(0).getName());

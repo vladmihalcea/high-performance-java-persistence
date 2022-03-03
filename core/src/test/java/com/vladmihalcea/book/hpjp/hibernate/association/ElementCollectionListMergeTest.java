@@ -49,9 +49,7 @@ public class ElementCollectionListMergeTest extends AbstractTest {
 
         PostDTO postDTO = getPostDTO();
 
-
         doInJPA(entityManager -> {
-
             //second find and copy from dto
             Post post = entityManager.find(Post.class, 1L);
             BeanUtils.copyProperties(postDTO, post);
@@ -92,7 +90,8 @@ public class ElementCollectionListMergeTest extends AbstractTest {
         postDTO.categories = post.categories;
         postDTO.tags = post.tags;
         postDTO.comments = new HashSet<>();
-        postDTO.addComment(new Comment().setComment("Best book on JPA and Hibernate!").setAuthor("Alice"))
+        postDTO
+            .addComment(new Comment().setComment("Best book on JPA and Hibernate!").setAuthor("Alice"))
             .addComment(new Comment().setComment("A must-read for every Java developer!").setAuthor("Bob"))
             .addComment(new Comment().setComment("A great reference book").setAuthor("Carol"))
             .addTag(new Tag().setName("JPA").setAuthor("Alice"))

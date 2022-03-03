@@ -43,11 +43,11 @@ public class MySQLBatchInsertLoadTest extends AbstractTest {
             Session session = entityManager.unwrap(Session.class);
             session.doWork(connection -> {
                 try (PreparedStatement st = connection.prepareStatement("""
-                            INSERT INTO post (id, title)
-                            VALUES (?, ?)
+                            INSERT INTO post (title)
+                            VALUES (?)
                             """)) {
                     for (long i = 1; i <= 3; i++) {
-                        st.setString(2, String.format("High-Performance Java Persistence, Part %d", i));
+                        st.setString(1, String.format("High-Performance Java Persistence, Part %d", i));
                         st.addBatch();
                     }
                     st.executeBatch();

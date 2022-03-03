@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -25,6 +26,7 @@ public class OneToOneIdTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testLifecycle() {
         Post _post = doInJPA(entityManager -> {
             Post post = new Post();

@@ -59,6 +59,8 @@ public class SQLServerServerSideTimeoutTest extends AbstractSQLServerIntegration
                     LOGGER.info("Done waiting");
                 });
             });
+        } catch (Exception expected) {
+            LOGGER.info("Query timed out", expected);
         } finally {
             executeStatement("EXEC sp_configure 'remote query timeout', 0");
             executeStatement("RECONFIGURE");

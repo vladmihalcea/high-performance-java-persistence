@@ -108,8 +108,8 @@ public class PostgreSQLJsonBinaryTypeNativeTest extends AbstractPostgreSQLIntegr
                         new BookReview()
                             .setReview("The best JPA ORM book out there")
                             .setRating(5)
-                    )
-                    //, JsonBinaryType.INSTANCE
+                    ),
+                    JsonBinaryType.INSTANCE
                 )
                 .executeUpdate();
 

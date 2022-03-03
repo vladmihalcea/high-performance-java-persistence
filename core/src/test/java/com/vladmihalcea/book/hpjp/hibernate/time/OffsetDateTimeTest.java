@@ -5,10 +5,8 @@ import org.hibernate.cfg.AvailableSettings;
 import org.junit.Test;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.sql.Timestamp;
+import java.time.*;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -33,6 +31,16 @@ public class OffsetDateTimeTest extends AbstractMySQLIntegrationTest {
 
     @Test
     public void test() {
+        OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(
+            Timestamp.valueOf(
+                LocalDateTime.of(
+                    2020, 5, 1,
+                    12, 30, 0
+                )
+            ).toInstant(),
+            ZoneId.systemDefault()
+        );
+
         doInJPA(entityManager -> {
             UserAccount user = new UserAccount()
                 .setId(1L)
@@ -48,12 +56,7 @@ public class OffsetDateTimeTest extends AbstractMySQLIntegrationTest {
                 .setId(1L)
                 .setTitle("High-Performance Java Persistence")
                 .setCreatedBy(user)
-                .setPublishedOn(
-                    LocalDateTime.of(
-                        2020, 5, 1,
-                        12, 30, 0
-                    ).atOffset(ZoneOffset.systemDefault().getRules().getOffset(LocalDateTime.now()))
-                );
+                .setPublishedOn(offsetDateTime);
 
             entityManager.persist(user);
 
@@ -66,10 +69,7 @@ public class OffsetDateTimeTest extends AbstractMySQLIntegrationTest {
             );
 
             assertEquals(
-                LocalDateTime.of(
-                    2020, 5, 1,
-                    12, 30, 0
-                ).atOffset(ZoneOffset.systemDefault().getRules().getOffset(LocalDateTime.now())),
+                offsetDateTime,
                 post.getPublishedOn()
             );
 

@@ -222,6 +222,7 @@ public class ExtraSQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testSelectAllEntities() {
         doInJPA(entityManager -> {
             List<Post> posts = findAll("com.vladmihalcea.book.hpjp.hibernate.forum.Post");

@@ -32,17 +32,15 @@ public class CascadeLockElementCollectionTest extends AbstractTest {
         };
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Post post = new Post();
             post.setTitle("Hibernate Master Class");
-            entityManager.persist(post);
-
             post.addDetails(new PostDetails());
             post.addComment(new PostComment("Good post!"));
             post.addComment(new PostComment("Nice post!"));
+
+            entityManager.persist(post);
         });
     }
 

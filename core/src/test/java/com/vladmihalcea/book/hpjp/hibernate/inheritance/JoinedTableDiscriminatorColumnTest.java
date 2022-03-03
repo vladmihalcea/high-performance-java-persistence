@@ -132,12 +132,12 @@ public class JoinedTableDiscriminatorColumnTest extends AbstractTest {
 
         doInJPA(entityManager -> {
 
-            List<Tuple> results = entityManager
-            .createQuery(
-                "select count(t), t.class " +
-                "from Topic t " +
-                "group by t.class " +
-                "order by t.class ")
+            List<Tuple> results = entityManager.createQuery("""
+                select count(t), t.class
+                from Topic t
+                group by t.class
+                order by t.class
+                """)
             .getResultList();
 
             assertEquals(2, results.size());
@@ -146,18 +146,18 @@ public class JoinedTableDiscriminatorColumnTest extends AbstractTest {
         doInJPA(entityManager -> {
             Board board = topic.getBoard();
 
-            List<Topic> topics = entityManager
-            .createQuery(
-                "select t " +
-                "from Topic t " +
-                "where t.board = :board " +
-                "order by t.class", Topic.class)
+            List<Topic> topics = entityManager.createQuery("""
+                select t
+                from Topic t
+                where t.board = :board
+                order by t.class
+                """, Topic.class)
             .setParameter("board", board)
             .getResultList();
 
             assertEquals(2, topics.size());
-            assertTrue(topics.get(0) instanceof Announcement);
-            assertTrue(topics.get(1) instanceof Post);
+            assertTrue(topics.get(0) instanceof Post);
+            assertTrue(topics.get(1) instanceof Announcement);
         });
     }
 

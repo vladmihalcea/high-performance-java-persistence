@@ -1,7 +1,9 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import org.hibernate.annotations.SortComparator;
+import org.hibernate.collection.internal.PersistentSortedSet;
 import org.junit.Test;
 import org.springframework.beans.BeanUtils;
 
@@ -47,9 +49,7 @@ public class ElementCollectionSortedSetMergeTest extends AbstractTest {
 
     @Test
     public void testMerge() {
-
         PostDTO postDTO = getPostDTO();
-
 
         doInJPA(entityManager -> {
 
@@ -92,7 +92,6 @@ public class ElementCollectionSortedSetMergeTest extends AbstractTest {
         postDTO.title = post.title;
         postDTO.categories = post.categories;
         postDTO.tags = post.tags;
-        postDTO.comments = new HashSet<>();
         postDTO.addComment(new Comment().setComment("Best book on JPA and Hibernate!").setAuthor("Alice"))
             .addComment(new Comment().setComment("A must-read for every Java developer!").setAuthor("Bob"))
             .addComment(new Comment().setComment("A great reference book").setAuthor("Carol"))
@@ -204,7 +203,7 @@ public class ElementCollectionSortedSetMergeTest extends AbstractTest {
 
         private String title;
 
-        private Set<Comment> comments = new HashSet<>();
+        private SortedSet<Comment> comments = new TreeSet<>();
 
         private Set<Tag> tags = new HashSet<>();
 
@@ -226,11 +225,11 @@ public class ElementCollectionSortedSetMergeTest extends AbstractTest {
             this.title = title;
         }
 
-        public Set<Comment> getComments() {
+        public SortedSet<Comment> getComments() {
             return comments;
         }
 
-        public void setComments(Set<Comment> comments) {
+        public void setComments(SortedSet<Comment> comments) {
             this.comments = comments;
         }
 

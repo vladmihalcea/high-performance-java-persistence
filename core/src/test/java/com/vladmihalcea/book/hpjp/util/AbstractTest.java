@@ -31,6 +31,8 @@ import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.hibernate.stat.CacheRegionStatistics;
+import org.hibernate.stat.Statistics;
+import org.hibernate.stat.internal.CacheRegionStatisticsImpl;
 import org.hibernate.type.BasicType;
 import org.hibernate.type.Type;
 import org.hibernate.usertype.CompositeUserType;
@@ -951,9 +953,15 @@ public abstract class AbstractTest {
     }
 
     private void printCacheRegionStatisticsEntries(String regionName) {
+        SessionFactory sessionFactory = sessionFactory();
+        Statistics statistics = sessionFactory.getStatistics();
+        if (sessionFactory.getSessionFactoryOptions().isQueryCacheEnabled()) {
+            ReflectionUtils.invokeMethod(statistics, "getQueryRegionStats", "default-query-results-region");
+        }
+
         CacheRegionStatistics cacheRegionStatistics = "default-query-results-region".equals(regionName) ?
-            sessionFactory().getStatistics().getQueryRegionStatistics(regionName) :
-            sessionFactory().getStatistics().getDomainDataRegionStatistics(regionName);
+            statistics.getQueryRegionStatistics(regionName) :
+            statistics.getDomainDataRegionStatistics(regionName);
 
         if (cacheRegionStatistics != null) {
             AbstractRegion region = ReflectionUtils.getFieldValue(cacheRegionStatistics, "region");

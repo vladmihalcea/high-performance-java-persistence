@@ -143,7 +143,7 @@ public class BytecodeEnhancementDirtyCheckingPerformanceTest extends AbstractTes
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testDirtyChecking() {
         doInJPA(entityManager -> {
             List<Post> posts = posts(entityManager);

@@ -109,7 +109,7 @@ public class IntegerDiscriminatorDescriptionTest extends AbstractMySQLIntegratio
                 ((Number) postTuple.get("discriminator")).intValue()
             );
             assertEquals(
-                Post.class.getName(),
+                Post.class.getSimpleName(),
                 postTuple.get("type_name")
             );
             assertEquals(

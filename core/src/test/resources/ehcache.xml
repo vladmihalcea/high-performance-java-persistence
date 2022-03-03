@@ -10,7 +10,7 @@
         <persistence strategy="none"/>
     </defaultCache>
 
-    <cache name="org.hibernate.cache.spi.TimestampsRegion"
+    <!--<cache name="org.hibernate.cache.spi.TimestampsRegion"
            maxEntriesLocalHeap="10000"
            eternal="true"
            copyOnRead="true"
@@ -24,6 +24,6 @@
            copyOnRead="true"
            copyOnWrite="true">
         <persistence strategy="none"/>
-    </cache>
+    </cache>-->
 
 </ehcache>

@@ -2,10 +2,18 @@ package com.vladmihalcea.book.hpjp.hibernate.time;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.hibernate.cfg.AvailableSettings;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.persistence.*;
-import java.time.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.sql.Time;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.ZoneOffset;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -28,9 +36,10 @@ public class OffsetDateTimeOffsetTimeTest extends AbstractMySQLIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void test() {
-        ZoneOffset zoneOffset = ZoneOffset.systemDefault().getRules()
-            .getOffset(LocalDateTime.now());
+        ZoneOffset offset = OffsetDateTime.now().getOffset();
+        OffsetTime offsetTime = OffsetTime.of(7, 30, 0, 0, offset);
 
         doInJPA(entityManager -> {
             Notification notification = new Notification()
@@ -39,10 +48,8 @@ public class OffsetDateTimeOffsetTimeTest extends AbstractMySQLIntegrationTest {
                     LocalDateTime.of(
                         2020, 5, 1,
                         12, 30, 0
-                    ).atOffset(zoneOffset)
-                ).setClockAlarm(
-                    OffsetTime.of(7, 30, 0, 0, zoneOffset)
-                );
+                    ).atOffset(offset)
+                ).setClockAlarm(offsetTime);
 
             entityManager.persist(notification);
         });
@@ -56,12 +63,12 @@ public class OffsetDateTimeOffsetTimeTest extends AbstractMySQLIntegrationTest {
                 LocalDateTime.of(
                     2020, 5, 1,
                     12, 30, 0
-                ).atOffset(zoneOffset),
+                ).atOffset(offset),
                 notification.getCreatedOn()
             );
 
             assertEquals(
-                OffsetTime.of(7, 30, 0, 0, zoneOffset),
+                java.sql.Time.valueOf(offsetTime.toLocalTime()).toLocalTime().atOffset(offset),
                 notification.getClockAlarm()
             );
         });

@@ -19,7 +19,7 @@ public class SQLServerBatchUpdateExceptionTest extends AbstractBatchUpdateExcept
 
     @Override
     protected void onBatchUpdateException(BatchUpdateException e) {
-        assertSame(2, e.getUpdateCounts().length);
+        assertSame(3, e.getUpdateCounts().length);
         LOGGER.info(e.getMessage());
         LOGGER.info("Batch has managed to process {} entries",
             Arrays.stream(e.getUpdateCounts()).asLongStream().filter(l -> l > 0).count()
