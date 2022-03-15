@@ -8,7 +8,6 @@ import org.hibernate.event.spi.PostLoadEvent;
 import javax.persistence.EntityManager;
 import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -90,13 +89,13 @@ public class AssociationFetch {
 
         public void preLoad(LoadEvent loadEvent) {
             String entityClassName = loadEvent.getEntityClassName();
-            entityFetchCountByClassNameMap.put(entityClassName, SessionStatistics.getFetchesCount(entityClassName));
+            entityFetchCountByClassNameMap.put(entityClassName, SessionStatistics.getEntityFetchCount(entityClassName));
         }
 
         public void load(LoadEvent loadEvent) {
             String entityClassName = loadEvent.getEntityClassName();
             int previousFetchCount = entityFetchCountByClassNameMap.get(entityClassName);
-            int currentFetchCount = SessionStatistics.getFetchesCount(entityClassName);
+            int currentFetchCount = SessionStatistics.getEntityFetchCount(entityClassName);
 
             EntityIdentifier entityIdentifier = new EntityIdentifier(
                 ReflectionUtils.getClass(loadEvent.getEntityClassName()),

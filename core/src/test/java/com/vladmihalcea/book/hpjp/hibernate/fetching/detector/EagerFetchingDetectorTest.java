@@ -1,9 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching.detector;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.SessionFactory;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.integrator.spi.Integrator;
+import org.hibernate.stat.internal.StatisticsInitiator;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -31,8 +34,12 @@ public class EagerFetchingDetectorTest extends AbstractTest {
     @Override
     protected void additionalProperties(Properties properties) {
         properties.put(
-            "hibernate.stats.factory",
-            SessionStatistics.SessionStatisticsFactory.INSTANCE
+            AvailableSettings.GENERATE_STATISTICS,
+            Boolean.TRUE.toString()
+        );
+        properties.put(
+            StatisticsInitiator.STATS_BUILDER,
+            SessionStatistics.Factory.INSTANCE
         );
     }
 
@@ -164,6 +171,54 @@ public class EagerFetchingDetectorTest extends AbstractTest {
         });
     }
 
+    @Test
+    public void testStatisticsSecondaryQueries() {
+        doInJPA(entityManager -> {
+            assertEquals(0, SessionStatistics.getEntityFetchCount(PostCommentDetails.class));
+            assertEquals(0, SessionStatistics.getEntityFetchCount(PostComment.class));
+            assertEquals(0, SessionStatistics.getEntityFetchCount(Post.class));
+
+            List<PostCommentDetails> commentDetailsList = entityManager.createQuery("""
+                select pcd
+                from PostCommentDetails pcd
+                order by pcd.id
+                """,
+                PostCommentDetails.class)
+            .getResultList();
+
+            assertEquals(2, commentDetailsList.size());
+
+            assertEquals(0, SessionStatistics.getEntityFetchCount(PostCommentDetails.class));
+            assertEquals(2, SessionStatistics.getEntityFetchCount(PostComment.class));
+            assertEquals(0, SessionStatistics.getEntityFetchCount(Post.class));
+        });
+    }
+
+    @Test
+    public void testStatisticsJoinFetch() {
+        doInJPA(entityManager -> {
+            assertEquals(0, SessionStatistics.getEntityFetchCount(PostCommentDetails.class));
+            assertEquals(0, SessionStatistics.getEntityFetchCount(PostComment.class));
+            assertEquals(0, SessionStatistics.getEntityFetchCount(Post.class));
+
+            List<PostCommentDetails> commentDetailsList = entityManager.createQuery("""
+                select pcd
+                from PostCommentDetails pcd
+                join fetch pcd.comment pc
+                join fetch pc.post
+                order by pcd.id
+                """,
+                PostCommentDetails.class)
+            .getResultList();
+
+            assertEquals(2, commentDetailsList.size());
+
+            assertEquals(0, SessionStatistics.getEntityFetchCount(PostCommentDetails.class));
+            assertEquals(0, SessionStatistics.getEntityFetchCount(PostComment.class));
+            assertEquals(0, SessionStatistics.getEntityFetchCount(Post.class));
+        });
+    }
+
     @Entity(name = "Post")
     @Table(name = "post")
     public static class Post {
@@ -224,10 +279,6 @@ public class EagerFetchingDetectorTest extends AbstractTest {
 
         public void setReview(String review) {
             this.review = review;
-        }
-
-        public Post root() {
-            return post;
         }
     }
 
