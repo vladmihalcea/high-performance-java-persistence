@@ -11,12 +11,10 @@ import org.slf4j.LoggerFactory;
  */
 public class AssociationFetchPreLoadEventListener implements LoadEventListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AssociationFetchPreLoadEventListener.class);
-
     public static final AssociationFetchPreLoadEventListener INSTANCE = new AssociationFetchPreLoadEventListener();
 
     @Override
-    public void onLoad(LoadEvent event, LoadType loadType) throws HibernateException {
+    public void onLoad(LoadEvent event, LoadType loadType) {
         AssociationFetch.Context
             .get(event.getSession())
             .preLoad(event);

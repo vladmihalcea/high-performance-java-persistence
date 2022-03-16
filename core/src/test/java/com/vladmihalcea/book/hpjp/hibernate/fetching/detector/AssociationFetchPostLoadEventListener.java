@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
  */
 public class AssociationFetchPostLoadEventListener implements PostLoadEventListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AssociationFetchPostLoadEventListener.class);
-
     public static final AssociationFetchPostLoadEventListener INSTANCE = new AssociationFetchPostLoadEventListener();
 
     @Override
