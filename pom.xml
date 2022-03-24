@@ -489,13 +489,14 @@
                         <compilerArg>--enable-preview</compilerArg>
                     </compilerArgs>
 
-                    <annotationProcessorPaths>
+                    <!-- Not needed, should be auto-discovered -->
+                    <!--<annotationProcessorPaths>
                         <annotationProcessorPath>
                             <groupId>org.hibernate</groupId>
                             <artifactId>hibernate-jpamodelgen</artifactId>
                             <version>${hibernate.version}</version>
                         </annotationProcessorPath>
-                    </annotationProcessorPaths>
+                    </annotationProcessorPaths>-->
                 </configuration>
             </plugin>
 
