@@ -1,5 +1,5 @@
 @echo off
 
-call mvn clean test-compile
+call mvnw clean test-compile
 
 goto:eof

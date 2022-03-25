@@ -89,6 +89,52 @@ However, on Eclipse it has been reported that you need to consider the following
 
 The Integration Tests require some external configurations:
 
+### Docker-compose Database setup
+
+Use the provided docker compose file in the `docker` subdirectory.
+
+The following manual steps are necessary:
+
+For MS-SQL:
+
+    docker exec -it sql1 "bash"
+    ...       
+    /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "adminPassword1!"
+    ...
+    CREATE DATABASE high_performance_java_persistence
+    GO
+
+    ALTER LOGIN sa
+    WITH CHECK_POLICY = OFF
+    GO
+
+    ALTER LOGIN sa
+    WITH PASSWORD = 'admin'
+    GO
+
+    exit
+    ...
+    exit
+
+For Oracle-XE:
+
+    docker exec -it oraclexe "bash"
+    ...
+    sqlplus sys as sysdba
+    ...
+    alter session set "_ORACLE_SCRIPT"=true;
+    create user oracle identified by admin default tablespace users;
+    grant dba to oracle;
+    alter system set processes=1000 scope=spfile;
+    alter system set sessions=1000 scope=spfile;
+    ALTER PROFILE DEFAULT LIMIT PASSWORD_LIFE_TIME UNLIMITED;
+    ...
+    quit
+    ...
+    exit
+
+### Manual Database configuration
+
 - PostgreSQL
 
     You should install PostgreSQL and the password for the `postgres` user should be `admin`.
@@ -157,7 +203,7 @@ The Integration Tests require some external configurations:
 
 To build the project, don't use *install* or *package*. Instead, just compile test classes like this:
 
-    mvn clean test-compile
+    mvnw clean test-compile
     
 Or you can just run the `build.bat` or `build.sh` scripts which run the above Maven command.
     
