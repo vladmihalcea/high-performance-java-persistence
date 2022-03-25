@@ -1,0 +1,57 @@
+version: "3.9"
+
+volumes:
+  mypostgresdata:
+  mymysqldata:
+  mysqldata:
+  myoracledata:
+
+services:
+
+  postgres:
+    image: postgres:12.5
+    environment:
+      POSTGRES_DB: high_performance_java_persistence 
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - mypostgresdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    restart: on-failure
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: admin
+      MYSQL_DATABASE: high_performance_java_persistence
+    volumes:
+      - mymysqldata:/var/lib/mysql
+    ports:
+      - 3306:3306
+    restart: on-failure
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    container_name: sql1
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: adminPassword1!
+      MYSQL_PID: Express
+    volumes:
+      - mysqldata:/var/opt/mssql
+    ports: 
+      - 1433:1433
+    restart: on-failure
+
+  oracle:
+    image: gvenzl/oracle-xe:18
+    container_name: oraclexe
+    environment:
+      ORACLE_PASSWORD: admin
+    volumes:
+      - myoracledata:/opt/oracle/oradata
+    ports:
+      - 1521:1521
