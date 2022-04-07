@@ -6,8 +6,8 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.junit.Test;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.util.List;
 import java.util.Properties;
 
@@ -28,7 +28,7 @@ public class QueryLoadedStateTest extends AbstractTest {
     @Override
     protected void additionalProperties(Properties properties) {
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
-        properties.put("hibernate.cache.region.factory_class", "ehcache");
+        properties.put("hibernate.cache.region.factory_class", "jcache");
         properties.put("hibernate.cache.use_query_cache", Boolean.TRUE.toString());
     }
 

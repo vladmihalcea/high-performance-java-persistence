@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;

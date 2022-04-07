@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 public class SimpleSequenceIdentifierTest extends AbstractTest {
 

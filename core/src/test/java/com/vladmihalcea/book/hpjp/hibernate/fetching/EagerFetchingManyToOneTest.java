@@ -5,7 +5,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Collections;
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.util.transaction;
 
 import java.util.function.Consumer;
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 /**
  * @author Vlad Mihalcea

@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.util.exception;
 import org.hibernate.PessimisticLockException;
 import org.hibernate.exception.LockAcquisitionException;
 
-import javax.persistence.LockTimeoutException;
+import jakarta.persistence.LockTimeoutException;
 import java.sql.SQLTimeoutException;
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +18,7 @@ public interface ExceptionUtil {
             LockAcquisitionException.class,
             LockTimeoutException.class,
             PessimisticLockException.class,
-            javax.persistence.PessimisticLockException.class,
+            jakarta.persistence.PessimisticLockException.class,
             SQLTimeoutException.class
     );
 

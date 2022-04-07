@@ -6,7 +6,7 @@ import com.vladmihalcea.book.hpjp.jooq.pgsql.schema.score.routines.PostCommentSc
 import org.hibernate.query.NativeQuery;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
 

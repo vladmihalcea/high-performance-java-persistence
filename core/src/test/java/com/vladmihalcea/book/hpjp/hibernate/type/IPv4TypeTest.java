@@ -1,19 +1,18 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.hibernate.type.basic.Inet;
+import com.vladmihalcea.hibernate.type.basic.PostgreSQLInetType;
+import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 import org.junit.Test;
 
-import javax.persistence.*;
-import java.net.UnknownHostException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
 
@@ -132,26 +131,26 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
 
     @Entity(name = "Event")
     @Table(name = "event")
-    @TypeDef(name = "ipv4", typeClass = IPv4Type.class, defaultForType = IPv4.class)
     public static class Event {
 
         @Id
         @GeneratedValue
         private Long id;
 
+        @Type(PostgreSQLInetType.class)
         @Column(name = "ip", columnDefinition = "inet")
-        private IPv4 ip;
+        private Inet ip;
 
         public Long getId() {
             return id;
         }
 
-        public IPv4 getIp() {
+        public Inet getIp() {
             return ip;
         }
 
         public void setIp(String address) {
-            this.ip = new IPv4(address);
+            this.ip = new Inet(address);
         }
     }
 }

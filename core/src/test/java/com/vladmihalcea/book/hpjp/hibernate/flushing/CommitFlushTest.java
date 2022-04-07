@@ -5,7 +5,7 @@ import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
-import javax.persistence.FlushModeType;
+import jakarta.persistence.FlushModeType;
 
 import static com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.Post;
 import static org.junit.Assert.assertTrue;

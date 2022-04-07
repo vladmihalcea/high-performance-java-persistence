@@ -1,10 +1,11 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.hibernate.type.basic.NullableCharacterType;
+import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -59,7 +60,7 @@ public class CharacterTypeTest extends AbstractTest {
         @GeneratedValue
         private Long id;
 
-        @Type(type = "com.vladmihalcea.book.hpjp.hibernate.type.CharacterType")
+        @Type(NullableCharacterType.class)
         @Column(name = "event_type")
         private Character type;
 

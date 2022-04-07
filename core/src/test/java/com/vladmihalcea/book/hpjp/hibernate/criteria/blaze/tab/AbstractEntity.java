@@ -2,10 +2,10 @@ package com.vladmihalcea.book.hpjp.hibernate.criteria.blaze.tab;
 
 import org.springframework.lang.Nullable;
 
-import javax.persistence.MappedSuperclass;
-import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
-import javax.persistence.Transient;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Transient;
 import java.io.Serializable;
 
 @MappedSuperclass

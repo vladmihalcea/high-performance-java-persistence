@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;

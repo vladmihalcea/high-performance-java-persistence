@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.annotations.JoinFormula;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Statement;
 import java.util.Locale;
 import java.util.Objects;

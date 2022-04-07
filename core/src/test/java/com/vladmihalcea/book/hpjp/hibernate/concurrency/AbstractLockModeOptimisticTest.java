@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Before;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * AbstractLockModeOptimisticTest - Base Test to check LockMode.OPTIMISTIC

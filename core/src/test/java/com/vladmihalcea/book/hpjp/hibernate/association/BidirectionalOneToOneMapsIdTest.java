@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.association;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
 

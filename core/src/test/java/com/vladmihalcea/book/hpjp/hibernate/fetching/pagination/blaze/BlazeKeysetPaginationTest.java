@@ -12,7 +12,7 @@ import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.cfg.AvailableSettings;
 import org.junit.Test;
 
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Properties;

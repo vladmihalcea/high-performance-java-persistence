@@ -1,11 +1,11 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching.detector;
 
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
+import jakarta.persistence.EntityManager;
 import org.hibernate.Session;
 import org.hibernate.event.spi.LoadEvent;
 import org.hibernate.event.spi.PostLoadEvent;
 
-import javax.persistence.EntityManager;
 import java.io.Serializable;
 import java.util.*;
 
@@ -138,9 +138,9 @@ public class AssociationFetch {
     private static class EntityIdentifier {
         private final Class entityClass;
 
-        private final Serializable entityId;
+        private final Object entityId;
 
-        public EntityIdentifier(Class entityClass, Serializable entityId) {
+        public EntityIdentifier(Class entityClass, Object entityId) {
             this.entityClass = entityClass;
             this.entityId = entityId;
         }
@@ -149,7 +149,7 @@ public class AssociationFetch {
             return entityClass;
         }
 
-        public Serializable getEntityId() {
+        public Object getEntityId() {
             return entityId;
         }
 

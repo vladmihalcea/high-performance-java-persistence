@@ -8,7 +8,7 @@ import com.vladmihalcea.book.hpjp.util.transaction.JPATransactionFunction;
 import org.hibernate.integrator.spi.Integrator;
 import org.junit.Test;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;

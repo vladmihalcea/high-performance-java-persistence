@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching.multiple;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;

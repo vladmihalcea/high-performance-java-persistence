@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.basic;
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;

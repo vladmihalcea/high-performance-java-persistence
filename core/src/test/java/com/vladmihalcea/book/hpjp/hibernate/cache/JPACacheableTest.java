@@ -7,7 +7,7 @@ import org.hibernate.stat.Statistics;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 import java.util.Properties;
 
@@ -29,7 +29,7 @@ public class JPACacheableTest extends AbstractTest {
     @Override
     protected Properties properties() {
         Properties properties = super.properties();
-        properties.put("hibernate.cache.region.factory_class", "ehcache");
+        properties.put("hibernate.cache.region.factory_class", "jcache");
         properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
         return properties;
     }

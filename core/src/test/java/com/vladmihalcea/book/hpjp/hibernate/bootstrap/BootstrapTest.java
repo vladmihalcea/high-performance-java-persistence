@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.bootstrap;
 import com.vladmihalcea.book.hpjp.util.transaction.JPATransactionVoidFunction;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * @author Vlad Mihalcea

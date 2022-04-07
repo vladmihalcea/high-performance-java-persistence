@@ -4,12 +4,12 @@ import java.io.Serializable;
 import java.sql.Statement;
 import java.util.Objects;
 import java.util.Properties;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import org.hibernate.Session;
 import org.hibernate.annotations.SQLInsert;

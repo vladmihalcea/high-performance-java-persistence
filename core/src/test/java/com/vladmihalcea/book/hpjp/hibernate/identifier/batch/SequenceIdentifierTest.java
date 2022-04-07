@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier.batch;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 public class SequenceIdentifierTest extends AbstractBatchIdentifierTest {
 

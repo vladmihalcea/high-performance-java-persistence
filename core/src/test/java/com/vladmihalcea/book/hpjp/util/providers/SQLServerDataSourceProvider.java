@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.util.providers;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.SQLServerQueries;
+import org.hibernate.dialect.SQLServerDialect;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -24,7 +25,7 @@ public class SQLServerDataSourceProvider implements DataSourceProvider {
 
 	@Override
 	public String hibernateDialect() {
-		return "org.hibernate.dialect.SQLServer2012Dialect";
+		return SQLServerDialect.class.getName();
 	}
 
 	@Override

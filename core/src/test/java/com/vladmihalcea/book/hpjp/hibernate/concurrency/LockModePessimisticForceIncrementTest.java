@@ -6,7 +6,7 @@ import org.hibernate.annotations.Immutable;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;

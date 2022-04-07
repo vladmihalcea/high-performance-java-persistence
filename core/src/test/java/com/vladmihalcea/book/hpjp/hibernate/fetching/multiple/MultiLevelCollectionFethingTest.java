@@ -6,7 +6,7 @@ import org.hibernate.annotations.QueryHints;
 import org.hibernate.loader.MultipleBagFetchException;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -115,7 +115,6 @@ public class MultiLevelCollectionFethingTest extends AbstractPostgreSQLIntegrati
                 """, Post.class)
             .setParameter("minId", 1L)
             .setParameter("maxId", 50L)
-            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
             .getResultList();
 
             entityManager.createQuery("""
@@ -125,7 +124,6 @@ public class MultiLevelCollectionFethingTest extends AbstractPostgreSQLIntegrati
                 where p in :posts
                 """, Post.class)
             .setParameter("posts", _posts)
-            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
             .getResultList();
 
             entityManager.createQuery("""
@@ -136,7 +134,6 @@ public class MultiLevelCollectionFethingTest extends AbstractPostgreSQLIntegrati
                 where p in :posts
                 """, PostComment.class)
             .setParameter("posts", _posts)
-            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
             .getResultList();
 
             return _posts;

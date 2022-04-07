@@ -5,7 +5,7 @@ import org.hibernate.query.NativeQuery;
 import org.hibernate.transform.ResultTransformer;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;

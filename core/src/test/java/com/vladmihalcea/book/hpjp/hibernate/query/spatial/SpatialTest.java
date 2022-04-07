@@ -1,23 +1,19 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.spatial;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
-import org.geolatte.geom.jts.JTS;
-import org.hibernate.annotations.Type;
+import jakarta.persistence.*;
+import jakarta.persistence.spi.PersistenceUnitInfo;
+import org.hibernate.annotations.JavaType;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
-import org.hibernate.spatial.dialect.postgis.PostgisDialect;
+import org.hibernate.spatial.JTSGeometryJavaType;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 
-import javax.persistence.*;
-import javax.persistence.spi.PersistenceUnitInfo;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -96,16 +92,6 @@ public class SpatialTest extends AbstractPostgreSQLIntegrationTest {
         super.destroy();
     }
 
-    @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new PostgreSQLDataSourceProvider() {
-            @Override
-            public String hibernateDialect() {
-                return PostgisDialect.class.getName();
-            }
-        };
-    }
-
     @Test
     public void test() {
         Long addressId = doInJPA(entityManager -> {
@@ -141,7 +127,7 @@ public class SpatialTest extends AbstractPostgreSQLIntegrationTest {
 
         private String number;
 
-        @Type(type = "jts_geometry")
+        @JavaType(JTSGeometryJavaType.class)
         private Point location;
 
         public Long getId() {

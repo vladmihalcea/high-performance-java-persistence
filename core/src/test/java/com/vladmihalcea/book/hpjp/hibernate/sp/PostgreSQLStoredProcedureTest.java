@@ -12,9 +12,9 @@ import org.hibernate.result.ResultSetOutput;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.ParameterMode;
-import javax.persistence.StoredProcedureQuery;
-import javax.persistence.Tuple;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureQuery;
+import jakarta.persistence.Tuple;
 import java.sql.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -123,8 +123,10 @@ public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegration
             Session session = entityManager.unwrap(Session.class);
 
             ProcedureCall call = session.createStoredProcedureCall("count_comments");
-            call.registerParameter("postId", Long.class, ParameterMode.IN).bindValue(1L);
+            call.registerParameter("postId", Long.class, ParameterMode.IN);
             call.registerParameter("commentCount", Long.class, ParameterMode.OUT);
+
+            call.setParameter("postId", 1L);
 
             Long commentCount = (Long) call.getOutputs().getOutputParameterValue("commentCount");
             assertEquals(Long.valueOf(2), commentCount);
@@ -206,7 +208,9 @@ public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegration
             ProcedureCall call = session
                 .createStoredProcedureCall("post_comments");
             call.registerParameter(1, void.class, ParameterMode.REF_CURSOR);
-            call.registerParameter(2, Long.class, ParameterMode.IN).bindValue(1L);
+            call.registerParameter(2, Long.class, ParameterMode.IN);
+
+            call.setParameter(2, 1L);
 
             Output output = call.getOutputs().getCurrent();
             if (output.isResultSet()) {

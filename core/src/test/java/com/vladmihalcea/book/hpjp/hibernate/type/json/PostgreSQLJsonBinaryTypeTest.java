@@ -4,25 +4,15 @@ import com.vladmihalcea.book.hpjp.hibernate.type.json.model.BaseEntity;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.model.Location;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.model.Ticket;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
-import org.hibernate.SessionFactory;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import org.hibernate.annotations.Type;
-import org.hibernate.boot.MetadataBuilder;
-import org.hibernate.boot.model.TypeContributions;
-import org.hibernate.boot.model.TypeContributor;
-import org.hibernate.boot.spi.MetadataBuilderContributor;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.function.StandardSQLFunction;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.service.ServiceRegistry;
-import org.hibernate.type.StandardBasicTypes;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
 
@@ -113,7 +103,7 @@ public class PostgreSQLJsonBinaryTypeTest extends AbstractPostgreSQLIntegrationT
     @Table(name = "event")
     public static class Event extends BaseEntity {
 
-        @Type(type = "jsonb")
+        @Type(JsonBinaryType.class)
         @Column(columnDefinition = "jsonb")
         private Location location;
 
@@ -130,7 +120,7 @@ public class PostgreSQLJsonBinaryTypeTest extends AbstractPostgreSQLIntegrationT
     @Table(name = "participant")
     public static class Participant extends BaseEntity {
 
-        @Type(type = "jsonb")
+        @Type(JsonBinaryType.class)
         @Column(columnDefinition = "jsonb")
         private Ticket ticket;
 

@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 import org.hibernate.annotations.Parent;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 

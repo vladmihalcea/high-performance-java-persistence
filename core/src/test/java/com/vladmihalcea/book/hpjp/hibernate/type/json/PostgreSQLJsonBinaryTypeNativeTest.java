@@ -1,14 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.json;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -157,7 +157,6 @@ public class PostgreSQLJsonBinaryTypeNativeTest extends AbstractPostgreSQLIntegr
 
     @Entity(name = "Book")
     @Table(name = "book")
-    @TypeDef(typeClass = JsonBinaryType.class, name = "jsonb")
     public static class Book {
 
         @Id
@@ -173,11 +172,11 @@ public class PostgreSQLJsonBinaryTypeNativeTest extends AbstractPostgreSQLIntegr
 
         private BigDecimal price;
 
-        @Type(type = "jsonb")
+        @Type(JsonBinaryType.class)
         @Column(columnDefinition = "jsonb")
         private List<BookReview> reviews = new ArrayList<>();
 
-        @Type(type = "jsonb")
+        @Type(JsonBinaryType.class)
         @Column(columnDefinition = "jsonb")
         private BookProperties properties;
 

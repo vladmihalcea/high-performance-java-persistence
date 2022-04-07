@@ -2,14 +2,21 @@ package com.vladmihalcea.book.hpjp.hibernate.audit.trigger;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
+import com.vladmihalcea.hibernate.type.json.JsonNodeBinaryType;
+import com.vladmihalcea.hibernate.type.json.JsonNodeStringType;
 import org.hibernate.Session;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.jpa.boot.spi.TypeContributorList;
+import org.hibernate.usertype.UserType;
 import org.junit.Test;
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,6 +35,11 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
     @Override
     protected Database database() {
         return Database.MYSQL;
+    }
+
+    @Override
+    protected List<UserType<?>> additionalTypes() {
+        return List.of(JsonNodeStringType.INSTANCE);
     }
 
     @Override
@@ -164,7 +176,7 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
         Dialect dialect = session.getSessionFactory().unwrap(SessionFactoryImplementor.class).getJdbcServices().getDialect();
         String loggedUser = ReflectionUtils.invokeMethod(
             dialect,
-            "escapeLiteral",
+            "inlineLiteral",
             LoggedUser.get()
         );
 
@@ -172,7 +184,7 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
             update(
                 connection,
                 String.format(
-                    "SET @logged_user = '%s'", loggedUser
+                    "SET @logged_user = %s", loggedUser
                 )
             );
         });

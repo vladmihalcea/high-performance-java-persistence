@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 public class PooledDefaultSequenceIdentifierTest extends AbstractPooledSequenceIdentifierTest {
 

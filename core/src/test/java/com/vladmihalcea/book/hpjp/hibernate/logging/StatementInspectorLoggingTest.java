@@ -3,10 +3,10 @@ package com.vladmihalcea.book.hpjp.hibernate.logging;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.util.Properties;
 
 /**

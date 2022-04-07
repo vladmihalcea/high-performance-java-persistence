@@ -9,7 +9,7 @@ import org.hibernate.jpa.boot.spi.TypeContributorList;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.YearMonth;
 import java.util.Collections;
 import java.util.Properties;

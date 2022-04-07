@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 
 import static org.junit.Assert.assertFalse;

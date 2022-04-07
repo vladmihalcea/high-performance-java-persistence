@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
 import org.hibernate.jpa.QueryHints;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.List;
 import java.util.Properties;
 

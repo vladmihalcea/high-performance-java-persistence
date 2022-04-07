@@ -9,7 +9,7 @@ import org.hibernate.jpa.QueryHints;
 import org.junit.Test;
 import org.slf4j.MDC;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Properties;
 
 import static org.junit.Assert.assertTrue;

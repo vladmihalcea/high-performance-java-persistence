@@ -1,18 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.query;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.cfg.AvailableSettings;
+import jakarta.persistence.*;
 import org.hibernate.query.NativeQuery;
-import org.hibernate.type.StringType;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * @author Vlad Mihalcea
@@ -45,7 +41,7 @@ public class PostgreSQLNativeQueryNullParameterTest extends AbstractPostgreSQLIn
                 "FROM Event " +
                 "WHERE (:name is null or name = :name)", Event.class)
             .unwrap(NativeQuery.class)
-            .setParameter("name", null, StringType.INSTANCE)
+            .setParameter("name", null, String.class)
             .getResultList();
         });
     }

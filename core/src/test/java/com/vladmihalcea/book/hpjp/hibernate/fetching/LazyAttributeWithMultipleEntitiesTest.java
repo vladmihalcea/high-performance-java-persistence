@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.hibernate.forum.MediaType;
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;

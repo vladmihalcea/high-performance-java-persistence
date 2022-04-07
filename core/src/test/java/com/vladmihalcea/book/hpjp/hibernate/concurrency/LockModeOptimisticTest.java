@@ -2,9 +2,9 @@ package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
 import org.junit.Test;
 
-import javax.persistence.LockModeType;
-import javax.persistence.OptimisticLockException;
-import javax.persistence.RollbackException;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.RollbackException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;

@@ -4,19 +4,18 @@ import com.mysql.cj.jdbc.MysqlDataSource;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import org.hibernate.MultiTenancyStrategy;
+import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Environment;
 import org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl;
 import org.junit.Test;
-import org.postgresql.ds.PGSimpleDataSource;
 
-import javax.persistence.*;
 import javax.sql.DataSource;
 import java.sql.Statement;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -41,7 +40,6 @@ public class CatalogMultitenancyTest extends AbstractTest {
     protected void additionalProperties(Properties properties) {
         properties.setProperty(AvailableSettings.HBM2DDL_AUTO, "none");
         properties.setProperty(AvailableSettings.SHOW_SQL, "true");
-        properties.setProperty(AvailableSettings.MULTI_TENANT, MultiTenancyStrategy.DATABASE.name());
         properties.put(AvailableSettings.MULTI_TENANT_CONNECTION_PROVIDER, MultiTenantConnectionProvider.INSTANCE);
         properties.setProperty(AvailableSettings.MULTI_TENANT_IDENTIFIER_RESOLVER, TenantContext.TenantIdentifierResolver.class.getName());
     }
@@ -49,7 +47,7 @@ public class CatalogMultitenancyTest extends AbstractTest {
     @Override
     public void afterInit() {
         MysqlDataSource defaultDataSource = (MysqlDataSource) database().dataSourceProvider().dataSource();
-        addTenantConnectionProvider(TenantContext.DEFAULT_TENANT_IDENTIFIER, defaultDataSource, properties());
+        addTenantConnectionProvider(TenantContext.DEFAULT_TENANT_IDENTIFIER, defaultDataSource, propertiesMap());
 
         createCatalog("europe");
         createCatalog("asia");
@@ -78,7 +76,7 @@ public class CatalogMultitenancyTest extends AbstractTest {
     private void addTenantConnectionProvider(String tenantId) {
         DataSourceProvider dataSourceProvider = database().dataSourceProvider();
 
-        Properties properties = properties();
+        Map<String, Object> properties = propertiesMap();
 
         MysqlDataSource tenantDataSource = new MysqlDataSource();
         tenantDataSource.setDatabaseName(tenantId);
@@ -93,7 +91,7 @@ public class CatalogMultitenancyTest extends AbstractTest {
         addTenantConnectionProvider(tenantId, tenantDataSource, properties);
     }
     
-    private void addTenantConnectionProvider(String tenantId, DataSource tenantDataSource, Properties properties) {
+    private void addTenantConnectionProvider(String tenantId, DataSource tenantDataSource, Map<String, Object> properties) {
         DatasourceConnectionProviderImpl connectionProvider = new DatasourceConnectionProviderImpl();
         connectionProvider.setDataSource(tenantDataSource);
         connectionProvider.configure(properties);

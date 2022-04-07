@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection;
 import com.vladmihalcea.book.hpjp.hibernate.association.BidirectionalOneToManyTest;
 import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

@@ -5,7 +5,7 @@ import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Session;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Connection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;

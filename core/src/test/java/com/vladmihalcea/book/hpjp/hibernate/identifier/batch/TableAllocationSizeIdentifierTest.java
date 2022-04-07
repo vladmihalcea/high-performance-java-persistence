@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier.batch;
 import org.hibernate.annotations.GenericGenerator;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 public class TableAllocationSizeIdentifierTest extends AbstractBatchIdentifierTest {
 

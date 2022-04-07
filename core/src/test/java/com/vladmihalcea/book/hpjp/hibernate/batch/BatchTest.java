@@ -5,7 +5,7 @@ import org.hibernate.Session;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * @author Vlad Mihalcea

@@ -6,7 +6,7 @@ import org.hibernate.LockOptions;
 import org.junit.Test;
 import org.slf4j.MDC;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Properties;
 
 import static org.junit.Assert.assertTrue;
@@ -77,7 +77,7 @@ public class MySQLMDCLoggingTest extends AbstractMySQLIntegrationTest {
                                 .unwrap(org.hibernate.query.Query.class)
                                 .setLockMode(LockModeType.PESSIMISTIC_WRITE)
                                 .setHint(
-                                    "javax.persistence.lock.timeout",
+                                    "jakarta.persistence.lock.timeout",
                                     LockOptions.NO_WAIT
                                 )
                                 .getSingleResult();

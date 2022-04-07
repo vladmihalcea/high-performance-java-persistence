@@ -6,7 +6,7 @@ import org.hibernate.jpa.QueryHints;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 import java.util.stream.LongStream;
 

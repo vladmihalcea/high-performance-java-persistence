@@ -4,16 +4,10 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.CryptoUtils;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
-import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
-import org.hibernate.Session;
-import org.hibernate.annotations.ColumnTransformer;
+import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.annotations.Type;
 import org.junit.Test;
-
-import javax.persistence.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -74,7 +68,6 @@ public class MySQLJsonEncryptTest extends AbstractTest {
 	@Entity
 	@Table(name = "users")
 	@DynamicUpdate
-	@TypeDef(typeClass = JsonStringType.class, defaultForType = UserDetails.class)
 	public static class User {
 
 		@Id
@@ -82,6 +75,7 @@ public class MySQLJsonEncryptTest extends AbstractTest {
 
 		private String username;
 
+		@Type(JsonStringType.class)
 		@Column(columnDefinition = "json")
 		private UserDetails details;
 

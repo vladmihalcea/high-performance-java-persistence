@@ -1,16 +1,10 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.array;
 
-import com.vladmihalcea.book.hpjp.hibernate.type.json.model.BaseEntity;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+import com.vladmihalcea.hibernate.type.array.IntArrayType;
+import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 import org.junit.Test;
-
-import javax.persistence.*;
-
-import static org.junit.Assert.assertArrayEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -21,16 +15,6 @@ public class PostgreSQLArrayUnnestTest extends AbstractPostgreSQLIntegrationTest
     protected Class<?>[] entities() {
         return new Class<?>[]{
             Event.class,
-        };
-    }
-
-    @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new PostgreSQLDataSourceProvider() {
-            @Override
-            public String hibernateDialect() {
-                return PostgreSQL95ArrayDialect.class.getName();
-            }
         };
     }
 
@@ -63,16 +47,17 @@ public class PostgreSQLArrayUnnestTest extends AbstractPostgreSQLIntegrationTest
 
     @Entity(name = "Event")
     @Table(name = "event")
-    @TypeDef(typeClass = IntArrayType.class, defaultForType = int[].class)
     public static class Event {
 
         @Id
         @GeneratedValue
         private Long id;
 
+        @Type(IntArrayType.class)
         @Column(columnDefinition = "integer[]")
         private int[] t1;
 
+        @Type(IntArrayType.class)
         @Column(columnDefinition = "integer[]")
         private int[] t2;
 

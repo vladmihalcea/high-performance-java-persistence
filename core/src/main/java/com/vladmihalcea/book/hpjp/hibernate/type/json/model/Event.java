@@ -1,8 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.json.model;
 
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
-
-import javax.persistence.*;
 
 /**
  *
@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Table(name = "event")
 public class Event extends BaseEntity {
 
-    @Type(type = "jsonb")
+    @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @Basic( fetch = FetchType.LAZY )
     private Location location;

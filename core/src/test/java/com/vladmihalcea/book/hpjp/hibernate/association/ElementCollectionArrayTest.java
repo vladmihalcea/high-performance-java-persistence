@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.association;
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

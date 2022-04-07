@@ -9,7 +9,7 @@ import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.stat.internal.StatisticsInitiator;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import java.util.List;
 import java.util.Map;

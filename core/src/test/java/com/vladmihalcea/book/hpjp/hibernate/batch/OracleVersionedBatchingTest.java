@@ -7,7 +7,7 @@ import org.hibernate.dialect.Oracle10gDialect;
 import org.hibernate.dialect.Oracle9iDialect;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;

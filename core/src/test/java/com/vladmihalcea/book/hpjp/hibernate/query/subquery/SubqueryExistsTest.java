@@ -8,8 +8,8 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.jpa.QueryHints;
 import org.junit.Test;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.criteria.*;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.criteria.*;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -168,7 +168,6 @@ public class SubqueryExistsTest extends AbstractTest {
                 order by p.id
                 """, Post.class)
             .setParameter("minScore", 10)
-            .setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false)
             .getResultList();
 
             assertSame(1, posts.size());

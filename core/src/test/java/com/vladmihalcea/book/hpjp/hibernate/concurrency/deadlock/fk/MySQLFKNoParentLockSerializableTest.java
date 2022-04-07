@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.concurrency.deadlock.fk;
 
 import org.hibernate.Session;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.sql.Connection;
 
 /**

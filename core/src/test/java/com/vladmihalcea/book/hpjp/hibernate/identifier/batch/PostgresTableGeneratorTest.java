@@ -5,7 +5,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.annotations.GenericGenerator;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 public class PostgresTableGeneratorTest extends AbstractPostgreSQLIntegrationTest {
 

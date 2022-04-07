@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.batch;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;

@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier.global;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * @author Vlad Mihalcea

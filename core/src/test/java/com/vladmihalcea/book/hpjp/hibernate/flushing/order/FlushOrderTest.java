@@ -8,7 +8,7 @@ import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import java.util.Arrays;
 

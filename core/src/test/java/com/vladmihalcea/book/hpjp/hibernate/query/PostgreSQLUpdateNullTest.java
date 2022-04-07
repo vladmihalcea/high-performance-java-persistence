@@ -1,17 +1,11 @@
 package com.vladmihalcea.book.hpjp.hibernate.query;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.Session;
-import org.hibernate.type.LongType;
-import org.hibernate.type.StringType;
-import org.hibernate.type.Type;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import org.junit.Test;
-
-import javax.persistence.*;
-import java.sql.Types;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -61,8 +55,8 @@ public class PostgreSQLUpdateNullTest extends AbstractPostgreSQLIntegrationTest 
                 "SET externalId = :externalId, title = :title " +
                 "WHERE id = :id")
             .unwrap(org.hibernate.query.NativeQuery.class)
-            .setParameter("externalId", null, LongType.INSTANCE)
-            .setParameter("title", null, StringType.INSTANCE)
+            .setParameter("externalId", null, Long.class)
+            .setParameter("title", null, String.class)
             .setParameter("id", 1L)
             .executeUpdate();
             assertEquals(1, count);

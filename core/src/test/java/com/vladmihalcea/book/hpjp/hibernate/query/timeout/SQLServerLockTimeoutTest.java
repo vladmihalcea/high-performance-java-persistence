@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;

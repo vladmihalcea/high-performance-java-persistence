@@ -1,14 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.json;
 
-import com.vladmihalcea.hibernate.type.json.JsonNodeBinaryType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.hibernate.type.json.JsonNodeBinaryType;
+import com.vladmihalcea.hibernate.type.json.internal.JacksonUtil;
+import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.Type;
 import org.junit.Test;
-
-import javax.persistence.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -148,7 +148,6 @@ public class PostgreSQLJsonNodeBinaryTypeTest extends AbstractPostgreSQLIntegrat
 
     @Entity(name = "Book")
     @Table(name = "book")
-    @TypeDef(typeClass = JsonNodeBinaryType.class, defaultForType = JsonNode.class)
     public static class Book {
 
         @Id
@@ -158,6 +157,7 @@ public class PostgreSQLJsonNodeBinaryTypeTest extends AbstractPostgreSQLIntegrat
         @NaturalId
         private String isbn;
 
+        @Type(JsonNodeBinaryType.class)
         @Column(columnDefinition = "jsonb")
         private JsonNode properties;
 

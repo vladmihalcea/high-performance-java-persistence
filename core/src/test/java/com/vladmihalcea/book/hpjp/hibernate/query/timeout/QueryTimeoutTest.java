@@ -8,7 +8,7 @@ import org.hibernate.query.NativeQuery;
 import org.junit.Test;
 import org.postgresql.util.PSQLException;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -65,7 +65,7 @@ public class QueryTimeoutTest extends AbstractTest {
                 "from Post p " +
                 "where lower(p.title) like lower(:titlePattern)", Post.class)
             .setParameter("titlePattern", "%Hibernate%")
-            .setHint("javax.persistence.query.timeout", 50)
+            .setHint("jakarta.persistence.query.timeout", 50)
             .getResultList();
 
             assertEquals(15, posts.size());
@@ -107,7 +107,7 @@ public class QueryTimeoutTest extends AbstractTest {
                 .createNativeQuery(
                     "SELECT 1 " +
                     "FROM pg_sleep(2) ", Tuple.class)
-                .setHint("javax.persistence.query.timeout", (int) TimeUnit.SECONDS.toMillis(1))
+                .setHint("jakarta.persistence.query.timeout", (int) TimeUnit.SECONDS.toMillis(1))
                 .getResultList();
 
                 fail("Timeout failure expected");

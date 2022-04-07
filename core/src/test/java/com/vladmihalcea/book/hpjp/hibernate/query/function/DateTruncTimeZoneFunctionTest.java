@@ -3,11 +3,11 @@ package com.vladmihalcea.book.hpjp.hibernate.query.function;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.spi.MetadataBuilderContributor;
-import org.hibernate.dialect.function.SQLFunctionTemplate;
+import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.type.StandardBasicTypes;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Properties;
@@ -40,11 +40,8 @@ public class DateTruncTimeZoneFunctionTest extends AbstractPostgreSQLIntegration
         @Override
         public void contribute(MetadataBuilder metadataBuilder) {
             metadataBuilder.applySqlFunction(
-                    "date_trunc",
-                    new SQLFunctionTemplate(
-                            StandardBasicTypes.TIMESTAMP,
-                            "date_trunc('day', (?1 AT TIME ZONE ?2))"
-                    )
+                "date_trunc",
+                new StandardSQLFunction("date_trunc('day', (?1 AT TIME ZONE ?2))", false, StandardBasicTypes.TIMESTAMP)
             );
         }
     }

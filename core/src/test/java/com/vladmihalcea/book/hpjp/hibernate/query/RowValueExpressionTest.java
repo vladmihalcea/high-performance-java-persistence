@@ -4,8 +4,8 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.Session;
 import org.junit.Test;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.util.List;
 
 /**

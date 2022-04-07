@@ -6,7 +6,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Immutable;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 import java.util.Properties;
 
@@ -26,7 +26,7 @@ public class EntityCacheEntryReferenceTest extends AbstractTest {
 
     @Override
     protected void additionalProperties(Properties properties) {
-        properties.put("hibernate.cache.region.factory_class", "ehcache");
+        properties.put("hibernate.cache.region.factory_class", "jcache");
         properties.put("hibernate.cache.use_reference_entries", Boolean.TRUE.toString());
         properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
     }

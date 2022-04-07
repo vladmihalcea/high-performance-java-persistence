@@ -1,21 +1,23 @@
 package com.vladmihalcea.book.hpjp.spring.transaction.jta.config;
 
-import bitronix.tm.BitronixTransactionManager;
-import bitronix.tm.TransactionManagerServices;
-import bitronix.tm.resource.jdbc.PoolingDataSource;
+import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
+import com.arjuna.ats.internal.jta.transaction.arjunacore.UserTransactionImple;
 import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.logging.LoggingStatementInspector;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
+import jakarta.transaction.SystemException;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.engine.transaction.jta.platform.internal.BitronixJtaPlatform;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
+import org.hsqldb.jdbc.pool.JDBCXADataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -64,23 +66,8 @@ public class JTATransactionManagerConfiguration {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
-    @Bean(destroyMethod = "close")
-    public PoolingDataSource actualDataSource() {
-        PoolingDataSource poolingDataSource = new PoolingDataSource();
-        poolingDataSource.setClassName(dataSourceClassName);
-        poolingDataSource.setUniqueName(getClass().getName());
-        poolingDataSource.setMinPoolSize(0);
-        poolingDataSource.setMaxPoolSize(5);
-        poolingDataSource.setAllowLocalTransactions(true);
-        poolingDataSource.setDriverProperties(new Properties());
-        poolingDataSource.getDriverProperties().put("user", jdbcUser);
-        poolingDataSource.getDriverProperties().put("password", jdbcPassword);
-        poolingDataSource.getDriverProperties().put("url", jdbcUrl);
-        return poolingDataSource;
-    }
-
     @Bean
-    @DependsOn(value = {"btmConfig", "actualDataSource"})
+    @DependsOn(value = {"actualDataSource"})
     public DataSource dataSource() {
         SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
         loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
@@ -92,7 +79,6 @@ public class JTATransactionManagerConfiguration {
     }
 
     @Bean
-    @DependsOn("btmConfig")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         localContainerEntityManagerFactoryBean.setPersistenceUnitName(getClass().getSimpleName());
@@ -106,31 +92,34 @@ public class JTATransactionManagerConfiguration {
         return localContainerEntityManagerFactoryBean;
     }
 
-    @Bean
-    public bitronix.tm.Configuration btmConfig() {
-        bitronix.tm.Configuration configuration = TransactionManagerServices.getConfiguration();
-        if (!TransactionManagerServices.isTransactionManagerRunning()) {
-            configuration.setServerId("spring-btm");
-            configuration.setWarnAboutZeroResourceTransaction(true);
-            configuration.setJournal(btmJournal);
-        }
-        return configuration;
+    public DataSource actualDataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(JDBCXADataSource.class.getName());
+        dataSource.setUrl(jdbcUrl);
+        dataSource.setUsername(jdbcUser);
+        dataSource.setPassword(jdbcPassword);
+        return dataSource;
     }
 
-    @Bean(destroyMethod = "shutdown")
-    @DependsOn(value = "btmConfig")
-    public BitronixTransactionManager jtaTransactionManager() {
-        return TransactionManagerServices.getTransactionManager();
+    @Bean
+    public UserTransactionImple jtaUserTransaction() {
+        UserTransactionImple userTransactionManager = new UserTransactionImple();
+        return userTransactionManager;
+    }
+
+    @Bean
+    public TransactionManagerImple jtaTransactionManager() {
+        TransactionManagerImple transactionManager = new TransactionManagerImple();
+        return transactionManager;
     }
 
     @Bean
     public JtaTransactionManager transactionManager() {
-        BitronixTransactionManager bitronixTransactionManager = jtaTransactionManager();
-        JtaTransactionManager transactionManager = new JtaTransactionManager();
-        transactionManager.setTransactionManager(bitronixTransactionManager);
-        transactionManager.setUserTransaction(bitronixTransactionManager);
-        transactionManager.setAllowCustomIsolationLevels(true);
-        return transactionManager;
+        JtaTransactionManager jtaTransactionManager = new JtaTransactionManager();
+        jtaTransactionManager.setTransactionManager(jtaTransactionManager());
+        jtaTransactionManager.setUserTransaction(jtaUserTransaction());
+        jtaTransactionManager.setAllowCustomIsolationLevels(true);
+        return jtaTransactionManager;
     }
 
     @Bean

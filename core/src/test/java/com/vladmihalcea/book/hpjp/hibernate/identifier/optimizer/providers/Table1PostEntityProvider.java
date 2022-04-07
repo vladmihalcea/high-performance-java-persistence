@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier.optimizer.providers;
 
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * @author Vlad Mihalcea

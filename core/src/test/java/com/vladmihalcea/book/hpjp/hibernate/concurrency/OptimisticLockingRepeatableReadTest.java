@@ -7,10 +7,10 @@ import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.junit.Test;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.concurrent.CountDownLatch;

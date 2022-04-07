@@ -1,50 +1,29 @@
 package com.vladmihalcea.book.hpjp.hibernate.connection.jta;
 
-import bitronix.tm.resource.jdbc.JdbcConnectionHandle;
-import bitronix.tm.resource.jdbc.JdbcPooledConnection;
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
-import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.RollbackException;
 import net.ttddyy.dsproxy.proxy.ConnectionProxyLogic;
 import net.ttddyy.dsproxy.proxy.jdk.ConnectionInvocationHandler;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.engine.transaction.jta.platform.internal.BitronixJtaPlatform;
-import org.hibernate.engine.transaction.jta.platform.spi.JtaPlatform;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.naming.InitialContext;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnit;
-import javax.persistence.RollbackException;
 import javax.sql.XAConnection;
-import javax.transaction.NotSupportedException;
-import javax.transaction.SystemException;
-import javax.transaction.TransactionManager;
-import javax.transaction.UserTransaction;
-import javax.transaction.xa.XAResource;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = JTAMultipleTransactionsConfiguration.class)
@@ -117,10 +96,11 @@ public class JTAMultipleTransactionsTest {
     private XAConnection unproxyXAConnection(Connection connection) {
         ConnectionInvocationHandler invocationHandler1 = ((ConnectionInvocationHandler) Proxy.getInvocationHandler(connection));
         ConnectionProxyLogic connectionProxyLogic = ReflectionUtils.getFieldValue(invocationHandler1, "delegate");
-        Connection connectionProxy = ReflectionUtils.getFieldValue(connectionProxyLogic, "connection");
+        /*Connection connectionProxy = ReflectionUtils.getFieldValue(connectionProxyLogic, "connection");
         JdbcConnectionHandle jdbcConnectionHandle = ((JdbcConnectionHandle) Proxy.getInvocationHandler(connectionProxy));
         JdbcPooledConnection jdbcPooledConnection = ReflectionUtils.getFieldValue(jdbcConnectionHandle, "jdbcPooledConnection");
-        return (XAConnection) jdbcPooledConnection.getXAResource();
+        return (XAConnection) jdbcPooledConnection.getXAResource();*/
+        throw new UnsupportedOperationException("Not Implemented!");
     }
 
     @Test

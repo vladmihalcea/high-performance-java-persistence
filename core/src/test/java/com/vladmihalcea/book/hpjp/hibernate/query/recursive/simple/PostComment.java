@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.query.recursive.simple;
 
 import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 /**

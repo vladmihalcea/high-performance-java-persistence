@@ -4,10 +4,10 @@ import com.vladmihalcea.book.hpjp.util.AbstractSQLServerIntegrationTest;
 import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.LockModeType;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.Table;
 import java.util.concurrent.CountDownLatch;
 
 /**

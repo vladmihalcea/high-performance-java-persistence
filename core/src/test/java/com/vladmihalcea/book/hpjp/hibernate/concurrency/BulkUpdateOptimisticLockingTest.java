@@ -6,8 +6,8 @@ import com.vladmihalcea.book.hpjp.util.transaction.VoidCallable;
 import org.hibernate.annotations.DynamicUpdate;
 import org.junit.Test;
 
-import javax.persistence.*;
-import javax.persistence.criteria.*;
+import jakarta.persistence.*;
+import jakarta.persistence.criteria.*;
 
 import java.util.Date;
 

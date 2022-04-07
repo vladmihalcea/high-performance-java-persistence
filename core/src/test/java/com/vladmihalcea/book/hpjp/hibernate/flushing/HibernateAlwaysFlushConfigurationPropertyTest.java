@@ -21,7 +21,7 @@ public class HibernateAlwaysFlushConfigurationPropertyTest extends JPAAutoFlushT
     @Override
     protected void additionalProperties(Properties properties) {
         properties.setProperty(
-                AvailableSettings.FLUSH_MODE, FlushMode.ALWAYS.name()
+            AvailableSettings.FLUSH_MODE, FlushMode.ALWAYS.name()
         );
     }
 

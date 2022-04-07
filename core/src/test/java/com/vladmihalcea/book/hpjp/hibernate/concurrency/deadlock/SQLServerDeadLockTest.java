@@ -9,7 +9,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.testing.util.ExceptionUtil;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;

@@ -8,9 +8,9 @@ public class JPADriverConnectionProviderTest extends DriverConnectionProviderTes
 
     protected void appendDriverProperties(Properties properties) {
         DataSourceProvider dataSourceProvider = dataSourceProvider();
-        properties.put("javax.persistence.jdbc.driver", "org.hsqldb.jdbcDriver");
-        properties.put("javax.persistence.jdbc.url", dataSourceProvider.url());
-        properties.put("javax.persistence.jdbc.user", dataSourceProvider.username());
-        properties.put("javax.persistence.jdbc.password", dataSourceProvider.password());
+        properties.put("jakarta.persistence.jdbc.driver", "org.hsqldb.jdbcDriver");
+        properties.put("jakarta.persistence.jdbc.url", dataSourceProvider.url());
+        properties.put("jakarta.persistence.jdbc.user", dataSourceProvider.username());
+        properties.put("jakarta.persistence.jdbc.password", dataSourceProvider.password());
     }
 }

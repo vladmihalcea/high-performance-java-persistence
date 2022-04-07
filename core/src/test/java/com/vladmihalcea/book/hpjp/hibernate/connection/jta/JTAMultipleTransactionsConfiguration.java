@@ -1,11 +1,11 @@
 package com.vladmihalcea.book.hpjp.hibernate.connection.jta;
 
-import bitronix.tm.resource.jdbc.PoolingDataSource;
 import com.vladmihalcea.book.hpjp.hibernate.statistics.TransactionStatisticsFactory;
 import com.vladmihalcea.book.hpjp.util.spring.config.jta.PostgreSQLJTATransactionManagerConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -33,7 +33,6 @@ public class JTAMultipleTransactionsConfiguration extends PostgreSQLJTATransacti
     }
 
     @Bean
-    @DependsOn("btmConfig")
     public LocalContainerEntityManagerFactoryBean extraEntityManagerFactory() {
         LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         localContainerEntityManagerFactoryBean.setJtaDataSource(extraDataSource());
@@ -46,18 +45,18 @@ public class JTAMultipleTransactionsConfiguration extends PostgreSQLJTATransacti
     }
 
     public DataSource extraDataSource() {
-        PoolingDataSource poolingDataSource = new PoolingDataSource();
-        poolingDataSource.setClassName(dataSourceClassName);
-        poolingDataSource.setUniqueName("ExtraDS");
-        poolingDataSource.setMinPoolSize(0);
-        poolingDataSource.setMaxPoolSize(5);
-        poolingDataSource.setAllowLocalTransactions(true);
-        poolingDataSource.setDriverProperties(new Properties());
-        poolingDataSource.getDriverProperties().put("user", jdbcUser);
-        poolingDataSource.getDriverProperties().put("password", jdbcPassword);
-        poolingDataSource.getDriverProperties().put("databaseName", jdbcDatabase);
-        poolingDataSource.getDriverProperties().put("serverName", jdbcHost);
-        poolingDataSource.getDriverProperties().put("portNumber", jdbcPort);
-        return poolingDataSource;
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(dataSourceClassName);
+        dataSource.setUrl(
+            String.format(
+                "jdbc:postgresql://%s:%s/%s",
+                jdbcHost,
+                jdbcPort,
+                jdbcDatabase
+            )
+        );
+        dataSource.setUsername(jdbcUser);
+        dataSource.setPassword(jdbcPassword);
+        return dataSource;
     }
 }

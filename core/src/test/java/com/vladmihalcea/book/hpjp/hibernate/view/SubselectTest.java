@@ -6,8 +6,8 @@ import org.hibernate.annotations.Subselect;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;

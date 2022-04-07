@@ -1,20 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.json;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.hibernate.type.json.JsonType;
+import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 import org.junit.Test;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.net.URL;
 
 /**
  * @author Vlad Mihalcea
@@ -79,7 +72,6 @@ public class PostgreSQLJsonDynamicUpdateTest extends AbstractPostgreSQLIntegrati
 
     @Entity(name = "Book")
     @Table(name = "book")
-    @TypeDef(typeClass = JsonType.class, name = "json")
     @DynamicUpdate
     public static class Book {
 
@@ -95,7 +87,7 @@ public class PostgreSQLJsonDynamicUpdateTest extends AbstractPostgreSQLIntegrati
         private String author;
 
         @Column(columnDefinition = "jsonb")
-        @Type(type = "json")
+        @Type(JsonType.class)
         private String properties;
 
         public Long getId() {

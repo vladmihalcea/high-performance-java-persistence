@@ -5,7 +5,7 @@ import org.hibernate.Session;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

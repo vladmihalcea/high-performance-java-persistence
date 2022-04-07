@@ -1,14 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import jakarta.persistence.*;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
-import org.hibernate.jpa.AvailableSettings;
-import org.junit.Before;
+import org.hibernate.cfg.AvailableSettings;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -63,7 +62,7 @@ public class CascadeLockElementCollectionTest extends AbstractTest {
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE, Collections.singletonMap(
-                AvailableSettings.LOCK_SCOPE, PessimisticLockScope.EXTENDED
+                AvailableSettings.JAKARTA_LOCK_SCOPE, PessimisticLockScope.EXTENDED
             ));
         });
     }
@@ -114,7 +113,7 @@ public class CascadeLockElementCollectionTest extends AbstractTest {
                     .setParameter("id", 1L)
                     .getSingleResult();
             entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE, Collections.singletonMap(
-                AvailableSettings.LOCK_SCOPE, PessimisticLockScope.EXTENDED
+                AvailableSettings.JAKARTA_LOCK_SCOPE, PessimisticLockScope.EXTENDED
             ));
         });
     }
@@ -125,7 +124,7 @@ public class CascadeLockElementCollectionTest extends AbstractTest {
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE, Collections.singletonMap(
-                AvailableSettings.LOCK_SCOPE, PessimisticLockScope.EXTENDED
+                AvailableSettings.JAKARTA_LOCK_SCOPE, PessimisticLockScope.EXTENDED
             ));
         });
     }

@@ -5,7 +5,7 @@ import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Session;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.BatchUpdateException;
 import java.sql.PreparedStatement;
 import java.util.Properties;

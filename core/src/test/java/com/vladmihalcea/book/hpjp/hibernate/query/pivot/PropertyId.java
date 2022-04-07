@@ -1,9 +1,9 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.pivot;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
 import java.io.Serializable;
 import java.util.Objects;
 

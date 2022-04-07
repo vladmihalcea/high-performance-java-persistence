@@ -1,8 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.json.model;
 
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
-
-import javax.persistence.*;
 
 /**
  * @author Vlad Mihalcea
@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Table(name = "participant")
 public class Participant extends BaseEntity {
 
-    @Type(type = "jsonb")
+    @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @Basic(fetch = FetchType.LAZY)
     private Ticket ticket;

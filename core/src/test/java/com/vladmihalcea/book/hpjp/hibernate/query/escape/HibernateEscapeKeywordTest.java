@@ -3,10 +3,10 @@ package com.vladmihalcea.book.hpjp.hibernate.query.escape;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -47,7 +47,7 @@ public class HibernateEscapeKeywordTest extends AbstractTest {
     }
 
     @Entity(name = "Table")
-    @javax.persistence.Table(name = "`table`")
+    @jakarta.persistence.Table(name = "`table`")
     public static class Table {
 
         @Id

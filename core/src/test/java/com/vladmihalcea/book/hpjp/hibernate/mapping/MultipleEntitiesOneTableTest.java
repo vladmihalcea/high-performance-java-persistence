@@ -4,14 +4,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import com.vladmihalcea.hibernate.type.json.internal.JacksonUtil;
+import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 import org.junit.Test;
-
-import javax.persistence.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -90,11 +88,10 @@ public class MultipleEntitiesOneTableTest extends AbstractPostgreSQLIntegrationT
 
     @Entity(name = "Book")
     @Table(name = "book")
-    @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
     @DynamicUpdate
     public static class Book extends BaseBook<Book> {
 
-        @Type(type = "jsonb")
+        @Type(JsonBinaryType.class)
         @Column(columnDefinition = "jsonb")
         private String properties;
 

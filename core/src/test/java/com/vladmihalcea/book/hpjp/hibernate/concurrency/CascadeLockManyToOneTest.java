@@ -9,7 +9,7 @@ import org.hibernate.annotations.CascadeType;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 
 /**

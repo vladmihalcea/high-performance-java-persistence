@@ -9,7 +9,7 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -70,7 +70,7 @@ public class MySQLEncryptTest extends AbstractTest {
 		Dialect dialect = session.getSessionFactory().unwrap(SessionFactoryImplementor.class).getJdbcServices().getDialect();
 		String encryptionKey = ReflectionUtils.invokeMethod(
 			dialect,
-			"escapeLiteral",
+			"inlineLiteral",
 			"encryptionKey"
 		);
 

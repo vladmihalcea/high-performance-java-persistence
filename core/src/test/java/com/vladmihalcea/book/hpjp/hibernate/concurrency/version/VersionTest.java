@@ -1,13 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency.version;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.vladmihalcea.book.hpjp.hibernate.type.json.JacksonUtil;
+import com.vladmihalcea.hibernate.type.json.internal.JacksonUtil;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import org.hibernate.StaleStateException;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

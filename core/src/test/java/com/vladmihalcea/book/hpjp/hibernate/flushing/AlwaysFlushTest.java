@@ -2,14 +2,13 @@ package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
+import jakarta.persistence.*;
 import org.hibernate.FlushMode;
-import org.hibernate.Session;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.transform.Transformers;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -74,8 +73,8 @@ public class AlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
                 GROUP BY b.name
                 """)
             .unwrap(NativeQuery.class)
-            .setFlushMode(FlushMode.ALWAYS)
-            .setResultTransformer( Transformers.aliasToBean(ForumCount.class))
+            .setHibernateFlushMode(FlushMode.ALWAYS)
+            .setResultTransformer(Transformers.aliasToBean(ForumCount.class))
             .getResultList();
 
             assertEquals(result.size(), 2);

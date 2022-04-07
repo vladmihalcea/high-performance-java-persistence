@@ -22,7 +22,7 @@ public class NativeQueryScalarJsonNodeBinaryTypeFetchTest extends PostgreSQLJson
                 "WHERE isbn = :isbn")
             .setParameter("isbn", "978-9730228236")
             .unwrap(org.hibernate.query.NativeQuery.class)
-            .addScalar("properties", JsonNodeBinaryType.INSTANCE)
+            .addScalar("properties", JsonNode.class)
             .getSingleResult();
 
             assertEquals(

@@ -1,13 +1,9 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
+import jakarta.persistence.*;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,37 +42,21 @@ public class AllAssociationTest extends AbstractTest {
             post.addComment(comment1);
             post.addComment(comment2);
             entityManager.persist(post);
-
-            Session session = entityManager.unwrap(Session.class);
-            Criteria criteria = session.createCriteria(Post.class)
-                .add(Restrictions.eq("title", "post"));
-            LOGGER.info("Criteria: {}", criteria);
         });
 
         doInJPA(entityManager -> {
             LOGGER.info("No alias");
-            Session session = entityManager.unwrap(Session.class);
-            List<Post> posts = session
-                    .createCriteria(Post.class)
-                    .setFetchMode("comments", FetchMode.JOIN)
-                    .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                    .add(Restrictions.eq("title", "Postit"))
-                    .list();
+            List<Post> posts =  entityManager.createQuery("""
+                select p 
+                from Post p
+                join fetch p.comments 
+                where p.title = :title
+                """, Post.class)
+            .setParameter("title", "Postit")
+            .getResultList();
+
             assertEquals(1, posts.size());
         });
-
-        doInJPA(entityManager -> {
-            LOGGER.info("With alias");
-            Session session = entityManager.unwrap(Session.class);
-            List<Post> posts = session
-                    .createCriteria(Post.class, "post")
-                    .setFetchMode("post.comments", FetchMode.JOIN)
-                    .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                    .add(Restrictions.eq("post.title", "Postit"))
-                    .list();
-            assertEquals(1, posts.size());
-        });
-
     }
 
     @Entity(name = "Post")

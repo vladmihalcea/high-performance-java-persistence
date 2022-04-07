@@ -7,6 +7,10 @@ import com.vladmihalcea.book.hpjp.util.providers.LockType;
 import com.vladmihalcea.book.hpjp.util.transaction.*;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.spi.PersistenceUnitInfo;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.*;
@@ -26,26 +30,21 @@ import org.hibernate.cache.spi.entry.StandardCacheEntryImpl;
 import org.hibernate.cache.spi.support.*;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
+import org.hibernate.jpa.boot.spi.TypeContributorList;
 import org.hibernate.stat.CacheRegionStatistics;
 import org.hibernate.stat.Statistics;
-import org.hibernate.stat.internal.CacheRegionStatisticsImpl;
-import org.hibernate.type.BasicType;
-import org.hibernate.type.Type;
-import org.hibernate.usertype.CompositeUserType;
 import org.hibernate.usertype.UserType;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.spi.PersistenceUnitInfo;
 import javax.sql.DataSource;
 import java.io.Closeable;
 import java.io.IOException;
@@ -185,21 +184,12 @@ public abstract class AbstractTest {
         }
 
         final MetadataBuilder metadataBuilder = metadataSources.getMetadataBuilder()
-        .enableNewIdentifierGeneratorSupport(true)
         .applyImplicitNamingStrategy(ImplicitNamingStrategyLegacyJpaImpl.INSTANCE);
 
-        final List<Type> additionalTypes = additionalTypes();
+        final List<UserType<?>> additionalTypes = additionalTypes();
         if (additionalTypes != null) {
-            additionalTypes.stream().forEach(type -> {
-                metadataBuilder.applyTypes((typeContributions, sr) -> {
-                    if(type instanceof BasicType) {
-                        typeContributions.contributeType((BasicType) type);
-                    } else if (type instanceof UserType ){
-                        typeContributions.contributeType((UserType) type);
-                    } else if (type instanceof CompositeUserType) {
-                        typeContributions.contributeType((CompositeUserType) type);
-                    }
-                });
+            additionalTypes.forEach(type -> {
+                metadataBuilder.applyTypes((typeContributions, sr) -> typeContributions.contributeType(type));
             });
         }
 
@@ -239,19 +229,12 @@ public abstract class AbstractTest {
             configuration.setInterceptor(interceptor);
         }
 
-        final List<Type> additionalTypes = additionalTypes();
+        final List<UserType<?>> additionalTypes = additionalTypes();
         if (additionalTypes != null) {
-            configuration.registerTypeContributor((typeContributions, serviceRegistry) -> {
-                additionalTypes.stream().forEach(type -> {
-                    if(type instanceof BasicType) {
-                        typeContributions.contributeType((BasicType) type);
-                    } else if (type instanceof UserType ){
-                        typeContributions.contributeType((UserType) type);
-                    } else if (type instanceof CompositeUserType) {
-                        typeContributions.contributeType((CompositeUserType) type);
-                    }
-                });
-            });
+            configuration.registerTypeContributor(
+                (typeContributions, serviceRegistry) ->
+                    additionalTypes.forEach(typeContributions::contributeType)
+            );
         }
         return configuration.buildSessionFactory(
                 new StandardServiceRegistryBuilder()
@@ -270,6 +253,16 @@ public abstract class AbstractTest {
         Integrator integrator = integrator();
         if (integrator != null) {
             configuration.put("hibernate.integrator_provider", (IntegratorProvider) () -> Collections.singletonList(integrator));
+        }
+
+        List<UserType<?>> additionalTypes = additionalTypes();
+        if (additionalTypes != null) {
+            configuration.put("hibernate.type_contributors",
+                (TypeContributorList) () -> Collections.singletonList(
+                    (typeContributions, serviceRegistry) -> {
+                        additionalTypes.forEach(typeContributions::contributeType);
+                    }
+                ));
         }
 
         EntityManagerFactoryBuilderImpl entityManagerFactoryBuilder = new EntityManagerFactoryBuilderImpl(
@@ -309,6 +302,14 @@ public abstract class AbstractTest {
         //properties.put("hibernate.ejb.metamodel.population", "disabled");
         additionalProperties(properties);
         return properties;
+    }
+
+    protected Dialect dialect() {
+        return sessionFactory().unwrap(SessionFactoryImplementor.class).getJdbcServices().getDialect();
+    }
+
+    protected Map<String, Object> propertiesMap() {
+        return (Map) properties();
     }
 
     protected void additionalProperties(Properties properties) {
@@ -368,7 +369,7 @@ public abstract class AbstractTest {
         return Database.HSQLDB;
     }
 
-    protected List<org.hibernate.type.Type> additionalTypes() {
+    protected List<UserType<?>> additionalTypes() {
         return null;
     }
 
@@ -967,7 +968,7 @@ public abstract class AbstractTest {
             AbstractRegion region = ReflectionUtils.getFieldValue(cacheRegionStatistics, "region");
 
             StorageAccess storageAccess = getStorageAccess(region);
-            net.sf.ehcache.Cache cache = getEhcache(storageAccess);
+            org.ehcache.core.Ehcache cache = getEhcache(storageAccess);
 
             if (cache != null) {
                 StringBuilder cacheEntriesBuilder = new StringBuilder();
@@ -975,7 +976,8 @@ public abstract class AbstractTest {
 
                 boolean firstEntry = true;
 
-                for (Object key : cache.getKeys()) {
+                //TODO: Get keys
+                for (Object key : cache.getAll(Collections.emptySet()).entrySet()) {
                     Object cacheValue = storageAccess.getFromCache(key, null);
 
                     if (!firstEntry) {
@@ -1039,7 +1041,7 @@ public abstract class AbstractTest {
         }
     }
 
-    private net.sf.ehcache.Cache getEhcache(StorageAccess storageAccess) {
+    private org.ehcache.core.Ehcache getEhcache(StorageAccess storageAccess) {
         if(storageAccess instanceof JCacheAccessImpl) {
             return null;
         }

@@ -2,8 +2,8 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import org.hibernate.Session;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 
 /**
  * @author Vlad Mihalcea

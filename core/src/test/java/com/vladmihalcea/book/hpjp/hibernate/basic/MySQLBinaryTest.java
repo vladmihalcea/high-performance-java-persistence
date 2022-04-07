@@ -1,15 +1,15 @@
 package com.vladmihalcea.book.hpjp.hibernate.basic;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
-import org.hibernate.annotations.Type;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.util.Arrays;
-import java.util.Date;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -46,7 +46,6 @@ public class MySQLBinaryTest extends AbstractMySQLIntegrationTest {
 
         private String title;
 
-        @Type(type = "com.vladmihalcea.book.hpjp.hibernate.basic.MySQLBinaryType")
         private byte[] image;
 
         public Post() {}

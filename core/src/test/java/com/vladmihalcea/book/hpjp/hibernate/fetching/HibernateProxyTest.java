@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.Hibernate;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import static org.junit.Assert.*;
 

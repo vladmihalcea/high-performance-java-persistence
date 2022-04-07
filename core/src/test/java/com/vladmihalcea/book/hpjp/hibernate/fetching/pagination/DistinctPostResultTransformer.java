@@ -1,16 +1,19 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching.pagination;
 
 import com.vladmihalcea.book.hpjp.hibernate.identifier.Identifiable;
-import org.hibernate.transform.BasicTransformerAdapter;
+import jakarta.persistence.EntityManager;
+import org.hibernate.query.ResultListTransformer;
 
-import javax.persistence.EntityManager;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Vlad Mihalcea
  */
-public class DistinctPostResultTransformer extends BasicTransformerAdapter {
+public class DistinctPostResultTransformer implements ResultListTransformer {
 
     private final EntityManager entityManager;
 

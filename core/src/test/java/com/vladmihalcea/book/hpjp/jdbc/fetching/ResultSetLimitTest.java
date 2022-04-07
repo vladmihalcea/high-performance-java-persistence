@@ -1,12 +1,11 @@
 package com.vladmihalcea.book.hpjp.jdbc.fetching;
 
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-
+import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import org.hibernate.dialect.pagination.LimitHandler;
-import org.hibernate.engine.spi.RowSelection;
 import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.query.spi.Limit;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
@@ -116,9 +115,9 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
 
     @Test
     public void testLimit() {
-        final RowSelection rowSelection = new RowSelection();
+        final Limit rowSelection = new Limit();
         rowSelection.setMaxRows(getMaxRows());
-        LimitHandler limitHandler = ((SessionFactoryImpl) sessionFactory()).getDialect().getLimitHandler();
+        LimitHandler limitHandler = dialect().getLimitHandler();
         String limitStatement = limitHandler.processSql(SELECT_POST_COMMENT, rowSelection);
         long startNanos = System.nanoTime();
         doInJDBC(connection -> {

@@ -8,7 +8,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record7;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;

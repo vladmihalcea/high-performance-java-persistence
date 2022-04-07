@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class AssignedIdentityGenerator extends IdentityGenerator {
 
     @Override
-    public Serializable generate(SharedSessionContractImplementor session, Object obj) {
+    public Object generate(SharedSessionContractImplementor session, Object obj) {
         if(obj instanceof Identifiable) {
             Identifiable identifiable = (Identifiable) obj;
             Serializable id = identifiable.getId();
@@ -23,6 +23,4 @@ public class AssignedIdentityGenerator extends IdentityGenerator {
         }
         return super.generate(session, obj);
     }
-
-
 }

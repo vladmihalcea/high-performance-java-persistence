@@ -4,18 +4,17 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
-import org.hibernate.jpa.AvailableSettings;
+import org.hibernate.cfg.AvailableSettings;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-
 
 /**
  * CascadeLockTest - Test to check CascadeType.LOCK
@@ -65,7 +64,7 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE, Collections.singletonMap(
-                AvailableSettings.LOCK_SCOPE, PessimisticLockScope.EXTENDED
+                AvailableSettings.JAKARTA_LOCK_SCOPE, PessimisticLockScope.EXTENDED
             ));
         });
     }
@@ -116,7 +115,7 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
                     .setParameter("id", 1L)
                     .getSingleResult();
             entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE, Collections.singletonMap(
-                AvailableSettings.LOCK_SCOPE, PessimisticLockScope.EXTENDED
+                AvailableSettings.JAKARTA_LOCK_SCOPE, PessimisticLockScope.EXTENDED
             ));
         });
     }

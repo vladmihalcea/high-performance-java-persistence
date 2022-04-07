@@ -5,7 +5,7 @@ import org.hibernate.jpa.QueryHints;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -172,7 +172,6 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
                 "join fetch p.comments " +
                 "where p.id = :postId ", Post.class)
             .setHint(QueryHints.HINT_READONLY, true)
-            .setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false)
             .setParameter("postId", postId)
             .getSingleResult();
         });

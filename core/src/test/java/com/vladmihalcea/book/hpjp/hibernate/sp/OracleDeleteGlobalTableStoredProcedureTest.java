@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;

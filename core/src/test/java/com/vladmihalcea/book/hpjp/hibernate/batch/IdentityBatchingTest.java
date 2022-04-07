@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.dialect.Dialect;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.List;
 import java.util.Properties;
 
@@ -78,7 +78,7 @@ public class IdentityBatchingTest extends AbstractTest {
     }
 
     protected int batchSize() {
-        return Integer.valueOf(Dialect.DEFAULT_BATCH_SIZE);
+        return dialect().getDefaultStatementBatchSize();
     }
 
     @Entity(name = "Post")

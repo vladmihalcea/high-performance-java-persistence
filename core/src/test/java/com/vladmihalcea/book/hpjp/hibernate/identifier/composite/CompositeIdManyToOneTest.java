@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier.composite;
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;

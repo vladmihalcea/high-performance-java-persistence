@@ -13,7 +13,7 @@ import java.util.Properties;
 public class OracleDataSourceProvider implements DataSourceProvider {
 	@Override
 	public String hibernateDialect() {
-		return Oracle12CustomDialect.class.getName();
+		return FastOracleDialect.class.getName();
 	}
 
 	@Override

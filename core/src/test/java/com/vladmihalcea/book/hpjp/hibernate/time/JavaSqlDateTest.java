@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.time;
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.ParseException;

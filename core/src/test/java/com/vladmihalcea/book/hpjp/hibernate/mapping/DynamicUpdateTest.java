@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.DynamicUpdate;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;

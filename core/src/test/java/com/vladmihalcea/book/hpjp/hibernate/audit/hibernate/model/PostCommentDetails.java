@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.audit.hibernate.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * @author Vlad Mihalcea

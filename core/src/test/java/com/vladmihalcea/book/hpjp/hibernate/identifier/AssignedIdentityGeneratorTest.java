@@ -5,7 +5,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.GenericGenerator;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Statement;
 
 public class AssignedIdentityGeneratorTest extends AbstractTest {

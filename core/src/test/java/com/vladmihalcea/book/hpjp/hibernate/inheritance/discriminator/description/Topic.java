@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.inheritance.discriminator.description;
 
 import java.util.Date;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * @author Vlad Mihalcea

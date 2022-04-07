@@ -7,10 +7,10 @@ import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.hibernate.query.Query;
 import org.junit.Test;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Version;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Version;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;

@@ -261,7 +261,6 @@ public class HibernateDTOProjectionTest extends AbstractTest {
                 join fetch p.comments pc
                 order by pc.id
                 """)
-            .setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false)
             .getResultList();
 
             assertEquals(2, posts.size());

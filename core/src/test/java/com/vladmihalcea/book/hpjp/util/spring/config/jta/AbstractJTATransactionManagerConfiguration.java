@@ -1,8 +1,10 @@
 package com.vladmihalcea.book.hpjp.util.spring.config.jta;
 
-import bitronix.tm.BitronixTransactionManager;
-import bitronix.tm.TransactionManagerServices;
+import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
+import com.arjuna.ats.internal.jta.transaction.arjunacore.UserTransactionImple;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
+import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
+import jakarta.transaction.SystemException;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.engine.transaction.jta.platform.internal.BitronixJtaPlatform;
@@ -20,8 +22,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 import java.util.Properties;
-
-import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 
 /**
  * @author Vlad Mihalcea
@@ -44,20 +44,9 @@ public abstract class AbstractJTATransactionManagerConfiguration {
     }
 
     @Bean
-    public bitronix.tm.Configuration btmConfig() {
-        bitronix.tm.Configuration configuration = TransactionManagerServices.getConfiguration();
-        if (!TransactionManagerServices.isTransactionManagerRunning()) {
-            configuration.setServerId("spring-btm");
-            configuration.setWarnAboutZeroResourceTransaction(true);
-            configuration.setJournal(btmJournal);
-        }
-        return configuration;
-    }
-
-    @Bean
     public abstract DataSource actualDataSource();
 
-    @DependsOn(value = {"btmConfig", "actualDataSource"})
+    @DependsOn("actualDataSource")
     public DataSource dataSource() {
         SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
         loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
@@ -69,7 +58,6 @@ public abstract class AbstractJTATransactionManagerConfiguration {
     }
 
     @Bean
-    @DependsOn("btmConfig")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         localContainerEntityManagerFactoryBean.setJtaDataSource(dataSource());
@@ -89,26 +77,32 @@ public abstract class AbstractJTATransactionManagerConfiguration {
 
     protected abstract Class configurationClass();
 
-    @Bean(destroyMethod = "shutdown")
-    @DependsOn(value = "btmConfig")
-    public BitronixTransactionManager jtaTransactionManager() {
-        return TransactionManagerServices.getTransactionManager();
+    @Bean
+    public UserTransactionImple jtaUserTransaction() {
+        UserTransactionImple userTransactionManager = new UserTransactionImple();
+        return userTransactionManager;
+    }
+
+    @Bean
+    public TransactionManagerImple jtaTransactionManager() {
+        TransactionManagerImple transactionManager = new TransactionManagerImple();
+        return transactionManager;
     }
 
     @Bean
     public JtaTransactionManager transactionManager() {
-        BitronixTransactionManager bitronixTransactionManager = jtaTransactionManager();
-        JtaTransactionManager transactionManager = new JtaTransactionManager();
-        transactionManager.setTransactionManager(bitronixTransactionManager);
-        transactionManager.setUserTransaction(bitronixTransactionManager);
-        transactionManager.setAllowCustomIsolationLevels(true);
-        return transactionManager;
+        JtaTransactionManager jtaTransactionManager = new JtaTransactionManager();
+        jtaTransactionManager.setTransactionManager(jtaTransactionManager());
+        jtaTransactionManager.setUserTransaction(jtaUserTransaction());
+        jtaTransactionManager.setAllowCustomIsolationLevels(true);
+        return jtaTransactionManager;
     }
 
     @Bean
     public TransactionTemplate transactionTemplate() {
         return new TransactionTemplate(transactionManager());
     }
+
 
     protected Properties additionalProperties() {
         Properties properties = new Properties();

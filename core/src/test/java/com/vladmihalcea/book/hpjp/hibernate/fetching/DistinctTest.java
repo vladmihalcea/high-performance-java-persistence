@@ -5,7 +5,7 @@ import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.jpa.QueryHints;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -120,7 +120,6 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
                 where p.title = :title
                 """, Post.class)
             .setParameter("title", "High-Performance Java Persistence eBook has been released!")
-            .setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false)
             .getResultList();
 
             LOGGER.info("Fetched the following Post entity identifiers: {}", posts.stream().map(Post::getId).collect(Collectors.toList()));

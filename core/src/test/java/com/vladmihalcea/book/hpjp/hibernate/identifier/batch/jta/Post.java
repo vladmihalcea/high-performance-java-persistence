@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier.batch.jta;
 
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * @author Vlad Mihalcea

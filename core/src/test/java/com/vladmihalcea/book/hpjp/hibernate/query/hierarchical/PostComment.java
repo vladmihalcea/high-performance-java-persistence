@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.hierarchical;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 

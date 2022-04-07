@@ -6,7 +6,7 @@ import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Session;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Connection;
 import java.util.List;
 import java.util.concurrent.*;

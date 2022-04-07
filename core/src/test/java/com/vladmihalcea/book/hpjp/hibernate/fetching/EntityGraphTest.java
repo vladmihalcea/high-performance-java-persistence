@@ -5,7 +5,7 @@ import org.hibernate.testing.bytecode.enhancement.BytecodeEnhancerRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -75,7 +75,7 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
 
             return entityManager.find(PostComment.class, 1L,
                 Collections.singletonMap(
-                    "javax.persistence.fetchgraph",
+                    "jakarta.persistence.fetchgraph",
                     entityManager.getEntityGraph("PostComment.post")
                 )
             );
@@ -94,7 +94,7 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
 
             return entityManager.find(PostCommentDetails.class, 1L,
                 Collections.singletonMap(
-                    "javax.persistence.loadgraph",
+                    "jakarta.persistence.loadgraph",
                     commentDetailsGraph
                 )
             );
@@ -109,7 +109,7 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
         PostComment comment = doInJPA(entityManager -> {
             return entityManager.find(PostComment.class, 1L,
                 Collections.singletonMap(
-                    "javax.persistence.loadgraph",
+                    "jakarta.persistence.loadgraph",
                     entityManager.getEntityGraph("PostComment.post")
                 )
             );
@@ -122,7 +122,7 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
         Post post = doInJPA(entityManager -> {
             return entityManager.find(Post.class, 1L,
                 Collections.singletonMap(
-                    "javax.persistence.fetchgraph",
+                    "jakarta.persistence.fetchgraph",
                     entityManager.getEntityGraph("Post.all")
                 )
             );

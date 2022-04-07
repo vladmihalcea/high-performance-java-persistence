@@ -15,13 +15,12 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-
 
 /**
  * ReadWriteCacheConcurrencyStrategyWithTimeoutTest - Test to check CacheConcurrencyStrategy.READ_WRITE with lock timeout
@@ -55,7 +54,7 @@ public class ReadWriteCacheConcurrencyStrategyWithLockTimeoutTest extends Abstra
     protected Properties properties() {
         Properties properties = super.properties();
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
-        properties.put("hibernate.cache.region.factory_class", "ehcache");
+        properties.put("hibernate.cache.region.factory_class", "jcache");
         properties.put("net.sf.ehcache.hibernate.cache_lock_timeout", String.valueOf(250));
         return properties;
     }
@@ -111,17 +110,21 @@ public class ReadWriteCacheConcurrencyStrategyWithLockTimeoutTest extends Abstra
 
     @SuppressWarnings("unchecked")
     private <T> T getCacheEntry(Class<T> clazz, Long id) throws IllegalAccessException {
-        EntityPersister entityPersister = ((SessionFactoryImplementor) sessionFactory()).getEntityPersister(clazz.getName() );
-        return (T) getCache(clazz).get(cacheKey(1L, entityPersister));
+        //TODO: Find a way to inspect the cache
+        /*EntityPersister entityPersister = ((SessionFactoryImplementor) sessionFactory()).getEntityPersister(clazz.getName() );
+        return (T) getCache(clazz).get(cacheKey(1L, entityPersister));*/
+        return null;
     }
 
-    private net.sf.ehcache.Cache getCache(Class clazz) throws IllegalAccessException {
-        EntityPersister entityPersister = ((SessionFactoryImplementor) sessionFactory()).getEntityPersister(clazz.getName() );
+    private Cache getCache(Class clazz) throws IllegalAccessException {
+        //TODO: Find a way to inspect the cache
+        /*EntityPersister entityPersister = ((SessionFactoryImplementor) sessionFactory()).getEntityPersister(clazz.getName() );
         DomainDataRegion region = entityPersister.getCacheAccessStrategy().getRegion();
         Field storageAccessField = getField(region.getClass(), "storageAccess");
         StorageAccess storageAccess = (StorageAccess) storageAccessField.get(region);
         Field cacheField = getField(storageAccess.getClass(), "cache");
-        return  (net.sf.ehcache.Cache) cacheField.get(storageAccess);
+        return  (net.sf.ehcache.Cache) cacheField.get(storageAccess);*/
+        return null;
     }
 
     private Field getField(Class clazz, String fieldName) {

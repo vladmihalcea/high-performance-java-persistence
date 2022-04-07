@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.criteria.literal;
 
 import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.query.criteria.LiteralHandlingMode;
+import org.hibernate.query.criteria.ValueHandlingMode;
 
 import java.util.Properties;
 
@@ -12,6 +12,6 @@ public class InlineCriteriaLiteralTest extends DefaultCriteriaLiteralTest {
 
     @Override
     protected void additionalProperties(Properties properties) {
-        properties.put(AvailableSettings.CRITERIA_LITERAL_HANDLING_MODE, LiteralHandlingMode.INLINE);
+        properties.put(AvailableSettings.CRITERIA_VALUE_HANDLING_MODE, ValueHandlingMode.INLINE);
     }
 }

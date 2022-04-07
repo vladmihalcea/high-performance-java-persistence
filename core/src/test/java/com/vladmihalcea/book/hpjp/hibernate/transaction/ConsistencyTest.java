@@ -1,10 +1,10 @@
 package com.vladmihalcea.book.hpjp.hibernate.transaction;
 
 import java.sql.Statement;
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;

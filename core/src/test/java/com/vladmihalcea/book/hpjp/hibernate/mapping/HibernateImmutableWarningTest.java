@@ -6,10 +6,10 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.cfg.AvailableSettings;
 import org.junit.Test;
 
-import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Root;
 import java.util.Date;
 import java.util.Properties;
 

@@ -5,7 +5,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Properties;
 
 
@@ -27,7 +27,7 @@ public class SequenceReadOnlyCacheConcurrencyStrategyTest extends AbstractTest {
     protected Properties properties() {
         Properties properties = super.properties();
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
-        properties.put("hibernate.cache.region.factory_class", "ehcache");
+        properties.put("hibernate.cache.region.factory_class", "jcache");
         return properties;
     }
 

@@ -12,8 +12,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import javax.persistence.*;
-import javax.persistence.Query;
+import jakarta.persistence.*;
+import jakarta.persistence.Query;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;

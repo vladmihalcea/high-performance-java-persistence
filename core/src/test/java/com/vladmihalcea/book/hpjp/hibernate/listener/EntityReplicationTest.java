@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.listener;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import jakarta.persistence.*;
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.boot.Metadata;
@@ -13,9 +13,7 @@ import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.service.spi.SessionFactoryServiceRegistry;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Map;
 
 /**
  * @author Vlad Mihalcea
@@ -104,13 +102,13 @@ public class EntityReplicationTest extends AbstractMySQLIntegrationTest {
                 .setParameter("id", post.getId())
                 .setParameter("title", post.getTitle())
                 .setParameter("version", post.getVersion())
-                .setFlushMode(FlushMode.MANUAL)
+                .setHibernateFlushMode(FlushMode.MANUAL)
                 .executeUpdate();
             }
         }
 
         @Override
-        public boolean requiresPostCommitHanding(EntityPersister persister) {
+        public boolean requiresPostCommitHandling(EntityPersister persister) {
             return false;
         }
     }
@@ -133,13 +131,13 @@ public class EntityReplicationTest extends AbstractMySQLIntegrationTest {
                 .setParameter("id", post.getId())
                 .setParameter("title", post.getTitle())
                 .setParameter("version", post.getVersion())
-                .setFlushMode(FlushMode.MANUAL)
+                .setHibernateFlushMode(FlushMode.MANUAL)
                 .executeUpdate();
             }
         }
 
         @Override
-        public boolean requiresPostCommitHanding(EntityPersister persister) {
+        public boolean requiresPostCommitHandling(EntityPersister persister) {
             return false;
         }
     }
@@ -159,7 +157,7 @@ public class EntityReplicationTest extends AbstractMySQLIntegrationTest {
                     "DELETE FROM old_post " +
                     "WHERE id = :id")
                 .setParameter("id", post.getId())
-                .setFlushMode(FlushMode.MANUAL)
+                .setHibernateFlushMode(FlushMode.MANUAL)
                 .executeUpdate();
             }
 

@@ -3,8 +3,8 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
-import javax.persistence.*;
-import javax.persistence.criteria.*;
+import jakarta.persistence.*;
+import jakarta.persistence.criteria.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;

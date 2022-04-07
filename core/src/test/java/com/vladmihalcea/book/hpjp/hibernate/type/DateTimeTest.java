@@ -5,7 +5,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.time.*;

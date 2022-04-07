@@ -1,8 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.pivot;
 
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
 
 /**
  *

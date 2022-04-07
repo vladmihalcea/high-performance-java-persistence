@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.hibernate.cfg.AvailableSettings;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Properties;

@@ -1,21 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.Oracle12CustomDialect;
-import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
-
+import jakarta.persistence.*;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
-import org.hibernate.dialect.Oracle10gDialect;
-import org.hibernate.dialect.Oracle9iDialect;
-import org.hibernate.dialect.pagination.LimitHandler;
-import org.hibernate.dialect.pagination.SQL2008StandardLimitHandler;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -59,7 +51,7 @@ public class FollowOnLockingTest extends AbstractOracleIntegrationTest {
             .setParameter("status", PostStatus.PENDING)
             .setMaxResults(5)
             //.setLockMode(LockModeType.PESSIMISTIC_WRITE)
-            .unwrap(org.hibernate.Query.class)
+            .unwrap(org.hibernate.query.Query.class)
             .setLockOptions(new LockOptions(LockMode.PESSIMISTIC_WRITE).setTimeOut(LockOptions.SKIP_LOCKED))
             .list();
 
@@ -78,7 +70,7 @@ public class FollowOnLockingTest extends AbstractOracleIntegrationTest {
                 Post.class)
             .setParameter("status", PostStatus.PENDING)
             .setFirstResult(2)
-            .unwrap(org.hibernate.Query.class)
+            .unwrap(org.hibernate.query.Query.class)
             .setLockOptions(new LockOptions(LockMode.UPGRADE_SKIPLOCKED))
             .list();
 
@@ -98,7 +90,7 @@ public class FollowOnLockingTest extends AbstractOracleIntegrationTest {
                 Post.class)
             .setParameter("status", PostStatus.PENDING)
             .setFirstResult(2)
-            .unwrap(org.hibernate.Query.class)
+            .unwrap(org.hibernate.query.Query.class)
             .setLockOptions(new LockOptions(LockMode.UPGRADE_SKIPLOCKED))
             .list();
 
@@ -119,30 +111,12 @@ public class FollowOnLockingTest extends AbstractOracleIntegrationTest {
                 Post.class)
             .setParameter("status", PostStatus.PENDING)
             .setMaxResults(5)
-            .unwrap(org.hibernate.Query.class)
+            .unwrap(org.hibernate.query.Query.class)
             .setLockOptions(new LockOptions(LockMode.UPGRADE_SKIPLOCKED))
             .list();
 
             assertEquals(3, pendingPosts.size());
         });
-    }
-
-    @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new OracleDataSourceProvider() {
-            @Override
-            public String hibernateDialect() {
-                return OracleDialect.class.getName();
-            }
-        };
-    }
-
-    public static class OracleDialect extends Oracle12CustomDialect {
-
-        @Override
-        public LimitHandler getLimitHandler() {
-            return new Oracle9iDialect().getLimitHandler();
-        }
     }
 
     @Entity(name = "Post")

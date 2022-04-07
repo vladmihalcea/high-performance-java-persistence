@@ -6,8 +6,8 @@ import org.hibernate.Session;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.ParameterMode;
-import javax.persistence.StoredProcedureQuery;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureQuery;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.Statement;

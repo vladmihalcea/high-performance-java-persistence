@@ -3,8 +3,8 @@ package com.vladmihalcea.book.hpjp.spring.data.custom.repository;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTOResultTransformer;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.util.List;
 
 /**

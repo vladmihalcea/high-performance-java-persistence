@@ -1,12 +1,9 @@
 package com.vladmihalcea.book.hpjp.hibernate.listener;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
+import jakarta.persistence.*;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,11 +40,6 @@ public class UpdatableTest extends AbstractTest {
             post.addComment(comment1);
             post.addComment(comment2);
             entityManager.persist(post);
-
-            Session session = entityManager.unwrap(Session.class);
-            Criteria criteria = session.createCriteria(Post.class)
-                .add(Restrictions.eq("title", "post"));
-            LOGGER.info("Criteria: {}", criteria);
         });
 
         doInJPA(entityManager -> {

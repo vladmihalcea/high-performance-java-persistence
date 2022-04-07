@@ -7,7 +7,7 @@ import org.hibernate.query.NativeQuery;
 import org.junit.After;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -31,7 +31,7 @@ public class QueryCacheTest extends AbstractTest {
     @Override
     protected void additionalProperties(Properties properties) {
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
-        properties.put("hibernate.cache.region.factory_class", "ehcache");
+        properties.put("hibernate.cache.region.factory_class", "jcache");
         properties.put("hibernate.cache.use_query_cache", Boolean.TRUE.toString());
     }
 

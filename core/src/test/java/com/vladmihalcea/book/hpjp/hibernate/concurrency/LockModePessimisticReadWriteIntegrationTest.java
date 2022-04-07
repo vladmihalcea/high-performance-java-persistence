@@ -10,7 +10,7 @@ import org.hibernate.cfg.AvailableSettings;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -240,7 +240,7 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE,
-                Collections.singletonMap("javax.persistence.lock.timeout", 0)
+                Collections.singletonMap("jakarta.persistence.lock.timeout", 0)
             );
         });
     }
@@ -263,7 +263,7 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE,
-                Collections.singletonMap("javax.persistence.lock.timeout",
+                Collections.singletonMap("jakarta.persistence.lock.timeout",
                     TimeUnit.SECONDS.toMillis(3))
             );
         });
@@ -278,7 +278,7 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
                 "from PostComment pc " +
                 "join fetch pc.post p ", PostComment.class)
             .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-            .setHint("javax.persistence.lock.timeout", 0)
+            .setHint("jakarta.persistence.lock.timeout", 0)
             .getResultList();
         });
     }

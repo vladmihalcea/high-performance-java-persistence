@@ -19,7 +19,7 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import static org.junit.Assert.assertTrue;
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.exact;

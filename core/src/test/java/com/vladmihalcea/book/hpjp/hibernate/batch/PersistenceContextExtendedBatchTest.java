@@ -5,10 +5,10 @@ import org.hibernate.Session;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.Id;
 
 /**
  * @author Vlad Mihalcea

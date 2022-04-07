@@ -7,7 +7,7 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.SortNatural;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 
 /**

@@ -7,7 +7,7 @@ import org.hibernate.dialect.MariaDB102Dialect;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Properties;
 
 public class MariaDBIdentifierTest extends AbstractBatchIdentifierTest {

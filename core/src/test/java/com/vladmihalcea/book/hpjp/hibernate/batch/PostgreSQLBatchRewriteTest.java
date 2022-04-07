@@ -1,14 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.batch;
 
-import com.vladmihalcea.book.hpjp.hibernate.type.array.PostgreSQL95ArrayDialect;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+import jakarta.persistence.*;
 import org.junit.Test;
 import org.postgresql.ds.PGSimpleDataSource;
 
-import javax.persistence.*;
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.Iterator;

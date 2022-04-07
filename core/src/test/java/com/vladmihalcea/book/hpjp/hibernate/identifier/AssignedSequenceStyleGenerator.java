@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class AssignedSequenceStyleGenerator extends SequenceStyleGenerator {
 
     @Override
-    public Serializable generate(SharedSessionContractImplementor session, Object obj) {
+    public Object generate(SharedSessionContractImplementor session, Object obj) {
         if(obj instanceof Identifiable) {
             Identifiable identifiable = (Identifiable) obj;
             Serializable id = identifiable.getId();

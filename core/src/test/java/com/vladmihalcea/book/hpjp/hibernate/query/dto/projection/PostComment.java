@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * @author Vlad Mihalcea

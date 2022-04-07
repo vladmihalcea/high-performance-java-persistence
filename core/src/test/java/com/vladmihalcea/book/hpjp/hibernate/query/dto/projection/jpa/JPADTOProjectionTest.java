@@ -8,7 +8,7 @@ import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.Test;
 
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;

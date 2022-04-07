@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.junit.internal.matchers.ThrowableCauseMatcher;
 import org.junit.rules.ExpectedException;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;

@@ -2,20 +2,25 @@ package com.vladmihalcea.book.hpjp.hibernate.audit.trigger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
+import com.vladmihalcea.hibernate.type.json.JsonNodeBinaryType;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
+import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.boot.spi.MetadataBuilderContributor;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.type.LongType;
-import org.hibernate.type.StringType;
-import org.hibernate.type.TimestampType;
+import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
+import org.hibernate.jpa.boot.spi.TypeContributorList;
+import org.hibernate.query.NativeQuery;
+import org.hibernate.usertype.UserType;
 import org.junit.Test;
 
-import javax.persistence.*;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -34,6 +39,11 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
     @Override
     protected Database database() {
         return Database.POSTGRESQL;
+    }
+
+    @Override
+    protected List<UserType<?>> additionalTypes() {
+        return List.of(JsonNodeBinaryType.INSTANCE);
     }
 
     @Override
@@ -214,7 +224,7 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
         Dialect dialect = session.getSessionFactory().unwrap(SessionFactoryImplementor.class).getJdbcServices().getDialect();
         String loggedUser = ReflectionUtils.invokeMethod(
             dialect,
-            "escapeLiteral",
+            "inlineLiteral",
             LoggedUser.get()
         );
 
@@ -222,7 +232,7 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             update(
                 connection,
                 String.format(
-                    "SET LOCAL var.logged_user = '%s'", loggedUser
+                    "SET LOCAL var.logged_user = %s", loggedUser
                 )
             );
         });
@@ -241,14 +251,9 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             FROM book_audit_log 
             ORDER BY dml_timestamp
             """, Tuple.class)
-        .unwrap(org.hibernate.query.NativeQuery.class)
-        .addScalar("book_id", LongType.INSTANCE)
-        .addScalar("old_row_data", new JsonBinaryType(JsonNode.class))
-        .addScalar("new_row_data", new JsonBinaryType(JsonNode.class))
-        .addScalar("dml_type", StringType.INSTANCE)
-        .addScalar("dml_timestamp", TimestampType.INSTANCE)
-        .addScalar("dml_created_by", StringType.INSTANCE)
-        .addScalar("trx_timestamp", TimestampType.INSTANCE)
+        .unwrap(NativeQuery.class)
+        .addScalar("old_row_data", JsonNode.class)
+        .addScalar("new_row_data", JsonNode.class)
         .getResultList();
     }
 

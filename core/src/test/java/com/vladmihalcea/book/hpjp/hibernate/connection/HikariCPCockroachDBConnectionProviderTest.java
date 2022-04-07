@@ -3,9 +3,9 @@ package com.vladmihalcea.book.hpjp.hibernate.connection;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import org.hibernate.hikaricp.internal.HikariCPConnectionProvider;
 

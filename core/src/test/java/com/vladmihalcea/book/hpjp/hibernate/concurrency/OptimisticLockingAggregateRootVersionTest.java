@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import jakarta.persistence.*;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.annotations.OnDelete;
@@ -18,9 +19,6 @@ import org.hibernate.service.spi.SessionFactoryServiceRegistry;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.persistence.*;
-import java.util.Map;
 
 /**
  * @author Vlad Mihalcea
@@ -72,7 +70,7 @@ public class OptimisticLockingAggregateRootVersionTest extends AbstractTest {
         }
 
         @Override
-        public void onPersist(PersistEvent event, Map createdAlready) throws HibernateException {
+        public void onPersist(PersistEvent event, PersistContext persistContext) throws HibernateException {
             onPersist(event);
         }
     }

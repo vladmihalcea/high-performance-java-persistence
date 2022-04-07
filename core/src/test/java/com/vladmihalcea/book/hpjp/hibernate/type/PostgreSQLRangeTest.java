@@ -3,12 +3,12 @@ package com.vladmihalcea.book.hpjp.hibernate.type;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.hibernate.type.range.PostgreSQLRangeType;
 import com.vladmihalcea.hibernate.type.range.Range;
+import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.Type;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -84,7 +84,6 @@ public class PostgreSQLRangeTest extends AbstractPostgreSQLIntegrationTest {
 
     @Entity(name = "Book")
     @Table(name = "book")
-    @TypeDef(typeClass = PostgreSQLRangeType.class, defaultForType = Range.class)
     public static class Book {
 
         @Id
@@ -96,9 +95,11 @@ public class PostgreSQLRangeTest extends AbstractPostgreSQLIntegrationTest {
 
         private String title;
 
+        @Type(PostgreSQLRangeType.class)
         @Column(name = "price_cent_range", columnDefinition = "numrange")
         private Range<BigDecimal> priceRange;
 
+        @Type(PostgreSQLRangeType.class)
         @Column(name = "discount_date_range", columnDefinition = "daterange")
         private Range<LocalDate> discountDateRange;
 

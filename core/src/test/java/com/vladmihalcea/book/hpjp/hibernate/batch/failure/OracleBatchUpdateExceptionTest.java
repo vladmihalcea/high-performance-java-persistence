@@ -6,7 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.*;
 import java.util.*;
 

@@ -6,7 +6,7 @@ import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.StaleStateException;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

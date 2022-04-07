@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier.batch;
 
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 public class IdentityIdentifierTest extends AbstractBatchIdentifierTest {
 

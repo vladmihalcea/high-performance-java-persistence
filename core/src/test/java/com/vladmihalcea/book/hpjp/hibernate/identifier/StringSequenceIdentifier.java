@@ -64,17 +64,9 @@ public class StringSequenceIdentifier implements
             SequenceStyleGenerator.DEF_SEQUENCE_SUFFIX
         );
 
-        boolean preferSequencePerEntity = ConfigurationHelper.getBoolean(
-            SequenceStyleGenerator.CONFIG_PREFER_SEQUENCE_PER_ENTITY,
-            params,
-            false
-        );
+        final String defaultSequenceName = params.getProperty(JPA_ENTITY_NAME) + sequencePerEntitySuffix;
 
-        final String defaultSequenceName = preferSequencePerEntity
-                ? params.getProperty(JPA_ENTITY_NAME) + sequencePerEntitySuffix
-                : SequenceStyleGenerator.DEF_SEQUENCE_NAME;
-
-        sequenceCallSyntax = dialect.getSequenceNextValString(
+        sequenceCallSyntax = dialect.getSequenceSupport().getSequenceNextValString(
             ConfigurationHelper.getString(
                 SequenceStyleGenerator.SEQUENCE_PARAM,
                 params,

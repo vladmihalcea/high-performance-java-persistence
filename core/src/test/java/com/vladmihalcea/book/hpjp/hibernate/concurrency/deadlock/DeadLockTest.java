@@ -6,7 +6,7 @@ import org.hibernate.testing.util.ExceptionUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;

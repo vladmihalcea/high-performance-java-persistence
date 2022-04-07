@@ -4,7 +4,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 public class SequenceAllocationSizeIdentifierTest extends AbstractBatchIdentifierTest {
 

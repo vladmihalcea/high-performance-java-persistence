@@ -2,21 +2,22 @@ package com.vladmihalcea.book.hpjp.hibernate.sp;
 
 import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.Oracle12CustomDialect;
+import com.vladmihalcea.book.hpjp.util.providers.FastOracleDialect;
 import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
+import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.NamedNativeQuery;
-import org.hibernate.dialect.function.SQLFunctionTemplate;
+import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.procedure.ProcedureCall;
 import org.hibernate.procedure.ProcedureOutputs;
+import org.hibernate.query.spi.QueryEngine;
 import org.hibernate.result.Output;
 import org.hibernate.result.ResultSetOutput;
 import org.hibernate.type.StandardBasicTypes;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
@@ -179,9 +180,10 @@ public class OracleStoredProcedureTest extends AbstractOracleIntegrationTest {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
             ProcedureCall call = session.createStoredProcedureCall("post_comments");
-            call.registerParameter(1, Long.class, ParameterMode.IN).bindValue(1L);
+            call.registerParameter(1, Long.class, ParameterMode.IN);
             call.registerParameter(2, Class.class, ParameterMode.REF_CURSOR);
 
+            call.setParameter(1, 1L);
             ProcedureOutputs outputs = call.getOutputs();
             try {
                 Output output = outputs.getCurrent();
@@ -329,12 +331,15 @@ public class OracleStoredProcedureTest extends AbstractOracleIntegrationTest {
         @Id private Long id;
     }
 
-    public static class OracleDialect extends Oracle12CustomDialect {
+    public static class OracleDialect extends FastOracleDialect {
 
         @Override
-        protected void registerFunctions() {
-            super.registerFunctions();
-            registerFunction( "fn_count_comments", new SQLFunctionTemplate( StandardBasicTypes.INTEGER, "fn_count_comments(?1)" ) );
+        public void initializeFunctionRegistry(QueryEngine queryEngine) {
+            super.initializeFunctionRegistry(queryEngine);
+            queryEngine.getSqmFunctionRegistry().register(
+                "fn_count_comments",
+                new StandardSQLFunction("fn_count_comments", StandardBasicTypes.INTEGER)
+            );
         }
     }
 

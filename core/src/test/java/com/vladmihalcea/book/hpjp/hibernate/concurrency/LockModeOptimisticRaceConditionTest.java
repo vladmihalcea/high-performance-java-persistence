@@ -4,8 +4,8 @@ import org.hibernate.*;
 import org.hibernate.dialect.lock.OptimisticEntityLockException;
 import org.junit.Test;
 
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 

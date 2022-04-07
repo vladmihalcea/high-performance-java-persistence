@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.forum;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 /**

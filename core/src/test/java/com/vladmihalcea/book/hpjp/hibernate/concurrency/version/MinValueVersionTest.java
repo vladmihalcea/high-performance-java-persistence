@@ -1,16 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency.version;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.type.ShortType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+import org.hibernate.annotations.JavaType;
 import org.junit.Test;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Version;
 
 import static org.junit.Assert.assertEquals;
 
@@ -22,7 +18,7 @@ public class MinValueVersionTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class
+            Post.class
         };
     }
 
@@ -47,8 +43,8 @@ public class MinValueVersionTest extends AbstractTest {
         });
     }
 
-    @Entity(name = "Post")  @Table(name = "post")
-    @TypeDef(name = "short-version", typeClass = ShortVersionType.class)
+    @Entity(name = "Post")
+    @Table(name = "post")
     public static class Post {
 
         @Id
@@ -57,7 +53,7 @@ public class MinValueVersionTest extends AbstractTest {
         private String title;
 
         @Version
-        @Type(type = "short-version")
+        @JavaType(ShortVersionType.class)
         private Short version;
 
         public Long getId() {

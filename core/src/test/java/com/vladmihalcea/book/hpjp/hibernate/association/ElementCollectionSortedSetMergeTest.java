@@ -1,13 +1,11 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
+import jakarta.persistence.*;
 import org.hibernate.annotations.SortComparator;
-import org.hibernate.collection.internal.PersistentSortedSet;
 import org.junit.Test;
 import org.springframework.beans.BeanUtils;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
 

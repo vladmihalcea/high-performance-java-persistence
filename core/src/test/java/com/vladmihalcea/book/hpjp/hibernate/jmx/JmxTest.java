@@ -5,8 +5,8 @@ import org.hibernate.cfg.AvailableSettings;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -31,7 +31,7 @@ public class JmxTest extends AbstractTest {
         properties.put("hibernate.jmx.enabled", Boolean.TRUE.toString());
         properties.put("hibernate.jmx.usePlatformServer", Boolean.TRUE.toString());
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
-        properties.put("hibernate.cache.region.factory_class", "ehcache");
+        properties.put("hibernate.cache.region.factory_class", "jcache");
     }
 
     private int seconds = 120;

@@ -5,10 +5,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.QueryHints;
 import org.junit.Test;
 
-import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -30,7 +30,7 @@ public class EntityNullResultCacheTest extends AbstractTest {
     @Override
     protected Properties properties() {
         Properties properties = super.properties();
-        properties.put("hibernate.cache.region.factory_class", "ehcache");
+        properties.put("hibernate.cache.region.factory_class", "jcache");
         properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
         properties.put("hibernate.cache.use_query_cache", Boolean.TRUE.toString());
         return properties;

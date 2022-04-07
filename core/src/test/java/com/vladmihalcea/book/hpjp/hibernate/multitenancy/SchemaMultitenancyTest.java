@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.multitenancy;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import org.hibernate.MultiTenancyStrategy;
+import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.cfg.AvailableSettings;
@@ -11,12 +11,10 @@ import org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProvid
 import org.junit.Test;
 import org.postgresql.ds.PGSimpleDataSource;
 
-import javax.persistence.*;
 import javax.sql.DataSource;
 import java.sql.Statement;
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -40,7 +38,6 @@ public class SchemaMultitenancyTest extends AbstractTest {
     @Override
     protected void additionalProperties(Properties properties) {
         properties.setProperty(AvailableSettings.HBM2DDL_AUTO, "none");
-        properties.setProperty(AvailableSettings.MULTI_TENANT, MultiTenancyStrategy.SCHEMA.name());
         properties.setProperty(AvailableSettings.MULTI_TENANT_IDENTIFIER_RESOLVER, TenantContext.TenantIdentifierResolver.class.getName());
         properties.put(AvailableSettings.MULTI_TENANT_CONNECTION_PROVIDER, MultiTenantConnectionProvider.INSTANCE);
     }
@@ -48,7 +45,7 @@ public class SchemaMultitenancyTest extends AbstractTest {
     @Override
     public void afterInit() {
         PGSimpleDataSource defaultDataSource = (PGSimpleDataSource) database().dataSourceProvider().dataSource();
-        addTenantConnectionProvider(TenantContext.DEFAULT_TENANT_IDENTIFIER, defaultDataSource, properties());
+        addTenantConnectionProvider(TenantContext.DEFAULT_TENANT_IDENTIFIER, defaultDataSource, propertiesMap());
 
         createSchema("europe");
         createSchema("asia");
@@ -80,7 +77,7 @@ public class SchemaMultitenancyTest extends AbstractTest {
     private void addTenantConnectionProvider(String tenantId) {
         PGSimpleDataSource defaultDataSource = (PGSimpleDataSource) database().dataSourceProvider().dataSource();
 
-        Properties properties = properties();
+        Map<String, Object> properties = propertiesMap();
 
         PGSimpleDataSource tenantDataSource = new PGSimpleDataSource();
         tenantDataSource.setDatabaseName(defaultDataSource.getDatabaseName());
@@ -97,7 +94,7 @@ public class SchemaMultitenancyTest extends AbstractTest {
         addTenantConnectionProvider(tenantId, tenantDataSource, properties);
     }
     
-    private void addTenantConnectionProvider(String tenantId, DataSource tenantDataSource, Properties properties) {
+    private void addTenantConnectionProvider(String tenantId, DataSource tenantDataSource, Map<String, Object> properties) {
         DatasourceConnectionProviderImpl connectionProvider = new DatasourceConnectionProviderImpl();
         connectionProvider.setDataSource(tenantDataSource);
         connectionProvider.configure(properties);

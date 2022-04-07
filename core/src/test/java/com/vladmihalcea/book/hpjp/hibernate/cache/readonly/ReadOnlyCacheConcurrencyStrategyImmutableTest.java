@@ -6,7 +6,7 @@ import org.hibernate.annotations.Immutable;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -28,7 +28,7 @@ public class ReadOnlyCacheConcurrencyStrategyImmutableTest extends AbstractTest 
     @Override
     protected void additionalProperties(Properties properties) {
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
-        properties.put("hibernate.cache.region.factory_class", "ehcache");
+        properties.put("hibernate.cache.region.factory_class", "jcache");
     }
 
     public void afterInit() {

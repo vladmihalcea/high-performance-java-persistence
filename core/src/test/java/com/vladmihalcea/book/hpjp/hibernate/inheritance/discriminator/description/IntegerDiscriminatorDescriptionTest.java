@@ -4,9 +4,9 @@ import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import org.hibernate.Session;
 import org.junit.Test;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.EntityManager;
-import javax.persistence.Tuple;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;

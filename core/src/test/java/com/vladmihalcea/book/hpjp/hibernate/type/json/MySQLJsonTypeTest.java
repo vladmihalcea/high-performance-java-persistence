@@ -4,10 +4,14 @@ import com.vladmihalcea.book.hpjp.hibernate.type.json.model.BaseEntity;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.model.Location;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.model.Ticket;
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import org.hibernate.annotations.Type;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -89,7 +93,7 @@ public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
     @Entity(name = "Event") @Table(name = "event")
     public static class Event extends BaseEntity {
 
-        @Type(type = "json")
+        @Type(JsonStringType.class)
         @Column(columnDefinition = "json")
         private Location location;
 
@@ -105,7 +109,7 @@ public class MySQLJsonTypeTest extends AbstractMySQLIntegrationTest {
     @Entity(name = "Participant") @Table(name = "participant")
     public static class Participant extends BaseEntity {
 
-        @Type(type = "json")
+        @Type(JsonStringType.class)
         @Column(columnDefinition = "json")
         private Ticket ticket;
 

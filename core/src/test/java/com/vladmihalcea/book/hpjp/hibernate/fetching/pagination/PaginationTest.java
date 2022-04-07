@@ -3,12 +3,12 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching.pagination;
 import com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
+import jakarta.persistence.Tuple;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.NativeQuery;
 import org.junit.Test;
 
-import javax.persistence.Tuple;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -227,7 +227,6 @@ public class PaginationTest extends AbstractTest {
                 order by p.createdOn
                 """, Post.class)
             .setParameter("postIds", postIds)
-            .setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false)
             .getResultList();
 
             assertEquals(5, posts.size());
@@ -276,7 +275,7 @@ public class PaginationTest extends AbstractTest {
                     .setParameter("rank", 2)
                     .setHint(QueryHints.HINT_READONLY, true)
                     .unwrap(NativeQuery.class)
-                    .setResultTransformer(resultTransformer)
+                    .setResultListTransformer(resultTransformer)
                     .getResultList();
         });
 
@@ -312,8 +311,7 @@ public class PaginationTest extends AbstractTest {
             .setParameter("titlePattern", "High-Performance Java Persistence %")
             .setParameter("rank", 5)
             .unwrap(NativeQuery.class)
-            .setResultTransformer(
-                new DistinctPostResultTransformer(entityManager))
+            .setResultListTransformer(new DistinctPostResultTransformer(entityManager))
             .getResultList();
 
             assertEquals(5, posts.size());
@@ -350,9 +348,7 @@ public class PaginationTest extends AbstractTest {
                             2
                     )
                     .unwrap(NativeQuery.class)
-                    .setResultTransformer(
-                            new DistinctPostResultTransformer(entityManager)
-                    )
+                    .setResultListTransformer(new DistinctPostResultTransformer(entityManager))
                     .getResultList();
         });
 

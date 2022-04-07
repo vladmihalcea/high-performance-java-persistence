@@ -2,17 +2,13 @@ package com.vladmihalcea.book.hpjp.hibernate.type.array;
 
 import com.vladmihalcea.book.hpjp.hibernate.type.json.model.BaseEntity;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+import com.vladmihalcea.hibernate.type.array.EnumArrayType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 import org.junit.Test;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -24,16 +20,6 @@ public class EnumArrayTypeTest extends AbstractPostgreSQLIntegrationTest {
     protected Class<?>[] entities() {
         return new Class<?>[] {
             Sudoku.class,
-        };
-    }
-
-    @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new PostgreSQLDataSourceProvider() {
-            @Override
-            public String hibernateDialect() {
-                return PostgreSQL95ArrayDialect.class.getName();
-            }
         };
     }
 
@@ -67,7 +53,7 @@ public class EnumArrayTypeTest extends AbstractPostgreSQLIntegrationTest {
     @Table(name = "sudoku")
     public static class Sudoku extends BaseEntity {
 
-        @Type( type = "enum-array" )
+        @Type(EnumArrayType.class)
         @Column(name = "sensor_values", columnDefinition = "integer[]")
         private SudokuPossibleValueState[] stateValues;
 

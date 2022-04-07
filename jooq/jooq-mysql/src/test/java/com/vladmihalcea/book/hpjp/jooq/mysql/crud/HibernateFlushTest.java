@@ -1,11 +1,7 @@
 package com.vladmihalcea.book.hpjp.jooq.mysql.crud;
 
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -55,11 +51,6 @@ public class HibernateFlushTest extends AbstractJOOQMySQLIntegrationTest {
             post.addComment(comment1);
             post.addComment(comment2);
             entityManager.persist(post);
-
-            Session session = entityManager.unwrap(Session.class);
-            Criteria criteria = session.createCriteria(Post.class)
-                .add(Restrictions.eq("title", "post"));
-            LOGGER.info("Criteria: {}", criteria);
         });
     }
 

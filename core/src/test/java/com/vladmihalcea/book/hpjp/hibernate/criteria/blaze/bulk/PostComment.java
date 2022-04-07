@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.criteria.blaze.bulk;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * The {@link PostComment}

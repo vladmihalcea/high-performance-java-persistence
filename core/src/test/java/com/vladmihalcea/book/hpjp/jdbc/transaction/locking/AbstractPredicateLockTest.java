@@ -7,7 +7,7 @@ import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;

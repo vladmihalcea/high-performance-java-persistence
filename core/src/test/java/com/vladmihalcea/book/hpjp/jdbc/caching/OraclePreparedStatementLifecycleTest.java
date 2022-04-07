@@ -3,10 +3,10 @@ package com.vladmihalcea.book.hpjp.jdbc.caching;
 import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import org.junit.Test;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Tuple;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Tuple;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;

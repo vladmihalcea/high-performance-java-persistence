@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.annotations.GenericGenerator;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.UUID;
 
 public class UUID2IdentifierTest extends AbstractTest {

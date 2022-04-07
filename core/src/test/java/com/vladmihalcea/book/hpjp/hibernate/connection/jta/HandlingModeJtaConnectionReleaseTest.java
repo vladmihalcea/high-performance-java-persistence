@@ -1,8 +1,8 @@
 package com.vladmihalcea.book.hpjp.hibernate.connection.jta;
 
 import java.util.concurrent.TimeUnit;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import org.hibernate.Session;
 

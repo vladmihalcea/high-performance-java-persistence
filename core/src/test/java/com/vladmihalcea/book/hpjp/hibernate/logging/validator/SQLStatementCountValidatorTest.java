@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCo
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;

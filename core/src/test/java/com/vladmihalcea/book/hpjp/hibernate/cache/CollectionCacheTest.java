@@ -8,7 +8,7 @@ import org.hibernate.query.NativeQuery;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public class CollectionCacheTest extends AbstractTest {
     protected Properties properties() {
         Properties properties = super.properties();
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
-        properties.put("hibernate.cache.region.factory_class", "ehcache");
+        properties.put("hibernate.cache.region.factory_class", "jcache");
         return properties;
     }
 
@@ -207,7 +207,7 @@ public class CollectionCacheTest extends AbstractTest {
                     statement.executeUpdate();
                 }
             });
-            entityManager.getEntityManagerFactory().unwrap(SessionFactory.class).getCache().evictCollection(
+            entityManager.getEntityManagerFactory().unwrap(SessionFactory.class).getCache().evictCollectionData(
                 Repository.class.getName() + ".commits",
                 repository.getId()
             );

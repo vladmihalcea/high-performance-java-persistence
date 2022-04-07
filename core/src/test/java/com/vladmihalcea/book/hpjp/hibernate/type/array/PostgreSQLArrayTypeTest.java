@@ -2,14 +2,13 @@ package com.vladmihalcea.book.hpjp.hibernate.type.array;
 
 import com.vladmihalcea.book.hpjp.hibernate.type.json.model.BaseEntity;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+import com.vladmihalcea.hibernate.type.array.IntArrayType;
+import com.vladmihalcea.hibernate.type.array.StringArrayType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import org.hibernate.annotations.Type;
 import org.junit.Test;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 
 import static org.junit.Assert.assertArrayEquals;
 
@@ -22,16 +21,6 @@ public class PostgreSQLArrayTypeTest extends AbstractPostgreSQLIntegrationTest {
     protected Class<?>[] entities() {
         return new Class<?>[] {
             Event.class,
-        };
-    }
-
-    @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new PostgreSQLDataSourceProvider() {
-            @Override
-            public String hibernateDialect() {
-                return PostgreSQL95ArrayDialect.class.getName();
-            }
         };
     }
 
@@ -60,11 +49,11 @@ public class PostgreSQLArrayTypeTest extends AbstractPostgreSQLIntegrationTest {
     @Table(name = "event")
     public static class Event extends BaseEntity {
 
-        @Type( type = "string-array" )
+        @Type(StringArrayType.class)
         @Column(name = "sensor_names", columnDefinition = "text[]")
         private String[] sensorNames;
 
-        @Type( type = "int-array" )
+        @Type(IntArrayType.class)
         @Column(name = "sensor_values", columnDefinition = "integer[]")
         private int[] sensorValues;
 

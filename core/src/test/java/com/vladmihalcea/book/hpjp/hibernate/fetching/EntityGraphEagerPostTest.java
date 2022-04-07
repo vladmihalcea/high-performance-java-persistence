@@ -5,7 +5,7 @@ import org.hibernate.testing.bytecode.enhancement.BytecodeEnhancerRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -91,7 +91,7 @@ public class EntityGraphEagerPostTest extends AbstractPostgreSQLIntegrationTest 
                 PostComment.class,
                 1L,
                 Collections.singletonMap(
-                    "javax.persistence.loadgraph",
+                    "jakarta.persistence.loadgraph",
                     postCommentGraph
                 )
             );
@@ -107,7 +107,7 @@ public class EntityGraphEagerPostTest extends AbstractPostgreSQLIntegrationTest 
                 PostComment.class,
                 1L,
                 Collections.singletonMap(
-                    "javax.persistence.loadgraph",
+                    "jakarta.persistence.loadgraph",
                     entityManager.getEntityGraph("PostComment.post")
                 )
             );

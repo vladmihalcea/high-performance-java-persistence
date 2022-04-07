@@ -7,7 +7,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.tuple.ValueGenerator;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;

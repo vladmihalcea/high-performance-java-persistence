@@ -6,7 +6,7 @@ import org.hibernate.jpa.QueryHints;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.*;
 

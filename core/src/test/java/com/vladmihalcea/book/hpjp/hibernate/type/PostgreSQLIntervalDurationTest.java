@@ -1,18 +1,19 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.hibernate.type.basic.YearMonthDateType;
 import com.vladmihalcea.hibernate.type.interval.PostgreSQLIntervalType;
+import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.Type;
 import org.hibernate.query.NativeQuery;
 import org.junit.Test;
 
-import javax.persistence.*;
-import java.time.*;
-import java.time.temporal.ChronoUnit;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.YearMonth;
 
 import static org.junit.Assert.assertEquals;
 
@@ -72,8 +73,8 @@ public class PostgreSQLIntervalDurationTest extends AbstractPostgreSQLIntegratio
                     "   b.isbn = :isbn ", Tuple.class)
             .setParameter("isbn", "978-9730228236")
             .unwrap(NativeQuery.class)
-            .addScalar("published_on", YearMonthDateType.INSTANCE)
-            .addScalar("presale_period", PostgreSQLIntervalType.INSTANCE)
+            .addScalar("published_on", YearMonth.class)
+            .addScalar("presale_period", Duration.class)
             .getSingleResult();
 
             assertEquals(
@@ -94,14 +95,6 @@ public class PostgreSQLIntervalDurationTest extends AbstractPostgreSQLIntegratio
 
     @Entity(name = "Book")
     @Table(name = "book")
-    @TypeDef(
-        typeClass = PostgreSQLIntervalType.class,
-        defaultForType = Duration.class
-    )
-    @TypeDef(
-        typeClass = YearMonthDateType.class,
-        defaultForType = YearMonth.class
-    )
     public static class Book {
 
         @Id
@@ -113,9 +106,11 @@ public class PostgreSQLIntervalDurationTest extends AbstractPostgreSQLIntegratio
 
         private String title;
 
+        @Type(YearMonthDateType.class)
         @Column(name = "published_on", columnDefinition = "date")
         private YearMonth publishedOn;
 
+        @Type(PostgreSQLIntervalType.class)
         @Column(name = "presale_period", columnDefinition = "interval")
         private Duration presalePeriod;
 

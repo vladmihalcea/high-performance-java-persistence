@@ -1,14 +1,11 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency.version;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import org.junit.Test;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Version;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;

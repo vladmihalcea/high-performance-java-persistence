@@ -5,7 +5,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.BatchSize;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.Date;

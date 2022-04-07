@@ -2,8 +2,8 @@ package com.vladmihalcea.book.hpjp.util.providers.entity;
 
 import com.vladmihalcea.book.hpjp.util.EntityProvider;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
 /**
  * @author Vlad Mihalcea

@@ -11,7 +11,7 @@ public class TransactionalCacheConcurrencyStrategyTestConfiguration extends HSQL
     @Override
     protected Properties additionalProperties() {
         Properties properties = super.additionalProperties();
-        properties.put("hibernate.cache.region.factory_class", "ehcache");
+        properties.put("hibernate.cache.region.factory_class", "jcache");
         //JCache makes it difficult to print the cache content
         /*properties.put("hibernate.cache.region.factory_class", "jcache");
         properties.put("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider");*/

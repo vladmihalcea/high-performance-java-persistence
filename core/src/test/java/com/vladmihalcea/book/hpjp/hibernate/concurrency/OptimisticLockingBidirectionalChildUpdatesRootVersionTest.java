@@ -3,16 +3,16 @@ package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -25,11 +25,7 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.engine.spi.Status;
 import org.hibernate.event.service.spi.EventListenerRegistry;
-import org.hibernate.event.spi.EventType;
-import org.hibernate.event.spi.FlushEntityEvent;
-import org.hibernate.event.spi.FlushEntityEventListener;
-import org.hibernate.event.spi.PersistEvent;
-import org.hibernate.event.spi.PersistEventListener;
+import org.hibernate.event.spi.*;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.service.spi.SessionFactoryServiceRegistry;
@@ -91,7 +87,7 @@ public class OptimisticLockingBidirectionalChildUpdatesRootVersionTest extends A
         }
 
         @Override
-        public void onPersist(PersistEvent event, Map createdAlready) throws HibernateException {
+        public void onPersist(PersistEvent event, PersistContext persistContext) throws HibernateException {
             onPersist(event);
         }
     }

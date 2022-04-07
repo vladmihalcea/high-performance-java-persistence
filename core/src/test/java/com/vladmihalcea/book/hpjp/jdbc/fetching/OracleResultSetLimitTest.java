@@ -1,11 +1,9 @@
 package com.vladmihalcea.book.hpjp.jdbc.fetching;
 
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
-
-import org.hibernate.engine.spi.RowSelection;
+import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -80,8 +78,6 @@ public class OracleResultSetLimitTest extends DataSourceProviderIntegrationTest 
 
     @Test
     public void testLimit() {
-        RowSelection rowSelection = new RowSelection();
-        rowSelection.setMaxRows(getMaxRows());
         long startNanos = System.nanoTime();
         doInJDBC(connection -> {
             try (PreparedStatement statement = connection.prepareStatement(SELECT_POST)

@@ -9,8 +9,8 @@ import org.hibernate.result.ResultSetOutput;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.ParameterMode;
-import javax.persistence.StoredProcedureQuery;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureQuery;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -148,8 +148,10 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
             ProcedureCall call = session.createStoredProcedureCall("count_comments");
-            call.registerParameter("postId", Long.class, ParameterMode.IN).bindValue(1L);
+            call.registerParameter("postId", Long.class, ParameterMode.IN);
             call.registerParameter("commentCount", Long.class, ParameterMode.OUT);
+
+            call.setParameter("postId", 1L);
 
             Long commentCount = (Long) call.getOutputs().getOutputParameterValue("commentCount");
             assertEquals(Long.valueOf(2), commentCount);
@@ -215,7 +217,8 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
             ProcedureCall call = session.createStoredProcedureCall("post_comments");
-            call.registerParameter(1, Long.class, ParameterMode.IN).bindValue(1L);
+            call.registerParameter(1, Long.class, ParameterMode.IN);
+            call.setParameter(1, 1L);
 
             Output output = call.getOutputs().getCurrent();
             if (output.isResultSet()) {

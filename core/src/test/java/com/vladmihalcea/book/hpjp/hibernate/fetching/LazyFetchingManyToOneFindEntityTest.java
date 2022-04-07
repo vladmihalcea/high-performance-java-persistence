@@ -5,9 +5,9 @@ import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.LazyInitializationException;
 import org.junit.Test;
 
-import javax.persistence.EntityGraph;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import jakarta.persistence.EntityGraph;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 import java.util.Collections;
 import java.util.List;
 
@@ -57,7 +57,7 @@ public class LazyFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInteg
             postEntityGraph.addAttributeNodes(PostComment_.post);
 
             PostComment comment = entityManager.find(PostComment.class, 1L,
-                Collections.singletonMap("javax.persistence.fetchgraph", postEntityGraph)
+                Collections.singletonMap("jakarta.persistence.fetchgraph", postEntityGraph)
             );
             LOGGER.info("Fetch entity graph");
             assertNotNull(comment);

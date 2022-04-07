@@ -1,20 +1,14 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.array;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.HSQLDBDataSourceProvider;
+import com.vladmihalcea.hibernate.type.array.IntArrayType;
+import com.vladmihalcea.hibernate.type.array.StringArrayType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
-import org.hibernate.dialect.HSQLDialect;
 import org.junit.Test;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import java.sql.Types;
 
 import static org.junit.Assert.assertArrayEquals;
 
@@ -29,24 +23,6 @@ public class HSQLDBArrayTypeTest extends AbstractTest {
             Event.class,
         };
     }
-
-    /*public static class HSQLDialectArrayDialect extends HSQLDialect {
-
-        public HSQLDialectArrayDialect() {
-            super();
-            this.registerHibernateType(Types.ARRAY, "string-array");
-        }
-    }
-
-    @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new HSQLDBDataSourceProvider() {
-            @Override
-            public String hibernateDialect() {
-                return HSQLDialectArrayDialect.class.getName();
-            }
-        };
-    }*/
 
     @Test
     public void test() {
@@ -96,20 +72,16 @@ public class HSQLDBArrayTypeTest extends AbstractTest {
 
     @Entity(name = "Event")
     @Table(name = "event")
-    @TypeDefs({
-        @TypeDef(name = "string-array", typeClass = VarCharStringArrayType.class),
-        @TypeDef(name = "int-array", typeClass = IntArrayType.class),
-    })
     public static class Event {
 
         @Id
         private Long id;
 
-        @Type(type = "string-array")
+        @Type(StringArrayType.class)
         @Column(name = "sensor_names", columnDefinition = "VARCHAR(100) ARRAY")
         private String[] sensorNames;
 
-        @Type(type = "int-array")
+        @Type(IntArrayType.class)
         @Column(name = "sensor_values", columnDefinition = "INT ARRAY")
         private Integer[] sensorValues;
 

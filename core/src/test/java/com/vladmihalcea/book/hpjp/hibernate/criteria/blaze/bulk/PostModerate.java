@@ -1,9 +1,9 @@
 package com.vladmihalcea.book.hpjp.hibernate.criteria.blaze.bulk;
 
-import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.MappedSuperclass;
 import java.util.Date;
 
 /**

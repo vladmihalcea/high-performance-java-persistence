@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.forum;
 import org.hibernate.annotations.LazyToOne;
 import org.hibernate.annotations.LazyToOneOption;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 

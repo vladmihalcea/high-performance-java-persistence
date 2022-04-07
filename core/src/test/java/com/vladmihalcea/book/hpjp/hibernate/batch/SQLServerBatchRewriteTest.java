@@ -10,7 +10,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.postgresql.ds.PGSimpleDataSource;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.Iterator;

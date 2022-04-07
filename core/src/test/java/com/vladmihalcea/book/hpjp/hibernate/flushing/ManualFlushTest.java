@@ -36,7 +36,7 @@ public class ManualFlushTest extends AbstractPostgreSQLIntegrationTest {
             entityManager.persist(post);
 
             Session session = entityManager.unwrap(Session.class);
-            session.setFlushMode(FlushMode.MANUAL);
+            session.setHibernateFlushMode(FlushMode.MANUAL);
 
             assertTrue(((Number) entityManager
                     .createQuery("select count(id) from Post")

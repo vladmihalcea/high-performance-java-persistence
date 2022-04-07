@@ -7,7 +7,7 @@ import org.hibernate.transform.Transformers;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -73,7 +73,7 @@ public class SessionAlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
                 "FROM post p " +
                 "JOIN board b on b.id = p.board_id " +
                 "GROUP BY forum")
-            .setFlushMode(FlushMode.ALWAYS)
+            .setHibernateFlushMode(FlushMode.ALWAYS)
             .setResultTransformer( Transformers.aliasToBean(ForumCount.class))
             .list();
 

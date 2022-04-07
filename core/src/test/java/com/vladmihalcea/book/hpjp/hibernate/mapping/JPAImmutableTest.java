@@ -8,7 +8,7 @@ import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.query.ImmutableEntityUpdateQueryHandlingMode;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 import java.util.Properties;
 

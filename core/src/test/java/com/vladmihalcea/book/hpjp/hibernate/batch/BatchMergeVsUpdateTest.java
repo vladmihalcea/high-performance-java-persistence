@@ -7,7 +7,7 @@ import org.hibernate.annotations.QueryHints;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -66,7 +66,6 @@ public class BatchMergeVsUpdateTest extends AbstractTest {
                 from Post p
                 join fetch p.comments
                 """, Post.class)
-            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
             .getResultList();
         });
 
@@ -93,7 +92,6 @@ public class BatchMergeVsUpdateTest extends AbstractTest {
                 from Post p
                 join fetch p.comments
                 """, Post.class)
-            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
             .getResultList();
         });
 

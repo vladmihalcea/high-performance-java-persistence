@@ -6,7 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 

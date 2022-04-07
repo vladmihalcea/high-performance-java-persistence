@@ -3,13 +3,15 @@ package com.vladmihalcea.book.hpjp.hibernate.audit.trigger;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
+import com.vladmihalcea.hibernate.type.json.JsonNodeStringType;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.usertype.UserType;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +32,11 @@ public class SQLServerTriggerBasedJsonAuditLogTest extends AbstractTest {
     @Override
     protected Database database() {
         return Database.SQLSERVER;
+    }
+
+    @Override
+    protected List<UserType<?>> additionalTypes() {
+        return List.of(JsonNodeStringType.INSTANCE);
     }
 
     @Override
@@ -234,7 +241,7 @@ public class SQLServerTriggerBasedJsonAuditLogTest extends AbstractTest {
         Dialect dialect = session.getSessionFactory().unwrap(SessionFactoryImplementor.class).getJdbcServices().getDialect();
         String loggedUser = ReflectionUtils.invokeMethod(
             dialect,
-            "escapeLiteral",
+            "inlineLiteral",
             LoggedUser.get()
         );
 
@@ -242,7 +249,7 @@ public class SQLServerTriggerBasedJsonAuditLogTest extends AbstractTest {
             update(
                 connection,
                 String.format(
-                    "EXEC sys.sp_set_session_context @key = N'loggedUser', @value = N'%s', @read_only = 1", loggedUser
+                    "EXEC sys.sp_set_session_context @key = N'loggedUser', @value = N%s, @read_only = 1", loggedUser
                 )
             );
         });

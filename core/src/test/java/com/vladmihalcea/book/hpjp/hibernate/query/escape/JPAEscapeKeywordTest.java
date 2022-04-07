@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.escape;
 
 import java.util.List;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import org.hibernate.Session;
 
@@ -47,7 +47,7 @@ public class JPAEscapeKeywordTest extends AbstractTest {
     }
 
     @Entity(name = "Table")
-    @javax.persistence.Table(name = "\"table\"")
+    @jakarta.persistence.Table(name = "\"table\"")
     public static class Table {
 
         @Id

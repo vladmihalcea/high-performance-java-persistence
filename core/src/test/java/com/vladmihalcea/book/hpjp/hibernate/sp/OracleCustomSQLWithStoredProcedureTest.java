@@ -9,7 +9,7 @@ import org.hibernate.annotations.SQLInsert;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Statement;
 
 import static org.junit.Assert.assertNotNull;

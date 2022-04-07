@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.listener;
 
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import java.util.Date;
 
 /**

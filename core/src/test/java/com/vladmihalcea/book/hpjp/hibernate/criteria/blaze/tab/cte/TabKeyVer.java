@@ -2,8 +2,8 @@ package com.vladmihalcea.book.hpjp.hibernate.criteria.blaze.tab.cte;
 
 import com.blazebit.persistence.CTE;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.io.Serializable;
 
 @CTE

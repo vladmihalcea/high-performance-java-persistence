@@ -121,26 +121,14 @@
 
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-ehcache</artifactId>
-            <version>${hibernate.version}</version>
-        </dependency>
-
-        <!--<dependency>
-            <groupId>org.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>${ehcache3.version}</version>
-        </dependency>-->
-
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>${ehcache.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hibernate</groupId>
             <artifactId>hibernate-jcache</artifactId>
             <version>${hibernate.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>${ehcache.version}</version>
         </dependency>
 
         <!-- Database -->
@@ -225,15 +213,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.btm</groupId>
-            <artifactId>btm</artifactId>
-            <version>${btm.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.jboss.jbossts</groupId>
+            <artifactId>jbossjta</artifactId>
+            <version>${jboss-jta.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.narayana.jta</groupId>
+            <artifactId>narayana-jta</artifactId>
+            <version>${narayana-jta.version}</version>
         </dependency>
 
         <dependency>
@@ -244,19 +232,13 @@
 
         <dependency>
             <groupId>com.vladmihalcea.flexy-pool</groupId>
-            <artifactId>flexy-btm</artifactId>
-            <version>${flexy-pool.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.vladmihalcea.flexy-pool</groupId>
             <artifactId>flexy-hikaricp</artifactId>
             <version>${flexy-pool.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.vladmihalcea</groupId>
-            <artifactId>hibernate-types-55</artifactId>
+            <artifactId>hibernate-types-60</artifactId>
             <version>${hibernate-types.version}</version>
         </dependency>
 
@@ -338,7 +320,7 @@
 
         <dependency>
             <groupId>com.blazebit</groupId>
-            <artifactId>blaze-persistence-core-api</artifactId>
+            <artifactId>blaze-persistence-core-api-jakarta</artifactId>
             <version>${blaze-persistence.version}</version>
         </dependency>
 
@@ -362,11 +344,12 @@
             <version>${blaze-persistence.version}</version>
         </dependency>
 
-        <dependency>
+        <!-- Uncomment when Blze supports H6 -->
+       <!-- <dependency>
             <groupId>com.blazebit</groupId>
-            <artifactId>blaze-persistence-integration-hibernate-5.6</artifactId>
+            <artifactId>blaze-persistence-integration-hibernate-6.0</artifactId>
             <version>${blaze-persistence.version}</version>
-        </dependency>
+        </dependency>-->
 
         <!-- Testing -->
 
@@ -397,6 +380,7 @@
     <properties>
         <jdk.version>17</jdk.version>
 
+        <maven-toolchains-plugin.version>3.0.0</maven-toolchains-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-jar-plugin>2.4</maven-jar-plugin>
@@ -406,48 +390,55 @@
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
         <commons-lang.version>3.12.0</commons-lang.version>
-        <hibernate.version>5.6.10.Final</hibernate.version>
+        <hibernate.version>6.0.0.Final</hibernate.version>
         <hibernate.validator.version>6.2.1.Final</hibernate.validator.version>
         <javassist.version>3.18.1-GA</javassist.version>
-        <!--<ehcache3.version>3.4.0</ehcache3.version>-->
-        <ehcache.version>2.10.6</ehcache.version>
+        <ehcache.version>3.10.0</ehcache.version>
         <datasource-proxy.version>1.6</datasource-proxy.version>
         <p6spy.version>3.9.1</p6spy.version>
 
         <hsqldb.version>2.4.0</hsqldb.version>
-        <postgresql.version>42.4.1</postgresql.version>
+        <postgresql.version>42.3.3</postgresql.version>
         <oracle.version>19.3.0.0</oracle.version>
-        <mysql.version>8.0.30</mysql.version>
+        <mysql.version>8.0.22</mysql.version>
         <mariadb.version>2.2.3</mariadb.version>
-        <mssql.version>11.2.1.jre8</mssql.version>
+        <mssql.version>9.4.0.jre16</mssql.version>
         <jtds.version>1.3.1</jtds.version>
 
-        <jts.version>1.14.0</jts.version>
-        <jaxb-api.version>2.2.7</jaxb-api.version>
+        <jboss-jta.version>4.16.6.Final</jboss-jta.version>
+        <narayana-jta.version>5.12.6.Final</narayana-jta.version>
 
+        <jaxb-api.version>2.2.7</jaxb-api.version>
         <javax.el.version>2.2.4</javax.el.version>
         <javax.transaction.version>1.1</javax.transaction.version>
 
         <dropwizard.metrics.version>3.1.0</dropwizard.metrics.version>
         <hikari.version>4.0.3</hikari.version>
-        <btm.version>2.1.4</btm.version>
         <flexy-pool.version>2.0.0</flexy-pool.version>
 
-        <aspectj.version>1.9.9.1</aspectj.version>
-        <spring.version>5.3.22</spring.version>
-        <spring-data.version>2.7.2</spring-data.version>
+        <aspectj.version>1.8.7</aspectj.version>
+        <spring.version>6.0.0-M3</spring.version>
+        <spring-data.version>3.0.0-M3</spring-data.version>
 
         <jackson.version>2.12.6.1</jackson.version>
 
         <flyway.version>6.4.4</flyway.version>
-        <hibernate-types.version>2.19.1</hibernate-types.version>
+        <hibernate-types.version>2.15.2</hibernate-types.version>
 
         <blaze-persistence.version>1.6.6</blaze-persistence.version>
 
-        <hypersistence-optimizer.version>2.5.2-SNAPSHOT</hypersistence-optimizer.version>
+        <hypersistence-optimizer.version>2.4.2</hypersistence-optimizer.version>
 
         <junit.version>4.13.1</junit.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>spring-milestone</id>
+            <name>Spring Milestone Repository</name>
+            <url>https://repo.spring.io/milestone</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>
@@ -480,11 +471,6 @@
                 <configuration>
                     <argLine>-Xms1024m -Xmx1024m</argLine>
                     <argLine>--enable-preview</argLine>
-
-                    <systemPropertyVariables>
-                        <bitronix.tm.journal.disk.logPart1Filename>${project.build.directory}/btm1.log</bitronix.tm.journal.disk.logPart1Filename>
-                        <bitronix.tm.journal.disk.logPart2Filename>${project.build.directory}/btm2.log</bitronix.tm.journal.disk.logPart2Filename>
-                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>

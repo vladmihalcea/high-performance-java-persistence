@@ -1,12 +1,11 @@
 package com.vladmihalcea.book.hpjp.util.spring.config.jta;
 
-import bitronix.tm.resource.jdbc.PoolingDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 /**
  * @author Vlad Mihalcea
@@ -17,9 +16,6 @@ public abstract class PostgreSQLJTATransactionManagerConfiguration extends Abstr
 
     @Value("${jdbc.dataSourceClassName}")
     protected String dataSourceClassName;
-
-    @Value("${btm.config.journal:disk}")
-    protected String btmJournal;
 
     @Value("${jdbc.username}")
     protected String jdbcUser;
@@ -40,18 +36,18 @@ public abstract class PostgreSQLJTATransactionManagerConfiguration extends Abstr
     protected String hibernateDialect;
 
     public DataSource actualDataSource() {
-        PoolingDataSource poolingDataSource = new PoolingDataSource();
-        poolingDataSource.setClassName(dataSourceClassName);
-        poolingDataSource.setUniqueName(getClass().getName());
-        poolingDataSource.setMinPoolSize(0);
-        poolingDataSource.setMaxPoolSize(5);
-        poolingDataSource.setAllowLocalTransactions(true);
-        poolingDataSource.setDriverProperties(new Properties());
-        poolingDataSource.getDriverProperties().put("user", jdbcUser);
-        poolingDataSource.getDriverProperties().put("password", jdbcPassword);
-        poolingDataSource.getDriverProperties().put("databaseName", jdbcDatabase);
-        poolingDataSource.getDriverProperties().put("serverName", jdbcHost);
-        poolingDataSource.getDriverProperties().put("portNumber", jdbcPort);
-        return poolingDataSource;
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(dataSourceClassName);
+        dataSource.setUrl(
+            String.format(
+                "jdbc:postgresql://%s:%s/%s",
+                jdbcHost,
+                jdbcPort,
+                jdbcDatabase
+            )
+        );
+        dataSource.setUsername(jdbcUser);
+        dataSource.setPassword(jdbcPassword);
+        return dataSource;
     }
 }

@@ -2,11 +2,11 @@ package com.vladmihalcea.book.hpjp.hibernate.type.binary;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
+import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -62,7 +62,6 @@ public class MySQLBinaryTypeTest extends AbstractTest {
 
     @Entity(name = "User")
     @Table(name = "`user`")
-    //@TypeDef(typeClass = MySQLBinaryType.class, defaultForType = byte[].class)
     public static class User {
 
         @Id

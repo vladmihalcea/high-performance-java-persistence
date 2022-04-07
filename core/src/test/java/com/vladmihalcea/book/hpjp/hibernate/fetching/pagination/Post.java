@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching.pagination;
 
 import com.vladmihalcea.book.hpjp.hibernate.identifier.Identifiable;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;

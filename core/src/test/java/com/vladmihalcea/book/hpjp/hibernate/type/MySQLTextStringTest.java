@@ -1,10 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.Type;
+import org.hibernate.type.descriptor.jdbc.LongVarcharJdbcType;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -42,7 +44,7 @@ public class MySQLTextStringTest extends AbstractMySQLIntegrationTest {
         private Long id;
 
         @Column(name="my_field", columnDefinition="text")
-        @Type(type = "text")
+        @JdbcType(LongVarcharJdbcType.class)
         private String message;
     }
 }

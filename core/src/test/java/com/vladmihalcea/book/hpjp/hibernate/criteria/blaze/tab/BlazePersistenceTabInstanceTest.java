@@ -8,7 +8,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractOracleIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
