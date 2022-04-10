@@ -36,16 +36,6 @@ public class OracleVersionedBatchingTest extends AbstractTest {
         return properties;
     }
 
-    @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new OracleDataSourceProvider() {
-            @Override
-            public String hibernateDialect() {
-                return Oracle10gDialect.class.getName();
-            }
-        };
-    }
-
     @Test
     public void testInsertPosts() {
         LOGGER.info("testInsertPosts");

@@ -122,7 +122,14 @@ public abstract class AbstractTest {
     }
 
     public SessionFactory sessionFactory() {
-        return nativeHibernateSessionFactoryBootstrap() ? sf : entityManagerFactory().unwrap(SessionFactory.class);
+        if(nativeHibernateSessionFactoryBootstrap()) {
+            return sf;
+        }
+        EntityManagerFactory entityManagerFactory = entityManagerFactory();
+        if(entityManagerFactory == null) {
+            return null;
+        }
+        return entityManagerFactory.unwrap(SessionFactory.class);
     }
     protected boolean nativeHibernateSessionFactoryBootstrap() {
         return false;
@@ -305,7 +312,10 @@ public abstract class AbstractTest {
     }
 
     protected Dialect dialect() {
-        return sessionFactory().unwrap(SessionFactoryImplementor.class).getJdbcServices().getDialect();
+        SessionFactory sessionFactory = sessionFactory();
+        return sessionFactory != null ?
+            sessionFactory.unwrap(SessionFactoryImplementor.class).getJdbcServices().getDialect() :
+            ReflectionUtils.newInstance(dataSourceProvider().hibernateDialect());
     }
 
     protected Map<String, Object> propertiesMap() {

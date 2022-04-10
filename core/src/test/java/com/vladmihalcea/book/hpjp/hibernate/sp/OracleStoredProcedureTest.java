@@ -125,16 +125,6 @@ public class OracleStoredProcedureTest extends AbstractOracleIntegrationTest {
         });
     }
 
-    @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new OracleDataSourceProvider() {
-            @Override
-            public String hibernateDialect() {
-                return OracleDialect.class.getName();
-            }
-        };
-    }
-
     @Test
     public void testStoredProcedureOutParameter() {
         doInJPA(entityManager -> {
