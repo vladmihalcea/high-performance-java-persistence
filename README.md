@@ -115,6 +115,11 @@ The Integration Tests require some external configurations:
         
         ALTER PROFILE DEFAULT LIMIT PASSWORD_LIFE_TIME UNLIMITED;
 
+    Open the `C:\app\${user.name}\product\21c\homes\OraDB21Home1\network\admin` folder where `${user.name}` is your current Windows username.
+  
+    Locate the `tnsnames.ora` and `listener.ora` files and change the port from `1522` to `1521` if that's the case. If you made these modifications,
+    you need to restart the `OracleOraDB21Home1TNSListener` and `OracleServiceXE` Windows services.
+  
 - MySQL
 
     You should install MySQL 8 and the password for the `mysql` user should be `admin`.
