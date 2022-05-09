@@ -108,6 +108,27 @@ public class HibernateDTOProjectionTest extends AbstractTest {
     }
 
     @Test
+    public void testJPQLTupleTransformer() {
+        doInJPA( entityManager -> {
+            List<PostDTO> postDTOs = entityManager.createQuery("""
+                select p.id as id,
+                       p.title as title
+                from Post p
+                order by p.id
+                """)
+            .unwrap(org.hibernate.query.Query.class)
+            .setTupleTransformer(Transformers.aliasToBean(PostDTO.class))
+            .getResultList();
+
+            assertEquals(2, postDTOs.size());
+
+            PostDTO postDTO = postDTOs.get(0);
+            assertEquals(1L, postDTO.getId().longValue());
+            assertEquals("High-Performance Java Persistence", postDTO.getTitle());
+        } );
+    }
+
+    @Test
     public void testNativeQueryResultTransformer() {
         doInJPA( entityManager -> {
             List<PostDTO> postDTOs = entityManager.createNativeQuery("""
@@ -143,17 +164,16 @@ public class HibernateDTOProjectionTest extends AbstractTest {
                 order by p.id
                 """)
             .unwrap(org.hibernate.query.Query.class)
-            .setResultTransformer(
-                (ListResultTransformer) (tuple, aliases) -> {
+            .setTupleTransformer((tuple, aliases) -> {
                     int i =0;
                     return new PostRecord(
-                        ((Number) tuple[i++]).longValue(),
-                        (String) tuple[i++],
+                        longValue(tuple[i++]),
+                        stringValue(tuple[i++]),
                         new AuditRecord(
-                            (LocalDateTime) tuple[i++],
-                            (String) tuple[i++],
-                            (LocalDateTime) tuple[i++],
-                            (String) tuple[i++]
+                            localDateTimeValue(tuple[i++]),
+                            stringValue(tuple[i++]),
+                            localDateTimeValue(tuple[i++]),
+                            stringValue(tuple[i++])
                         )
                     );
                 }

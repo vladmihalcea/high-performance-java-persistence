@@ -52,6 +52,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.*;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -1096,6 +1097,10 @@ public abstract class AbstractTest {
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    public static LocalDateTime localDateTimeValue(Object value) {
+        return (LocalDateTime) value;
     }
 
     protected List<Map<String, String>> parseResultSet(ResultSet resultSet) {
