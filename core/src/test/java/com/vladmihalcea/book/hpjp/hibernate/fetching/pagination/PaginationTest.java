@@ -4,6 +4,7 @@ import com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import jakarta.persistence.Tuple;
+import org.hibernate.Incubating;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.NativeQuery;
@@ -378,8 +379,7 @@ public class PaginationTest extends AbstractTest {
     @SuppressWarnings("unchecked")
     public void testFetchAndPaginateUsingDenseRankNativeSQL() {
         doInJPA(entityManager -> {
-            List<Tuple> posts = entityManager
-            .createNativeQuery("""
+            List<Tuple> posts = entityManager.createNativeQuery("""
                 SELECT *
                 FROM (
                     SELECT *,
@@ -403,6 +403,35 @@ public class PaginationTest extends AbstractTest {
                 WHERE p_pc_r.rank <= :rank
                 """,
                 Tuple.class)
+            .setParameter("titlePattern", "High-Performance Java Persistence %")
+            .setParameter("rank", 5)
+            .getResultList();
+
+            assertEquals(5 * COMMENT_COUNT, posts.size());
+        });
+    }
+
+    @Test
+    @Incubating
+    public void testFetchAndPaginateUsingDenseRankHQL() {
+        doInJPA(entityManager -> {
+            List<Post> posts = entityManager.createQuery("""
+                with p_pc as (
+                    select 
+                        p,
+                        dense_rank() over (
+                           order by p.createdOn, p.id
+                       ) rank
+                    from Post p
+                    left join fetch p.comments pc
+                    where p.title like :titlePattern
+                    order by p.createdOn
+                )
+                select p
+                from p_pc
+                where p_pc.rank <= :rank
+                """,
+                Post.class)
             .setParameter("titlePattern", "High-Performance Java Persistence %")
             .setParameter("rank", 5)
             .getResultList();
