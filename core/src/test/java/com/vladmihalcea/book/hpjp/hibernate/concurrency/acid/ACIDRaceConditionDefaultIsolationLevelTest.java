@@ -29,7 +29,7 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
 
     @Override
     protected Database database() {
-        return Database.SQLSERVER;
+        return Database.POSTGRESQL;
     }
 
     @Override
