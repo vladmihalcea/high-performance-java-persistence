@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.util.providers;
 
 import com.vladmihalcea.book.hpjp.util.providers.queries.HSQLDBServerQueries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
+import org.hibernate.dialect.HSQLDialect;
 import org.hsqldb.jdbc.JDBCDataSource;
 
 import javax.sql.DataSource;
@@ -14,7 +15,7 @@ public class HSQLDBDataSourceProvider implements DataSourceProvider {
 
     @Override
     public String hibernateDialect() {
-        return "org.hibernate.dialect.HSQLDialect";
+        return HSQLDialect.class.getName();
     }
 
     @Override

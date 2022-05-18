@@ -86,7 +86,6 @@ public abstract class AbstractJPAProgrammaticBootstrapTest {
 
     protected Properties properties() {
         Properties properties = new Properties();
-        properties.put("hibernate.dialect", dataSourceProvider().hibernateDialect());
         properties.put("hibernate.hbm2ddl.auto", "create-drop");
         DataSource dataSource = newDataSource();
         if (dataSource != null) {

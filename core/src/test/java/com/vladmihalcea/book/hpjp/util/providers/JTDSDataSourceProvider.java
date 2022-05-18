@@ -6,6 +6,7 @@ import javax.sql.DataSource;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.SQLServerQueries;
 import net.sourceforge.jtds.jdbcx.JtdsDataSource;
+import org.hibernate.dialect.SQLServerDialect;
 
 /**
  * @author Vlad Mihalcea
@@ -13,7 +14,7 @@ import net.sourceforge.jtds.jdbcx.JtdsDataSource;
 public class JTDSDataSourceProvider implements DataSourceProvider {
 	@Override
 	public String hibernateDialect() {
-		return "org.hibernate.dialect.SQLServer2012Dialect";
+		return SQLServerDialect.class.getName();
 	}
 
 	@Override

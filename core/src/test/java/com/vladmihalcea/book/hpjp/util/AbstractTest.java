@@ -296,7 +296,6 @@ public abstract class AbstractTest {
 
     protected Properties properties() {
         Properties properties = new Properties();
-        properties.put("hibernate.dialect", dataSourceProvider().hibernateDialect());
         //log settings
         properties.put("hibernate.hbm2ddl.auto", "create-drop");
         //data source settings

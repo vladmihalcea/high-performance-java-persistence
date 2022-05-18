@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.util.providers;
 
 import com.vladmihalcea.book.hpjp.util.providers.queries.MySQLQueries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
-import org.hibernate.dialect.MariaDB103Dialect;
+import org.hibernate.dialect.MySQLDialect;
 import org.mariadb.jdbc.MariaDbDataSource;
 
 import javax.sql.DataSource;
@@ -76,7 +76,7 @@ public class MariaDBDataSourceProvider implements DataSourceProvider {
 
     @Override
     public String hibernateDialect() {
-        return MariaDB103Dialect.class.getName();
+        return MySQLDialect.class.getName();
     }
 
     @Override
