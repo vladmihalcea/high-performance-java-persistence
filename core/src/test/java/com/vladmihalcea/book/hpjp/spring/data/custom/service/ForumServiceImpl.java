@@ -35,4 +35,14 @@ public class ForumServiceImpl implements ForumService {
     public List<PostDTO> findPostDTOWithComments() {
         return postRepository.findPostDTOWithComments();
     }
+
+    @Override
+    @Transactional
+    public void saveAntiPattern(Long postId, String postTitle) {
+        Post post = postRepository.findById(postId).orElseThrow();
+
+        post.setTitle(postTitle);
+
+        postRepository.save(post);
+    }
 }

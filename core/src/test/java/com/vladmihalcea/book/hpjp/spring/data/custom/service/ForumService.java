@@ -13,4 +13,6 @@ public interface ForumService {
     Post findById(Long id);
 
     List<PostDTO> findPostDTOWithComments();
+
+    void saveAntiPattern(Long postId, String postTitle);
 }

@@ -100,6 +100,8 @@ public class SpringDataJPACustomRepositoryTest {
         assertEquals(2L, post2DTO.getId().longValue());
         assertEquals(1, post2DTO.getComments().size());
         assertEquals(3L, post2DTO.getComments().get(0).getId().longValue());
+
+        forumService.saveAntiPattern(1L, "Hack!");
     }
 }
 
