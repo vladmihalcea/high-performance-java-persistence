@@ -2,14 +2,22 @@ package com.vladmihalcea.book.hpjp.hibernate.concurrency.acid;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
+import com.vladmihalcea.book.hpjp.util.transaction.ConnectionCallable;
+import com.vladmihalcea.book.hpjp.util.transaction.ConnectionVoidCallable;
+import org.hibernate.FlushMode;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.junit.Test;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
 
@@ -49,7 +57,7 @@ public class ACIDRaceConditionTest extends AbstractTest {
         });
     }
 
-    public void transfer(String fromIban, String toIban, long transferCents) {
+    protected void transfer(String fromIban, String toIban, long transferCents) {
         long fromBalance = getBalance(fromIban);
 
         if(fromBalance >= transferCents) {
@@ -59,7 +67,7 @@ public class ACIDRaceConditionTest extends AbstractTest {
         }
     }
 
-    private long getBalance(final String iban) {
+    protected long getBalance(final String iban) {
         return doInJDBC(connection -> {
             try(PreparedStatement statement = connection.prepareStatement("""
                     SELECT balance
@@ -91,6 +99,53 @@ public class ACIDRaceConditionTest extends AbstractTest {
                 statement.executeUpdate();
             }
         });
+    }
+
+    protected void doInJDBC(ConnectionVoidCallable callable) {
+        try {
+            Connection connection = null;
+            try {
+                connection = dataSource().getConnection();
+                connection.setAutoCommit(false);
+                callable.execute(connection);
+                connection.commit();
+            } catch (SQLException e) {
+                if(connection != null) {
+                    connection.rollback();
+                }
+                throw e;
+            } finally {
+                if(connection !=  null) {
+                    connection.close();
+                }
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected <T> T doInJDBC(ConnectionCallable<T> callable) {
+        try {
+            Connection connection = null;
+            try {
+                connection = dataSource().getConnection();
+                connection.setAutoCommit(false);
+                T result = callable.execute(connection);
+                connection.commit();
+                return result;
+            } catch (SQLException e) {
+                if(connection != null) {
+                    connection.rollback();
+                }
+                throw e;
+            } finally {
+                if(connection !=  null) {
+                    connection.close();
+                }
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Test

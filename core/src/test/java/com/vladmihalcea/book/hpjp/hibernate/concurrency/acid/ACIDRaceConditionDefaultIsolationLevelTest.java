@@ -2,6 +2,8 @@ package com.vladmihalcea.book.hpjp.hibernate.concurrency.acid;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
+import com.vladmihalcea.book.hpjp.util.transaction.ConnectionCallable;
+import com.vladmihalcea.book.hpjp.util.transaction.ConnectionVoidCallable;
 import org.junit.Test;
 
 import javax.persistence.Entity;
@@ -107,7 +109,7 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
     }
 
     protected void setIsolationLevel(Connection connection) throws SQLException {
-
+        //connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
     }
 
     private void printIsolationLevel(Connection connection) throws SQLException {
@@ -168,6 +170,53 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
             statement.setString(2, iban);
 
             statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected void doInJDBC(ConnectionVoidCallable callable) {
+        try {
+            Connection connection = null;
+            try {
+                connection = dataSource().getConnection();
+                connection.setAutoCommit(false);
+                callable.execute(connection);
+                connection.commit();
+            } catch (SQLException e) {
+                if(connection != null) {
+                    connection.rollback();
+                }
+                throw e;
+            } finally {
+                if(connection !=  null) {
+                    connection.close();
+                }
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected <T> T doInJDBC(ConnectionCallable<T> callable) {
+        try {
+            Connection connection = null;
+            try {
+                connection = dataSource().getConnection();
+                connection.setAutoCommit(false);
+                T result = callable.execute(connection);
+                connection.commit();
+                return result;
+            } catch (SQLException e) {
+                if(connection != null) {
+                    connection.rollback();
+                }
+                throw e;
+            } finally {
+                if(connection !=  null) {
+                    connection.close();
+                }
+            }
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
