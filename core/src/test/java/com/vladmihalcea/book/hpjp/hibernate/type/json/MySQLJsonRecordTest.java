@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.TypeDef;
@@ -82,7 +83,7 @@ public class MySQLJsonRecordTest extends AbstractMySQLIntegrationTest {
 
     @Entity(name = "Book")
     @Table(name = "book")
-    @TypeDef(typeClass = com.vladmihalcea.hibernate.type.json.JsonStringType.class, defaultForType = BookRecord.class)
+    @TypeDef(typeClass = JsonType.class, defaultForType = BookRecord.class)
     public static class Book {
 
         @Id
