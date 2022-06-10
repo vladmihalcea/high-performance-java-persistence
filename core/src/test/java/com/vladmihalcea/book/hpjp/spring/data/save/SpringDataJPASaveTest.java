@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.spring.data.save;
 import com.vladmihalcea.book.hpjp.spring.data.save.config.SpringDataJPASaveConfiguration;
 import com.vladmihalcea.book.hpjp.spring.data.save.domain.Post;
 import com.vladmihalcea.book.hpjp.spring.data.save.repository.PostRepository;
+import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -104,7 +106,8 @@ public class SpringDataJPASaveTest {
             });
 
             fail("Should throw UnsupportedOperationException!");
-        } catch (Exception expected) {
+        } catch (UnsupportedOperationException expected) {
+            LOGGER.warn("You shouldn't call the JpaRepository save method!");
         }
     }
 }
