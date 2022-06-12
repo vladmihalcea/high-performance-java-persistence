@@ -38,6 +38,10 @@ public class ACIDRaceConditionTest extends AbstractTest {
         return Database.POSTGRESQL;
     }
 
+    protected boolean connectionPooling() {
+        return true;
+    }
+
     @Override
     protected void afterInit() {
         doInJPA(entityManager -> {
@@ -57,7 +61,7 @@ public class ACIDRaceConditionTest extends AbstractTest {
         });
     }
 
-    protected void transfer(String fromIban, String toIban, long transferCents) {
+    private void transfer(String fromIban, String toIban, long transferCents) {
         long fromBalance = getBalance(fromIban);
 
         if(fromBalance >= transferCents) {
@@ -67,7 +71,7 @@ public class ACIDRaceConditionTest extends AbstractTest {
         }
     }
 
-    protected long getBalance(final String iban) {
+    private long getBalance(final String iban) {
         return doInJDBC(connection -> {
             try(PreparedStatement statement = connection.prepareStatement("""
                     SELECT balance
@@ -174,15 +178,8 @@ public class ACIDRaceConditionTest extends AbstractTest {
         assertEquals(10L, getBalance("Alice-123"));
         assertEquals(0L, getBalance("Bob-456"));
 
-        parallelExecution();
+        int threadCount = 8;
 
-        LOGGER.info("Alice's balance {}", getBalance("Alice-123"));
-        LOGGER.info("Bob's balance {}", getBalance("Bob-456"));
-    }
-
-    int threadCount = 8;
-
-    public void parallelExecution() {
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch endLatch = new CountDownLatch(threadCount);
 
@@ -198,6 +195,9 @@ public class ACIDRaceConditionTest extends AbstractTest {
         LOGGER.info("Starting threads");
         startLatch.countDown();
         awaitOnLatch(endLatch);
+
+        LOGGER.info("Alice's balance: {}", getBalance("Alice-123"));
+        LOGGER.info("Bob's balance: {}", getBalance("Bob-456"));
     }
 
     @Entity(name = "Account")

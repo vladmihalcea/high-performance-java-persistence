@@ -34,6 +34,10 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         return Database.POSTGRESQL;
     }
 
+    protected boolean connectionPooling() {
+        return true;
+    }
+
     @Override
     protected void afterInit() {
         doInJPA(entityManager -> {
@@ -58,34 +62,22 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         assertEquals(10L, getBalance("Alice-123"));
         assertEquals(0L, getBalance("Bob-456"));
 
-        parallelExecution();
-
-        LOGGER.info("Alice's balance {}", getBalance("Alice-123"));
-        LOGGER.info("Bob's balance {}", getBalance("Bob-456"));
-    }
-
-    int threadCount = 8;
-
-    public void parallelExecution() {
+        int threadCount = 8;
 
         String fromIban = "Alice-123";
         String toIban = "Bob-456";
         long transferCents = 5L;
 
-        CountDownLatch workerThreadWaitsAfterReadingBalanceLatch = new CountDownLatch(threadCount);
-        CountDownLatch workerThreadsWriteBalanceLatch = new CountDownLatch(1);
-        CountDownLatch allWorkerThreadsHaveFinishedLatch = new CountDownLatch(threadCount);
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch endLatch = new CountDownLatch(threadCount);
 
         for (int i = 0; i < threadCount; i++) {
             new Thread(() -> {
                 try {
                     doInJDBC(connection -> {
                         setIsolationLevel(connection);
-                        printIsolationLevel(connection);
 
-                        workerThreadWaitsAfterReadingBalanceLatch.countDown();
-                        awaitOnLatch(workerThreadsWriteBalanceLatch);
-                        LOGGER.info("Running thread");
+                        awaitOnLatch(startLatch);
 
                         long fromBalance = getBalance(connection, fromIban);
 
@@ -99,17 +91,23 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
                     LOGGER.error("Transfer failure", e);
                 }
 
-                allWorkerThreadsHaveFinishedLatch.countDown();
+                endLatch.countDown();
             }).start();
         }
         LOGGER.info("Starting threads");
-        awaitOnLatch(workerThreadWaitsAfterReadingBalanceLatch);
-        workerThreadsWriteBalanceLatch.countDown();
-        awaitOnLatch(allWorkerThreadsHaveFinishedLatch);
+        startLatch.countDown();
+        awaitOnLatch(endLatch);
+
+        LOGGER.info("Alice's balance: {}", getBalance("Alice-123"));
+        LOGGER.info("Bob's balance: {}", getBalance("Bob-456"));
     }
 
     protected void setIsolationLevel(Connection connection) throws SQLException {
-        //connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+        boolean enable = false;
+        if (enable) {
+            connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+            printIsolationLevel(connection);
+        }
     }
 
     private void printIsolationLevel(Connection connection) throws SQLException {

@@ -38,6 +38,8 @@
 
     <logger name="org.hibernate.SQL_SLOW" level="info"/>
 
+    <logger name="com.zaxxer.hikari" level="info"/>
+
     <logger name="net.sf.ehcache" level="info"/>
 
     <logger name="com.vladmihalcea" level="debug"/>
