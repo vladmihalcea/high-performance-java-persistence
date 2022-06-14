@@ -391,12 +391,12 @@
             <scope>test</scope>
         </dependency>
 
-        <!--<dependency>
+        <dependency>
             <groupId>io.hypersistence</groupId>
             <artifactId>hypersistence-optimizer</artifactId>
             <version>${hypersistence-optimizer.version}</version>
             <scope>test</scope>
-        </dependency>-->
+        </dependency>
 
     </dependencies>
 
@@ -451,7 +451,7 @@
 
         <blaze-persistence.version>1.6.6</blaze-persistence.version>
 
-        <hypersistence-optimizer.version>2.4.2</hypersistence-optimizer.version>
+        <hypersistence-optimizer.version>2.5.2-SNAPSHOT</hypersistence-optimizer.version>
 
         <junit.version>4.13.1</junit.version>
     </properties>

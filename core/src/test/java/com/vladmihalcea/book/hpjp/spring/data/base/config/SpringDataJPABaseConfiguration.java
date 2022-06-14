@@ -6,6 +6,8 @@ import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.hypersistence.optimizer.HypersistenceOptimizer;
+import io.hypersistence.optimizer.core.config.JpaConfig;
 import net.ttddyy.dsproxy.ExecutionInfo;
 import net.ttddyy.dsproxy.QueryInfo;
 import net.ttddyy.dsproxy.listener.MethodExecutionContext;
@@ -137,6 +139,15 @@ public abstract class SpringDataJPABaseConfiguration {
         entityManagerFactoryBean.setJpaVendorAdapter(vendorAdapter);
         entityManagerFactoryBean.setJpaProperties(properties());
         return entityManagerFactoryBean;
+    }
+
+    @Bean
+    public HypersistenceOptimizer hypersistenceOptimizer(EntityManagerFactory entityManagerFactory) {
+        return new HypersistenceOptimizer(
+            new JpaConfig(
+                entityManagerFactory
+            )
+        );
     }
 
     @Bean

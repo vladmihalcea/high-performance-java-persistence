@@ -16,6 +16,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Optional<Post> findBySlug(String slug);
 
+    boolean existsById(Long id);
+
     boolean existsBySlug(String slug);
 
     @Query(value = """
