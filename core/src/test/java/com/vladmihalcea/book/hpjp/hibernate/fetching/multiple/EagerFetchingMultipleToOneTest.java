@@ -1,9 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching.multiple;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
-import org.hibernate.annotations.QueryHints;
-import org.hibernate.loader.MultipleBagFetchException;
 import org.junit.Test;
 
 import javax.persistence.*;
@@ -13,7 +10,6 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vlad Mihalcea

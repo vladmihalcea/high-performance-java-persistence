@@ -19,9 +19,9 @@ import static org.junit.Assert.assertTrue;
  */
 public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationTest {
 
-    public static final int POST_COUNT = 50;
-    public static final int POST_COMMENT_COUNT = 20;
-    public static final int TAG_COUNT = 10;
+    public static final long POST_COUNT = 50;
+    public static final long POST_COMMENT_COUNT = 20;
+    public static final long TAG_COUNT = 10;
 
     @Override
     protected Class<?>[] entities() {
@@ -52,7 +52,7 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
 
                 entityManager.persist(tag);
                 tags.add(tag);
-        }
+            }
 
             long commentId = 0;
 
@@ -111,7 +111,8 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
                 select distinct p
                 from Post p
                 left join fetch p.comments
-                where p.id between :minId and :maxId""", Post.class)
+                where p.id between :minId and :maxId
+                """, Post.class)
             .setParameter("minId", 1L)
             .setParameter("maxId", 50L)
             .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
@@ -121,7 +122,8 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
                 select distinct p
                 from Post p
                 left join fetch p.tags t
-                where p in :posts""", Post.class)
+                where p in :posts
+                """, Post.class)
             .setParameter("posts", posts)
             .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
             .getResultList();
@@ -144,7 +146,8 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
                 select distinct p
                 from Post p
                 left join fetch p.comments
-                where p.id between :minId and :maxId""", Post.class)
+                where p.id between :minId and :maxId
+                """, Post.class)
             .setParameter("minId", 1L)
             .setParameter("maxId", 50L)
             .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
@@ -154,7 +157,8 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
                 select distinct p
                 from Post p
                 left join fetch p.tags t
-                where p.id between :minId and :maxId""", Post.class)
+                where p.id between :minId and :maxId
+                """, Post.class)
             .setParameter("minId", 1L)
             .setParameter("maxId", 50L)
             .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
