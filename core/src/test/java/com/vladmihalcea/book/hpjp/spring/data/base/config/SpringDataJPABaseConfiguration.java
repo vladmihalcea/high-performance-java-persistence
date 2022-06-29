@@ -6,8 +6,8 @@ import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import io.hypersistence.optimizer.HypersistenceOptimizer;
-import io.hypersistence.optimizer.core.config.JpaConfig;
+/*import io.hypersistence.optimizer.HypersistenceOptimizer;
+import io.hypersistence.optimizer.core.config.JpaConfig;*/
 import net.ttddyy.dsproxy.ExecutionInfo;
 import net.ttddyy.dsproxy.QueryInfo;
 import net.ttddyy.dsproxy.listener.MethodExecutionContext;
@@ -141,14 +141,14 @@ public abstract class SpringDataJPABaseConfiguration {
         return entityManagerFactoryBean;
     }
 
-    @Bean
+    /*@Bean
     public HypersistenceOptimizer hypersistenceOptimizer(EntityManagerFactory entityManagerFactory) {
         return new HypersistenceOptimizer(
             new JpaConfig(
                 entityManagerFactory
             )
         );
-    }
+    }*/
 
     @Bean
     public JpaTransactionManager transactionManager(EntityManagerFactory entityManagerFactory){

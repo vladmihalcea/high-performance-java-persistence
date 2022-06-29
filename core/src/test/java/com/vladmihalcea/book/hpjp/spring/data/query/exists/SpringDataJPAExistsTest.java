@@ -4,7 +4,6 @@ import com.vladmihalcea.book.hpjp.spring.data.query.exists.config.SpringDataJPAE
 import com.vladmihalcea.book.hpjp.spring.data.query.exists.domain.Post;
 import com.vladmihalcea.book.hpjp.spring.data.query.exists.domain.Post_;
 import com.vladmihalcea.book.hpjp.spring.data.query.exists.repository.PostRepository;
-import io.hypersistence.optimizer.HypersistenceOptimizer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,8 +43,8 @@ public class SpringDataJPAExistsTest {
     @Autowired
     private PostRepository postRepository;
 
-    @Autowired
-    private HypersistenceOptimizer hypersistenceOptimizer;
+    /*@Autowired
+    private HypersistenceOptimizer hypersistenceOptimizer;*/
 
     @Before
     public void init() {
@@ -103,16 +102,16 @@ public class SpringDataJPAExistsTest {
             )
         );
 
-        hypersistenceOptimizer.getEvents().clear();
+        //hypersistenceOptimizer.getEvents().clear();
         assertTrue(
             postRepository.existsById(1L)
         );
-        assertTrue(hypersistenceOptimizer.getEvents().isEmpty());
+        //assertTrue(hypersistenceOptimizer.getEvents().isEmpty());
         //Query using exists - Okayish Idea
         assertTrue(
             postRepository.existsBySlug(slug)
         );
-        assertTrue(hypersistenceOptimizer.getEvents().isEmpty());
+        //assertTrue(hypersistenceOptimizer.getEvents().isEmpty());
 
         //Query using exists - Okayish Idea
         assertTrue(

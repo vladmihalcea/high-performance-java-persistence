@@ -391,12 +391,12 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
+        <!--<dependency>
             <groupId>io.hypersistence</groupId>
             <artifactId>hypersistence-optimizer</artifactId>
             <version>${hypersistence-optimizer.version}</version>
             <scope>test</scope>
-        </dependency>
+        </dependency>-->
 
     </dependencies>
 
