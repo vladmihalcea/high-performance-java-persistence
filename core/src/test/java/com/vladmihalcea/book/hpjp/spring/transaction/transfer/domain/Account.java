@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.spring.transaction.transfer.domain;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 /**
  * @author Vlad Mihalcea
@@ -17,6 +18,9 @@ public class Account {
     private String owner;
 
     private long balance;
+
+    @Version
+    private short version;
 
     public String getIban() {
         return iban;
