@@ -262,7 +262,7 @@
 
         <dependency>
             <groupId>com.vladmihalcea</groupId>
-            <artifactId>hibernate-types-52</artifactId>
+            <artifactId>hibernate-types-55</artifactId>
             <version>${hibernate-types.version}</version>
         </dependency>
 
@@ -413,7 +413,7 @@
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
         <commons-lang.version>3.12.0</commons-lang.version>
-        <hibernate.version>5.6.5.Final</hibernate.version>
+        <hibernate.version>5.6.10.Final</hibernate.version>
         <hibernate.validator.version>6.2.1.Final</hibernate.validator.version>
         <javassist.version>3.18.1-GA</javassist.version>
         <!--<ehcache3.version>3.4.0</ehcache3.version>-->
@@ -447,7 +447,7 @@
         <jackson.version>2.12.6.1</jackson.version>
 
         <flyway.version>6.4.4</flyway.version>
-        <hibernate-types.version>2.16.2</hibernate-types.version>
+        <hibernate-types.version>2.17.0</hibernate-types.version>
 
         <blaze-persistence.version>1.6.6</blaze-persistence.version>
 
