@@ -35,8 +35,9 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
         return rewriteBatchedStatements;
     }
 
-    public void setRewriteBatchedStatements(boolean rewriteBatchedStatements) {
+    public MySQLDataSourceProvider setRewriteBatchedStatements(boolean rewriteBatchedStatements) {
         this.rewriteBatchedStatements = rewriteBatchedStatements;
+        return this;
     }
 
     public boolean isCachePrepStmts() {

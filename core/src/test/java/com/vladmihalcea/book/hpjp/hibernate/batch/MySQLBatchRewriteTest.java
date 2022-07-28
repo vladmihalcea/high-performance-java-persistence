@@ -1,9 +1,10 @@
 package com.vladmihalcea.book.hpjp.hibernate.batch;
 
-import com.vladmihalcea.book.hpjp.hibernate.type.array.PostgreSQL95ArrayDialect;
+import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
 import org.junit.Test;
 import org.postgresql.ds.PGSimpleDataSource;
@@ -18,7 +19,7 @@ import java.util.Properties;
 /**
  * @author Vlad Mihalcea
  */
-public class PostgreSQLBatchRewriteTest extends AbstractPostgreSQLIntegrationTest {
+public class MySQLBatchRewriteTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -33,19 +34,12 @@ public class PostgreSQLBatchRewriteTest extends AbstractPostgreSQLIntegrationTes
         properties.put("hibernate.jdbc.batch_size", "10");
         properties.put("hibernate.order_inserts", "true");
         properties.put("hibernate.order_updates", "true");
-        properties.put("hibernate.jdbc.batch_versioned_data", "true");
     }
 
     @Override
     protected DataSourceProvider dataSourceProvider() {
-        return new PostgreSQLDataSourceProvider() {
-            @Override
-            public DataSource dataSource() {
-                PGSimpleDataSource dataSource = (PGSimpleDataSource) super.dataSource();
-                dataSource.setReWriteBatchedInserts(true);
-                return dataSource;
-            }
-        };
+        return new MySQLDataSourceProvider()
+            .setRewriteBatchedStatements(true);
     }
 
     @Test
