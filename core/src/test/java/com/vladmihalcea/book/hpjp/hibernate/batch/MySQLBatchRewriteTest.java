@@ -40,6 +40,7 @@ public class MySQLBatchRewriteTest extends AbstractTest {
     protected DataSourceProvider dataSourceProvider() {
         return new MySQLDataSourceProvider()
             .setRewriteBatchedStatements(true);
+        /*return new MySQLDataSourceProvider();*/
     }
 
     @Test

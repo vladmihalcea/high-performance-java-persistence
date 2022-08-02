@@ -15,21 +15,21 @@ import java.util.Properties;
  */
 public class MySQLDataSourceProvider implements DataSourceProvider {
 
-    private boolean rewriteBatchedStatements = false;
+    private Boolean rewriteBatchedStatements;
 
-    private boolean cachePrepStmts = false;
+    private Boolean cachePrepStmts;
 
-    private boolean useServerPrepStmts = false;
+    private Boolean useServerPrepStmts;
 
-    private boolean useTimezone = false;
+    private Boolean useTimezone;
 
-    private boolean useJDBCCompliantTimezoneShift = false;
+    private Boolean useJDBCCompliantTimezoneShift;
 
-    private boolean useLegacyDatetimeCode = true;
+    private Boolean useLegacyDatetimeCode;
 
-    private boolean useCursorFetch = false;
+    private Boolean useCursorFetch;
 
-    private Integer prepStmtCacheSqlLimit = null;
+    private Integer prepStmtCacheSqlLimit;
 
     public boolean isRewriteBatchedStatements() {
         return rewriteBatchedStatements;
@@ -125,10 +125,18 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
             dataSource.setUser(username());
             dataSource.setPassword(password());
 
-            dataSource.setRewriteBatchedStatements(rewriteBatchedStatements);
-            dataSource.setUseCursorFetch(useCursorFetch);
-            dataSource.setCachePrepStmts(cachePrepStmts);
-            dataSource.setUseServerPrepStmts(useServerPrepStmts);
+            if (rewriteBatchedStatements != null) {
+                dataSource.setRewriteBatchedStatements(rewriteBatchedStatements);
+            }
+            if (useCursorFetch != null) {
+                dataSource.setUseCursorFetch(useCursorFetch);
+            }
+            if (cachePrepStmts != null) {
+                dataSource.setCachePrepStmts(cachePrepStmts);
+            }
+            if (useServerPrepStmts != null) {
+                dataSource.setUseServerPrepStmts(useServerPrepStmts);
+            }
             if (prepStmtCacheSqlLimit != null) {
                 dataSource.setPrepStmtCacheSqlLimit(prepStmtCacheSqlLimit);
             }
@@ -174,10 +182,10 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
     @Override
     public String toString() {
         return "MySQLDataSourceProvider{" +
-                "cachePrepStmts=" + cachePrepStmts +
-                ", useServerPrepStmts=" + useServerPrepStmts +
-                ", rewriteBatchedStatements=" + rewriteBatchedStatements +
-                '}';
+               "cachePrepStmts=" + cachePrepStmts +
+               ", useServerPrepStmts=" + useServerPrepStmts +
+               ", rewriteBatchedStatements=" + rewriteBatchedStatements +
+               '}';
     }
 
     @Override
