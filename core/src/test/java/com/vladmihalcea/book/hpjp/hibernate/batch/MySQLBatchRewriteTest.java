@@ -57,9 +57,11 @@ public class MySQLBatchRewriteTest extends AbstractTest {
         insertPosts();
 
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                left join fetch p.comments
+                """, Post.class)
             .getResultList();
 
             posts.forEach(post -> post.setTitle(post.getTitle().replaceAll("no", "nr")));
@@ -71,10 +73,11 @@ public class MySQLBatchRewriteTest extends AbstractTest {
         insertPostsAndComments();
 
         doInJPA(entityManager -> {
-            List<PostComment> comments = entityManager.createQuery(
-                "select c " +
-                "from PostComment c " +
-                "join fetch c.post ", PostComment.class)
+            List<PostComment> comments = entityManager.createQuery("""
+                select c
+                from PostComment c
+                join fetch c.post
+                """, PostComment.class)
             .getResultList();
 
             comments.forEach(comment -> {
@@ -90,9 +93,11 @@ public class MySQLBatchRewriteTest extends AbstractTest {
         insertPosts();
 
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                left join fetch p.comments
+                """, Post.class)
             .getResultList();
 
             posts.forEach(entityManager::remove);
@@ -104,10 +109,11 @@ public class MySQLBatchRewriteTest extends AbstractTest {
         insertPostsAndComments();
 
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                left join fetch p.comments
+                """, Post.class)
             .getResultList();
 
             posts.forEach(entityManager::remove);
@@ -120,10 +126,11 @@ public class MySQLBatchRewriteTest extends AbstractTest {
 
         LOGGER.info("testDeletePostsAndCommentsWithManualChildRemoval");
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                left join fetch p.comments
+                """, Post.class)
             .getResultList();
 
             for (Post post : posts) {
@@ -141,9 +148,11 @@ public class MySQLBatchRewriteTest extends AbstractTest {
 
     private void insertPosts() {
         doInJPA(entityManager -> {
-            for (int i = 0; i < 10; i++) {
+            for (long i = 1; i <= 10; i++) {
                 entityManager.persist(
-                    new Post(String.format("Post no. %d", i + 1))
+                    new Post()
+                        .setId(i)
+                        .setTitle(String.format("Post no. %d", i))
                 );
             }
         });
@@ -151,10 +160,17 @@ public class MySQLBatchRewriteTest extends AbstractTest {
 
     private void insertPostsAndComments() {
         doInJPA(entityManager -> {
-            for (int i = 0; i < 3; i++) {
-                Post post = new Post(String.format("Post no. %d", i));
-                post.addComment(new PostComment("Good"));
-                entityManager.persist(post);
+            for (long i = 1; i <= 3; i++) {
+                entityManager.persist(
+                    new Post()
+                        .setId(i)
+                        .setTitle(String.format("Post no. %d", i))
+                        .addComment(
+                            new PostComment()
+                                .setId(i)
+                                .setReview("Good")
+                        )
+                );
             }
         });
     }
@@ -164,20 +180,9 @@ public class MySQLBatchRewriteTest extends AbstractTest {
     public static class Post {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private Long id;
 
         private String title;
-
-        public Post() {}
-
-        public Post(Long id) {
-            this.id = id;
-        }
-
-        public Post(String title) {
-            this.title = title;
-        }
 
         @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
                 orphanRemoval = true)
@@ -187,25 +192,28 @@ public class MySQLBatchRewriteTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public List<PostComment> getComments() {
             return comments;
         }
 
-        public void addComment(PostComment comment) {
+        public Post addComment(PostComment comment) {
             comments.add(comment);
             comment.setPost(this);
+            return this;
         }
     }
 
@@ -214,7 +222,6 @@ public class MySQLBatchRewriteTest extends AbstractTest {
     public static class PostComment {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private Long id;
 
         @ManyToOne
@@ -222,34 +229,31 @@ public class MySQLBatchRewriteTest extends AbstractTest {
 
         private String review;
 
-        public PostComment() {}
-
-        public PostComment(String review) {
-            this.review = review;
-        }
-
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostComment setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public Post getPost() {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostComment setPost(Post post) {
             this.post = post;
+            return this;
         }
 
         public String getReview() {
             return review;
         }
 
-        public void setReview(String review) {
+        public PostComment setReview(String review) {
             this.review = review;
+            return this;
         }
     }
 }
