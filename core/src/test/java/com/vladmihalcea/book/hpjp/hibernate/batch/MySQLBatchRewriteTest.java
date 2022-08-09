@@ -6,11 +6,13 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+import org.hibernate.Session;
 import org.junit.Test;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.persistence.*;
 import javax.sql.DataSource;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +43,23 @@ public class MySQLBatchRewriteTest extends AbstractTest {
         return new MySQLDataSourceProvider()
             .setRewriteBatchedStatements(true);
         /*return new MySQLDataSourceProvider();*/
+    }
+
+    @Test
+    public void testInsertPostsUsingStatement() {
+        doInJPA(entityManager -> {
+            entityManager.unwrap(Session.class).doWork(connection -> {
+                try(Statement statement = connection.createStatement()) {
+                    String INSERT = "insert into post (id, title) values (%1$d, 'Post no. %1$d')";
+                    for (long id = 1; id <= 10; id++) {
+                        statement.addBatch(
+                            String.format(INSERT, id)
+                        );
+                    }
+                    statement.executeBatch();
+                }
+            });
+        });
     }
 
     @Test
