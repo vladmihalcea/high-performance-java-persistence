@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
  * @author Vlad Mihalcea
  */
 @RunWith(Parameterized.class)
-public class MySqlBatchPreparedStatementTest extends AbstractMySQLIntegrationTest {
+public class MySQLBatchPreparedStatementTest extends AbstractMySQLIntegrationTest {
 
     private final BlogEntityProvider entityProvider = new BlogEntityProvider();
 
@@ -34,7 +34,7 @@ public class MySqlBatchPreparedStatementTest extends AbstractMySQLIntegrationTes
 
     private boolean useServerPrepStmts;
 
-    public MySqlBatchPreparedStatementTest(boolean cachePrepStmts, boolean useServerPrepStmts) {
+    public MySQLBatchPreparedStatementTest(boolean cachePrepStmts, boolean useServerPrepStmts) {
         this.cachePrepStmts = cachePrepStmts;
         this.useServerPrepStmts = useServerPrepStmts;
     }

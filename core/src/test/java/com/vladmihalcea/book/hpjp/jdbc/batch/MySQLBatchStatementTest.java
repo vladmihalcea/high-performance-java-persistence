@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
  * @author Vlad Mihalcea
  */
 @RunWith(Parameterized.class)
-public class MySqlBatchStatementTest extends AbstractMySQLIntegrationTest {
+public class MySQLBatchStatementTest extends AbstractMySQLIntegrationTest {
 
     public static final String INSERT_POST = "insert into post (title, version, id) values ('Post no. %1$d', 0, %1$d)";
 
@@ -36,7 +36,7 @@ public class MySqlBatchStatementTest extends AbstractMySQLIntegrationTest {
 
     private boolean rewriteBatchedStatements;
 
-    public MySqlBatchStatementTest(boolean rewriteBatchedStatements) {
+    public MySQLBatchStatementTest(boolean rewriteBatchedStatements) {
         this.rewriteBatchedStatements = rewriteBatchedStatements;
     }
 

@@ -4,15 +4,14 @@ import org.hibernate.resource.jdbc.spi.StatementInspector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * @author Vlad Mihalcea
  */
-public class SqlCommentStatementInspector implements StatementInspector {
+public class SQLCommentStatementInspector implements StatementInspector {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SqlCommentStatementInspector.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SQLCommentStatementInspector.class);
 
     private static final Pattern SQL_COMMENT_PATTERN = Pattern.compile("\\/\\*.*?\\*\\/\\s*");
 

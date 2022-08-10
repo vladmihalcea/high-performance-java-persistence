@@ -23,12 +23,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.Assert.fail;
 
 /**
- * MySqlBatchStatementTest - Test MySQl JDBC Statement batching with and w/o rewriteBatchedStatements
+ * MySqlRewriteBatchPreparedStatementTest - Test MySQl JDBC Statement batching with and w/o rewriteBatchedStatements
  *
  * @author Vlad Mihalcea
  */
 @RunWith(Parameterized.class)
-public class MySqlRewriteBatchPreparedStatementTest extends AbstractMySQLIntegrationTest {
+public class MySQLRewriteBatchPreparedStatementTest extends AbstractMySQLIntegrationTest {
 
     private final BlogEntityProvider entityProvider = new BlogEntityProvider();
 
@@ -43,7 +43,7 @@ public class MySqlRewriteBatchPreparedStatementTest extends AbstractMySQLIntegra
 
     private boolean rewriteBatchedStatements;
 
-    public MySqlRewriteBatchPreparedStatementTest(boolean rewriteBatchedStatements) {
+    public MySQLRewriteBatchPreparedStatementTest(boolean rewriteBatchedStatements) {
         this.rewriteBatchedStatements = rewriteBatchedStatements;
     }
 

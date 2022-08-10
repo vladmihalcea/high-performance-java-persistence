@@ -5,7 +5,7 @@ import java.util.Properties;
 /**
  * @author Vlad Mihalcea
  */
-public class StatementInspectorSqlCommentTest extends SqlCommentTest {
+public class StatementInspectorSqlCommentTest extends SQLCommentTest {
 
     @Override
     protected void additionalProperties(Properties properties) {
