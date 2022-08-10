@@ -422,7 +422,7 @@
         <p6spy.version>3.9.1</p6spy.version>
 
         <hsqldb.version>2.4.0</hsqldb.version>
-        <postgresql.version>42.3.3</postgresql.version>
+        <postgresql.version>42.4.1</postgresql.version>
         <oracle.version>19.3.0.0</oracle.version>
         <mysql.version>8.0.30</mysql.version>
         <mariadb.version>2.2.3</mariadb.version>
