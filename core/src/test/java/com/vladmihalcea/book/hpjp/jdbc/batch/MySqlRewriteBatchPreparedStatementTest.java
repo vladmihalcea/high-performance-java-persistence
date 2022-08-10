@@ -101,7 +101,11 @@ public class MySqlRewriteBatchPreparedStatementTest extends AbstractMySQLIntegra
         }
         LOGGER.info("Test MySQL batch insert with rewriteBatchedStatements={}", rewriteBatchedStatements);
         logReporter.report();
-        logReporter.toString();
+        LOGGER.info(
+            "Test MySQL batch insert with rewriteBatchedStatements={} took=[{}] ms",
+            rewriteBatchedStatements,
+            timer.getSnapshot().get99thPercentile()
+        );
     }
 
     private void executeStatement(PreparedStatement statement, AtomicInteger statementCount) throws SQLException {
