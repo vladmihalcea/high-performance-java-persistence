@@ -13,6 +13,17 @@ import java.util.Properties;
  */
 public class PostgreSQLDataSourceProvider implements DataSourceProvider {
 
+    private Boolean reWriteBatchedInserts;
+
+    public boolean getReWriteBatchedInserts() {
+        return reWriteBatchedInserts;
+    }
+
+    public PostgreSQLDataSourceProvider setReWriteBatchedInserts(boolean reWriteBatchedInserts) {
+        this.reWriteBatchedInserts = reWriteBatchedInserts;
+        return this;
+    }
+
     @Override
     public String hibernateDialect() {
         return PostgreSQL95Dialect.class.getName();
@@ -25,6 +36,9 @@ public class PostgreSQLDataSourceProvider implements DataSourceProvider {
         dataSource.setServerName("localhost");
         dataSource.setUser("postgres");
         dataSource.setPassword("admin");
+        if (reWriteBatchedInserts != null) {
+            dataSource.setReWriteBatchedInserts(reWriteBatchedInserts);
+        }
         return dataSource;
     }
 
@@ -40,6 +54,9 @@ public class PostgreSQLDataSourceProvider implements DataSourceProvider {
         properties.setProperty("serverName", "localhost");
         properties.setProperty("user", username());
         properties.setProperty("password", password());
+        if (reWriteBatchedInserts != null) {
+            properties.setProperty("reWriteBatchedInserts", String.valueOf(reWriteBatchedInserts));
+        }
         return properties;
     }
 
