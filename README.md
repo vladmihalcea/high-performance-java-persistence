@@ -44,46 +44,15 @@ Or, if you prefer reading books, you are going to love my [High-Performance Java
 
 ## Java
 
-All examples require at least Java 16 because of the awesome [Text Blocks](https://openjdk.java.net/jeps/355) feature, which makes JPQL and SQL queries so much readable.
+All examples require at least Java 17 because of the awesome [Text Blocks](https://openjdk.java.net/jeps/355) feature, which makes JPQL and SQL queries so much readable.
 
 ## Maven
 
-You need to use Maven 3.6.2 or newer and configure [Maven Toolchains](https://maven.apache.org/guides/mini/guide-using-toolchains.html) as follows:
-
-1. You need to create a `toolchains.xml` file in the Maven Home folder (e.g., %M2_HOME% on Windows, $M2_HOME on Unix based systems). For example, on Windows, the `toolchains.xml` file is going to be located at this path: `c:\Users\%USERNAME%\.m2\toolchains.xml`.
-2. Inside the `toolchains.xml`, you need to define the installation path of Java 13 or newer, as follows:
-  
-        <toolchains>
-          <toolchain>
-            <type>jdk</type>
-            <provides>
-              <id>Java16</id>
-              <version>16</version>
-            </provides>
-            <configuration>
-              <jdkHome>${env.JAVA_HOME_16}</jdkHome>
-            </configuration>
-          </toolchain>
-        </toolchains>
-
-> In my example, the `JAVA_HOME_16` is an environment variable pointing to a local folder where Java 16 is installed.
-
-For more details about using Maven Toolchains, check out [this article](https://vladmihalcea.com/maven-and-java-multi-version-modules/).
+You need to use Maven 3.6.2 or newer to build the project.
 
 ## IntelliJ IDEA
 
-On IntelliJ IDEA, the project runs just fine. You will have to make sure to select Java 13 or newer and enable the preview features as illustrated by the following diagram:
-
-<img src="https://vladmihalcea.com/wp-content/uploads/2020/03/IntelliJIDEAEnablePreviewJava.png" alt="HHow to set up IntelliJ IDEA to enable the Java 13 preview features ">
-
-## Eclipse
-
-If you're using Eclipse, you must use the Open JDK compiler and not the Eclipse-based one which suffers from [this issue](https://bugs.eclipse.org/bugs/show_bug.cgi?id=434642).
-
-However, on Eclipse it has been reported that you need to consider the following configurations. Many thanks to [Urs Joss](https://github.com/ursjoss) for the hints:
-
-1. Eclipse does not automatically treat the generated sources by jpamodelgen as source folders. You need to add a dependency on `hibernate-jpamodelgen` and use the `build-helper-maven-plugin` to source the folders with the generated sources.
-2. Secondly, the Maven eclipse plugin e2m seems to have an issue with some plugin configurations. Make sure you configure e2m to ignore the false positives issues since the project runs just fine from a Maven command line.
+On IntelliJ IDEA, the project runs just fine. You will have to make sure to select Java 17 or newer.
 
 ## Database setup
 
@@ -201,9 +170,9 @@ For Oracle-XE:
     
 ## Maven
 
-To build the project, don't use *install* or *package*. Instead, just compile test classes like this:
-
-    mvnw clean test-compile
+> To build the project, don't use *install* or *package*. Instead, just compile test classes like this:
+>
+>    mvnw clean test-compile
     
 Or you can just run the `build.bat` or `build.sh` scripts which run the above Maven command.
     
