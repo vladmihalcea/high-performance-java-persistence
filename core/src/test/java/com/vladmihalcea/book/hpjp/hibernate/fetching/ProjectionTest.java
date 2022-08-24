@@ -39,8 +39,7 @@ public class ProjectionTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         int commentsSize = 5;
         doInJPA(entityManager -> {
             LongStream.range(0, 50).forEach(i -> {

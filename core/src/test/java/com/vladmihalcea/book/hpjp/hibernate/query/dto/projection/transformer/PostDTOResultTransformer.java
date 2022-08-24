@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer;
 
-import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.hibernate.HibernateDTOProjectionTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import org.hibernate.transform.ResultTransformer;
 
