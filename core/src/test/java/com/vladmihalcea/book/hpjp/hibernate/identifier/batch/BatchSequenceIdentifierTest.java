@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier.batch;
 
 import com.vladmihalcea.book.hpjp.util.providers.Database;
+import com.vladmihalcea.hibernate.id.BatchSequenceGenerator;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.junit.Test;
@@ -51,12 +52,6 @@ public class BatchSequenceIdentifierTest extends AbstractBatchIdentifierTest {
                             )
                         )
                 );
-                if(i % BATCH_SIZE == 0) {
-                    EntityTransaction entityTransaction = entityManager.getTransaction();
-                    entityTransaction.commit();
-                    entityTransaction.begin();
-                    entityManager.clear();
-                }
             }
         });
     }
@@ -64,9 +59,6 @@ public class BatchSequenceIdentifierTest extends AbstractBatchIdentifierTest {
     @Entity(name = "Post")
     @Table(name = "post")
     public static class Post {
-
-        public static final String BATCH_SEQUENCE_GENERATOR =
-            "com.github.marschall.hibernate.batchsequencegenerator.BatchSequenceGenerator";
 
         @Id
         @GeneratedValue(
@@ -77,7 +69,7 @@ public class BatchSequenceIdentifierTest extends AbstractBatchIdentifierTest {
         /*@SequenceGenerator(name = "post_sequence", allocationSize = 1)*/
         @GenericGenerator(
             name = "post_sequence",
-            strategy = BATCH_SEQUENCE_GENERATOR,
+            strategy = "com.vladmihalcea.hibernate.id.BatchSequenceGenerator",
             parameters = {
                 @Parameter(name = "sequence", value = "post_sequence"),
                 @Parameter(name = "fetch_size", value = "5")
