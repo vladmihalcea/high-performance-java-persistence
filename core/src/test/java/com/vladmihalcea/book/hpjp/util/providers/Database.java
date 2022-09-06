@@ -12,7 +12,9 @@ public enum Database {
 	MYSQL(MySQLDataSourceProvider.class),
 	MARIADB(MariaDBDataSourceProvider.class),
 	SQLSERVER(SQLServerDataSourceProvider.class),
-	COCKROACHDB(CockroachDBDataSourceProvider.class);
+	YUGABYTEDB(YugabyteDBDataSourceProvider.class),
+	COCKROACHDB(CockroachDBDataSourceProvider.class),
+	;
 
 	private Class<? extends DataSourceProvider> dataSourceProviderClass;
 
