@@ -14,7 +14,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "com.vladmihalcea.book.hpjp.spring.data.custom.service",
     }
 )
-@EnableJpaRepositories("com.vladmihalcea.book.hpjp.spring.data.custom.repository")
+@EnableJpaRepositories(
+    basePackages = {
+        "com.vladmihalcea.book.hpjp.spring.data.custom.repository",
+        "com.vladmihalcea.spring.repository"
+    }
+)
 @PropertySource({"/META-INF/jdbc-hsqldb.properties"})
 public class SpringDataJPACustomRepositoryConfiguration extends SpringDataJPABaseConfiguration {
 

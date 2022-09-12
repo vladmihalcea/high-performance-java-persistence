@@ -10,4 +10,6 @@ import java.util.List;
 public interface CustomPostRepository {
 
     List<PostDTO> findPostDTOWithComments();
+
+    List<String> findPostTitleByTags(List<String> tags);
 }

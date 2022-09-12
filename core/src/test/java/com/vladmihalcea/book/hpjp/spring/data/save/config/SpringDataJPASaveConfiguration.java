@@ -17,7 +17,12 @@ import java.util.Properties;
         "com.vladmihalcea.book.hpjp.spring.data.save",
     }
 )
-@EnableJpaRepositories("com.vladmihalcea.book.hpjp.spring.data.save.repository")
+@EnableJpaRepositories(
+    basePackages = {
+        "com.vladmihalcea.book.hpjp.spring.data.save.repository",
+        "com.vladmihalcea.spring.repository"
+    }
+)
 @PropertySource({"/META-INF/jdbc-postgresql.properties"})
 public class SpringDataJPASaveConfiguration extends SpringDataJPABaseConfiguration {
 

@@ -96,4 +96,9 @@ public class Post {
         comment.setPost(null);
         return this;
     }
+
+    public Post addTag(Tag tag) {
+        tags.add(tag);
+        return this;
+    }
 }

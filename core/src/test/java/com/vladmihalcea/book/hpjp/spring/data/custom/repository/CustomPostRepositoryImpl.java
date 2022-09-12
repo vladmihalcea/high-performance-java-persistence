@@ -30,4 +30,21 @@ public class CustomPostRepositoryImpl implements CustomPostRepository {
         .setResultTransformer(new PostDTOResultTransformer())
         .getResultList();
     }
+
+    @Override
+    public List<String> findPostTitleByTags(List<String> tags) {
+        return entityManager.createNativeQuery("""
+            select p.title
+            from post p
+            where exists (
+                select 1
+                from post_tag pt 
+                join tag t on pt.tag_id = t.id and pt.post_id = p.id
+                where t.name in (:tags)
+            )
+            order by p.id
+            """)
+            .setParameter("tags", tags)
+            .getResultList();
+    }
 }
