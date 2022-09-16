@@ -52,7 +52,8 @@ public interface ExceptionUtil {
                     failureMessage.contains("timed out") ||
                     failureMessage.contains("time out") ||
                     failureMessage.contains("closed connection") ||
-                    failureMessage.contains("link failure")
+                    failureMessage.contains("link failure") ||
+                    failureMessage.contains("expired or aborted by a conflict")
                     ) {
                 return true;
             } else {
@@ -77,11 +78,15 @@ public interface ExceptionUtil {
         AtomicReference<Throwable> causeHolder = new AtomicReference<>(e);
         do {
             final Throwable cause = causeHolder.get();
+            String lowerCaseMessage = cause.getMessage().toLowerCase();
             if (
                     cause.getMessage().contains("ORA-08177: can't serialize access for this transaction") //Oracle
-                            || cause.getMessage().toLowerCase().contains("could not serialize access due to concurrent update") //PSQLException
-                            || cause.getMessage().toLowerCase().contains("ould not serialize access due to read/write dependencies among transactions") //PSQLException
-                            || cause.getMessage().toLowerCase().contains("snapshot isolation transaction aborted due to update conflict") //SQLServerException
+                            || lowerCaseMessage.contains("could not serialize access due to concurrent update") //PSQLException
+                            || lowerCaseMessage.contains("ould not serialize access due to read/write dependencies among transactions") //PSQLException
+                            || lowerCaseMessage.contains("snapshot isolation transaction aborted due to update conflict") //SQLServerException
+                            || lowerCaseMessage.contains("kconflict") //YugabyteDB
+                            || lowerCaseMessage.contains("unknown transaction, could be recently aborted") //YugabyteDB
+                            || lowerCaseMessage.contains("conflicts with higher priority transaction") //YugabyteDB
                     ) {
                 return true;
             } else {

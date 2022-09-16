@@ -130,8 +130,8 @@ public class BaseTransferTransactionManagerTest {
         startLatch.countDown();
         endLatch.await();
 
-        LOGGER.info("Alice's balance {}", accountRepository.getBalance("Alice-123"));
-        LOGGER.info("Bob's balance {}", accountRepository.getBalance("Bob-456"));
+        LOGGER.info("Alice's balance: {}", accountRepository.getBalance("Alice-123"));
+        LOGGER.info("Bob's balance: {}", accountRepository.getBalance("Bob-456"));
     }
 
     @Test

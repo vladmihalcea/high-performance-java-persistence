@@ -17,6 +17,7 @@ public class TransferServiceImpl implements TransferService {
     private AccountRepository accountRepository;
 
     @Override
+    @Transactional
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
     public boolean transfer(String fromIban, String toIban, long cents) {
         boolean status = true;
