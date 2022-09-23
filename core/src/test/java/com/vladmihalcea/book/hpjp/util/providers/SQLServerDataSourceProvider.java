@@ -30,7 +30,7 @@ public class SQLServerDataSourceProvider implements DataSourceProvider {
 	@Override
 	public DataSource dataSource() {
 		SQLServerDataSource dataSource = new SQLServerDataSource();
-		String url = "jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence;";
+		String url = "jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence;encrypt=true;trustServerCertificate=true;";
 		url += "sendStringParametersAsUnicode=" + sendStringParametersAsUnicode;
 		dataSource.setURL(url);
 		dataSource.setUser("sa");
