@@ -69,6 +69,31 @@ public interface ExceptionUtil {
     }
 
     /**
+     * Is the given throwable caused by the following exception type?
+     *
+     * @param e exception
+     * @param exceptionType exception type
+     * @return is caused by the given exception type
+     */
+    static boolean isCausedBy(Throwable e, Class<? extends Throwable> exceptionType) {
+        AtomicReference<Throwable> causeHolder = new AtomicReference<>(e);
+        do {
+            final Throwable cause = causeHolder.get();
+            if (exceptionType.isInstance(cause)) {
+                return true;
+            } else {
+                if (cause.getCause() == null || cause.getCause() == cause) {
+                    break;
+                } else {
+                    causeHolder.set(cause.getCause());
+                }
+            }
+        }
+        while (true);
+        return false;
+    }
+
+    /**
      * Is the given throwable caused by a database MVCC anomaly detection?
      *
      * @param e exception

@@ -29,7 +29,7 @@
     <logger name="org.hibernate" level="info"/>
     <logger name="org.hibernate.hql" level="info"/>
     <logger name="org.hibernate.event.internal" level="info"/>
-    <logger name="org.hibernate.engine.transaction.internal" level="info"/>
+    <logger name="org.hibernate.engine.transaction.internal" level="debug"/>
     <logger name="org.hibernate.cache" level="debug"/>
     <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="info"/>
 
