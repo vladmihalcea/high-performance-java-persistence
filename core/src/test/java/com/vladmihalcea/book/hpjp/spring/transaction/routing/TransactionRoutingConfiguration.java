@@ -28,6 +28,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -64,6 +67,27 @@ public class TransactionRoutingConfiguration extends AbstractJPAConfiguration {
         dataSource.setURL(replicaUrl);
         dataSource.setUser(username);
         dataSource.setPassword(password);
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement()) {
+            statement.execute("""
+                create sequence if not exists hibernate_sequence start 1 increment 1;
+                create table if not exists post (id int8 not null, title varchar(255), primary key (id));
+                create table if not exists post_comment (id int8 not null, review varchar(255), post_id int8, primary key (id));
+                create table if not exists post_details (created_by varchar(255), created_on timestamp, post_id int8 not null, primary key (post_id));
+                create table if not exists post_tag (post_id int8 not null, tag_id int8 not null);
+                create table if not exists tag (id int8 not null, name varchar(255), primary key (id));
+                alter table if exists post_comment drop constraint if exists FKna4y825fdc5hw8aow65ijexm0;
+                alter table if exists post_details drop constraint if exists FKmcgdm1k7iriyxsq4kukebj4ei;
+                alter table if exists post_tag drop constraint if exists FKac1wdchd2pnur3fl225obmlg0;
+                alter table if exists post_tag drop constraint if exists FKc2auetuvsec0k566l0eyvr9cs;
+                alter table if exists post_comment add constraint FKna4y825fdc5hw8aow65ijexm0 foreign key (post_id) references post;
+                alter table if exists post_details add constraint FKmcgdm1k7iriyxsq4kukebj4ei foreign key (post_id) references post;
+                alter table if exists post_tag add constraint FKac1wdchd2pnur3fl225obmlg0 foreign key (tag_id) references tag;
+                alter table if exists post_tag add constraint FKc2auetuvsec0k566l0eyvr9cs foreign key (post_id) references post;
+                """);
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
         return connectionPoolDataSource(dataSource);
     }
 

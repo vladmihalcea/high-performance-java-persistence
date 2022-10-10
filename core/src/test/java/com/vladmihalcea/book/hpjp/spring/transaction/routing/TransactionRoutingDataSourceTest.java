@@ -20,7 +20,7 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TransactionRoutingConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class TranscationRoutingDataSourceTest {
+public class TransactionRoutingDataSourceTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
