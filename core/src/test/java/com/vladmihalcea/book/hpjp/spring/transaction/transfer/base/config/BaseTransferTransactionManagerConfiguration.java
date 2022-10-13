@@ -50,7 +50,7 @@ public class BaseTransferTransactionManagerConfiguration {
 
     @Bean
     public Database database() {
-        return Database.YUGABYTEDB;
+        return Database.POSTGRESQL;
     }
 
     @Bean
