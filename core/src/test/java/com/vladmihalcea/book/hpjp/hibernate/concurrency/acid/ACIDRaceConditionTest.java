@@ -178,7 +178,7 @@ public class ACIDRaceConditionTest extends AbstractTest {
         assertEquals(10L, getBalance("Alice-123"));
         assertEquals(0L, getBalance("Bob-456"));
 
-        int threadCount = 8;
+        int threadCount = 16;
 
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch endLatch = new CountDownLatch(threadCount);
