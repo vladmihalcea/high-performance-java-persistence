@@ -62,7 +62,7 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         assertEquals(10L, getBalance("Alice-123"));
         assertEquals(0L, getBalance("Bob-456"));
 
-        int threadCount = 8;
+        int threadCount = 16;
 
         String fromIban = "Alice-123";
         String toIban = "Bob-456";
