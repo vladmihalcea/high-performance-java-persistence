@@ -437,7 +437,7 @@
         <spring.version>5.3.22</spring.version>
         <spring-data.version>2.7.2</spring-data.version>
 
-        <jackson.version>2.12.6.1</jackson.version>
+        <jackson.version>2.13.4.1</jackson.version>
 
         <flyway.version>6.4.4</flyway.version>
         <hibernate-types.version>2.19.1</hibernate-types.version>
