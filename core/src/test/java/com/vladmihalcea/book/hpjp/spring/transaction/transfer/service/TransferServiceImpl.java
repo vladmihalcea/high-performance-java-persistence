@@ -1,10 +1,8 @@
-package com.vladmihalcea.book.hpjp.spring.transaction.transfer.base.service;
+package com.vladmihalcea.book.hpjp.spring.transaction.transfer.service;
 
-import com.vladmihalcea.book.hpjp.spring.transaction.transfer.domain.Account;
 import com.vladmihalcea.book.hpjp.spring.transaction.transfer.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**

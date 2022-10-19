@@ -1,16 +1,14 @@
-package com.vladmihalcea.book.hpjp.spring.transaction.transfer.base.config;
+package com.vladmihalcea.book.hpjp.spring.transaction.transfer.config;
 
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.jpa.HibernatePersistenceProvider;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -33,13 +31,13 @@ import java.util.Properties;
 @Configuration
 @ComponentScan(
     basePackages = {
-        "com.vladmihalcea.book.hpjp.spring.transaction.transfer.base.service",
+        "com.vladmihalcea.book.hpjp.spring.transaction.transfer.service",
     }
 )
 @EnableJpaRepositories("com.vladmihalcea.book.hpjp.spring.transaction.transfer.repository")
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-public class BaseTransferTransactionManagerConfiguration {
+public class ACIDRaceConditionTransferTransactionManagerConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 

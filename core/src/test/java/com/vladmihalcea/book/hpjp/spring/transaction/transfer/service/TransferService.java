@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.spring.transaction.transfer.base.service;
+package com.vladmihalcea.book.hpjp.spring.transaction.transfer.service;
 
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,7 @@
-package com.vladmihalcea.book.hpjp.spring.transaction.transfer.base;
+package com.vladmihalcea.book.hpjp.spring.transaction.transfer;
 
-import com.vladmihalcea.book.hpjp.spring.transaction.transfer.base.config.BaseTransferTransactionManagerConfiguration;
-import com.vladmihalcea.book.hpjp.spring.transaction.transfer.base.service.TransferService;
+import com.vladmihalcea.book.hpjp.spring.transaction.transfer.config.ACIDRaceConditionTransferTransactionManagerConfiguration;
+import com.vladmihalcea.book.hpjp.spring.transaction.transfer.service.TransferService;
 import com.vladmihalcea.book.hpjp.spring.transaction.transfer.domain.Account;
 import com.vladmihalcea.book.hpjp.spring.transaction.transfer.repository.AccountRepository;
 import org.junit.Before;
@@ -21,7 +21,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -34,9 +33,9 @@ import static org.junit.Assert.fail;
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = BaseTransferTransactionManagerConfiguration.class)
+@ContextConfiguration(classes = ACIDRaceConditionTransferTransactionManagerConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class BaseTransferTransactionManagerTest {
+public class ACIDRaceConditionTransferTransactionManagerTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
