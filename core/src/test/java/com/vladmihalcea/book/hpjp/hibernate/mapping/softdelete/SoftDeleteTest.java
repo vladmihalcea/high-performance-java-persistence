@@ -222,7 +222,7 @@ public class SoftDeleteTest extends AbstractTest {
 		"	p.id = ?1 and " +
 		"	p.deleted = false")
 	@Where(clause = "deleted = false")
-	public static class Post extends BaseEntity {
+	public static class Post extends SoftDeletableEntity {
 
 		@Id
 		private Long id;
@@ -319,7 +319,7 @@ public class SoftDeleteTest extends AbstractTest {
 		"	pd.id = ?1 and " +
 		"	pd.deleted = false")
 	@Where(clause = "deleted = false")
-	public static class PostDetails extends BaseEntity {
+	public static class PostDetails extends SoftDeletableEntity {
 
 		@Id
 		private Long id;
@@ -386,7 +386,7 @@ public class SoftDeleteTest extends AbstractTest {
 		"	pc.id = ?1 and " +
 		"	pc.deleted = false")
 	@Where(clause = "deleted = false")
-	public static class PostComment extends BaseEntity {
+	public static class PostComment extends SoftDeletableEntity {
 
 		@Id
 		private Long id;
@@ -435,7 +435,7 @@ public class SoftDeleteTest extends AbstractTest {
 		"	t.id = ?1 and " +
 		"	t.deleted = false")
 	@Where(clause = "deleted = false")
-	public static class Tag extends BaseEntity {
+	public static class Tag extends SoftDeletableEntity {
 
 		@Id
 		private String id;
@@ -450,7 +450,7 @@ public class SoftDeleteTest extends AbstractTest {
 	}
 
 	@MappedSuperclass
-	public static abstract class BaseEntity {
+	public static abstract class SoftDeletableEntity {
 
 		private boolean deleted;
 	}
