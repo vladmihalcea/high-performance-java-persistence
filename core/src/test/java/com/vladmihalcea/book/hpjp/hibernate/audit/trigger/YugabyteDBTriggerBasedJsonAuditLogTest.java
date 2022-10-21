@@ -44,19 +44,23 @@ public class YugabyteDBTriggerBasedJsonAuditLogTest extends AbstractTest {
         executeStatement("CREATE TYPE dml_type AS ENUM ('INSERT', 'UPDATE', 'DELETE')");
 
         executeStatement("DROP TABLE IF EXISTS audit_log CASCADE");
-        executeStatement("""
-            CREATE TABLE IF NOT EXISTS audit_log (
-                table_name varchar(255) NOT NULL,
-                row_id bigint NOT NULL,
-            	old_row_data jsonb,
-            	new_row_data jsonb,
-            	dml_type dml_type NOT NULL,
-            	dml_timestamp timestamp NOT NULL,
-            	dml_created_by varchar(255) NOT NULL,
-            	trx_timestamp timestamp NOT NULL,
-            	PRIMARY KEY (table_name, row_id, dml_type, dml_timestamp)
+        executeStatement(
+            String.format(
+                """
+                CREATE TABLE IF NOT EXISTS audit_log (
+                    table_name varchar(255) NOT NULL,
+                    row_id bigint NOT NULL,
+                    old_row_data jsonb,
+                    new_row_data jsonb,
+                    dml_type dml_type NOT NULL,
+                    dml_timestamp timestamp NOT NULL,
+                    dml_created_by varchar(255) NOT NULL,
+                    trx_timestamp timestamp NOT NULL,
+                    PRIMARY KEY (%s, dml_type, dml_timestamp)
+                )
+                """,
+                database() == Database.YUGABYTEDB ? "(table_name, row_id) HASH" : "table_name, row_id"
             )
-            """
         );
 
         executeStatement("DROP FUNCTION IF EXISTS audit_log_trigger_function cascade");
