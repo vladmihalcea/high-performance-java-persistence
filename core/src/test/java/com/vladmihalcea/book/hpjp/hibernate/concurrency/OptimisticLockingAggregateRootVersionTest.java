@@ -234,7 +234,8 @@ public class OptimisticLockingAggregateRootVersionTest extends AbstractTest {
         T root();
     }
 
-    @Entity(name = "Post") @Table(name = "post")
+    @Entity(name = "Post")
+    @Table(name = "post")
     public static class Post {
 
         @Id
