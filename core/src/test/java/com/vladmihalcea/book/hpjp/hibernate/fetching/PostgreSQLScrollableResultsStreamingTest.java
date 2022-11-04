@@ -6,11 +6,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.jpa.QueryHints;
 import org.junit.Test;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -36,19 +35,26 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
         doInJPA(entityManager -> {
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try (Statement statement = connection.createStatement()) {
-                    statement.execute("CREATE INDEX idx_post_created_on ON post ( created_on DESC )");
+                    statement.execute("CREATE INDEX idx_post_created_on ON post (created_on DESC)");
                 }
             });
-            LongStream.range(0, 50 * 100).forEach(i -> {
-                Post post = new Post(i);
-                post.setTitle(String.format("Post nr. %d", i));
-                entityManager.persist(post);
+
+            LocalDateTime startTimestamp = LocalDateTime.now();
+            LongStream.rangeClosed(1, 50 * 100).forEach(i -> {
+                entityManager.persist(
+                    new Post()
+                        .setId(i)
+                        .setTitle(String.format("Post nr. %d", i))
+                        .setCreatedOn(Timestamp.valueOf(startTimestamp.plusHours(i)))
+                );
                 if (i % 50 == 0 && i > 0) {
                     entityManager.flush();
                     entityManager.clear();
                 }
             });
         });
+
+        executeStatement("VACUUM FULL ANALYZE");
     }
 
     @Override
@@ -62,22 +68,20 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
     public void testStreamExecutionPlan() {
         doInJPA(entityManager -> {
             executeStatement(entityManager, """
-                SET session_preload_libraries = 'auto_explain';
-                SET auto_explain.log_analyze TO ON;
-                SET auto_explain.log_min_duration TO 1;
+                SET auto_explain.log_min_duration TO 0;
                 """);
 
-            List<Post> posts = entityManager.createQuery("""
-                select p
-                from Post p
-                order by p.createdOn desc
-                """, Post.class)
-            .setHint(QueryHints.HINT_FETCH_SIZE, 50)
-            .getResultStream()
-            .limit(50)
-            .collect(Collectors.toList());
+            List<Tuple> posts = (List<Tuple>) entityManager.createNativeQuery("""
+                SELECT id, title, created_on
+                FROM post
+                ORDER BY created_on DESC
+                """, Tuple.class)
+                .setHint(QueryHints.HINT_FETCH_SIZE, 50)
+                .getResultStream()
+                .limit(50)
+                .collect(Collectors.toList());
 
-             assertEquals(50, posts.size());
+            assertEquals(50, posts.size());
 
             //Read the execution plan from $PG_DATA/log/postgresql-yyyy-mm-dd_HHmmss.log
         });
@@ -86,18 +90,22 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
     @Test
     public void testPaginationExecutionPlan() {
         doInJPA(entityManager -> {
-            List<String> executionPlanLines = entityManager.createNativeQuery("""
-                EXPLAIN ANALYZE
-                SELECT p
-                FROM post p
-                ORDER BY p.created_on DESC""")
-            .setMaxResults(50)
-            .getResultList();
+            executeStatement(entityManager, """
+                SET auto_explain.log_min_duration TO 0;
+                """);
 
-            LOGGER.info("Execution plan: \n{}",
-                String.join("\n", executionPlanLines)
-            );
+            List<Tuple> posts = (List<Tuple>) entityManager.createNativeQuery("""
+                SELECT id, title, created_on
+                FROM post
+                ORDER BY created_on DESC
+                """)
+                .setMaxResults(50)
+                .getResultList();
+
+            assertEquals(50, posts.size());
         });
+
+        //Read the execution plan from $PG_DATA/log/postgresql-yyyy-mm-dd_HHmmss.log
     }
 
     @Test
@@ -108,9 +116,9 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
                 from Post p
                 order by p.createdOn desc
                 """, Post.class)
-            .getResultStream()
-            .limit(50)
-            .collect(Collectors.toList());
+                .getResultStream()
+                .limit(50)
+                .collect(Collectors.toList());
 
             assertEquals(50, posts.size());
         });
@@ -126,34 +134,33 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
         private String title;
 
         @Column(name = "created_on")
-        @CreationTimestamp
         private Date createdOn;
-
-        public Post() {
-        }
-
-        public Post(Long id) {
-            this.id = id;
-        }
-
-        public Post(String title) {
-            this.title = title;
-        }
 
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
+        }
+
+        public Date getCreatedOn() {
+            return createdOn;
+        }
+
+        public Post setCreatedOn(Date createdOn) {
+            this.createdOn = createdOn;
+            return this;
         }
     }
 }
