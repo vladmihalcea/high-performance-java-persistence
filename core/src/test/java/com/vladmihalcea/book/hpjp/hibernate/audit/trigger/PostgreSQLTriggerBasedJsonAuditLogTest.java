@@ -222,11 +222,7 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
     private void setCurrentLoggedUser(EntityManager entityManager) {
         Session session = entityManager.unwrap(Session.class);
         Dialect dialect = session.getSessionFactory().unwrap(SessionFactoryImplementor.class).getJdbcServices().getDialect();
-        String loggedUser = ReflectionUtils.invokeMethod(
-            dialect,
-            "inlineLiteral",
-            LoggedUser.get()
-        );
+        String loggedUser = dialect.inlineLiteral(LoggedUser.get());
 
         session.doWork(connection -> {
             update(
@@ -252,8 +248,6 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             ORDER BY dml_timestamp
             """, Tuple.class)
         .unwrap(NativeQuery.class)
-        .addScalar("old_row_data", JsonNode.class)
-        .addScalar("new_row_data", JsonNode.class)
         .getResultList();
     }
 

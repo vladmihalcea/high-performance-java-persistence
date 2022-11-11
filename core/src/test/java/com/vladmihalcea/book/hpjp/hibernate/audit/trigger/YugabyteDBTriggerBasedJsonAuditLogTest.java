@@ -256,17 +256,13 @@ public class YugabyteDBTriggerBasedJsonAuditLogTest extends AbstractTest {
     private void setCurrentLoggedUser(EntityManager entityManager) {
         Session session = entityManager.unwrap(Session.class);
         Dialect dialect = session.getSessionFactory().unwrap(SessionFactoryImplementor.class).getJdbcServices().getDialect();
-        String loggedUser = ReflectionUtils.invokeMethod(
-            dialect,
-            "escapeLiteral",
-            LoggedUser.get()
-        );
+        String loggedUser = dialect.inlineLiteral(LoggedUser.get());
 
         session.doWork(connection -> {
             update(
                 connection,
                 String.format(
-                    "SET LOCAL var.logged_user = '%s'", loggedUser
+                    "SET LOCAL var.logged_user = %s", loggedUser
                 )
             );
         });
@@ -286,8 +282,6 @@ public class YugabyteDBTriggerBasedJsonAuditLogTest extends AbstractTest {
             ORDER BY dml_timestamp
             """, Tuple.class)
         .unwrap(org.hibernate.query.NativeQuery.class)
-        .addScalar("old_row_data", JsonNode.class)
-        .addScalar("new_row_data", JsonNode.class)
         .getResultList();
     }
 

@@ -132,7 +132,7 @@ public class QueryCacheDTOTest extends AbstractTest {
             select new PostSummary(p.id, p.title, p.createdOn, count(pc.id))
             from PostComment pc
             left join pc.post p
-            group by p.id, p.title
+            group by p.id, p.title, p.createdOn
             order by p.createdOn desc
             """, PostSummary.class)
         .setMaxResults(maxResults)
