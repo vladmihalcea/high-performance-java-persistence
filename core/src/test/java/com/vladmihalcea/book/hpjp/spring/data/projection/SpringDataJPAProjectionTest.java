@@ -22,9 +22,9 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Tuple;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Tuple;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.LongStream;

@@ -4,19 +4,16 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.transaction.ConnectionCallable;
 import com.vladmihalcea.book.hpjp.util.transaction.ConnectionVoidCallable;
-import org.hibernate.FlushMode;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.junit.Test;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.junit.Test;
+
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
 

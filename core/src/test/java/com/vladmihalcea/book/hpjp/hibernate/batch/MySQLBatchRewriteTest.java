@@ -10,7 +10,7 @@ import org.hibernate.Session;
 import org.junit.Test;
 import org.postgresql.ds.PGSimpleDataSource;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import javax.sql.DataSource;
 import java.sql.Statement;
 import java.util.ArrayList;

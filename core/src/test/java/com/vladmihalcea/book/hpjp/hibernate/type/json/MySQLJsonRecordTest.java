@@ -92,7 +92,7 @@ public class MySQLJsonRecordTest extends AbstractMySQLIntegrationTest {
         @NaturalId
         private String isbn;
 
-        @Type(JsonStringType.class)
+        @Type(JsonType.class)
         @Column(columnDefinition = "json")
         private BookRecord properties;
 

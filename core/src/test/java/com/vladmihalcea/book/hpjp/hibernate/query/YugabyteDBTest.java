@@ -5,7 +5,7 @@ import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.time.DayOfWeek;
 import java.time.LocalDate;

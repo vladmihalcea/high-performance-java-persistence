@@ -4,17 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.type.LongType;
-import org.hibernate.type.StringType;
-import org.hibernate.type.TimestampType;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -290,13 +286,8 @@ public class YugabyteDBTriggerBasedJsonAuditLogTest extends AbstractTest {
             ORDER BY dml_timestamp
             """, Tuple.class)
         .unwrap(org.hibernate.query.NativeQuery.class)
-        .addScalar("row_id", LongType.INSTANCE)
-        .addScalar("old_row_data", new JsonBinaryType(JsonNode.class))
-        .addScalar("new_row_data", new JsonBinaryType(JsonNode.class))
-        .addScalar("dml_type", StringType.INSTANCE)
-        .addScalar("dml_timestamp", TimestampType.INSTANCE)
-        .addScalar("dml_created_by", StringType.INSTANCE)
-        .addScalar("trx_timestamp", TimestampType.INSTANCE)
+        .addScalar("old_row_data", JsonNode.class)
+        .addScalar("new_row_data", JsonNode.class)
         .getResultList();
     }
 

@@ -4,8 +4,8 @@ import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.Pos
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTOResultTransformer;
 import org.springframework.data.repository.query.Param;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.util.List;
 
 /**

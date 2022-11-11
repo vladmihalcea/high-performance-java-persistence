@@ -356,12 +356,11 @@
             <version>${blaze-persistence.version}</version>
         </dependency>
 
-        <!-- Uncomment when Blze supports H6 -->
-       <!-- <dependency>
+        <dependency>
             <groupId>com.blazebit</groupId>
             <artifactId>blaze-persistence-integration-hibernate-6.0</artifactId>
             <version>${blaze-persistence.version}</version>
-        </dependency>-->
+        </dependency>
 
         <!-- Testing -->
 
@@ -402,7 +401,7 @@
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
         <commons-lang.version>3.12.0</commons-lang.version>
-        <hibernate.version>6.0.1.Final</hibernate.version>
+        <hibernate.version>6.1.5.Final</hibernate.version>
         <hibernate.validator.version>6.2.1.Final</hibernate.validator.version>
         <javassist.version>3.18.1-GA</javassist.version>
         <ehcache.version>3.10.0</ehcache.version>
@@ -429,15 +428,15 @@
         <flexy-pool.version>2.0.0</flexy-pool.version>
 
         <aspectj.version>1.8.7</aspectj.version>
-        <spring.version>6.0.0-M5</spring.version>
-        <spring-data.version>3.0.0-M3</spring-data.version>
+        <spring.version>6.0.0-RC4</spring.version>
+        <spring-data.version>3.0.0-RC2</spring-data.version>
 
         <jackson.version>2.12.6.1</jackson.version>
 
         <flyway.version>6.4.4</flyway.version>
-        <hibernate-types.version>2.15.2</hibernate-types.version>
+        <hibernate-types.version>2.20.0</hibernate-types.version>
 
-        <blaze-persistence.version>1.6.6</blaze-persistence.version>
+        <blaze-persistence.version>1.6.7</blaze-persistence.version>
 
         <hypersistence-optimizer.version>2.4.2</hypersistence-optimizer.version>
 

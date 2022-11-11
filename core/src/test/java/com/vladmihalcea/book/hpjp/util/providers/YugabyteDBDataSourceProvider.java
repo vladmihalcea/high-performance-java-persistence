@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.util.providers;
 
 import com.vladmihalcea.book.hpjp.util.providers.queries.PostgreSQLQueries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
-import org.hibernate.dialect.PostgreSQL10Dialect;
+import org.hibernate.dialect.PostgreSQLDialect;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;
@@ -15,7 +15,7 @@ public class YugabyteDBDataSourceProvider implements DataSourceProvider {
 
     @Override
     public String hibernateDialect() {
-        return PostgreSQL10Dialect.class.getName();
+        return PostgreSQLDialect.class.getName();
     }
 
     @Override

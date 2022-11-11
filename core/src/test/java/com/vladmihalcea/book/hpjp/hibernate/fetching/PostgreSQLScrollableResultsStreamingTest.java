@@ -2,7 +2,6 @@ package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.jpa.QueryHints;
 import org.junit.Test;
 
@@ -10,6 +9,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Tuple;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;

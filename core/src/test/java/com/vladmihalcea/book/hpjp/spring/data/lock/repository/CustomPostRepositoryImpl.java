@@ -2,9 +2,9 @@ package com.vladmihalcea.book.hpjp.spring.data.lock.repository;
 
 import com.vladmihalcea.book.hpjp.spring.data.lock.domain.Post;
 
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.PersistenceContext;
 
 /**
  * @author Vlad Mihalcea

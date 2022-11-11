@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.spring.data.lock.repository;
 
 import com.vladmihalcea.book.hpjp.spring.data.lock.domain.Post;
 
-import javax.persistence.LockModeType;
+import jakarta.persistence.LockModeType;
 
 /**
  * @author Vlad Mihalcea

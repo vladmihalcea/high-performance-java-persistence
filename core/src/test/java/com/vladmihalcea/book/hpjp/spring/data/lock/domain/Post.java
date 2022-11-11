@@ -1,9 +1,9 @@
 package com.vladmihalcea.book.hpjp.spring.data.lock.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 /**
  * @author Vlad Mihalcea

@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.util.providers;
 
 import com.vladmihalcea.book.hpjp.util.providers.queries.PostgreSQLQueries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
-import org.hibernate.dialect.identity.CockroachDB1920IdentityColumnSupport;
+import org.hibernate.dialect.CockroachDialect;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;
@@ -16,7 +16,7 @@ public class CockroachDBDataSourceProvider
 
 	@Override
 	public String hibernateDialect() {
-		return CockroachDB1920IdentityColumnSupport.class.getName();
+		return CockroachDialect.class.getName();
 	}
 
 	@Override

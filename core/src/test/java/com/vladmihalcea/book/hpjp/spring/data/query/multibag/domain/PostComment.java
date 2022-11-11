@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.spring.data.query.multibag.domain;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * @author Vlad Mihalcea

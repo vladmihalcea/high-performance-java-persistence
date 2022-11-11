@@ -4,12 +4,13 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.hibernate.type.money.MonetaryAmountType;
 import org.hibernate.annotations.Columns;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.CompositeType;
+import org.hibernate.annotations.Type;
 import org.javamoney.moneta.Money;
 import org.junit.Test;
 
 import javax.money.MonetaryAmount;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -141,7 +142,6 @@ public class MonetaryAmountTypeTest extends AbstractTest {
 
     @Entity(name = "ProductPricing")
     @Table(name = "product_pricing")
-    @TypeDef(typeClass = MonetaryAmountType.class, defaultForType = MonetaryAmount.class)
     public static class ProductPricing {
 
         @Id
@@ -160,6 +160,7 @@ public class MonetaryAmountTypeTest extends AbstractTest {
             @Column(name = "price_amount"),
             @Column(name = "price_currency")
         })
+        @CompositeType(MonetaryAmountType.class)
         private MonetaryAmount price;
 
         public Long getId() {
