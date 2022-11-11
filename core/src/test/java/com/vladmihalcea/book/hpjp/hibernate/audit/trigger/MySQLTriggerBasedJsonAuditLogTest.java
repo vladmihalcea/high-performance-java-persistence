@@ -37,15 +37,15 @@ public class MySQLTriggerBasedJsonAuditLogTest extends AbstractTest {
         executeStatement("DROP TABLE IF EXISTS book_audit_log");
         executeStatement("""
             CREATE TABLE IF NOT EXISTS book_audit_log (
-                book_id BIGINT NOT NULL, 
+                book_id BIGINT NOT NULL,
             	old_row_data JSON,
             	new_row_data JSON,
             	dml_type ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
-            	dml_timestamp TIMESTAMP NOT NULL,
+            	dml_timestamp DATETIME NOT NULL,
             	dml_created_by VARCHAR(255) NOT NULL,
             	trx_timestamp timestamp NOT NULL,
             	PRIMARY KEY (book_id, dml_type, dml_timestamp)
-            ) 
+            )
             """
         );
 

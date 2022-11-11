@@ -38,10 +38,10 @@ public class MySQLTriggerBasedAuditedTest extends AbstractTest {
             	id BIGINT NOT NULL,
             	title VARCHAR(255),
             	REV_TYPE ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
-            	REV_TIMESTAMP TIMESTAMP NOT NULL,
+            	REV_TIMESTAMP DATETIME NOT NULL,
             	REV_CREATED_BY VARCHAR(255) NOT NULL,
             	PRIMARY KEY (id, REV_TYPE, REV_TIMESTAMP)
-            ) 
+            )
             """
         );
 
