@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * @author Vlad Mihalcea
  */
-public class IPv4 implements Serializable {
+public final class IPv4 implements Serializable {
 
     private final String address;
 
