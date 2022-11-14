@@ -5,18 +5,18 @@ import javax.persistence.*;
 /**
  * @author Vlad Mihalcea
  */
-@Entity(name = "PostComment")
+@Entity
 @Table(name = "post_comment")
 public class PostComment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
+
+    private String review;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
-
-    private String review;
 
     public Long getId() {
         return id;

@@ -25,7 +25,7 @@ import java.util.Properties;
     }
 )
 @PropertySource({"/META-INF/jdbc-postgresql.properties"})
-public class SpringDataJPASaveConfiguration extends SpringDataJPABaseConfiguration {
+public class SpringDataJPACrudConfiguration extends SpringDataJPABaseConfiguration {
 
     @Override
     protected String packageToScan() {

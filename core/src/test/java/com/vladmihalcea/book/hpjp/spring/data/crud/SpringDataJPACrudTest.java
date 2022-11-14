@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.spring.data.crud;
 
 import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
-import com.vladmihalcea.book.hpjp.spring.data.crud.config.SpringDataJPASaveConfiguration;
+import com.vladmihalcea.book.hpjp.spring.data.crud.config.SpringDataJPACrudConfiguration;
 import com.vladmihalcea.book.hpjp.spring.data.crud.domain.Post;
 import com.vladmihalcea.book.hpjp.spring.data.crud.repository.PostRepository;
 import com.vladmihalcea.book.hpjp.spring.data.crud.service.PostService;
@@ -29,9 +29,9 @@ import static org.junit.Assert.fail;
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = SpringDataJPASaveConfiguration.class)
+@ContextConfiguration(classes = SpringDataJPACrudConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPASaveTest {
+public class SpringDataJPACrudTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
@@ -116,7 +116,7 @@ public class SpringDataJPASaveTest {
 
     @Test
     @Ignore
-    public void testPersistManyToOne() {
+    public void testSaveWithFindById() {
         Long postId = transactionTemplate.execute(transactionStatus -> {
             Post post = new Post()
                 .setId(1L)
@@ -130,9 +130,11 @@ public class SpringDataJPASaveTest {
 
         LOGGER.info("Save PostComment");
 
-        SQLStatementCountValidator.reset();
-        postService.newComment("Awesome", postId);
-        SQLStatementCountValidator.assertSelectCount(0);
+        postService.addNewPostComment("Best book on JPA and Hibernate!", postId);
+
+        //The sequence call
+        SQLStatementCountValidator.assertSelectCount(1);
+        SQLStatementCountValidator.assertInsertCount(1);
     }
 }
 

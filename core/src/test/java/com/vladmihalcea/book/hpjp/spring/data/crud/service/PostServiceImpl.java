@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.spring.data.crud.service;
 
+import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.book.hpjp.spring.data.crud.domain.PostComment;
 import com.vladmihalcea.book.hpjp.spring.data.crud.repository.PostCommentRepository;
 import com.vladmihalcea.book.hpjp.spring.data.crud.repository.PostRepository;
@@ -22,12 +23,12 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostComment newComment(String review, Long postId) {
+    public PostComment addNewPostComment(String review, Long postId) {
         PostComment comment = new PostComment()
             .setReview(review)
             .setPost(postRepository.findById(postId).orElse(null));
 
-        postCommentRepository.persist(comment);
+        postCommentRepository.save(comment);
 
         return comment;
     }

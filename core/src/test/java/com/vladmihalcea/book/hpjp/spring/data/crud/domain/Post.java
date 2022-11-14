@@ -1,5 +1,7 @@
 package com.vladmihalcea.book.hpjp.spring.data.crud.domain;
 
+import org.hibernate.annotations.NaturalId;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -23,6 +25,7 @@ public class Post {
 
     private String title;
 
+    @NaturalId
     private String slug;
 
     public Long getId() {

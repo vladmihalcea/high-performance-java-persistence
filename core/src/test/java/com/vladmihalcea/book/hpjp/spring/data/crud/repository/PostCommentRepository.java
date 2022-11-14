@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.hpjp.spring.data.crud.repository;
 
 import com.vladmihalcea.book.hpjp.spring.data.crud.domain.PostComment;
-import com.vladmihalcea.spring.repository.HibernateRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Repository;
  * @author Vlad Mihalcea
  */
 @Repository
-public interface PostCommentRepository extends JpaRepository<PostComment, Long>,
-    HibernateRepository<PostComment> {
+public interface PostCommentRepository extends JpaRepository<PostComment, Long> {
 
 }

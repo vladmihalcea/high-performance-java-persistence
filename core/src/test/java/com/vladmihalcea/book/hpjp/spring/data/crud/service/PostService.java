@@ -9,5 +9,5 @@ import org.springframework.stereotype.Service;
 @Service
 public interface PostService {
 
-    PostComment newComment(String review, Long postId);
+    PostComment addNewPostComment(String review, Long postId);
 }
