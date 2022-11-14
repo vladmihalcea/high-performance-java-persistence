@@ -1,6 +1,6 @@
-package com.vladmihalcea.book.hpjp.spring.data.save.repository;
+package com.vladmihalcea.book.hpjp.spring.data.crud.repository;
 
-import com.vladmihalcea.book.hpjp.spring.data.save.domain.Post;
+import com.vladmihalcea.book.hpjp.spring.data.crud.domain.Post;
 import com.vladmihalcea.spring.repository.HibernateRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -1,6 +1,6 @@
-package com.vladmihalcea.book.hpjp.spring.data.save.service;
+package com.vladmihalcea.book.hpjp.spring.data.crud.service;
 
-import com.vladmihalcea.book.hpjp.spring.data.save.domain.PostComment;
+import com.vladmihalcea.book.hpjp.spring.data.crud.domain.PostComment;
 import org.springframework.stereotype.Service;
 
 /**

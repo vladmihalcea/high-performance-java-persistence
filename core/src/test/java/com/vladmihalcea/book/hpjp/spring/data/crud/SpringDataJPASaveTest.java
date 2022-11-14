@@ -1,11 +1,10 @@
-package com.vladmihalcea.book.hpjp.spring.data.save;
+package com.vladmihalcea.book.hpjp.spring.data.crud;
 
 import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
-import com.vladmihalcea.book.hpjp.spring.data.save.config.SpringDataJPASaveConfiguration;
-import com.vladmihalcea.book.hpjp.spring.data.save.domain.Post;
-import com.vladmihalcea.book.hpjp.spring.data.save.domain.PostComment;
-import com.vladmihalcea.book.hpjp.spring.data.save.repository.PostRepository;
-import com.vladmihalcea.book.hpjp.spring.data.save.service.PostService;
+import com.vladmihalcea.book.hpjp.spring.data.crud.config.SpringDataJPASaveConfiguration;
+import com.vladmihalcea.book.hpjp.spring.data.crud.domain.Post;
+import com.vladmihalcea.book.hpjp.spring.data.crud.repository.PostRepository;
+import com.vladmihalcea.book.hpjp.spring.data.crud.service.PostService;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;

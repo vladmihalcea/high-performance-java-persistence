@@ -1,8 +1,8 @@
-package com.vladmihalcea.book.hpjp.spring.data.save.service;
+package com.vladmihalcea.book.hpjp.spring.data.crud.service;
 
-import com.vladmihalcea.book.hpjp.spring.data.save.domain.PostComment;
-import com.vladmihalcea.book.hpjp.spring.data.save.repository.PostCommentRepository;
-import com.vladmihalcea.book.hpjp.spring.data.save.repository.PostRepository;
+import com.vladmihalcea.book.hpjp.spring.data.crud.domain.PostComment;
+import com.vladmihalcea.book.hpjp.spring.data.crud.repository.PostCommentRepository;
+import com.vladmihalcea.book.hpjp.spring.data.crud.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

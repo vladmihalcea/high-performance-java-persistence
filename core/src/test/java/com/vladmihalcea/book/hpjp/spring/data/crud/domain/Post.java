@@ -1,6 +1,4 @@
-package com.vladmihalcea.book.hpjp.spring.data.save.domain;
-
-import org.hibernate.annotations.NaturalId;
+package com.vladmihalcea.book.hpjp.spring.data.crud.domain;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

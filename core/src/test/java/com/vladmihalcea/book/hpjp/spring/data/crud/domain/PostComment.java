@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.spring.data.save.domain;
+package com.vladmihalcea.book.hpjp.spring.data.crud.domain;
 
 import javax.persistence.*;
 
