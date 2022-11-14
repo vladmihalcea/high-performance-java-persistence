@@ -10,6 +10,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.hypersistence.optimizer.core.config.JpaConfig;*/
 import net.ttddyy.dsproxy.ExecutionInfo;
 import net.ttddyy.dsproxy.QueryInfo;
+import net.ttddyy.dsproxy.listener.ChainListener;
+import net.ttddyy.dsproxy.listener.DataSourceQueryCountListener;
 import net.ttddyy.dsproxy.listener.MethodExecutionContext;
 import net.ttddyy.dsproxy.listener.lifecycle.JdbcLifecycleEventListenerAdapter;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
@@ -88,43 +90,16 @@ public abstract class SpringDataJPABaseConfiguration {
 
     @Bean
     public DataSource dataSource() {
+        ChainListener listener = new ChainListener();
         SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
         loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
-        DataSource dataSource = ProxyDataSourceBuilder
+        listener.addListener(loggingListener);
+        listener.addListener(new DataSourceQueryCountListener());
+        return ProxyDataSourceBuilder
                 .create(actualDataSource())
                 .name(DATA_SOURCE_PROXY_NAME)
-                .listener(loggingListener)
-                .listener(new JdbcLifecycleEventListenerAdapter() {
-                    private final ThreadLocal<LongAdder> queryCountHolder = new ThreadLocal<>();
-
-                    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-                    @Override
-                    public void afterGetConnection(MethodExecutionContext executionContext) {
-                        queryCountHolder.set(new LongAdder());
-                    }
-
-                    @Override
-                    public void beforeQuery(ExecutionInfo execInfo, List<QueryInfo> queryInfoList) {
-                        queryCountHolder.get().increment();
-                    }
-
-                    @Override
-                    public void afterCommit(MethodExecutionContext executionContext) {
-                        if(queryCountHolder.get().intValue() == 0) {
-                            LOGGER.warn("Transaction didn't execute any SQL statement!");
-                        }
-                    }
-
-                    @Override
-                    public void afterClose(MethodExecutionContext executionContext) {
-                        if(executionContext.getTarget() instanceof Connection) {
-                            queryCountHolder.remove();
-                        }
-                    }
-                })
+                .listener(listener)
                 .build();
-        return dataSource;
     }
 
     @Bean

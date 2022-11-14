@@ -1,9 +1,12 @@
 package com.vladmihalcea.book.hpjp.spring.data.save;
 
+import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.book.hpjp.spring.data.save.config.SpringDataJPASaveConfiguration;
 import com.vladmihalcea.book.hpjp.spring.data.save.domain.Post;
+import com.vladmihalcea.book.hpjp.spring.data.save.domain.PostComment;
 import com.vladmihalcea.book.hpjp.spring.data.save.repository.PostRepository;
-import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
+import com.vladmihalcea.book.hpjp.spring.data.save.service.PostService;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -12,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -22,7 +24,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -43,6 +44,9 @@ public class SpringDataJPASaveTest {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Autowired
+    private PostService postService;
 
     @Test
     public void testPersistAndMerge() {
@@ -109,6 +113,27 @@ public class SpringDataJPASaveTest {
         } catch (UnsupportedOperationException expected) {
             LOGGER.warn("You shouldn't call the JpaRepository save method!");
         }
+    }
+
+    @Test
+    @Ignore
+    public void testPersistManyToOne() {
+        Long postId = transactionTemplate.execute(transactionStatus -> {
+            Post post = new Post()
+                .setId(1L)
+                .setTitle("High-Performance Java Persistence")
+                .setSlug("high-performance-java-persistence");
+
+            postRepository.persist(post);
+
+            return post.getId();
+        });
+
+        LOGGER.info("Save PostComment");
+
+        SQLStatementCountValidator.reset();
+        postService.newComment("Awesome", postId);
+        SQLStatementCountValidator.assertSelectCount(0);
     }
 }
 

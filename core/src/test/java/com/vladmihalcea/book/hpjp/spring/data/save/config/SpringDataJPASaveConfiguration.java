@@ -19,6 +19,7 @@ import java.util.Properties;
 )
 @EnableJpaRepositories(
     basePackages = {
+        "com.vladmihalcea.book.hpjp.spring.data.save.service",
         "com.vladmihalcea.book.hpjp.spring.data.save.repository",
         "com.vladmihalcea.spring.repository"
     }
