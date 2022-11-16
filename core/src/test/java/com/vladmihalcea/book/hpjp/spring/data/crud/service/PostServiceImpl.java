@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
+
 /**
  * @author Vlad Mihalcea
  */
@@ -26,7 +28,11 @@ public class PostServiceImpl implements PostService {
     public PostComment addNewPostComment(String review, Long postId) {
         PostComment comment = new PostComment()
             .setReview(review)
-            .setPost(postRepository.findById(postId).orElse(null));
+            .setPost(postRepository.findById(postId).orElseThrow(
+                ()-> new EntityNotFoundException(
+                    String.format("Post with id [%d] was not found!", postId)
+                )
+            ));
 
         postCommentRepository.save(comment);
 
