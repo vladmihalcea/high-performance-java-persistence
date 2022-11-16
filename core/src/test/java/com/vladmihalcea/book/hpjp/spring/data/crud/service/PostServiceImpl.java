@@ -1,14 +1,12 @@
 package com.vladmihalcea.book.hpjp.spring.data.crud.service;
 
-import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.book.hpjp.spring.data.crud.domain.PostComment;
 import com.vladmihalcea.book.hpjp.spring.data.crud.repository.PostCommentRepository;
 import com.vladmihalcea.book.hpjp.spring.data.crud.repository.PostRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityNotFoundException;
 
 /**
  * @author Vlad Mihalcea
