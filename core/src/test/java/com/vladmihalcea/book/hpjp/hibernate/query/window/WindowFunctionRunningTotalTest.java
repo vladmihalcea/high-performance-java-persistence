@@ -311,6 +311,21 @@ public class WindowFunctionRunningTotalTest extends AbstractTest {
             assertEquals(2L, longValue(record5.transaction().getAccount().getId()));
             assertEquals(2560L, longValue(record5.balance()));
         });
+
+        doInJPA(entityManager -> {
+            List<Long> runningTotals = entityManager.createQuery("""
+                SELECT
+                   SUM(at.amount) OVER(
+                       PARTITION BY at.account.id
+                       ORDER BY at.createdOn
+                   ) AS balance
+                FROM AccountTransaction at
+                ORDER BY at.id
+                """, Long.class)
+            .getResultList();
+
+            assertEquals(8, runningTotals.size());
+        });
     }
 
     public static record StatementRecord(
