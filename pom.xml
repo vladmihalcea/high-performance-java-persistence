@@ -435,7 +435,7 @@
         <flexy-pool.version>2.0.0</flexy-pool.version>
 
         <aspectj.version>1.8.7</aspectj.version>
-        <spring.version>6.0.0-RC4</spring.version>
+        <spring.version>6.0.0</spring.version>
         <spring-data.version>3.0.0-RC2</spring-data.version>
 
         <jackson.version>2.12.6.1</jackson.version>
