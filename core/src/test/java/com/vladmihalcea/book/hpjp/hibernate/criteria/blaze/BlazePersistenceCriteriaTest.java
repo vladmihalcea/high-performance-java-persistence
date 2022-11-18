@@ -6,13 +6,16 @@ import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.JoinType;
 import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
 import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.hibernate.query.ListResultTransformer;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.ParameterExpression;
+import jakarta.persistence.criteria.Root;
 import org.hibernate.query.NativeQuery;
 import org.junit.Test;
 
 import jakarta.persistence.*;
-import java.util.ArrayList;
+
 import java.util.Date;
 import java.util.List;
 
@@ -277,6 +280,41 @@ public class BlazePersistenceCriteriaTest extends AbstractMySQLIntegrationTest {
         });
     }
 
+    @Test
+    public void testCriteriaAPIAlternative() {
+        final int maxCount = 50;
+        final String titlePattern = "High-Performance Java Persistence";
+
+        doInJPA(entityManager -> {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Post> criteria = builder.createQuery(Post.class);
+            Root<Post> post = criteria.from(Post.class);
+            ParameterExpression<String> parameterExpression = builder.parameter(String.class);
+            List<Post> posts = entityManager.createQuery(
+                    criteria
+                        .where(builder.like(post.get(Post_.TITLE), parameterExpression))
+                        .orderBy(builder.asc(post.get(Post_.ID)))
+                )
+                .setParameter(parameterExpression, titlePattern)
+                .setMaxResults(maxCount)
+                .getResultList();
+
+            assertEquals(1, posts.size());
+        });
+
+        doInJPA(entityManager -> {
+            List<Post> tuples = cbf.create(entityManager, Post.class)
+                .from(Post.class, "p")
+                .where(Post_.TITLE).like().expression(":titlePattern").noEscape()
+            .orderBy(Post_.ID, true)
+            .setParameter("titlePattern", titlePattern)
+            .setMaxResults(maxCount)
+            .getResultList();
+
+            assertEquals(1, tuples.size());
+        });
+    }
+
     @CTE
     @Entity
     public static class PostCommentMaxIdCTE {
@@ -302,142 +340,6 @@ public class BlazePersistenceCriteriaTest extends AbstractMySQLIntegrationTest {
         private Long id;
         private String postTitle;
         private Long commentCount;
-    }
-
-    @Entity(name = "Post")
-    @Table(name = "post")
-    public static class Post {
-
-        @Id
-        private Long id;
-
-        private String title;
-
-        @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-        private List<PostComment> comments = new ArrayList<>();
-
-        @OneToOne(cascade = CascadeType.ALL, mappedBy = "post",
-            orphanRemoval = true, fetch = FetchType.LAZY)
-        private PostDetails details;
-
-        @ManyToMany
-        @JoinTable(name = "post_tag",
-            joinColumns = @JoinColumn(name = "post_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-        )
-        private List<Tag> tags = new ArrayList<>();
-
-        public Long getId() {
-            return id;
-        }
-
-        public Post setId(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public Post setTitle(String title) {
-            this.title = title;
-            return this;
-        }
-
-        public List<PostComment> getComments() {
-            return comments;
-        }
-
-        private Post setComments(List<PostComment> comments) {
-            this.comments = comments;
-            return this;
-        }
-
-        public Post addComment(PostComment comment) {
-            comments.add(comment);
-            comment.setPost(this);
-
-            return this;
-        }
-
-        public Post removeComment(PostComment comment) {
-            comments.remove(comment);
-            comment.setPost(null);
-
-            return this;
-        }
-
-        public Post addDetails(PostDetails details) {
-            this.details = details;
-            details.setPost(this);
-
-            return this;
-        }
-
-        public Post removeDetails() {
-            this.details.setPost(null);
-            this.details = null;
-
-            return this;
-        }
-
-        public List<Tag> getTags() {
-            return tags;
-        }
-    }
-
-    @Entity(name = "PostComment")
-    @Table(name = "post_comment")
-    public static class PostComment {
-
-        @Id
-        private Long id;
-
-        private String review;
-
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "post_id")
-        private Post post;
-
-        public Long getId() {
-            return id;
-        }
-
-        public PostComment setId(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public String getReview() {
-            return review;
-        }
-
-        public PostComment setReview(String review) {
-            this.review = review;
-            return this;
-        }
-
-        public Post getPost() {
-            return post;
-        }
-
-        public PostComment setPost(Post post) {
-            this.post = post;
-            return this;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof PostComment)) return false;
-            return id != null && id.equals(((PostComment) o).getId());
-        }
-
-        @Override
-        public int hashCode() {
-            return getClass().hashCode();
-        }
     }
 
     @Entity(name = "PostDetails")

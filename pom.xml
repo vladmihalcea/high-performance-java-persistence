@@ -346,7 +346,7 @@
 
         <dependency>
             <groupId>com.blazebit</groupId>
-            <artifactId>blaze-persistence-core-impl</artifactId>
+            <artifactId>blaze-persistence-core-impl-jakarta</artifactId>
             <version>${blaze-persistence.version}</version>
         </dependency>
 
