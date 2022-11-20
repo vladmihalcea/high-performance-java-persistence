@@ -10,4 +10,6 @@ import org.springframework.stereotype.Service;
 public interface PostService {
 
     PostComment addNewPostComment(String review, Long postId);
+
+    PostComment addNewPostCommentRaceCondition(String review, Long postId);
 }

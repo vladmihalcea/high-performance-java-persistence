@@ -16,6 +16,7 @@ public class PostComment {
     private String review;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(foreignKey = @ForeignKey(name = "FK_POST_COMMENT_POST_ID"))
     private Post post;
 
     public Long getId() {

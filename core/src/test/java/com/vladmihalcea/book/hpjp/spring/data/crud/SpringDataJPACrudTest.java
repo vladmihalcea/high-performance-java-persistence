@@ -5,12 +5,14 @@ import com.vladmihalcea.book.hpjp.spring.data.crud.config.SpringDataJPACrudConfi
 import com.vladmihalcea.book.hpjp.spring.data.crud.domain.Post;
 import com.vladmihalcea.book.hpjp.spring.data.crud.repository.PostRepository;
 import com.vladmihalcea.book.hpjp.spring.data.crud.service.PostService;
+import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
@@ -135,6 +138,28 @@ public class SpringDataJPACrudTest {
         //The sequence call
         SQLStatementCountValidator.assertSelectCount(1);
         SQLStatementCountValidator.assertInsertCount(1);
+    }
+
+    @Test
+    public void testSaveWithFindByIdRepeatableRead() {
+        Long postId = transactionTemplate.execute(transactionStatus -> {
+            Post post = new Post()
+                .setId(1L)
+                .setTitle("High-Performance Java Persistence")
+                .setSlug("high-performance-java-persistence");
+
+            postRepository.persist(post);
+
+            return post.getId();
+        });
+
+        LOGGER.info("Save PostComment");
+
+        try {
+            postService.addNewPostCommentRaceCondition("Best book on JPA and Hibernate!", postId);
+        } catch (DataIntegrityViolationException e) {
+            LOGGER.error("Failure", e);
+        }
     }
 }
 
