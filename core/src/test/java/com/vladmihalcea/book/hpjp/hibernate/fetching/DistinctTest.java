@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Vlad Mihalcea
  */
@@ -95,7 +97,7 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
-    public void testWithDistinct() {
+    public void testAutoDeduplication() {
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery("""
                 select distinct p
@@ -106,23 +108,8 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
             .setParameter("title", "High-Performance Java Persistence eBook has been released!")
             .getResultList();
 
-            LOGGER.info("Fetched the following Post entity identifiers: {}", posts.stream().map(Post::getId).collect(Collectors.toList()));
-        });
-    }
-
-    @Test
-    public void testWithDistinctAndQueryHint() {
-        doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery("""
-                select distinct p
-                from Post p
-                left join fetch p.comments
-                where p.title = :title
-                """, Post.class)
-            .setParameter("title", "High-Performance Java Persistence eBook has been released!")
-            .getResultList();
-
-            LOGGER.info("Fetched the following Post entity identifiers: {}", posts.stream().map(Post::getId).collect(Collectors.toList()));
+            assertEquals(1, posts.size());
+            assertEquals(2, posts.get(0).getComments().size());
         });
     }
 
@@ -170,6 +157,10 @@ public class DistinctTest extends AbstractPostgreSQLIntegrationTest {
         public Post setCreatedOn(LocalDate createdOn) {
             this.createdOn = createdOn;
             return this;
+        }
+
+        public List<PostComment> getComments() {
+            return comments;
         }
 
         public Post addComment(PostComment comment) {
