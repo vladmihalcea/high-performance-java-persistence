@@ -62,7 +62,7 @@ public class BatchMergeVsUpdateTest extends AbstractTest {
     public void testMerge() {
         List<Post> posts = doInJPA(entityManager -> {
             return entityManager.createQuery("""
-                select distinct p
+                select p
                 from Post p
                 join fetch p.comments
                 """, Post.class)
@@ -88,7 +88,7 @@ public class BatchMergeVsUpdateTest extends AbstractTest {
     public void testUpdate() {
         List<Post> posts = doInJPA(entityManager -> {
             return entityManager.createQuery("""
-                select distinct p
+                select p
                 from Post p
                 join fetch p.comments
                 """, Post.class)

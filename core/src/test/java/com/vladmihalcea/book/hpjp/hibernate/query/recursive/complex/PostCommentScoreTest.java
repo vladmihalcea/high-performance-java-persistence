@@ -221,7 +221,7 @@ public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
                 "              LEFT JOIN post_comment_vote ON comment_id = id " +
                 "              WHERE post_id = :postId AND parent_id IS NULL " +
                 "              UNION ALL " +
-                "              SELECT distinct pc.id, pcs.root_id, pc.post_id, pc.parent_id, " +
+                "              select pc.id, pcs.root_id, pc.post_id, pc.parent_id, " +
                 "                  pc.review, pc.created_on, pcv.user_id, CASE WHEN pcv.up IS NULL THEN 0 " +
                 "                  WHEN pcv.up = true THEN 1 ELSE - 1 END score " +
                 "              FROM post_comment pc " +

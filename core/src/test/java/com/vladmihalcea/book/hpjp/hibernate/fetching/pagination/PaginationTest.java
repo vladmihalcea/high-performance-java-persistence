@@ -221,7 +221,7 @@ public class PaginationTest extends AbstractTest {
             .getResultList();
 
             List<Post> posts = entityManager.createQuery("""
-                select distinct p
+                select p
                 from Post p
                 left join fetch p.comments
                 where p.id in (:postIds)

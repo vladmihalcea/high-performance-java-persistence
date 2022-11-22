@@ -161,7 +161,7 @@ public class SubqueryExistsTest extends AbstractTest {
     public void testJoin() {
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery("""
-                select distinct p
+                select p
                 from PostComment pc
                 join pc.post p
                 where pc.score > :minScore

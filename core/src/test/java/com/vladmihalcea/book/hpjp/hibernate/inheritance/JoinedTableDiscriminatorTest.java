@@ -145,7 +145,7 @@ public class JoinedTableDiscriminatorTest extends AbstractTest {
         doInJPA(entityManager -> {
             List<Board> postOnlyBoards = entityManager
             .createQuery(
-                "select distinct b " +
+                "select b " +
                 "from Board b " +
                 "where Post = all (" +
                 "   select type(t) from Topic t where t.board = b" +

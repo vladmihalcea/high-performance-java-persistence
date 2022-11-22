@@ -62,7 +62,7 @@ public class FlushOrderBidirectionalOneToManyMergeTest extends AbstractTest {
     public Post fetchPostWithComments(Long postId) {
         return doInJPA(entityManager -> {
             return entityManager.createQuery(
-                "select distinct p " +
+                "select p " +
                 "from Post p " +
                 "join fetch p.comments " +
                 "where p.id = :postId ", Post.class)

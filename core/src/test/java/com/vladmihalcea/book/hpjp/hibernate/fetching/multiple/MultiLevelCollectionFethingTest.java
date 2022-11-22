@@ -108,7 +108,7 @@ public class MultiLevelCollectionFethingTest extends AbstractPostgreSQLIntegrati
     public void testTwoJoinFetchQueries() {
         List<Post> posts = doInJPA(entityManager -> {
             List<Post> _posts = entityManager.createQuery("""
-                select distinct p
+                select p
                 from Post p
                 left join fetch p.comments
                 where p.id between :minId and :maxId
@@ -118,7 +118,7 @@ public class MultiLevelCollectionFethingTest extends AbstractPostgreSQLIntegrati
             .getResultList();
 
             entityManager.createQuery("""
-                select distinct p
+                select p
                 from Post p
                 left join fetch p.tags t
                 where p in :posts
@@ -127,7 +127,7 @@ public class MultiLevelCollectionFethingTest extends AbstractPostgreSQLIntegrati
             .getResultList();
 
             entityManager.createQuery("""
-                select distinct pc
+                select pc
                 from PostComment pc
                 left join fetch pc.votes t
                 join pc.post p

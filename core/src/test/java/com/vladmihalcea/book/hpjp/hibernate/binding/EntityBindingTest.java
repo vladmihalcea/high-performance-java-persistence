@@ -142,7 +142,7 @@ public class EntityBindingTest extends AbstractTest {
     public void testJPAParameterBinding() {
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery(
-                "select distinct p " +
+                "select p " +
                 "from Post p " +
                 "join fetch p.comments " +
                 "where " +

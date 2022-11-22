@@ -166,7 +166,7 @@ public class DefaultDirtyCheckingPerformanceTest extends AbstractTest {
 
     private List<Post> posts(EntityManager entityManager) {
         return entityManager.createQuery(
-            "select distinct pc " +
+            "select pc " +
             "from PostComment pc " +
             "join fetch pc.post p " +
             "join fetch p.tags " +

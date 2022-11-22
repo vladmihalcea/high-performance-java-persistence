@@ -108,7 +108,7 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
     public void testTwoJoinFetchQueries() {
         List<Post> _posts = doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery("""
-                select distinct p
+                select p
                 from Post p
                 left join fetch p.comments
                 where p.id between :minId and :maxId
@@ -118,7 +118,7 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
             .getResultList();
 
             posts = entityManager.createQuery("""
-                select distinct p
+                select p
                 from Post p
                 left join fetch p.tags t
                 where p in :posts
@@ -141,7 +141,7 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
     public void testTwoJoinFetchQueriesWithoutInClause() {
         List<Post> _posts = doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery("""
-                select distinct p
+                select p
                 from Post p
                 left join fetch p.comments
                 where p.id between :minId and :maxId
@@ -151,7 +151,7 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
             .getResultList();
 
             posts = entityManager.createQuery("""
-                select distinct p
+                select p
                 from Post p
                 left join fetch p.tags t
                 where p.id between :minId and :maxId

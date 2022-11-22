@@ -17,7 +17,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, CustomPostRep
     //This query will throw a MultipleBagFetchException when Spring bootstraps
     /*
     @Query("""
-        select distinct p
+        select p
         from Post p
         left join fetch p.comments
         left join fetch p.tags
@@ -27,7 +27,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, CustomPostRep
     */
 
     @Query("""
-        select distinct p
+        select p
         from Post p
         left join fetch p.comments
         where p.id between :minId and :maxId
@@ -35,7 +35,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, CustomPostRep
     List<Post> findAllWithComments(@Param("minId") long minId, @Param("maxId") long maxId);
 
     @Query("""
-        select distinct p
+        select p
         from Post p
         left join fetch p.tags
         where p.id between :minId and :maxId

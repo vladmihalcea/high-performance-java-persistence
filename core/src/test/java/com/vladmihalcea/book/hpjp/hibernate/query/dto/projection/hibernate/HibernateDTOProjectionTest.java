@@ -276,7 +276,7 @@ public class HibernateDTOProjectionTest extends AbstractTest {
     public void testParentChildEntityProjectionJPQLResultTransformer() {
         doInJPA( entityManager -> {
             List<Post> posts = entityManager.createQuery("""
-                select distinct p
+                select p
                 from Post p
                 join fetch p.comments pc
                 order by pc.id
