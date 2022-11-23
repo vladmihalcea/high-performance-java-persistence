@@ -11,7 +11,9 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.ParameterExpression;
 import jakarta.persistence.criteria.Root;
+import org.hibernate.Session;
 import org.hibernate.query.NativeQuery;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.junit.Test;
 
 import jakarta.persistence.*;
@@ -312,6 +314,32 @@ public class BlazePersistenceCriteriaTest extends AbstractMySQLIntegrationTest {
             .getResultList();
 
             assertEquals(1, tuples.size());
+        });
+    }
+
+    @Test
+    public void testHibernateCriteriaAPI() {
+        final int maxCount = 50;
+        final String titlePattern = "High-Performance Java Persistence";
+
+        doInJPA(entityManager -> {
+            HibernateCriteriaBuilder builder = entityManager
+                .unwrap(Session.class)
+                .getCriteriaBuilder();
+
+            CriteriaQuery<Post> criteria = builder.createQuery(Post.class);
+            Root<Post> post = criteria.from(Post.class);
+            ParameterExpression<String> parameterExpression = builder.parameter(String.class);
+            List<Post> posts = entityManager.createQuery(
+                    criteria
+                        .where(builder.ilike(post.get(Post_.TITLE), parameterExpression))
+                        .orderBy(builder.asc(post.get(Post_.ID)))
+                )
+                .setParameter(parameterExpression, titlePattern)
+                .setMaxResults(maxCount)
+                .getResultList();
+
+            assertEquals(1, posts.size());
         });
     }
 

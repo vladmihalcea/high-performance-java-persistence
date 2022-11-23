@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.inheritance.spring;
 import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.config.BehaviorDrivenInheritanceConfiguration;
 import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.model.EmailSubscriber;
 import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.model.SmsSubscriber;
+import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.model.Subscriber;
 import com.vladmihalcea.book.hpjp.hibernate.inheritance.spring.service.CampaignService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +19,10 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author Vlad Mihalcea
@@ -63,5 +68,55 @@ public class BehaviorDrivenInheritanceTest {
         }
 
         campaignService.send("Black Friday", "High-Performance Java Persistence is 40% OFF");
+    }
+
+    @Test
+    public void testStaticTypeHandlingIfElse() {
+        List<Subscriber> subscribers = entityManager.createQuery("""
+            select s 
+            from Subscriber s
+            order by s.id
+            """)
+        .getResultList();
+
+        subscribers.stream()
+        .forEach(sub -> {
+            if(sub instanceof EmailSubscriber emailSub) {
+                LOGGER.info("Send email to address [{}]", emailSub.getEmailAddress());
+            } else if(sub instanceof SmsSubscriber smsSub) {
+                LOGGER.info("Send SMS to phone number [{}]", smsSub.getPhoneNumber());
+            } else {
+                throw new IllegalStateException(
+                    String.format("The [%s] type is not supported!", sub.getClass())
+                );
+            }
+        });
+    }
+
+    @Test
+    public void testStaticTypeHandlingSwitch() {
+        List<Subscriber> subscribers = entityManager.createQuery("""
+            select s 
+            from Subscriber s
+            order by s.id
+            """, Subscriber.class)
+        .getResultList();
+
+        //Preview feature - requires Java 19 language preview
+        /*subscribers.stream()
+        .forEach(sub -> {
+            switch (sub) {
+                case EmailSubscriber emailSub ->
+                    LOGGER.info("Send email to address [{}]", emailSub.getEmailAddress());
+                case SmsSubscriber smsSub ->
+                    LOGGER.info("Send SMS to phone number [{}]", smsSub.getPhoneNumber());
+                default -> throw new IllegalStateException(
+                    String.format(
+                        "The [%s] type is not supported!",
+                        sub.getClass()
+                    )
+                );
+            }
+        });*/
     }
 }
