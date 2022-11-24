@@ -2,8 +2,10 @@ package com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.hibernate;
 
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.Post;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.PostComment;
+import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.DistinctListTransformer;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTOResultTransformer;
+import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTOTupleTransformer;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.hibernate.query.ListResultTransformer;
@@ -96,7 +98,7 @@ public class HibernateDTOProjectionTest extends AbstractTest {
                 order by p.id
                 """)
             .unwrap(org.hibernate.query.Query.class)
-            .setResultTransformer(Transformers.aliasToBean(PostDTO.class))
+            .setTupleTransformer(Transformers.aliasToBean(PostDTO.class))
             .getResultList();
 
             assertEquals(2, postDTOs.size());
@@ -138,7 +140,7 @@ public class HibernateDTOProjectionTest extends AbstractTest {
                 ORDER BY p.id
                 """)
             .unwrap(org.hibernate.query.Query.class)
-            .setResultTransformer(Transformers.aliasToBean(PostDTO.class))
+            .setTupleTransformer(Transformers.aliasToBean(PostDTO.class))
             .getResultList();
 
             assertEquals(2, postDTOs.size());
@@ -216,6 +218,42 @@ public class HibernateDTOProjectionTest extends AbstractTest {
                 """)
             .unwrap(org.hibernate.query.Query.class)
             .setResultTransformer(new PostDTOResultTransformer())
+            .getResultList();
+
+            assertEquals(2, postDTOs.size());
+            assertEquals(2, postDTOs.get(0).getComments().size());
+            assertEquals(1, postDTOs.get(1).getComments().size());
+
+            PostDTO post1DTO = postDTOs.get(0);
+
+            assertEquals(1L, post1DTO.getId().longValue());
+            assertEquals(2, post1DTO.getComments().size());
+            assertEquals(1L, post1DTO.getComments().get(0).getId().longValue());
+            assertEquals(2L, post1DTO.getComments().get(1).getId().longValue());
+
+            PostDTO post2DTO = postDTOs.get(1);
+
+            assertEquals(2L, post2DTO.getId().longValue());
+            assertEquals(1, post2DTO.getComments().size());
+            assertEquals(3L, post2DTO.getComments().get(0).getId().longValue());
+        } );
+    }
+
+    @Test
+    public void testParentChildDTOProjectionNativeQueryTupleTransformer() {
+        doInJPA( entityManager -> {
+            List<PostDTO> postDTOs = entityManager.createNativeQuery("""
+                SELECT p.id AS p_id, 
+                       p.title AS p_title,
+                       pc.id AS pc_id, 
+                       pc.review AS pc_review
+                FROM post p
+                JOIN post_comment pc ON p.id = pc.post_id
+                ORDER BY pc.id
+                """)
+            .unwrap(org.hibernate.query.Query.class)
+            .setTupleTransformer(new PostDTOTupleTransformer())
+            .setResultListTransformer(DistinctListTransformer.INSTANCE)
             .getResultList();
 
             assertEquals(2, postDTOs.size());
