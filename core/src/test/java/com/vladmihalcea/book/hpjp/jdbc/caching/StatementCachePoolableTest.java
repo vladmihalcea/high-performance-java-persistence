@@ -1,14 +1,10 @@
 package com.vladmihalcea.book.hpjp.jdbc.caching;
 
+import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
+import com.vladmihalcea.book.hpjp.util.providers.*;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.JTDSDataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
-import net.sourceforge.jtds.jdbcx.JtdsDataSource;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 import org.postgresql.ds.PGSimpleDataSource;
@@ -62,23 +58,24 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
         }
     }
 
-    public static class CachingJTDSDataSourceProvider extends JTDSDataSourceProvider {
+    public static class CachingSQLServerDataSourceProvider extends SQLServerDataSourceProvider {
         private final int cacheSize;
 
-        CachingJTDSDataSourceProvider(int cacheSize) {
+        CachingSQLServerDataSourceProvider(int cacheSize) {
             this.cacheSize = cacheSize;
         }
 
         @Override
         public DataSource dataSource() {
-            JtdsDataSource dataSource = (JtdsDataSource) super.dataSource();
-            dataSource.setMaxStatements(cacheSize);
+            SQLServerDataSource dataSource = (SQLServerDataSource) super.dataSource();
+            dataSource.setDisableStatementPooling(false);
+            dataSource.setStatementPoolingCacheSize(cacheSize);
             return dataSource;
         }
 
         @Override
         public String toString() {
-            return "CachingJTDSDataSourceProvider{" +
+            return "CachingSQLServerDataSourceProvider{" +
                     "cacheSize=" + cacheSize +
                     '}';
         }
@@ -123,7 +120,7 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
                 new CachingOracleDataSourceProvider(1)
         });
         providers.add(new DataSourceProvider[]{
-                new CachingJTDSDataSourceProvider(1)
+                new CachingSQLServerDataSourceProvider(1)
         });
         providers.add(new DataSourceProvider[]{
                 new CachingPostgreSQLDataSourceProvider(1)

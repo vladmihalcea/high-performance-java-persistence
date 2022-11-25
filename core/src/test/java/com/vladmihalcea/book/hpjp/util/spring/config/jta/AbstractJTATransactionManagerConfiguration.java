@@ -4,10 +4,10 @@ import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImpl
 import com.arjuna.ats.internal.jta.transaction.arjunacore.UserTransactionImple;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
-import jakarta.transaction.SystemException;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
-import org.hibernate.engine.transaction.jta.platform.internal.BitronixJtaPlatform;
+import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.engine.transaction.jta.platform.internal.JBossStandAloneJtaPlatform;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
@@ -106,11 +106,12 @@ public abstract class AbstractJTATransactionManagerConfiguration {
 
     protected Properties additionalProperties() {
         Properties properties = new Properties();
-
-        properties.setProperty("hibernate.transaction.jta.platform", BitronixJtaPlatform.class.getName());
+        properties.put(
+            AvailableSettings.JTA_PLATFORM,
+            JBossStandAloneJtaPlatform.class
+        );
         properties.setProperty("hibernate.dialect", hibernateDialect);
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-
         return properties;
     }
 }

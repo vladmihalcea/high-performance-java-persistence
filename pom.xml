@@ -200,13 +200,6 @@
         </dependency>
 
         <dependency>
-            <groupId>net.sourceforge.jtds</groupId>
-            <artifactId>jtds</artifactId>
-            <version>${jtds.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
             <version>${dropwizard.metrics.version}</version>
@@ -225,14 +218,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jboss.jbossts</groupId>
-            <artifactId>jbossjta</artifactId>
-            <version>${jboss-jta.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.jboss.narayana.jta</groupId>
-            <artifactId>narayana-jta</artifactId>
+            <artifactId>narayana-jta-jakarta</artifactId>
             <version>${narayana-jta.version}</version>
         </dependency>
 
@@ -421,9 +408,7 @@
         <mysql.version>8.0.22</mysql.version>
         <mariadb.version>2.2.3</mariadb.version>
         <mssql.version>9.4.0.jre16</mssql.version>
-        <jtds.version>1.3.1</jtds.version>
 
-        <jboss-jta.version>4.16.6.Final</jboss-jta.version>
         <narayana-jta.version>5.12.6.Final</narayana-jta.version>
 
         <jaxb-api.version>2.2.7</jaxb-api.version>

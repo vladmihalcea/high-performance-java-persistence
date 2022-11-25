@@ -7,7 +7,6 @@ import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.*;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
-import net.sourceforge.jtds.jdbcx.JtdsDataSource;
 import oracle.jdbc.pool.OracleDataSource;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -60,28 +59,6 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
         @Override
         public String toString() {
             return "CachingOracleDataSourceProvider{" +
-                    "cacheSize=" + cacheSize +
-                    '}';
-        }
-    }
-
-    public static class CachingJTDSDataSourceProvider extends JTDSDataSourceProvider {
-        private final int cacheSize;
-
-        CachingJTDSDataSourceProvider(int cacheSize) {
-            this.cacheSize = cacheSize;
-        }
-
-        @Override
-        public DataSource dataSource() {
-            JtdsDataSource dataSource = (JtdsDataSource) super.dataSource();
-            dataSource.setMaxStatements(cacheSize);
-            return dataSource;
-        }
-
-        @Override
-        public String toString() {
-            return "CachingJTDSDataSourceProvider{" +
                     "cacheSize=" + cacheSize +
                     '}';
         }
