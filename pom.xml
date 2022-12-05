@@ -355,6 +355,12 @@
             <version>${blaze-persistence.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.f4b6a3</groupId>
+            <artifactId>tsid-creator</artifactId>
+            <version>${tsid-creator.version}</version>
+        </dependency>
+
         <!-- Testing -->
 
         <dependency>
@@ -429,6 +435,8 @@
         <hibernate-types.version>2.20.0</hibernate-types.version>
 
         <blaze-persistence.version>1.6.7</blaze-persistence.version>
+
+        <tsid-creator.version>5.0.2</tsid-creator.version>
 
         <hypersistence-optimizer.version>2.4.2</hypersistence-optimizer.version>
 
