@@ -62,7 +62,7 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
             	dml_created_by varchar(255) NOT NULL,
             	trx_timestamp timestamp NOT NULL,
             	PRIMARY KEY (book_id, dml_type, dml_timestamp)
-            ) 
+            )
             """
         );
 
