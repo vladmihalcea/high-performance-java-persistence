@@ -427,7 +427,7 @@
 
         <aspectj.version>1.8.7</aspectj.version>
         <spring.version>6.0.0</spring.version>
-        <spring-data.version>3.0.0-RC2</spring-data.version>
+        <spring-data.version>3.0.0</spring-data.version>
 
         <jackson.version>2.12.6.1</jackson.version>
 
