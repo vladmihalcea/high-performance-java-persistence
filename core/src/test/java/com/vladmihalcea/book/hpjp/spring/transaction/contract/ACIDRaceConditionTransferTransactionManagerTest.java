@@ -1,9 +1,11 @@
-package com.vladmihalcea.book.hpjp.spring.transaction.transfer;
+package com.vladmihalcea.book.hpjp.spring.transaction.contract;
 
-import com.vladmihalcea.book.hpjp.spring.transaction.transfer.config.ACIDRaceConditionTransferTransactionManagerConfiguration;
-import com.vladmihalcea.book.hpjp.spring.transaction.transfer.service.TransferService;
-import com.vladmihalcea.book.hpjp.spring.transaction.transfer.domain.Account;
-import com.vladmihalcea.book.hpjp.spring.transaction.transfer.repository.AccountRepository;
+import com.vladmihalcea.book.hpjp.spring.transaction.contract.config.ACIDRaceConditionTransferTransactionManagerConfiguration;
+import com.vladmihalcea.book.hpjp.spring.transaction.contract.domain.Account;
+import com.vladmihalcea.book.hpjp.spring.transaction.contract.repository.AccountRepository;
+import com.vladmihalcea.book.hpjp.spring.transaction.contract.service.TransferService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,9 +19,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 
 import java.util.List;
 import java.util.concurrent.*;
