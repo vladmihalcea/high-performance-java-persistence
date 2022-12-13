@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.spring.transaction.contract.config;
 
+import com.vladmihalcea.book.hpjp.spring.transaction.contract.event.RootAwareEventListenerIntegratorProvider;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
@@ -10,6 +11,7 @@ import jakarta.persistence.EntityManagerFactory;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +20,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -34,13 +35,13 @@ import java.util.Properties;
 @Configuration
 @ComponentScan(
     basePackages = {
-        "com.vladmihalcea.book.hpjp.spring.transaction.transfer.service",
+        "com.vladmihalcea.book.hpjp.spring.transaction.contract.service",
     }
 )
-@EnableJpaRepositories("com.vladmihalcea.book.hpjp.spring.transaction.transfer.repository")
+@EnableJpaRepositories("com.vladmihalcea.book.hpjp.spring.transaction.contract.repository")
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-public class ACIDRaceConditionTransferTransactionManagerConfiguration {
+public class ContractConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 
@@ -87,9 +88,7 @@ public class ACIDRaceConditionTransferTransactionManagerConfiguration {
         entityManagerFactoryBean.setPersistenceProvider(new HibernatePersistenceProvider());
         entityManagerFactoryBean.setDataSource(dataSource());
         entityManagerFactoryBean.setPackagesToScan(packagesToScan());
-
-        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        entityManagerFactoryBean.setJpaVendorAdapter(vendorAdapter);
+        entityManagerFactoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         entityManagerFactoryBean.setJpaProperties(additionalProperties());
         return entityManagerFactoryBean;
     }
@@ -113,14 +112,17 @@ public class ACIDRaceConditionTransferTransactionManagerConfiguration {
 
     protected Properties additionalProperties() {
         Properties properties = new Properties();
-        properties.setProperty("hibernate.dialect", dataSourceProvider().hibernateDialect());
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+        properties.setProperty(
+            EntityManagerFactoryBuilderImpl.INTEGRATOR_PROVIDER,
+            RootAwareEventListenerIntegratorProvider.class.getName()
+        );
         return properties;
     }
 
     protected String[] packagesToScan() {
         return new String[]{
-            "com.vladmihalcea.book.hpjp.spring.transaction.transfer.domain"
+            "com.vladmihalcea.book.hpjp.spring.transaction.contract.domain"
         };
     }
 }

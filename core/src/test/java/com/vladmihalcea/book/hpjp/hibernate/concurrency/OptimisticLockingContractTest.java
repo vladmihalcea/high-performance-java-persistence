@@ -157,7 +157,7 @@ public class OptimisticLockingContractTest extends AbstractTest {
                 .setPost(contract);
 
             Signature signature1 = new Signature()
-                .setComment(annex1)
+                .setAnnex(annex1)
                 .setUserName("Vlad Mihalcea");
 
             Annex annex2 = new Annex()
@@ -166,7 +166,7 @@ public class OptimisticLockingContractTest extends AbstractTest {
                 .setPost(contract);
 
             Signature signature2 = new Signature()
-                .setComment(annex2)
+                .setAnnex(annex2)
                 .setUserName("Vlad Mihalcea");
 
             entityManager.persist(contract);
@@ -179,9 +179,9 @@ public class OptimisticLockingContractTest extends AbstractTest {
         doInJPA(entityManager -> {
             Signature signature = entityManager.createQuery("""
                     select pcd
-                    from Signature pcd
-                    join fetch pcd.comment pc
-                    join fetch pc.post p
+                    from AnnexSignature pcd
+                    join fetch pcd.annex pc
+                    join fetch pc.contract p
                     where pcd.id = :id
                     """, Signature.class)
             .setParameter("id", 2L)
@@ -194,7 +194,7 @@ public class OptimisticLockingContractTest extends AbstractTest {
             Annex annex = entityManager.createQuery("""
                 select pc
                 from Annex pc
-                join fetch pc.post p
+                join fetch pc.contract p
                 where pc.id = :id
                 """, Annex.class)
             .setParameter("id", 2L)
@@ -310,7 +310,7 @@ public class OptimisticLockingContractTest extends AbstractTest {
         @OneToOne(fetch = FetchType.LAZY)
         @MapsId
         @OnDelete( action = OnDeleteAction.CASCADE )
-        private Annex comment;
+        private Annex annex;
 
         private String userName;
 
@@ -323,12 +323,12 @@ public class OptimisticLockingContractTest extends AbstractTest {
             return this;
         }
 
-        public Annex getComment() {
-            return comment;
+        public Annex getAnnex() {
+            return annex;
         }
 
-        public Signature setComment(Annex comment) {
-            this.comment = comment;
+        public Signature setAnnex(Annex comment) {
+            this.annex = comment;
             return this;
         }
 
@@ -343,7 +343,7 @@ public class OptimisticLockingContractTest extends AbstractTest {
 
         @Override
         public Contract root() {
-            return comment.root();
+            return annex.root();
         }
     }
 }
