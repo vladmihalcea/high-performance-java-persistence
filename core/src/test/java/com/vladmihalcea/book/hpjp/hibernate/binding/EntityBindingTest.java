@@ -127,12 +127,12 @@ public class EntityBindingTest extends AbstractTest {
                 post = new Post(postId);
                 postMap.put(postId, post);
                 post.setTitle(resultSet.getString(2));
-                post.setVersion(resultSet.getInt(3));
+                post.setVersion(resultSet.getShort(3));
             }
             PostComment comment = new PostComment();
             comment.setId(resultSet.getLong(4));
             comment.setReview(resultSet.getString(5));
-            comment.setVersion(resultSet.getInt(6));
+            comment.setVersion(resultSet.getShort(6));
             post.addComment(comment);
         }
         return new ArrayList<>(postMap.values());

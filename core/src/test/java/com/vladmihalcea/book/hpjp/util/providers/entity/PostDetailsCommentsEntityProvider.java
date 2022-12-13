@@ -31,7 +31,7 @@ public class PostDetailsCommentsEntityProvider implements EntityProvider {
             private String title;
 
             @Version
-            private int version;
+            private short version;
 
             public Post() {
             }
@@ -72,10 +72,6 @@ public class PostDetailsCommentsEntityProvider implements EntityProvider {
                 return version;
             }
 
-            public void setVersion(int version) {
-                this.version = version;
-            }
-
             public List<PostComment> getComments() {
                 return comments;
             }
@@ -114,7 +110,7 @@ public class PostDetailsCommentsEntityProvider implements EntityProvider {
             private String createdBy;
 
             @Version
-            private int version;
+            private short version;
 
             public PostDetails() {
                 createdOn = new Date();
@@ -159,10 +155,6 @@ public class PostDetailsCommentsEntityProvider implements EntityProvider {
             public int getVersion() {
                 return version;
             }
-
-            public void setVersion(int version) {
-                this.version = version;
-            }
         }
 
         @Entity(name = "PostComment")
@@ -176,7 +168,7 @@ public class PostDetailsCommentsEntityProvider implements EntityProvider {
             private Post post;
 
             @Version
-            private int version;
+            private short version;
 
             private String review;
 
@@ -214,10 +206,6 @@ public class PostDetailsCommentsEntityProvider implements EntityProvider {
 
             public int getVersion() {
                 return version;
-            }
-
-            public void setVersion(int version) {
-                this.version = version;
             }
         }
     }

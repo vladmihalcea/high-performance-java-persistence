@@ -87,7 +87,7 @@ public class SoftDeleteVersionTest extends AbstractTest {
 		private String id;
 
 		@Version
-		private int version;
+		private short version;
 
 		public String getId() {
 			return id;

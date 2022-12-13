@@ -140,7 +140,7 @@ public class VersionedBatchingTest extends AbstractTest {
         private String title;
 
         @Version
-        private int version;
+        private short version;
 
         @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
                 orphanRemoval = true)
@@ -196,7 +196,7 @@ public class VersionedBatchingTest extends AbstractTest {
         private String review;
 
         @Version
-        private int version;
+        private short version;
 
         public PostComment() {}
 

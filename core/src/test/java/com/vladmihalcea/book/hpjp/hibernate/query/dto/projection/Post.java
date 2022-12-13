@@ -65,7 +65,7 @@ public class Post {
 	private String updatedBy;
 
 	@Version
-	private Integer version;
+	private Short version;
 
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<PostComment> comments = new ArrayList<>();
@@ -124,11 +124,11 @@ public class Post {
 		return this;
 	}
 
-	public Integer getVersion() {
+	public Short getVersion() {
 		return version;
 	}
 
-	public Post setVersion(Integer version) {
+	public Post setVersion(Short version) {
 		this.version = version;
 		return this;
 	}

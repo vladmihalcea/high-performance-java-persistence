@@ -43,7 +43,7 @@ public class HibernateSaveSequenceTest extends AbstractTest {
         private String title;
 
         @Version
-        private Long version;
+        private Short version;
 
         public Long getId() {
             return id;

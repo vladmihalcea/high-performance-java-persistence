@@ -20,7 +20,7 @@ public class VersionTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Product.class
+            Product.class
         };
     }
 
@@ -136,7 +136,7 @@ public class VersionTest extends AbstractTest {
         private int quantity;
 
         @Version
-        private int version;
+        private short version;
 
         public Long getId() {
             return id;
@@ -161,7 +161,7 @@ public class VersionTest extends AbstractTest {
         }
 
         public Product setVersion(int version) {
-            this.version = version;
+            this.version = (short) version;
             return this;
         }
     }

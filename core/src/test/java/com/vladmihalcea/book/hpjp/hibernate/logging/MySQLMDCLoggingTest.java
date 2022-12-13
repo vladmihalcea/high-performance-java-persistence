@@ -114,7 +114,7 @@ public class MySQLMDCLoggingTest extends AbstractMySQLIntegrationTest {
         private String title;
 
         @Version
-        private int version;
+        private short version;
 
         public Long getId() {
             return id;

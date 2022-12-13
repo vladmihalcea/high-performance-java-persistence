@@ -74,7 +74,7 @@ public class CascadeLockManyToOneTest extends AbstractTest {
         private String body;
 
         @Version
-        private int version;
+        private short version;
 
         public Post() {}
 
@@ -116,7 +116,7 @@ public class CascadeLockManyToOneTest extends AbstractTest {
         private String review;
 
         @Version
-        private int version;
+        private short version;
 
         public PostComment() {}
 

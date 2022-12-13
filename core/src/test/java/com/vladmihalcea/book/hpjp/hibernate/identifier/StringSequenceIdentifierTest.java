@@ -67,7 +67,7 @@ public class StringSequenceIdentifierTest extends AbstractPostgreSQLIntegrationT
         private String id;
 
         @Version
-        private Integer version;
+        private Short version;
 
         public Post() {
         }
@@ -98,7 +98,7 @@ public class StringSequenceIdentifierTest extends AbstractPostgreSQLIntegrationT
         private String id;
 
         @Version
-        private Integer version;
+        private Short version;
 
         public Board() {
         }

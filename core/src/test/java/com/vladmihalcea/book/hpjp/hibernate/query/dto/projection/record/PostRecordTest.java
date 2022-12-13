@@ -215,7 +215,7 @@ public class PostRecordTest extends AbstractTest {
         private String updatedBy;
 
         @Version
-        private Integer version;
+        private Short version;
 
         public Long getId() {
             return id;
@@ -271,11 +271,11 @@ public class PostRecordTest extends AbstractTest {
             return this;
         }
 
-        public Integer getVersion() {
+        public Short getVersion() {
             return version;
         }
 
-        public Post setVersion(Integer version) {
+        public Post setVersion(Short version) {
             this.version = version;
             return this;
         }

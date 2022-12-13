@@ -97,7 +97,7 @@ public class RefreshTest extends AbstractTest {
         private String createdOn;
 
         @Version
-        private int version;
+        private short version;
 
         public Post() {
         }

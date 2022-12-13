@@ -92,7 +92,7 @@ public class ReadOnlyCacheConcurrencyStrategyImmutableTest extends AbstractTest 
         private String title;
 
         @Version
-        private int version;
+        private short version;
 
         @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "post")
         @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_ONLY)

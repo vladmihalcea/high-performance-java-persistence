@@ -123,7 +123,7 @@ public class RepositoryReadWriteCacheConcurrencyStrategyTest extends AbstractTes
         private String name;
 
         @Version
-        private int version;
+        private short version;
 
         @OneToMany(mappedBy = "repository", cascade = CascadeType.ALL)
         @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)

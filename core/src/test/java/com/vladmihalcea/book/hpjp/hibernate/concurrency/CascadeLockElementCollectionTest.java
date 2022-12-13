@@ -271,7 +271,7 @@ public class CascadeLockElementCollectionTest extends AbstractTest {
         private String body;
 
         @Version
-        private int version;
+        private short version;
 
         public Post() {}
 
@@ -343,7 +343,7 @@ public class CascadeLockElementCollectionTest extends AbstractTest {
         private String createdBy;
 
         @Version
-        private int version;
+        private short version;
 
         public PostDetails() {
             createdOn = new Date();

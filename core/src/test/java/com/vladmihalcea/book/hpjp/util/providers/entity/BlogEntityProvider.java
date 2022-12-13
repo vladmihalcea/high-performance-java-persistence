@@ -34,7 +34,7 @@ public class BlogEntityProvider implements EntityProvider {
         private String title;
 
         @Version
-        private int version;
+        private short version;
 
         public Post() {}
 
@@ -81,7 +81,7 @@ public class BlogEntityProvider implements EntityProvider {
             return version;
         }
 
-        public void setVersion(int version) {
+        public void setVersion(short version) {
             this.version = version;
         }
 
@@ -127,7 +127,7 @@ public class BlogEntityProvider implements EntityProvider {
         private String createdBy;
 
         @Version
-        private int version;
+        private short version;
 
         public PostDetails() {
             createdOn = new Date();
@@ -174,7 +174,7 @@ public class BlogEntityProvider implements EntityProvider {
             return version;
         }
 
-        public void setVersion(int version) {
+        public void setVersion(short version) {
             this.version = version;
         }
     }
@@ -190,7 +190,7 @@ public class BlogEntityProvider implements EntityProvider {
         private Post post;
 
         @Version
-        private int version;
+        private short version;
 
         private String review;
 
@@ -228,7 +228,7 @@ public class BlogEntityProvider implements EntityProvider {
             return version;
         }
 
-        public void setVersion(int version) {
+        public void setVersion(short version) {
             this.version = version;
         }
     }
@@ -241,7 +241,7 @@ public class BlogEntityProvider implements EntityProvider {
         private Long id;
 
         @Version
-        private int version;
+        private short version;
 
         private String name;
 
@@ -257,7 +257,7 @@ public class BlogEntityProvider implements EntityProvider {
             return version;
         }
 
-        public void setVersion(int version) {
+        public void setVersion(short version) {
             this.version = version;
         }
     }

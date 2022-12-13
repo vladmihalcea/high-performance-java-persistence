@@ -201,7 +201,7 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
         private long views;
 
         @Version
-        private int version;
+        private short version;
 
         public Long getId() {
             return id;
@@ -238,7 +238,7 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
         private int likes;
 
         @Version
-        private int version;
+        private short version;
 
         public Long getId() {
             return id;
@@ -276,7 +276,7 @@ public class OptimisticLockingOneRootEntityMultipleVersionsTest extends Abstract
         private PostLikes likes;
 
         @Version
-        private int version;
+        private short version;
 
         public Long getId() {
             return id;

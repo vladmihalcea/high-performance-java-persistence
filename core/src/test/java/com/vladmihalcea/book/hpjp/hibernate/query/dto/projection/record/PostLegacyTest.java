@@ -99,7 +99,7 @@ public class PostLegacyTest extends AbstractTest {
         private String updatedBy;
 
         @Version
-        private Integer version;
+        private Short version;
 
         public Long getId() {
             return id;
@@ -149,11 +149,11 @@ public class PostLegacyTest extends AbstractTest {
             this.updatedBy = updatedBy;
         }
 
-        public Integer getVersion() {
+        public Short getVersion() {
             return version;
         }
 
-        public void setVersion(Integer version) {
+        public void setVersion(Short version) {
             this.version = version;
         }
     }

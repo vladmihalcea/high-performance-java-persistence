@@ -104,7 +104,7 @@ public class LockModeOptimisticForceIncrementTest extends AbstractTest {
         }
 
         @Version
-        private int version;
+        private short version;
 
         public Long getId() {
             return id;

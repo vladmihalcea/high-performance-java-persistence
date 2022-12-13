@@ -134,7 +134,7 @@ public class FollowOnLockingTest extends AbstractOracleIntegrationTest {
         private PostStatus status;
 
         @Version
-        private int version;
+        private short version;
 
         public Long getId() {
             return id;

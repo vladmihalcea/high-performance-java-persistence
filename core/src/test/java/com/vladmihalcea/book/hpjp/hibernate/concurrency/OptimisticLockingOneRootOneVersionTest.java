@@ -126,7 +126,7 @@ public class OptimisticLockingOneRootOneVersionTest extends AbstractTest {
         private int likes;
 
         @Version
-        private int version;
+        private short version;
 
         public Long getId() {
             return id;

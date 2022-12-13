@@ -44,7 +44,7 @@ public abstract class AbstractLockModeOptimisticTest extends AbstractTest {
         private String body;
 
         @Version
-        private int version;
+        private short version;
 
         public Long getId() {
             return id;
@@ -84,7 +84,7 @@ public abstract class AbstractLockModeOptimisticTest extends AbstractTest {
         private String review;
 
         @Version
-        private int version;
+        private short version;
 
         public Long getId() {
             return id;

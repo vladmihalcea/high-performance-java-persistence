@@ -242,7 +242,7 @@ public class OptimisticLockingAggregateRootVersionTest extends AbstractTest {
         private String title;
 
         @Version
-        private Integer version;
+        private Short version;
 
         public Long getId() {
             return id;

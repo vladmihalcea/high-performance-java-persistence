@@ -40,7 +40,7 @@ public class AssignedSequenceStyleGeneratorTest extends AbstractTest {
         private Long id;
 
         @Version
-        private Integer version;
+        private Short version;
 
         public Post() {
         }

@@ -27,7 +27,7 @@ public class EntityOptimisticLockingOnBidirectionalChildOwningCollectionTest
         private List<Comment> comments = new ArrayList<Comment>();
 
         @Version
-        private int version;
+        private short version;
 
         public Long getId() {
             return id;

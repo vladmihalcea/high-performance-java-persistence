@@ -27,7 +27,7 @@ public class SequenceBatchEntityProvider implements EntityProvider {
         private String title;
 
         @Version
-        private int version;
+        private short version;
 
         private Post() {
         }

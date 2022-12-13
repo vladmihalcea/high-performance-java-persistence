@@ -193,7 +193,7 @@ public class AlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
         private Board board;
 
         @Version
-        private int version;
+        private short version;
 
         public Post() {}
 
@@ -230,7 +230,7 @@ public class AlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
         }
 
         public void setVersion(int version) {
-            this.version = version;
+            this.version = (short) version;
         }
     }
 }

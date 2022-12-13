@@ -14,7 +14,7 @@ public class BaseEntity {
     private Long id;
 
     @Version
-    private Integer version;
+    private Short version;
 
     public Long getId() {
         return id;
@@ -24,7 +24,7 @@ public class BaseEntity {
         this.id = id;
     }
 
-    public Integer getVersion() {
+    public Short getVersion() {
         return version;
     }
 }

@@ -162,7 +162,7 @@ public class ReadWriteCacheConcurrencyStrategyWithLockTimeoutTest extends Abstra
         private String name;
 
         @Version
-        private int version;
+        private short version;
 
         public Repository() {
         }

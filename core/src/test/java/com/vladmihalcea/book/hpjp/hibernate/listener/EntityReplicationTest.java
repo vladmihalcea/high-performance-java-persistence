@@ -178,7 +178,7 @@ public class EntityReplicationTest extends AbstractMySQLIntegrationTest {
         private LocalDate createdOn = LocalDate.now();
 
         @Version
-        private int version;
+        private short version;
 
         public Long getId() {
             return id;
@@ -207,10 +207,6 @@ public class EntityReplicationTest extends AbstractMySQLIntegrationTest {
         public int getVersion() {
             return version;
         }
-
-        public void setVersion(int version) {
-            this.version = version;
-        }
     }
 
     @Entity(name = "OldPost")
@@ -223,7 +219,7 @@ public class EntityReplicationTest extends AbstractMySQLIntegrationTest {
         private String title;
 
         @Version
-        private int version;
+        private short version;
 
         @MapsId
         @OneToOne
@@ -248,10 +244,6 @@ public class EntityReplicationTest extends AbstractMySQLIntegrationTest {
 
         public int getVersion() {
             return version;
-        }
-
-        public void setVersion(int version) {
-            this.version = version;
         }
     }
 }

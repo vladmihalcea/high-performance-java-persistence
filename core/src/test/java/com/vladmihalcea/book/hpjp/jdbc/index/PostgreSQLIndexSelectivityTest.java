@@ -59,8 +59,11 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
                 getClass().getSimpleName(),
                 TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
         doInJDBC(connection -> {
-            try (PreparedStatement statement = connection.prepareStatement(
-                    "select * from task where id = ?"
+            try (PreparedStatement statement = connection.prepareStatement("""
+                select *
+                from task
+                where status = ?
+                """
             )) {
 
                 assertFalse(isUseServerPrepare(statement));
@@ -109,7 +112,7 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
     }
 
     protected int getPostCount() {
-        return 1 * 1000;
+        return 100 * 1000;
     }
 
     protected int getBatchSize() {

@@ -66,7 +66,7 @@ public class BaseClassIdentifierMySQLTest extends AbstractMySQLIntegrationTest {
         private Long id;
 
         @Version
-        private Integer version;
+        private Short version;
 
         public Long getId() {
             return id;
@@ -76,11 +76,11 @@ public class BaseClassIdentifierMySQLTest extends AbstractMySQLIntegrationTest {
             this.id = id;
         }
 
-        public Integer getVersion() {
+        public Short getVersion() {
             return version;
         }
 
-        public void setVersion(Integer version) {
+        public void setVersion(Short version) {
             this.version = version;
         }
     }

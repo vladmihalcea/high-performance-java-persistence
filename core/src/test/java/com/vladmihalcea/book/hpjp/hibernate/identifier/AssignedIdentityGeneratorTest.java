@@ -51,7 +51,7 @@ public class AssignedIdentityGeneratorTest extends AbstractTest {
         private Long id;
 
         @Version
-        private Integer version;
+        private Short version;
 
         public Post() {
         }

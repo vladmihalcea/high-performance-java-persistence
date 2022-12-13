@@ -91,7 +91,7 @@ public class CompositeIdIdentityGeneratedTest extends AbstractSQLServerIntegrati
 
         @Version
         @Column(insertable = false)
-        private Integer version;
+        private Short version;
 
         public EmbeddedKey getKey() {
             return key;

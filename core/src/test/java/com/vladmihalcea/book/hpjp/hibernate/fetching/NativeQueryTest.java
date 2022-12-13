@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Session;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.junit.Test;
@@ -47,39 +48,24 @@ public class NativeQueryTest extends AbstractPostgreSQLIntegrationTest {
 
         int pageStart = 20;
         int pageSize = 10;
-
-        doInJPA(entityManager -> {
-            List<PostCommentSummary> summaries = entityManager.createNamedQuery(
-                "PostCommentSummary")
-            .setFirstResult(pageStart)
-            .setMaxResults(pageSize)
-            .getResultList();
-            assertEquals(10, summaries.size());
-        });
-
-        doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            List<PostCommentSummary> summaries = session.createNativeQuery(
-                "SELECT p.id as id, p.title as title, c.review as review " +
-                "FROM post_comment c " +
-                "JOIN post p ON c.post_id = p.id " +
-                "ORDER BY p.id")
-            .setFirstResult(pageStart)
-            .setMaxResults(pageSize)
-            .setResultTransformer(new AliasToBeanResultTransformer(PostCommentSummary.class))
-            .list();
-            assertEquals(pageSize, summaries.size());
-        });
         
         doInJPA(entityManager -> {
-            List<String> summaries = entityManager.createNativeQuery(
-                "SELECT p.title " +
-                "FROM post p ")
+            List<String> summaries = entityManager.createNativeQuery("""
+                SELECT p.title
+                FROM post p 
+                ORDER BY p.id
+                """)
             .setFirstResult(pageStart)
             .setMaxResults(pageSize)
             .getResultList();
+
             assertEquals(pageSize, summaries.size());
         });
+    }
+
+    @Override
+    protected Database database() {
+        return Database.ORACLE;
     }
 
     @NamedNativeQuery(

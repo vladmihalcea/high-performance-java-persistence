@@ -75,12 +75,13 @@ public class CascadeLockTest extends AbstractTest {
     public void testCascadeLockOnManagedEntityWithQuery() throws InterruptedException {
         LOGGER.info("Test lock cascade for managed entity");
         doInJPA(entityManager -> {
-            Post post = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.details " +
-                "join fetch p.comments " +
-                "where p.id = :id", Post.class)
+            Post post = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.details
+                join fetch p.comments
+                where p.id = :id
+                """, Post.class)
             .setParameter("id", 1L)
             .setLockMode(LockModeType.PESSIMISTIC_WRITE)
             .getSingleResult();
@@ -92,13 +93,14 @@ public class CascadeLockTest extends AbstractTest {
         LOGGER.info("Test lock cascade for managed entity");
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
-            Post post = (Post) entityManager.createQuery(
-                    "select p " +
-                            "from Post p " +
-                            "join fetch p.details " +
-                            "join fetch p.comments " +
-                            "where " +
-                            "   p.id = :id"
+            Post post = (Post) entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.details
+                join fetch p.comments
+                where
+                    p.id = :id
+                """
             ).setParameter("id", 1L)
                     .getSingleResult();
             session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).setScope(true).lock(post);
@@ -109,13 +111,14 @@ public class CascadeLockTest extends AbstractTest {
     public void testCascadeLockOnManagedEntityWithAssociationsInitializedAndJpa() throws InterruptedException {
         LOGGER.info("Test lock cascade for managed entity");
         doInJPA(entityManager -> {
-            Post post = entityManager.createQuery(
-                    "select p " +
-                            "from Post p " +
-                            "join fetch p.details " +
-                            "where p.id = :id", Post.class)
-                    .setParameter("id", 1L)
-                    .getSingleResult();
+            Post post = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.details
+                where p.id = :id
+                """, Post.class)
+            .setParameter("id", 1L)
+            .getSingleResult();
             entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE, Collections.singletonMap(
                 AvailableSettings.JAKARTA_LOCK_SCOPE, PessimisticLockScope.EXTENDED
             ));
@@ -136,12 +139,13 @@ public class CascadeLockTest extends AbstractTest {
 
         //Load the Post entity, which will become detached
         Post post = doInJPA(entityManager ->
-            (Post) entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.details " +
-                "join fetch p.comments " +
-                "where p.id = :id"
+            (Post) entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.details
+                join fetch p.comments
+                where p.id = :id
+                """
         ).setParameter("id", 1L)
         .getSingleResult());
 
@@ -174,12 +178,13 @@ public class CascadeLockTest extends AbstractTest {
 
         //Load the Post entity, which will become detached
         Post post = doInJPA(entityManager -> {
-            return entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.details " +
-                "join fetch p.comments " +
-                "where p.id = :id", Post.class)
+            return entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.details
+                join fetch p.comments
+                where p.id = :id
+                """, Post.class)
             .setParameter("id", 1L)
             .getSingleResult();
         });
@@ -243,12 +248,13 @@ public class CascadeLockTest extends AbstractTest {
     public void testUpdateOnDetachedEntity() {
         LOGGER.info("Test update for detached entity");
         //Load the Post entity, which will become detached
-        Post post = doInJPA(entityManager -> (Post) entityManager.createQuery(
-            "select p " +
-            "from Post p " +
-            "join fetch p.details " +
-            "join fetch p.comments " +
-            "where p.id = :id", Post.class)
+        Post post = doInJPA(entityManager -> (Post) entityManager.createQuery("""
+            select p
+            from Post p
+            join fetch p.details
+            join fetch p.comments
+            where p.id = :id
+            """, Post.class)
         .setParameter("id", 1L)
         .getSingleResult());
 
@@ -285,7 +291,7 @@ public class CascadeLockTest extends AbstractTest {
         private String body;
 
         @Version
-        private int version;
+        private short version;
 
         public Post() {}
 
@@ -326,10 +332,6 @@ public class CascadeLockTest extends AbstractTest {
 
         public int getVersion() {
             return version;
-        }
-
-        public void setVersion(int version) {
-            this.version = version;
         }
 
         public void setTitle(String title) {
@@ -374,7 +376,7 @@ public class CascadeLockTest extends AbstractTest {
         private String createdBy;
 
         @Version
-        private int version;
+        private short version;
 
         public PostDetails() {
             createdOn = new Date();
@@ -419,10 +421,6 @@ public class CascadeLockTest extends AbstractTest {
         public int getVersion() {
             return version;
         }
-
-        public void setVersion(int version) {
-            this.version = version;
-        }
     }
 
     @Entity(name = "PostComment")
@@ -439,7 +437,7 @@ public class CascadeLockTest extends AbstractTest {
         private String review;
 
         @Version
-        private int version;
+        private short version;
 
         public PostComment() {}
 
@@ -473,10 +471,6 @@ public class CascadeLockTest extends AbstractTest {
 
         public int getVersion() {
             return version;
-        }
-
-        public void setVersion(int version) {
-            this.version = version;
         }
     }
 }

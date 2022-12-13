@@ -51,28 +51,26 @@ public class SessionAlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
             entityManager.persist(board2);
 
             Post post1 = new Post("JPA 1");
-            post1.setVersion(1);
             post1.setBoard(board1);
             entityManager.persist(post1);
 
             Post post2 = new Post("Hibernate 1");
-            post2.setVersion(2);
             post2.setBoard(board2);
             entityManager.persist(post2);
 
             Post post3 = new Post("Hibernate 3");
-            post3.setVersion(1);
             post3.setBoard(board2);
             entityManager.persist(post3);
 
             Session session = entityManager.unwrap(Session.class);
-            List<ForumCount> result = session.createNativeQuery(
-                "SELECT " +
-                "   b.name as forum, " +
-                "   COUNT (p) as count " +
-                "FROM post p " +
-                "JOIN board b on b.id = p.board_id " +
-                "GROUP BY forum")
+            List<ForumCount> result = session.createNativeQuery("""
+                SELECT
+                   b.name as forum,
+                   COUNT (p) as count
+                FROM post p
+                JOIN board b on b.id = p.board_id
+                GROUP BY forum
+                """)
             .setHibernateFlushMode(FlushMode.ALWAYS)
             .setResultTransformer( Transformers.aliasToBean(ForumCount.class))
             .list();
@@ -99,27 +97,25 @@ public class SessionAlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
             session.persist(board2);
 
             Post post1 = new Post("JPA 1");
-            post1.setVersion(1);
             post1.setBoard(board1);
             session.persist(post1);
 
             Post post2 = new Post("Hibernate 1");
-            post2.setVersion(2);
             post2.setBoard(board2);
             session.persist(post2);
 
             Post post3 = new Post("Hibernate 3");
-            post3.setVersion(1);
             post3.setBoard(board2);
             session.persist(post3);
 
-            List<ForumCount> result = session.createNativeQuery(
-                    "SELECT " +
-                    "   b.name as forum, " +
-                    "   COUNT (p) as count " +
-                    "FROM post p " +
-                    "JOIN board b on b.id = p.board_id " +
-                    "GROUP BY forum")
+            List<ForumCount> result = session.createNativeQuery("""
+                SELECT
+                   b.name as forum,
+                   COUNT (p) as count
+                FROM post p
+                JOIN board b on b.id = p.board_id
+                GROUP BY forum
+                """)
             .addSynchronizedEntityClass(Board.class)
             .addSynchronizedEntityClass(Post.class)
             .setResultTransformer( Transformers.aliasToBean(ForumCount.class))
@@ -193,7 +189,7 @@ public class SessionAlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
         private Board board;
 
         @Version
-        private int version;
+        private short version;
 
         public Post() {}
 
@@ -227,10 +223,6 @@ public class SessionAlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
 
         public int getVersion() {
             return version;
-        }
-
-        public void setVersion(int version) {
-            this.version = version;
         }
     }
 }

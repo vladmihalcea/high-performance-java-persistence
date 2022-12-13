@@ -80,7 +80,7 @@ public class SequenceReadWriteCacheConcurrencyStrategyTest extends AbstractTest 
         private String title;
 
         @Version
-        private int version;
+        private short version;
 
         @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
         @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)

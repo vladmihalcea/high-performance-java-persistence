@@ -39,7 +39,7 @@ public class OverrideAccessStrategyTest extends AbstractTest {
 
         @Version
         @Access(AccessType.FIELD)
-        private Long version;
+        private Short version;
 
         @Id
         public Integer getId() {

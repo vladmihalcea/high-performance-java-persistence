@@ -129,7 +129,7 @@ public class NonStrictReadWriteCacheConcurrencyStrategyWithConcurrentUpdateTest 
         private String name;
 
         @jakarta.persistence.Version
-        private int version;
+        private short version;
 
         public Repository() {
         }

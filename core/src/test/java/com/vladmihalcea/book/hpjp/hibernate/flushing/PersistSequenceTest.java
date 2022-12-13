@@ -88,7 +88,7 @@ public class PersistSequenceTest extends AbstractTest {
         private String title;
 
         @Version
-        private Long version;
+        private Short version;
 
         public Long getId() {
             return id;

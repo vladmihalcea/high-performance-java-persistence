@@ -212,7 +212,7 @@ public class OptimisticLockingBidirectionalChildUpdatesRootVersionTest extends A
         private String title;
 
         @Version
-        private Integer version;
+        private Short version;
 
         @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<PostComment> comments = new ArrayList<>();
