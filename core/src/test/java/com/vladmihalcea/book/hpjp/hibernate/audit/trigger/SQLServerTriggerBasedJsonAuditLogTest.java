@@ -89,38 +89,45 @@ public class SQLServerTriggerBasedJsonAuditLogTest extends AbstractTest {
 
         executeStatement("""
             CREATE TRIGGER TR_Book_Update_AuditLog ON Book
-            FOR UPDATE AS 
+            FOR UPDATE AS
             BEGIN
                 DECLARE @loggedUser varchar(255)
                 SELECT @loggedUser = cast(SESSION_CONTEXT(N'loggedUser') as varchar(255))
                 
                 DECLARE @transactionTimestamp datetime = SYSUTCdatetime()
                 
-                INSERT INTO BookAuditLog (
-                    BookId,
-                    OldRowData,
-                    NewRowData,
-                    DmlType,
-                    DmlTimestamp,
-                    DmlCreatedBy,
-                    TrxTimestamp
-                )
-                VALUES(
-                    (SELECT id FROM Inserted),
-                    (SELECT * FROM Deleted FOR JSON PATH, WITHOUT_ARRAY_WRAPPER),
-                    (SELECT * FROM Inserted FOR JSON PATH, WITHOUT_ARRAY_WRAPPER),
-                    'UPDATE',
-                    CURRENT_TIMESTAMP,
-                    @loggedUser,
-                    @transactionTimestamp
-                );
+                DECLARE @oldRecord nvarchar(1000)
+                DECLARE @newRecord nvarchar(1000)
+                
+                SET @oldRecord = (SELECT * FROM Deleted FOR JSON PATH, WITHOUT_ARRAY_WRAPPER)
+                SET @newRecord = (SELECT * FROM Inserted FOR JSON PATH, WITHOUT_ARRAY_WRAPPER)
+                
+                IF @oldRecord != @newRecord
+                    INSERT INTO BookAuditLog (
+                        BookId,
+                        OldRowData,
+                        NewRowData,
+                        DmlType,
+                        DmlTimestamp,
+                        DmlCreatedBy,
+                        TrxTimestamp
+                    )
+                    VALUES(
+                        (SELECT id FROM Inserted),
+                        @oldRecord,
+                        @newRecord,
+                        'UPDATE',
+                        CURRENT_TIMESTAMP,
+                        @loggedUser,
+                        @transactionTimestamp
+                    );
             END
             """
         );
 
         executeStatement("""
             CREATE TRIGGER TR_Book_Delete_AuditLog ON Book
-            FOR DELETE AS 
+            FOR DELETE AS
             BEGIN
                 DECLARE @loggedUser varchar(255)
                 SELECT @loggedUser = cast(SESSION_CONTEXT(N'loggedUser') as varchar(255))
