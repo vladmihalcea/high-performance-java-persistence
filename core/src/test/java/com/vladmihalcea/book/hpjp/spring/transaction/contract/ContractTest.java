@@ -125,14 +125,16 @@ public class ContractTest {
         });
 
         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
-            Contract contract = entityManager.getReference(Contract.class, 1L);
-
-            Annex annex = new Annex()
-                .setId(3L)
-                .setDetails("Spring 6 Migration Training")
-                .setContract(contract);
-
-            entityManager.persist(annex);
+            entityManager.persist(
+                new Annex()
+                    .setId(3L)
+                    .setDetails("Spring 6 Migration Training")
+                    .setContract(
+                        entityManager.getReference(
+                            Contract.class, 1L
+                        )
+                    )
+            );
             
             return null;
         });

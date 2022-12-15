@@ -26,12 +26,18 @@ public class RootAwareInsertEventListener implements PersistEventListener {
             Object root = rootAware.root();
             event.getSession().lock(root, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
 
-            LOGGER.info("Incrementing {} entity version because a {} child entity has been inserted", root, entity);
+            LOGGER.info(
+                "Incrementing the [{}] entity version " +
+                "because the [{}] child entity has been inserted",
+                root,
+                entity
+            );
         }
     }
 
     @Override
-    public void onPersist(PersistEvent event, PersistContext persistContext) throws HibernateException {
+    public void onPersist(PersistEvent event, PersistContext persistContext)
+            throws HibernateException {
         onPersist(event);
     }
 }

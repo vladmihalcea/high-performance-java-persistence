@@ -28,27 +28,29 @@ public class RootAwareUpdateAndDeleteEventListener implements FlushEntityEventLi
         final boolean mightBeDirty = entry.requiresDirtyCheck(entity);
 
         if (mightBeDirty && entity instanceof RootAware rootAware) {
-            if (updated(event)) {
+            if (isEntityUpdated(event)) {
                 Object root = rootAware.root();
-                LOGGER.info("Incrementing {} entity version because a {} child entity has been updated", root, entity);
-                incrementRootVersion(event, root);
-            } else if (deleted(event)) {
+                LOGGER.info(
+                    "Incrementing the [{}] entity version " +
+                    "because the [{}] child entity has been updated",
+                    root,
+                    entity
+                );
+                event.getSession().lock(root, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+            } else if (isEntityDeleted(event)) {
                 Object root = rootAware.root();
-                LOGGER.info("Incrementing {} entity version because a {} child entity has been deleted", root, entity);
-                incrementRootVersion(event, root);
+                LOGGER.info(
+                    "Incrementing the [{}] entity version " +
+                    "because the [{}] child entity has been deleted",
+                    root,
+                    entity
+                );
+                event.getSession().lock(root, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
             }
         }
     }
 
-    private void incrementRootVersion(FlushEntityEvent event, Object root) {
-        event.getSession().lock(root, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-    }
-
-    private boolean deleted(FlushEntityEvent event) {
-        return event.getEntityEntry().getStatus() == Status.DELETED;
-    }
-
-    private boolean updated(FlushEntityEvent event) {
+    private boolean isEntityUpdated(FlushEntityEvent event) {
         final EntityEntry entry = event.getEntityEntry();
         final Object entity = event.getEntity();
 
@@ -58,11 +60,25 @@ public class RootAwareUpdateAndDeleteEventListener implements FlushEntityEventLi
         SessionImplementor session = event.getSession();
 
         if (event.hasDatabaseSnapshot()) {
-            dirtyProperties = persister.findModified(event.getDatabaseSnapshot(), values, entity, session);
+            dirtyProperties = persister.findModified(
+                event.getDatabaseSnapshot(),
+                values,
+                entity,
+                session
+            );
         } else {
-            dirtyProperties = persister.findDirty(values, entry.getLoadedState(), entity, session);
+            dirtyProperties = persister.findDirty(
+                values,
+                entry.getLoadedState(),
+                entity,
+                session
+            );
         }
 
         return dirtyProperties != null;
+    }
+
+    private boolean isEntityDeleted(FlushEntityEvent event) {
+        return event.getEntityEntry().getStatus() == Status.DELETED;
     }
 }

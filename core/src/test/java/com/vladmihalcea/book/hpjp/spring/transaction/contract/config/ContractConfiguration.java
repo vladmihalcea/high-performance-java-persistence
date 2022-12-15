@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.spring.transaction.contract.config;
 
-import com.vladmihalcea.book.hpjp.spring.transaction.contract.event.RootAwareEventListenerIntegratorProvider;
+import com.vladmihalcea.book.hpjp.spring.transaction.contract.event.RootAwareEventListenerIntegrator;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
@@ -12,6 +12,7 @@ import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
+import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -93,6 +95,18 @@ public class ContractConfiguration {
         return entityManagerFactoryBean;
     }
 
+    protected Properties additionalProperties() {
+        Properties properties = new Properties();
+        properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+        properties.put(
+            EntityManagerFactoryBuilderImpl.INTEGRATOR_PROVIDER,
+            (IntegratorProvider) () -> List.of(
+                RootAwareEventListenerIntegrator.INSTANCE
+            )
+        );
+        return properties;
+    }
+
     @Bean
     public JpaTransactionManager transactionManager(EntityManagerFactory entityManagerFactory){
         JpaTransactionManager transactionManager = new JpaTransactionManager();
@@ -108,16 +122,6 @@ public class ContractConfiguration {
     @Bean
     public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
-    }
-
-    protected Properties additionalProperties() {
-        Properties properties = new Properties();
-        properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-        properties.setProperty(
-            EntityManagerFactoryBuilderImpl.INTEGRATOR_PROVIDER,
-            RootAwareEventListenerIntegratorProvider.class.getName()
-        );
-        return properties;
     }
 
     protected String[] packagesToScan() {
