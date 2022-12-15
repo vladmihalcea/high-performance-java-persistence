@@ -16,7 +16,6 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     @Transactional
-    //@Transactional(isolation = Isolation.REPEATABLE_READ)
     public boolean transfer(String fromIban, String toIban, long cents) {
         boolean status = true;
 

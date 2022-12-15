@@ -1,9 +1,11 @@
 package com.vladmihalcea.book.hpjp.spring.transaction.transfer;
 
 import com.vladmihalcea.book.hpjp.spring.transaction.transfer.config.ACIDRaceConditionTransferConfiguration;
-import com.vladmihalcea.book.hpjp.spring.transaction.transfer.service.TransferService;
 import com.vladmihalcea.book.hpjp.spring.transaction.transfer.domain.Account;
 import com.vladmihalcea.book.hpjp.spring.transaction.transfer.repository.AccountRepository;
+import com.vladmihalcea.book.hpjp.spring.transaction.transfer.service.TransferService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,16 +20,12 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * @author Vlad Mihalcea
@@ -154,7 +152,7 @@ public class ACIDRaceConditionTransferTest {
             try {
                 future.get();
             } catch (InterruptedException| ExecutionException e) {
-                fail(e.getMessage());
+                LOGGER.error(e.getMessage());
             }
         }
 
