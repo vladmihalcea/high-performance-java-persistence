@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
 
 import jakarta.persistence.*;
@@ -10,7 +11,8 @@ public class SimpleSequenceIdentifierTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
-                Post.class,
+            Post.class,
+            Tag.class
         };
     }
 
@@ -66,4 +68,23 @@ public class SimpleSequenceIdentifierTest extends AbstractTest {
         }
     }
 
+    @Entity(name = "Tag")
+    @Table(name = "tag")
+    public static class Tag  {
+
+        @Id
+        @GeneratedValue(strategy = GenerationType.SEQUENCE)
+        private Long id;
+
+        @NaturalId
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
 }
