@@ -1,8 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.audit.trigger;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import jakarta.persistence.*;
 import org.hibernate.Session;
