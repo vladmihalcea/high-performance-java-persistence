@@ -25,6 +25,9 @@ public class Post {
     @NaturalId
     private String slug;
 
+    @Version
+    private short version;
+
     public Long getId() {
         return id;
     }

@@ -2,17 +2,15 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier.tsid;
 
 import com.github.f4b6a3.tsid.Tsid;
 import com.github.f4b6a3.tsid.TsidCreator;
-import com.github.f4b6a3.tsid.TsidFactory;
+import com.vladmihalcea.book.hpjp.util.TsidUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.DecimalFormat;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 
 public class TsidTest {
@@ -53,7 +51,7 @@ public class TsidTest {
             final int threadId = i;
             new Thread(() -> {
                 for (int j = 0; j < iterationCount; j++) {
-                    Tsid tsid = TsidUtil.TSID_FACTORY.create();
+                    Tsid tsid = TsidUtils.TSID_FACTORY.create();
                     assertNull(
                         "TSID collision detected",
                         tsidMap.put(tsid, (threadId * iterationCount) + j)
@@ -78,38 +76,4 @@ public class TsidTest {
         );
     }
 
-    public static class TsidUtil {
-        public static final String TSID_NODE_COUNT_PROPERTY =
-            "tsid.node.count";
-        public static final String TSID_NODE_COUNT_ENV =
-            "TSID_NODE_COUNT";
-
-        public static TsidFactory TSID_FACTORY;
-
-        static {
-            String nodeCountSetting = System.getProperty(
-                TSID_NODE_COUNT_PROPERTY
-            );
-            if(nodeCountSetting == null) {
-                nodeCountSetting = System.getenv(
-                    TSID_NODE_COUNT_ENV
-                );
-            }
-
-            int nodeCount = nodeCountSetting != null ?
-                Integer.parseInt(nodeCountSetting) :
-                256;
-
-            int nodeBits = (int) (Math.log(nodeCount) / Math.log(2));
-
-            TSID_FACTORY = TsidFactory.builder()
-                .withRandomFunction(length -> {
-                    final byte[] bytes = new byte[length];
-                    ThreadLocalRandom.current().nextBytes(bytes);
-                    return bytes;
-                })
-                .withNodeBits(nodeBits)
-                .build();
-        }
-    }
 }

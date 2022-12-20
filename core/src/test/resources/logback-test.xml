@@ -28,11 +28,12 @@
     <logger name="org.hibernate.hql" level="info"/>
     <logger name="org.hibernate.event.internal" level="info"/>
     <logger name="org.hibernate.engine.transaction.internal" level="debug"/>
+    <logger name="org.hibernate.resource.jdbc.internal.AbstractLogicalConnectionImplementor" level="trace"/>
     <logger name="org.hibernate.cache" level="debug"/>
     <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="info"/>
 
     <!--<logger name="org.hibernate.SQL" level="debug"/>
-    <logger name="org.hibernate.type.descriptor.sql" level="trace"/>-->
+    <logger name="org.hibernate.orm.jdbc.bind" level="trace"/>-->
 
     <logger name="org.hibernate.SQL_SLOW" level="info"/>
 

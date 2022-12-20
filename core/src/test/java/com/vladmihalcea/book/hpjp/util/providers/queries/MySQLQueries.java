@@ -9,6 +9,6 @@ public class MySQLQueries implements Queries {
 
     @Override
     public String transactionId() {
-        return "SELECT trx_id FROM information_schema.innodb_trx";
+        return "SELECT tx.trx_id FROM information_schema.innodb_trx tx WHERE tx.trx_mysql_thread_id = connection_id()";
     }
 }
