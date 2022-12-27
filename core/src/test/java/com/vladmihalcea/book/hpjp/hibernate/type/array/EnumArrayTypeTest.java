@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.type.array;
 
 import com.vladmihalcea.book.hpjp.hibernate.type.json.model.BaseEntity;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.hibernate.type.array.EnumArrayType;
+import io.hypersistence.utils.hibernate.type.array.EnumArrayType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;

@@ -2,8 +2,8 @@ package com.vladmihalcea.book.hpjp.hibernate.mapping;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import com.vladmihalcea.hibernate.type.json.internal.JacksonUtil;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
+import io.hypersistence.utils.hibernate.type.json.internal.JacksonUtil;
 import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;

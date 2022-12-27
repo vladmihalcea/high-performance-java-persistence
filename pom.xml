@@ -236,9 +236,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.vladmihalcea</groupId>
-            <artifactId>hibernate-types-60</artifactId>
-            <version>${hibernate-types.version}</version>
+            <groupId>io.hypersistence</groupId>
+            <artifactId>hypersistence-utils-hibernate-60</artifactId>
+            <version>${hypersistence-utils.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.glassfish.jaxb</groupId>
@@ -432,7 +432,7 @@
         <jackson.version>2.12.6.1</jackson.version>
 
         <flyway.version>6.4.4</flyway.version>
-        <hibernate-types.version>2.21.0</hibernate-types.version>
+        <hypersistence-utils.version>3.0.0</hypersistence-utils.version>
 
         <blaze-persistence.version>1.6.7</blaze-persistence.version>
 

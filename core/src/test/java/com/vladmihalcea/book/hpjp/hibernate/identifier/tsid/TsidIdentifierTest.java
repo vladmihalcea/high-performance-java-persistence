@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.identifier.tsid;
 
 import com.vladmihalcea.book.hpjp.hibernate.identifier.tsid.generator.Tsid;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -15,6 +16,11 @@ public class TsidIdentifierTest extends AbstractTest {
         return new Class<?>[] {
             Post.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 
     @Test

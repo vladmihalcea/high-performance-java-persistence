@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import com.vladmihalcea.hibernate.type.basic.NullableCharacterType;
+import io.hypersistence.utils.hibernate.type.basic.NullableCharacterType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 import org.junit.Test;

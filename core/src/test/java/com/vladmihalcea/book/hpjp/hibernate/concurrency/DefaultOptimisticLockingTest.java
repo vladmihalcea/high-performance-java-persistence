@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.hibernate.type.json.internal.JacksonUtil;
+import io.hypersistence.utils.hibernate.type.json.internal.JacksonUtil;
 import org.hibernate.StaleStateException;
 import org.junit.Test;
 

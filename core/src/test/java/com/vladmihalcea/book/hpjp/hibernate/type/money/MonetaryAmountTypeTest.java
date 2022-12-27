@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.type.money;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.hibernate.type.money.MonetaryAmountType;
+import io.hypersistence.utils.hibernate.type.money.MonetaryAmountType;
 import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.CompositeType;
 import org.hibernate.annotations.Type;

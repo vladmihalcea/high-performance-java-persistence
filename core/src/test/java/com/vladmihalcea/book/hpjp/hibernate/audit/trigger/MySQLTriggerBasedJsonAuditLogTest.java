@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.hibernate.audit.trigger;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
-import com.vladmihalcea.hibernate.type.json.JsonNodeStringType;
+import io.hypersistence.utils.hibernate.type.json.JsonNodeStringType;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.dialect.Dialect;

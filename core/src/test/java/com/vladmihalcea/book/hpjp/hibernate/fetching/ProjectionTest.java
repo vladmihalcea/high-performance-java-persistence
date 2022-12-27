@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
+import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.Test;

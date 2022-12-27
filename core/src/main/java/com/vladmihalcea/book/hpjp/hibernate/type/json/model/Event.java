@@ -1,6 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.type.json.model;
 
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 

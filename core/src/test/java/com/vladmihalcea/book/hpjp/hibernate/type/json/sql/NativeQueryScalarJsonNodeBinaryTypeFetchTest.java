@@ -2,7 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.type.json.sql;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.book.hpjp.hibernate.type.json.PostgreSQLJsonNodeBinaryTypeTest;
-import com.vladmihalcea.hibernate.type.json.JsonNodeBinaryType;
+import io.hypersistence.utils.hibernate.type.json.JsonNodeBinaryType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

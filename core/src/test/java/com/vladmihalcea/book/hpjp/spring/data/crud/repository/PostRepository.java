@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.spring.data.crud.repository;
 
 import com.vladmihalcea.book.hpjp.spring.data.crud.domain.Post;
-import com.vladmihalcea.spring.repository.HibernateRepository;
+import io.hypersistence.utils.spring.repository.HibernateRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

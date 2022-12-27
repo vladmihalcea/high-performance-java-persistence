@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.spring.repository.BaseJpaRepositoryImpl;
+import io.hypersistence.utils.spring.repository.BaseJpaRepositoryImpl;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManagerFactory;
@@ -40,7 +40,7 @@ import java.util.Properties;
 @EnableAspectJAutoProxy
 @EnableJpaRepositories(
     value = {
-        "com.vladmihalcea.spring.repository",
+        "io.hypersistence.utils.spring.repository",
         "com.vladmihalcea.book.hpjp.spring.common.repository",
     },
     repositoryBaseClass = BaseJpaRepositoryImpl.class

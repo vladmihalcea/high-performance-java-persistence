@@ -3,7 +3,7 @@ package com.vladmihalcea.book.hpjp.spring.transaction.jpa.config;
 import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
-import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
+import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;

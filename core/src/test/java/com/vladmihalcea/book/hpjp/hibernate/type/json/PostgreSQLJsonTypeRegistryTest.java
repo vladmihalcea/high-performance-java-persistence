@@ -2,8 +2,8 @@ package com.vladmihalcea.book.hpjp.hibernate.type.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import io.hypersistence.utils.hibernate.type.json.JsonStringType;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import net.ttddyy.dsproxy.QueryCountHolder;
 import org.hibernate.Session;

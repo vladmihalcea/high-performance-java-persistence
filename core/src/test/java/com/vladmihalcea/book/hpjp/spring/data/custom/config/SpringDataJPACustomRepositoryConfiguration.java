@@ -17,7 +17,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(
     basePackages = {
         "com.vladmihalcea.book.hpjp.spring.data.custom.repository",
-        "com.vladmihalcea.spring.repository"
+        "io.hypersistence.utils.spring.repository"
     }
 )
 @PropertySource({"/META-INF/jdbc-hsqldb.properties"})

@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.spring.data.base.config.SpringDataJPABaseConfi
 import com.vladmihalcea.book.hpjp.spring.data.projection.domain.Post;
 import com.vladmihalcea.book.hpjp.spring.data.projection.dto.PostCommentDTO;
 import com.vladmihalcea.book.hpjp.spring.data.projection.dto.PostCommentRecord;
-import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
+import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;

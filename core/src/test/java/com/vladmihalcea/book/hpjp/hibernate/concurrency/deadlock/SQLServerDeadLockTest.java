@@ -2,8 +2,8 @@ package com.vladmihalcea.book.hpjp.hibernate.concurrency.deadlock;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.hibernate.query.ListResultTransformer;
-import com.vladmihalcea.hibernate.util.StringUtils;
+import io.hypersistence.utils.hibernate.query.ListResultTransformer;
+import io.hypersistence.utils.hibernate.util.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.testing.util.ExceptionUtil;

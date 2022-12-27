@@ -21,7 +21,7 @@ import java.util.Properties;
     basePackages = {
         "com.vladmihalcea.book.hpjp.spring.data.crud.service",
         "com.vladmihalcea.book.hpjp.spring.data.crud.repository",
-        "com.vladmihalcea.spring.repository"
+        "io.hypersistence.utils.spring.repository"
     }
 )
 @PropertySource({"/META-INF/jdbc-postgresql.properties"})

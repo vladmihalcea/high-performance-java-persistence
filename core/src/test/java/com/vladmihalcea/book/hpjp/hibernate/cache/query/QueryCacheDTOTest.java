@@ -4,7 +4,7 @@ import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.jpa.compact.JPADTOProjectionClassImportIntegratorPropertyClassTest;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.hibernate.type.util.ClassImportIntegrator;
+import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.QueryHints;

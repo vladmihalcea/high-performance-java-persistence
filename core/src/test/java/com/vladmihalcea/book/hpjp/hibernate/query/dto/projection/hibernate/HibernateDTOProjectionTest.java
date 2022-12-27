@@ -8,7 +8,7 @@ import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.Pos
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTOTupleTransformer;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.hibernate.query.ListResultTransformer;
+import io.hypersistence.utils.hibernate.query.ListResultTransformer;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.transform.Transformers;
 import org.junit.Test;

@@ -1,7 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier.batch;
 
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.hibernate.id.BatchSequenceGenerator;
+import io.hypersistence.utils.hibernate.id.BatchSequenceGenerator;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.junit.Test;
@@ -69,7 +69,7 @@ public class BatchSequenceIdentifierTest extends AbstractBatchIdentifierTest {
         /*@SequenceGenerator(name = "post_sequence", allocationSize = 1)*/
         @GenericGenerator(
             name = "post_sequence",
-            strategy = "com.vladmihalcea.hibernate.id.BatchSequenceGenerator",
+            strategy = "io.hypersistence.utils.hibernate.id.BatchSequenceGenerator",
             parameters = {
                 @Parameter(name = "sequence", value = "post_sequence"),
                 @Parameter(name = "fetch_size", value = "5")
