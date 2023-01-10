@@ -1,5 +1,8 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction;
 
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
+import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
 import org.junit.runners.Parameterized;
 
 import java.sql.CallableStatement;
@@ -8,9 +11,6 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
-
 /**
  * OracleConnectionReadyOnlyTransactionTest - Test to verify Oracle driver supports read-only transactions
  *
@@ -18,8 +18,8 @@ import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
  */
 public class OracleConnectionReadyOnlyTransactionTest extends ConnectionReadyOnlyTransactionTest {
 
-    public OracleConnectionReadyOnlyTransactionTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
+    public OracleConnectionReadyOnlyTransactionTest(Database database) {
+        super(database);
     }
 
     @Parameterized.Parameters

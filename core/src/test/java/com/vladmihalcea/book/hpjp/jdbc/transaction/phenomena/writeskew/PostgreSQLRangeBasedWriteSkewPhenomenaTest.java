@@ -8,8 +8,6 @@ import java.sql.PreparedStatement;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Vlad Mihalcea
  */

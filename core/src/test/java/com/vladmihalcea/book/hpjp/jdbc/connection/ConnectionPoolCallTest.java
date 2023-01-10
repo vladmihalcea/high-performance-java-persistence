@@ -4,7 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.Ignore;
@@ -35,10 +35,11 @@ public class ConnectionPoolCallTest extends DataSourceProviderIntegrationTest {
             .outputTo(LOGGER)
             .build();
 
-    private int callCount = 1000;
+    private int warmingUpCount = 100;
+    private int connectionAcquisitionCount = 1000;
 
-    public ConnectionPoolCallTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
+    public ConnectionPoolCallTest(Database database) {
+        super(database);
     }
 
     @Override
@@ -59,7 +60,12 @@ public class ConnectionPoolCallTest extends DataSourceProviderIntegrationTest {
     }
 
     private void test(DataSource dataSource) throws SQLException {
-        for (int i = 0; i < callCount; i++) {
+        //Warming up
+        for (int i = 0; i < warmingUpCount; i++) {
+            try (Connection connection = dataSource.getConnection()) {
+            }
+        }
+        for (int i = 0; i < connectionAcquisitionCount; i++) {
             long startNanos = System.nanoTime();
             try (Connection connection = dataSource.getConnection()) {
             }

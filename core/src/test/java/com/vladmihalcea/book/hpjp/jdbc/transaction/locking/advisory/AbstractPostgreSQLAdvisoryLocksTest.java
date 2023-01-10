@@ -1,5 +1,8 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction.locking.advisory;
 
+import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,10 +15,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.junit.Test;
-
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.APPEND;

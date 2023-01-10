@@ -1,10 +1,9 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction.locking;
 
-import java.sql.Connection;
-
-import com.vladmihalcea.book.hpjp.jdbc.transaction.locking.AbstractTableLockTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
+
+import java.sql.Connection;
 
 /**
  * @author Vlad Mihalcea

@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.jdbc.batch;
 
+import com.vladmihalcea.book.hpjp.util.providers.*;
 import org.junit.runners.Parameterized;
 
 import java.sql.SQLException;
@@ -8,12 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.SQLServerDataSourceProvider;
-
 /**
  * BatchStatementTest - Test batching with Statements
  *
@@ -21,8 +16,8 @@ import com.vladmihalcea.book.hpjp.util.providers.SQLServerDataSourceProvider;
  */
 public class BatchStatementTest extends AbstractBatchStatementTest {
 
-    public BatchStatementTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
+    public BatchStatementTest(Database database) {
+        super(database);
     }
 
     @Parameterized.Parameters

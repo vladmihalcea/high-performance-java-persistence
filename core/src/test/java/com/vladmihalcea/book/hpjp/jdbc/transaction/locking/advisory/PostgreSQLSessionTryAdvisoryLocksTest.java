@@ -5,8 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.vladmihalcea.book.hpjp.jdbc.transaction.locking.advisory.AbstractPostgreSQLAdvisoryLocksTest;
-
 /**
  * @author Vlad Mihalcea
  */

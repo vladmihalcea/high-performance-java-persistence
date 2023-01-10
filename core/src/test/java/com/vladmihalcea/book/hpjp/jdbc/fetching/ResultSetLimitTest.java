@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.jdbc.fetching;
 
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import org.hibernate.dialect.pagination.LimitHandler;
 import org.hibernate.internal.SessionFactoryImpl;
@@ -34,8 +35,8 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
-    public ResultSetLimitTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
+    public ResultSetLimitTest(Database database) {
+        super(database);
     }
 
     @Override

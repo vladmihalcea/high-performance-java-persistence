@@ -1,9 +1,9 @@
 package com.vladmihalcea.book.hpjp.jdbc.batch;
 
+import com.vladmihalcea.book.hpjp.util.providers.Database;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 
 /**
  * BatchPreparedStatementTest - Test batching with PreparedStatements
@@ -12,8 +12,8 @@ import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
  */
 public class BatchPreparedStatementTest extends AbstractBatchPreparedStatementTest {
 
-    public BatchPreparedStatementTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
+    public BatchPreparedStatementTest(Database database) {
+        super(database);
     }
 
     @Override

@@ -126,8 +126,8 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
 
     private Timer queryTimer = metricRegistry.timer("queryTimer");
 
-    public StatementCacheTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
+    public StatementCacheTest(Database database) {
+        super(database);
     }
 
     @Parameterized.Parameters

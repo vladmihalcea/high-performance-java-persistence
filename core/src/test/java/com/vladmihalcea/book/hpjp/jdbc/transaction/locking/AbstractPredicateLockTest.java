@@ -2,12 +2,12 @@ package com.vladmihalcea.book.hpjp.jdbc.transaction.locking;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
+import jakarta.persistence.*;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.junit.Test;
 
-import jakarta.persistence.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;

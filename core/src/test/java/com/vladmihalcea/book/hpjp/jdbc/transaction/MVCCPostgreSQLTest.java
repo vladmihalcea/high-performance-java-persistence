@@ -1,14 +1,14 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.query.Query;
-import org.hibernate.transform.AliasToBeanResultTransformer;
-import org.junit.Test;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.query.Query;
+import org.hibernate.transform.AliasToBeanResultTransformer;
+import org.junit.Test;
+
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 

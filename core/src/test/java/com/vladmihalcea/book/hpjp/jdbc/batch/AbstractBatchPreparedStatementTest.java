@@ -1,9 +1,8 @@
 package com.vladmihalcea.book.hpjp.jdbc.batch;
 
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -22,8 +21,8 @@ public abstract class AbstractBatchPreparedStatementTest extends DataSourceProvi
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
-    public AbstractBatchPreparedStatementTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
+    public AbstractBatchPreparedStatementTest(Database database) {
+        super(database);
     }
 
     @Override

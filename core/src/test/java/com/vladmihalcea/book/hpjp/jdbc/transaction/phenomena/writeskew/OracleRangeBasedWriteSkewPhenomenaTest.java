@@ -1,5 +1,10 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction.phenomena.writeskew;
 
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
+import org.junit.Test;
+import org.junit.runners.Parameterized;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.time.Duration;
@@ -8,12 +13,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-
-import org.junit.Test;
-import org.junit.runners.Parameterized;
-
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
 
 import static org.junit.Assert.assertEquals;
 

@@ -5,6 +5,7 @@ import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider.Post;
@@ -45,8 +46,8 @@ public class MySQLStatementCacheTest extends DataSourceProviderIntegrationTest {
 
     private Timer query2Timer = metricRegistry.timer("query2Timer");
 
-    public MySQLStatementCacheTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
+    public MySQLStatementCacheTest(Database database) {
+        super(database);
     }
 
     @Parameterized.Parameters

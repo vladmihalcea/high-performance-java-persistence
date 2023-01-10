@@ -2,8 +2,8 @@ package com.vladmihalcea.book.hpjp.jdbc.transaction;
 
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.providers.SQLServerDataSourceProvider;
-
 import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
@@ -17,8 +17,8 @@ import java.util.Collections;
  */
 public class SQLServerConnectionReadyOnlyTransactionTest extends ConnectionReadyOnlyTransactionTest {
 
-    public SQLServerConnectionReadyOnlyTransactionTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
+    public SQLServerConnectionReadyOnlyTransactionTest(Database database) {
+        super(database);
     }
 
     @Parameterized.Parameters

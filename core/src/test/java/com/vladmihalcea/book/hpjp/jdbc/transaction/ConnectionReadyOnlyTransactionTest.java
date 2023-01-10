@@ -1,9 +1,8 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction;
 
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -20,8 +19,8 @@ public class ConnectionReadyOnlyTransactionTest extends DataSourceProviderIntegr
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
-    public ConnectionReadyOnlyTransactionTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
+    public ConnectionReadyOnlyTransactionTest(Database database) {
+        super(database);
     }
 
     @Override

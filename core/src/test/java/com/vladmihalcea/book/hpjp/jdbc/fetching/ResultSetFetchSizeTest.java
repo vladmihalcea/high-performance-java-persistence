@@ -1,13 +1,10 @@
 package com.vladmihalcea.book.hpjp.jdbc.fetching;
 
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.*;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.SQLServerDataSourceProvider;
 
+import org.assertj.core.util.Arrays;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -34,19 +31,18 @@ public class ResultSetFetchSizeTest extends DataSourceProviderIntegrationTest {
 
     private final Integer fetchSize;
 
-    public ResultSetFetchSizeTest(DataSourceProvider dataSourceProvider, Integer fetchSize) {
-        super(dataSourceProvider);
+    public ResultSetFetchSizeTest(Database database, Integer fetchSize) {
+        super(database);
         this.fetchSize = fetchSize;
     }
 
     @Parameterized.Parameters
     public static Collection<Object[]> parameters() {
         List<Object[]> providers = new ArrayList<>();
-        for (int i = 0; i < dataSourceProviders.length; i++) {
-            DataSourceProvider dataSourceProvider = dataSourceProviders[i];
+        for (int i = 0; i < databases.length; i++) {
             for (int j = 0; j < fetchSizes.length; j++) {
                 Integer fetchSize = fetchSizes[j];
-                providers.add(new Object[] {dataSourceProvider, fetchSize});
+                providers.add(new Object[] {databases[i], fetchSize});
             }
         }
         return providers;
@@ -57,11 +53,11 @@ public class ResultSetFetchSizeTest extends DataSourceProviderIntegrationTest {
             1, 10, 100, 1000, 10000
     };
 
-    private static DataSourceProvider[] dataSourceProviders = new DataSourceProvider[]{
-            new OracleDataSourceProvider(),
-            new SQLServerDataSourceProvider(),
-            new PostgreSQLDataSourceProvider(),
-            new MySQLDataSourceProvider()
+    private static Database[] databases = new Database[]{
+        Database.ORACLE,
+        Database.SQLSERVER,
+        Database.POSTGRESQL,
+        Database.MYSQL,
     };
 
     @Override

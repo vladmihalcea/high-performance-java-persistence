@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction.locking;
 
-import com.vladmihalcea.book.hpjp.jdbc.transaction.locking.AbstractPredicateLockTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
 import org.hibernate.LockMode;

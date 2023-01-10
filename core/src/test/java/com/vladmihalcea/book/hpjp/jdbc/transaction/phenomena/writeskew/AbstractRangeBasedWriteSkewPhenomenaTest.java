@@ -1,18 +1,16 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction.phenomena.writeskew;
 
+import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
 import java.sql.PreparedStatement;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * @author Vlad Mihalcea

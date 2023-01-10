@@ -1,9 +1,9 @@
 package com.vladmihalcea.book.hpjp.jdbc.batch;
 
+import com.vladmihalcea.book.hpjp.util.providers.Database;
+
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 
 /**
  * BatchStatementTest - Test without batching Statements
@@ -14,8 +14,8 @@ public class NoBatchStatementTest extends AbstractBatchStatementTest {
 
     private int count;
 
-    public NoBatchStatementTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
+    public NoBatchStatementTest(Database database) {
+        super(database);
     }
 
     @Override

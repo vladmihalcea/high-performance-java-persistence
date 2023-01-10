@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.jdbc.fetching;
 
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import org.junit.Test;
@@ -32,8 +33,8 @@ public class OracleResultSetLimitTest extends DataSourceProviderIntegrationTest 
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
-    public OracleResultSetLimitTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
+    public OracleResultSetLimitTest(Database database) {
+        super(database);
     }
 
     @Parameterized.Parameters

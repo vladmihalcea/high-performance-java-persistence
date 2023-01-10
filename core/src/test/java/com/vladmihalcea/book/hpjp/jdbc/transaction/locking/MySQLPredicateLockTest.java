@@ -1,11 +1,10 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction.locking;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import com.vladmihalcea.book.hpjp.jdbc.transaction.locking.AbstractPredicateLockTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 
 import static org.junit.Assert.fail;
 

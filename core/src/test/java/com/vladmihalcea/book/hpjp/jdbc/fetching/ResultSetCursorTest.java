@@ -4,6 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 
@@ -47,8 +48,8 @@ public class ResultSetCursorTest extends DataSourceProviderIntegrationTest {
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
-    public ResultSetCursorTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
+    public ResultSetCursorTest(Database database) {
+        super(database);
     }
 
     @Override

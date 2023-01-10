@@ -1,10 +1,10 @@
 package com.vladmihalcea.book.hpjp.jdbc.transaction.phenomena.writeskew;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import jakarta.persistence.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import jakarta.persistence.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**

@@ -2,8 +2,6 @@ package com.vladmihalcea.book.hpjp.jdbc.transaction.locking.advisory;
 
 import java.sql.Connection;
 
-import com.vladmihalcea.book.hpjp.jdbc.transaction.locking.advisory.AbstractPostgreSQLAdvisoryLocksTest;
-
 /**
  * @author Vlad Mihalcea
  */

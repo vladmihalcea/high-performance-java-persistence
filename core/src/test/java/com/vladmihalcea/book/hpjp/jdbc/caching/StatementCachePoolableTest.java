@@ -109,8 +109,8 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
-    public StatementCachePoolableTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
+    public StatementCachePoolableTest(Database database) {
+        super(database);
     }
 
     @Parameterized.Parameters

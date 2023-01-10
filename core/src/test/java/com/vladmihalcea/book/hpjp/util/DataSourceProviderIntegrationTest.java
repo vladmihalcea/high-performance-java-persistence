@@ -1,17 +1,13 @@
 package com.vladmihalcea.book.hpjp.util;
 
+import com.vladmihalcea.book.hpjp.util.providers.*;
+import org.assertj.core.util.Arrays;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.MySQLDataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.OracleDataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
-import com.vladmihalcea.book.hpjp.util.providers.SQLServerDataSourceProvider;
 
 /**
  * DataSourceProviderIntegrationTest - Test against some common RDBMS providers
@@ -23,18 +19,18 @@ public abstract class DataSourceProviderIntegrationTest extends AbstractTest {
 
     private final DataSourceProvider dataSourceProvider;
 
-    public DataSourceProviderIntegrationTest(DataSourceProvider dataSourceProvider) {
-        this.dataSourceProvider = dataSourceProvider;
+    public DataSourceProviderIntegrationTest(Database database) {
+        this.dataSourceProvider = database.dataSourceProvider();
     }
 
     @Parameterized.Parameters
-    public static Collection<DataSourceProvider[]> rdbmsDataSourceProvider() {
-        List<DataSourceProvider[]> providers = new ArrayList<>();
-        providers.add(new DataSourceProvider[]{new OracleDataSourceProvider()});
-        providers.add(new DataSourceProvider[]{new SQLServerDataSourceProvider()});
-        providers.add(new DataSourceProvider[]{new PostgreSQLDataSourceProvider()});
-        providers.add(new DataSourceProvider[]{new MySQLDataSourceProvider()});
-        return providers;
+    public static Collection<Database[]> databases() {
+        List<Database[]> databases = new ArrayList<>();
+        databases.add(Arrays.array(Database.ORACLE));
+        databases.add(Arrays.array(Database.SQLSERVER));
+        databases.add(Arrays.array(Database.POSTGRESQL));
+        databases.add(Arrays.array(Database.MYSQL));
+        return databases;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.jdbc.fetching;
 
 import com.vladmihalcea.book.hpjp.util.DataSourceProviderIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.providers.PostgreSQLDataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.SQLServerDataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.entity.BlogEntityProvider;
@@ -47,8 +48,8 @@ public class SQLStandardResultSetLimitTest extends DataSourceProviderIntegration
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
-    public SQLStandardResultSetLimitTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
+    public SQLStandardResultSetLimitTest(Database database) {
+        super(database);
     }
 
     @Parameterized.Parameters
