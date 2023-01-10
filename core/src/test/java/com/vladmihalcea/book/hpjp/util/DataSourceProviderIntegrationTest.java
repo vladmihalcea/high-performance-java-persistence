@@ -30,6 +30,7 @@ public abstract class DataSourceProviderIntegrationTest extends AbstractTest {
         databases.add(Arrays.array(Database.SQLSERVER));
         databases.add(Arrays.array(Database.POSTGRESQL));
         databases.add(Arrays.array(Database.MYSQL));
+        //databases.add(Arrays.array(Database.YUGABYTEDB));
         return databases;
     }
 

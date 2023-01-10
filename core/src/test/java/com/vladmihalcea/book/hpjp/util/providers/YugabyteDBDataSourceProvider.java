@@ -35,8 +35,6 @@ public class YugabyteDBDataSourceProvider implements DataSourceProvider {
     @Override
     public Properties dataSourceProperties() {
         Properties properties = new Properties();
-        properties.setProperty("databaseName", "high_performance_java_persistence");
-        properties.setProperty("serverName", "localhost");
         properties.setProperty("user", username());
         properties.setProperty("password", password());
         return properties;

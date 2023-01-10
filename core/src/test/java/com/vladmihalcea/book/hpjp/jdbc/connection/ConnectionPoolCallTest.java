@@ -28,7 +28,7 @@ public class ConnectionPoolCallTest extends DataSourceProviderIntegrationTest {
 
     private MetricRegistry metricRegistry = new MetricRegistry();
 
-    private Timer timer = metricRegistry.timer("callTimer");
+    private Timer timer = metricRegistry.timer("connectionTimer");
 
     private Slf4jReporter logReporter = Slf4jReporter
             .forRegistry(metricRegistry)
@@ -75,12 +75,10 @@ public class ConnectionPoolCallTest extends DataSourceProviderIntegrationTest {
     }
 
     protected HikariDataSource poolingDataSource() {
-        Properties properties = new Properties();
-        properties.setProperty("dataSourceClassName", dataSourceProvider().dataSourceClassName().getName());
-        properties.put("dataSourceProperties", dataSourceProvider().dataSourceProperties());
-        //properties.setProperty("minimumPoolSize", String.valueOf(1));
-        properties.setProperty("maximumPoolSize", String.valueOf(3));
-        properties.setProperty("connectionTimeout", String.valueOf(5000));
-        return new HikariDataSource(new HikariConfig(properties));
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(dataSourceProvider().url());
+        config.setUsername(dataSourceProvider().username());
+        config.setPassword(dataSourceProvider().password());
+        return new HikariDataSource(config);
     }
 }
