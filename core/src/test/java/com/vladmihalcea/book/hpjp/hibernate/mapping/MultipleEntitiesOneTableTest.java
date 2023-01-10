@@ -34,16 +34,17 @@ public class MultipleEntitiesOneTableTest extends AbstractPostgreSQLIntegrationT
                     .setIsbn("978-9730228236")
                     .setTitle("High-Performance Java Persistence")
                     .setAuthor("Vlad Mihalcea")
-                    .setProperties(
-                        "{" +
-                            "   \"publisher\": \"Amazon\"," +
-                            "   \"price\": 44.99," +
-                            "   \"publication_date\": \"2016-20-12\"," +
-                            "   \"dimensions\": \"8.5 x 1.1 x 11 inches\"," +
-                            "   \"weight\": \"2.5 pounds\"," +
-                            "   \"average_review\": \"4.7 out of 5 stars\"," +
-                            "   \"url\": \"https://amzn.com/973022823X\"" +
-                        "}"
+                    .setProperties("""
+                        {
+                           "publisher": "Amazon",
+                           "price": 44.99,
+                           "publication_date": "2016-20-12",
+                           "dimensions": "8.5 x 1.1 x 11 inches",
+                           "weight": "2.5 pounds",
+                           "average_review": "4.7 out of 5 stars",
+                           "url": "https://amzn.com/973022823X"
+                        }
+                        """
                     )
             );
 
