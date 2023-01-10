@@ -1,19 +1,17 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier;
 
-import java.util.Properties;
-
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-
+import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.junit.Test;
 
-import jakarta.persistence.*;
+import java.util.Properties;
 
 public class StringSequenceIdentifierTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
+        return new Class<?>[]{
             Post.class,
             Board.class,
             Event.class
@@ -23,12 +21,14 @@ public class StringSequenceIdentifierTest extends AbstractPostgreSQLIntegrationT
     @Override
     protected Properties properties() {
         Properties properties = super.properties();
-        properties.setProperty( "entity.identifier.prefix", "ID_" );
+        properties.setProperty("entity.identifier.prefix", "ID_");
         return properties;
     }
 
     @Test
     public void test() {
+        executeStatement("create sequence hibernate_sequence start 1 increment 1");
+
         LOGGER.debug("test");
         doInJPA(entityManager -> {
             entityManager.persist(new Post());
@@ -58,9 +58,9 @@ public class StringSequenceIdentifierTest extends AbstractPostgreSQLIntegrationT
             strategy = "com.vladmihalcea.book.hpjp.hibernate.identifier.StringSequenceIdentifier",
             parameters = {
                 @org.hibernate.annotations.Parameter(
-                        name = "sequence_name", value = "hibernate_sequence"),
+                    name = "sequence_name", value = "hibernate_sequence"),
                 @org.hibernate.annotations.Parameter(
-                        name = "sequence_prefix", value = "CTC_"),
+                    name = "sequence_prefix", value = "CTC_"),
             }
         )
         @GeneratedValue(generator = "assigned-sequence", strategy = GenerationType.SEQUENCE)
@@ -87,12 +87,12 @@ public class StringSequenceIdentifierTest extends AbstractPostgreSQLIntegrationT
 
         @Id
         @GenericGenerator(
-                name = "assigned-sequence",
-                strategy = "com.vladmihalcea.book.hpjp.hibernate.identifier.StringSequenceIdentifier",
-                parameters = {
-                        @org.hibernate.annotations.Parameter(
-                                name = "sequence_name", value = "hibernate_sequence"),
-                }
+            name = "assigned-sequence",
+            strategy = "com.vladmihalcea.book.hpjp.hibernate.identifier.StringSequenceIdentifier",
+            parameters = {
+                @org.hibernate.annotations.Parameter(
+                    name = "sequence_name", value = "hibernate_sequence"),
+            }
         )
         @GeneratedValue(generator = "assigned-sequence", strategy = GenerationType.SEQUENCE)
         private String id;
