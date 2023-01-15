@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.util.spring.config.jpa;
 
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +28,10 @@ public class AbstractHsqldbJPAConfiguration extends AbstractJPAConfiguration {
 
     @Value("${jdbc.password}")
     private String jdbcPassword;
+
+    public AbstractHsqldbJPAConfiguration() {
+        super(Database.HSQLDB);
+    }
 
     @Override
     public DataSource actualDataSource() {

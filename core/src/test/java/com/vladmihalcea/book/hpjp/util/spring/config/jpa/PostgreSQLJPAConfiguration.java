@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.util.spring.config.jpa;
 
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +32,10 @@ public class PostgreSQLJPAConfiguration extends AbstractJPAConfiguration {
 
     @Value("${jdbc.port}")
     private String jdbcPort;
+
+    public PostgreSQLJPAConfiguration() {
+        super(Database.POSTGRESQL);
+    }
 
     @Override
     public DataSource actualDataSource() {

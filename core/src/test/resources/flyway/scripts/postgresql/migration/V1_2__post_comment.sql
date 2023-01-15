@@ -1,3 +1,6 @@
+CREATE SEQUENCE post_comment_seq
+    START 1 INCREMENT 1;
+
 CREATE TABLE post_comment (
     id int8 NOT NULL,
     review varchar(255),

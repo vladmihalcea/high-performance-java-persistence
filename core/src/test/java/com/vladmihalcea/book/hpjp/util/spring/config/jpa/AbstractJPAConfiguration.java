@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.util.spring.config.jpa;
 
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.jpa.HibernatePersistenceProvider;
@@ -11,9 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.orm.jpa.JpaDialect;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -22,9 +21,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 
 /**
@@ -38,8 +34,19 @@ public abstract class AbstractJPAConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 
+    private final Database databaseType;
+
     @Value("${hibernate.dialect}")
     private String hibernateDialect;
+
+    protected AbstractJPAConfiguration(Database databaseType) {
+        this.databaseType = databaseType;
+    }
+
+    @Bean
+    public Database database() {
+        return databaseType;
+    }
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties() {

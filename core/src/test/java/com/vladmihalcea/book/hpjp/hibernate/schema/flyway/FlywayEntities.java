@@ -15,7 +15,8 @@ public class FlywayEntities {
     public static class Post {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_seq")
+        @SequenceGenerator(name = "post_seq", allocationSize = 1)
         private Long id;
 
         private String title;
@@ -94,7 +95,6 @@ public class FlywayEntities {
     public static class PostDetails {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         @Column(name = "created_on")
@@ -149,7 +149,8 @@ public class FlywayEntities {
     public static class PostComment {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_comment_seq")
+        @SequenceGenerator(name = "post_comment_seq", allocationSize = 1)
         private Long id;
 
         @ManyToOne
@@ -193,7 +194,8 @@ public class FlywayEntities {
     public static class Tag {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tag_seq")
+        @SequenceGenerator(name = "tag_seq", allocationSize = 1)
         private Long id;
 
         private String name;
@@ -212,7 +214,8 @@ public class FlywayEntities {
     public static class User {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
+        @SequenceGenerator(name = "user_seq", allocationSize = 1)
         private Long id;
 
         private String name;

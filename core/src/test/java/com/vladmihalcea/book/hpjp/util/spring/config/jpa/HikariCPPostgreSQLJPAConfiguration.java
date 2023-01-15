@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.util.spring.config.jpa;
 
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +34,10 @@ public class HikariCPPostgreSQLJPAConfiguration extends AbstractJPAConfiguration
 
     @Value("${jdbc.port}")
     private String jdbcPort;
+
+    public HikariCPPostgreSQLJPAConfiguration() {
+        super(Database.POSTGRESQL);
+    }
 
     @Override
     public DataSource actualDataSource() {

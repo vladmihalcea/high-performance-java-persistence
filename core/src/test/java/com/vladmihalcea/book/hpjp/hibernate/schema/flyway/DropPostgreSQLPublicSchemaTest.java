@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.hibernate.schema.flyway;
 
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.vladmihalcea.book.hpjp.util.spring.config.jpa.PostgreSQLJPAConfiguration;
 import org.hibernate.Session;
 import org.junit.Test;
@@ -37,8 +38,8 @@ public class DropPostgreSQLPublicSchemaTest {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
-    @Resource
-    private String databaseType;
+    @Autowired
+    private Database database;
 
     private boolean drop = true;
 
@@ -52,7 +53,7 @@ public class DropPostgreSQLPublicSchemaTest {
                         ScriptUtils.executeSqlScript(connection,
                             new EncodedResource(
                                 new ClassPathResource(
-                                    String.format("flyway/scripts/%1$s/drop/drop.sql", databaseType)
+                                    String.format("flyway/scripts/%1$s/drop/drop.sql", database.name().toLowerCase())
                                 )
                             ),
                             true, true,

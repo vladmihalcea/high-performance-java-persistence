@@ -1,4 +1,4 @@
-CREATE SEQUENCE hibernate_sequence
+CREATE SEQUENCE post_seq
 START 1 INCREMENT 1;
 
 CREATE TABLE post (
@@ -6,6 +6,9 @@ CREATE TABLE post (
     title varchar(255),
     PRIMARY KEY (id)
 );
+
+CREATE SEQUENCE tag_seq
+    START 1 INCREMENT 1;
 
 CREATE TABLE tag (
     id int8 NOT NULL,

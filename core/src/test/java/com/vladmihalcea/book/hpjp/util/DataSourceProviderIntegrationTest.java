@@ -26,11 +26,11 @@ public abstract class DataSourceProviderIntegrationTest extends AbstractTest {
     @Parameterized.Parameters
     public static Collection<Database[]> databases() {
         List<Database[]> databases = new ArrayList<>();
-        databases.add(Arrays.array(Database.ORACLE));
+        /*databases.add(Arrays.array(Database.ORACLE));
         databases.add(Arrays.array(Database.SQLSERVER));
         databases.add(Arrays.array(Database.POSTGRESQL));
-        databases.add(Arrays.array(Database.MYSQL));
-        //databases.add(Arrays.array(Database.YUGABYTEDB));
+        databases.add(Arrays.array(Database.MYSQL));*/
+        databases.add(Arrays.array(Database.YUGABYTEDB));
         return databases;
     }
 

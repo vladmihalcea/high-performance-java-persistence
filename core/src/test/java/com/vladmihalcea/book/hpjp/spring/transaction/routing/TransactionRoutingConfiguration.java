@@ -52,6 +52,10 @@ public class TransactionRoutingConfiguration extends AbstractJPAConfiguration {
     @Value("${jdbc.password}")
     private String password;
 
+    public TransactionRoutingConfiguration() {
+        super(Database.POSTGRESQL);
+    }
+
     @Bean
     public DataSource readWriteDataSource() {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();

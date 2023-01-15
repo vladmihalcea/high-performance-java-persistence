@@ -44,6 +44,11 @@ public abstract class AbstractFlywayConfiguration {
     public abstract DataSource dataSource();
 
     @Bean
+    public Database database() {
+        return databaseType;
+    }
+
+    @Bean
     public Flyway flyway() {
         Flyway flyway = Flyway.configure()
             .dataSource(dataSource())
