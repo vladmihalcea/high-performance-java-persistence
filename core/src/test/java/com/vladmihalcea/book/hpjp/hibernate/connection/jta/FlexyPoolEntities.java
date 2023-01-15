@@ -15,7 +15,8 @@ public class FlexyPoolEntities {
     public static class Post {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
+        @SequenceGenerator(name = "hibernate_sequence", allocationSize = 1)
         private Long id;
 
         private String title;
@@ -94,7 +95,6 @@ public class FlexyPoolEntities {
     public static class PostDetails {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         @Column(name = "created_on")
@@ -149,7 +149,8 @@ public class FlexyPoolEntities {
     public static class PostComment {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
+        @SequenceGenerator(name = "hibernate_sequence", allocationSize = 1)
         private Long id;
 
         @ManyToOne
@@ -193,7 +194,8 @@ public class FlexyPoolEntities {
     public static class Tag {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
+        @SequenceGenerator(name = "hibernate_sequence", allocationSize = 1)
         private Long id;
 
         private String name;
@@ -212,7 +214,8 @@ public class FlexyPoolEntities {
     public static class User {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
+        @SequenceGenerator(name = "hibernate_sequence", allocationSize = 1)
         private Long id;
 
         private String name;
