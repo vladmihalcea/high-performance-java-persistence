@@ -15,6 +15,7 @@ public enum Database {
 	MARIADB(MariaDBDataSourceProvider.class),
 	SQLSERVER(SQLServerDataSourceProvider.class),
 	YUGABYTEDB(YugabyteDBDataSourceProvider.class),
+	YUGABYTEDB_CLUSTER(YugabyteDBClusterDataSourceProvider.class),
 	COCKROACHDB(CockroachDBDataSourceProvider.class),
 	;
 
