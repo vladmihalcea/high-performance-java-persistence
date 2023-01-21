@@ -33,8 +33,7 @@ import com.vladmihalcea.book.hpjp.util.AbstractTest;
 /**
  * @author Vlad Mihalcea
  */
-public class BidirectionalManyToManyExtraColumnsTest
-        extends AbstractTest {
+public class BidirectionalManyToManyExtraColumnsTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -167,14 +166,13 @@ public class BidirectionalManyToManyExtraColumnsTest
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Post post = (Post) o;
-            return Objects.equals(title, post.title);
+            if (!(o instanceof Post)) return false;
+            return id != null && id.equals(((Post) o).getId());
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(title);
+            return getClass().hashCode();
         }
     }
 
