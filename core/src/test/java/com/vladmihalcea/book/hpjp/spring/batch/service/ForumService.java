@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -15,7 +16,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * @author Vlad Mihalcea
@@ -45,13 +45,14 @@ public class ForumService {
         this.batchProcessingSize = batchProcessingSize;
     }
 
+    @Transactional(propagation = Propagation.NEVER)
     public void createPosts(List<Post> posts) {
         CollectionUtils.spitInBatches(posts, batchProcessingSize)
             .map(postBatch -> executorService.submit(() -> {
                 try {
                     transactionTemplate.execute((status) -> postRepository.persistAll(postBatch));
                 } catch (TransactionException e) {
-                    LOGGER.error("Batch processing failure", e);
+                    LOGGER.error("Batch transaction failure", e);
                 }
             }))
             .forEach(future -> {
@@ -63,5 +64,13 @@ public class ForumService {
                     LOGGER.error("Batch execution failure", e);
                 }
             });
+    }
+
+    public List<Post> findByIds(List<Long> ids) {
+        return postRepository.findAllById(ids);
+    }
+
+    public Post findById(Long id) {
+        return postRepository.findById(id).orElse(null);
     }
 }

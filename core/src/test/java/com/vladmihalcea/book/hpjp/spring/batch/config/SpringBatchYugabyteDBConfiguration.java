@@ -47,6 +47,8 @@ public class SpringBatchYugabyteDBConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 
+    private int maxConnections = 64;
+
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties() {
         return new PropertySourcesPlaceholderConfigurer();
@@ -65,7 +67,7 @@ public class SpringBatchYugabyteDBConfiguration {
     @Bean(destroyMethod = "close")
     public HikariDataSource actualDataSource() {
         HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setMaximumPoolSize(64);
+        hikariConfig.setMaximumPoolSize(maxConnections);
         hikariConfig.setAutoCommit(false);
         hikariConfig.setDataSource(dataSourceProvider().dataSource());
         return new HikariDataSource(hikariConfig);

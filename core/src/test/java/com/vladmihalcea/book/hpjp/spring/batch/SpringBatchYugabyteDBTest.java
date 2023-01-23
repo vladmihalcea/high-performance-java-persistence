@@ -16,6 +16,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.List;
 import java.util.stream.LongStream;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * @author Vlad Mihalcea
  */
@@ -26,7 +28,7 @@ public class SpringBatchYugabyteDBTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    public static final int POST_COUNT = 50 * 1000;
+    public static final int POST_COUNT = 5 * 1000;
 
     @Autowired
     private ForumService forumService;
@@ -45,6 +47,26 @@ public class SpringBatchYugabyteDBTest {
             .toList();
 
         forumService.createPosts(posts);
+
+        LongStream.rangeClosed(1, POST_COUNT)
+            .mapToObj(postId -> new Post()
+                .setTitle(
+                    String.format("High-Performance Java Persistence - Page %d",
+                        postId
+                    )
+                )
+                .setStatus(PostStatus.PENDING)
+            )
+            .toList();
+
+        forumService.createPosts(posts);
+
+        LongStream.rangeClosed(1, 1000).boxed().forEach(id -> assertNotNull(forumService.findById(id)));
+
+        List<Post> matchedPosts = forumService.findByIds(
+            LongStream.rangeClosed(1, 1000).boxed().toList()
+        );
+        assertEquals(1000, matchedPosts.size());
     }
 }
 

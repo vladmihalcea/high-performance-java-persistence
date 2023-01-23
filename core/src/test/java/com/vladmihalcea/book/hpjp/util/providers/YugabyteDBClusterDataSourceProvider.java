@@ -16,6 +16,12 @@ public class YugabyteDBClusterDataSourceProvider extends YugabyteDBDataSourcePro
 
     public static final DataSourceProvider INSTANCE = new YugabyteDBDataSourceProvider();
 
+    private String host = "127.0.0.1";
+
+    private int port = 5433;
+
+    private String database = "high_performance_java_persistence";
+
     @Override
     public String hibernateDialect() {
         return PostgreSQLDialect.class.getName();
@@ -32,12 +38,17 @@ public class YugabyteDBClusterDataSourceProvider extends YugabyteDBDataSourcePro
 
     @Override
     public Class<? extends DataSource> dataSourceClassName() {
-        return PGSimpleDataSource.class;
+        return YBClusterAwareDataSource.class;
     }
 
     @Override
     public String url() {
-        return "jdbc:yugabytedb://127.0.0.1:5433/high_performance_java_persistence?load-balance=true";
+        return String.format(
+            "jdbc:yugabytedb://%s:%d/%s?load-balance=true",
+            host,
+            port,
+            database
+        );
     }
 
     @Override
