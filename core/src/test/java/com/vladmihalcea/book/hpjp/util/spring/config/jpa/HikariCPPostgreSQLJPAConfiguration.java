@@ -20,7 +20,7 @@ import java.util.Properties;
 public class HikariCPPostgreSQLJPAConfiguration extends AbstractJPAConfiguration {
 
     protected HikariCPPostgreSQLJPAConfiguration() {
-        super(Database.YUGABYTEDB_CLUSTER);
+        super(Database.POSTGRESQL);
     }
 
     @Bean
