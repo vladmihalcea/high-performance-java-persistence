@@ -34,12 +34,11 @@ public class UpsertAndGetTest extends AbstractJOOQPostgreSQLIntegrationTest {
             .values(1L, "High-Performance Java Persistence")
             .execute();
 
-            PostDetailsRecord postDetailsRecord = upsertPostDetails(sql, 1L, "Alice",
-                    Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
+            PostDetailsRecord postDetailsRecord = upsertPostDetails(sql, 1L, "Alice", LocalDateTime.now());
         });
     }
 
-    private PostDetailsRecord upsertPostDetails(DSLContext sql, Long id, String owner, Timestamp timestamp) {
+    private PostDetailsRecord upsertPostDetails(DSLContext sql, Long id, String owner, LocalDateTime timestamp) {
         sql
         .insertInto(POST_DETAILS)
         .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)

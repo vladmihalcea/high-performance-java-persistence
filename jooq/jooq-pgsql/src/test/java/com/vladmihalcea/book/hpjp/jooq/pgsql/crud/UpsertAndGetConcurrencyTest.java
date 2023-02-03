@@ -3,19 +3,15 @@ package com.vladmihalcea.book.hpjp.jooq.pgsql.crud;
 import com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.tables.records.PostDetailsRecord;
 import com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.tables.records.PostRecord;
 import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
-import org.jooq.DSLContext;
 import org.junit.Test;
 
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Sequences.HIBERNATE_SEQUENCE;
 import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Tables.POST;
 import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.tables.PostDetails.POST_DETAILS;
-import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Sequences.HIBERNATE_SEQUENCE;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.val;
 import static org.junit.Assert.assertTrue;
@@ -49,7 +45,7 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQPostgreSQLIntegrati
             sql
             .insertInto(POST_DETAILS)
             .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)
-            .values(postId, "Alice", Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)))
+            .values(postId, "Alice", LocalDateTime.now())
             .onDuplicateKeyIgnore()
             .execute();
 
@@ -63,7 +59,7 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQPostgreSQLIntegrati
                         _sql
                         .insertInto(POST_DETAILS)
                         .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)
-                        .values(postId, "Bob", Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)))
+                        .values(postId, "Bob", LocalDateTime.now())
                         .onDuplicateKeyIgnore()
                         .execute();
                     });

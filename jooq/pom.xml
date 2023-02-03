@@ -14,7 +14,8 @@
     <modules>
         <module>jooq-core</module>
         <module>jooq-mysql</module>
-        <!--<module>jooq-pgsql</module>
+        <module>jooq-pgsql</module>
+        <!--
         <module>jooq-oracle</module>
         <module>jooq-mssql</module>
         <module>jooq-pgsql-score</module>-->
@@ -33,6 +34,7 @@
 
     <properties>
         <jooq.version>3.17.7</jooq.version>
+        <activation.version>1.1.1</activation.version>
     </properties>
 
 </project>

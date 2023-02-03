@@ -17,7 +17,7 @@ public abstract class AbstractJOOQPostgreSQLIntegrationTest extends AbstractJOOQ
 
     @Override
     protected SQLDialect sqlDialect() {
-        return SQLDialect.POSTGRES_9_5;
+        return SQLDialect.POSTGRES;
     }
 
     protected DataSourceProvider dataSourceProvider() {
