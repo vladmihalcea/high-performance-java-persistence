@@ -129,7 +129,7 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
         doInJPA(entityManager -> {
             List<Post> posts = getPostsByTitle(
                 "High-Performance Java Persistence' and " +
-                "FUNCTION('1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(2) ) --',) is '"
+                "(SELECT pg_sleep(2)||'') = '"
             );
             assertEquals(1, posts.size());
         });
