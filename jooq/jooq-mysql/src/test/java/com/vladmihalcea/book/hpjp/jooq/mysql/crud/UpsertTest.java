@@ -3,9 +3,7 @@ package com.vladmihalcea.book.hpjp.jooq.mysql.crud;
 import org.jooq.DSLContext;
 import org.junit.Test;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.concurrent.TimeUnit;
 
 import static com.vladmihalcea.book.hpjp.jooq.mysql.schema.crud.Tables.POST;
@@ -32,19 +30,17 @@ public class UpsertTest extends AbstractJOOQMySQLIntegrationTest {
             .execute();
 
             executeAsync(() -> {
-                upsertPostDetails(sql, 1L, "Alice",
-                        Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
+                upsertPostDetails(sql, 1L, "Alice", LocalDateTime.now());
             });
             executeAsync(() -> {
-                upsertPostDetails(sql, 1L, "Bob",
-                        Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
+                upsertPostDetails(sql, 1L, "Bob", LocalDateTime.now());
             });
 
             awaitTermination(1, TimeUnit.SECONDS);
         });
     }
 
-    private void upsertPostDetails(DSLContext sql, Long id, String owner, Timestamp timestamp) {
+    private void upsertPostDetails(DSLContext sql, Long id, String owner, LocalDateTime timestamp) {
         sql
         .insertInto(POST_DETAILS)
         .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)

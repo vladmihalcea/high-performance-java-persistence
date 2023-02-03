@@ -14,10 +14,10 @@
     <modules>
         <module>jooq-core</module>
         <module>jooq-mysql</module>
-        <module>jooq-pgsql</module>
+        <!--<module>jooq-pgsql</module>
         <module>jooq-oracle</module>
         <module>jooq-mssql</module>
-        <module>jooq-pgsql-score</module>
+        <module>jooq-pgsql-score</module>-->
     </modules>
 
     <dependencies>
@@ -29,11 +29,10 @@
             <scope>test</scope>
         </dependency>
 
-
     </dependencies>
 
     <properties>
-        <jooq.version>3.8.4</jooq.version>
+        <jooq.version>3.17.7</jooq.version>
     </properties>
 
 </project>

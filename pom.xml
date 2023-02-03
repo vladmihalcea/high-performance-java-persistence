@@ -12,7 +12,7 @@
 
     <modules>
         <module>core</module>
-        <!--<module>jooq</module>-->
+        <module>jooq</module>
     </modules>
 
     <dependencies>
@@ -470,9 +470,9 @@
                 <configuration>
                     <release>${jdk.version}</release>
 
-                    <compilerArgs>
-                        <compilerArg>--enable-preview</compilerArg>
-                    </compilerArgs>
+                    <!--<compilerArgs>
+                        <compilerArg>&#45;&#45;enable-preview</compilerArg>
+                    </compilerArgs>-->
 
                     <!-- Not needed, should be auto-discovered -->
                     <!--<annotationProcessorPaths>
@@ -491,7 +491,7 @@
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <argLine>-Xms1024m -Xmx1024m</argLine>
-                    <argLine>--enable-preview</argLine>
+                    <!--<argLine>&#45;&#45;enable-preview</argLine>-->
                 </configuration>
             </plugin>
         </plugins>
