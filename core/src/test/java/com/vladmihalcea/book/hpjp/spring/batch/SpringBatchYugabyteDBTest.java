@@ -13,7 +13,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 import java.util.stream.LongStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,9 +36,10 @@ public class SpringBatchYugabyteDBTest {
     private ForumService forumService;
 
     @Test
-    public void test() {
+    public void testBatchWrite() {
         List<Post> posts = LongStream.rangeClosed(1, POST_COUNT)
             .mapToObj(postId -> new Post()
+                .setId(postId)
                 .setTitle(
                     String.format("High-Performance Java Persistence - Page %d",
                         postId
@@ -67,6 +70,71 @@ public class SpringBatchYugabyteDBTest {
             LongStream.rangeClosed(1, 1000).boxed().toList()
         );
         assertEquals(1000, matchedPosts.size());
+    }
+
+    private int threadCount = 6;
+
+    private long threadExecutionSeconds = TimeUnit.MINUTES.toSeconds(5);
+
+    private ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+
+    @Test
+    public void testRead() throws InterruptedException {
+        int POST_COUNT = 1000;
+
+        List<Post> posts = LongStream.rangeClosed(1, POST_COUNT)
+            .mapToObj(postId -> new Post()
+                .setId(postId)
+                .setTitle(
+                    String.format("High-Performance Java Persistence - Part %d",
+                        postId
+                    )
+                )
+                .setStatus(PostStatus.PENDING)
+            )
+            .toList();
+
+        forumService.createPosts(posts);
+
+        long startNanos = System.nanoTime();
+        long endNanos = startNanos + TimeUnit.SECONDS.toNanos(threadExecutionSeconds);
+
+        CountDownLatch awaitTermination = new CountDownLatch(threadCount);
+        List<Callable<Void>> tasks = new ArrayList<>();
+
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+
+        for (int i = 0; i < threadCount; i++) {
+            tasks.add(
+                () -> {
+                    while (endNanos > System.nanoTime()) {
+                        try {
+                            Long id = random.nextLong(1, POST_COUNT);
+                            LOGGER.info("Fetching entity by id [{}]", id);
+                            Post post = forumService.findById(id);
+                            assertNotNull(post);
+
+                            sleep(250, TimeUnit.MILLISECONDS);
+                        } catch (Exception e) {
+                            LOGGER.error("Service failure", e);
+                        }
+                    }
+                    awaitTermination.countDown();
+                    return null;
+                }
+            );
+        }
+
+        executorService.invokeAll(tasks);
+        awaitTermination.await();
+    }
+
+    private void sleep(long duration, TimeUnit timeUnit) {
+        try {
+            Thread.sleep(timeUnit.toMillis(duration));
+        } catch (InterruptedException e) {
+            Thread.interrupted();
+        }
     }
 }
 

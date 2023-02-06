@@ -33,6 +33,9 @@ public class YugabyteDBClusterDataSourceProvider extends YugabyteDBDataSourcePro
         dataSource.setURL(url());
         dataSource.setUser(username());
         dataSource.setPassword(password());
+        dataSource.setLoadBalanceHosts(true);
+        dataSource.setConnectTimeout(10);
+        dataSource.setSocketTimeout(10);
         return dataSource;
     }
 

@@ -10,7 +10,6 @@ import jakarta.persistence.*;
 public class Post {
 
     @Id
-    @GeneratedValue
     private Long id;
 
     private String title;

@@ -6,7 +6,7 @@
         <file>target/test.log</file>
         <append>false</append>
         <encoder>
-            <Pattern>%-5p [%t]: %c{1} - %m%n</Pattern>
+            <Pattern>%d %-5p [%t]: %c{1} - %m%n</Pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
@@ -22,14 +22,14 @@
 
     <logger name="org.springframework" level="warn"/>
 
-    <logger name="net.ttddyy.dsproxy.listener" level="debug"/>
+    <logger name="net.ttddyy.dsproxy.listener" level="info"/>
 
     <logger name="org.hibernate" level="info"/>
     <logger name="org.hibernate.hql" level="info"/>
     <logger name="org.hibernate.event.internal" level="info"/>
-    <logger name="org.hibernate.engine.transaction.internal" level="debug"/>
-    <logger name="org.hibernate.resource.jdbc.internal.AbstractLogicalConnectionImplementor" level="trace"/>
-    <logger name="org.hibernate.cache" level="debug"/>
+    <logger name="org.hibernate.engine.transaction.internal" level="info"/>
+    <logger name="org.hibernate.resource.jdbc.internal.AbstractLogicalConnectionImplementor" level="info"/>
+    <logger name="org.hibernate.cache" level="info"/>
     <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="info"/>
 
     <!--<logger name="org.hibernate.SQL" level="debug"/>
