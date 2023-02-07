@@ -32,16 +32,17 @@ import java.util.Properties;
  * @author Vlad Mihalcea
  */
 @Configuration
-@ComponentScan(
-    value = {
-        "com.vladmihalcea.book.hpjp.spring.batch.service",
-    }
-)
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
 @EnableJpaRepositories(
     value = "com.vladmihalcea.book.hpjp.spring.batch.repository",
     repositoryBaseClass = BaseJpaRepositoryImpl.class
+)
+@ComponentScan(
+    value = {
+        "com.vladmihalcea.book.hpjp.spring.batch.service",
+        "io.hypersistence.utils.spring.aop"
+    }
 )
 public class SpringBatchYugabyteDBConfiguration {
 

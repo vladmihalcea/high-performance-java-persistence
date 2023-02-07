@@ -3,15 +3,18 @@ package com.vladmihalcea.book.hpjp.spring.batch.service;
 import com.vladmihalcea.book.hpjp.spring.batch.domain.Post;
 import com.vladmihalcea.book.hpjp.spring.batch.repository.PostRepository;
 import com.vladmihalcea.book.hpjp.util.CollectionUtils;
+import io.hypersistence.utils.spring.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -21,7 +24,6 @@ import java.util.concurrent.Executors;
  * @author Vlad Mihalcea
  */
 @Service
-@Transactional(readOnly = true)
 public class ForumService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ForumService.class);
@@ -66,10 +68,18 @@ public class ForumService {
             });
     }
 
+    @Transactional(readOnly = true)
     public List<Post> findByIds(List<Long> ids) {
         return postRepository.findAllById(ids);
     }
 
+    @Retry(
+        times = 3,
+        on = {
+            SocketTimeoutException.class,
+            TransactionSystemException.class
+        }
+    )
     public Post findById(Long id) {
         return postRepository.findById(id).orElse(null);
     }

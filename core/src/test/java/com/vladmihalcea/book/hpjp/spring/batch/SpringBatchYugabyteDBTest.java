@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.LongStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -74,7 +75,7 @@ public class SpringBatchYugabyteDBTest {
 
     private int threadCount = 6;
 
-    private long threadExecutionSeconds = TimeUnit.MINUTES.toSeconds(5);
+    private long threadExecutionSeconds = TimeUnit.MINUTES.toSeconds(1);
 
     private ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
@@ -104,10 +105,12 @@ public class SpringBatchYugabyteDBTest {
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
+        final AtomicBoolean failed = new AtomicBoolean();
+
         for (int i = 0; i < threadCount; i++) {
             tasks.add(
                 () -> {
-                    while (endNanos > System.nanoTime()) {
+                    while (!failed.get() && endNanos > System.nanoTime()) {
                         try {
                             Long id = random.nextLong(1, POST_COUNT);
                             LOGGER.info("Fetching entity by id [{}]", id);
@@ -116,7 +119,7 @@ public class SpringBatchYugabyteDBTest {
 
                             sleep(250, TimeUnit.MILLISECONDS);
                         } catch (Exception e) {
-                            LOGGER.error("Service failure", e);
+                            failed.set(true);
                         }
                     }
                     awaitTermination.countDown();
@@ -127,6 +130,7 @@ public class SpringBatchYugabyteDBTest {
 
         executorService.invokeAll(tasks);
         awaitTermination.await();
+        assertFalse(failed.get());
     }
 
     private void sleep(long duration, TimeUnit timeUnit) {

@@ -433,14 +433,14 @@
         <hikari.version>4.0.3</hikari.version>
         <flexy-pool.version>2.0.0</flexy-pool.version>
 
-        <aspectj.version>1.8.7</aspectj.version>
+        <aspectj.version>1.9.19</aspectj.version>
         <spring.version>6.0.0</spring.version>
         <spring-data.version>3.0.0</spring-data.version>
 
         <jackson.version>2.12.6.1</jackson.version>
 
         <flyway.version>6.4.4</flyway.version>
-        <hypersistence-utils.version>3.1.1</hypersistence-utils.version>
+        <hypersistence-utils.version>3.1.2</hypersistence-utils.version>
 
         <blaze-persistence.version>1.6.7</blaze-persistence.version>
 
