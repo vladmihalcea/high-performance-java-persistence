@@ -22,7 +22,7 @@
 
     <logger name="org.springframework" level="warn"/>
 
-    <logger name="net.ttddyy.dsproxy.listener" level="info"/>
+    <logger name="net.ttddyy.dsproxy.listener" level="debug"/>
 
     <logger name="org.hibernate" level="info"/>
     <logger name="org.hibernate.hql" level="info"/>
