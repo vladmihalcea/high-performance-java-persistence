@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.hpjp.util;
 
-import com.github.f4b6a3.tsid.Tsid;
-import com.github.f4b6a3.tsid.TsidFactory;
+import io.hypersistence.tsid.TSID;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -14,7 +13,7 @@ public class TsidUtils {
     public static final String TSID_NODE_COUNT_PROPERTY = "tsid.node.count";
     public static final String TSID_NODE_COUNT_ENV = "TSID_NODE_COUNT";
 
-    public static TsidFactory TSID_FACTORY;
+    public static TSID.Factory TSID_FACTORY;
 
     static {
         String nodeCountSetting = System.getProperty(
@@ -32,12 +31,8 @@ public class TsidUtils {
 
         int nodeBits = (int) (Math.log(nodeCount) / Math.log(2));
 
-        TSID_FACTORY = TsidFactory.builder()
-            .withRandomFunction(length -> {
-                final byte[] bytes = new byte[length];
-                ThreadLocalRandom.current().nextBytes(bytes);
-                return bytes;
-            })
+        TSID_FACTORY = TSID.Factory.builder()
+            .withRandomFunction(TSID.Factory.THREAD_LOCAL_RANDOM_FUNCTION)
             .withNodeBits(nodeBits)
             .build();
     }
@@ -46,7 +41,7 @@ public class TsidUtils {
         throw new UnsupportedOperationException("TsidUtils is not instantiable!");
     }
 
-    public static Tsid randomTsid() {
-        return TSID_FACTORY.create();
+    public static TSID randomTsid() {
+        return TSID_FACTORY.generate();
     }
 }

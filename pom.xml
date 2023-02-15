@@ -363,9 +363,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.f4b6a3</groupId>
-            <artifactId>tsid-creator</artifactId>
-            <version>${tsid-creator.version}</version>
+            <groupId>io.hypersistence</groupId>
+            <artifactId>tsid</artifactId>
+            <version>${hypersistence-tsid.version}</version>
         </dependency>
 
         <!-- Testing -->
@@ -441,10 +441,10 @@
 
         <flyway.version>6.4.4</flyway.version>
         <hypersistence-utils.version>3.1.2</hypersistence-utils.version>
+        <hypersistence-tsid.version>1.1.0</hypersistence-tsid.version>
 
         <blaze-persistence.version>1.6.7</blaze-persistence.version>
 
-        <tsid-creator.version>5.0.2</tsid-creator.version>
 
         <hypersistence-optimizer.version>2.4.2</hypersistence-optimizer.version>
 

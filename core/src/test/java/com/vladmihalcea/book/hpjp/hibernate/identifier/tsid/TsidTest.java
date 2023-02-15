@@ -1,8 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier.tsid;
 
-import com.github.f4b6a3.tsid.Tsid;
-import com.github.f4b6a3.tsid.TsidCreator;
 import com.vladmihalcea.book.hpjp.util.TsidUtils;
+import io.hypersistence.tsid.TSID;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,14 +11,13 @@ import java.util.concurrent.*;
 
 import static org.junit.Assert.assertNull;
 
-
 public class TsidTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Test
     public void test() {
-        Tsid tsid = TsidCreator.getTsid256();
+        TSID tsid = TSID.fast();
         long tsidLong = tsid.toLong();
         String tsidString = tsid.toString();
         long tsidMillis = tsid.getUnixMilliseconds();
@@ -31,7 +29,7 @@ public class TsidTest {
         for (int i = 0; i < 10; i++) {
             LOGGER.info(
                 "TSID numerical value: {}",
-                TsidCreator.getTsid256().toLong()
+                TSID.fast().toLong()
             );
         }
     }
@@ -43,7 +41,7 @@ public class TsidTest {
 
         CountDownLatch endLatch = new CountDownLatch(threadCount);
 
-        ConcurrentMap<Tsid, Integer> tsidMap = new ConcurrentHashMap<>();
+        ConcurrentMap<TSID, Integer> tsidMap = new ConcurrentHashMap<>();
 
         long startNanos = System.nanoTime();
 
@@ -51,7 +49,7 @@ public class TsidTest {
             final int threadId = i;
             new Thread(() -> {
                 for (int j = 0; j < iterationCount; j++) {
-                    Tsid tsid = TsidUtils.TSID_FACTORY.create();
+                    TSID tsid = TsidUtils.TSID_FACTORY.generate();
                     assertNull(
                         "TSID collision detected",
                         tsidMap.put(tsid, (threadId * iterationCount) + j)
