@@ -362,12 +362,6 @@
             <version>${blaze-persistence.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>io.hypersistence</groupId>
-            <artifactId>tsid</artifactId>
-            <version>${hypersistence-tsid.version}</version>
-        </dependency>
-
         <!-- Testing -->
 
         <dependency>
@@ -440,8 +434,7 @@
         <jackson.version>2.12.6.1</jackson.version>
 
         <flyway.version>6.4.4</flyway.version>
-        <hypersistence-utils.version>3.1.2</hypersistence-utils.version>
-        <hypersistence-tsid.version>1.1.0</hypersistence-tsid.version>
+        <hypersistence-utils.version>3.2.0</hypersistence-utils.version>
 
         <blaze-persistence.version>1.6.7</blaze-persistence.version>
 

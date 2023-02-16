@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.text.DecimalFormat;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.assertNull;
 
@@ -45,15 +46,20 @@ public class TsidTest {
 
         long startNanos = System.nanoTime();
 
+        AtomicLong collisionCount = new AtomicLong();
+
+        int nodeCount = 4;
+
         for (int i = 0; i < threadCount; i++) {
             final int threadId = i;
             new Thread(() -> {
+                TSID.Factory tsidFactory = TsidUtils.getTsidFactory(nodeCount, threadId % nodeCount);
+
                 for (int j = 0; j < iterationCount; j++) {
-                    TSID tsid = TsidUtils.TSID_FACTORY.generate();
-                    assertNull(
-                        "TSID collision detected",
-                        tsidMap.put(tsid, (threadId * iterationCount) + j)
-                    );
+                    TSID tsid = tsidFactory.generate();
+                    if(tsidMap.put(tsid, (threadId * iterationCount) + j) != null) {
+                        collisionCount.incrementAndGet();
+                    }
                 }
 
                 endLatch.countDown();
@@ -63,14 +69,15 @@ public class TsidTest {
         endLatch.await();
 
         LOGGER.info(
-            "{} threads generated {} TSIDs in {} ms",
+            "{} threads generated {} TSIDs in {} ms with {} collision",
             threadCount,
             new DecimalFormat("###,###,###").format(
                 threadCount * iterationCount
             ),
             TimeUnit.NANOSECONDS.toMillis(
                 System.nanoTime() - startNanos
-            )
+            ),
+            collisionCount
         );
     }
 

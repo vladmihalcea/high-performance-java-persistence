@@ -2,8 +2,6 @@ package com.vladmihalcea.book.hpjp.util;
 
 import io.hypersistence.tsid.TSID;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 /**
  * <code>TsidUtils</code> - Tsid utilities holder.
  *
@@ -29,12 +27,7 @@ public class TsidUtils {
             Integer.parseInt(nodeCountSetting) :
             256;
 
-        int nodeBits = (int) (Math.log(nodeCount) / Math.log(2));
-
-        TSID_FACTORY = TSID.Factory.builder()
-            .withRandomFunction(TSID.Factory.THREAD_LOCAL_RANDOM_FUNCTION)
-            .withNodeBits(nodeBits)
-            .build();
+        TSID_FACTORY = getTsidFactory(nodeCount);
     }
 
     private TsidUtils() {
@@ -43,5 +36,24 @@ public class TsidUtils {
 
     public static TSID randomTsid() {
         return TSID_FACTORY.generate();
+    }
+
+    public static TSID.Factory getTsidFactory(int nodeCount) {
+        int nodeBits = (int) (Math.log(nodeCount) / Math.log(2));
+
+        return TSID.Factory.builder()
+            .withRandomFunction(TSID.Factory.THREAD_LOCAL_RANDOM_FUNCTION)
+            .withNodeBits(nodeBits)
+            .build();
+    }
+
+    public static TSID.Factory getTsidFactory(int nodeCount, int nodeId) {
+        int nodeBits = (int) (Math.log(nodeCount) / Math.log(2));
+
+        return TSID.Factory.builder()
+            .withRandomFunction(TSID.Factory.THREAD_LOCAL_RANDOM_FUNCTION)
+            .withNodeBits(nodeBits)
+            .withNode(nodeId)
+            .build();
     }
 }
