@@ -118,7 +118,6 @@ public class SpringDataJPACrudTest {
     }
 
     @Test
-    @Ignore
     public void testSaveWithFindById() {
         Long postId = transactionTemplate.execute(transactionStatus -> {
             Post post = new Post()
@@ -132,7 +131,7 @@ public class SpringDataJPACrudTest {
         });
 
         LOGGER.info("Save PostComment");
-
+        SQLStatementCountValidator.reset();
         postService.addNewPostComment("Best book on JPA and Hibernate!", postId);
 
         //The sequence call

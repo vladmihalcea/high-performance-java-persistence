@@ -55,13 +55,17 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public PostComment addNewPostComment(String review, Long postId) {
-        PostComment comment = new PostComment()
+        /*PostComment comment = new PostComment()
             .setReview(review)
             .setPost(postRepository.findById(postId).orElseThrow(
                 ()-> new EntityNotFoundException(
                     String.format("Post with id [%d] was not found!", postId)
                 )
-            ));
+            ));*/
+
+        PostComment comment = new PostComment()
+            .setReview(review)
+            .setPost(postRepository.getReferenceById(postId));
 
         postCommentRepository.save(comment);
 
