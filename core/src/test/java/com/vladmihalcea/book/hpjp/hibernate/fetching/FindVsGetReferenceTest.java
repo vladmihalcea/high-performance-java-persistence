@@ -6,8 +6,7 @@ import org.junit.Test;
 
 import jakarta.persistence.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
@@ -75,6 +74,24 @@ public class FindVsGetReferenceTest extends AbstractTest {
         } catch (LazyInitializationException e) {
             LOGGER.info("Failure expected", e);
         }
+    }
+
+    @Test
+    public void testDummyPojo() {
+        Post _post = doInJPA(entityManager -> {
+            PostComment comment = new PostComment();
+            comment.setReview("Just awesome!");
+
+            Post post = new Post();
+            post.setId(1L);
+            comment.setPost(post);
+
+            entityManager.persist(comment);
+
+            return post;
+        });
+
+        assertNull(_post.getTitle());
     }
     
     @Entity(name = "Post")
