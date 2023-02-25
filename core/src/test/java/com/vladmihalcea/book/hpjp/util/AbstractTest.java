@@ -987,8 +987,10 @@ public abstract class AbstractTest {
 
                 boolean firstEntry = true;
 
-                //TODO: Get keys
-                for (Object key : cache.getAll(Collections.emptySet()).entrySet()) {
+                Object onHeapStore = ReflectionUtils.getFieldValue(cache, "store");
+                Object onHeapStoreMap = ReflectionUtils.getFieldValue(onHeapStore, "map");
+                Iterable keySet = ReflectionUtils.invokeMethod(onHeapStoreMap, "keySet");
+                for (Object key : keySet) {
                     Object cacheValue = storageAccess.getFromCache(key, null);
 
                     if (!firstEntry) {
@@ -1053,10 +1055,11 @@ public abstract class AbstractTest {
     }
 
     private org.ehcache.core.Ehcache getEhcache(StorageAccess storageAccess) {
+        Object cacheHolder = storageAccess;
         if(storageAccess instanceof JCacheAccessImpl) {
-            return null;
+            cacheHolder = ReflectionUtils.getFieldValue(storageAccess, "underlyingCache");
         }
-        return ReflectionUtils.getFieldValue(storageAccess, "cache");
+        return ReflectionUtils.getFieldValue(cacheHolder, "ehCache");
     }
 
 
