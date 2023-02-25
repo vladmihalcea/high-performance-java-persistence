@@ -6,7 +6,6 @@ import com.vladmihalcea.book.hpjp.spring.transaction.contract.domain.AnnexSignat
 import com.vladmihalcea.book.hpjp.spring.transaction.contract.domain.Contract;
 import com.vladmihalcea.book.hpjp.spring.transaction.contract.domain.ContractSignature;
 import com.vladmihalcea.book.hpjp.spring.transaction.contract.repository.ContractRepository;
-import com.vladmihalcea.book.hpjp.spring.transaction.contract.service.ContractService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.Before;
@@ -34,9 +33,6 @@ public class ContractTest {
 
     @Autowired
     private TransactionTemplate transactionTemplate;
-
-    @Autowired
-    private ContractService contractService;
 
     @Autowired
     private ContractRepository contractRepository;
