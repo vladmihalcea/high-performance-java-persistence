@@ -2,10 +2,8 @@ package com.vladmihalcea.book.hpjp.hibernate.type;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import io.hypersistence.utils.hibernate.type.basic.Inet;
-import io.hypersistence.utils.hibernate.type.basic.PostgreSQLInetType;
 import jakarta.persistence.*;
 import org.hibernate.Session;
-import org.hibernate.annotations.Type;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
@@ -137,7 +135,6 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
         @GeneratedValue
         private Long id;
 
-        @Type(PostgreSQLInetType.class)
         @Column(name = "ip", columnDefinition = "inet")
         private Inet ip;
 
