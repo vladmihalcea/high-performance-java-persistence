@@ -1,17 +1,23 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier.global;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import java.util.Properties;
 
-public class MySQLIdentifierTest extends AbstractMySQLIntegrationTest {
+public class MySQLIdentifierTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
             Post.class,
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.MYSQL;
     }
 
     @Override
