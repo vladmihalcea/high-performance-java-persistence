@@ -7,6 +7,7 @@ import com.vladmihalcea.book.hpjp.util.providers.LockType;
 import com.vladmihalcea.book.hpjp.util.transaction.*;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import net.steppschuh.markdowngenerator.table.Table;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
@@ -1125,5 +1126,34 @@ public abstract class AbstractTest {
         }
 
         return rows;
+    }
+
+    protected String resultSetToString(ResultSet resultSet) {
+        Table.Builder tableBuilder = new Table.Builder();
+
+        try {
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+
+            String[] columnNames = new String[columnCount];
+
+            for (int i = 0; i < columnCount; i++) {
+                columnNames[i] = metaData.getColumnName(i + 1);
+            }
+
+            tableBuilder.addRow(columnNames);
+
+            while (resultSet.next()) {
+                String[] columnValues = new String[columnCount];
+                for (int i = 0; i < columnCount; i++) {
+                    columnValues[i] = resultSet.getString(i + 1);
+                }
+                tableBuilder.addRow(columnValues);
+            }
+        } catch (SQLException e) {
+            throw new IllegalArgumentException(e);
+        }
+
+        return tableBuilder.build().serialize();
     }
 }
