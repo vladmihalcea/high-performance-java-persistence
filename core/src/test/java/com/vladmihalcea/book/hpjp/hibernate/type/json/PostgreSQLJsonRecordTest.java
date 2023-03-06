@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
@@ -92,7 +93,7 @@ public class PostgreSQLJsonRecordTest extends AbstractPostgreSQLIntegrationTest 
         @NaturalId
         private String isbn;
 
-        @Type(JsonBinaryType.class)
+        @Type(JsonType.class)
         @Column(columnDefinition = "jsonb")
         private BookRecord properties;
 
