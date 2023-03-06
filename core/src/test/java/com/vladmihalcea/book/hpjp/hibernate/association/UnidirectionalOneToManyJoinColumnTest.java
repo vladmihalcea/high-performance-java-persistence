@@ -81,7 +81,6 @@ public class UnidirectionalOneToManyJoinColumnTest extends AbstractTest {
 
             post.getComments().remove(0);
         });
-        System.out.println("");
     }
 
     @Entity(name = "Post")
