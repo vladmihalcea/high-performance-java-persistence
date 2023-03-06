@@ -68,6 +68,22 @@ public class BidirectionalOneToManyTest extends AbstractTest {
     }
 
     @Test
+    public void testRemoveParent() {
+        doInJPA(entityManager -> {
+            Post post = entityManager.createQuery("""
+                select p 
+                from Post p
+                join fetch p.comments
+                where p.id = :id
+                """, Post.class)
+                .setParameter("id", 1L)
+            .getSingleResult();
+
+            entityManager.remove(post);
+        });
+    }
+
+    @Test
     public void testOrphanRemoval() {
         QueryCountHolder.clear();
 
