@@ -1,12 +1,21 @@
 package com.vladmihalcea.book.hpjp.hibernate.equality;
 
 import com.vladmihalcea.book.hpjp.hibernate.identifier.Identifiable;
-import org.junit.Test;
-
+import com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.junit.Test;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
+
+import static java.util.stream.Collectors.groupingBy;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -27,6 +36,38 @@ public class IdEqualityTest
         post.setTitle("High-PerformanceJava Persistence");
 
         assertEqualityConsistency(Post.class, post);
+    }
+
+    @Test
+    public void testCollectionSize() {
+        int collectionSize = 25_000;
+
+        long createCollectionStartNanos = System.nanoTime();
+        List<Post> postList = new ArrayList<>(collectionSize);
+        Set<Post> postSet = new HashSet<>();
+
+        for (int i = 0; i < collectionSize; i++) {
+            Post post = new Post().setId((long) i);
+            postList.add(i, post);
+            postSet.add(post);
+        }
+        
+        long createCollectionEndNanos = System.nanoTime();
+        LOGGER.info(
+            "Creating collections took : [{}] seconds",
+            TimeUnit.NANOSECONDS.toSeconds(createCollectionEndNanos - createCollectionStartNanos)
+        );
+
+        Random random = new Random();
+        Post randomPost = postList.get(random.nextInt(collectionSize));
+        long startNanos = System.nanoTime();
+        boolean contained = postList.contains(randomPost);
+        long endNanos = System.nanoTime();
+        assertTrue(contained);
+        LOGGER.info(
+            "Calling HashSet contains took : [{}] microseconds",
+            TimeUnit.NANOSECONDS.toMicros(endNanos - startNanos)
+        );
     }
 
     @Entity(name = "Post")
@@ -63,8 +104,9 @@ public class IdEqualityTest
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
