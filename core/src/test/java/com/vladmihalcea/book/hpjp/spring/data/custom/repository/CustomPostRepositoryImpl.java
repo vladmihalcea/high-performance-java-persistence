@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.spring.data.custom.repository;
 
+import com.vladmihalcea.book.hpjp.hibernate.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTOResultTransformer;
 
@@ -46,5 +47,19 @@ public class CustomPostRepositoryImpl implements CustomPostRepository {
             """)
             .setParameter("tags", tags)
             .getResultList();
+    }
+
+    @Override
+    public void deleteAll(List<Post> posts) {
+        entityManager.createQuery("""
+            delete from PostComment c
+            where c.post in :posts
+        """)
+        .setParameter("posts", posts)
+        .executeUpdate();
+
+        for(Post post : posts) {
+            entityManager.remove(post);
+        }
     }
 }

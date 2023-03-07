@@ -16,6 +16,7 @@ import net.ttddyy.dsproxy.listener.MethodExecutionContext;
 import net.ttddyy.dsproxy.listener.lifecycle.JdbcLifecycleEventListenerAdapter;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.slf4j.Logger;
@@ -151,6 +152,7 @@ public abstract class SpringDataJPABaseConfiguration {
     }
 
     protected void additionalProperties(Properties properties) {
+        properties.setProperty(AvailableSettings.STATEMENT_BATCH_SIZE, "10");
     }
 
     protected String[] packagesToScan() {

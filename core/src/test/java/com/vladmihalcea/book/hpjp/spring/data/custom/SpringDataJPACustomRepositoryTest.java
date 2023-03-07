@@ -184,5 +184,62 @@ public class SpringDataJPACustomRepositoryTest {
             return null;
         });
     }
+
+    @Test
+    public void testUpdate() {
+        Post post = forumService.createPost(
+            1L,
+            "High-Performance Java Persistence"
+        );
+
+        forumService.updatePostTitle(
+            1L,
+            "High-Performance Java Persistence 2nd edition"
+        );
+
+        assertEquals(
+            "High-Performance Java Persistence 2nd edition",
+            forumService.findById(1L).getTitle()
+        );
+    }
+
+    @Test
+    public void testDeleteAll() {
+        try {
+            transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+                entityManager.persist(
+                    new Post()
+                        .setId(1L)
+                        .setTitle("High-Performance Java Persistence")
+                        .addComment(
+                            new PostComment()
+                                .setId(1L)
+                                .setReview("Best book on JPA and Hibernate!")
+                        )
+                        .addComment(
+                            new PostComment()
+                                .setId(2L)
+                                .setReview("A must-read for every Java developer!")
+                        )
+                );
+
+                entityManager.persist(
+                    new Post()
+                        .setId(2L)
+                        .setTitle("Hypersistence Optimizer")
+                        .addComment(
+                            new PostComment()
+                                .setId(3L)
+                                .setReview("It's like pair programming with Vlad!")
+                        )
+                );
+                return null;
+            });
+        } catch (TransactionException e) {
+            LOGGER.error("Failure", e);
+        }
+
+        forumService.deleteAll();
+    }
 }
 
