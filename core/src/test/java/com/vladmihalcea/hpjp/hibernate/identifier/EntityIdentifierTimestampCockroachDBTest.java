@@ -1,24 +1,13 @@
 package com.vladmihalcea.hpjp.hibernate.identifier;
 
+import com.vladmihalcea.hpjp.util.AbstractCockroachDBIntegrationTest;
+import jakarta.persistence.*;
+import org.hibernate.Session;
+import org.junit.Test;
+
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Date;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-
-import org.hibernate.Session;
-
-import org.junit.Ignore;
-import org.junit.Test;
-
-import com.vladmihalcea.hpjp.util.AbstractCockroachDBIntegrationTest;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,30 +25,40 @@ public class EntityIdentifierTimestampCockroachDBTest extends AbstractCockroachD
 		return false;
 	}
 
+	@Override
+	public void init() {
+		if(!ENABLE_LONG_RUNNING_TESTS) {
+			return;
+		}
+		super.init();
+	}
+
 	@Test
-	@Ignore
 	public void test() {
-		doInJPA( entityManager -> {
-			entityManager.unwrap( Session.class ).doWork( connection -> {
-				try(PreparedStatement preparedStatement = connection.prepareStatement(
+		if (!ENABLE_LONG_RUNNING_TESTS) {
+			return;
+		}
+		doInJPA(entityManager -> {
+			entityManager.unwrap(Session.class).doWork(connection -> {
+				try (PreparedStatement preparedStatement = connection.prepareStatement(
 					"INSERT INTO post (title, createdOn) " +
-						"VALUES (?, ?)")
+					"VALUES (?, ?)")
 				) {
 					int index = 0;
 					preparedStatement.setString(
-							++index,
-							"High-Performance Java Persistence"
+						++index,
+						"High-Performance Java Persistence"
 					);
 					preparedStatement.setTimestamp(
-							++index,
-							new Timestamp( System.currentTimeMillis() )
+						++index,
+						new Timestamp(System.currentTimeMillis())
 					);
 					int updateCount = preparedStatement.executeUpdate();
 
-					assertEquals( 1, updateCount );
+					assertEquals(1, updateCount);
 				}
-			} );
-		} );
+			});
+		});
 	}
 
 	@Entity(name = "Post")

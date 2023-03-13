@@ -76,7 +76,7 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
         });
 
         T deletedEntity = doInJPA(entityManager -> {
-            T _entity = entityManager.getReference(
+            T _entity = entityManager.find(
                 clazz,
                 entity.getId()
             );

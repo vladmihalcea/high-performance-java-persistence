@@ -4,12 +4,14 @@ import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import jakarta.persistence.*;
 import org.junit.Test;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Vlad Mihalcea
@@ -42,7 +44,16 @@ public class PostgreSQLStoredProcedureQATest extends AbstractPostgreSQLIntegrati
                             qa REFCURSOR;
                         BEGIN
                             OPEN qa FOR 
-                                SELECT * 
+                                SELECT 
+                                    question.id, 
+                                    question.title, 
+                                    question.body, 
+                                    question.created_on,
+                                    question.updated_on,
+                                    answer.id,
+                                    answer.body,
+                                    answer.created_on,
+                                    answer.updated_on
                                 FROM question 
                                 JOIN answer on question.id = answer.question_id
                                 WHERE 
@@ -92,14 +103,28 @@ public class PostgreSQLStoredProcedureQATest extends AbstractPostgreSQLIntegrati
     @Test
     public void testStoredProcedureRefCursor() {
         doInJPA(entityManager -> {
-            StoredProcedureQuery query = entityManager
-                .createStoredProcedureQuery("get_updated_questions_and_answers")
-                .registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR)
-                .registerStoredProcedureParameter(2, LocalDateTime.class, ParameterMode.IN)
-                .setParameter(2, LocalDateTime.now().minusDays(1));
+            ResultSet qasResultSet = (ResultSet) entityManager.createQuery("""
+                SELECT get_updated_questions_and_answers(:updated_after)
+                """)
+            .setParameter("updated_after", LocalDateTime.now().minusDays(1))
+            .getSingleResult();
 
-            List<Object[]> qas = query.getResultList();
-            assertEquals(2, qas.size());
+            try (ResultSet rs = qasResultSet) {
+                if(rs.next()) {
+                    int i = 1;
+                    LOGGER.info("Question id: {}", rs.getLong(i++));
+                    LOGGER.info("Question title: {}", rs.getString(i++));
+                    LOGGER.info("Question body: {}", rs.getString(i++));
+                    LOGGER.info("Question created on: {}", rs.getString(i++));
+                    LOGGER.info("Question updated on: {}", rs.getString(i++));
+                    LOGGER.info("Answer id: {}", rs.getString(i++));
+                    LOGGER.info("Answer body: {}", rs.getString(i++));
+                    LOGGER.info("Answer created on: {}", rs.getString(i++));
+                    LOGGER.info("Answer updated on: {}", rs.getString(i++));
+                }
+            } catch (SQLException e) {
+                fail(e.getMessage());
+            }
         });
     }
 

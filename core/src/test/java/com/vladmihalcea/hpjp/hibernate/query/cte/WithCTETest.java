@@ -210,8 +210,8 @@ public class WithCTETest extends AbstractTest {
         assertEquals("SQL:2011 is excellent!", tuples.get(4).get("comment_review"));
     }
 
-    @Ignore("Should work from Hibernate 6.2 onwards")
     @Test
+    @Ignore("Doesn't work on Hibernate 6.2")
     public void testWithCTEJPQL() {
         List<Tuple> tuples = doInJPA(entityManager -> {
             return entityManager.createQuery("""

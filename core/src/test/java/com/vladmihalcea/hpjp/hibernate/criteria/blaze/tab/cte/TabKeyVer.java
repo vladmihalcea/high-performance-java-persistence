@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Entity
 public class TabKeyVer implements Serializable {
     @Id
-    private String tabKey;
+    private Long tabKey;
     @Id
     private Long tabVer;
 }

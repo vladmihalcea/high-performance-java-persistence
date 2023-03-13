@@ -70,7 +70,6 @@ public class PersistSequenceTest extends AbstractTest {
 
         doInJPA(entityManager -> {
             Post post = new Post();
-            post.setId(1L);
             post.setTitle("High-Performance Java Persistence");
 
             entityManager.persist(post);
@@ -86,9 +85,6 @@ public class PersistSequenceTest extends AbstractTest {
         private Long id;
 
         private String title;
-
-        @Version
-        private Short version;
 
         public Long getId() {
             return id;

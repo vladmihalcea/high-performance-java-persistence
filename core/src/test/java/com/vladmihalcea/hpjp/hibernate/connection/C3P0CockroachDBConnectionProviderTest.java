@@ -1,16 +1,23 @@
 package com.vladmihalcea.hpjp.hibernate.connection;
 
-import java.util.Properties;
-
 import com.vladmihalcea.hpjp.util.providers.CockroachDBDataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
-import org.junit.Ignore;
 import org.junit.Test;
+
+import java.util.Properties;
 
 public class C3P0CockroachDBConnectionProviderTest extends JPADriverConnectionProviderTest {
 
     protected DataSourceProvider dataSourceProvider() {
         return new CockroachDBDataSourceProvider();
+    }
+
+    @Override
+    public void init() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
+        super.init();
     }
 
     @Override
@@ -22,8 +29,10 @@ public class C3P0CockroachDBConnectionProviderTest extends JPADriverConnectionPr
 
     @Test
     @Override
-    @Ignore
     public void testConnection() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         super.testConnection();
     }
 }

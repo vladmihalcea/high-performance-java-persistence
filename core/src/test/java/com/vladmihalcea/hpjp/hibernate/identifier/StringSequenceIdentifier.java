@@ -1,13 +1,11 @@
 package com.vladmihalcea.hpjp.hibernate.identifier;
 
 import org.hibernate.MappingException;
-import org.hibernate.Session;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.config.spi.ConfigurationService;
 import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.Configurable;
-import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.enhanced.SequenceStyleGenerator;
 import org.hibernate.internal.util.config.ConfigurationHelper;
 import org.hibernate.service.ServiceRegistry;
@@ -20,8 +18,7 @@ import java.util.Properties;
 /**
  * @author Vlad Mihalcea
  */
-public class StringSequenceIdentifier implements
-        IdentifierGenerator, Configurable {
+public class StringSequenceIdentifier extends SequenceStyleGenerator implements Configurable {
 
     public static final String SEQUENCE_PREFIX = "sequence_prefix";
 
@@ -30,20 +27,18 @@ public class StringSequenceIdentifier implements
     private String sequenceCallSyntax;
 
     @Override
-    public void configure(
-            Type type,
-            Properties params,
-            ServiceRegistry serviceRegistry)
-        throws MappingException {
+    public void configure(Type type, Properties params, ServiceRegistry serviceRegistry)
+            throws MappingException {
+        super.configure(type, params, serviceRegistry);
 
         final JdbcEnvironment jdbcEnvironment = serviceRegistry.getService(
-                JdbcEnvironment.class
+            JdbcEnvironment.class
         );
 
         final Dialect dialect = jdbcEnvironment.getDialect();
 
         final ConfigurationService configurationService = serviceRegistry.getService(
-                ConfigurationService.class
+            ConfigurationService.class
         );
 
         String globalEntityIdentifierPrefix = configurationService.getSetting(
@@ -77,21 +72,10 @@ public class StringSequenceIdentifier implements
 
     @Override
     public Serializable generate(SharedSessionContractImplementor session, Object obj) {
-        if (obj instanceof Identifiable) {
-            Identifiable identifiable = (Identifiable) obj;
-            Serializable id = identifiable.getId();
-
-            if (id != null) {
-                return id;
-            }
-        }
-
         long seqValue = ((Number)
-                Session.class.cast(session)
-                .createNativeQuery(sequenceCallSyntax)
-                .uniqueResult()
+            session.createNativeQuery(sequenceCallSyntax).uniqueResult()
         ).longValue();
 
-        return sequencePrefix + String.format("%011d%s", 0 ,seqValue);
+        return sequencePrefix + String.format("%011d%s", 0, seqValue);
     }
 }

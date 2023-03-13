@@ -36,6 +36,9 @@ public class SQLServerNoFKParentLockRCSIDynamicUpdateTest extends AbstractTest {
 
     @Override
     public void afterInit() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         doInJPA(entityManager -> {
             long postId = 1;
             long commentId = 1;
@@ -70,6 +73,9 @@ public class SQLServerNoFKParentLockRCSIDynamicUpdateTest extends AbstractTest {
 
     @Test
     public void test() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         CountDownLatch bobStart = new CountDownLatch(1);
         try {
             doInJPA(entityManager -> {

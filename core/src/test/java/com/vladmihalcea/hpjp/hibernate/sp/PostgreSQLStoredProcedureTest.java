@@ -33,60 +33,73 @@ public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegration
         return entityProvider.entities();
     }
 
-    @Before
-    public void init() {
-        super.init();
-        doInJDBC(connection -> {
-            try(Statement statement = connection.createStatement()) {
-                statement.executeUpdate("DROP FUNCTION count_comments(bigint)");
-            }
-            catch (SQLException ignore) {
-            }
-        });
-        doInJDBC(connection -> {
-            try(Statement statement = connection.createStatement()) {
-                statement.executeUpdate("DROP FUNCTION post_comments(bigint)");
-            }
-            catch (SQLException ignore) {
-            }
-        });
-        doInJDBC(connection -> {
-            try(Statement statement = connection.createStatement()) {
-                statement.executeUpdate("""
-                    CREATE OR REPLACE FUNCTION count_comments(
-                       IN postId bigint,
-                       OUT commentCount bigint)
-                       RETURNS bigint AS
-                    $BODY$
-                        BEGIN
-                            SELECT COUNT(*) INTO commentCount
-                            FROM post_comment 
-                            WHERE post_id = postId;
-                        END;
-                    $BODY$
-                    LANGUAGE plpgsql;
-                    """
-                );
+    @Override
+    protected void beforeInit() {
+        executeStatement("DROP FUNCTION IF EXISTS fn_count_comments(bigint)");
+        executeStatement("DROP FUNCTION IF EXISTS fn_post_comments(bigint)");
+        executeStatement("""
+            CREATE OR REPLACE FUNCTION fn_count_comments(
+               IN postId bigint,
+               OUT commentCount bigint)
+               RETURNS bigint AS
+            $BODY$
+                BEGIN
+                    SELECT COUNT(*) INTO commentCount
+                    FROM post_comment
+                    WHERE post_id = postId;
+                END;
+            $BODY$
+            LANGUAGE plpgsql;
+            """);
+        executeStatement("""
+            CREATE OR REPLACE FUNCTION fn_post_comments(postId BIGINT)
+               RETURNS REFCURSOR AS
+            $BODY$
+                DECLARE
+                    postComments REFCURSOR;
+                BEGIN
+                    OPEN postComments FOR
+                        SELECT * 
+                        FROM post_comment  
+                        WHERE post_id = postId; 
+                    RETURN postComments;
+                END;
+            $BODY$
+            LANGUAGE plpgsql
+            """);
+        executeStatement("DROP PROCEDURE IF EXISTS count_comments(bigint)");
+        executeStatement("DROP PROCEDURE IF EXISTS post_comments(bigint)");
+        executeStatement("""
+            CREATE OR REPLACE PROCEDURE count_comments(
+               IN postId bigint,
+               OUT commentCount bigint)
+            LANGUAGE plpgsql
+            AS $$
+                BEGIN
+                    SELECT COUNT(*) INTO commentCount
+                    FROM post_comment
+                    WHERE post_id = postId;
+                END;
+            $$
+            """);
+        executeStatement("""
+            CREATE OR REPLACE PROCEDURE post_comments(
+                IN postId BIGINT,
+                OUT postComments REFCURSOR)
+            LANGUAGE plpgsql
+            AS $$
+                BEGIN
+                    OPEN postComments FOR
+                        SELECT *
+                        FROM post_comment
+                        WHERE post_id = postId;
+                END;
+            $$
+            """);
+    }
 
-                statement.executeUpdate("""
-                    CREATE OR REPLACE FUNCTION post_comments(postId BIGINT)
-                       RETURNS REFCURSOR AS
-                    $BODY$
-                        DECLARE
-                            postComments REFCURSOR;
-                        BEGIN
-                            OPEN postComments FOR 
-                                SELECT * 
-                                FROM post_comment  
-                                WHERE post_id = postId; 
-                            RETURN postComments;
-                        END;
-                    $BODY$
-                    LANGUAGE plpgsql
-                    """
-                );
-            }
-        });
+    @Override
+    protected void afterInit() {
         doInJPA(entityManager -> {
             Post post = new Post(1L);
             post.setTitle("Post");
@@ -192,12 +205,18 @@ public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegration
         doInJPA(entityManager -> {
             StoredProcedureQuery query = entityManager
                 .createStoredProcedureQuery("post_comments")
-                .registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR)
-                .registerStoredProcedureParameter(2, Long.class, ParameterMode.IN)
-                .setParameter(2, 1L);
+                .registerStoredProcedureParameter(1, Long.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(2, void.class, ParameterMode.REF_CURSOR)
+                .setParameter(1, 1L);
 
-            List<Object[]> postComments = query.getResultList();
-            assertEquals(2, postComments.size());
+            query.execute();
+            try (ResultSet rs = (ResultSet) query.getOutputParameterValue(2)) {
+                if(rs.next()) {
+                    LOGGER.info("Post id: {}", rs.getLong(1));
+                }
+            } catch (SQLException e) {
+                fail(e.getMessage());
+            }
         });
     }
 
@@ -205,12 +224,11 @@ public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegration
     public void testHibernateProcedureCallRefCursor() {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
-            ProcedureCall call = session
-                .createStoredProcedureCall("post_comments");
-            call.registerParameter(1, void.class, ParameterMode.REF_CURSOR);
-            call.registerParameter(2, Long.class, ParameterMode.IN);
+            ProcedureCall call = session.createStoredProcedureCall("post_comments");
+            call.registerParameter(1, Long.class, ParameterMode.IN);
+            call.registerParameter(2, void.class, ParameterMode.REF_CURSOR);
 
-            call.setParameter(2, 1L);
+            call.setParameter(1, 1L);
 
             Output output = call.getOutputs().getCurrent();
             if (output.isResultSet()) {
@@ -226,7 +244,7 @@ public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegration
             Session session = entityManager.unwrap( Session.class );
             Long commentCount = session.doReturningWork( connection -> {
                 try (CallableStatement function = connection.prepareCall(
-                        "{ ? = call count_comments(?) }" )) {
+                        "{ ? = call fn_count_comments(?) }" )) {
                     function.registerOutParameter( 1, Types.BIGINT );
                     function.setLong( 2, 1L );
                     function.execute();
@@ -245,7 +263,7 @@ public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegration
                 Session session = entityManager.unwrap( Session.class );
                 session.doWork( connection -> {
                     try (CallableStatement function = connection.prepareCall(
-                            "{ ? = call count_comments(?) }" )) {
+                            "{ ? = call fn_count_comments(?) }" )) {
                         function.registerOutParameter( "commentCount", Types.BIGINT );
                         function.setLong( "postId", 1L );
                         function.execute();

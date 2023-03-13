@@ -3,6 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.mapping.enums;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -23,6 +24,12 @@ public class EnumOrdinalTest extends AbstractTest {
     @Override
     protected Database database() {
         return Database.POSTGRESQL;
+    }
+
+    @Override
+    protected void afterInit() {
+        executeStatement("ALTER TABLE post DROP COLUMN status");
+        executeStatement("ALTER TABLE post ADD COLUMN status NUMERIC(2)");
     }
 
     @Test

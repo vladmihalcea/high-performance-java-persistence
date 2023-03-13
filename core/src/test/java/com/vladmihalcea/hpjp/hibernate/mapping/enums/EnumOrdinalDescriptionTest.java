@@ -120,8 +120,8 @@ public class EnumOrdinalDescriptionTest extends AbstractTest {
                 .executeUpdate();
 
                 fail("Should not allow us to insert an Enum value of 100!");
-            } catch (PersistenceException e) {
-                assertTrue(e.getCause() instanceof ConstraintViolationException);
+            } catch (ConstraintViolationException e) {
+                assertEquals("post_status_check", e.getConstraintName());
             }
         });
     }

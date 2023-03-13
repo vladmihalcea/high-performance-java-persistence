@@ -29,9 +29,9 @@ public class LocalDateTimeTest extends AbstractPostgreSQLIntegrationTest {
 
 	@Test
 	public void testLocalDateEvent() {
-		doInJPA( entityManager -> {
+		doInJPA(entityManager -> {
 			Employee employee = new Employee();
-			employee.setName( "Vlad Mihalcea" );
+			employee.setName("Vlad Mihalcea");
 			employee.setBirthday(
 				LocalDate.of(
 					1981, 12, 10
@@ -44,11 +44,11 @@ public class LocalDateTimeTest extends AbstractPostgreSQLIntegrationTest {
 				)
 			);
 
-			entityManager.persist( employee );
+			entityManager.persist(employee);
 
 			Meeting meeting = new Meeting();
-			meeting.setId( 1L );
-			meeting.setCreatedBy( employee );
+			meeting.setId(1L);
+			meeting.setCreatedBy(employee);
 			meeting.setStartsAt(
 				ZonedDateTime.of(
 					2017, 6, 25,
@@ -57,17 +57,17 @@ public class LocalDateTimeTest extends AbstractPostgreSQLIntegrationTest {
 				)
 			);
 			meeting.setDuration(
-				Duration.of( 45, ChronoUnit.MINUTES )
+				Duration.of(45, ChronoUnit.MINUTES)
 			);
 
-			entityManager.persist( meeting );
-		} );
+			entityManager.persist(meeting);
+		});
 
-		doInJPA( entityManager -> {
+		doInJPA(entityManager -> {
 			Employee employee = entityManager
-					.unwrap( Session.class )
-					.bySimpleNaturalId( Employee.class )
-					.load( "Vlad Mihalcea" );
+				.unwrap(Session.class)
+				.bySimpleNaturalId(Employee.class)
+				.load("Vlad Mihalcea");
 			assertEquals(
 				LocalDate.of(
 					1981, 12, 10
@@ -82,7 +82,7 @@ public class LocalDateTimeTest extends AbstractPostgreSQLIntegrationTest {
 				employee.getUpdatedOn()
 			);
 
-			Meeting meeting = entityManager.find( Meeting.class, 1L );
+			Meeting meeting = entityManager.find(Meeting.class, 1L);
 			assertSame(
 				employee, meeting.getCreatedBy()
 			);
@@ -91,14 +91,14 @@ public class LocalDateTimeTest extends AbstractPostgreSQLIntegrationTest {
 					2017, 6, 25,
 					11, 30, 0, 0,
 					ZoneId.systemDefault()
-				),
-				meeting.getStartsAt()
+				).toInstant(),
+				meeting.getStartsAt().toInstant()
 			);
 			assertEquals(
-				Duration.of( 45, ChronoUnit.MINUTES ),
+				Duration.of(45, ChronoUnit.MINUTES),
 				meeting.getDuration()
 			);
-		} );
+		});
 	}
 
 	@Entity(name = "Employee")

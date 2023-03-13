@@ -69,8 +69,8 @@ public class ZonedDateTimeTest extends AbstractMySQLIntegrationTest {
                 LocalDateTime.of(
                     2020, 5, 1,
                     12, 30, 0
-                ).atZone(ZoneId.systemDefault()),
-                post.getPublishedOn()
+                ).atZone(ZoneId.systemDefault()).toInstant(),
+                post.getPublishedOn().toInstant()
             );
 
             UserAccount userAccount = post.getCreatedBy();

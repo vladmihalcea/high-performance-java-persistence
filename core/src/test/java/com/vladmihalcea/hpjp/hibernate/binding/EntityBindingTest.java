@@ -99,12 +99,15 @@ public class EntityBindingTest extends AbstractTest {
     @Test
     public void testJdbcOneToManyMapping() {
         doInJDBC(connection -> {
-            try (PreparedStatement statement = connection.prepareStatement(
-                    "SELECT * " +
-                    "FROM post AS p " +
-                    "JOIN post_comment AS pc ON p.id = pc.post_id " +
-                    "WHERE " +
-                    "   p.id BETWEEN ? AND ? + 1"
+            try (PreparedStatement statement = connection.prepareStatement("""
+                    SELECT 
+                        p.id, p.title, p.version,
+                        pc.id, pc.review, pc.version
+                    FROM post AS p
+                    JOIN post_comment AS pc ON p.id = pc.post_id
+                    WHERE
+                       p.id BETWEEN ? AND ? + 1
+                    """
             )) {
                 statement.setLong(1, id);
                 statement.setLong(2, id);

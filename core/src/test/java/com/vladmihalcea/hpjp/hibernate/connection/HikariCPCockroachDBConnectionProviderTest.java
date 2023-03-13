@@ -1,19 +1,15 @@
 package com.vladmihalcea.hpjp.hibernate.connection;
 
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicLong;
-
+import com.vladmihalcea.hpjp.util.providers.CockroachDBDataSourceProvider;
+import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import org.hibernate.hikaricp.internal.HikariCPConnectionProvider;
-
-import org.junit.Ignore;
 import org.junit.Test;
 
-import com.vladmihalcea.hpjp.util.providers.CockroachDBDataSourceProvider;
-import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class HikariCPCockroachDBConnectionProviderTest extends DriverConnectionProviderTest {
 
@@ -26,6 +22,14 @@ public class HikariCPCockroachDBConnectionProviderTest extends DriverConnectionP
 
     protected DataSourceProvider dataSourceProvider() {
         return new CockroachDBDataSourceProvider();
+    }
+
+    @Override
+    public void init() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
+        super.init();
     }
 
     @Override
@@ -42,8 +46,10 @@ public class HikariCPCockroachDBConnectionProviderTest extends DriverConnectionP
     }
 
     @Test
-    @Ignore
     public void testConnection() {
+        if (!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         for (final AtomicLong i = new AtomicLong(); i.get() < 5; i.incrementAndGet()) {
             doInJPA(em -> {
                 em.persist(new Post(i.get()));

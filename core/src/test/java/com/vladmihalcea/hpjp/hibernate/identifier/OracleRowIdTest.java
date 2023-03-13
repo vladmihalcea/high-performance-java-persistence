@@ -1,23 +1,12 @@
 package com.vladmihalcea.hpjp.hibernate.identifier;
 
-import java.util.ArrayList;
-import java.util.List;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-
+import com.vladmihalcea.hpjp.util.AbstractOracleIntegrationTest;
+import jakarta.persistence.*;
 import org.hibernate.annotations.RowId;
-
 import org.junit.Test;
 
-import com.vladmihalcea.hpjp.util.AbstractOracleIntegrationTest;
-
-import static org.junit.Assert.assertNotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Vlad Mihalcea
@@ -33,7 +22,7 @@ public class OracleRowIdTest extends AbstractOracleIntegrationTest {
 
     @Test
     public void test() {
-        doInJPA( entityManager -> {
+        doInJPA(entityManager -> {
             Post post = new Post();
             post.setId(1L);
             post.setTitle("High-Performance Java Persistence");
@@ -51,26 +40,26 @@ public class OracleRowIdTest extends AbstractOracleIntegrationTest {
             PostComment comment3 = new PostComment();
             comment3.setReview("Lorem Ipsum");
             post.addComment(comment3);
-        } );
+        });
 
-        Post _post = doInJPA( entityManager -> {
-            return entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments " +
-                "where p.id = :id", Post.class)
-            .setParameter( "id", 1L )
+        Post _post = doInJPA(entityManager -> {
+            return entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.comments
+                where p.id = :id
+                """, Post.class)
+            .setParameter("id", 1L)
             .getSingleResult();
-        } );
+        });
 
-        List<PostComment>_comments = _post.getComments();
+        List<PostComment> _comments = _post.getComments();
 
-        _post.getComments().get( 0 ).setReview( "Must read!" );
-        _post.removeComment( _comments.get( 2 ) );
+        _post.getComments().get(0).setReview("Must read!");
 
-        doInJPA( entityManager -> {
-            entityManager.merge( _post );
-        } );
+        doInJPA(entityManager -> {
+            entityManager.merge(_post);
+        });
     }
 
     @Entity(name = "Post")
@@ -83,8 +72,11 @@ public class OracleRowIdTest extends AbstractOracleIntegrationTest {
 
         private String title;
 
-        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
-                orphanRemoval = true)
+        @OneToMany(
+            mappedBy = "post",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+        )
         private List<PostComment> comments = new ArrayList<>();
 
         public Long getId() {

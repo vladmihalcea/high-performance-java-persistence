@@ -1,17 +1,16 @@
 package com.vladmihalcea.hpjp.hibernate.identifier;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.junit.Test;
-
-import jakarta.persistence.*;
 
 public class AssignedSequenceStyleGeneratorTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
-                Post.class,
+        return new Class<?>[]{
+            Post.class,
         };
     }
 
@@ -20,9 +19,9 @@ public class AssignedSequenceStyleGeneratorTest extends AbstractTest {
         LOGGER.debug("test");
         doInJPA(entityManager -> {
             entityManager.persist(new Post());
-            entityManager.persist(new Post(-1L));
+            entityManager.merge(new Post().setId(-1L));
             entityManager.persist(new Post());
-            entityManager.persist(new Post(-2L));
+            entityManager.merge(new Post().setId(-2L));
         });
     }
 
@@ -34,24 +33,22 @@ public class AssignedSequenceStyleGeneratorTest extends AbstractTest {
         @GenericGenerator(
             name = "assigned-sequence",
             strategy = "com.vladmihalcea.hpjp.hibernate.identifier.AssignedSequenceStyleGenerator",
-            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "post_sequence")
+            parameters = @org.hibernate.annotations.Parameter(
+                name = "sequence_name",
+                value = "post_sequence"
+            )
         )
         @GeneratedValue(generator = "assigned-sequence", strategy = GenerationType.SEQUENCE)
         private Long id;
 
-        @Version
-        private Short version;
-
-        public Post() {
-        }
-
-        public Post(Long id) {
-            this.id = id;
-        }
-
         @Override
         public Long getId() {
             return id;
+        }
+
+        public Post setId(Long id) {
+            this.id = id;
+            return this;
         }
     }
 

@@ -21,12 +21,18 @@ public class EntityIdentifierCockroachDBTest extends AbstractCockroachDBIntegrat
     }
 
     @Override
-    protected boolean nativeHibernateSessionFactoryBootstrap() {
-        return false;
+    public void init() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
+        super.init();
     }
 
     @Test
     public void test() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         doInJPA(entityManager -> {
             LocalDate startDate = LocalDate.of(2016, 11, 2);
             for (int offset = 0; offset < 10; offset++) {

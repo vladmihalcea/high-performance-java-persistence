@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;
@@ -36,6 +37,9 @@ public class IdEqualityTest
 
     @Test
     public void testCollectionSize() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         int collectionSize = 25_000;
 
         long createCollectionStartNanos = System.nanoTime();

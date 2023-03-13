@@ -263,8 +263,10 @@ public class JoinedTableTest extends AbstractTest {
             List<Board> postOnlyBoards = entityManager.createQuery("""
                 select b
                 from Board b
-                where Post = all (
-                   select type(t) from Topic t where t.board = b
+                where not exists (
+                   select 1
+                   from Topic t
+                   where t.board = b and Post != type(t)
                 )
                 """, Board.class)
             .getResultList();

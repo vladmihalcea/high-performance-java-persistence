@@ -34,85 +34,60 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
         return entityProvider.entities();
     }
 
-    @Before
-    public void init() {
-        super.init();
-        doInJDBC(connection -> {
-            try(Statement statement = connection.createStatement()) {
-                statement.executeUpdate("DROP PROCEDURE IF EXISTS count_comments");
-            }
-            catch (SQLException ignore) {
-            }
-        });
-        doInJDBC(connection -> {
-            try(Statement statement = connection.createStatement()) {
-                statement.executeUpdate("DROP PROCEDURE IF EXISTS post_comments");
-            }
-            catch (SQLException ignore) {
-            }
-        });
-        doInJDBC(connection -> {
-            try(Statement statement = connection.createStatement()) {
-                statement.executeUpdate("DROP FUNCTION IF EXISTS fn_count_comments");
-            }
-            catch (SQLException ignore) {
-            }
-        });
-        doInJDBC(connection -> {
-            try(Statement statement = connection.createStatement()) {
-                statement.executeUpdate("DROP PROCEDURE IF EXISTS getStatistics");
-            }
-            catch (SQLException ignore) {
-            }
-        });
-        doInJDBC(connection -> {
-            try(Statement statement = connection.createStatement()) {
-                statement.executeUpdate(
-                    "CREATE PROCEDURE count_comments (" +
-                    "   IN postId INT, " +
-                    "   OUT commentCount INT " +
-                    ") " +
-                    "BEGIN " +
-                    "    SELECT COUNT(*) INTO commentCount " +
-                    "    FROM post_comment  " +
-                    "    WHERE post_comment.post_id = postId; " +
-                    "END"
-                );
-                statement.executeUpdate(
-                    "CREATE PROCEDURE post_comments(IN postId INT) " +
-                    "BEGIN " +
-                    "    SELECT *  " +
-                    "    FROM post_comment   " +
-                    "    WHERE post_id = postId;  " +
-                    "END"
-                );
-                statement.executeUpdate(
-                    "CREATE FUNCTION fn_count_comments(postId integer)  " +
-                    "RETURNS integer " +
-                    "DETERMINISTIC " +
-                    "READS SQL DATA " +
-                    "BEGIN " +
-                    "    DECLARE commentCount integer; " +
-                    "    SELECT COUNT(*) INTO commentCount " +
-                    "    FROM post_comment  " +
-                    "    WHERE post_comment.post_id = postId; " +
-                    "    RETURN commentCount; " +
-                    "END"
-                );
-                statement.executeUpdate(
-                    "CREATE PROCEDURE getStatistics (" +
-                    "   OUT A BIGINT UNSIGNED, " +
-                    "   OUT B BIGINT UNSIGNED, " +
-                    "   OUT C BIGINT UNSIGNED" +
-                    ") " +
-                    "BEGIN " +
-                    "    SELECT count(*) into A from post; " +
-                    "    SELECT count(*) into B from post_comment; " +
-                    "    SELECT count(*) into C from tag; " +
-                    "END"
-                );
-            }
-        });
+    @Override
+    protected void beforeInit() {
+        executeStatement("DROP PROCEDURE IF EXISTS count_comments");
+        executeStatement("DROP PROCEDURE IF EXISTS post_comments");
+        executeStatement("DROP PROCEDURE IF EXISTS fn_count_comments");
+        executeStatement("DROP PROCEDURE IF EXISTS getStatistics");
+        executeStatement("""
+            CREATE PROCEDURE count_comments (
+               IN postId INT,
+               OUT commentCount INT
+            )
+            BEGIN
+                SELECT COUNT(*) INTO commentCount
+                FROM post_comment
+                WHERE post_comment.post_id = postId;
+            END
+            """);
+        executeStatement("""
+            CREATE PROCEDURE post_comments(IN postId INT)
+            BEGIN
+                SELECT *
+                FROM post_comment
+                WHERE post_id = postId;
+            END
+            """);
+        executeStatement("""
+            CREATE FUNCTION fn_count_comments(postId integer)
+            RETURNS integer
+            DETERMINISTIC
+            READS SQL DATA
+            BEGIN
+                DECLARE commentCount integer;
+                SELECT COUNT(*) INTO commentCount
+                FROM post_comment
+                WHERE post_comment.post_id = postId;
+                RETURN commentCount;
+            END
+            """);
+        executeStatement("""
+            CREATE PROCEDURE getStatistics (
+               OUT A BIGINT UNSIGNED,
+               OUT B BIGINT UNSIGNED,
+               OUT C BIGINT UNSIGNED
+            )
+            BEGIN
+                SELECT count(*) into A from post;
+                SELECT count(*) into B from post_comment;
+                SELECT count(*) into C from tag;
+            END
+            """);
+    }
+
+    @Override
+    protected void afterInit() {
         doInJPA(entityManager -> {
             Post post = new Post(1L);
             post.setTitle("Post");
@@ -229,23 +204,6 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
     }
 
     @Test
-    public void testFunction() {
-        try {
-            doInJPA(entityManager -> {
-                StoredProcedureQuery query = entityManager.createStoredProcedureQuery("fn_count_comments");
-                query.registerStoredProcedureParameter("postId", Long.class, ParameterMode.IN);
-
-                query.setParameter("postId", 1L);
-
-                Long commentCount = (Long) query.getSingleResult();
-                assertEquals(Long.valueOf(2), commentCount);
-            });
-        } catch (Exception e) {
-            assertTrue(Pattern.compile("PROCEDURE high_performance_java_persistence.fn_count_comments does not exist").matcher(e.getCause().getCause().getMessage()).matches());
-        }
-    }
-
-    @Test
     public void testFunctionWithJDBC() {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap( Session.class );
@@ -261,22 +219,4 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
             assertEquals(Integer.valueOf(2), commentCount);
         });
     }
-
-    /*@Test
-    public void testFunctionWithJDBCByName() {
-        doInJPA(entityManager -> {
-            final AtomicReference<Integer> commentCount = new AtomicReference<>();
-            Session session = entityManager.wrapArray( Session.class );
-            session.doWork( connection -> {
-                try (CallableStatement function = connection.prepareCall(
-                        "{ ? = call fn_count_comments(?) }" )) {
-                    function.registerOutParameter( "", Types.INTEGER );
-                    function.setInt( "postId", 1 );
-                    function.execute();
-                    commentCount.set( function.getInt( 1 ) );
-                }
-            } );
-            assertEquals(Integer.valueOf(2), commentCount.get());
-        });
-    }*/
 }

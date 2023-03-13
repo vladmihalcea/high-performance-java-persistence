@@ -69,8 +69,8 @@ public class OffsetDateTimeTest extends AbstractMySQLIntegrationTest {
             );
 
             assertEquals(
-                offsetDateTime,
-                post.getPublishedOn()
+                offsetDateTime.toInstant(),
+                post.getPublishedOn().toInstant()
             );
 
             UserAccount userAccount = post.getCreatedBy();

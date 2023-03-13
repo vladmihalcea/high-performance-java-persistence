@@ -73,19 +73,17 @@ public class HibernateImmutableExceptionTest extends AbstractTest {
             });
 
             fail("Should have thrown exception");
-        } catch (Exception e) {
-            HibernateException cause = (HibernateException) e.getCause();
+        } catch (HibernateException e) {
             assertEquals(
                 "The query: [update Event set eventValue = :eventValue where id = :id] " +
                 "attempts to update an immutable entity: [Event]",
-                cause.getMessage()
+                e.getMessage()
             );
         }
     }
 
     @Test
     public void testCriteriaAPI() {
-
         try {
             doInJPA(entityManager -> {
                 CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -103,10 +101,10 @@ public class HibernateImmutableExceptionTest extends AbstractTest {
             });
 
             fail("Should have thrown exception");
-        } catch (Exception e) {
-            HibernateException cause = (HibernateException) e.getCause();
-            assertTrue(
-                cause.getMessage().contains("attempts to update an immutable entity")
+        } catch (HibernateException e) {
+            assertEquals(
+                "The query: [<criteria>] attempts to update an immutable entity: [Event]",
+                e.getMessage()
             );
         }
     }

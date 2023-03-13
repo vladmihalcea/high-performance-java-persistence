@@ -19,30 +19,23 @@ public class StringSequenceIdentifierTest extends AbstractPostgreSQLIntegrationT
     }
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
+    protected void additionalProperties(Properties properties) {
         properties.setProperty("entity.identifier.prefix", "ID_");
-        return properties;
     }
 
     @Test
     public void test() {
-        executeStatement("create sequence hibernate_sequence start 1 increment 1");
+        executeStatement("DROP SEQUENCE IF EXISTS hibernate_sequence");
+        executeStatement("CREATE SEQUENCE hibernate_sequence START 1 INCREMENT 1");
 
         LOGGER.debug("test");
         doInJPA(entityManager -> {
             entityManager.persist(new Post());
-            entityManager.persist(new Post("ABC"));
-            entityManager.persist(new Post());
-            entityManager.persist(new Post("DEF"));
             entityManager.persist(new Post());
             entityManager.persist(new Post());
         });
         doInJPA(entityManager -> {
             entityManager.persist(new Board());
-            entityManager.persist(new Board("ABC"));
-            entityManager.persist(new Board());
-            entityManager.persist(new Board("DEF"));
             entityManager.persist(new Board());
             entityManager.persist(new Board());
         });
@@ -61,20 +54,14 @@ public class StringSequenceIdentifierTest extends AbstractPostgreSQLIntegrationT
                     name = "sequence_name", value = "hibernate_sequence"),
                 @org.hibernate.annotations.Parameter(
                     name = "sequence_prefix", value = "CTC_"),
+                @org.hibernate.annotations.Parameter(
+                    name = "increment_size", value = "1"),
             }
         )
-        @GeneratedValue(generator = "assigned-sequence", strategy = GenerationType.SEQUENCE)
+        @GeneratedValue(
+            generator = "assigned-sequence"
+        )
         private String id;
-
-        @Version
-        private Short version;
-
-        public Post() {
-        }
-
-        public Post(String id) {
-            this.id = id;
-        }
 
         @Override
         public String getId() {
@@ -92,20 +79,12 @@ public class StringSequenceIdentifierTest extends AbstractPostgreSQLIntegrationT
             parameters = {
                 @org.hibernate.annotations.Parameter(
                     name = "sequence_name", value = "hibernate_sequence"),
+                @org.hibernate.annotations.Parameter(
+                    name = "increment_size", value = "1"),
             }
         )
         @GeneratedValue(generator = "assigned-sequence", strategy = GenerationType.SEQUENCE)
         private String id;
-
-        @Version
-        private Short version;
-
-        public Board() {
-        }
-
-        public Board(String id) {
-            this.id = id;
-        }
     }
 
     @Entity(name = "Event")
@@ -114,5 +93,4 @@ public class StringSequenceIdentifierTest extends AbstractPostgreSQLIntegrationT
         @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private String id;
     }
-
 }
