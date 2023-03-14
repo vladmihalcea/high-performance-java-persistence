@@ -4,9 +4,12 @@ import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.logging.LoggingStatementInspector;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
-import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
+import jakarta.persistence.EntityManagerFactory;
 import net.ttddyy.dsproxy.ExecutionInfo;
 import net.ttddyy.dsproxy.QueryInfo;
 import net.ttddyy.dsproxy.listener.MethodExecutionContext;
@@ -17,9 +20,10 @@ import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.*;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
@@ -28,7 +32,6 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.Arrays;
@@ -42,7 +45,6 @@ import java.util.concurrent.atomic.LongAdder;
  * @author Vlad Mihalcea
  */
 @Configuration
-@PropertySource({"/META-INF/jdbc-hsqldb.properties"})
 @ComponentScan(basePackages = {
     "com.vladmihalcea.book.hpjp.spring.transaction.jpa.dao",
     "com.vladmihalcea.book.hpjp.spring.transaction.jpa.service",
@@ -53,39 +55,22 @@ public class JPATransactionManagerConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 
-    @Value("${jdbc.dataSourceClassName}")
-    private String dataSourceClassName;
-
-    @Value("${jdbc.url}")
-    private String jdbcUrl;
-
-    @Value("${jdbc.username}")
-    private String jdbcUser;
-
-    @Value("${jdbc.password}")
-    private String jdbcPassword;
-
-    @Value("${hibernate.dialect}")
-    private String hibernateDialect;
+    @Bean
+    public Database database() {
+        return Database.POSTGRESQL;
+    }
 
     @Bean
-    public static PropertySourcesPlaceholderConfigurer properties() {
-        return new PropertySourcesPlaceholderConfigurer();
+    public DataSourceProvider dataSourceProvider() {
+        return database().dataSourceProvider();
     }
 
     @Bean(destroyMethod = "close")
     public HikariDataSource actualDataSource() {
-        Properties driverProperties = new Properties();
-        driverProperties.setProperty("url", jdbcUrl);
-        driverProperties.setProperty("user", jdbcUser);
-        driverProperties.setProperty("password", jdbcPassword);
-
-        Properties properties = new Properties();
-        properties.put("dataSourceClassName", dataSourceClassName);
-        properties.put("dataSourceProperties", driverProperties);
-        properties.setProperty("maximumPoolSize", String.valueOf(3));
-        HikariConfig hikariConfig = new HikariConfig(properties);
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setMaximumPoolSize(64);
         hikariConfig.setAutoCommit(false);
+        hikariConfig.setDataSource(dataSourceProvider().dataSource());
         return new HikariDataSource(hikariConfig);
     }
 
@@ -94,39 +79,39 @@ public class JPATransactionManagerConfiguration {
         SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
         loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
         DataSource dataSource = ProxyDataSourceBuilder
-                .create(actualDataSource())
-                .name(DATA_SOURCE_PROXY_NAME)
-                .listener(loggingListener)
-                .listener(new JdbcLifecycleEventListenerAdapter() {
-                    private final ThreadLocal<LongAdder> queryCountHolder = new ThreadLocal<>();
+            .create(actualDataSource())
+            .name(DATA_SOURCE_PROXY_NAME)
+            .listener(loggingListener)
+            .listener(new JdbcLifecycleEventListenerAdapter() {
+                private final ThreadLocal<LongAdder> queryCountHolder = new ThreadLocal<>();
 
-                    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+                private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-                    @Override
-                    public void afterGetConnection(MethodExecutionContext executionContext) {
-                        queryCountHolder.set(new LongAdder());
+                @Override
+                public void afterGetConnection(MethodExecutionContext executionContext) {
+                    queryCountHolder.set(new LongAdder());
+                }
+
+                @Override
+                public void beforeQuery(ExecutionInfo execInfo, List<QueryInfo> queryInfoList) {
+                    queryCountHolder.get().increment();
+                }
+
+                @Override
+                public void afterCommit(MethodExecutionContext executionContext) {
+                    if(queryCountHolder.get().intValue() == 0) {
+                        LOGGER.warn("Transaction didn't execute any SQL statement!");
                     }
+                }
 
-                    @Override
-                    public void beforeQuery(ExecutionInfo execInfo, List<QueryInfo> queryInfoList) {
-                        queryCountHolder.get().increment();
+                @Override
+                public void afterClose(MethodExecutionContext executionContext) {
+                    if(executionContext.getTarget() instanceof Connection) {
+                        queryCountHolder.remove();
                     }
-
-                    @Override
-                    public void afterCommit(MethodExecutionContext executionContext) {
-                        if(queryCountHolder.get().intValue() == 0) {
-                            LOGGER.warn("Transaction didn't execute any SQL statement!");
-                        }
-                    }
-
-                    @Override
-                    public void afterClose(MethodExecutionContext executionContext) {
-                        if(executionContext.getTarget() instanceof Connection) {
-                            queryCountHolder.remove();
-                        }
-                    }
-                })
-                .build();
+                }
+            })
+            .build();
         return dataSource;
     }
 
@@ -163,7 +148,6 @@ public class JPATransactionManagerConfiguration {
 
     protected Properties additionalProperties() {
         Properties properties = new Properties();
-        properties.setProperty("hibernate.dialect", hibernateDialect);
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         properties.put(
             "hibernate.session_factory.statement_inspector",

@@ -1,11 +1,10 @@
 package com.vladmihalcea.book.hpjp.spring.data.query.exists.domain;
 
-import org.hibernate.annotations.NaturalId;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import org.hibernate.annotations.NaturalId;
 
 /**
  * @author Vlad Mihalcea

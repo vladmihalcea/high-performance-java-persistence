@@ -8,8 +8,6 @@ import jakarta.persistence.LockModeType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Vlad Mihalcea
  */

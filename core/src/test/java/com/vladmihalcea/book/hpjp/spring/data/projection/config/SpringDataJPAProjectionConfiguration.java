@@ -7,7 +7,6 @@ import com.vladmihalcea.book.hpjp.spring.data.projection.dto.PostCommentRecord;
 import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.util.Collections;
@@ -24,7 +23,6 @@ import java.util.Properties;
     }
 )
 @EnableJpaRepositories("com.vladmihalcea.book.hpjp.spring.data.projection.repository")
-@PropertySource({"/META-INF/jdbc-postgresql.properties"})
 public class SpringDataJPAProjectionConfiguration extends SpringDataJPABaseConfiguration {
 
     @Override

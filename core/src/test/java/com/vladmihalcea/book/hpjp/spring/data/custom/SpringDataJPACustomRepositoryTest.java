@@ -7,9 +7,7 @@ import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.Pos
 import com.vladmihalcea.book.hpjp.spring.data.custom.config.SpringDataJPACustomRepositoryConfiguration;
 import com.vladmihalcea.book.hpjp.spring.data.custom.repository.PostRepository;
 import com.vladmihalcea.book.hpjp.spring.data.custom.service.ForumService;
-import com.vladmihalcea.book.hpjp.spring.data.query.multibag.service.PostService;
-import org.hibernate.Session;
-import org.junit.Before;
+import jakarta.persistence.EntityManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -22,14 +20,13 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea

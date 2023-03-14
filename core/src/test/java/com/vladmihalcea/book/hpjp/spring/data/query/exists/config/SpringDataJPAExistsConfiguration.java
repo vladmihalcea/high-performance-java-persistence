@@ -3,7 +3,6 @@ package com.vladmihalcea.book.hpjp.spring.data.query.exists.config;
 import com.vladmihalcea.book.hpjp.spring.data.base.config.SpringDataJPABaseConfiguration;
 import com.vladmihalcea.book.hpjp.spring.data.query.exists.domain.Post;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.util.Properties;
@@ -18,7 +17,6 @@ import java.util.Properties;
     }
 )
 @EnableJpaRepositories("com.vladmihalcea.book.hpjp.spring.data.query.exists.repository")
-@PropertySource({"/META-INF/jdbc-postgresql.properties"})
 public class SpringDataJPAExistsConfiguration extends SpringDataJPABaseConfiguration {
 
     @Override

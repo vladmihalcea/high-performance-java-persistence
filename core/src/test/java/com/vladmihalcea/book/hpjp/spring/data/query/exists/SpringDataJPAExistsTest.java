@@ -4,6 +4,7 @@ import com.vladmihalcea.book.hpjp.spring.data.query.exists.config.SpringDataJPAE
 import com.vladmihalcea.book.hpjp.spring.data.query.exists.domain.Post;
 import com.vladmihalcea.book.hpjp.spring.data.query.exists.domain.Post_;
 import com.vladmihalcea.book.hpjp.spring.data.query.exists.repository.PostRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,8 +19,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import jakarta.persistence.EntityManager;
 
 import static org.junit.Assert.assertTrue;
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.exact;

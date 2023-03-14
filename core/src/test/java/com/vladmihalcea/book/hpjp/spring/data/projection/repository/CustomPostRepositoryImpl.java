@@ -2,10 +2,10 @@ package com.vladmihalcea.book.hpjp.spring.data.projection.repository;
 
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTOResultTransformer;
-import org.springframework.data.repository.query.Param;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
 
 /**

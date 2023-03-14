@@ -2,11 +2,11 @@ package com.vladmihalcea.book.hpjp.spring.transaction.routing;
 
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Tag;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 

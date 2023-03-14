@@ -1,10 +1,10 @@
 package com.vladmihalcea.book.hpjp.spring.transaction.jpa.dao;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.io.Serializable;
 
 /**

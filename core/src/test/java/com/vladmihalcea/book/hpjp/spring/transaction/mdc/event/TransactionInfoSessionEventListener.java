@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.hpjp.spring.transaction.mdc.event;
 
 import com.vladmihalcea.book.hpjp.util.SpringTransactionUtils;
-import com.vladmihalcea.book.hpjp.util.TsidUtils;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
 import jakarta.persistence.EntityManager;
 import org.hibernate.BaseSessionEventListener;

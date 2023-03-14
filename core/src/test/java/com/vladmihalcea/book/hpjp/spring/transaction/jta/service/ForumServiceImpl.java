@@ -2,19 +2,19 @@ package com.vladmihalcea.book.hpjp.spring.transaction.jta.service;
 
 import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
-import com.vladmihalcea.book.hpjp.spring.transaction.jta.dao.TagDAO;
 import com.vladmihalcea.book.hpjp.spring.transaction.jta.dao.PostDAO;
+import com.vladmihalcea.book.hpjp.spring.transaction.jta.dao.TagDAO;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Vlad Mihalcea

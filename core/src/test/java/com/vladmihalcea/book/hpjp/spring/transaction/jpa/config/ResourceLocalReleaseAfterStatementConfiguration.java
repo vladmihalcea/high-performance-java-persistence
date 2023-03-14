@@ -3,9 +3,10 @@ package com.vladmihalcea.book.hpjp.spring.transaction.jpa.config;
 import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
-import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
+import jakarta.persistence.EntityManagerFactory;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.cfg.AvailableSettings;
@@ -22,7 +23,6 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collections;
@@ -120,7 +120,7 @@ public class ResourceLocalReleaseAfterStatementConfiguration {
 
     protected Properties additionalProperties() {
         Properties properties = new Properties();
-        properties.setProperty("hibernate.dialect", hibernateDialect);
+        
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         properties.put(
             "hibernate.integrator_provider",

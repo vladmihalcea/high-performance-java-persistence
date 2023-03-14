@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.spring.data.projection.domain;
 
 import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 

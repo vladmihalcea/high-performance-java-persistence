@@ -7,6 +7,7 @@ import com.vladmihalcea.book.hpjp.spring.data.query.multibag.domain.Tag;
 import com.vladmihalcea.book.hpjp.spring.data.query.multibag.service.BrokenPostService;
 import com.vladmihalcea.book.hpjp.spring.data.query.multibag.service.PostService;
 import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
+import jakarta.persistence.EntityManager;
 import org.hibernate.loader.MultipleBagFetchException;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +22,6 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 

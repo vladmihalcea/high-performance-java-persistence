@@ -4,6 +4,7 @@ import com.blazebit.persistence.PagedList;
 import com.vladmihalcea.book.hpjp.hibernate.fetching.pagination.Post;
 import com.vladmihalcea.book.hpjp.spring.blaze.config.SpringBlazePersistenceConfiguration;
 import com.vladmihalcea.book.hpjp.spring.blaze.service.ForumService;
+import jakarta.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +18,6 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.persistence.EntityManager;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;

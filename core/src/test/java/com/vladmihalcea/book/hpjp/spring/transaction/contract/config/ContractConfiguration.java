@@ -36,7 +36,7 @@ import java.util.Properties;
 @Configuration
 @ComponentScan(
     basePackages = {
-        "com.vladmihalcea.book.hpjp.spring.transaction.contract.service",
+        "com.vladmihalcea.book.hpjp.spring.transaction.contract",
     }
 )
 @EnableJpaRepositories("com.vladmihalcea.book.hpjp.spring.transaction.contract.repository")

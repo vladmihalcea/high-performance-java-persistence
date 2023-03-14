@@ -4,7 +4,6 @@ import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Tag;
 import com.vladmihalcea.book.hpjp.spring.transaction.jta.config.JTATransactionManagerConfiguration;
-import com.vladmihalcea.book.hpjp.spring.transaction.jta.dao.PostBatchDAO;
 import com.vladmihalcea.book.hpjp.spring.transaction.jta.dao.TagDAO;
 import com.vladmihalcea.book.hpjp.spring.transaction.jta.service.ForumService;
 import org.junit.Before;
@@ -41,10 +40,6 @@ public class JTATransactionManagerTest {
     @Autowired
     private ForumService forumService;
 
-
-    @Autowired
-    private PostBatchDAO postBatchDAO;
-
     @Autowired
     private TagDAO tagDAO;
 
@@ -60,7 +55,6 @@ public class JTATransactionManagerTest {
                 jpa.setName("jpa");
                 tagDAO.persist(jpa);
 
-                postBatchDAO.savePosts();
                 return null;
             });
         } catch (TransactionException e) {

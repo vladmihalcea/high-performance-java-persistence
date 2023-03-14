@@ -5,8 +5,8 @@ import com.vladmihalcea.book.hpjp.spring.data.crud.config.SpringDataJPACrudConfi
 import com.vladmihalcea.book.hpjp.spring.data.crud.domain.Post;
 import com.vladmihalcea.book.hpjp.spring.data.crud.repository.PostRepository;
 import com.vladmihalcea.book.hpjp.spring.data.crud.service.PostService;
-import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
-import org.junit.Ignore;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -19,13 +19,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
@@ -135,7 +132,7 @@ public class SpringDataJPACrudTest {
         postService.addNewPostComment("Best book on JPA and Hibernate!", postId);
 
         //The sequence call
-        SQLStatementCountValidator.assertSelectCount(1);
+        SQLStatementCountValidator.assertSelectCount(0);
         SQLStatementCountValidator.assertInsertCount(1);
     }
 

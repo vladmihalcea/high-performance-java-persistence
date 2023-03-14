@@ -65,12 +65,17 @@ public class JTATransactionManagerConfiguration {
     }
 
     @Bean
-    @DependsOn(value = {"actualDataSource"})
     public DataSource dataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(JDBCXADataSource.class.getName());
+        dataSource.setUrl(jdbcUrl);
+        dataSource.setUsername(jdbcUser);
+        dataSource.setPassword(jdbcPassword);
+
         SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
         loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
         return ProxyDataSourceBuilder
-                .create(actualDataSource())
+                .create(dataSource)
                 .name(DATA_SOURCE_PROXY_NAME)
                 .listener(loggingListener)
                 .build();
@@ -88,15 +93,6 @@ public class JTATransactionManagerConfiguration {
         localContainerEntityManagerFactoryBean.setJpaVendorAdapter(vendorAdapter);
         localContainerEntityManagerFactoryBean.setJpaProperties(additionalProperties());
         return localContainerEntityManagerFactoryBean;
-    }
-
-    public DataSource actualDataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(JDBCXADataSource.class.getName());
-        dataSource.setUrl(jdbcUrl);
-        dataSource.setUsername(jdbcUser);
-        dataSource.setPassword(jdbcPassword);
-        return dataSource;
     }
 
     @Bean

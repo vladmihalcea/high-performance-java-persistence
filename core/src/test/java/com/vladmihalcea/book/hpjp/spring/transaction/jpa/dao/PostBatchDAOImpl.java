@@ -1,13 +1,12 @@
 package com.vladmihalcea.book.hpjp.spring.transaction.jpa.dao;
 
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceContextType;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Vlad Mihalcea

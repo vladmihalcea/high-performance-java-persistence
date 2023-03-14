@@ -7,6 +7,8 @@ import com.vladmihalcea.book.hpjp.spring.transaction.jpa.config.JPATransactionMa
 import com.vladmihalcea.book.hpjp.spring.transaction.jpa.dao.PostBatchDAO;
 import com.vladmihalcea.book.hpjp.spring.transaction.jpa.dao.TagDAO;
 import com.vladmihalcea.book.hpjp.spring.transaction.jpa.service.ForumService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,12 +23,10 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Vlad Mihalcea

@@ -1,8 +1,8 @@
 package com.vladmihalcea.book.hpjp.spring.data.query.multibag.domain;
 
-import com.vladmihalcea.book.hpjp.hibernate.fetching.multiple.EagerFetchingMultipleBagTest;
-
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 /**
  * @author Vlad Mihalcea

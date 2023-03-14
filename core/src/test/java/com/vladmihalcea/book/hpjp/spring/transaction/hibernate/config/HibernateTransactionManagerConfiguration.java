@@ -4,15 +4,18 @@ import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.hibernate.logging.LoggingStatementInspector;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
-import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.*;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -27,7 +30,6 @@ import java.util.Properties;
  * @author Vlad Mihalcea
  */
 @Configuration
-@PropertySource({"/META-INF/jdbc-hsqldb.properties"})
 @ComponentScan(basePackages = "com.vladmihalcea.book.hpjp.spring.transaction.hibernate")
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
@@ -35,49 +37,35 @@ public class HibernateTransactionManagerConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 
-    @Value("${jdbc.dataSourceClassName}")
-    private String dataSourceClassName;
-
-    @Value("${jdbc.url}")
-    private String jdbcUrl;
-
-    @Value("${jdbc.username}")
-    private String jdbcUser;
-
-    @Value("${jdbc.password}")
-    private String jdbcPassword;
-
-    @Value("${hibernate.dialect}")
-    private String hibernateDialect;
-
-    @Bean(destroyMethod = "close")
-    public HikariDataSource actualDataSource() {
-        Properties driverProperties = new Properties();
-        driverProperties.setProperty("url", jdbcUrl);
-        driverProperties.setProperty("user", jdbcUser);
-        driverProperties.setProperty("password", jdbcPassword);
-
-        Properties properties = new Properties();
-        properties.put("dataSourceClassName", dataSourceClassName);
-        properties.put("dataSourceProperties", driverProperties);
-        properties.setProperty("maximumPoolSize", String.valueOf(3));
-        return new HikariDataSource(new HikariConfig(properties));
+    @Bean
+    public Database database() {
+        return Database.POSTGRESQL;
     }
 
     @Bean
-    public static PropertySourcesPlaceholderConfigurer properties() {
-        return new PropertySourcesPlaceholderConfigurer();
+    public DataSourceProvider dataSourceProvider() {
+        return database().dataSourceProvider();
+    }
+
+    @Bean(destroyMethod = "close")
+    public HikariDataSource actualDataSource() {
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setMaximumPoolSize(64);
+        hikariConfig.setAutoCommit(false);
+        hikariConfig.setDataSource(dataSourceProvider().dataSource());
+        return new HikariDataSource(hikariConfig);
     }
 
     @Bean
     public DataSource dataSource() {
         SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
         loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
-        return ProxyDataSourceBuilder
-                .create(actualDataSource())
-                .name(DATA_SOURCE_PROXY_NAME)
-                .listener(loggingListener)
-                .build();
+        DataSource dataSource = ProxyDataSourceBuilder
+            .create(actualDataSource())
+            .name(DATA_SOURCE_PROXY_NAME)
+            .listener(loggingListener)
+            .build();
+        return dataSource;
     }
 
     @Bean
@@ -105,7 +93,7 @@ public class HibernateTransactionManagerConfiguration {
 
     protected Properties additionalProperties() {
         Properties properties = new Properties();
-        properties.setProperty("hibernate.dialect", hibernateDialect);
+        
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         properties.put(
             "hibernate.session_factory.statement_inspector",

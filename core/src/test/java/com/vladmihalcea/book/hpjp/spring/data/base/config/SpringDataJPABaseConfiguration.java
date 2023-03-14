@@ -3,28 +3,20 @@ package com.vladmihalcea.book.hpjp.spring.data.base.config;
 import com.vladmihalcea.book.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.book.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.book.hpjp.util.logging.InlineQueryLogEntryCreator;
-import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
+import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-/*import io.hypersistence.optimizer.HypersistenceOptimizer;
-import io.hypersistence.optimizer.core.config.JpaConfig;*/
-import net.ttddyy.dsproxy.ExecutionInfo;
-import net.ttddyy.dsproxy.QueryInfo;
-import net.ttddyy.dsproxy.listener.ChainListener;
-import net.ttddyy.dsproxy.listener.DataSourceQueryCountListener;
-import net.ttddyy.dsproxy.listener.MethodExecutionContext;
-import net.ttddyy.dsproxy.listener.lifecycle.JdbcLifecycleEventListenerAdapter;
+import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
+import jakarta.persistence.EntityManagerFactory;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.*;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -32,14 +24,10 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.atomic.LongAdder;
 
 /**
  *
@@ -52,54 +40,34 @@ public abstract class SpringDataJPABaseConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 
-    @Value("${jdbc.dataSourceClassName}")
-    private String dataSourceClassName;
-
-    @Value("${jdbc.url}")
-    private String jdbcUrl;
-
-    @Value("${jdbc.username}")
-    private String jdbcUser;
-
-    @Value("${jdbc.password}")
-    private String jdbcPassword;
-
-    @Value("${hibernate.dialect}")
-    private String hibernateDialect;
+    @Bean
+    public Database database() {
+        return Database.POSTGRESQL;
+    }
 
     @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySources() {
-        return new PropertySourcesPlaceholderConfigurer();
+    public DataSourceProvider dataSourceProvider() {
+        return database().dataSourceProvider();
     }
 
     @Bean(destroyMethod = "close")
     public HikariDataSource actualDataSource() {
-        Properties driverProperties = new Properties();
-        driverProperties.setProperty("url", jdbcUrl);
-        driverProperties.setProperty("user", jdbcUser);
-        driverProperties.setProperty("password", jdbcPassword);
-
-        Properties properties = new Properties();
-        properties.put("dataSourceClassName", dataSourceClassName);
-        properties.put("dataSourceProperties", driverProperties);
-        properties.setProperty("maximumPoolSize", String.valueOf(3));
-        HikariConfig hikariConfig = new HikariConfig(properties);
+        HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setAutoCommit(false);
+        hikariConfig.setDataSource(dataSourceProvider().dataSource());
         return new HikariDataSource(hikariConfig);
     }
 
     @Bean
     public DataSource dataSource() {
-        ChainListener listener = new ChainListener();
         SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
         loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
-        listener.addListener(loggingListener);
-        listener.addListener(new DataSourceQueryCountListener());
-        return ProxyDataSourceBuilder
-                .create(actualDataSource())
-                .name(DATA_SOURCE_PROXY_NAME)
-                .listener(listener)
-                .build();
+        DataSource dataSource = ProxyDataSourceBuilder
+            .create(actualDataSource())
+            .name(DATA_SOURCE_PROXY_NAME)
+            .listener(loggingListener)
+            .build();
+        return dataSource;
     }
 
     @Bean
@@ -139,7 +107,6 @@ public abstract class SpringDataJPABaseConfiguration {
 
     protected Properties properties() {
         Properties properties = new Properties();
-        properties.setProperty("hibernate.dialect", hibernateDialect);
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         properties.put(
             "hibernate.integrator_provider",

@@ -3,14 +3,14 @@ package com.vladmihalcea.book.hpjp.spring.data.custom.service;
 import com.vladmihalcea.book.hpjp.hibernate.forum.Post;
 import com.vladmihalcea.book.hpjp.hibernate.query.dto.projection.transformer.PostDTO;
 import com.vladmihalcea.book.hpjp.spring.data.custom.repository.PostRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.util.List;
 
 /**

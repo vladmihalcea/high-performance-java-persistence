@@ -1,9 +1,9 @@
 package com.vladmihalcea.book.hpjp.spring.transaction.jta.dao;
 
-import org.springframework.stereotype.Repository;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.stereotype.Repository;
+
 import java.io.Serializable;
 
 /**

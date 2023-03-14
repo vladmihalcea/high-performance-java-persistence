@@ -2,8 +2,8 @@ package com.vladmihalcea.book.hpjp.spring.data.lock.config;
 
 import com.vladmihalcea.book.hpjp.spring.data.base.config.SpringDataJPABaseConfiguration;
 import com.vladmihalcea.book.hpjp.spring.data.lock.domain.Post;
+import io.hypersistence.utils.spring.repository.BaseJpaRepositoryImpl;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.util.Properties;
@@ -20,9 +20,9 @@ import java.util.Properties;
 @EnableJpaRepositories(
     basePackages = {
         "com.vladmihalcea.book.hpjp.spring.data.lock.repository"
-    }
+    },
+    repositoryBaseClass = BaseJpaRepositoryImpl.class
 )
-@PropertySource({"/META-INF/jdbc-postgresql.properties"})
 public class SpringDataJPALockConfiguration extends SpringDataJPABaseConfiguration {
 
     @Override

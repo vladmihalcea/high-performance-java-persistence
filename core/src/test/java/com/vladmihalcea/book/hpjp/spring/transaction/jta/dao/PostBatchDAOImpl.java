@@ -1,13 +1,12 @@
 package com.vladmihalcea.book.hpjp.spring.transaction.jta.dao;
 
 import com.vladmihalcea.book.hpjp.hibernate.transaction.forum.Post;
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceContextType;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Vlad Mihalcea
@@ -28,12 +27,11 @@ public class PostBatchDAOImpl extends GenericDAOImpl<Post, Long> implements Post
     public void savePosts() {
         entityManager.unwrap(Session.class).setJdbcBatchSize(10);
         try {
-            for ( long i = 0; i < entityCount; ++i ) {
+            for (long i = 0; i < entityCount; ++i) {
                 Post post = new Post();
-                post.setTitle(String.format( "Post nr %d", i ));
-                entityManager.persist( post );
+                post.setTitle(String.format("Post nr %d", i));
+                entityManager.persist(post);
             }
-            entityManager.flush();
         } finally {
             entityManager.unwrap(Session.class).setJdbcBatchSize(null);
         }

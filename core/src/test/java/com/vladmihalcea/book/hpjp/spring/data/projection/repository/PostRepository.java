@@ -4,12 +4,12 @@ import com.vladmihalcea.book.hpjp.spring.data.projection.domain.Post;
 import com.vladmihalcea.book.hpjp.spring.data.projection.dto.PostCommentDTO;
 import com.vladmihalcea.book.hpjp.spring.data.projection.dto.PostCommentRecord;
 import com.vladmihalcea.book.hpjp.spring.data.projection.dto.PostCommentSummary;
+import jakarta.persistence.Tuple;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import jakarta.persistence.Tuple;
 import java.util.List;
 
 /**
