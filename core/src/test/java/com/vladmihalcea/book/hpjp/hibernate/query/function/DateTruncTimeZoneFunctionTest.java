@@ -1,15 +1,21 @@
 package com.vladmihalcea.book.hpjp.hibernate.query.function;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import jakarta.persistence.*;
 import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.spi.MetadataBuilderContributor;
-import org.hibernate.dialect.function.StandardSQLFunction;
-import org.hibernate.type.StandardBasicTypes;
+import org.hibernate.query.sqm.function.NamedSqmFunctionDescriptor;
+import org.hibernate.query.sqm.produce.function.StandardArgumentsValidators;
+import org.hibernate.sql.ast.SqlAstNodeRenderingMode;
+import org.hibernate.sql.ast.SqlAstTranslator;
+import org.hibernate.sql.ast.spi.SqlAppender;
+import org.hibernate.sql.ast.tree.SqlAstNode;
+import org.hibernate.sql.ast.tree.expression.Expression;
 import org.junit.Test;
 
-import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -41,8 +47,32 @@ public class DateTruncTimeZoneFunctionTest extends AbstractPostgreSQLIntegration
         public void contribute(MetadataBuilder metadataBuilder) {
             metadataBuilder.applySqlFunction(
                 "date_trunc",
-                new StandardSQLFunction("date_trunc('day', (?1 AT TIME ZONE ?2))", false, StandardBasicTypes.TIMESTAMP)
+                DateTruncFunction.INSTANCE
             );
+        }
+
+        public static class DateTruncFunction extends NamedSqmFunctionDescriptor {
+
+            public static final DateTruncFunction INSTANCE = new DateTruncFunction();
+
+            public DateTruncFunction() {
+                super(
+                    "date_trunc",
+                    false,
+                    StandardArgumentsValidators.exactly(2),
+                    null
+                );
+            }
+
+            public void render(SqlAppender sqlAppender, List<? extends SqlAstNode> arguments, SqlAstTranslator<?> walker) {
+                Expression timestamp = (Expression) arguments.get(0);
+                Expression timezone = (Expression) arguments.get(1);
+                sqlAppender.appendSql("date_trunc('day', (");
+                walker.render(timestamp, SqlAstNodeRenderingMode.DEFAULT);
+                sqlAppender.appendSql(" AT TIME ZONE ");
+                walker.render(timezone, SqlAstNodeRenderingMode.DEFAULT);
+                sqlAppender.appendSql("))");
+            }
         }
     }
 
@@ -62,15 +92,15 @@ public class DateTruncTimeZoneFunctionTest extends AbstractPostgreSQLIntegration
     @Test
     public void test() {
         doInJPA(entityManager -> {
-            Tuple tuple = entityManager
-            .createQuery(
-                "select " +
-                "   p.title as title, " +
-                "   date_trunc(p.createdOn, :timezone) as creation_date " +
-                "from " +
-                "   Post p " +
-                "where " +
-                "   p.id = :postId", Tuple.class)
+            Tuple tuple = entityManager.createQuery("""
+                select
+                   p.title as title,
+                   date_trunc(p.createdOn, :timezone) as creation_date
+                from
+                   Post p
+                where
+                   p.id = :postId
+                """, Tuple.class)
             .setParameter("postId", 1L)
             .setParameter("timezone", "UTC")
             .getSingleResult();
