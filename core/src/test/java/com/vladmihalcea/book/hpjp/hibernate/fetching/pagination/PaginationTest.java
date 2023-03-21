@@ -8,6 +8,7 @@ import org.hibernate.Incubating;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.NativeQuery;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.sql.Timestamp;
@@ -254,16 +255,16 @@ public class PaginationTest extends AbstractTest {
     public void testFetchAndPaginateParentWithNoChild() {
         doInJPA(entityManager -> {
             entityManager.persist(
-                    new Post()
-                            .setId(100L)
-                            .setTitle("High-Performance Java Persistence - Second Edition")
-                            .setCreatedOn(
-                                    Timestamp.valueOf(
-                                            LocalDateTime.of(
-                                                    2018, 10, 8, 12, 0, 0, 0
-                                            )
-                                    )
+                new Post()
+                    .setId(100L)
+                    .setTitle("High-Performance Java Persistence - Second Edition")
+                    .setCreatedOn(
+                        Timestamp.valueOf(
+                            LocalDateTime.of(
+                                2018, 10, 8, 12, 0, 0, 0
                             )
+                        )
+                    )
             );
         });
 
@@ -412,12 +413,40 @@ public class PaginationTest extends AbstractTest {
     }
 
     @Test
-    @Incubating
-    public void testFetchAndPaginateUsingDenseRankHQL() {
+    public void testFetchAndPaginateUsingDenseRankJPQL() {
+        doInJPA(entityManager -> {
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                left join fetch p.comments pc
+                where p.id in (
+                    select id
+                    from (
+                      select 
+                         id as id,
+                         dense_rank() over (order by createdOn ASC) as ranking
+                      from Post
+                      where title like :titlePattern 
+                    ) pr
+                    where ranking <= :rank
+                )
+                """,
+                Post.class)
+            .setParameter("titlePattern", "High-Performance Java Persistence %")
+            .setParameter("rank", 5)
+            .getResultList();
+
+            assertEquals(5, posts.size());
+        });
+    }
+
+    @Test
+    @Ignore("Requires Hibernate 6.2")
+    public void testFetchAndPaginateUsingDenseRankJPQLWithCTE() {
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery("""
                 with p_pc as (
-                    select 
+                    select
                         p,
                         dense_rank() over (
                            order by p.createdOn, p.id

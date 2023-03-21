@@ -234,16 +234,15 @@ public class DerivedTableTest extends AbstractTest {
         assertEquals(6, tuples.size());
     }
 
-    @Ignore("Fails because of HHH-15731")
     @Test
     public void testJPQLDerivedTableMultipleLevels() {
         List<Tuple> tuples = doInJPA(entityManager -> {
             return entityManager.createQuery("""
                 SELECT
-                    post_id AS pid,
-                    post_title AS pt,
-                    comment_id AS cid,
-                    comment_review AS cr
+                    post_id AS post_id,
+                    post_title AS post_title,
+                    comment_id AS comment_id,
+                    comment_review AS comment_review
                 FROM (
                   SELECT
                     post_id AS post_id,
