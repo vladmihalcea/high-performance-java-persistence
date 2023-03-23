@@ -52,19 +52,6 @@ public class SpringBatchYugabyteDBTest {
 
         forumService.createPosts(posts);
 
-        LongStream.rangeClosed(1, POST_COUNT)
-            .mapToObj(postId -> new Post()
-                .setTitle(
-                    String.format("High-Performance Java Persistence - Page %d",
-                        postId
-                    )
-                )
-                .setStatus(PostStatus.PENDING)
-            )
-            .toList();
-
-        forumService.createPosts(posts);
-
         LongStream.rangeClosed(1, 1000).boxed().forEach(id -> assertNotNull(forumService.findById(id)));
 
         List<Post> matchedPosts = forumService.findByIds(
