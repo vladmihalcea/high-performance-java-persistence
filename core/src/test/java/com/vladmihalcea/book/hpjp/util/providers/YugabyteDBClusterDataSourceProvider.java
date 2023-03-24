@@ -66,7 +66,7 @@ public class YugabyteDBClusterDataSourceProvider extends YugabyteDBDataSourcePro
 
     @Override
     public Database database() {
-        return Database.YUGABYTEDB;
+        return Database.YUGABYTEDB_CLUSTER;
     }
 
     @Override
