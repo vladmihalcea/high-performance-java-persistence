@@ -16,7 +16,7 @@ public class YugabyteDBClusterDataSourceProvider extends YugabyteDBDataSourcePro
 
     public static final DataSourceProvider INSTANCE = new YugabyteDBDataSourceProvider();
 
-    private String host = "172.22.0.2";
+    private String host = "172.22.0.3";
 
     private int port = 5433;
 
