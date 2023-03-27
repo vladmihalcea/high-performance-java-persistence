@@ -27,4 +27,12 @@ public class ForumService {
             )
         );
     }
+
+    @Transactional(readOnly = true)
+    public List<Post> findAllPostsByTitleWithCommentsWithBlaze(String titlePattern, PageRequest pageRequest) {
+        return postRepository.findAllByTitleWithComments(
+            titlePattern,
+            pageRequest
+        );
+    }
 }

@@ -14,7 +14,7 @@ import java.util.List;
  * @author Vlad Mihalcea
  */
 @Repository
-public interface PostRepository extends BaseJpaRepository<Post, Long> {
+public interface PostRepository extends BaseJpaRepository<Post, Long>, CustomPostRepository {
 
     @Query(
         value = """

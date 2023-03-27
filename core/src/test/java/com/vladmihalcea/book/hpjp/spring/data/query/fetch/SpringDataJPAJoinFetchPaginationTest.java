@@ -104,7 +104,6 @@ public class SpringDataJPAJoinFetchPaginationTest {
 
     @Test
     public void testFindAllWithCommentsByTitleAntiPattern() {
-
         int maxCount = 25;
 
         Page<Post> posts = postRepository.findAllByTitleWithCommentsAntiPattern(
@@ -117,7 +116,6 @@ public class SpringDataJPAJoinFetchPaginationTest {
 
     @Test
     public void testFindTopNWithCommentsByTitle() {
-
         int maxCount = 25;
 
         List<Post> posts = postRepository.findFirstByTitleWithCommentsByTitle(
@@ -130,10 +128,21 @@ public class SpringDataJPAJoinFetchPaginationTest {
 
     @Test
     public void testFindWithCommentsByTitleWithTwoQueries() {
-
         int maxCount = 25;
 
         List<Post> posts = forumService.findAllPostsByTitleWithComments(
+            "High-Performance Java Persistence %",
+            PageRequest.of(0, maxCount, Sort.by("createdOn"))
+        );
+
+        assertEquals(maxCount, posts.size());
+    }
+
+    @Test
+    public void testFindWithCommentsByTitleWithBlaze() {
+        int maxCount = 25;
+
+        List<Post> posts = forumService.findAllPostsByTitleWithCommentsWithBlaze(
             "High-Performance Java Persistence %",
             PageRequest.of(0, maxCount, Sort.by("createdOn"))
         );
