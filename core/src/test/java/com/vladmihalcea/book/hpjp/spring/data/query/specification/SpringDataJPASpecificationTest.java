@@ -1,14 +1,11 @@
-package com.vladmihalcea.book.hpjp.spring.data.query.method;
+package com.vladmihalcea.book.hpjp.spring.data.query.specification;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vladmihalcea.book.hpjp.spring.data.query.method.config.SpringDataJPAQueryMethodConfiguration;
-import com.vladmihalcea.book.hpjp.spring.data.query.method.domain.Post;
-import com.vladmihalcea.book.hpjp.spring.data.query.method.domain.PostComment;
-import com.vladmihalcea.book.hpjp.spring.data.query.method.domain.PostCommentDTO;
-import com.vladmihalcea.book.hpjp.spring.data.query.method.domain.Tag;
-import com.vladmihalcea.book.hpjp.spring.data.query.method.repository.PostCommentRepository;
-import com.vladmihalcea.book.hpjp.spring.data.query.method.repository.PostRepository;
+import com.vladmihalcea.book.hpjp.spring.data.query.specification.config.SpringDataJPASpecificationConfiguration;
+import com.vladmihalcea.book.hpjp.spring.data.query.specification.domain.Post;
+import com.vladmihalcea.book.hpjp.spring.data.query.specification.domain.PostComment;
+import com.vladmihalcea.book.hpjp.spring.data.query.specification.domain.Tag;
+import com.vladmihalcea.book.hpjp.spring.data.query.specification.repository.PostCommentRepository;
+import com.vladmihalcea.book.hpjp.spring.data.query.specification.repository.PostRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,15 +24,19 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+import static com.vladmihalcea.book.hpjp.spring.data.query.specification.repository.PostCommentRepository.Specs.*;
+
 
 /**
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = SpringDataJPAQueryMethodConfiguration.class)
+@ContextConfiguration(classes = SpringDataJPASpecificationConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPAQueryMethodTest {
+public class SpringDataJPASpecificationTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
@@ -81,20 +82,15 @@ public class SpringDataJPAQueryMethodTest {
                         .setId(postId)
                         .setTitle(String.format("Post nr. %d", postId));
 
-                    PostComment parent = null;
 
                     for (long i = 1; i <= POST_COMMENT_COUNT; i++) {
                         PostComment comment = new PostComment()
                             .setId(++commentId)
-                            .setParent(parent)
-                            .setReview(i % 7 == 0 ? "Spam comment" : String.format("Comment %d", i))
+                            .setReview(i % 7 == 0 ? "Spam comment" : String.format("Awesome post %d", i))
                             .setStatus(PostComment.Status.PENDING)
                             .setCreatedOn(timestamp.plusMinutes(postId))
                             .setVotes((int) (i % 7));
 
-                        if(i == 2 || i == 4 || i == 8) {
-                            parent = comment;
-                        }
                         post.addComment(comment);
                     }
 
@@ -116,7 +112,9 @@ public class SpringDataJPAQueryMethodTest {
     public void testFindByPost() {
         Post post = postRepository.getReferenceById(1L);
 
-        List<PostComment> comments = postCommentRepository.findAllByPost(post);
+        List<PostComment> comments = postCommentRepository.findAll(
+            byPost(post)
+        );
         assertEquals(POST_COMMENT_COUNT, comments.size());
     }
 
@@ -124,7 +122,12 @@ public class SpringDataJPAQueryMethodTest {
     public void testFindByPostOrderByCreatedOn() {
         Post post = postRepository.getReferenceById(1L);
 
-        List<PostComment> comments = postCommentRepository.findAllByPostOrderByCreatedOn(post);
+        List<PostComment> comments = postCommentRepository.findAll(
+            orderByCreatedOn(
+                byPost(post)
+            )
+        );
+
         assertEquals(POST_COMMENT_COUNT, comments.size());
     }
 
@@ -132,60 +135,48 @@ public class SpringDataJPAQueryMethodTest {
     public void testFindByPostAndStatusOrderByCreatedOn() {
         Post post = postRepository.getReferenceById(1L);
 
-        List<PostComment> comments = postCommentRepository.findAllByPostAndStatusOrderByCreatedOn(
-            post,
-            PostComment.Status.PENDING
+        List<PostComment> comments = postCommentRepository.findAll(
+            orderByCreatedOn(
+                byPost(post)
+                    .and(byStatus(PostComment.Status.PENDING))
+            )
         );
+
         assertEquals(POST_COMMENT_COUNT, comments.size());
     }
 
     @Test
     public void testFindByPostAndStatusAndReviewLikeOrderByCreatedOn() {
         Post post = postRepository.getReferenceById(1L);
-        String reviewPattern = "Spam";
+        String reviewPattern = "Spam%";
 
-        List<PostComment> comments = postCommentRepository.findAllByPostAndStatusAndReviewLikeOrderByCreatedOn(
-            post,
-            PostComment.Status.PENDING,
-            reviewPattern
+        List<PostComment> comments = postCommentRepository.findAll(
+            orderByCreatedOn(
+                byPost(post)
+                    .and(byStatus(PostComment.Status.PENDING))
+                    .and(byReviewLike(reviewPattern))
+            )
         );
-        assertTrue(comments.isEmpty());
+
+        assertFalse(comments.isEmpty());
     }
 
     @Test
     public void testFindByPostAndStatusAndReviewLikeAndVotesGreaterThanEqualOrderByCreatedOn() {
         Post post = postRepository.getReferenceById(1L);
-        String reviewPattern = "Spam%";
+        String reviewPattern = "Awesome%";
         int minVotes = 1;
 
-        int expectedCommentCount = 0;
-        {
-            List<PostComment> comments = postCommentRepository.findAllByPostAndStatusAndReviewLikeAndVotesGreaterThanEqualOrderByCreatedOn(
-                post,
-                PostComment.Status.PENDING,
-                reviewPattern,
-                minVotes
-            );
-
-            expectedCommentCount = comments.size();
-        }
-
-        List<PostComment> comments = postCommentRepository.findAllByPostStatusReviewAndMinVotes(
-            post,
-            PostComment.Status.PENDING,
-            reviewPattern,
-            minVotes
+        List<PostComment> comments = postCommentRepository.findAll(
+            orderByCreatedOn(
+                byPost(post)
+                    .and(byStatus(PostComment.Status.PENDING))
+                    .and(byReviewLike(reviewPattern))
+                    .and(byVotesGreaterThanEqual(minVotes))
+            )
         );
 
-        assertEquals(expectedCommentCount, comments.size());
-    }
-
-    @Test
-    public void testFindHierarchy() throws JsonProcessingException {
-        Post post = postRepository.getReferenceById(1L);
-
-        List<PostCommentDTO> commentRoots = postCommentRepository.findCommentHierarchy(post);
-        String json = new ObjectMapper().writeValueAsString(commentRoots);
+        assertFalse(comments.isEmpty());
     }
 }
 
