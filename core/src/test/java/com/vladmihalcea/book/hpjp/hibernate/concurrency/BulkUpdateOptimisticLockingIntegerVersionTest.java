@@ -2,21 +2,17 @@ package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.book.hpjp.util.transaction.VoidCallable;
-import org.hibernate.annotations.DynamicUpdate;
-import org.junit.Test;
-
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.*;
-
-import java.util.Date;
+import org.hibernate.annotations.DynamicUpdate;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class BulkUpdateOptimisticLockingTest extends AbstractTest {
+public class BulkUpdateOptimisticLockingIntegerVersionTest extends AbstractTest {
 
     private static final int SPAM_POST_COUNT = 10;
 
@@ -262,7 +258,7 @@ public class BulkUpdateOptimisticLockingTest extends AbstractTest {
         private PostStatus status = PostStatus.PENDING;
 
         @Version
-        private short version;
+        private int version;
 
         public Long getId() {
             return id;
@@ -290,7 +286,7 @@ public class BulkUpdateOptimisticLockingTest extends AbstractTest {
             this.status = status;
         }
 
-        public short getVersion() {
+        public int getVersion() {
             return version;
         }
 

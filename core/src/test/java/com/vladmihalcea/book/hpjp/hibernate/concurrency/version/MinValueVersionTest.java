@@ -29,9 +29,10 @@ public class MinValueVersionTest extends AbstractTest {
             Post post = new Post();
             post.setId(1L);
             post.setTitle("High-Performance Java Persistence");
+            post.setVersion(Short.MAX_VALUE);
             entityManager.persist(post);
 
-            assertEquals(Short.MIN_VALUE, post.getVersion());
+            assertEquals(Short.MAX_VALUE, post.getVersion());
 
             entityManager.flush();
             post.setTitle("High-Performance Hibernate");
@@ -39,7 +40,7 @@ public class MinValueVersionTest extends AbstractTest {
 
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
-            assertEquals(Short.MIN_VALUE + 1, post.getVersion());
+            assertEquals(Short.MIN_VALUE, post.getVersion());
         });
     }
 
@@ -53,7 +54,6 @@ public class MinValueVersionTest extends AbstractTest {
         private String title;
 
         @Version
-        @JavaType(ShortVersionType.class)
         private Short version;
 
         public Long getId() {
@@ -74,6 +74,10 @@ public class MinValueVersionTest extends AbstractTest {
 
         public int getVersion() {
             return version;
+        }
+
+        public void setVersion(Short version) {
+            this.version = version;
         }
     }
 

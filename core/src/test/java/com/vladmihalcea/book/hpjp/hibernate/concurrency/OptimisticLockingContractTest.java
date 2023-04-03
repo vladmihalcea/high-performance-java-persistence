@@ -154,7 +154,7 @@ public class OptimisticLockingContractTest extends AbstractTest {
             Annex annex1 = new Annex()
                 .setId(1L)
                 .setDetails("High-Performance Java Persistence Training")
-                .setPost(contract);
+                .setContract(contract);
 
             Signature signature1 = new Signature()
                 .setAnnex(annex1)
@@ -163,7 +163,7 @@ public class OptimisticLockingContractTest extends AbstractTest {
             Annex annex2 = new Annex()
                 .setId(2L)
                 .setDetails("High-Performance SQL Training")
-                .setPost(contract);
+                .setContract(contract);
 
             Signature signature2 = new Signature()
                 .setAnnex(annex2)
@@ -177,25 +177,11 @@ public class OptimisticLockingContractTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
-            Signature signature = entityManager.createQuery("""
-                    select pcd
-                    from AnnexSignature pcd
-                    join fetch pcd.annex pc
-                    join fetch pc.contract p
-                    where pcd.id = :id
-                    """, Signature.class)
-            .setParameter("id", 2L)
-            .getSingleResult();
-
-            signature.setUserName("Vlad-Alexandru Mihalcea");
-        });
-
-        doInJPA(entityManager -> {
             Annex annex = entityManager.createQuery("""
-                select pc
-                from Annex pc
-                join fetch pc.contract p
-                where pc.id = :id
+                select a
+                from Annex a
+                join fetch a.contract c
+                where a.id = :id
                 """, Annex.class)
             .setParameter("id", 2L)
             .getSingleResult();
@@ -209,7 +195,7 @@ public class OptimisticLockingContractTest extends AbstractTest {
             Annex annex = new Annex()
                 .setId(3L)
                 .setDetails("Spring 6 Migration Training")
-                .setPost(contract);
+                .setContract(contract);
 
             entityManager.persist(annex);
         });
@@ -263,7 +249,7 @@ public class OptimisticLockingContractTest extends AbstractTest {
         private Long id;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        private Contract post;
+        private Contract contract;
 
         private String details;
 
@@ -276,12 +262,12 @@ public class OptimisticLockingContractTest extends AbstractTest {
             return this;
         }
 
-        public Contract getPost() {
-            return post;
+        public Contract getContract() {
+            return contract;
         }
 
-        public Annex setPost(Contract post) {
-            this.post = post;
+        public Annex setContract(Contract post) {
+            this.contract = post;
             return this;
         }
 
@@ -296,7 +282,7 @@ public class OptimisticLockingContractTest extends AbstractTest {
 
         @Override
         public Contract root() {
-            return post;
+            return contract;
         }
     }
 

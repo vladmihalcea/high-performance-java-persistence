@@ -1,14 +1,13 @@
 package com.vladmihalcea.book.hpjp.hibernate.concurrency;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import jakarta.persistence.*;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.Before;
 import org.junit.Test;
 
-import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -26,9 +25,9 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostDetails.class,
-                PostComment.class
+            Post.class,
+            PostDetails.class,
+            PostComment.class
         };
     }
 
@@ -38,8 +37,8 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
             post.setTitle("Hibernate Master Class");
 
             post.addDetails(new PostDetails());
-            post.addComment(new PostComment("Good post!"));
-            post.addComment(new PostComment("Nice post!"));
+            post.addComment(new PostComment("Good post!").setId(1L));
+            post.addComment(new PostComment("Nice post!").setId(2L));
 
             entityManager.persist(post);
         });
@@ -51,10 +50,10 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             entityManager.unwrap(Session.class)
-            .buildLockRequest(
-                new LockOptions(LockMode.PESSIMISTIC_WRITE))
-            .setScope(true)
-            .lock(post);
+                .buildLockRequest(
+                    new LockOptions(LockMode.PESSIMISTIC_WRITE))
+                .setScope(true)
+                .lock(post);
         });
     }
 
@@ -73,15 +72,16 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
     public void testCascadeLockOnManagedEntityWithQuery() throws InterruptedException {
         LOGGER.info("Test lock cascade for managed entity");
         doInJPA(entityManager -> {
-            Post post = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.details " +
-                "join fetch p.comments " +
-                "where p.id = :id", Post.class)
-            .setParameter("id", 1L)
-            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-            .getSingleResult();
+            Post post = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.details
+                join fetch p.comments
+                where p.id = :id
+                """, Post.class)
+                .setParameter("id", 1L)
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .getSingleResult();
         });
     }
 
@@ -90,15 +90,16 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
         LOGGER.info("Test lock cascade for managed entity");
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
-            Post post = (Post) entityManager.createQuery(
-                    "select p " +
-                            "from Post p " +
-                            "join fetch p.details " +
-                            "join fetch p.comments " +
-                            "where " +
-                            "   p.id = :id"
+            Post post = (Post) entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.details
+                join fetch p.comments
+                where
+                    p.id = :id
+                """
             ).setParameter("id", 1L)
-                    .getSingleResult();
+                .getSingleResult();
             session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).setScope(true).lock(post);
         });
     }
@@ -107,13 +108,14 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
     public void testCascadeLockOnManagedEntityWithAssociationsInitializedAndJpa() throws InterruptedException {
         LOGGER.info("Test lock cascade for managed entity");
         doInJPA(entityManager -> {
-            Post post = entityManager.createQuery(
-                    "select p " +
-                            "from Post p " +
-                            "join fetch p.details " +
-                            "where p.id = :id", Post.class)
-                    .setParameter("id", 1L)
-                    .getSingleResult();
+            Post post = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.details
+                where p.id = :id
+                """, Post.class)
+                .setParameter("id", 1L)
+                .getSingleResult();
             entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE, Collections.singletonMap(
                 AvailableSettings.JAKARTA_LOCK_SCOPE, PessimisticLockScope.EXTENDED
             ));
@@ -123,7 +125,7 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
     private void containsPost(EntityManager entityManager, Post post, boolean expected) {
         assertEquals(expected, entityManager.contains(post));
         assertEquals(expected, (entityManager.contains(post.getDetails())));
-        for(PostComment comment : post.getComments()) {
+        for (PostComment comment : post.getComments()) {
             assertEquals(expected, (entityManager.contains(comment)));
         }
     }
@@ -134,14 +136,15 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
 
         //Load the Post entity, which will become detached
         Post post = doInJPA(entityManager ->
-            (Post) entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.details " +
-                "join fetch p.comments " +
-                "where p.id = :id"
-        ).setParameter("id", 1L)
-        .getSingleResult());
+            (Post) entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.details
+                join fetch p.comments
+                where p.id = :id
+                """
+            ).setParameter("id", 1L)
+                .getSingleResult());
 
         //Change the detached entity state
         post.setTitle("Hibernate Training");
@@ -171,22 +174,25 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
         LOGGER.info("Test lock cascade for detached entity with scope");
 
         //Load the Post entity, which will become detached
-        Post post = doInJPA(entityManager -> (Post) entityManager.createQuery(
-            "select p " +
-            "from Post p " +
-            "join fetch p.details " +
-            "join fetch p.comments " +
-            "where p.id = :id", Post.class)
-        .setParameter("id", 1L)
-        .getSingleResult());
+        Post post = doInJPA(entityManager -> {
+            return entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.details
+                join fetch p.comments
+                where p.id = :id
+                """, Post.class)
+                .setParameter("id", 1L)
+                .getSingleResult();
+        });
 
         doInJPA(entityManager -> {
             LOGGER.info("Reattach and lock");
             entityManager.unwrap(Session.class)
-            .buildLockRequest(
-                new LockOptions(LockMode.PESSIMISTIC_WRITE))
-            .setScope(true)
-            .lock(post);
+                .buildLockRequest(
+                    new LockOptions(LockMode.PESSIMISTIC_WRITE))
+                .setScope(true)
+                .lock(post);
 
             //The Post entity graph is attached
             containsPost(entityManager, post, true);
@@ -208,10 +214,10 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
         doInJPA(entityManager -> {
             LOGGER.info("Reattach and lock entity with associations not initialized");
             entityManager.unwrap(Session.class)
-                    .buildLockRequest(
-                            new LockOptions(LockMode.PESSIMISTIC_WRITE))
-                    .setScope(true)
-                    .lock(post);
+                .buildLockRequest(
+                    new LockOptions(LockMode.PESSIMISTIC_WRITE))
+                .setScope(true)
+                .lock(post);
 
             LOGGER.info("Check entities are reattached");
             //The Post entity graph is attached
@@ -224,14 +230,16 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
         LOGGER.info("Test lock cascade for detached entity with scope");
 
         //Load the Post entity, which will become detached
-        PostComment postComment = doInJPA(entityManager -> (PostComment) entityManager.find(PostComment.class, 3L));
+        PostComment postComment = doInJPA(
+            entityManager -> (PostComment) entityManager.find(PostComment.class, 1L)
+        );
 
         doInJPA(entityManager -> {
             LOGGER.info("Reattach and lock entity with associations not initialized");
             entityManager.unwrap(Session.class)
-                    .buildLockRequest(
-                            new LockOptions(LockMode.PESSIMISTIC_WRITE))
-                    .lock(postComment);
+                .buildLockRequest(
+                    new LockOptions(LockMode.PESSIMISTIC_WRITE))
+                .lock(postComment);
         });
     }
 
@@ -239,14 +247,15 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
     public void testUpdateOnDetachedEntity() {
         LOGGER.info("Test update for detached entity");
         //Load the Post entity, which will become detached
-        Post post = doInJPA(entityManager -> (Post) entityManager.createQuery(
-            "select p " +
-            "from Post p " +
-            "join fetch p.details " +
-            "join fetch p.comments " +
-            "where p.id = :id", Post.class)
-        .setParameter("id", 1L)
-        .getSingleResult());
+        Post post = doInJPA(entityManager -> (Post) entityManager.createQuery("""
+            select p
+            from Post p
+            join fetch p.details
+            join fetch p.comments
+            where p.id = :id
+            """, Post.class)
+            .setParameter("id", 1L)
+            .getSingleResult());
 
         //Change the detached entity state
         post.setTitle("Hibernate Training");
@@ -283,7 +292,8 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
         @Version
         private short version;
 
-        public Post() {}
+        public Post() {
+        }
 
         public Post(Long id) {
             this.id = id;
@@ -297,7 +307,7 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
         private List<PostComment> comments = new ArrayList<>();
 
         @OneToOne(cascade = CascadeType.ALL, mappedBy = "post",
-                orphanRemoval = true, fetch = FetchType.LAZY, optional = false)
+            orphanRemoval = true, fetch = FetchType.LAZY, optional = false)
         private PostDetails details;
 
         public Long getId() {
@@ -401,7 +411,6 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
     public static class PostComment {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         private String review;
@@ -409,7 +418,8 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
         @Version
         private short version;
 
-        public PostComment() {}
+        public PostComment() {
+        }
 
         public PostComment(String review) {
             this.review = review;
@@ -419,8 +429,9 @@ public class CascadeLockUnidirectionalOneToManyTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostComment setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getReview() {

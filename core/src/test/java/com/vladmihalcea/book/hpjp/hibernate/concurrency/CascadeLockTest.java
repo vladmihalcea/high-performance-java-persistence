@@ -6,7 +6,6 @@ import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-
 
 /**
  * CascadeLockTest - Test to check CascadeType.LOCK
@@ -27,23 +25,22 @@ public class CascadeLockTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostDetails.class,
-                PostComment.class
+            Post.class,
+            PostDetails.class,
+            PostComment.class
         };
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Post post = new Post();
             post.setTitle("Hibernate Master Class");
-            entityManager.persist(post);
 
             post.addDetails(new PostDetails());
-            post.addComment(new PostComment("Good post!"));
-            post.addComment(new PostComment("Nice post!"));
+            post.addComment(new PostComment("Good post!").setId(1L));
+            post.addComment(new PostComment("Nice post!").setId(2L));
+
+            entityManager.persist(post);
         });
     }
 
@@ -53,10 +50,10 @@ public class CascadeLockTest extends AbstractTest {
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             entityManager.unwrap(Session.class)
-            .buildLockRequest(
-                new LockOptions(LockMode.PESSIMISTIC_WRITE))
-            .setScope(true)
-            .lock(post);
+                .buildLockRequest(
+                    new LockOptions(LockMode.PESSIMISTIC_WRITE))
+                .setScope(true)
+                .lock(post);
         });
     }
 
@@ -82,9 +79,9 @@ public class CascadeLockTest extends AbstractTest {
                 join fetch p.comments
                 where p.id = :id
                 """, Post.class)
-            .setParameter("id", 1L)
-            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-            .getSingleResult();
+                .setParameter("id", 1L)
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .getSingleResult();
         });
     }
 
@@ -102,7 +99,7 @@ public class CascadeLockTest extends AbstractTest {
                     p.id = :id
                 """
             ).setParameter("id", 1L)
-                    .getSingleResult();
+                .getSingleResult();
             session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).setScope(true).lock(post);
         });
     }
@@ -117,8 +114,8 @@ public class CascadeLockTest extends AbstractTest {
                 join fetch p.details
                 where p.id = :id
                 """, Post.class)
-            .setParameter("id", 1L)
-            .getSingleResult();
+                .setParameter("id", 1L)
+                .getSingleResult();
             entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE, Collections.singletonMap(
                 AvailableSettings.JAKARTA_LOCK_SCOPE, PessimisticLockScope.EXTENDED
             ));
@@ -128,7 +125,7 @@ public class CascadeLockTest extends AbstractTest {
     private void containsPost(EntityManager entityManager, Post post, boolean expected) {
         assertEquals(expected, entityManager.contains(post));
         assertEquals(expected, (entityManager.contains(post.getDetails())));
-        for(PostComment comment : post.getComments()) {
+        for (PostComment comment : post.getComments()) {
             assertEquals(expected, (entityManager.contains(comment)));
         }
     }
@@ -146,8 +143,8 @@ public class CascadeLockTest extends AbstractTest {
                 join fetch p.comments
                 where p.id = :id
                 """
-        ).setParameter("id", 1L)
-        .getSingleResult());
+            ).setParameter("id", 1L)
+                .getSingleResult());
 
         //Change the detached entity state
         post.setTitle("Hibernate Training");
@@ -185,17 +182,17 @@ public class CascadeLockTest extends AbstractTest {
                 join fetch p.comments
                 where p.id = :id
                 """, Post.class)
-            .setParameter("id", 1L)
-            .getSingleResult();
+                .setParameter("id", 1L)
+                .getSingleResult();
         });
 
         doInJPA(entityManager -> {
             LOGGER.info("Reattach and lock");
             entityManager.unwrap(Session.class)
-            .buildLockRequest(
-                new LockOptions(LockMode.PESSIMISTIC_WRITE))
-            .setScope(true)
-            .lock(post);
+                .buildLockRequest(
+                    new LockOptions(LockMode.PESSIMISTIC_WRITE))
+                .setScope(true)
+                .lock(post);
 
             //The Post entity graph is attached
             containsPost(entityManager, post, true);
@@ -217,10 +214,10 @@ public class CascadeLockTest extends AbstractTest {
         doInJPA(entityManager -> {
             LOGGER.info("Reattach and lock entity with associations not initialized");
             entityManager.unwrap(Session.class)
-                    .buildLockRequest(
-                            new LockOptions(LockMode.PESSIMISTIC_WRITE))
-                    .setScope(true)
-                    .lock(post);
+                .buildLockRequest(
+                    new LockOptions(LockMode.PESSIMISTIC_WRITE))
+                .setScope(true)
+                .lock(post);
 
             LOGGER.info("Check entities are reattached");
             //The Post entity graph is attached
@@ -233,14 +230,14 @@ public class CascadeLockTest extends AbstractTest {
         LOGGER.info("Test lock cascade for detached entity with scope");
 
         //Load the Post entity, which will become detached
-        PostComment postComment = doInJPA(entityManager -> (PostComment) entityManager.find(PostComment.class, 3L));
+        PostComment postComment = doInJPA(entityManager -> (PostComment) entityManager.find(PostComment.class, 2L));
 
         doInJPA(entityManager -> {
             LOGGER.info("Reattach and lock entity with associations not initialized");
             entityManager.unwrap(Session.class)
-                    .buildLockRequest(
-                            new LockOptions(LockMode.PESSIMISTIC_WRITE))
-                    .lock(postComment);
+                .buildLockRequest(
+                    new LockOptions(LockMode.PESSIMISTIC_WRITE))
+                .lock(postComment);
         });
     }
 
@@ -255,8 +252,8 @@ public class CascadeLockTest extends AbstractTest {
             join fetch p.comments
             where p.id = :id
             """, Post.class)
-        .setParameter("id", 1L)
-        .getSingleResult());
+            .setParameter("id", 1L)
+            .getSingleResult());
 
         //Change the detached entity state
         post.setTitle("Hibernate Training");
@@ -293,7 +290,8 @@ public class CascadeLockTest extends AbstractTest {
         @Version
         private short version;
 
-        public Post() {}
+        public Post() {
+        }
 
         public Post(Long id) {
             this.id = id;
@@ -307,7 +305,7 @@ public class CascadeLockTest extends AbstractTest {
         private List<PostComment> comments = new ArrayList<>();
 
         @OneToOne(cascade = CascadeType.ALL, mappedBy = "post",
-                orphanRemoval = true, fetch = FetchType.LAZY)
+            orphanRemoval = true, fetch = FetchType.LAZY)
         private PostDetails details;
 
         public Long getId() {
@@ -428,7 +426,6 @@ public class CascadeLockTest extends AbstractTest {
     public static class PostComment {
 
         @Id
-        @GeneratedValue
         private Long id;
 
         @ManyToOne(fetch = FetchType.LAZY)
@@ -439,7 +436,8 @@ public class CascadeLockTest extends AbstractTest {
         @Version
         private short version;
 
-        public PostComment() {}
+        public PostComment() {
+        }
 
         public PostComment(String review) {
             this.review = review;
@@ -449,8 +447,9 @@ public class CascadeLockTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostComment setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public Post getPost() {
