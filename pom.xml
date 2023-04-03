@@ -12,8 +12,23 @@
 
     <modules>
         <module>core</module>
-        <module>jooq</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>jooq</id>
+            <modules>
+                <module>core</module>
+                <module>jooq</module>
+            </modules>
+            <activation>
+                <property>
+                    <name>env.HPJP_JOOQ</name>
+                    <value>true</value>
+                </property>
+            </activation>
+        </profile>
+    </profiles>
 
     <dependencies>
 
@@ -470,19 +485,6 @@
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <release>${jdk.version}</release>
-
-                    <!--<compilerArgs>
-                        <compilerArg>&#45;&#45;enable-preview</compilerArg>
-                    </compilerArgs>-->
-
-                    <!-- Not needed, should be auto-discovered -->
-                    <!--<annotationProcessorPaths>
-                        <annotationProcessorPath>
-                            <groupId>org.hibernate</groupId>
-                            <artifactId>hibernate-jpamodelgen</artifactId>
-                            <version>${hibernate.version}</version>
-                        </annotationProcessorPath>
-                    </annotationProcessorPaths>-->
                 </configuration>
             </plugin>
 
@@ -492,7 +494,6 @@
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <argLine>-Xms1024m -Xmx1024m</argLine>
-                    <!--<argLine>&#45;&#45;enable-preview</argLine>-->
                 </configuration>
             </plugin>
         </plugins>
