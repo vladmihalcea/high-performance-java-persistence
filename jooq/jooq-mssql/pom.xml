@@ -97,9 +97,8 @@
                         <password>adm1n</password>
                     </jdbc>
                     <generator>
-                        <name>org.jooq.util.JavaGenerator</name>
                         <database>
-                            <name>org.jooq.util.sqlserver.SQLServerDatabase</name>
+                            <name>org.jooq.meta.sqlserver.SQLServerDatabase</name>
                             <includes>high_performance_java_persistence\..*</includes>
                             <excludes>master</excludes>
                             <inputSchema>dbo</inputSchema>

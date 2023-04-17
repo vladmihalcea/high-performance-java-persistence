@@ -46,7 +46,7 @@ public class KeysetPaginationTest extends AbstractJOOQSQLServerSQLIntegrationTes
 
                 sql
                 .insertInto(POST_DETAILS).columns(POST_DETAILS.ID, POST_DETAILS.CREATED_ON, POST_DETAILS.CREATED_BY)
-                .values(i, Timestamp.valueOf(now.plusHours(i / 10)), user)
+                .values(i, now.plusHours(i / 10), user)
                 .execute();
             }
         });
@@ -89,7 +89,7 @@ public class KeysetPaginationTest extends AbstractJOOQSQLServerSQLIntegrationTes
 
     public List<PostSummary> nextPage(int pageSize, PostSummary offsetPostSummary) {
         return doInJOOQ(sql -> {
-            SelectSeekStep2<Record3<Long, String, Timestamp>, Timestamp, Long> selectStep = sql
+            SelectSeekStep2<Record3<Long, String, LocalDateTime>, LocalDateTime, Long> selectStep = sql
                     .select(POST.ID, POST.TITLE, POST_DETAILS.CREATED_ON)
                     .from(POST)
                     .join(POST_DETAILS).on(POST.ID.eq(POST_DETAILS.ID))
@@ -115,9 +115,9 @@ public class KeysetPaginationTest extends AbstractJOOQSQLServerSQLIntegrationTes
 
         private final String title;
 
-        private final Timestamp createdOn;
+        private final LocalDateTime createdOn;
 
-        public PostSummary(Long id, String title, Timestamp createdOn) {
+        public PostSummary(Long id, String title, LocalDateTime createdOn) {
             this.id = id;
             this.title = title;
             this.createdOn = createdOn;
@@ -131,7 +131,7 @@ public class KeysetPaginationTest extends AbstractJOOQSQLServerSQLIntegrationTes
             return title;
         }
 
-        public Timestamp getCreatedOn() {
+        public LocalDateTime getCreatedOn() {
             return createdOn;
         }
     }

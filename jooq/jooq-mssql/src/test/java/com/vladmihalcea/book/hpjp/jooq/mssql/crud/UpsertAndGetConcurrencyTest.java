@@ -1,15 +1,11 @@
 package com.vladmihalcea.book.hpjp.jooq.mssql.crud;
 
-import com.vladmihalcea.book.hpjp.jooq.mssql.schema.crud.high_performance_java_persistence.dbo.tables.Post;
 import com.vladmihalcea.book.hpjp.jooq.mssql.schema.crud.high_performance_java_persistence.dbo.tables.records.PostDetailsRecord;
 import com.vladmihalcea.book.hpjp.jooq.mssql.schema.crud.high_performance_java_persistence.dbo.tables.records.PostRecord;
 import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.math.BigInteger;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -60,7 +56,7 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQSQLServerSQLIntegra
             sql
             .insertInto(POST_DETAILS)
             .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)
-            .values(postId, "Alice", Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)))
+            .values(postId, "Alice", LocalDateTime.now())
             .onDuplicateKeyIgnore()
             .execute();
 
@@ -75,7 +71,7 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQSQLServerSQLIntegra
                         _sql
                         .insertInto(POST_DETAILS)
                         .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)
-                        .values(postId, "Bob", Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)))
+                        .values(postId, "Bob", LocalDateTime.now())
                         .onDuplicateKeyIgnore()
                         .execute();
                     });
