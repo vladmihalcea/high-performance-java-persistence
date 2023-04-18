@@ -99,12 +99,13 @@ CREATE TABLE tag_audit_log (
     PRIMARY KEY (id, dml_type, dml_timestamp)
 );
 
-DROP PROCEDURE IF EXISTS clean_up_post_audit_log;
+DROP PROCEDURE IF EXISTS clean_up_audit_log_table;
 
-CREATE PROCEDURE clean_up_post_audit_log(
-    @BeforeStartTimestamp DATETIME,
-    @BatchSize INT,
-    @DeletedRowCount INT OUTPUT
+CREATE PROCEDURE clean_up_audit_log_table(
+    @table_name NVARCHAR(100),
+    @before_start_timestamp DATETIME,
+    @batch_size INT,
+    @deleted_row_count INT OUTPUT
 )
 AS
 BEGIN                         
@@ -114,13 +115,18 @@ BEGIN
         dml_type varchar(10), 
         dml_timestamp datetime
     )
-    INSERT INTO #AUDIT_LOG_ROW_ID_TABLE
-    SELECT TOP (@BatchSize) id, dml_type, dml_timestamp
-    FROM post_audit_log
-    WHERE
-        dml_timestamp <= @BeforeStartTimestamp
+    DECLARE @insert_audit_logs_sql nvarchar(1000)
+    SET @insert_audit_logs_sql =
+        N'INSERT INTO #AUDIT_LOG_ROW_ID_TABLE ' +
+        N'SELECT TOP (@batch_size) id, dml_type, dml_timestamp ' +
+        N'FROM ' + @table_name + N'_audit_log' +
+        N' WHERE dml_timestamp <= @before_start_timestamp'
 
-    SET @DeletedRowCount=0
+    EXECUTE sp_executesql @insert_audit_logs_sql,
+        N'@batch_size INT, @before_start_timestamp DATETIME',
+        @batch_size=@batch_size, @before_start_timestamp=@before_start_timestamp
+
+    SET @deleted_row_count=0
     DECLARE @DeletedBatchRowCount INT
 
     WHILE (SELECT COUNT(*) FROM #AUDIT_LOG_ROW_ID_TABLE) > 0
@@ -129,21 +135,25 @@ BEGIN
 
         BEGIN TRY
             BEGIN TRANSACTION
-            
-            DELETE FROM post_audit_log
-            WHERE EXISTS (
-                SELECT 1
-                FROM AUDIT_LOG_ROW_ID_TABLE
-                WHERE
-                    post_audit_log.id = AUDIT_LOG_ROW_ID_TABLE.id AND
-                    post_audit_log.dml_type = AUDIT_LOG_ROW_ID_TABLE.dml_type AND
-                    post_audit_log.dml_timestamp = AUDIT_LOG_ROW_ID_TABLE.dml_timestamp
-            )
+
+            DECLARE @delete_audit_logs_sql nvarchar(1000)
+            SET @delete_audit_logs_sql =
+                N'DELETE FROM ' + @table_name + N'_audit_log ' +
+                N'WHERE EXISTS ( ' +
+                N'  SELECT 1 ' +
+                N'  FROM #AUDIT_LOG_ROW_ID_TABLE ' +
+                N'  WHERE ' +
+                N'    post_audit_log.id = #AUDIT_LOG_ROW_ID_TABLE.id AND ' +
+                N'    post_audit_log.dml_type = #AUDIT_LOG_ROW_ID_TABLE.dml_type AND ' +
+                N'    post_audit_log.dml_timestamp = #AUDIT_LOG_ROW_ID_TABLE.dml_timestamp ' +
+                N')'
+
+            EXECUTE sp_executesql @delete_audit_logs_sql
             
             SET @DeletedBatchRowCount+=@@ROWCOUNT
                                                        
             COMMIT TRANSACTION
-            SET @DeletedRowCount+=@DeletedBatchRowCount
+            SET @deleted_row_count+=@DeletedBatchRowCount
         END TRY
         BEGIN CATCH
             IF (XACT_STATE()) = -1
@@ -158,18 +168,16 @@ BEGIN
                 -- The current transaction can be committed.
                     BEGIN
                         PRINT
-                            N'Exception was caught, but the trasaction can be committed.'
+                            N'Exception was caught, but the transaction can be committed.'
                         COMMIT TRANSACTION
                     END
         END CATCH
                    
         TRUNCATE TABLE #AUDIT_LOG_ROW_ID_TABLE
 
-        INSERT INTO #AUDIT_LOG_ROW_ID_TABLE
-        SELECT TOP (@BatchSize) id, dml_type, dml_timestamp
-        FROM post_audit_log
-        WHERE
-            dml_timestamp <= @BeforeStartTimestamp
+        EXECUTE sp_executesql @insert_audit_logs_sql,
+            N'@batch_size INT, @before_start_timestamp DATETIME',
+            @batch_size=@batch_size, @before_start_timestamp=@before_start_timestamp
     END
     
     DROP TABLE IF EXISTS #AUDIT_LOG_ROW_ID_TABLE

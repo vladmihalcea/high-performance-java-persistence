@@ -1,3 +1,12 @@
+IF EXISTS (SELECT * FROM sys.triggers WHERE name='tr_insert_post_audit_log' and type = 'TR')
+DROP TRIGGER tr_insert_post_audit_log;
+
+IF EXISTS (SELECT * FROM sys.triggers WHERE name='tr_update_post_audit_log' and type = 'TR')
+DROP TRIGGER tr_update_post_audit_log;
+
+IF EXISTS (SELECT * FROM sys.triggers WHERE name='tr_delete_post_audit_log' and type = 'TR')
+DROP TRIGGER tr_delete_post_audit_log;
+
 DELETE FROM post_tag;
 DELETE FROM tag;
 DELETE FROM post_details;

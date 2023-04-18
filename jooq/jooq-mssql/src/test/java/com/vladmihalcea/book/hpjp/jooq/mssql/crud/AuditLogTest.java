@@ -1,11 +1,6 @@
 package com.vladmihalcea.book.hpjp.jooq.mssql.crud;
 
-import com.vladmihalcea.book.hpjp.hibernate.audit.trigger.SQLServerTriggerBasedJsonAuditLogTest;
-import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
-import jakarta.persistence.EntityManager;
-import org.hibernate.Session;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
+import com.vladmihalcea.book.hpjp.jooq.mssql.schema.crud.high_performance_java_persistence.dbo.routines.CleanUpAuditLogTable;
 import org.jooq.DSLContext;
 import org.junit.Test;
 
@@ -50,7 +45,7 @@ public class AuditLogTest extends AbstractJOOQSQLServerSQLIntegrationTest {
             	DECLARE @loggedUser varchar(255)
             	SELECT @loggedUser = cast(SESSION_CONTEXT(N'loggedUser') as varchar(255))
             	
-            	DECLARE @transactionTimestamp datetime = SYSUTCdatetime()
+            	DECLARE @transactionTimestamp datetime = SYSUTCDATETIME()
             	
             	INSERT INTO post_audit_log (
             		id,
@@ -80,7 +75,7 @@ public class AuditLogTest extends AbstractJOOQSQLServerSQLIntegrationTest {
                 DECLARE @loggedUser varchar(255)
                 SELECT @loggedUser = cast(SESSION_CONTEXT(N'loggedUser') as varchar(255))
                 
-                DECLARE @transactionTimestamp datetime = SYSUTCdatetime()
+                DECLARE @transactionTimestamp datetime = SYSUTCDATETIME()
                 
                 DECLARE @oldRecord nvarchar(1000)
                 DECLARE @newRecord nvarchar(1000)
@@ -116,7 +111,7 @@ public class AuditLogTest extends AbstractJOOQSQLServerSQLIntegrationTest {
                 DECLARE @loggedUser varchar(255)
                 SELECT @loggedUser = cast(SESSION_CONTEXT(N'loggedUser') as varchar(255))
                 
-                DECLARE @transactionTimestamp datetime = SYSUTCdatetime()
+                DECLARE @transactionTimestamp datetime = SYSUTCDATETIME()
                 
                 INSERT INTO post_audit_log (
                     id,
@@ -183,6 +178,13 @@ public class AuditLogTest extends AbstractJOOQSQLServerSQLIntegrationTest {
 
         doInJOOQ(sql -> {
             assertEquals(postCount, sql.fetchCount(POST_AUDIT_LOG));
+
+            CleanUpAuditLogTable cleanUpPostAuditLog = new CleanUpAuditLogTable();
+            cleanUpPostAuditLog.setTableName(POST.getName());
+            cleanUpPostAuditLog.setBatchSize(10);
+            cleanUpPostAuditLog.setBeforeStartTimestamp(LocalDateTime.now());
+            cleanUpPostAuditLog.execute(sql.configuration());
+            int deletedRowCount = cleanUpPostAuditLog.getDeletedRowCount();
         });
     }
 

@@ -403,7 +403,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                             -- The current transaction can be committed.
                                 BEGIN
                                     PRINT
-                                        N'Exception was caught, but the trasaction can be committed.'
+                                        N'Exception was caught, but the transaction can be committed.'
                                     COMMIT TRANSACTION;   
                                 END;
                     END CATCH;
