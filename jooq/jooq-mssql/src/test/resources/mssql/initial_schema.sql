@@ -115,11 +115,16 @@ BEGIN
         dml_type varchar(10), 
         dml_timestamp datetime
     )
-    DECLARE @insert_audit_logs_sql nvarchar(1000)
+    DECLARE
+        @audit_log_table_name nvarchar(1000),
+        @insert_audit_logs_sql nvarchar(1000)
+
+    SET @audit_log_table_name = @table_name + N'_audit_log '
+
     SET @insert_audit_logs_sql =
         N'INSERT INTO #AUDIT_LOG_ROW_ID_TABLE ' +
         N'SELECT TOP (@batch_size) id, dml_type, dml_timestamp ' +
-        N'FROM ' + @table_name + N'_audit_log' +
+        N'FROM ' + @audit_log_table_name +
         N' WHERE dml_timestamp <= @before_start_timestamp'
 
     EXECUTE sp_executesql @insert_audit_logs_sql,
@@ -138,14 +143,14 @@ BEGIN
 
             DECLARE @delete_audit_logs_sql nvarchar(1000)
             SET @delete_audit_logs_sql =
-                N'DELETE FROM ' + @table_name + N'_audit_log ' +
+                N'DELETE FROM ' + @audit_log_table_name +
                 N'WHERE EXISTS ( ' +
                 N'  SELECT 1 ' +
                 N'  FROM #AUDIT_LOG_ROW_ID_TABLE ' +
                 N'  WHERE ' +
-                N'    post_audit_log.id = #AUDIT_LOG_ROW_ID_TABLE.id AND ' +
-                N'    post_audit_log.dml_type = #AUDIT_LOG_ROW_ID_TABLE.dml_type AND ' +
-                N'    post_audit_log.dml_timestamp = #AUDIT_LOG_ROW_ID_TABLE.dml_timestamp ' +
+                N'    ' + @audit_log_table_name + N'.id = #AUDIT_LOG_ROW_ID_TABLE.id AND ' +
+                N'    ' + @audit_log_table_name + N'.dml_type = #AUDIT_LOG_ROW_ID_TABLE.dml_type AND ' +
+                N'    ' + @audit_log_table_name + N'.dml_timestamp = #AUDIT_LOG_ROW_ID_TABLE.dml_timestamp ' +
                 N')'
 
             EXECUTE sp_executesql @delete_audit_logs_sql
@@ -181,4 +186,58 @@ BEGIN
     END
     
     DROP TABLE IF EXISTS #AUDIT_LOG_ROW_ID_TABLE
+END;
+
+DROP PROCEDURE IF EXISTS clean_up_audit_log_tables;
+
+CREATE PROCEDURE clean_up_audit_log_tables(
+    @before_start_timestamp DATETIME,
+    @json_report nvarchar(4000) output
+) AS
+BEGIN
+    DECLARE
+        @table_name NVARCHAR(100),
+        @batch_size int,
+		@deleted_row_count int
+
+    DECLARE @CLEAN_UP_REPORT TABLE (
+        id INT,
+        table_name NVARCHAR(100),
+        deleted_row_count INT DEFAULT 0
+    )
+    INSERT @CLEAN_UP_REPORT(id, table_name)
+    VALUES (1, 'post'),
+           (2, 'post_comment')
+
+    DECLARE @AUDIT_LOG_TABLE_COUNT INT = (SELECT COUNT(*) FROM @CLEAN_UP_REPORT)
+    DECLARE @I INT = 0
+
+    SET @batch_size = 500
+
+    WHILE @I < @AUDIT_LOG_TABLE_COUNT BEGIN
+        SELECT @table_name=[table_name]
+        FROM @CLEAN_UP_REPORT
+        ORDER BY id DESC
+        OFFSET @I
+        ROWS FETCH NEXT 1 ROWS ONLY
+
+        EXEC clean_up_audit_log_table
+             @table_name = @table_name,
+             @before_start_timestamp = @before_start_timestamp,
+             @batch_size = @batch_size,
+             @deleted_row_count = @deleted_row_count OUTPUT
+
+        UPDATE @CLEAN_UP_REPORT
+        SET deleted_row_count=@deleted_row_count
+        WHERE table_name=@table_name
+
+        SET @I += 1
+    END
+    SET @json_report = (
+        SELECT
+            table_name,
+            deleted_row_count
+        FROM @CLEAN_UP_REPORT
+        FOR JSON PATH
+    )
 END;
