@@ -207,7 +207,9 @@ BEGIN
     )
     INSERT @CLEAN_UP_REPORT(id, table_name)
     VALUES (1, 'post'),
-           (2, 'post_comment')
+           (2, 'post_details'),
+           (3, 'post_comment'),
+           (4, 'tag')
 
     DECLARE @AUDIT_LOG_TABLE_COUNT INT = (SELECT COUNT(*) FROM @CLEAN_UP_REPORT)
     DECLARE @I INT = 0
