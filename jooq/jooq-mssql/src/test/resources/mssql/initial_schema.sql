@@ -98,3 +98,79 @@ CREATE TABLE tag_audit_log (
     trx_timestamp datetime NOT NULL,
     PRIMARY KEY (id, dml_type, dml_timestamp)
 );
+
+DROP PROCEDURE IF EXISTS clean_up_post_audit_log;
+
+CREATE PROCEDURE clean_up_post_audit_log(
+    @BeforeStartTimestamp DATETIME,
+    @BatchSize INT,
+    @DeletedRowCount INT OUTPUT
+)
+AS
+BEGIN                         
+    DROP TABLE IF EXISTS #AUDIT_LOG_ROW_ID_TABLE
+    CREATE TABLE #AUDIT_LOG_ROW_ID_TABLE (
+        id bigint, 
+        dml_type varchar(10), 
+        dml_timestamp datetime
+    )
+    INSERT INTO #AUDIT_LOG_ROW_ID_TABLE
+    SELECT TOP (@BatchSize) id, dml_type, dml_timestamp
+    FROM post_audit_log
+    WHERE
+        dml_timestamp <= @BeforeStartTimestamp
+
+    SET @DeletedRowCount=0
+    DECLARE @DeletedBatchRowCount INT
+
+    WHILE (SELECT COUNT(*) FROM #AUDIT_LOG_ROW_ID_TABLE) > 0
+    BEGIN       
+        SET @DeletedBatchRowCount=0
+
+        BEGIN TRY
+            BEGIN TRANSACTION
+            
+            DELETE FROM post_audit_log
+            WHERE EXISTS (
+                SELECT 1
+                FROM AUDIT_LOG_ROW_ID_TABLE
+                WHERE
+                    post_audit_log.id = AUDIT_LOG_ROW_ID_TABLE.id AND
+                    post_audit_log.dml_type = AUDIT_LOG_ROW_ID_TABLE.dml_type AND
+                    post_audit_log.dml_timestamp = AUDIT_LOG_ROW_ID_TABLE.dml_timestamp
+            )
+            
+            SET @DeletedBatchRowCount+=@@ROWCOUNT
+                                                       
+            COMMIT TRANSACTION
+            SET @DeletedRowCount+=@DeletedBatchRowCount
+        END TRY
+        BEGIN CATCH
+            IF (XACT_STATE()) = -1
+                -- The current transaction cannot be committed.
+                BEGIN
+                    PRINT
+                        N'The transaction cannot be committed. Rolling back transaction.'
+                    ROLLBACK TRANSACTION
+                END
+            ELSE
+                IF (XACT_STATE()) = 1
+                -- The current transaction can be committed.
+                    BEGIN
+                        PRINT
+                            N'Exception was caught, but the trasaction can be committed.'
+                        COMMIT TRANSACTION
+                    END
+        END CATCH
+                   
+        TRUNCATE TABLE #AUDIT_LOG_ROW_ID_TABLE
+
+        INSERT INTO #AUDIT_LOG_ROW_ID_TABLE
+        SELECT TOP (@BatchSize) id, dml_type, dml_timestamp
+        FROM post_audit_log
+        WHERE
+            dml_timestamp <= @BeforeStartTimestamp
+    END
+    
+    DROP TABLE IF EXISTS #AUDIT_LOG_ROW_ID_TABLE
+END;
