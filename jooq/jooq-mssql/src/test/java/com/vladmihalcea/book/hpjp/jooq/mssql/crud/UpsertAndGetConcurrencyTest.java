@@ -27,7 +27,7 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQSQLServerSQLIntegra
 
     @Override
     protected String ddlScript() {
-        return "initial_schema.sql";
+        return "clean_schema.sql";
     }
 
     private final CountDownLatch aliceLatch = new CountDownLatch(1);

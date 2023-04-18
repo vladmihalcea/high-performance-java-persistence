@@ -50,7 +50,7 @@ CREATE TABLE post_audit_log (
     new_row_data nvarchar(1000) CHECK(ISJSON(new_row_data) = 1),
     dml_type varchar(10) NOT NULL CHECK (dml_type IN ('INSERT', 'UPDATE', 'DELETE')),
     dml_timestamp datetime NOT NULL,
-    dml_createdby varchar(255) NOT NULL,
+    dml_created_by varchar(255) NOT NULL,
     trx_timestamp datetime NOT NULL,
     PRIMARY KEY (id, dml_type, dml_timestamp)
 );
@@ -61,7 +61,7 @@ CREATE TABLE post_details_audit_log (
     new_row_data nvarchar(1000) CHECK(ISJSON(new_row_data) = 1),
     dml_type varchar(10) NOT NULL CHECK (dml_type IN ('INSERT', 'UPDATE', 'DELETE')),
     dml_timestamp datetime NOT NULL,
-    dml_createdby varchar(255) NOT NULL,
+    dml_created_by varchar(255) NOT NULL,
     trx_timestamp datetime NOT NULL,
     PRIMARY KEY (id, dml_type, dml_timestamp)
 );
@@ -72,7 +72,7 @@ CREATE TABLE post_comment_audit_log (
     new_row_data nvarchar(1000) CHECK(ISJSON(new_row_data) = 1),
     dml_type varchar(10) NOT NULL CHECK (dml_type IN ('INSERT', 'UPDATE', 'DELETE')),
     dml_timestamp datetime NOT NULL,
-    dml_createdby varchar(255) NOT NULL,
+    dml_created_by varchar(255) NOT NULL,
     trx_timestamp datetime NOT NULL,
     PRIMARY KEY (id, dml_type, dml_timestamp)
 );
@@ -83,7 +83,7 @@ CREATE TABLE post_tag_audit_log (
    new_row_data nvarchar(1000) CHECK(ISJSON(new_row_data) = 1),
    dml_type varchar(10) NOT NULL CHECK (dml_type IN ('INSERT', 'UPDATE', 'DELETE')),
    dml_timestamp datetime NOT NULL,
-   dml_createdby varchar(255) NOT NULL,
+   dml_created_by varchar(255) NOT NULL,
    trx_timestamp datetime NOT NULL,
    PRIMARY KEY (id, dml_type, dml_timestamp)
 );
@@ -94,7 +94,7 @@ CREATE TABLE tag_audit_log (
     new_row_data nvarchar(1000) CHECK(ISJSON(new_row_data) = 1),
     dml_type varchar(10) NOT NULL CHECK (dml_type IN ('INSERT', 'UPDATE', 'DELETE')),
     dml_timestamp datetime NOT NULL,
-    dml_createdby varchar(255) NOT NULL,
+    dml_created_by varchar(255) NOT NULL,
     trx_timestamp datetime NOT NULL,
     PRIMARY KEY (id, dml_type, dml_timestamp)
 );
