@@ -15,7 +15,7 @@ DROP TABLE post;
 
 CREATE TABLE post (id bigint not null, title varchar(255), primary key (id));
 CREATE TABLE post_comment (id bigint not null, review varchar(255), post_id bigint, primary key (id));
-CREATE TABLE post_details (id bigint not null, created_by varchar(255), created_on datetime2, updated_by varchar(255), updated_on datetime2, primary key (id));
+CREATE TABLE post_details (id bigint not null, created_by varchar(255), created_on DATETIME2, updated_by varchar(255), updated_on DATETIME2, primary key (id));
 CREATE TABLE tag (id bigint not null, name varchar(255), primary key (id));
 CREATE TABLE post_tag (post_id bigint not null, tag_id bigint not null);
 
@@ -46,56 +46,56 @@ DROP TABLE tag_audit_log;
 
 CREATE TABLE post_audit_log (
     id bigint NOT NULL,
-    old_row_data nvarchar(1000) CHECK(ISJSON(old_row_data) = 1),
-    new_row_data nvarchar(1000) CHECK(ISJSON(new_row_data) = 1),
+    old_row_data NVARCHAR(1000) CHECK(ISJSON(old_row_data) = 1),
+    new_row_data NVARCHAR(1000) CHECK(ISJSON(new_row_data) = 1),
     dml_type varchar(10) NOT NULL CHECK (dml_type IN ('INSERT', 'UPDATE', 'DELETE')),
-    dml_timestamp datetime NOT NULL,
+    dml_timestamp DATETIME NOT NULL,
     dml_created_by varchar(255) NOT NULL,
-    trx_timestamp datetime NOT NULL,
+    trx_timestamp DATETIME NOT NULL,
     PRIMARY KEY (id, dml_type, dml_timestamp)
 );
 
 CREATE TABLE post_details_audit_log (
     id bigint NOT NULL,
-    old_row_data nvarchar(1000) CHECK(ISJSON(old_row_data) = 1),
-    new_row_data nvarchar(1000) CHECK(ISJSON(new_row_data) = 1),
+    old_row_data NVARCHAR(1000) CHECK(ISJSON(old_row_data) = 1),
+    new_row_data NVARCHAR(1000) CHECK(ISJSON(new_row_data) = 1),
     dml_type varchar(10) NOT NULL CHECK (dml_type IN ('INSERT', 'UPDATE', 'DELETE')),
-    dml_timestamp datetime NOT NULL,
+    dml_timestamp DATETIME NOT NULL,
     dml_created_by varchar(255) NOT NULL,
-    trx_timestamp datetime NOT NULL,
+    trx_timestamp DATETIME NOT NULL,
     PRIMARY KEY (id, dml_type, dml_timestamp)
 );
 
 CREATE TABLE post_comment_audit_log (
     id bigint NOT NULL,
-    old_row_data nvarchar(1000) CHECK(ISJSON(old_row_data) = 1),
-    new_row_data nvarchar(1000) CHECK(ISJSON(new_row_data) = 1),
+    old_row_data NVARCHAR(1000) CHECK(ISJSON(old_row_data) = 1),
+    new_row_data NVARCHAR(1000) CHECK(ISJSON(new_row_data) = 1),
     dml_type varchar(10) NOT NULL CHECK (dml_type IN ('INSERT', 'UPDATE', 'DELETE')),
-    dml_timestamp datetime NOT NULL,
+    dml_timestamp DATETIME NOT NULL,
     dml_created_by varchar(255) NOT NULL,
-    trx_timestamp datetime NOT NULL,
+    trx_timestamp DATETIME NOT NULL,
     PRIMARY KEY (id, dml_type, dml_timestamp)
 );
 
 CREATE TABLE post_tag_audit_log (
    id bigint NOT NULL,
-   old_row_data nvarchar(1000) CHECK(ISJSON(old_row_data) = 1),
-   new_row_data nvarchar(1000) CHECK(ISJSON(new_row_data) = 1),
+   old_row_data NVARCHAR(1000) CHECK(ISJSON(old_row_data) = 1),
+   new_row_data NVARCHAR(1000) CHECK(ISJSON(new_row_data) = 1),
    dml_type varchar(10) NOT NULL CHECK (dml_type IN ('INSERT', 'UPDATE', 'DELETE')),
-   dml_timestamp datetime NOT NULL,
+   dml_timestamp DATETIME NOT NULL,
    dml_created_by varchar(255) NOT NULL,
-   trx_timestamp datetime NOT NULL,
+   trx_timestamp DATETIME NOT NULL,
    PRIMARY KEY (id, dml_type, dml_timestamp)
 );
 
 CREATE TABLE tag_audit_log (
     id bigint NOT NULL,
-    old_row_data nvarchar(1000) CHECK(ISJSON(old_row_data) = 1),
-    new_row_data nvarchar(1000) CHECK(ISJSON(new_row_data) = 1),
+    old_row_data NVARCHAR(1000) CHECK(ISJSON(old_row_data) = 1),
+    new_row_data NVARCHAR(1000) CHECK(ISJSON(new_row_data) = 1),
     dml_type varchar(10) NOT NULL CHECK (dml_type IN ('INSERT', 'UPDATE', 'DELETE')),
-    dml_timestamp datetime NOT NULL,
+    dml_timestamp DATETIME NOT NULL,
     dml_created_by varchar(255) NOT NULL,
-    trx_timestamp datetime NOT NULL,
+    trx_timestamp DATETIME NOT NULL,
     PRIMARY KEY (id, dml_type, dml_timestamp)
 );
 
@@ -111,13 +111,13 @@ AS
 BEGIN                         
     DROP TABLE IF EXISTS #AUDIT_LOG_ROW_ID_TABLE
     CREATE TABLE #AUDIT_LOG_ROW_ID_TABLE (
-        id bigint, 
-        dml_type varchar(10), 
-        dml_timestamp datetime
+        id BIGINT, 
+        dml_type VARCHAR(10), 
+        dml_timestamp DATETIME
     )
     DECLARE
-        @audit_log_table_name nvarchar(1000),
-        @insert_audit_logs_sql nvarchar(1000)
+        @audit_log_table_name NVARCHAR(1000),
+        @insert_audit_logs_sql NVARCHAR(1000)
 
     SET @audit_log_table_name = @table_name + N'_audit_log '
 
@@ -141,16 +141,19 @@ BEGIN
         BEGIN TRY
             BEGIN TRANSACTION
 
-            DECLARE @delete_audit_logs_sql nvarchar(1000)
+            DECLARE @delete_audit_logs_sql NVARCHAR(1000)
             SET @delete_audit_logs_sql =
                 N'DELETE FROM ' + @audit_log_table_name +
                 N'WHERE EXISTS ( ' +
                 N'  SELECT 1 ' +
                 N'  FROM #AUDIT_LOG_ROW_ID_TABLE ' +
                 N'  WHERE ' +
-                N'    ' + @audit_log_table_name + N'.id = #AUDIT_LOG_ROW_ID_TABLE.id AND ' +
-                N'    ' + @audit_log_table_name + N'.dml_type = #AUDIT_LOG_ROW_ID_TABLE.dml_type AND ' +
-                N'    ' + @audit_log_table_name + N'.dml_timestamp = #AUDIT_LOG_ROW_ID_TABLE.dml_timestamp ' +
+                N'    ' + @audit_log_table_name + N'.id' +
+                N'      = #AUDIT_LOG_ROW_ID_TABLE.id AND ' +
+                N'    ' + @audit_log_table_name + N'.dml_type ' +
+                N'      = #AUDIT_LOG_ROW_ID_TABLE.dml_type AND ' +
+                N'    ' + @audit_log_table_name + N'.dml_timestamp ' +
+                N'      = #AUDIT_LOG_ROW_ID_TABLE.dml_timestamp ' +
                 N')'
 
             EXECUTE sp_executesql @delete_audit_logs_sql
@@ -165,7 +168,8 @@ BEGIN
                 -- The current transaction cannot be committed.
                 BEGIN
                     PRINT
-                        N'The transaction cannot be committed. Rolling back transaction.'
+                        N'The transaction cannot be committed. ' +
+                        N'Rolling back transaction.'
                     ROLLBACK TRANSACTION
                 END
             ELSE
@@ -173,7 +177,8 @@ BEGIN
                 -- The current transaction can be committed.
                     BEGIN
                         PRINT
-                            N'Exception was caught, but the transaction can be committed.'
+                            N'Exception was caught, ' +
+                            N'but the transaction can be committed.'
                         COMMIT TRANSACTION
                     END
         END CATCH
@@ -192,7 +197,7 @@ DROP PROCEDURE IF EXISTS clean_up_audit_log_tables;
 
 CREATE PROCEDURE clean_up_audit_log_tables(
     @before_start_timestamp DATETIME,
-    @json_report nvarchar(4000) output
+    @json_report NVARCHAR(4000) output
 ) AS
 BEGIN
     DECLARE
@@ -208,8 +213,7 @@ BEGIN
     INSERT @CLEAN_UP_REPORT(id, table_name)
     VALUES (1, 'post'),
            (2, 'post_details'),
-           (3, 'post_comment'),
-           (4, 'tag')
+           (3, 'post_comment')
 
     DECLARE @AUDIT_LOG_TABLE_COUNT INT = (SELECT COUNT(*) FROM @CLEAN_UP_REPORT)
     DECLARE @I INT = 0
@@ -240,6 +244,6 @@ BEGIN
             table_name,
             deleted_row_count
         FROM @CLEAN_UP_REPORT
-        FOR JSON PATH
+        FOR JSON AUTO
     )
 END;

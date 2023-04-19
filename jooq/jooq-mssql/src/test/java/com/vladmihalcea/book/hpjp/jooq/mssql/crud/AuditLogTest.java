@@ -1,9 +1,7 @@
 package com.vladmihalcea.book.hpjp.jooq.mssql.crud;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.book.hpjp.jooq.mssql.schema.crud.high_performance_java_persistence.dbo.routines.CleanUpAuditLogTable;
 import com.vladmihalcea.book.hpjp.jooq.mssql.schema.crud.high_performance_java_persistence.dbo.routines.CleanUpAuditLogTables;
-import io.hypersistence.utils.hibernate.type.json.internal.JacksonUtil;
 import org.jooq.DSLContext;
 import org.junit.Test;
 
@@ -212,11 +210,17 @@ public class AuditLogTest extends AbstractJOOQSQLServerSQLIntegrationTest {
 
     @Test
     public void testCleanUpAuditLogTablePost() {
+        LocalDateTime _60DaysAgo = LocalDateTime.now().minusDays(60);
+
+        doInJOOQ(sql -> {
+            sql.update(POST_AUDIT_LOG).set(POST_AUDIT_LOG.DML_TIMESTAMP, _60DaysAgo).execute();
+        });
+
         doInJOOQ(sql -> {
             CleanUpAuditLogTable cleanUpPostAuditLog = new CleanUpAuditLogTable();
             cleanUpPostAuditLog.setTableName(POST.getName());
             cleanUpPostAuditLog.setBatchSize(500);
-            cleanUpPostAuditLog.setBeforeStartTimestamp(LocalDateTime.now());
+            cleanUpPostAuditLog.setBeforeStartTimestamp(LocalDateTime.now().minusDays(30));
             cleanUpPostAuditLog.execute(sql.configuration());
 
             int deletedRowCount = cleanUpPostAuditLog.getDeletedRowCount();
@@ -226,23 +230,37 @@ public class AuditLogTest extends AbstractJOOQSQLServerSQLIntegrationTest {
 
     @Test
     public void testCleanUpAuditLogTablePostComment() {
-        doInJOOQ(sql -> {
-            CleanUpAuditLogTable cleanUpPostAuditLog = new CleanUpAuditLogTable();
-            cleanUpPostAuditLog.setTableName(POST_COMMENT.getName());
-            cleanUpPostAuditLog.setBatchSize(500);
-            cleanUpPostAuditLog.setBeforeStartTimestamp(LocalDateTime.now());
-            cleanUpPostAuditLog.execute(sql.configuration());
+        LocalDateTime _60DaysAgo = LocalDateTime.now().minusDays(60);
 
-            int deletedRowCount = cleanUpPostAuditLog.getDeletedRowCount();
+        doInJOOQ(sql -> {
+            sql.update(POST_COMMENT_AUDIT_LOG).set(POST_COMMENT_AUDIT_LOG.DML_TIMESTAMP, _60DaysAgo).execute();
+        });
+
+        doInJOOQ(sql -> {
+            CleanUpAuditLogTable cleanUpPostCommentAuditLog = new CleanUpAuditLogTable();
+            cleanUpPostCommentAuditLog.setTableName(POST_COMMENT.getName());
+            cleanUpPostCommentAuditLog.setBatchSize(500);
+            cleanUpPostCommentAuditLog.setBeforeStartTimestamp(LocalDateTime.now().minusDays(30));
+            cleanUpPostCommentAuditLog.execute(sql.configuration());
+
+            int deletedRowCount = cleanUpPostCommentAuditLog.getDeletedRowCount();
             assertSame(10_000, deletedRowCount);
         });
     }
 
     @Test
     public void testCleanUpAuditLogTables() {
+        LocalDateTime _60DaysAgo = LocalDateTime.now().minusDays(60);
+
+        doInJOOQ(sql -> {
+            sql.update(POST_AUDIT_LOG).set(POST_AUDIT_LOG.DML_TIMESTAMP, _60DaysAgo).execute();
+            sql.update(POST_COMMENT_AUDIT_LOG).set(POST_COMMENT_AUDIT_LOG.DML_TIMESTAMP, _60DaysAgo).execute();
+            sql.update(POST_DETAILS_AUDIT_LOG).set(POST_DETAILS_AUDIT_LOG.DML_TIMESTAMP, _60DaysAgo).execute();
+        });
+
         doInJOOQ(sql -> {
             CleanUpAuditLogTables cleanUpPostAuditLogTables = new CleanUpAuditLogTables();
-            cleanUpPostAuditLogTables.setBeforeStartTimestamp(LocalDateTime.now());
+            cleanUpPostAuditLogTables.setBeforeStartTimestamp(LocalDateTime.now().minusDays(30));
             cleanUpPostAuditLogTables.execute(sql.configuration());
             String jsonReport = cleanUpPostAuditLogTables.getJsonReport();
             LOGGER.info("Clean-up report: {}", jsonReport);
