@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.jooq.mssql.crud;
 
+import com.vladmihalcea.book.hpjp.jooq.mssql.schema.crud.high_performance_java_persistence.dbo.Routines;
 import com.vladmihalcea.book.hpjp.jooq.mssql.schema.crud.high_performance_java_persistence.dbo.routines.CleanUpAuditLogTable;
 import com.vladmihalcea.book.hpjp.jooq.mssql.schema.crud.high_performance_java_persistence.dbo.routines.CleanUpAuditLogTables;
 import org.jooq.DSLContext;
@@ -8,6 +9,7 @@ import org.junit.Test;
 import java.time.LocalDateTime;
 
 import static com.vladmihalcea.book.hpjp.jooq.mssql.schema.crud.high_performance_java_persistence.dbo.Tables.*;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 /**
@@ -225,6 +227,29 @@ public class AuditLogTest extends AbstractJOOQSQLServerSQLIntegrationTest {
 
             int deletedRowCount = cleanUpPostAuditLog.getDeletedRowCount();
             assertSame(1000, deletedRowCount);
+        });
+    }
+
+    @Test
+    public void testCleanUpAuditLogTablePostParametersByPosition() {
+        LocalDateTime _60DaysAgo = LocalDateTime.now().minusDays(60);
+
+        doInJOOQ(sql -> {
+            sql.update(POST_AUDIT_LOG).set(POST_AUDIT_LOG.DML_TIMESTAMP, _60DaysAgo).execute();
+        });
+
+        doInJOOQ(sql -> {
+            Integer deletedRowCount = null;
+
+            Routines.cleanUpAuditLogTable(
+                sql.configuration(),
+                POST.getName(),
+                LocalDateTime.now().minusDays(30),
+                500,
+                deletedRowCount
+            );
+
+            assertNull(deletedRowCount);
         });
     }
 
