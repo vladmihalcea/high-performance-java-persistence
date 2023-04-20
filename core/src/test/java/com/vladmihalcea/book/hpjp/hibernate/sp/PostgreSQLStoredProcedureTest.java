@@ -54,36 +54,38 @@ public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegration
         });
         doInJDBC(connection -> {
             try(Statement statement = connection.createStatement()) {
-                statement.executeUpdate(
-                    "CREATE OR REPLACE FUNCTION count_comments( " +
-                    "   IN postId bigint, " +
-                    "   OUT commentCount bigint) " +
-                    "   RETURNS bigint AS " +
-                    "$BODY$ " +
-                    "    BEGIN " +
-                    "        SELECT COUNT(*) INTO commentCount " +
-                    "        FROM post_comment  " +
-                    "        WHERE post_id = postId; " +
-                    "    END; " +
-                    "$BODY$ " +
-                    "LANGUAGE plpgsql;"
+                statement.executeUpdate("""
+                    CREATE OR REPLACE FUNCTION count_comments(
+                       IN postId bigint,
+                       OUT commentCount bigint)
+                       RETURNS bigint AS
+                    $BODY$
+                        BEGIN
+                            SELECT COUNT(*) INTO commentCount
+                            FROM post_comment 
+                            WHERE post_id = postId;
+                        END;
+                    $BODY$
+                    LANGUAGE plpgsql;
+                    """
                 );
 
-                statement.executeUpdate(
-                    "CREATE OR REPLACE FUNCTION post_comments(postId BIGINT) " +
-                    "   RETURNS REFCURSOR AS " +
-                    "$BODY$ " +
-                    "    DECLARE " +
-                    "        postComments REFCURSOR; " +
-                    "    BEGIN " +
-                    "        OPEN postComments FOR  " +
-                    "            SELECT *  " +
-                    "            FROM post_comment   " +
-                    "            WHERE post_id = postId;  " +
-                    "        RETURN postComments; " +
-                    "    END; " +
-                    "$BODY$ " +
-                    "LANGUAGE plpgsql"
+                statement.executeUpdate("""
+                    CREATE OR REPLACE FUNCTION post_comments(postId BIGINT)
+                       RETURNS REFCURSOR AS
+                    $BODY$
+                        DECLARE
+                            postComments REFCURSOR;
+                        BEGIN
+                            OPEN postComments FOR 
+                                SELECT * 
+                                FROM post_comment  
+                                WHERE post_id = postId; 
+                            RETURN postComments;
+                        END;
+                    $BODY$
+                    LANGUAGE plpgsql
+                    """
                 );
             }
         });
@@ -262,10 +264,11 @@ public class PostgreSQLStoredProcedureTest extends AbstractPostgreSQLIntegration
     @Test
     public void test_hql_bit_length_function_example() {
         doInJPA(entityManager -> {
-            List<Number> bits = entityManager.createQuery(
-                    "select bit_length( c.title ) " +
-                            "from Post c ", Number.class )
-                    .getResultList();
+            List<Number> bits = entityManager.createQuery("""
+                select bit_length(c.title)
+                from Post c
+                """, Number.class)
+            .getResultList();
             assertFalse(bits.isEmpty());
         });
     }
