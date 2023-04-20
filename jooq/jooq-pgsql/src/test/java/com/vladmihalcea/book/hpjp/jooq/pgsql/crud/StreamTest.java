@@ -23,10 +23,6 @@ public class StreamTest extends AbstractJOOQPostgreSQLIntegrationTest {
 
     public void afterInit() {
         doInJOOQ(sql -> {
-            sql
-            .deleteFrom(POST)
-            .execute();
-
             long id = 0L;
 
             sql
