@@ -16,5 +16,5 @@ create table post_comment (id int8 not null, created_on timestamp, review varcha
 
 alter table post_comment add constraint FKmqxhu8q0j94rcly3yxlv0u498 foreign key (parent_id) references post_comment
 ;
-alter table post_comment add constraint FKna4y825fdc5hw8aow65ijexm0 foreign key (post_id) references post
+alter table post_comment add constraint post_comment_post_id foreign key (post_id) references post
 ;
