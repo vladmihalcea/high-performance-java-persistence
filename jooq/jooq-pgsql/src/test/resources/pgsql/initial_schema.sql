@@ -4,6 +4,8 @@ drop table if exists post_details;
 drop table if exists post_tag;
 drop table if exists post;
 drop table if exists tag;
+drop table if exists answer;
+drop table if exists question;
 
 drop sequence if exists hibernate_sequence;
 
@@ -14,9 +16,34 @@ create table post_tag (post_id int8 not null, tag_id int8 not null);
 create table tag (id int8 not null, name varchar(255), primary key (id));
 create table post_comment_details (id int8 not null, post_id int8 not null, user_id int8 not null, ip varchar(18) not null, fingerprint varchar(256), primary key (id));
 
+create table question (id bigint not null, body varchar(255), created_on timestamp(6), score integer not null, title varchar(255), updated_on timestamp(6), primary key (id));
+create table answer (id bigint not null, accepted boolean not null, body varchar(255), created_on timestamp(6), score integer not null, updated_on timestamp(6), question_id bigint, primary key (id));
+
 alter table post_comment add constraint post_comment_post_id foreign key (post_id) references post;
 alter table post_details add constraint post_details_post_id foreign key (id) references post;
 alter table post_tag add constraint post_tag_tag_id foreign key (tag_id) references tag;
 alter table post_tag add constraint post_tag_post_id foreign key (post_id) references post;
 
+alter table if exists answer add constraint answer_question_id foreign key (question_id) references question;
+
 create sequence hibernate_sequence start with 1 increment by 1;
+
+drop function if exists get_updated_questions_and_answers;
+
+CREATE OR REPLACE FUNCTION get_updated_questions_and_answers(updated_after timestamp)
+RETURNS REFCURSOR AS
+$$
+DECLARE qa REFCURSOR;
+BEGIN
+    OPEN qa FOR
+    SELECT *
+    FROM question
+    JOIN answer on question.id = answer.question_id
+    WHERE
+        question.updated_on >= updated_after OR
+        answer.updated_on >= updated_after;
+    RETURN qa;
+END
+$$
+LANGUAGE plpgsql
+;

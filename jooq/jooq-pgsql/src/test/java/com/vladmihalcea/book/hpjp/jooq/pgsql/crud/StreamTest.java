@@ -18,13 +18,10 @@ public class StreamTest extends AbstractJOOQPostgreSQLIntegrationTest {
 
     @Override
     protected String ddlScript() {
-        return "initial_schema.sql";
+        return "clean_schema.sql";
     }
 
-    @Before
-    public void init() {
-        super.init();
-
+    public void afterInit() {
         doInJOOQ(sql -> {
             sql
             .deleteFrom(POST)

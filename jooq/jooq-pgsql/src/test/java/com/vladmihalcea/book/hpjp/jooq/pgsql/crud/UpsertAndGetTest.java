@@ -21,7 +21,7 @@ public class UpsertAndGetTest extends AbstractJOOQPostgreSQLIntegrationTest {
 
     @Override
     protected String ddlScript() {
-        return "initial_schema.sql";
+        return "clean_schema.sql";
     }
 
     @Test

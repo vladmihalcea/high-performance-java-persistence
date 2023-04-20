@@ -46,6 +46,7 @@
                     <password>admin</password>
                     <autocommit>true</autocommit>
                     <settingsKey>postgres-db-test</settingsKey>
+                    <delimiterType>row</delimiterType>
                 </configuration>
                 <executions>
                     <execution>
