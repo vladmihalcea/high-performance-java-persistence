@@ -40,14 +40,14 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
                 int taskCount = getPostCount();
 
                 for (int i = 0; i < taskCount; i++) {
-                    String task = "DONE";
+                    String status = "DONE";
                     if (i > 99000) {
-                        task = "TO_DO";
+                        status = "TO_DO";
                     } else if (i > 95000) {
-                        task = "FAILED";
+                        status = "FAILED";
                     }
                     statement.setLong(1, i);
-                    statement.setString(2, task);
+                    statement.setString(2, status);
                     executeStatement(statement, statementCount);
                 }
                 statement.executeBatch();
