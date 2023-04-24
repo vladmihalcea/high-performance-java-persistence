@@ -2,15 +2,18 @@ package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
+import jakarta.persistence.*;
+import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import jakarta.persistence.*;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
@@ -24,6 +27,20 @@ public class BidirectionalOneToOneNPlusOneTest extends AbstractTest {
             PostDetails.class,
             PostSummary.class
         };
+    }
+
+    @Override
+    protected void additionalProperties(Properties properties) {
+        properties.put(
+            "hibernate.integrator_provider",
+            (IntegratorProvider) () -> Collections.singletonList(
+                new ClassImportIntegrator(
+                    List.of(
+                        PostDTO.class
+                    )
+                )
+            )
+        );
     }
 
     @Override
@@ -70,6 +87,33 @@ public class BidirectionalOneToOneNPlusOneTest extends AbstractTest {
         });
 
         assertEquals(100, posts.size());
+        SQLStatementCountValidator.assertSelectCount(1);
+    }
+
+    @Test
+    public void testFetchPostAndDetailsProjection() {
+        doInJPA(entityManager -> {
+            for (int i = 1; i <= 100; i++) {
+                entityManager.persist(
+                    new Post(String.format("Post nr. %d", 100 + i))
+                );
+            }
+        });
+
+        SQLStatementCountValidator.reset();
+
+        List<PostDTO> posts = doInJPA(entityManager -> {
+            return entityManager.createQuery("""
+                select new PostDTO(p.id, p.title, pd.createdOn, pd.createdBy)
+                from PostSummary p
+                left join PostDetails pd on p.id = pd.id
+                where p.title like :titleToken
+                """, PostDTO.class)
+            .setParameter("titleToken", "Post nr.%")
+            .getResultList();
+        });
+
+        assertEquals(200, posts.size());
         SQLStatementCountValidator.assertSelectCount(1);
     }
 
@@ -198,6 +242,40 @@ public class BidirectionalOneToOneNPlusOneTest extends AbstractTest {
 
         public void setPost(Post post) {
             this.post = post;
+        }
+    }
+
+    public static class PostDTO {
+
+        private Long id;
+
+        private String title;
+
+        private Date createdOn;
+
+        private String createdBy;
+
+        public PostDTO(Long id, String title, Date createdOn, String createdBy) {
+            this.id = id;
+            this.title = title;
+            this.createdOn = createdOn;
+            this.createdBy = createdBy;
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public Date getCreatedOn() {
+            return createdOn;
+        }
+
+        public String getCreatedBy() {
+            return createdBy;
         }
     }
 }
