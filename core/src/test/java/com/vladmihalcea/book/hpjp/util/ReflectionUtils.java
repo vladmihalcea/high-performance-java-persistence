@@ -307,6 +307,24 @@ public final class ReflectionUtils {
     }
 
     /**
+     * Get the property setter {@link Method} with the given signature (name and parameter types)
+     * belonging to the provided Java {@link Object} or {@code null} if no setter
+     * was found matching the provided name.
+     *
+     * @param target        target {@link Object}
+     * @param propertyName  property name
+     * @param parameterType setter property type
+     * @return the setter {@link Method} matching the provided signature or {@code null}
+     */
+    public static Method getSetterOrNull(Object target, String propertyName, Class<?> parameterType) {
+        try {
+            return getSetter(target, propertyName, parameterType);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
      * Get the property getter {@link Method} with the given name belonging to
      * the provided Java {@link Object}.
      *
