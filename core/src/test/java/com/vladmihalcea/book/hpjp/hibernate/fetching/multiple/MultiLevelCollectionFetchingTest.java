@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Vlad Mihalcea
  */
-public class MultiLevelCollectionFethingTest extends AbstractPostgreSQLIntegrationTest {
+public class MultiLevelCollectionFetchingTest extends AbstractPostgreSQLIntegrationTest {
 
     public static final int POST_COUNT = 50;
     public static final int POST_COMMENT_COUNT = 20;
