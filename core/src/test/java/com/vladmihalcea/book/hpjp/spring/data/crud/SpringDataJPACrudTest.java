@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
@@ -156,6 +157,30 @@ public class SpringDataJPACrudTest {
         } catch (DataIntegrityViolationException e) {
             LOGGER.error("Failure", e);
         }
+    }
+
+    @Test
+    public void testBatch() {
+        SQLStatementCountValidator.reset();
+
+        transactionTemplate.execute(transactionStatus -> {
+            for (long i = 1; i <= 10; i++) {
+                postRepository.persist(
+                    new Post()
+                        .setId(i)
+                        .setTitle("High-Performance Java Persistence")
+                        .setSlug(
+                            String.format(
+                                "high-performance-java-persistence-%d",
+                                i
+                            )
+                        )
+                );
+            }
+
+            return null;
+        });
+        SQLStatementCountValidator.assertInsertCount(1);
     }
 }
 
