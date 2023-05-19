@@ -75,7 +75,10 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
     public void test() {
         doInJOOQ(sql -> {
             Result<GetUpdatedQuestionsAndAnswersRecord> records = sql
-                .selectFrom(GetUpdatedQuestionsAndAnswers.GET_UPDATED_QUESTIONS_AND_ANSWERS.call(LocalDateTime.now().minusDays(1)))
+                .selectFrom(
+                    GetUpdatedQuestionsAndAnswers.GET_UPDATED_QUESTIONS_AND_ANSWERS
+                        .call(LocalDateTime.now().minusDays(1))
+                )
                 .fetch();
 
             assertSame(2, records.size());
