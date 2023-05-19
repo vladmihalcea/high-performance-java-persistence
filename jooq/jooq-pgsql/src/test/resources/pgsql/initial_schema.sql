@@ -16,8 +16,8 @@ create table post_tag (post_id int8 not null, tag_id int8 not null);
 create table tag (id int8 not null, name varchar(50), primary key (id));
 create table post_comment_details (id int8 not null, post_id int8 not null, user_id int8 not null, ip varchar(18) not null, fingerprint varchar(256), primary key (id));
 
-create table question (id bigint not null, body text, created_on timestamp(6) default now(), score integer not null default 0, title varchar(250), updated_on timestamp(6) default now(), primary key (id));
-create table answer (id bigint not null, accepted boolean not null default false, body text, created_on timestamp(6) default now(), score integer not null default 0, updated_on timestamp(6) default now(), question_id bigint, primary key (id));
+create table question (id bigint not null, body text, created_on timestamp default now(), score integer not null default 0, title varchar(250), updated_on timestamp default now(), primary key (id));
+create table answer (id bigint not null, accepted boolean not null default false, body text, created_on timestamp default now(), score integer not null default 0, updated_on timestamp default now(), question_id bigint, primary key (id));
 
 alter table post_comment add constraint post_comment_post_id foreign key (post_id) references post;
 alter table post_details add constraint post_details_post_id foreign key (id) references post;
@@ -30,7 +30,7 @@ create sequence hibernate_sequence start with 1 increment by 1;
 
 drop function if exists get_updated_questions_and_answers;
 
-CREATE OR REPLACE FUNCTION get_updated_questions_and_answers(from_timestamp timestamp, to_timestamp timestamp)
+CREATE OR REPLACE FUNCTION get_updated_questions_and_answers(from_timestamp timestamp)
 RETURNS TABLE(
     question_id bigint, question_title varchar(250), question_body text, question_score integer, question_created_on timestamp, question_updated_on timestamp,
     answer_id bigint, answer_body text, answer_accepted boolean, answer_score integer, answer_created_on timestamp, answer_updated_on timestamp
@@ -46,15 +46,13 @@ $$
             SELECT q2.id
             FROM question q2
             WHERE
-                q2.updated_on >= from_timestamp AND
-                q2.updated_on < to_timestamp
+                q2.updated_on > from_timestamp
         ) OR
         q1.id IN (
             SELECT a2.question_id
             FROM answer a2
             WHERE
-                a2.updated_on >= from_timestamp AND
-                a2.updated_on < to_timestamp
+                a2.updated_on > from_timestamp
         );
 $$
 LANGUAGE sql

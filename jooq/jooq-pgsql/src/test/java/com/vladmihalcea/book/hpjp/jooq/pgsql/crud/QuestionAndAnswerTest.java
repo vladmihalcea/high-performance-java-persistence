@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Tables.ANSWER;
 import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Tables.QUESTION;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -90,9 +91,7 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
         assertEquals(1, recentQuestionSnapshot.list().size());
         Question question = recentQuestionSnapshot.list().get(0);
         assertEquals(2, question.answers().size());
-
-        sleep(TimeUnit.SECONDS.toMillis(1));
-
+        
         doInJOOQ(sql -> {
             sql
                 .insertInto(ANSWER)
@@ -109,21 +108,60 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
                 .execute();
         });
 
-        recentQuestionSnapshot = getQuestionsAndAnswersUpdatedAfter(recentQuestionSnapshot.timestamp);
+        recentQuestionSnapshot = getQuestionsAndAnswersUpdatedAfter(recentQuestionSnapshot.maxTimestamp());
 
         assertEquals(1, recentQuestionSnapshot.list().size());
         question = recentQuestionSnapshot.list().get(0);
         assertEquals(3, question.answers().size());
+
+        sleep(TimeUnit.SECONDS.toMillis(1));
+
+        doInJOOQ(sql -> {
+            sql
+                .update(ANSWER)
+                .set(ANSWER.BODY, "Checkout this [YouTube video from Toon Koppelaars](https://www.youtube.com/watch?v=8jiJDflpw4Y).")
+                .where(ANSWER.ID.eq(3L))
+                .execute();
+        });
+
+        recentQuestionSnapshot = getQuestionsAndAnswersUpdatedAfter(recentQuestionSnapshot.maxTimestamp());
+
+        assertEquals(1, recentQuestionSnapshot.list().size());
+        question = recentQuestionSnapshot.list().get(0);
+        assertEquals(3, question.answers().size());
+
+        doInJOOQ(sql -> {
+            sql
+                .insertInto(QUESTION)
+                .columns(
+                    QUESTION.ID,
+                    QUESTION.TITLE,
+                    QUESTION.BODY
+                )
+                .values(
+                    2L,
+                    "How to use the jOOQ MULTISET operator?",
+                    "I want to know how I can use the jOOQ MULTISET operator."
+                )
+                .execute();
+        });
+
+        recentQuestionSnapshot = getQuestionsAndAnswersUpdatedAfter(recentQuestionSnapshot.maxTimestamp());
+
+        assertEquals(1, recentQuestionSnapshot.list().size());
+        question = recentQuestionSnapshot.list().get(0);
+        assertEquals(2L, question.id.longValue());
+        assertTrue(question.answers().isEmpty());
     }
 
     private RecentQuestionSnapshot getQuestionsAndAnswersUpdatedAfter(LocalDateTime fromTimestamp) {
-        LocalDateTime toTimestamp = LocalDateTime.now();
+        LOGGER.info("Get latest Q&A updated after timestamp: [{}]", fromTimestamp);
 
         List<Question> questions = doInJOOQ(sql -> {
             Result<GetUpdatedQuestionsAndAnswersRecord> records = sql
                 .selectFrom(
                     GetUpdatedQuestionsAndAnswers.GET_UPDATED_QUESTIONS_AND_ANSWERS
-                        .call(fromTimestamp, toTimestamp)
+                        .call(fromTimestamp)
                 )
                 .fetch();
 
@@ -144,25 +182,25 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
                         new ArrayList<>()
                     )
                 );
-                question.answers().add(
-                    new Answer(
-                        record.getAnswerId(),
-                        record.getAnswerBody(),
-                        record.getAnswerScore(),
-                        record.getAnswerAccepted(),
-                        record.getAnswerCreatedOn(),
-                        record.getAnswerUpdatedOn()
-                    )
-                );
+                Long answerId = record.getAnswerId();
+                if (answerId != null) {
+                    question.answers().add(
+                        new Answer(
+                            answerId,
+                            record.getAnswerBody(),
+                            record.getAnswerScore(),
+                            record.getAnswerAccepted(),
+                            record.getAnswerCreatedOn(),
+                            record.getAnswerUpdatedOn()
+                        )
+                    );
+                }
             }
 
             return new ArrayList<>(questionsMap.values());
         });
 
-        return new RecentQuestionSnapshot(
-            toTimestamp,
-            questions
-        );
+        return new RecentQuestionSnapshot(questions);
     }
 
     public static record Question(
@@ -184,8 +222,21 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
         LocalDateTime updateOn) {
     }
 
-    public static record RecentQuestionSnapshot(
-        LocalDateTime timestamp,
-        List<Question> list) {
+    public static record RecentQuestionSnapshot(List<Question> list) {
+        
+        public LocalDateTime maxTimestamp() {
+            LocalDateTime maxTimestamp = LocalDateTime.MIN;
+            for(Question question : list) {
+                if(question.updateOn.isAfter(maxTimestamp)) {
+                    maxTimestamp = question.updateOn;
+                }
+                for(Answer answer : question.answers) {
+                    if(answer.updateOn.isAfter(maxTimestamp)) {
+                        maxTimestamp = answer.updateOn;
+                    }
+                }
+            }
+            return maxTimestamp;
+        }
     }
 }
