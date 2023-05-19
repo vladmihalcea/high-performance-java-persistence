@@ -30,20 +30,32 @@ create sequence hibernate_sequence start with 1 increment by 1;
 
 drop function if exists get_updated_questions_and_answers;
 
-CREATE OR REPLACE FUNCTION get_updated_questions_and_answers(updated_after timestamp)
+CREATE OR REPLACE FUNCTION get_updated_questions_and_answers(from_timestamp timestamp, to_timestamp timestamp)
 RETURNS TABLE(
     question_id bigint, question_title varchar(250), question_body text, question_score integer, question_created_on timestamp, question_updated_on timestamp,
     answer_id bigint, answer_body text, answer_accepted boolean, answer_score integer, answer_created_on timestamp, answer_updated_on timestamp
 ) AS
 $$
     SELECT
-        question.id, question.title, question.body, question.score, question.created_on, question.updated_on,
-        answer.id bigint, answer.body, answer.accepted, answer.score, answer.created_on, answer.updated_on
-    FROM question
-    JOIN answer on question.id = answer.question_id
+        q1.id, q1.title, q1.body, q1.score, q1.created_on, q1.updated_on,
+        a1.id bigint, a1.body, a1.accepted, a1.score, a1.created_on, a1.updated_on
+    FROM question q1
+    LEFT JOIN answer a1 on q1.id = a1.question_id
     WHERE
-        question.updated_on >= updated_after OR
-        answer.updated_on >= updated_after;
+        q1.id IN (
+            SELECT q2.id
+            FROM question q2
+            WHERE
+                q2.updated_on >= from_timestamp AND
+                q2.updated_on < to_timestamp
+        ) OR
+        q1.id IN (
+            SELECT a2.question_id
+            FROM answer a2
+            WHERE
+                a2.updated_on >= from_timestamp AND
+                a2.updated_on < to_timestamp
+        );
 $$
 LANGUAGE sql
 ;
