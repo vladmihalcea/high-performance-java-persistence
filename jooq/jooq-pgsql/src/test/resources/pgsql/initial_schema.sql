@@ -31,19 +31,19 @@ create sequence hibernate_sequence start with 1 increment by 1;
 drop function if exists get_updated_questions_and_answers;
 
 CREATE OR REPLACE FUNCTION get_updated_questions_and_answers(updated_after timestamp)
-RETURNS REFCURSOR AS
+RETURNS TABLE(
+    question_id bigint, question_title varchar(255), question_body varchar(255), question_score integer, question_created_on timestamp, question_updated_on timestamp,
+    answer_id bigint, answer_body varchar(255), answer_accepted boolean, answer_score integer, answer_created_on timestamp, answer_updated_on timestamp
+) AS
 $$
-DECLARE qa REFCURSOR;
-BEGIN
-    OPEN qa FOR
-    SELECT *
-    FROM question
-    JOIN answer on question.id = answer.question_id
-    WHERE
+SELECT
+    question.id, question.title, question.body, question.score, question.created_on, question.updated_on,
+    answer.id bigint, answer.body, answer.accepted, answer.score, answer.created_on, answer.updated_on
+FROM question
+         JOIN answer on question.id = answer.question_id
+WHERE
         question.updated_on >= updated_after OR
         answer.updated_on >= updated_after;
-    RETURN qa;
-END
 $$
-LANGUAGE plpgsql
+LANGUAGE sql
 ;
