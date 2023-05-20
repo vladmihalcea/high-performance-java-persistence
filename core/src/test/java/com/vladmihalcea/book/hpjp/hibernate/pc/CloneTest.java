@@ -1,25 +1,21 @@
 package com.vladmihalcea.book.hpjp.hibernate.pc;
 
-import com.vladmihalcea.book.hpjp.hibernate.identifier.Identifiable;
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.Session;
+import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
 import org.junit.Test;
 
-import jakarta.persistence.*;
-import java.sql.Statement;
 import java.util.*;
 
 public class CloneTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
-                Post.class,
-                PostDetails.class,
-                PostComment.class,
-                Tag.class
+        return new Class<?>[]{
+            Post.class,
+            PostDetails.class,
+            PostComment.class,
+            Tag.class
         };
     }
 
@@ -75,12 +71,13 @@ public class CloneTest extends AbstractTest {
     @Test
     public void testClone() {
         doInJPA(entityManager -> {
-            Post post = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.details " +
-                "join fetch p.tags " +
-                "where p.title = :title", Post.class)
+            Post post = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.details
+                join fetch p.tags
+                where p.title = :title
+                """, Post.class)
             .setParameter("title", "High-Performance Java Persistence, 1st edition")
             .getSingleResult();
 
@@ -122,9 +119,9 @@ public class CloneTest extends AbstractTest {
         private Post() {}
 
         public Post(Post post) {
-            this.title = post.title;
+            this.title = post.getTitle();
 
-            addDetails(new PostDetails(post.details));
+            addDetails(new PostDetails(post.getDetails()));
 
             tags.addAll(post.getTags());
         }
@@ -199,7 +196,7 @@ public class CloneTest extends AbstractTest {
         }
 
         public PostDetails(PostDetails details) {
-            this.createdBy = details.createdBy;
+            this.createdBy = details.getCreatedBy();
         }
 
         public Long getId() {
