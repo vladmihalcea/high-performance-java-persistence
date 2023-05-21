@@ -86,10 +86,10 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
 
     @Test
     public void test() {
-        RecentQuestionSnapshot recentQuestionSnapshot = getQuestionsAndAnswersUpdatedAfter(LocalDateTime.now().minusMinutes(1));
+        List<Question> questions = getQuestionsAndAnswersUpdatedAfter();
 
-        assertEquals(1, recentQuestionSnapshot.list().size());
-        Question question = recentQuestionSnapshot.list().get(0);
+        assertEquals(1, questions.size());
+        Question question = questions.get(0);
         assertEquals(2, question.answers().size());
         
         doInJOOQ(sql -> {
@@ -108,10 +108,10 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
                 .execute();
         });
 
-        recentQuestionSnapshot = getQuestionsAndAnswersUpdatedAfter(recentQuestionSnapshot.maxTimestamp());
+        questions = getQuestionsAndAnswersUpdatedAfter();
 
-        assertEquals(1, recentQuestionSnapshot.list().size());
-        question = recentQuestionSnapshot.list().get(0);
+        assertEquals(1, questions.size());
+        question = questions.get(0);
         assertEquals(3, question.answers().size());
 
         sleep(TimeUnit.SECONDS.toMillis(1));
@@ -124,10 +124,10 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
                 .execute();
         });
 
-        recentQuestionSnapshot = getQuestionsAndAnswersUpdatedAfter(recentQuestionSnapshot.maxTimestamp());
+        questions = getQuestionsAndAnswersUpdatedAfter();
 
-        assertEquals(1, recentQuestionSnapshot.list().size());
-        question = recentQuestionSnapshot.list().get(0);
+        assertEquals(1, questions.size());
+        question = questions.get(0);
         assertEquals(3, question.answers().size());
 
         doInJOOQ(sql -> {
@@ -146,22 +146,19 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
                 .execute();
         });
 
-        recentQuestionSnapshot = getQuestionsAndAnswersUpdatedAfter(recentQuestionSnapshot.maxTimestamp());
+        questions = getQuestionsAndAnswersUpdatedAfter();
 
-        assertEquals(1, recentQuestionSnapshot.list().size());
-        question = recentQuestionSnapshot.list().get(0);
+        assertEquals(1, questions.size());
+        question = questions.get(0);
         assertEquals(2L, question.id.longValue());
         assertTrue(question.answers().isEmpty());
     }
 
-    private RecentQuestionSnapshot getQuestionsAndAnswersUpdatedAfter(LocalDateTime fromTimestamp) {
-        LOGGER.info("Get latest Q&A updated after timestamp: [{}]", fromTimestamp);
-
-        List<Question> questions = doInJOOQ(sql -> {
+    private List<Question> getQuestionsAndAnswersUpdatedAfter() {
+        return doInJOOQ(sql -> {
             Result<GetUpdatedQuestionsAndAnswersRecord> records = sql
                 .selectFrom(
-                    GetUpdatedQuestionsAndAnswers.GET_UPDATED_QUESTIONS_AND_ANSWERS
-                        .call(fromTimestamp)
+                    GetUpdatedQuestionsAndAnswers.GET_UPDATED_QUESTIONS_AND_ANSWERS.call()
                 )
                 .fetch();
 
@@ -199,8 +196,6 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
 
             return new ArrayList<>(questionsMap.values());
         });
-
-        return new RecentQuestionSnapshot(questions);
     }
 
     public static record Question(
@@ -220,23 +215,5 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
         boolean accepted,
         LocalDateTime createdOn,
         LocalDateTime updateOn) {
-    }
-
-    public static record RecentQuestionSnapshot(List<Question> list) {
-        
-        public LocalDateTime maxTimestamp() {
-            LocalDateTime maxTimestamp = LocalDateTime.MIN;
-            for(Question question : list) {
-                if(question.updateOn.isAfter(maxTimestamp)) {
-                    maxTimestamp = question.updateOn;
-                }
-                for(Answer answer : question.answers) {
-                    if(answer.updateOn.isAfter(maxTimestamp)) {
-                        maxTimestamp = answer.updateOn;
-                    }
-                }
-            }
-            return maxTimestamp;
-        }
     }
 }
