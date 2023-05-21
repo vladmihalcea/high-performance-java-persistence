@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Vlad Mihalcea
@@ -113,7 +114,7 @@ public class ACIDRaceConditionTransferTest {
 
                     transferService.transfer("Alice-123", "Bob-456", 5L);
                 } catch (Exception e) {
-                    LOGGER.error("Transfer failed", e);
+                    fail("Transfer failed");
                 } finally {
                     endLatch.countDown();
                 }

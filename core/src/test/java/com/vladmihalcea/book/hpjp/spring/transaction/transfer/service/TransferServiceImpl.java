@@ -1,8 +1,11 @@
 package com.vladmihalcea.book.hpjp.spring.transaction.transfer.service;
 
+import com.mysql.cj.jdbc.exceptions.MySQLTransactionRollbackException;
 import com.vladmihalcea.book.hpjp.spring.transaction.transfer.repository.AccountRepository;
+import io.hypersistence.utils.spring.annotation.Retry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -15,7 +18,10 @@ public class TransferServiceImpl implements TransferService {
     private AccountRepository accountRepository;
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Retry(times = 5, on = {
+        MySQLTransactionRollbackException.class
+    })
     public boolean transfer(String fromIban, String toIban, long cents) {
         boolean status = true;
 

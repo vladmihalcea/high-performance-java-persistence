@@ -34,6 +34,7 @@ import java.util.Properties;
 @ComponentScan(
     basePackages = {
         "com.vladmihalcea.book.hpjp.spring.transaction.transfer.service",
+        "io.hypersistence.utils.spring.aop"
     }
 )
 @EnableJpaRepositories("com.vladmihalcea.book.hpjp.spring.transaction.transfer.repository")
@@ -50,7 +51,7 @@ public class ACIDRaceConditionTransferConfiguration {
 
     @Bean
     public Database database() {
-        return Database.POSTGRESQL;
+        return Database.MYSQL;
     }
 
     @Bean
