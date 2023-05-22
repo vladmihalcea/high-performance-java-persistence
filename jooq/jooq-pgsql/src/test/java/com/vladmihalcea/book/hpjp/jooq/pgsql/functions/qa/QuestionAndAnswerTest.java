@@ -1,8 +1,8 @@
 package com.vladmihalcea.book.hpjp.jooq.pgsql.functions.qa;
 
-import com.vladmihalcea.book.hpjp.jooq.pgsql.util.AbstractJOOQPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.tables.GetUpdatedQuestionsAndAnswers;
 import com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.tables.records.GetUpdatedQuestionsAndAnswersRecord;
+import com.vladmihalcea.book.hpjp.jooq.pgsql.util.AbstractJOOQPostgreSQLIntegrationTest;
 import org.jooq.Result;
 import org.junit.Test;
 
@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Tables.ANSWER;
 import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Tables.QUESTION;
@@ -83,16 +82,16 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
                 )
                 .execute();
         });
-    }
 
-    @Test
-    public void test() {
-        List<Question> questions = getQuestionsAndAnswersUpdatedAfter();
+        List<Question> questions = getUpdatedQuestionsAndAnswers();
 
         assertEquals(1, questions.size());
         Question question = questions.get(0);
         assertEquals(2, question.answers().size());
-        
+    }
+
+    @Test
+    public void testInsertAnswer() {
         doInJOOQ(sql -> {
             sql
                 .insertInto(ANSWER)
@@ -109,28 +108,32 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
                 .execute();
         });
 
-        questions = getQuestionsAndAnswersUpdatedAfter();
+        List<Question> questions = getUpdatedQuestionsAndAnswers();
 
         assertEquals(1, questions.size());
-        question = questions.get(0);
+        Question question = questions.get(0);
         assertEquals(3, question.answers().size());
+    }
 
-        sleep(TimeUnit.SECONDS.toMillis(1));
-
+    @Test
+    public void testUpdateAnswer() {
         doInJOOQ(sql -> {
             sql
                 .update(ANSWER)
                 .set(ANSWER.BODY, "Checkout this [YouTube video from Toon Koppelaars](https://www.youtube.com/watch?v=8jiJDflpw4Y).")
-                .where(ANSWER.ID.eq(3L))
+                .where(ANSWER.ID.eq(2L))
                 .execute();
         });
 
-        questions = getQuestionsAndAnswersUpdatedAfter();
+        List<Question> questions = getUpdatedQuestionsAndAnswers();
 
         assertEquals(1, questions.size());
-        question = questions.get(0);
-        assertEquals(3, question.answers().size());
+        Question question = questions.get(0);
+        assertEquals(2, question.answers().size());
+    }
 
+    @Test
+    public void testInsertQuestion() {
         doInJOOQ(sql -> {
             sql
                 .insertInto(QUESTION)
@@ -147,15 +150,15 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
                 .execute();
         });
 
-        questions = getQuestionsAndAnswersUpdatedAfter();
+        List<Question> questions = getUpdatedQuestionsAndAnswers();
 
         assertEquals(1, questions.size());
-        question = questions.get(0);
+        Question question = questions.get(0);
         assertEquals(2L, question.id.longValue());
         assertTrue(question.answers().isEmpty());
     }
 
-    private List<Question> getQuestionsAndAnswersUpdatedAfter() {
+    private List<Question> getUpdatedQuestionsAndAnswers() {
         return doInJOOQ(sql -> {
             Result<GetUpdatedQuestionsAndAnswersRecord> records = sql
                 .selectFrom(
