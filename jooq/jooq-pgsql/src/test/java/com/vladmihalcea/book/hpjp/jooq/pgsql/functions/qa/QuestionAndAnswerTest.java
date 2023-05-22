@@ -52,110 +52,138 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
             .execute();
 
             sql
-                .insertInto(ANSWER)
-                .columns(
-                    ANSWER.ID,
-                    ANSWER.QUESTION_ID,
-                    ANSWER.BODY,
-                    ANSWER.SCORE,
-                    ANSWER.ACCEPTED,
-                    ANSWER.CREATED_ON,
-                    ANSWER.CREATED_ON
-                )
-                .values(
-                    1L,
-                    1L,
-                    "Checkout the [jOOQ docs](https://www.jooq.org/doc/latest/manual/sql-execution/stored-procedures/).",
-                    10,
-                    true,
-                    timestamp,
-                    timestamp
-                )
-                .values(
-                    2L,
-                    1L,
-                    "Checkout [this article](https://vladmihalcea.com/jooq-facts-sql-functions-made-easy/).",
-                    5,
-                    false,
-                    timestamp,
-                    timestamp
-                )
-                .execute();
+            .insertInto(ANSWER)
+            .columns(
+                ANSWER.ID,
+                ANSWER.QUESTION_ID,
+                ANSWER.BODY,
+                ANSWER.SCORE,
+                ANSWER.ACCEPTED,
+                ANSWER.CREATED_ON,
+                ANSWER.CREATED_ON
+            )
+            .values(
+                1L,
+                1L,
+                "Checkout the [jOOQ docs]" +
+                "(https://www.jooq.org/doc/latest/manual/sql-execution/stored-procedures/).",
+                10,
+                true,
+                timestamp,
+                timestamp
+            )
+            .values(
+                2L,
+                1L,
+                "Checkout [this article]" +
+                "(https://vladmihalcea.com/jooq-facts-sql-functions-made-easy/).",
+                5,
+                false,
+                timestamp,
+                timestamp
+            )
+            .execute();
+
+            List<Question> questions = getUpdatedQuestionsAndAnswers();
+
+            assertEquals(1, questions.size());
+            Question question = questions.get(0);
+            assertEquals(1, question.id().intValue());
+            List<Answer> answers = question.answers();
+            assertEquals(2, answers.size());
+            assertEquals(1, answers.get(0).id().intValue());
+            assertEquals(2, answers.get(1).id().intValue());
         });
-
-        List<Question> questions = getUpdatedQuestionsAndAnswers();
-
-        assertEquals(1, questions.size());
-        Question question = questions.get(0);
-        assertEquals(2, question.answers().size());
     }
 
     @Test
-    public void testInsertAnswer() {
+    public void testInsertAndUpdateAnswer() {
         doInJOOQ(sql -> {
             sql
-                .insertInto(ANSWER)
-                .columns(
-                    ANSWER.ID,
-                    ANSWER.QUESTION_ID,
-                    ANSWER.BODY
-                )
-                .values(
-                    3L,
-                    1L,
-                    "Checkout this [video from Toon Koppelaars](https://www.youtube.com/watch?v=8jiJDflpw4Y)."
-                )
-                .execute();
+            .insertInto(ANSWER)
+            .columns(
+                ANSWER.ID,
+                ANSWER.QUESTION_ID,
+                ANSWER.BODY
+            )
+            .values(
+                3L,
+                1L,
+                "Checkout this [video from Toon Koppelaars]" +
+                "(https://www.youtube.com/watch?v=8jiJDflpw4Y)."
+            )
+            .execute();
+
+            List<Question> questions = getUpdatedQuestionsAndAnswers();
+
+            assertEquals(1, questions.size());
+            Question question = questions.get(0);
+            assertEquals(1, question.id().intValue());
+            assertEquals(
+                "How to call jOOQ stored procedures?",
+                question.title()
+            );
+            List<Answer> answers = question.answers();
+            assertEquals(2, answers.size());
+            assertEquals(1, answers.get(0).id().intValue());
+            assertEquals(2, answers.get(1).id().intValue());
+            assertEquals(3, answers.get(2).id().intValue());
         });
 
-        List<Question> questions = getUpdatedQuestionsAndAnswers();
-
-        assertEquals(1, questions.size());
-        Question question = questions.get(0);
-        assertEquals(3, question.answers().size());
-    }
-
-    @Test
-    public void testUpdateAnswer() {
         doInJOOQ(sql -> {
             sql
-                .update(ANSWER)
-                .set(ANSWER.BODY, "Checkout this [YouTube video from Toon Koppelaars](https://www.youtube.com/watch?v=8jiJDflpw4Y).")
-                .where(ANSWER.ID.eq(2L))
-                .execute();
+            .update(ANSWER)
+            .set(
+                ANSWER.BODY,
+                "Checkout this [YouTube video from Toon Koppelaars]" +
+                "(https://www.youtube.com/watch?v=8jiJDflpw4Y)."
+            )
+            .where(ANSWER.ID.eq(2L))
+            .execute();
+
+            List<Question> questions = getUpdatedQuestionsAndAnswers();
+
+            assertEquals(1, questions.size());
+            Question question = questions.get(0);
+            assertEquals(1, question.id().intValue());
+            List<Answer> answers = question.answers();
+            assertEquals(2, answers.size());
+            assertEquals(1, answers.get(0).id().intValue());
+            assertEquals(2, answers.get(1).id().intValue());
+            Answer latestAnswer = answers.get(2);
+            assertEquals(3, latestAnswer.id().intValue());
+            assertEquals(
+                "Checkout this [YouTube video from Toon Koppelaars]" +
+                "(https://www.youtube.com/watch?v=8jiJDflpw4Y).",
+                latestAnswer.body()
+            );
         });
-
-        List<Question> questions = getUpdatedQuestionsAndAnswers();
-
-        assertEquals(1, questions.size());
-        Question question = questions.get(0);
-        assertEquals(2, question.answers().size());
     }
 
     @Test
     public void testInsertQuestion() {
         doInJOOQ(sql -> {
             sql
-                .insertInto(QUESTION)
-                .columns(
-                    QUESTION.ID,
-                    QUESTION.TITLE,
-                    QUESTION.BODY
-                )
-                .values(
-                    2L,
-                    "How to use the jOOQ MULTISET operator?",
-                    "I want to know how I can use the jOOQ MULTISET operator."
-                )
-                .execute();
+            .insertInto(QUESTION)
+            .columns(
+                QUESTION.ID,
+                QUESTION.TITLE,
+                QUESTION.BODY
+            )
+            .values(
+                2L,
+                "How to use the jOOQ MULTISET operator?",
+                "I want to know how I can use the jOOQ MULTISET operator."
+            )
+            .execute();
+
+            List<Question> questions = getUpdatedQuestionsAndAnswers();
+
+            assertEquals(1, questions.size());
+            Question question = questions.get(0);
+            assertEquals(2, question.id().intValue());
+            assertTrue(question.answers().isEmpty());
         });
-
-        List<Question> questions = getUpdatedQuestionsAndAnswers();
-
-        assertEquals(1, questions.size());
-        Question question = questions.get(0);
-        assertEquals(2L, question.id.longValue());
-        assertTrue(question.answers().isEmpty());
     }
 
     private List<Question> getUpdatedQuestionsAndAnswers() {

@@ -55,7 +55,7 @@ BEGIN
         WHERE
             region = 'QA'
     );
-    IF previous_snapshot_timestamp is null then
+    IF previous_snapshot_timestamp is null THEN
         INSERT INTO cache_snapshot(
             region,
             updated_on
@@ -72,7 +72,7 @@ BEGIN
     FOR result_set_record IN(
         SELECT
             q1.id as question_id, q1.title as question_title,
-            q1.body as question_body,q1.score as question_score,
+            q1.body as question_body, q1.score as question_score,
             q1.created_on as question_created_on, q1.updated_on as question_updated_on,
             a1.id as answer_id, a1.body as answer_body,
             a1.accepted as answer_accepted, a1.score as answer_score,
@@ -94,11 +94,13 @@ BEGIN
                 WHERE
                     a2.updated_on > previous_snapshot_timestamp
             )
+        ORDER BY
+            question_created_on, answer_created_on
     ) loop
-    IF result_set_record.question_updated_on > max_snapshot_timestamp then
+    IF result_set_record.question_updated_on > max_snapshot_timestamp THEN
        max_snapshot_timestamp = result_set_record.question_updated_on;
     END IF;
-    IF result_set_record.answer_updated_on > max_snapshot_timestamp then
+    IF result_set_record.answer_updated_on > max_snapshot_timestamp THEN
        max_snapshot_timestamp = result_set_record.answer_updated_on;
     END IF;
 
