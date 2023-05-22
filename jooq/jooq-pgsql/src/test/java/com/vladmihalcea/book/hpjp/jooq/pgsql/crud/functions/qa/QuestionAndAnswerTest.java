@@ -1,5 +1,6 @@
-package com.vladmihalcea.book.hpjp.jooq.pgsql.crud;
+package com.vladmihalcea.book.hpjp.jooq.pgsql.crud.functions.qa;
 
+import com.vladmihalcea.book.hpjp.jooq.pgsql.crud.AbstractJOOQPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.tables.GetUpdatedQuestionsAndAnswers;
 import com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.tables.records.GetUpdatedQuestionsAndAnswersRecord;
 import org.jooq.Result;
