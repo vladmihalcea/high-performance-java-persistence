@@ -1,14 +1,13 @@
-package com.vladmihalcea.book.hpjp.jooq.pgsql.crud;
+package com.vladmihalcea.book.hpjp.jooq.pgsql.fetching;
 
 import com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.tables.records.PostCommentDetailsRecord;
+import com.vladmihalcea.book.hpjp.jooq.pgsql.util.AbstractJOOQPostgreSQLIntegrationTest;
 import org.hibernate.Session;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Tables.POST;
 import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Tables.POST_COMMENT_DETAILS;
 
 /**

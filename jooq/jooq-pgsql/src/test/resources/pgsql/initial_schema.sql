@@ -43,25 +43,44 @@ RETURNS TABLE(
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    previous_snapshot_timestamp timestamp;
+previous_snapshot_timestamp timestamp;
     max_snapshot_timestamp timestamp;
     result_set_record record;
 BEGIN
-    previous_snapshot_timestamp = (select updated_on from cache_snapshot where region = 'QA');
+    previous_snapshot_timestamp = (
+        SELECT
+            updated_on
+        FROM
+            cache_snapshot
+        WHERE
+            region = 'QA'
+    );
     IF previous_snapshot_timestamp is null then
-        INSERT INTO cache_snapshot(region, updated_on) VALUES ('QA', to_timestamp(0));
+        INSERT INTO cache_snapshot(
+            region,
+            updated_on
+        )
+        VALUES (
+            'QA',
+            to_timestamp(0)
+        );
+
         previous_snapshot_timestamp = to_timestamp(0);
     END IF;
 
     max_snapshot_timestamp = to_timestamp(0);
     FOR result_set_record IN(
         SELECT
-            q1.id as question_id, q1.title as question_title, q1.body as question_body,
-            q1.score as question_score, q1.created_on as question_created_on, q1.updated_on as question_updated_on,
-            a1.id as answer_id, a1.body as answer_body, a1.accepted as answer_accepted,
-            a1.score as answer_score, a1.created_on as answer_created_on, a1.updated_on as answer_updated_on
-        FROM question q1
-        LEFT JOIN answer a1 on q1.id = a1.question_id
+            q1.id as question_id, q1.title as question_title,
+            q1.body as question_body,q1.score as question_score,
+            q1.created_on as question_created_on, q1.updated_on as question_updated_on,
+            a1.id as answer_id, a1.body as answer_body,
+            a1.accepted as answer_accepted, a1.score as answer_score,
+            a1.created_on as answer_created_on, a1.updated_on as answer_updated_on
+        FROM
+            question q1
+        LEFT JOIN
+            answer a1 on q1.id = a1.question_id
         WHERE
             q1.id IN (
                 SELECT q2.id
@@ -76,29 +95,33 @@ BEGIN
                     a2.updated_on > previous_snapshot_timestamp
             )
     ) loop
-        IF result_set_record.question_updated_on > max_snapshot_timestamp then
-           max_snapshot_timestamp = result_set_record.question_updated_on;
-        END IF;
-        IF result_set_record.answer_updated_on > max_snapshot_timestamp then
-           max_snapshot_timestamp = result_set_record.answer_updated_on;
-        END IF;
+    IF result_set_record.question_updated_on > max_snapshot_timestamp then
+       max_snapshot_timestamp = result_set_record.question_updated_on;
+    END IF;
+    IF result_set_record.answer_updated_on > max_snapshot_timestamp then
+       max_snapshot_timestamp = result_set_record.answer_updated_on;
+    END IF;
 
-        question_id = result_set_record.question_id;
-        question_title = result_set_record.question_title;
-        question_body = result_set_record.question_body;
-        question_score = result_set_record.question_score;
-        question_created_on = result_set_record.question_created_on;
-        question_updated_on = result_set_record.question_updated_on;
-        answer_id = result_set_record.answer_id;
-        answer_body = result_set_record.answer_body;
-        answer_accepted = result_set_record.answer_accepted;
-        answer_score = result_set_record.answer_score;
-        answer_created_on = result_set_record.answer_created_on;
-        answer_updated_on = result_set_record.answer_updated_on;
-        return next;
-    END loop;
+    question_id = result_set_record.question_id;
+    question_title = result_set_record.question_title;
+    question_body = result_set_record.question_body;
+    question_score = result_set_record.question_score;
+    question_created_on = result_set_record.question_created_on;
+    question_updated_on = result_set_record.question_updated_on;
+    answer_id = result_set_record.answer_id;
+    answer_body = result_set_record.answer_body;
+    answer_accepted = result_set_record.answer_accepted;
+    answer_score = result_set_record.answer_score;
+    answer_created_on = result_set_record.answer_created_on;
+    answer_updated_on = result_set_record.answer_updated_on;
+    RETURN next;
+END loop;
 
-    UPDATE cache_snapshot SET updated_on = max_snapshot_timestamp WHERE region = 'QA';
+UPDATE
+    cache_snapshot
+SET updated_on = max_snapshot_timestamp
+WHERE
+    region = 'QA';
 END
 $$
 ;

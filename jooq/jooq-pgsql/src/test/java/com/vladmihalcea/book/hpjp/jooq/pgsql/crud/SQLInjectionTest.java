@@ -1,8 +1,6 @@
 package com.vladmihalcea.book.hpjp.jooq.pgsql.crud;
 
-import java.sql.Statement;
-import java.util.List;
-
+import com.vladmihalcea.book.hpjp.jooq.pgsql.util.AbstractJOOQPostgreSQLIntegrationTest;
 import org.junit.Test;
 
 import org.jooq.DSLContext;
@@ -10,7 +8,6 @@ import org.jooq.conf.Settings;
 import org.jooq.conf.StatementType;
 import org.jooq.impl.DSL;
 
-import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Tables.POST;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
 import static org.junit.Assert.assertEquals;

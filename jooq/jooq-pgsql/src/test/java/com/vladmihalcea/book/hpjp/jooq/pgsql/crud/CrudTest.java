@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.jooq.pgsql.crud;
 
+import com.vladmihalcea.book.hpjp.jooq.pgsql.util.AbstractJOOQPostgreSQLIntegrationTest;
 import org.junit.Test;
 
 import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Tables.POST;

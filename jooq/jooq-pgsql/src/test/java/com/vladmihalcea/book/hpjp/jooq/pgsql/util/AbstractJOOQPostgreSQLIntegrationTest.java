@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.jooq.pgsql.crud;
+package com.vladmihalcea.book.hpjp.jooq.pgsql.util;
 
 import com.vladmihalcea.book.hpjp.jooq.AbstractJOOQIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;

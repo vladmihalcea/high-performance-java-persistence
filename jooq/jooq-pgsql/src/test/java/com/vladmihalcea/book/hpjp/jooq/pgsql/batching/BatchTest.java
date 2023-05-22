@@ -1,5 +1,6 @@
-package com.vladmihalcea.book.hpjp.jooq.pgsql.crud;
+package com.vladmihalcea.book.hpjp.jooq.pgsql.batching;
 
+import com.vladmihalcea.book.hpjp.jooq.pgsql.util.AbstractJOOQPostgreSQLIntegrationTest;
 import org.jooq.BatchBindStep;
 import org.jooq.Record;
 import org.jooq.Result;

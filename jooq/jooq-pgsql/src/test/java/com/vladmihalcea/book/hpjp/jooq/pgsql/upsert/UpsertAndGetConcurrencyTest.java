@@ -1,7 +1,8 @@
-package com.vladmihalcea.book.hpjp.jooq.pgsql.crud;
+package com.vladmihalcea.book.hpjp.jooq.pgsql.upsert;
 
 import com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.tables.records.PostDetailsRecord;
 import com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.tables.records.PostRecord;
+import com.vladmihalcea.book.hpjp.jooq.pgsql.util.AbstractJOOQPostgreSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import org.junit.Test;
 
