@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Vlad Mihalcea
@@ -47,7 +48,9 @@ public class ForumServiceImpl implements ForumService {
 
         post.setTitle(postTitle);
 
+        long startNanos = System.nanoTime();
         postRepository.save(post);
+        LOGGER.info("Save took: [{}] ms", TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
     }
 
     @Transactional
