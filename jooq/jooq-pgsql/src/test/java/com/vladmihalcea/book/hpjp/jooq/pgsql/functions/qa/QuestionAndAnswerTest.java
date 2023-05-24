@@ -1,6 +1,5 @@
 package com.vladmihalcea.book.hpjp.jooq.pgsql.functions.qa;
 
-import com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.tables.GetUpdatedQuestionsAndAnswers;
 import com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.tables.records.GetUpdatedQuestionsAndAnswersRecord;
 import com.vladmihalcea.book.hpjp.jooq.pgsql.util.AbstractJOOQPostgreSQLIntegrationTest;
 import org.jooq.Result;
@@ -11,9 +10,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Tables.ANSWER;
 import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.Tables.QUESTION;
+import static com.vladmihalcea.book.hpjp.jooq.pgsql.schema.crud.tables.GetUpdatedQuestionsAndAnswers.GET_UPDATED_QUESTIONS_AND_ANSWERS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -83,17 +85,17 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
                 timestamp
             )
             .execute();
-
-            List<Question> questions = getUpdatedQuestionsAndAnswers();
-
-            assertEquals(1, questions.size());
-            Question question = questions.get(0);
-            assertEquals(1, question.id().intValue());
-            List<Answer> answers = question.answers();
-            assertEquals(2, answers.size());
-            assertEquals(1, answers.get(0).id().intValue());
-            assertEquals(2, answers.get(1).id().intValue());
         });
+
+        List<Question> questions = getUpdatedQuestionsAndAnswers();
+
+        assertEquals(1, questions.size());
+        Question question = questions.get(0);
+        assertEquals(1, question.id().intValue());
+        List<Answer> answers = question.answers();
+        assertEquals(2, answers.size());
+        assertEquals(1, answers.get(0).id().intValue());
+        assertEquals(2, answers.get(1).id().intValue());
     }
 
     @Test
@@ -113,7 +115,9 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
                 "(https://www.youtube.com/watch?v=8jiJDflpw4Y)."
             )
             .execute();
+        });
 
+        {
             List<Question> questions = getUpdatedQuestionsAndAnswers();
 
             assertEquals(1, questions.size());
@@ -124,11 +128,11 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
                 question.title()
             );
             List<Answer> answers = question.answers();
-            assertEquals(2, answers.size());
+            assertEquals(3, answers.size());
             assertEquals(1, answers.get(0).id().intValue());
             assertEquals(2, answers.get(1).id().intValue());
             assertEquals(3, answers.get(2).id().intValue());
-        });
+        }
 
         doInJOOQ(sql -> {
             sql
@@ -138,26 +142,26 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
                 "Checkout this [YouTube video from Toon Koppelaars]" +
                 "(https://www.youtube.com/watch?v=8jiJDflpw4Y)."
             )
-            .where(ANSWER.ID.eq(2L))
+            .where(ANSWER.ID.eq(3L))
             .execute();
-
-            List<Question> questions = getUpdatedQuestionsAndAnswers();
-
-            assertEquals(1, questions.size());
-            Question question = questions.get(0);
-            assertEquals(1, question.id().intValue());
-            List<Answer> answers = question.answers();
-            assertEquals(2, answers.size());
-            assertEquals(1, answers.get(0).id().intValue());
-            assertEquals(2, answers.get(1).id().intValue());
-            Answer latestAnswer = answers.get(2);
-            assertEquals(3, latestAnswer.id().intValue());
-            assertEquals(
-                "Checkout this [YouTube video from Toon Koppelaars]" +
-                "(https://www.youtube.com/watch?v=8jiJDflpw4Y).",
-                latestAnswer.body()
-            );
         });
+
+        List<Question> questions = getUpdatedQuestionsAndAnswers();
+
+        assertEquals(1, questions.size());
+        Question question = questions.get(0);
+        assertEquals(1, question.id().intValue());
+        List<Answer> answers = question.answers();
+        assertEquals(3, answers.size());
+        assertEquals(1, answers.get(0).id().intValue());
+        assertEquals(2, answers.get(1).id().intValue());
+        Answer latestAnswer = answers.get(2);
+        assertEquals(3, latestAnswer.id().intValue());
+        assertEquals(
+            "Checkout this [YouTube video from Toon Koppelaars]" +
+            "(https://www.youtube.com/watch?v=8jiJDflpw4Y).",
+            latestAnswer.body()
+        );
     }
 
     @Test
@@ -176,21 +180,68 @@ public class QuestionAndAnswerTest extends AbstractJOOQPostgreSQLIntegrationTest
                 "I want to know how I can use the jOOQ MULTISET operator."
             )
             .execute();
-
-            List<Question> questions = getUpdatedQuestionsAndAnswers();
-
-            assertEquals(1, questions.size());
-            Question question = questions.get(0);
-            assertEquals(2, question.id().intValue());
-            assertTrue(question.answers().isEmpty());
         });
+
+        List<Question> questions = getUpdatedQuestionsAndAnswers();
+
+        assertEquals(1, questions.size());
+        Question question = questions.get(0);
+        assertEquals(2, question.id().intValue());
+        assertTrue(question.answers().isEmpty());
     }
 
     private List<Question> getUpdatedQuestionsAndAnswers() {
         return doInJOOQ(sql -> {
+            return sql
+                .selectFrom(GET_UPDATED_QUESTIONS_AND_ANSWERS.call())
+                .collect(
+                    Collectors.collectingAndThen(
+                        Collectors.toMap(
+                            GetUpdatedQuestionsAndAnswersRecord::getQuestionId,
+                            record -> {
+                                Question question = new Question(
+                                    record.getQuestionId(),
+                                    record.getQuestionTitle(),
+                                    record.getQuestionBody(),
+                                    record.getQuestionScore(),
+                                    record.getQuestionCreatedOn(),
+                                    record.getQuestionUpdatedOn(),
+                                    new ArrayList<>()
+                                );
+
+                                Long answerId = record.getAnswerId();
+                                if (answerId != null) {
+                                    question.answers().add(
+                                        new Answer(
+                                            answerId,
+                                            record.getAnswerBody(),
+                                            record.getAnswerScore(),
+                                            record.getAnswerAccepted(),
+                                            record.getAnswerCreatedOn(),
+                                            record.getAnswerUpdatedOn()
+                                        )
+                                    );
+                                }
+
+                                return question;
+                            },
+                            (Question existing, Question replacement) -> {
+                                existing.answers().addAll(replacement.answers());
+                                return existing;
+                            },
+                            LinkedHashMap::new
+                        ),
+                        (Function<Map<Long, Question>, List<Question>>) map -> new ArrayList<>(map.values())
+                    )
+                );
+        });
+    }
+
+    private List<Question> getUpdatedQuestionsAndAnswersUsingManualMapping() {
+        return doInJOOQ(sql -> {
             Result<GetUpdatedQuestionsAndAnswersRecord> records = sql
                 .selectFrom(
-                    GetUpdatedQuestionsAndAnswers.GET_UPDATED_QUESTIONS_AND_ANSWERS.call()
+                    GET_UPDATED_QUESTIONS_AND_ANSWERS.call()
                 )
                 .fetch();
 
