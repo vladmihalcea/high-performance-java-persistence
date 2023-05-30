@@ -2,6 +2,7 @@ package com.vladmihalcea.book.hpjp.hibernate.query.cte;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
+import io.hypersistence.utils.hibernate.query.SQLExtractor;
 import jakarta.persistence.*;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -207,7 +208,7 @@ public class DerivedTableTest extends AbstractTest {
     @Test
     public void testJPQLDerivedTable() {
         List<Tuple> tuples = doInJPA(entityManager -> {
-            return entityManager.createQuery("""
+            TypedQuery<Tuple> query = entityManager.createQuery("""
                 SELECT
                   post_id AS post_id,
                   post_title AS post_title,
@@ -226,7 +227,13 @@ public class DerivedTableTest extends AbstractTest {
                   WHERE p.title LIKE :title
                 ) p_pc
                 ORDER BY post_id, comment_id
-                """, Tuple.class)
+                """, Tuple.class);
+
+            String sqlQuery = SQLExtractor.from(query);
+
+            LOGGER.info("The associated SQL query is [{}]", sqlQuery);
+
+            return query
             .setParameter("title", "SQL%")
             .getResultList();
         });
