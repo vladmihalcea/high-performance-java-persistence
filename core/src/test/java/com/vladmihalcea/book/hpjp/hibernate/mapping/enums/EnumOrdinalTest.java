@@ -1,17 +1,17 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping.enums;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
+import jakarta.persistence.*;
 import org.junit.Test;
 
-import jakarta.persistence.*;
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Vlad Mihalcea
  */
-public class EnumOrdinalTest extends AbstractMySQLIntegrationTest {
+public class EnumOrdinalTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -20,33 +20,50 @@ public class EnumOrdinalTest extends AbstractMySQLIntegrationTest {
         };
     }
 
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
     @Test
     public void test() {
         doInJPA(entityManager -> {
-                Post post = new Post();
-            post.setId(1L);
-                post.setTitle("High-Performance Java Persistence");
-            post.setStatus(PostStatus.PENDING);
-                entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                    .setTitle("Check out my website")
+                    .setStatus(PostStatus.REQUIRES_MODERATOR_INTERVENTION)
+            );
         });
 
-        doInJPA(entityManager -> {
-            Post post = entityManager.createQuery("""
-                select p
-                from Post p
-                where p.status = :status
-                """, Post.class)
-            .setParameter("status", PostStatus.PENDING)
-            .getSingleResult();
+        try {
+            doInJPA(entityManager -> {
+                int postId = 50;
 
-            assertEquals("High-Performance Java Persistence", post.getTitle());
-        });
+                int rowCount = entityManager.createNativeQuery("""
+                    INSERT INTO post (status, title, id)
+                    VALUES (:status, :title, :id)
+                    """)
+                .setParameter("status", 99)
+                .setParameter("title", "Illegal Enum value")
+                .setParameter("id", postId)
+                .executeUpdate();
+
+                assertEquals(1, rowCount);
+
+                Post post = entityManager.find(Post.class, postId);
+
+                fail("Should not map the Enum value of 100!");
+            });
+        } catch (ArrayIndexOutOfBoundsException e) {
+            assertEquals("Index 99 out of bounds for length 4", e.getMessage());
+        }
     }
 
     public enum PostStatus {
         PENDING,
         APPROVED,
-        SPAM
+        SPAM,
+        REQUIRES_MODERATOR_INTERVENTION
     }
 
     @Entity(name = "Post")
@@ -54,36 +71,40 @@ public class EnumOrdinalTest extends AbstractMySQLIntegrationTest {
     public static class Post {
 
         @Id
-        private Long id;
+        @GeneratedValue
+        private Integer id;
 
         private String title;
 
         @Enumerated(EnumType.ORDINAL)
-        @Column(columnDefinition = "tinyint unsigned")
+        @Column(columnDefinition = "NUMERIC(2)")
         private PostStatus status;
 
-        public Long getId() {
+        public Integer getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Integer id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public PostStatus getStatus() {
             return status;
         }
 
-        public void setStatus(PostStatus status) {
+        public Post setStatus(PostStatus status) {
             this.status = status;
+            return this;
         }
     }
 }

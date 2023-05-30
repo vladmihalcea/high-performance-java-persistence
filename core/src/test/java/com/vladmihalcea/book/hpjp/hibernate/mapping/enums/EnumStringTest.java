@@ -1,38 +1,43 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping.enums;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.junit.Test;
-
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import jakarta.persistence.*;
+import org.junit.Test;
 
 /**
  * @author Vlad Mihalcea
  */
-public class EnumStringTest extends AbstractMySQLIntegrationTest {
+public class EnumStringTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class
+            Post.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 
     @Test
     public void test() {
         doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setId(1L);
-            post.setTitle("High-Performance Java Persistence");
-            post.setStatus(PostStatus.PENDING);
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                    .setTitle("Check out my website")
+                    .setStatus(PostStatus.REQUIRES_MODERATOR_INTERVENTION)
+            );
         });
     }
 
     public enum PostStatus {
         PENDING,
         APPROVED,
-        SPAM
+        SPAM,
+        REQUIRES_MODERATOR_INTERVENTION
     }
 
     @Entity(name = "Post")
@@ -40,36 +45,40 @@ public class EnumStringTest extends AbstractMySQLIntegrationTest {
     public static class Post {
 
         @Id
-        private Long id;
+        @GeneratedValue
+        private Integer id;
 
         private String title;
 
         @Enumerated(EnumType.STRING)
-        @Column(length = 8)
+        @Column(length = 31)
         private PostStatus status;
 
-        public Long getId() {
+        public Integer getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Integer id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public PostStatus getStatus() {
             return status;
         }
 
-        public void setStatus(PostStatus status) {
+        public Post setStatus(PostStatus status) {
             this.status = status;
+            return this;
         }
     }
 }

@@ -1,8 +1,10 @@
 package com.vladmihalcea.book.hpjp.spring.data.crud;
 
 import com.vladmihalcea.book.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
+import com.vladmihalcea.book.hpjp.hibernate.mapping.enums.EnumStringTest;
 import com.vladmihalcea.book.hpjp.spring.data.crud.config.SpringDataJPACrudConfiguration;
 import com.vladmihalcea.book.hpjp.spring.data.crud.domain.Post;
+import com.vladmihalcea.book.hpjp.spring.data.crud.domain.PostStatus;
 import com.vladmihalcea.book.hpjp.spring.data.crud.repository.PostRepository;
 import com.vladmihalcea.book.hpjp.spring.data.crud.service.PostService;
 import jakarta.persistence.EntityManager;
@@ -181,6 +183,20 @@ public class SpringDataJPACrudTest {
             return null;
         });
         SQLStatementCountValidator.assertInsertCount(1);
+    }
+
+    @Test
+    public void testSaveSpam() {
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            postRepository.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("Check out my website")
+                    .setSlug("spam")
+                    .setStatus(PostStatus.REQUIRES_MODERATOR_INTERVENTION)
+            );
+            return null;
+        });
     }
 }
 

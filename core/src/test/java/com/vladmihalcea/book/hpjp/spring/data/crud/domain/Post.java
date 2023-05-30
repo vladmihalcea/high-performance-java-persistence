@@ -1,9 +1,6 @@
 package com.vladmihalcea.book.hpjp.spring.data.crud.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import org.hibernate.annotations.NaturalId;
 
 /**
@@ -27,6 +24,10 @@ public class Post {
     @NaturalId
     private String slug;
 
+    @Enumerated(EnumType.ORDINAL)
+    @Column(columnDefinition = "NUMERIC(2)")
+    private PostStatus status;
+
     public Long getId() {
         return id;
     }
@@ -45,8 +46,21 @@ public class Post {
         return this;
     }
 
+    public String getSlug() {
+        return slug;
+    }
+
     public Post setSlug(String slug) {
         this.slug = slug;
+        return this;
+    }
+
+    public PostStatus getStatus() {
+        return status;
+    }
+
+    public Post setStatus(PostStatus status) {
+        this.status = status;
         return this;
     }
 }
