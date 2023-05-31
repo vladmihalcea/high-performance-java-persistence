@@ -1,27 +1,38 @@
 package com.vladmihalcea.book.hpjp.hibernate.mapping.enums;
 
-import com.vladmihalcea.book.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
+import jakarta.persistence.*;
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
 
-import jakarta.persistence.*;
-
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
  */
-public class EnumOrdinalDescriptionTest extends AbstractMySQLIntegrationTest {
+public class EnumOrdinalDescriptionTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostStatusInfo.class
+            Post.class,
+            PostStatusInfo.class
         };
     }
 
-    @Test
-    public void test() {
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
+    @Override
+    public void beforeInit() {
+        executeStatement("DROP TYPE IF EXISTS post_status_info CASCADE");
+    }
+
+    @Override
+    protected void afterInit() {
         doInJPA(entityManager -> {
             PostStatusInfo pending = new PostStatusInfo();
             pending.setId(PostStatus.PENDING.ordinal());
@@ -40,18 +51,28 @@ public class EnumOrdinalDescriptionTest extends AbstractMySQLIntegrationTest {
             spam.setName(PostStatus.SPAM.name());
             spam.setDescription("Posts rejected as spam");
             entityManager.persist(spam);
-        });
 
-        doInJPA(entityManager -> {
+            PostStatusInfo moderated = new PostStatusInfo();
+            moderated.setId(PostStatus.REQUIRES_MODERATOR_INTERVENTION.ordinal());
+            moderated.setName(PostStatus.REQUIRES_MODERATOR_INTERVENTION.name());
+            moderated.setDescription("Posts requires moderator intervention");
+            entityManager.persist(moderated);
+        });
+    }
+
+    @Test
+    public void testPendingPost() {
+        Post _post = doInJPA(entityManager -> {
             Post post = new Post();
-            post.setId(1L);
             post.setTitle("High-Performance Java Persistence");
             post.setStatus(PostStatus.PENDING);
             entityManager.persist(post);
+            
+            return post;
         });
 
         doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, 1L);
+            Post post = entityManager.find(Post.class, _post.getId());
 
             assertEquals(PostStatus.PENDING, post.getStatus());
             assertEquals("PENDING", post.getStatusInfo().getName());
@@ -67,7 +88,7 @@ public class EnumOrdinalDescriptionTest extends AbstractMySQLIntegrationTest {
                 INNER JOIN post_status_info psi ON p.status = psi.id
                 WHERE p.id = :postId
                 """, Tuple.class)
-            .setParameter("postId", 1L)
+            .setParameter("postId", _post.getId())
             .getSingleResult();
 
             assertEquals("PENDING", tuple.get("name"));
@@ -75,10 +96,45 @@ public class EnumOrdinalDescriptionTest extends AbstractMySQLIntegrationTest {
         });
     }
 
+    @Test
+    public void test() {
+        doInJPA(entityManager -> {
+            entityManager.persist(
+                new Post()
+                    .setTitle("Check out my website")
+                    .setStatus(PostStatus.REQUIRES_MODERATOR_INTERVENTION)
+            );
+        });
+
+        try {
+            doInJPA(entityManager -> {
+                int postId = 50;
+
+                int rowCount = entityManager.createNativeQuery("""
+                    INSERT INTO post (status, title, id)
+                    VALUES (:status, :title, :id)
+                    """)
+                    .setParameter("status", 99)
+                    .setParameter("title", "Illegal Enum value")
+                    .setParameter("id", postId)
+                    .executeUpdate();
+
+                assertEquals(1, rowCount);
+
+                Post post = entityManager.find(Post.class, postId);
+
+                fail("Should not map the Enum value of 100!");
+            });
+        } catch (PersistenceException e) {
+            assertTrue(e.getCause() instanceof ConstraintViolationException);
+        }
+    }
+
     public enum PostStatus {
         PENDING,
         APPROVED,
-        SPAM
+        SPAM,
+        REQUIRES_MODERATOR_INTERVENTION
     }
 
     @Entity(name = "Post")
@@ -86,40 +142,44 @@ public class EnumOrdinalDescriptionTest extends AbstractMySQLIntegrationTest {
     public static class Post {
 
         @Id
-        private Long id;
+        @GeneratedValue
+        private Integer id;
 
         private String title;
 
         @Enumerated(EnumType.ORDINAL)
-        @Column(columnDefinition = "tinyint")
+        @Column(columnDefinition = "NUMERIC(2)")
         private PostStatus status;
 
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "status", insertable = false, updatable = false)
         private PostStatusInfo statusInfo;
 
-        public Long getId() {
+        public Integer getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Integer id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public PostStatus getStatus() {
             return status;
         }
 
-        public void setStatus(PostStatus status) {
+        public Post setStatus(PostStatus status) {
             this.status = status;
+            return this;
         }
 
         public PostStatusInfo getStatusInfo() {
@@ -132,7 +192,7 @@ public class EnumOrdinalDescriptionTest extends AbstractMySQLIntegrationTest {
     public static class PostStatusInfo {
 
         @Id
-        @Column(columnDefinition = "tinyint")
+        @Column(columnDefinition = "NUMERIC(2)")
         private Integer id;
 
         private String name;

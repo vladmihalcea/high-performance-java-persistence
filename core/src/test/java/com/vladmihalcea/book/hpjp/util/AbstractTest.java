@@ -86,12 +86,17 @@ public abstract class AbstractTest {
 
     @Before
     public void init() {
+        beforeInit();
         if(nativeHibernateSessionFactoryBootstrap()) {
             sf = newSessionFactory();
         } else {
             emf = newEntityManagerFactory();
         }
         afterInit();
+    }
+
+    protected void beforeInit() {
+
     }
 
     protected void afterInit() {
@@ -117,6 +122,11 @@ public abstract class AbstractTest {
             }
         }
         closeables.clear();
+        afterDestroy();
+    }
+
+    protected void afterDestroy() {
+
     }
 
     public EntityManagerFactory entityManagerFactory() {

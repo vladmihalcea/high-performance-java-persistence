@@ -16,14 +16,20 @@ public class EnumPostgreSQLTest extends AbstractPostgreSQLIntegrationTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
+            Post.class,
         };
     }
 
-    public void init() {
+    @Override
+    protected void beforeInit() {
+        executeStatement("DROP TABLE IF EXISTS post_status_info CASCADE");
         executeStatement("DROP TYPE post_status_info CASCADE");
         executeStatement("CREATE TYPE post_status_info AS ENUM ('PENDING', 'APPROVED', 'SPAM')");
-        super.init();
+    }
+
+    @Override
+    protected void afterDestroy() {
+        executeStatement("DROP TYPE IF EXISTS post_status_info CASCADE");
     }
 
     @Test
