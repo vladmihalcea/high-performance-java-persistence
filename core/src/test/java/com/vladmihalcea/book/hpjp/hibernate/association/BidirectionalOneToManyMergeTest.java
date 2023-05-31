@@ -1,11 +1,11 @@
 package com.vladmihalcea.book.hpjp.hibernate.association;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
-import org.hibernate.jpa.QueryHints;
+import jakarta.persistence.*;
+import org.hibernate.jpa.AvailableHints;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +19,8 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostComment.class,
+            Post.class,
+            PostComment.class,
         };
     }
 
@@ -52,11 +52,12 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
         modifyComments(comments);
 
         doInJPA(entityManager -> {
-            Post post = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments " +
-                "where p.id = :id", Post.class)
+            Post post = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.comments
+                where p.id = :id
+                """, Post.class)
             .setParameter("id", 1L)
             .getSingleResult();
 
@@ -75,11 +76,12 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
         modifyComments(comments);
 
         doInJPA(entityManager -> {
-            Post post = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments " +
-                "where p.id = :id", Post.class)
+            Post post = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.comments
+                where p.id = :id
+                """, Post.class)
             .setParameter("id", 1L)
             .getSingleResult();
 
@@ -104,11 +106,12 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
         modifyComments(comments);
 
         doInJPA(entityManager -> {
-            Post post = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments " +
-                "where p.id = :id", Post.class)
+            Post post = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.comments
+                where p.id = :id
+                """, Post.class)
             .setParameter("id", 1L)
             .getSingleResult();
 
@@ -153,12 +156,13 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
 
     public List<PostComment> fetchPostComments(Long postId) {
         return doInJPA(entityManager -> {
-            return entityManager.createQuery(
-                "select pc " +
-                "from PostComment pc " +
-                "join pc.post p " +
-                "where p.id = :postId " +
-                "order by pc.id", PostComment.class)
+            return entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                join pc.post p
+                where p.id = :postId
+                order by pc.id
+                """, PostComment.class)
             .setParameter("postId", postId)
             .getResultList();
         });
@@ -166,29 +170,29 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
 
     public Post fetchPostWithComments(Long postId) {
         return doInJPA(entityManager -> {
-            return entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments " +
-                "where p.id = :postId ", Post.class)
-            .setHint(QueryHints.HINT_READONLY, true)
+            return entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.comments
+                where p.id = :postId
+                """, Post.class)
+            .setHint(AvailableHints.HINT_READ_ONLY, true)
             .setParameter("postId", postId)
             .getSingleResult();
         });
     }
 
     private void modifyComments(List<PostComment> comments) {
-        comments.get(0)
-        .setReview("The JDBC part is a must-have!");
+        comments.get(0).setReview("The JDBC part is a must-have!");
 
         comments.remove(2);
 
         comments.add(
             new PostComment()
-            .setReview(
-                "The last part is about jOOQ and " +
-                "how to get the most of your relational database."
-            )
+                .setReview(
+                    "The last part is about jOOQ and " +
+                    "how to get the most of your relational database."
+                )
         );
     }
 
@@ -208,12 +212,13 @@ public class BidirectionalOneToManyMergeTest extends AbstractTest {
 
     private void verifyResults() {
         doInJPA(entityManager -> {
-            Post post = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments c " +
-                "where p.id = :id " +
-                "order by c.id", Post.class)
+            Post post = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.comments c
+                where p.id = :id
+                order by c.id
+                """, Post.class)
             .setParameter("id", 1L)
             .getSingleResult();
 
