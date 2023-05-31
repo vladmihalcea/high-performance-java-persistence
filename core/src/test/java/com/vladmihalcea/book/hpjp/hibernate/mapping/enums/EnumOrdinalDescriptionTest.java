@@ -106,28 +106,24 @@ public class EnumOrdinalDescriptionTest extends AbstractTest {
             );
         });
 
-        try {
-            doInJPA(entityManager -> {
-                int postId = 50;
+        doInJPA(entityManager -> {
+            int postId = 50;
 
-                int rowCount = entityManager.createNativeQuery("""
+            try {
+                entityManager.createNativeQuery("""
                     INSERT INTO post (status, title, id)
                     VALUES (:status, :title, :id)
                     """)
-                    .setParameter("status", 99)
-                    .setParameter("title", "Illegal Enum value")
-                    .setParameter("id", postId)
-                    .executeUpdate();
+                .setParameter("status", 99)
+                .setParameter("title", "Illegal Enum value")
+                .setParameter("id", postId)
+                .executeUpdate();
 
-                assertEquals(1, rowCount);
-
-                Post post = entityManager.find(Post.class, postId);
-
-                fail("Should not map the Enum value of 100!");
-            });
-        } catch (PersistenceException e) {
-            assertTrue(e.getCause() instanceof ConstraintViolationException);
-        }
+                fail("Should not allow us to insert an Enum value of 100!");
+            } catch (PersistenceException e) {
+                assertTrue(e.getCause() instanceof ConstraintViolationException);
+            }
+        });
     }
 
     public enum PostStatus {
@@ -152,7 +148,14 @@ public class EnumOrdinalDescriptionTest extends AbstractTest {
         private PostStatus status;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "status", insertable = false, updatable = false)
+        @JoinColumn(
+            name = "status",
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(
+                name = "status_id"
+            )
+        )
         private PostStatusInfo statusInfo;
 
         public Integer getId() {
@@ -195,6 +198,7 @@ public class EnumOrdinalDescriptionTest extends AbstractTest {
         @Column(columnDefinition = "NUMERIC(2)")
         private Integer id;
 
+        @Column(length = 50)
         private String name;
 
         private String description;
