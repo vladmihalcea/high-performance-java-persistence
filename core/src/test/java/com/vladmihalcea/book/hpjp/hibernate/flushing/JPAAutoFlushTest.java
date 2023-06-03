@@ -1,6 +1,7 @@
 package com.vladmihalcea.book.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.book.hpjp.util.AbstractTest;
+import com.vladmihalcea.book.hpjp.util.providers.Database;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
 import org.junit.Test;
@@ -26,6 +27,10 @@ public class JPAAutoFlushTest extends AbstractTest {
             Tag.class
         };
     }
+    @Override
+    protected Database database() {
+        return Database.MYSQL;
+    }
 
     @Override
     protected boolean nativeHibernateSessionFactoryBootstrap() {
@@ -36,31 +41,55 @@ public class JPAAutoFlushTest extends AbstractTest {
     public void testFlushAutoJPQL() {
         doInJPA(entityManager -> {
             assertEquals(
-                0,
-                ((Number) entityManager.createQuery("""
+                    0,
+                    ((Number) entityManager.createQuery("""
                         select count(p)
                         from Post p
                         """)
-                    .getSingleResult()
-                ).intValue()
+                            .getSingleResult()
+                    ).intValue()
             );
 
             entityManager.persist(
-                new Post()
-                .setTitle("High-Performance Java Persistence")
+                    new Post()
+                            .setTitle("High-Performance Java Persistence")
             );
 
             int tagCount = ((Number) entityManager.createQuery("""
                 select count(t)
                 from Tag t
                 """)
-            .getSingleResult()).intValue();
+                    .getSingleResult()).intValue();
 
-            int postCount = ((Number) entityManager.createQuery("""
-                select count(p)
-                from Post p
+            int postCount = 0;
+
+
+            try{
+                postCount = ((Number) entityManager.createQuery("""
+                    select count(p)
+                    from Post p
                 """)
-            .getSingleResult()).intValue();
+                        .getSingleResult()).intValue();
+                // do some logic with post count
+                // here is exception happen
+                throw new RuntimeException("Error while process transaction");
+            }catch (Exception e){
+                // the problem as show here that postCount variable is one but in DB after exception it is 0.
+                // it's seems like inconsistent or synchronize issue
+                // audit transaction and use the postCount variable
+                LOGGER.info("postCount variable value {}",postCount);
+                LOGGER.info("post count value in DB {}",((Number) entityManager.createQuery("""
+                                                            select count(p)
+                                                            from Post p
+                                                            """)
+                        .getSingleResult()).intValue()
+                );
+            }finally {
+                LOGGER.info("postCount is {}",postCount);
+                // the problem can happen here also
+            }
+            // maybe we need to return postCount variable to caller to use it in other logic
+            // return postCount
 
             assertEquals(1, postCount);
         });
