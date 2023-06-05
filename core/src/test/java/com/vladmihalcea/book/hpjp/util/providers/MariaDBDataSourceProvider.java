@@ -2,8 +2,10 @@ package com.vladmihalcea.book.hpjp.util.providers;
 
 import com.vladmihalcea.book.hpjp.util.providers.queries.MySQLQueries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
-import org.hibernate.dialect.MySQLDialect;
+import com.zaxxer.hikari.util.DriverDataSource;
+import org.hibernate.dialect.MariaDBDialect;
 import org.mariadb.jdbc.MariaDbDataSource;
+import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -12,7 +14,7 @@ import java.util.Properties;
 /**
  * @author Vlad Mihalcea
  */
-public class MariaDBDataSourceProvider implements DataSourceProvider {
+public class MariaDBDataSourceProvider extends AbstractContainerDataSourceProvider {
 
     private boolean rewriteBatchedStatements = true;
 
@@ -76,23 +78,38 @@ public class MariaDBDataSourceProvider implements DataSourceProvider {
 
     @Override
     public String hibernateDialect() {
-        return MySQLDialect.class.getName();
+        return MariaDBDialect.class.getName();
     }
 
     @Override
-    public DataSource dataSource() {
+    protected String defaultJdbcUrl() {
+        return "jdbc:mariadb://localhost/high_performance_java_persistence " +
+               "?rewriteBatchedStatements=" + rewriteBatchedStatements +
+               "&cachePrepStmts=" + cachePrepStmts +
+               "&useServerPrepStmts=" + useServerPrepStmts;
+    }
+
+    @Override
+    protected DataSource newDataSource() {
+        JdbcDatabaseContainer container = database().getContainer();
+        if(container != null) {
+            Properties properties = new Properties();
+            properties.setProperty("rewriteBatchedStatements", String.valueOf(rewriteBatchedStatements));
+            properties.setProperty("cachePrepStmts", String.valueOf(cachePrepStmts));
+            properties.setProperty("useServerPrepStmts", String.valueOf(useServerPrepStmts));
+            return new DriverDataSource(
+                container.getJdbcUrl(),
+                container.getDriverClassName(),
+                properties,
+                container.getUsername(),
+                container.getPassword()
+            );
+        }
         MariaDbDataSource dataSource = new MariaDbDataSource();
         try {
-            dataSource.setUrl("jdbc:mariadb://localhost/high_performance_java_persistence?" +
-                    "rewriteBatchedStatements=" + rewriteBatchedStatements +
-                    "&cachePrepStmts=" + cachePrepStmts +
-                    "&useServerPrepStmts=" + useServerPrepStmts +
-                    "&useTimezone=" + useTimezone +
-                    "&useJDBCCompliantTimezoneShift=" + useJDBCCompliantTimezoneShift +
-                    "&useLegacyDatetimeCode=" + useLegacyDatetimeCode
-            );
-            dataSource.setUser("root");
-            dataSource.setPassword("admin");
+            dataSource.setUrl(defaultJdbcUrl());
+            dataSource.setUser(username());
+            dataSource.setPassword(password());
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
@@ -112,18 +129,13 @@ public class MariaDBDataSourceProvider implements DataSourceProvider {
     }
 
     @Override
-    public String url() {
-        return "jdbc:mariadb://localhost/high_performance_java_persistence?user=root&password=admin";
-    }
-
-    @Override
     public String username() {
-        return null;
+        return "mariadb";
     }
 
     @Override
     public String password() {
-        return null;
+        return "admin";
     }
 
     @Override
@@ -133,7 +145,7 @@ public class MariaDBDataSourceProvider implements DataSourceProvider {
 
     @Override
     public String toString() {
-        return "MySQLDataSourceProvider{" +
+        return "MariaDBDataSourceProvider{" +
                 "rewriteBatchedStatements=" + rewriteBatchedStatements +
                 ", cachePrepStmts=" + cachePrepStmts +
                 ", useServerPrepStmts=" + useServerPrepStmts +

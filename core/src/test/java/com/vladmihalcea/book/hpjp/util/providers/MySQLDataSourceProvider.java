@@ -1,10 +1,8 @@
 package com.vladmihalcea.book.hpjp.util.providers;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
-import com.vladmihalcea.book.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.book.hpjp.util.providers.queries.MySQLQueries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
-import org.hibernate.dialect.MySQL8Dialect;
 import org.hibernate.dialect.MySQLDialect;
 
 import javax.sql.DataSource;
@@ -14,7 +12,7 @@ import java.util.Properties;
 /**
  * @author Vlad Mihalcea
  */
-public class MySQLDataSourceProvider implements DataSourceProvider {
+public class MySQLDataSourceProvider extends AbstractContainerDataSourceProvider {
 
     private Boolean rewriteBatchedStatements;
 
@@ -110,19 +108,15 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
     }
 
     @Override
-    public DataSource dataSource() {
+    protected String defaultJdbcUrl() {
+        return "jdbc:mysql://localhost/high_performance_java_persistence?useSSL=false";
+    }
+
+    @Override
+    protected DataSource newDataSource() {
         try {
             MysqlDataSource dataSource = new MysqlDataSource();
-
-            String url = "jdbc:mysql://localhost/high_performance_java_persistence?useSSL=false";
-
-            if(!MySQL8Dialect.class.isAssignableFrom(ReflectionUtils.getClass(hibernateDialect()))) {
-                url += "&useTimezone=" + useTimezone +
-                        "&useJDBCCompliantTimezoneShift=" + useJDBCCompliantTimezoneShift +
-                        "&useLegacyDatetimeCode=" + useLegacyDatetimeCode;
-            }
-
-            dataSource.setURL(url);
+            dataSource.setURL(url());
             dataSource.setUser(username());
             dataSource.setPassword(password());
 
@@ -144,7 +138,7 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
 
             return dataSource;
         } catch (SQLException e) {
-            throw new IllegalArgumentException(e);
+            throw new IllegalStateException("The DataSource could not be instantiated!");
         }
     }
 
@@ -158,11 +152,6 @@ public class MySQLDataSourceProvider implements DataSourceProvider {
         Properties properties = new Properties();
         properties.setProperty("url", url());
         return properties;
-    }
-
-    @Override
-    public String url() {
-        return "jdbc:mysql://localhost/high_performance_java_persistence?user=mysql&password=admin";
     }
 
     @Override

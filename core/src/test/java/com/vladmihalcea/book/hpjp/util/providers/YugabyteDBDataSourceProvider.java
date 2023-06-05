@@ -2,8 +2,10 @@ package com.vladmihalcea.book.hpjp.util.providers;
 
 import com.vladmihalcea.book.hpjp.util.providers.queries.PostgreSQLQueries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
+import com.zaxxer.hikari.util.DriverDataSource;
 import org.hibernate.dialect.PostgreSQLDialect;
 import org.postgresql.ds.PGSimpleDataSource;
+import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -11,7 +13,7 @@ import java.util.Properties;
 /**
  * @author Vlad Mihalcea
  */
-public class YugabyteDBDataSourceProvider implements DataSourceProvider {
+public class YugabyteDBDataSourceProvider extends AbstractContainerDataSourceProvider {
 
     @Override
     public String hibernateDialect() {
@@ -19,7 +21,21 @@ public class YugabyteDBDataSourceProvider implements DataSourceProvider {
     }
 
     @Override
-    public DataSource dataSource() {
+    protected String defaultJdbcUrl() {
+        return "jdbc:postgresql://127.0.0.1:5433/high_performance_java_persistence";
+    }
+
+    protected DataSource newDataSource() {
+        JdbcDatabaseContainer container = database().getContainer();
+        if(container != null) {
+            return new DriverDataSource(
+                container.getJdbcUrl(),
+                container.getDriverClassName(),
+                new Properties(),
+                container.getUsername(),
+                container.getPassword()
+            );
+        }
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
         dataSource.setURL(url());
         dataSource.setUser(username());
@@ -38,11 +54,6 @@ public class YugabyteDBDataSourceProvider implements DataSourceProvider {
         properties.setProperty("user", username());
         properties.setProperty("password", password());
         return properties;
-    }
-
-    @Override
-    public String url() {
-        return "jdbc:postgresql://127.0.0.1:5433/high_performance_java_persistence";
     }
 
     @Override

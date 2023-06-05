@@ -30,6 +30,18 @@
         </profile>
     </profiles>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
 
         <dependency>
@@ -415,6 +427,50 @@
             <scope>test</scope>
         </dependency>-->
 
+        <!-- Test containers -->
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mysql</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>oracle-xe</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mssqlserver</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mariadb</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>yugabytedb</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>cockroachdb</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <properties>
@@ -438,6 +494,7 @@
         <datasource-proxy.version>1.6</datasource-proxy.version>
         <p6spy.version>3.9.1</p6spy.version>
 
+        <testcontainers.version>1.18.3</testcontainers.version>
         <hsqldb.version>2.7.1</hsqldb.version>
         <postgresql.version>42.3.8</postgresql.version>
         <oracle.version>19.3.0.0</oracle.version>

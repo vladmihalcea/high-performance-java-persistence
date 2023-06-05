@@ -12,7 +12,7 @@ import java.util.Properties;
 /**
  * @author Vlad Mihalcea
  */
-public class PostgreSQLDataSourceProvider implements DataSourceProvider {
+public class PostgreSQLDataSourceProvider extends AbstractContainerDataSourceProvider {
 
     private Boolean reWriteBatchedInserts;
 
@@ -31,15 +31,19 @@ public class PostgreSQLDataSourceProvider implements DataSourceProvider {
     }
 
     @Override
-    public DataSource dataSource() {
+    protected String defaultJdbcUrl() {
+        return "jdbc:postgresql://localhost/high_performance_java_persistence";
+    }
+
+    protected DataSource newDataSource() {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
-        dataSource.setDatabaseName("high_performance_java_persistence");
-        dataSource.setServerName("localhost");
-        dataSource.setUser("postgres");
-        dataSource.setPassword("admin");
+        dataSource.setURL(url());
+        dataSource.setUser(username());
+        dataSource.setPassword(password());
         if (reWriteBatchedInserts != null) {
             dataSource.setReWriteBatchedInserts(reWriteBatchedInserts);
         }
+
         return dataSource;
     }
 
@@ -59,11 +63,6 @@ public class PostgreSQLDataSourceProvider implements DataSourceProvider {
             properties.setProperty("reWriteBatchedInserts", String.valueOf(reWriteBatchedInserts));
         }
         return properties;
-    }
-
-    @Override
-    public String url() {
-        return "jdbc:postgresql://localhost/high_performance_java_persistence";
     }
 
     @Override

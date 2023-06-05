@@ -78,7 +78,7 @@ public class MySQLEncryptTest extends AbstractTest {
 			update(
 				connection,
 				String.format(
-					"SET @encryption_key = '%s'", encryptionKey
+					"SET @encryption_key = %s", encryptionKey
 				)
 			);
 		});

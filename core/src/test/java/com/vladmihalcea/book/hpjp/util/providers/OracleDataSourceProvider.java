@@ -3,6 +3,7 @@ package com.vladmihalcea.book.hpjp.util.providers;
 import com.vladmihalcea.book.hpjp.util.providers.queries.OracleQueries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
 import oracle.jdbc.pool.OracleDataSource;
+import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -10,17 +11,28 @@ import java.util.Properties;
 /**
  * @author Vlad Mihalcea
  */
-public class OracleDataSourceProvider implements DataSourceProvider {
+public class OracleDataSourceProvider extends AbstractContainerDataSourceProvider {
+
 	@Override
 	public String hibernateDialect() {
 		return FastOracleDialect.class.getName();
 	}
 
 	@Override
-	public DataSource dataSource() {
+	public String defaultJdbcUrl() {
+		return "jdbc:oracle:thin:@localhost:1521/xe";
+	}
+
+	@Override
+	public DataSource newDataSource() {
 		try {
 			OracleDataSource dataSource = new OracleDataSource();
-			dataSource.setDatabaseName("high_performance_java_persistence");
+			JdbcDatabaseContainer container = database().getContainer();
+			if(container == null) {
+				dataSource.setDatabaseName("high_performance_java_persistence");
+			} else {
+				dataSource.setDatabaseName(container.getDatabaseName());
+			}
 			dataSource.setURL(url());
 			dataSource.setUser(username());
 			dataSource.setPassword(password());
@@ -43,12 +55,6 @@ public class OracleDataSourceProvider implements DataSourceProvider {
 		properties.setProperty("user", username());
 		properties.setProperty("password", password());
 		return properties;
-	}
-
-	@Override
-	public String url() {
-		return "jdbc:oracle:thin:@localhost:1521:xe";
-		//return "jdbc:oracle:thin:@localhost:1521:orclpdb1";
 	}
 
 	@Override

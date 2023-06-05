@@ -4,6 +4,7 @@ import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.vladmihalcea.book.hpjp.util.providers.queries.Queries;
 import com.vladmihalcea.book.hpjp.util.providers.queries.SQLServerQueries;
 import org.hibernate.dialect.SQLServerDialect;
+import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -11,7 +12,7 @@ import java.util.Properties;
 /**
  * @author Vlad Mihalcea
  */
-public class SQLServerDataSourceProvider implements DataSourceProvider {
+public class SQLServerDataSourceProvider extends AbstractContainerDataSourceProvider {
 
 	private boolean sendStringParametersAsUnicode = false;
 
@@ -29,13 +30,23 @@ public class SQLServerDataSourceProvider implements DataSourceProvider {
 	}
 
 	@Override
-	public DataSource dataSource() {
+	public String defaultJdbcUrl() {
+		return "jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence;encrypt=true;trustServerCertificate=true";
+	}
+
+	@Override
+	public DataSource newDataSource() {
 		SQLServerDataSource dataSource = new SQLServerDataSource();
-		String url = "jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence;encrypt=true;trustServerCertificate=true;";
-		url += "sendStringParametersAsUnicode=" + sendStringParametersAsUnicode;
-		dataSource.setURL(url);
-		dataSource.setUser("sa");
-		dataSource.setPassword("adm1n");
+		dataSource.setURL(url());
+		JdbcDatabaseContainer container = database().getContainer();
+		if(container == null) {
+			dataSource.setUser(username());
+			dataSource.setPassword(password());
+		} else {
+			dataSource.setUser(container.getUsername());
+			dataSource.setPassword(container.getPassword());
+		}
+		dataSource.setSendStringParametersAsUnicode(sendStringParametersAsUnicode);
 		return dataSource;
 	}
 
@@ -49,11 +60,6 @@ public class SQLServerDataSourceProvider implements DataSourceProvider {
 		Properties properties = new Properties();
 		properties.setProperty( "URL", url() );
 		return properties;
-	}
-
-	@Override
-	public String url() {
-		return "jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence;user=sa;password=adm1n";
 	}
 
 	@Override

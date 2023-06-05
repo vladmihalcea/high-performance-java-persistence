@@ -1,13 +1,10 @@
 package com.vladmihalcea.book.hpjp.hibernate.identifier.batch;
 
-import com.vladmihalcea.book.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.book.hpjp.util.providers.Database;
-import com.vladmihalcea.book.hpjp.util.providers.MariaDBDataSourceProvider;
-import org.hibernate.dialect.MariaDB102Dialect;
+import jakarta.persistence.*;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import jakarta.persistence.*;
 import java.util.Properties;
 
 public class MariaDBIdentifierTest extends AbstractBatchIdentifierTest {
@@ -24,16 +21,6 @@ public class MariaDBIdentifierTest extends AbstractBatchIdentifierTest {
         return Database.MARIADB;
     }
 
-    /*@Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new MariaDBDataSourceProvider() {
-            @Override
-            public String hibernateDialect() {
-                return MariaDB102Dialect.class.getName();
-            }
-        };
-    }*/
-
     @Override
     protected Properties properties() {
         Properties properties = super.properties();
@@ -42,7 +29,6 @@ public class MariaDBIdentifierTest extends AbstractBatchIdentifierTest {
     }
 
     @Test
-    @Ignore
     public void testSequenceIdentifierGenerator() {
         doInJPA(entityManager -> {
             for (int i = 0; i < 3; i++) {

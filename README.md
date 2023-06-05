@@ -56,57 +56,26 @@ On IntelliJ IDEA, the project runs just fine. You will have to make sure to sele
 
 ## Database setup
 
-The Integration Tests require some external configurations:
+The project uses various database systems for integration testing, and you can configure the JDBC connection settings using the
+`DatasourceProvider` instances (e.g., `PostgreSQLDataSourceProvider`).
 
-### Docker-compose Database setup
+By default, without configuring any database explicitly, HSQLDB is used for testing.
 
-Use the provided docker compose file in the `docker` subdirectory.
+However, since some integration tests are designed to work on specific relational databases, we will need to have those databases started prior to running those tests.
 
-The following manual steps are necessary:
+Therefore, when running a DB-specific test, this GitHub repository will execute the following steps:
 
-For MS-SQL:
-
-    docker exec -it sql1 "bash"
-    ...       
-    /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "adminPassword1!"
-    ...
-    CREATE DATABASE high_performance_java_persistence
-    GO
-
-    ALTER LOGIN sa
-    WITH CHECK_POLICY = OFF
-    GO
-
-    ALTER LOGIN sa
-    WITH PASSWORD = 'admin'
-    GO
-
-    exit
-    ...
-    exit
-
-For Oracle-XE:
-
-    docker exec -it oraclexe "bash"
-    ...
-    sqlplus sys as sysdba
-    ...
-    alter session set "_ORACLE_SCRIPT"=true;
-    create user oracle identified by admin default tablespace users;
-    grant dba to oracle;
-    alter system set processes=1000 scope=spfile;
-    alter system set sessions=1000 scope=spfile;
-    ALTER PROFILE DEFAULT LIMIT PASSWORD_LIFE_TIME UNLIMITED;
-    ...
-    quit
-    ...
-    exit
+1. First, the test will try to find whether there's a local RDBMS it can use to run the test.
+2. If no local database is found, the integration tests will use Testcontainers to bootstrap a Docker container
+with the required *Oracle*, *SQL Server*, *PostgreSQL*, *MySQL*, *MariaDB*, *YugabyteDB*, or *CockroachDB* instance on demand.
+   
+> While you don't need to install any database manually on your local OS, this is recommended since your tests will run much faster than if they used Testcontainers.
 
 ### Manual Database configuration
 
 - PostgreSQL
 
-    You should install PostgreSQL and the password for the `postgres` user should be `admin`.
+    You can install PostgreSQL, and the password for the `postgres` user should be `admin`.
 
     Now you need to create a `high_performance_java_persistence` database.
     
@@ -137,11 +106,11 @@ For Oracle-XE:
   
 - MySQL
 
-    You should install MySQL 8 and the password for the `mysql` user should be `admin`.
+    You should install MySQL 8, and the password for the `mysql` user should be `admin`.
 
     Now, you need to create a `high_performance_java_persistence` schema
 
-    Beside having all privileges on this schema, the `mysql` user also requires select permission on `mysql.PROC`.
+    Besides having all privileges on this schema, the `mysql` user also requires select permission on `mysql.PROC`.
     
     If you don't have a `mysql` user created at database installation time, you can create one as follows:
     
@@ -159,7 +128,7 @@ For Oracle-XE:
 
 - SQL Server
 
-    You should install SQL Server Express Edition with Tools. Chose mixed mode authentication and set the `sa` user password to `adm1n`.
+    You can install SQL Server Express Edition with Tools. Choose mixed mode authentication and set the `sa` user password to `adm1n`.
 
     Open SQL Server Configuration Manager -> SQL Server Network Configuration and enable Named Pipes and TCP
     
