@@ -92,6 +92,7 @@ public abstract class AbstractFlywayConfiguration {
     protected Properties additionalProperties() {
         Properties properties = new Properties();
         properties.setProperty("hibernate.dialect", hibernateDialect);
+        /*properties.setProperty("hibernate.hbm2ddl.auto", "validate");*/
         return properties;
     }
 

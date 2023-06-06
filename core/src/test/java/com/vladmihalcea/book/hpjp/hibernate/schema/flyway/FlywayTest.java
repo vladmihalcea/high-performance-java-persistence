@@ -1,10 +1,29 @@
 package com.vladmihalcea.book.hpjp.hibernate.schema.flyway;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceUnit;
+import jakarta.persistence.spi.PersistenceUnitInfo;
+import org.hibernate.boot.model.relational.ContributableDatabaseObject;
+import org.hibernate.boot.spi.MetadataImplementor;
+import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.engine.config.spi.StandardConverters;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.hibernate.jpa.boot.spi.Bootstrap;
+import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
+import org.hibernate.service.spi.ServiceRegistryImplementor;
+import org.hibernate.tool.schema.internal.ExceptionHandlerHaltImpl;
+import org.hibernate.tool.schema.internal.ExceptionHandlerLoggedImpl;
+import org.hibernate.tool.schema.spi.*;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -12,8 +31,8 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import java.util.Collections;
+import java.util.Map;
 
 import static com.vladmihalcea.book.hpjp.hibernate.schema.flyway.FlywayEntities.Post;
 
@@ -33,6 +52,9 @@ public class FlywayTest {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
+    @Autowired
+    private LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean;
+
     @Test
     public void test() {
         try {
@@ -44,5 +66,34 @@ public class FlywayTest {
         } catch (TransactionException e) {
             LOGGER.error("Failure", e);
         }
+    }
+
+    @Test
+    @Ignore
+    public void testValidate() {
+        Map<String, Object> settings = localContainerEntityManagerFactoryBean.getJpaPropertyMap();
+        EntityManagerFactoryBuilder entityManagerFactoryBuilder = Bootstrap.getEntityManagerFactoryBuilder(
+            localContainerEntityManagerFactoryBean.getPersistenceUnitInfo(),
+            settings
+        );
+        MetadataImplementor metadataImplementor = entityManagerFactoryBuilder.metadata();
+        EntityManagerFactory entityManagerFactory = entityManagerFactoryBuilder.build();
+
+        SessionFactoryImplementor sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor.class);
+        ServiceRegistryImplementor serviceRegistry = sessionFactory.getServiceRegistry();
+        SchemaManagementTool tool = serviceRegistry.getService(SchemaManagementTool.class);
+        Map<String,Object> options = Collections.emptyMap();
+        SchemaValidator schemaValidator = tool.getSchemaValidator(options);
+
+        final ExecutionOptions executionOptions = SchemaManagementToolCoordinator.buildExecutionOptions(
+            settings,
+            ExceptionHandlerHaltImpl.INSTANCE
+        );
+
+        schemaValidator.doValidation(
+            metadataImplementor,
+            executionOptions,
+            contributed -> contributed.getContributor().equals("orm")
+        );
     }
 }
