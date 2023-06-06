@@ -109,6 +109,7 @@ public class FlywayEntities {
 
         @OneToOne(fetch = FetchType.LAZY)
         @MapsId
+        @JoinColumn(name = "id")
         private Post post;
 
         public Long getId() {
