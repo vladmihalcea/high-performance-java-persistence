@@ -17,7 +17,7 @@ public abstract class AbstractJOOQOracleSQLIntegrationTest extends AbstractJOOQI
 
     @Override
     protected SQLDialect sqlDialect() {
-        return SQLDialect.ORACLE11G;
+        return SQLDialect.ORACLE18C;
     }
 
     protected DataSourceProvider dataSourceProvider() {

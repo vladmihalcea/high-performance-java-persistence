@@ -32,6 +32,7 @@ public abstract class AbstractJOOQIntegrationTest extends AbstractTest {
     @Override
     protected Properties properties() {
         Properties properties = super.properties();
+        properties.put("hibernate.hbm2ddl.auto", "create-drop");
         properties.setProperty("hibernate.hbm2ddl.import_files", String.format("%s/%s", ddlFolder(), ddlScript()));
         return properties;
     }
