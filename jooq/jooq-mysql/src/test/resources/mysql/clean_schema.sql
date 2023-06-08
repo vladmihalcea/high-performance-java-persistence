@@ -1,0 +1,13 @@
+DELETE FROM post_tag;
+DELETE FROM tag;
+DELETE FROM post_details;
+DELETE FROM post_comment_details;
+DELETE FROM post_comment;
+DELETE FROM post;
+
+ALTER TABLE post_tag AUTO_INCREMENT = 1;
+ALTER TABLE tag AUTO_INCREMENT = 1;
+ALTER TABLE post_details AUTO_INCREMENT = 1;
+ALTER TABLE post_comment_details AUTO_INCREMENT = 1;
+ALTER TABLE post_comment AUTO_INCREMENT = 1;
+ALTER TABLE post AUTO_INCREMENT = 1;

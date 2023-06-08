@@ -22,14 +22,7 @@ public class HibernateFlushTest extends AbstractJOOQMySQLIntegrationTest {
 
     @Override
     protected String ddlScript() {
-        return null;
-    }
-
-    @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
-        properties.remove("hibernate.hbm2ddl.import_files");
-        return properties;
+        return "clean_schema.sql";
     }
 
     @Test
