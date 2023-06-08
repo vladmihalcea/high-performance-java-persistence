@@ -20,7 +20,7 @@ public class KeysetPaginationTest extends AbstractJOOQOracleSQLIntegrationTest {
 
     @Override
     protected String ddlScript() {
-        return "initial_schema.sql";
+        return "clean_schema.sql";
     }
 
     @Test
@@ -46,7 +46,7 @@ public class KeysetPaginationTest extends AbstractJOOQOracleSQLIntegrationTest {
 
                 sql
                 .insertInto(POST_DETAILS).columns(POST_DETAILS.ID, POST_DETAILS.CREATED_ON, POST_DETAILS.CREATED_BY)
-                .values(BigInteger.valueOf(i), Timestamp.valueOf(now.plusHours(i / 10)), user)
+                .values(BigInteger.valueOf(i), now.plusHours(i / 10), user)
                 .execute();
             }
         });
@@ -89,7 +89,7 @@ public class KeysetPaginationTest extends AbstractJOOQOracleSQLIntegrationTest {
 
     public List<PostSummary> nextPage(int pageSize, PostSummary offsetPostSummary) {
         return doInJOOQ(sql -> {
-            SelectSeekStep2<Record3<BigInteger, String, Timestamp>, Timestamp, BigInteger> selectStep = sql
+            SelectSeekStep2<Record3<BigInteger, String, LocalDateTime>, LocalDateTime, BigInteger> selectStep = sql
                     .select(POST.ID, POST.TITLE, POST_DETAILS.CREATED_ON)
                     .from(POST)
                     .join(POST_DETAILS).on(POST.ID.eq(POST_DETAILS.ID))
@@ -115,9 +115,9 @@ public class KeysetPaginationTest extends AbstractJOOQOracleSQLIntegrationTest {
 
         private final String title;
 
-        private final Timestamp createdOn;
+        private final LocalDateTime createdOn;
 
-        public PostSummary(Long id, String title, Timestamp createdOn) {
+        public PostSummary(Long id, String title, LocalDateTime createdOn) {
             this.id = id;
             this.title = title;
             this.createdOn = createdOn;
@@ -131,7 +131,7 @@ public class KeysetPaginationTest extends AbstractJOOQOracleSQLIntegrationTest {
             return title;
         }
 
-        public Timestamp getCreatedOn() {
+        public LocalDateTime getCreatedOn() {
             return createdOn;
         }
     }

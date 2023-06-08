@@ -19,7 +19,7 @@ public class UpsertTest extends AbstractJOOQOracleSQLIntegrationTest {
 
     @Override
     protected String ddlScript() {
-        return "initial_schema.sql";
+        return "clean_schema.sql";
     }
 
     @Test
@@ -34,11 +34,11 @@ public class UpsertTest extends AbstractJOOQOracleSQLIntegrationTest {
 
             executeAsync(() -> {
                 upsertPostDetails(sql, BigInteger.valueOf(1), "Alice",
-                        Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
+                        LocalDateTime.now());
             });
             executeAsync(() -> {
                 upsertPostDetails(sql, BigInteger.valueOf(1), "Bob",
-                        Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
+                        LocalDateTime.now());
             });
 
             awaitTermination(1, TimeUnit.SECONDS);
@@ -46,7 +46,7 @@ public class UpsertTest extends AbstractJOOQOracleSQLIntegrationTest {
     }
 
     private void upsertPostDetails(
-        DSLContext sql, BigInteger id, String owner, Timestamp timestamp) {
+        DSLContext sql, BigInteger id, String owner, LocalDateTime timestamp) {
         sql
         .insertInto(POST_DETAILS)
         .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)

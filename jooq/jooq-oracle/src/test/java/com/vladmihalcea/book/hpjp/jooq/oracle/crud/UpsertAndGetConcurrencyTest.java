@@ -26,7 +26,7 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQOracleSQLIntegratio
 
     @Override
     protected String ddlScript() {
-        return "initial_schema.sql";
+        return "clean_schema.sql";
     }
 
     private final CountDownLatch aliceLatch = new CountDownLatch(1);
@@ -45,7 +45,7 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQOracleSQLIntegratio
             sql
             .insertInto(POST_DETAILS)
             .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)
-            .values(BigInteger.valueOf(1), "Alice", Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)))
+            .values(BigInteger.valueOf(1), "Alice", LocalDateTime.now())
             .onDuplicateKeyIgnore()
             .execute();
 
@@ -59,7 +59,7 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQOracleSQLIntegratio
                         _sql
                         .insertInto(POST_DETAILS)
                         .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)
-                        .values(BigInteger.valueOf(1), "Bob", Timestamp.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)))
+                        .values(BigInteger.valueOf(1), "Bob", LocalDateTime.now())
                         .onDuplicateKeyIgnore()
                         .execute();
                     });

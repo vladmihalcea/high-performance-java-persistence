@@ -25,7 +25,6 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -35,13 +34,9 @@
                 <artifactId>sql-maven-plugin</artifactId>
                 <dependencies>
                     <dependency>
-                        <groupId>com.oracle</groupId>
-                        <artifactId>ojdbc7_g</artifactId>
-                        <version>12.1.0.1</version>
-                        <!-- Fails with Maven -->
-                        <!--<groupId>com.oracle.jdbc</groupId>
+                        <groupId>com.oracle.database.jdbc</groupId>
                         <artifactId>ojdbc8</artifactId>
-                        <version>${oracle.version}</version>-->
+                        <version>${oracle.version}</version>
                     </dependency>
                 </dependencies>
                 <configuration>
@@ -89,12 +84,9 @@
                 </executions>
                 <dependencies>
                     <dependency>
-                        <!--<groupId>com.oracle.jdbc</groupId>
+                        <groupId>com.oracle.database.jdbc</groupId>
                         <artifactId>ojdbc8</artifactId>
-                        <version>${oracle.version}</version>-->
-                        <groupId>com.oracle</groupId>
-                        <artifactId>ojdbc7_g</artifactId>
-                        <version>12.1.0.1</version>
+                        <version>${oracle.version}</version>
                     </dependency>
                 </dependencies>
 
@@ -106,9 +98,8 @@
                         <password>admin</password>
                     </jdbc>
                     <generator>
-                        <name>org.jooq.util.JavaGenerator</name>
                         <database>
-                            <name>org.jooq.util.oracle.OracleDatabase</name>
+                            <name>org.jooq.meta.oracle.OracleDatabase</name>
                             <includes>.*</includes>
                             <excludes></excludes>
                             <inputSchema>oracle</inputSchema>
