@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset;
 
+import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record.CommentRecord;
 import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record.PostRecord;
 import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record.TagRecord;
 import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record.UserVoteRecord;
@@ -36,7 +37,7 @@ public class MultiLevelCollectionFetchingMultisetTest extends AbstractMultiLevel
                                         space(1),
                                         BLOG_USER.LAST_NAME
                                     ),
-                                    USER_VOTE.SCORE.cast(Integer.class)
+                                    USER_VOTE.VOTE_TYPE
                                 )
                                 .from(USER_VOTE)
                                 .leftOuterJoin(BLOG_USER).on(BLOG_USER.ID.eq(USER_VOTE.USER_ID))

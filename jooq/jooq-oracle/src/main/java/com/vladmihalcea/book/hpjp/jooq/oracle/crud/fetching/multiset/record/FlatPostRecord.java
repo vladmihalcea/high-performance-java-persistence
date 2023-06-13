@@ -1,5 +1,7 @@
 package com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record;
 
+import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.domain.VoteType;
+
 /**
  * @author Vlad Mihalcea
  */
@@ -11,7 +13,7 @@ public record FlatPostRecord(
     Long tagId,
     String tagName,
     Long voteId,
-    Integer voteScore,
+    VoteType voteType,
     String userName
 ) {
 }

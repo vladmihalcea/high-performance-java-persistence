@@ -1,6 +1,4 @@
-package com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset;
-
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record.UserVoteRecord;
+package com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record;
 
 import java.util.List;
 import java.util.Objects;

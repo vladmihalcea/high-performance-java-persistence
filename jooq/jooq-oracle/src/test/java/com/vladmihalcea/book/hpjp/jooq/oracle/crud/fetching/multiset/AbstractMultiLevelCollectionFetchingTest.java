@@ -1,11 +1,12 @@
 package com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset;
 
 import com.vladmihalcea.book.hpjp.jooq.oracle.crud.AbstractJOOQOracleSQLIntegrationTest;
-import jakarta.persistence.*;
+import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.domain.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author Vlad Mihalcea
@@ -43,6 +44,10 @@ public class AbstractMultiLevelCollectionFetchingTest extends AbstractJOOQOracle
     @Override
     public void afterInit() {
         doInJPA(entityManager -> {
+            ThreadLocalRandom random = ThreadLocalRandom.current();
+            VoteType[] voteTypes = VoteType.values();
+            int voteCount = voteTypes.length;
+
             User alice = new User()
                 .setId(1L)
                 .setFirstName("Alice")
@@ -85,7 +90,7 @@ public class AbstractMultiLevelCollectionFetchingTest extends AbstractJOOQOracle
                         comment.addVote(
                             new UserVote()
                                 .setId(++voteId)
-                                .setScore(Math.random() > 0.5 ? 1 : -1)
+                                .setVoteType(voteTypes[random.nextInt(voteCount)])
                                 .setUser(Math.random() > 0.5 ? alice : bob)
                         );
                     }
@@ -101,236 +106,6 @@ public class AbstractMultiLevelCollectionFetchingTest extends AbstractJOOQOracle
                 entityManager.persist(post);
             }
         });
-    }
-
-    @Entity(name = "Post")
-    @Table(name = "post")
-    public static class Post {
-
-        @Id
-        private Long id;
-
-        private String title;
-
-        @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-        private List<PostComment> comments = new ArrayList<>();
-
-        @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-        @JoinTable(name = "post_tag",
-            joinColumns = @JoinColumn(name = "post_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-        )
-        private List<Tag> tags = new ArrayList<>();
-
-        public Long getId() {
-            return id;
-        }
-
-        public Post setId(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public Post setTitle(String title) {
-            this.title = title;
-            return this;
-        }
-
-        public List<PostComment> getComments() {
-            return comments;
-        }
-
-        public Post addComment(PostComment comment) {
-            comments.add(comment);
-            comment.setPost(this);
-            return this;
-        }
-
-        public List<Tag> getTags() {
-            return tags;
-        }
-
-        public void setTags(List<Tag> tags) {
-            this.tags = tags;
-        }
-    }
-
-    @Entity(name = "PostComment")
-    @Table(name = "post_comment")
-    public static class PostComment {
-
-        @Id
-        private Long id;
-
-        @ManyToOne(fetch = FetchType.LAZY)
-        private Post post;
-
-        private String review;
-
-        @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
-        private List<UserVote> votes = new ArrayList<>();
-
-        public Long getId() {
-            return id;
-        }
-
-        public PostComment setId(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public Post getPost() {
-            return post;
-        }
-
-        public PostComment setPost(Post post) {
-            this.post = post;
-            return this;
-        }
-
-        public String getReview() {
-            return review;
-        }
-
-        public PostComment setReview(String review) {
-            this.review = review;
-            return this;
-        }
-
-        public List<UserVote> getVotes() {
-            return votes;
-        }
-
-        public PostComment addVote(UserVote vote) {
-            votes.add(vote);
-            vote.setComment(this);
-            return this;
-        }
-    }
-
-    @Entity(name = "Tag")
-    @Table(name = "tag")
-    public static class Tag {
-
-        @Id
-        private Long id;
-
-        private String name;
-
-        public Long getId() {
-            return id;
-        }
-
-        public Tag setId(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Tag setName(String name) {
-            this.name = name;
-            return this;
-        }
-    }
-
-    @Entity(name = "User")
-    @Table(name = "blog_user")
-    public static class User {
-
-        @Id
-        private Long id;
-
-        @Column(name = "first_name")
-        private String firstName;
-
-        @Column(name = "last_name")
-        private String lastName;
-
-        public Long getId() {
-            return id;
-        }
-
-        public User setId(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public String getFirstName() {
-            return firstName;
-        }
-
-        public User setFirstName(String firstName) {
-            this.firstName = firstName;
-            return this;
-        }
-
-        public String getLastName() {
-            return lastName;
-        }
-
-        public User setLastName(String lastName) {
-            this.lastName = lastName;
-            return this;
-        }
-    }
-
-    @Entity(name = "UserVote")
-    @Table(name = "user_vote")
-    public static class UserVote {
-
-        @Id
-        private Long id;
-
-        @ManyToOne(fetch = FetchType.LAZY)
-        private User user;
-
-        @ManyToOne(fetch = FetchType.LAZY)
-        private PostComment comment;
-
-        private int score;
-
-        public Long getId() {
-            return id;
-        }
-
-        public UserVote setId(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public User getUser() {
-            return user;
-        }
-
-        public UserVote setUser(User user) {
-            this.user = user;
-            return this;
-        }
-
-        public PostComment getComment() {
-            return comment;
-        }
-
-        public UserVote setComment(PostComment comment) {
-            this.comment = comment;
-            return this;
-        }
-
-        public int getScore() {
-            return score;
-        }
-
-        public UserVote setScore(int score) {
-            this.score = score;
-            return this;
-        }
     }
 
 }

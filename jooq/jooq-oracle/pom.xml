@@ -47,6 +47,8 @@
                     <autocommit>true</autocommit>
                     <onError>continue</onError>
                     <settingsKey>oracle-db-test</settingsKey>
+                    <delimiter>/</delimiter>
+                    <delimiterType>row</delimiterType>
                 </configuration>
                 <executions>
                     <execution>
@@ -103,6 +105,13 @@
                             <includes>.*</includes>
                             <excludes></excludes>
                             <inputSchema>oracle</inputSchema>
+                            <forcedTypes>
+                                <forcedType>
+                                    <userType>com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.domain.VoteType</userType>
+                                    <converter>com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.domain.VoteTypeConverter</converter>
+                                    <includeExpression>.*\.VOTE_TYPE</includeExpression>
+                                </forcedType>
+                            </forcedTypes>
                         </database>
                         <generate></generate>
                         <target>

@@ -1,14 +1,14 @@
 package com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset;
 
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.AbstractJOOQOracleSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record.FlatPostRecord;
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record.PostRecord;
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record.TagRecord;
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record.UserVoteRecord;
-import jakarta.persistence.*;
+import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.domain.Post;
+import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.domain.PostComment;
+import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record.*;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -80,7 +80,7 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
                     TAG.ID,
                     TAG.NAME,
                     USER_VOTE.ID,
-                    USER_VOTE.SCORE,
+                    USER_VOTE.VOTE_TYPE,
                     concat(
                         BLOG_USER.FIRST_NAME,
                         space(1),
@@ -109,7 +109,7 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
                     TAG.ID,
                     TAG.NAME,
                     USER_VOTE.ID,
-                    USER_VOTE.SCORE,
+                    USER_VOTE.VOTE_TYPE,
                     concat(
                         BLOG_USER.FIRST_NAME,
                         space(1),
@@ -150,7 +150,7 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
                                             new UserVoteRecord(
                                                 voteId,
                                                 record.userName(),
-                                                record.voteScore()
+                                                record.voteType()
                                             )
                                         );
                                     }
