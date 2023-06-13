@@ -1,24 +1,16 @@
-package com.vladmihalcea.book.hpjp.jooq.oracle.crud;
+package com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset;
 
+import com.vladmihalcea.book.hpjp.jooq.oracle.crud.AbstractJOOQOracleSQLIntegrationTest;
 import jakarta.persistence.*;
-import org.jooq.Records;
-import org.jooq.Result;
-import org.junit.Test;
 
-import java.math.BigInteger;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static com.vladmihalcea.book.hpjp.jooq.oracle.schema.crud.Tables.*;
-import static org.jooq.impl.DSL.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author Vlad Mihalcea
  */
-public class MultiLevelCollectionFetchingMultisetTest extends AbstractJOOQOracleSQLIntegrationTest {
+public class AbstractMultiLevelCollectionFetchingTest extends AbstractJOOQOracleSQLIntegrationTest {
 
     public static final int POST_COUNT = 50;
     public static final int POST_COMMENT_COUNT = 20;
@@ -51,7 +43,6 @@ public class MultiLevelCollectionFetchingMultisetTest extends AbstractJOOQOracle
     @Override
     public void afterInit() {
         doInJPA(entityManager -> {
-
             User alice = new User()
                 .setId(1L)
                 .setFirstName("Alice")
@@ -109,57 +100,6 @@ public class MultiLevelCollectionFetchingMultisetTest extends AbstractJOOQOracle
 
                 entityManager.persist(post);
             }
-        });
-    }
-
-    @Test
-    public void testMultiset() {
-        doInJOOQ(sql -> {
-            List<PostRecord> posts = sql
-                .select(
-                    POST.ID,
-                    POST.TITLE,
-                    multiset(
-                        select(
-                            POST_COMMENT.ID,
-                            POST_COMMENT.REVIEW,
-                            multiset(
-                                select(
-                                    USER_VOTE.ID,
-                                    concat(
-                                        BLOG_USER.FIRST_NAME,
-                                        space(1),
-                                        BLOG_USER.LAST_NAME
-                                    ),
-                                    USER_VOTE.SCORE
-                                )
-                                .from(USER_VOTE)
-                                .leftOuterJoin(BLOG_USER).on(BLOG_USER.ID.eq(USER_VOTE.USER_ID))
-                                .where(USER_VOTE.COMMENT_ID.eq(POST_COMMENT.ID))
-                            ).as("votes").convertFrom(r -> r.map(Records.mapping(UserVoteRecord::new)))
-                        )
-                        .from(POST_COMMENT)
-                        .where(POST_COMMENT.POST_ID.eq(POST.ID))
-                    ).as("comments").convertFrom(r -> r.map(Records.mapping(CommentRecord::new))),
-                    multiset(
-                        select(
-                            POST_TAG.tag().ID,
-                            POST_TAG.tag().NAME
-                        )
-                        .from(POST_TAG)
-                        .where(POST_TAG.POST_ID.eq(POST.ID))
-                    ).as("tags").convertFrom(r -> r.map(Records.mapping(TagRecord::new)))
-                )
-                .from(POST)
-                .orderBy(POST.ID.asc())
-                .fetch(Records.mapping(PostRecord::new));
-
-            assertEquals(POST_COUNT, posts.size());
-            PostRecord post = posts.get(0);
-            assertEquals(POST_COMMENT_COUNT, post.comments().size());
-            assertEquals(TAG_COUNT, post.tags().size());
-            CommentRecord comment = post.comments().get(0);
-            assertEquals(VOTE_COUNT, comment.votes().size());
         });
     }
 
@@ -393,54 +333,4 @@ public class MultiLevelCollectionFetchingMultisetTest extends AbstractJOOQOracle
         }
     }
 
-    public static record FlatPostRecord(
-        BigInteger postId,
-        String postTitle,
-        BigInteger commentId,
-        String commentReview,
-        BigInteger tagId,
-        String tagName,
-        BigInteger voteId,
-        Integer voteScore,
-        String userName
-    ) {
-    }
-
-    public static record PostRecord(
-        BigInteger id,
-        String title,
-        List<CommentRecord> comments,
-        List<TagRecord> tags
-        ) {
-    }
-
-    public static record CommentRecord(
-        BigInteger id,
-        String review,
-        List<UserVoteRecord> votes) {
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof CommentRecord)) return false;
-            CommentRecord that = (CommentRecord) o;
-            return id.equals(that.id);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id);
-        }
-    }
-
-    public static record TagRecord(
-        BigInteger id,
-        String name) {
-    }
-
-    public static record UserVoteRecord(
-        BigInteger id,
-        String userName,
-        BigInteger userVote) {
-    }
 }
