@@ -1,11 +1,13 @@
-package com.vladmihalcea.book.hpjp.jooq.oracle.crud;
+package com.vladmihalcea.book.hpjp.jooq.oracle.pagination;
 
+import com.vladmihalcea.book.hpjp.jooq.oracle.util.AbstractJOOQOracleSQLIntegrationTest;
 import org.jooq.Record3;
 import org.jooq.SelectSeekStep2;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class KeysetPaginationTest extends AbstractJOOQOracleSQLIntegrationTest {
+public class KeysetPaginationFailTest extends AbstractJOOQOracleSQLIntegrationTest {
 
     @Override
     protected String ddlScript() {
@@ -24,6 +26,7 @@ public class KeysetPaginationTest extends AbstractJOOQOracleSQLIntegrationTest {
     }
 
     @Test
+	@Ignore("Failure expected")
     public void testPagination() {
         String user = "Vlad Mihalcea";
 
@@ -92,7 +95,7 @@ public class KeysetPaginationTest extends AbstractJOOQOracleSQLIntegrationTest {
             SelectSeekStep2<Record3<BigInteger, String, LocalDateTime>, LocalDateTime, BigInteger> selectStep = sql
                     .select(POST.ID, POST.TITLE, POST_DETAILS.CREATED_ON)
                     .from(POST)
-                    .join(POST_DETAILS).on(POST.ID.eq(POST_DETAILS.ID))
+                    .join(POST_DETAILS).using(POST.ID)
                     .orderBy(POST_DETAILS.CREATED_ON.desc(), POST.ID.desc());
 
             return (offsetPostSummary != null)

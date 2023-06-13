@@ -1,7 +1,7 @@
-package com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset;
+package com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset;
 
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.AbstractJOOQOracleSQLIntegrationTest;
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.domain.*;
+import com.vladmihalcea.book.hpjp.jooq.oracle.util.AbstractJOOQOracleSQLIntegrationTest;
+import com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.domain.*;
 
 import java.util.ArrayList;
 import java.util.List;

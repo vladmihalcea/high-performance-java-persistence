@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.domain;
+package com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.domain;
 
 import jakarta.persistence.*;
 

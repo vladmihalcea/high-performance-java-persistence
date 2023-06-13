@@ -1,6 +1,6 @@
-package com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record;
+package com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.record;
 
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.domain.VoteType;
+import com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.domain.VoteType;
 
 /**
  * @author Vlad Mihalcea

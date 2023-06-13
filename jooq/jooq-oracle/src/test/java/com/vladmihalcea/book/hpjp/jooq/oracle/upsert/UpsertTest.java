@@ -1,12 +1,11 @@
-package com.vladmihalcea.book.hpjp.jooq.oracle.crud;
+package com.vladmihalcea.book.hpjp.jooq.oracle.upsert;
 
+import com.vladmihalcea.book.hpjp.jooq.oracle.util.AbstractJOOQOracleSQLIntegrationTest;
 import org.jooq.DSLContext;
 import org.junit.Test;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.concurrent.TimeUnit;
 
 import static com.vladmihalcea.book.hpjp.jooq.oracle.schema.crud.Tables.POST;

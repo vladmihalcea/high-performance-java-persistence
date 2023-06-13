@@ -1,7 +1,6 @@
 package com.vladmihalcea.book.hpjp.jooq.oracle.crud;
 
-import java.sql.Statement;
-
+import com.vladmihalcea.book.hpjp.jooq.oracle.util.AbstractJOOQOracleSQLIntegrationTest;
 import org.junit.Test;
 
 import org.jooq.DSLContext;

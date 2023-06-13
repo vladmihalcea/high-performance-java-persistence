@@ -107,8 +107,8 @@
                             <inputSchema>oracle</inputSchema>
                             <forcedTypes>
                                 <forcedType>
-                                    <userType>com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.domain.VoteType</userType>
-                                    <converter>com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.domain.VoteTypeConverter</converter>
+                                    <userType>com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.domain.VoteType</userType>
+                                    <converter>com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.domain.VoteTypeConverter</converter>
                                     <includeExpression>.*\.VOTE_TYPE</includeExpression>
                                 </forcedType>
                             </forcedTypes>

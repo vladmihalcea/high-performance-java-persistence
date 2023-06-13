@@ -1,68 +1,72 @@
 BEGIN
-    EXECUTE IMMEDIATE 'drop table user_vote cascade constraints';
+    EXECUTE IMMEDIATE 'drop table USER_VOTE cascade constraints';
 EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
 BEGIN
-    EXECUTE IMMEDIATE 'drop table blog_user cascade constraints';
+    EXECUTE IMMEDIATE 'drop table "USER" cascade constraints';
 EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
 BEGIN
-    EXECUTE IMMEDIATE 'drop table post_comment_details cascade constraints';
+    EXECUTE IMMEDIATE 'drop table POST_COMMENT_details cascade constraints';
 EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
 BEGIN
-    EXECUTE IMMEDIATE 'drop table post_comment cascade constraints';
+    EXECUTE IMMEDIATE 'drop table POST_COMMENT cascade constraints';
 EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
 BEGIN
-    EXECUTE IMMEDIATE 'drop table post_details cascade constraints';
+    EXECUTE IMMEDIATE 'drop table POST_DETAILS cascade constraints';
 EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
 BEGIN
-    EXECUTE IMMEDIATE 'drop table post_tag cascade constraints';
+    EXECUTE IMMEDIATE 'drop table POST_TAG cascade constraints';
 EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
 BEGIN
-    EXECUTE IMMEDIATE 'drop table post cascade constraints';
+    EXECUTE IMMEDIATE 'drop table POST cascade constraints';
 EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
 BEGIN
-    EXECUTE IMMEDIATE 'drop table tag cascade constraints';
+    EXECUTE IMMEDIATE 'drop table TAG cascade constraints';
 EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
-create table post (id number(19,0) not null, title varchar2(255 char), primary key (id))
+create table POST (ID number(19,0) not null, title varchar2(255 char), primary key (ID))
 /
-create table post_comment (id number(19,0) not null, review varchar2(255 char), post_id number(19,0), primary key (id))
+create table POST_COMMENT (ID number(19,0) not null, review varchar2(255 char), POST_ID number(19,0), primary key (ID))
 /
-create table post_details (id number(19,0) not null, created_by varchar2(255 char), created_on timestamp, updated_by varchar2(255 char), updated_on timestamp, primary key (id))
+create table POST_DETAILS (ID number(19,0) not null, created_by varchar2(255 char), created_on timestamp, updated_by varchar2(255 char), updated_on timestamp, primary key (ID))
 /
-create table post_tag (post_id number(19,0) not null, tag_id number(19,0) not null)
+create table POST_TAG (POST_ID number(19,0) not null, TAG_ID number(19,0) not null)
 /
-create table tag (id number(19,0) not null, name varchar2(255 char), primary key (id))
+create table TAG (ID number(19,0) not null, name varchar2(255 char), primary key (ID))
 /
-create table post_comment_details (id number(19,0) not null, post_id number(19,0) not null, user_id number(19,0) not null, ip varchar2(18) not null, fingerprint varchar2(256), primary key (id))
+create table POST_COMMENT_details (ID number(19,0) not null, POST_ID number(19,0) not null, USER_ID number(19,0) not null, ip varchar2(18) not null, fingerprint varchar2(256), primary key (ID))
 /
-create table blog_user (id number(19,0) not null, first_name varchar2(50), last_name varchar2(50), primary key (id))
+create table "USER" (ID number(19,0) not null, first_name varchar2(50), last_name varchar2(50), primary key (ID))
 /
-create table user_vote (id number(19,0) not null, user_id number(19,0), comment_id number(19,0), vote_type number(3,0) not null, primary key (id))
+create table USER_VOTE (ID number(19,0) not null, USER_ID number(19,0), COMMENT_ID number(19,0), vote_type number(3,0) not null, primary key (ID))
 /
-alter table post_comment add constraint post_comment_post_id foreign key (post_id) references post
+alter table POST_COMMENT add constraint POST_COMMENT_POST_ID foreign key (POST_ID) references POST
 /
-alter table post_details add constraint post_details_post_id foreign key (id) references post
+alter table POST_DETAILS add constraint POST_DETAILS_POST_ID foreign key (ID) references POST
 /
-alter table post_tag add constraint post_tag_tag_id foreign key (tag_id) references tag
+alter table POST_TAG add constraint POST_TAG_TAG_ID foreign key (TAG_ID) references TAG
 /
-alter table post_tag add constraint post_tag_post_id foreign key (post_id) references post
+alter table POST_TAG add constraint POST_TAG_POST_ID foreign key (POST_ID) references POST
 /
-drop sequence hibernate_sequence
+alter table USER_VOTE add constraint USER_VOTE_POST_COMMENT_ID foreign key (COMMENT_ID) references POST_COMMENT
 /
-create sequence hibernate_sequence start with 1 increment by 1
+alter table USER_VOTE add constraint USER_VOTE_USER_ID foreign key (USER_ID) references "USER"
+/
+drop sequence HIBERNATE_SEQUENCE
+/
+create sequence HIBERNATE_SEQUENCE start with 1 increment by 1
 /

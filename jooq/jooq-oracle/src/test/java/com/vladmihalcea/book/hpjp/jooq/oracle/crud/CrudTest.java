@@ -1,5 +1,6 @@
 package com.vladmihalcea.book.hpjp.jooq.oracle.crud;
 
+import com.vladmihalcea.book.hpjp.jooq.oracle.util.AbstractJOOQOracleSQLIntegrationTest;
 import org.junit.Test;
 
 import static org.jooq.impl.DSL.field;

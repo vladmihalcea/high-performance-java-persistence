@@ -1,9 +1,9 @@
-package com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset;
+package com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset;
 
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record.CommentRecord;
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record.PostRecord;
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record.TagRecord;
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record.UserVoteRecord;
+import com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.record.CommentRecord;
+import com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.record.PostRecord;
+import com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.record.TagRecord;
+import com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.record.UserVoteRecord;
 import org.jooq.Records;
 import org.junit.Test;
 
@@ -33,14 +33,14 @@ public class MultiLevelCollectionFetchingMultisetTest extends AbstractMultiLevel
                                 select(
                                     USER_VOTE.ID.cast(Long.class),
                                     concat(
-                                        BLOG_USER.FIRST_NAME,
+                                        USER.FIRST_NAME,
                                         space(1),
-                                        BLOG_USER.LAST_NAME
+                                        USER.LAST_NAME
                                     ),
                                     USER_VOTE.VOTE_TYPE
                                 )
                                 .from(USER_VOTE)
-                                .leftOuterJoin(BLOG_USER).on(BLOG_USER.ID.eq(USER_VOTE.USER_ID))
+                                .leftOuterJoin(USER).on(USER.ID.eq(USER_VOTE.USER_ID))
                                 .where(USER_VOTE.COMMENT_ID.eq(POST_COMMENT.ID))
                             ).as("votes").convertFrom(r -> r.map(Records.mapping(UserVoteRecord::new)))
                         )

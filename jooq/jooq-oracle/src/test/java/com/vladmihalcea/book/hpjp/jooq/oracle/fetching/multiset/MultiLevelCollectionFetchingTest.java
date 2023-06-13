@@ -1,8 +1,8 @@
-package com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset;
+package com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset;
 
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.domain.Post;
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.domain.PostComment;
-import com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record.*;
+import com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.domain.Post;
+import com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.domain.PostComment;
+import com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.record.*;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -82,9 +82,9 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
                     USER_VOTE.ID,
                     USER_VOTE.VOTE_TYPE,
                     concat(
-                        BLOG_USER.FIRST_NAME,
+                        USER.FIRST_NAME,
                         space(1),
-                        BLOG_USER.LAST_NAME
+                        USER.LAST_NAME
                     )
                 )
                 .from(POST)
@@ -92,7 +92,7 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
                 .leftOuterJoin(POST_TAG).on(POST_TAG.POST_ID.eq(POST.ID))
                 .leftOuterJoin(TAG).on(TAG.ID.eq(POST_TAG.TAG_ID))
                 .leftOuterJoin(USER_VOTE).on(USER_VOTE.COMMENT_ID.eq(POST_COMMENT.ID))
-                .leftOuterJoin(BLOG_USER).on(BLOG_USER.ID.eq(USER_VOTE.USER_ID))
+                .leftOuterJoin(USER).on(USER.ID.eq(USER_VOTE.USER_ID))
                 .orderBy(POST_COMMENT.ID.asc(), POST.ID.asc())
                 .fetchInto(FlatPostRecord.class);
 
@@ -111,9 +111,9 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
                     USER_VOTE.ID,
                     USER_VOTE.VOTE_TYPE,
                     concat(
-                        BLOG_USER.FIRST_NAME,
+                        USER.FIRST_NAME,
                         space(1),
-                        BLOG_USER.LAST_NAME
+                        USER.LAST_NAME
                     )
                 )
                 .from(POST)
@@ -121,7 +121,7 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
                 .leftOuterJoin(POST_TAG).on(POST_TAG.POST_ID.eq(POST.ID))
                 .leftOuterJoin(TAG).on(TAG.ID.eq(POST_TAG.TAG_ID))
                 .leftOuterJoin(USER_VOTE).on(USER_VOTE.COMMENT_ID.eq(POST_COMMENT.ID))
-                .leftOuterJoin(BLOG_USER).on(BLOG_USER.ID.eq(USER_VOTE.USER_ID))
+                .leftOuterJoin(USER).on(USER.ID.eq(USER_VOTE.USER_ID))
                 .orderBy(POST_COMMENT.ID.asc(), POST.ID.asc())
                 .fetchInto(FlatPostRecord.class)
                 .stream().collect(

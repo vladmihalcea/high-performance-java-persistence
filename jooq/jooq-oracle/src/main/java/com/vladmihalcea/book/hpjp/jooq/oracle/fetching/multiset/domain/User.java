@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.domain;
+package com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
  * @author Vlad Mihalcea
  */
 @Entity(name = "User")
-@Table(name = "blog_user")
+@Table(name = "\"USER\"")
 public class User {
 
     @Id

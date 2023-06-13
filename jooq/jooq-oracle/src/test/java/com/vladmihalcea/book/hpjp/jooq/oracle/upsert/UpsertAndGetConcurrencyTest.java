@@ -1,18 +1,15 @@
-package com.vladmihalcea.book.hpjp.jooq.oracle.crud;
+package com.vladmihalcea.book.hpjp.jooq.oracle.upsert;
 
 import com.vladmihalcea.book.hpjp.jooq.oracle.schema.crud.tables.records.PostDetailsRecord;
-import com.vladmihalcea.book.hpjp.jooq.oracle.schema.crud.tables.records.PostRecord;
+import com.vladmihalcea.book.hpjp.jooq.oracle.util.AbstractJOOQOracleSQLIntegrationTest;
 import com.vladmihalcea.book.hpjp.util.exception.ExceptionUtil;
 import org.junit.Test;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.vladmihalcea.book.hpjp.jooq.oracle.schema.crud.Sequences.HIBERNATE_SEQUENCE;
 import static com.vladmihalcea.book.hpjp.jooq.oracle.schema.crud.Tables.POST;
 import static com.vladmihalcea.book.hpjp.jooq.oracle.schema.crud.tables.PostDetails.POST_DETAILS;
 import static org.jooq.impl.DSL.val;

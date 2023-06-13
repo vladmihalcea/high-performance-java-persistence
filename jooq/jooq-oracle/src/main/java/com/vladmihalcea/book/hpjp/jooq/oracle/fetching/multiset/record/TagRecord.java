@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.record;
+package com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.record;
 
 /**
  * @author Vlad Mihalcea

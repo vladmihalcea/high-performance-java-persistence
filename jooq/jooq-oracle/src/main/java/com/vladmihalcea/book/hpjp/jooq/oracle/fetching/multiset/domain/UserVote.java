@@ -1,4 +1,4 @@
-package com.vladmihalcea.book.hpjp.jooq.oracle.crud.fetching.multiset.domain;
+package com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.domain;
 
 import jakarta.persistence.*;
 
@@ -13,6 +13,7 @@ public class UserVote {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)

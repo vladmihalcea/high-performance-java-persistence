@@ -1,5 +1,6 @@
-package com.vladmihalcea.book.hpjp.jooq.oracle.crud;
+package com.vladmihalcea.book.hpjp.jooq.oracle.batching;
 
+import com.vladmihalcea.book.hpjp.jooq.oracle.util.AbstractJOOQOracleSQLIntegrationTest;
 import org.jooq.BatchBindStep;
 import org.jooq.Record;
 import org.jooq.Result;
