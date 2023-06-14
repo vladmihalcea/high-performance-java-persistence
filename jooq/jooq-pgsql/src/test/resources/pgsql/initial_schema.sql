@@ -54,6 +54,7 @@ BEGIN
             cache_snapshot
         WHERE
             region = 'QA'
+        FOR NO KEY UPDATE
     );
     IF previous_snapshot_timestamp is null THEN
         INSERT INTO cache_snapshot(
