@@ -5,6 +5,7 @@ import com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.domain.PostComme
 import com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.record.*;
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -70,6 +71,9 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
 
     @Test
     public void testCartesianProduct() {
+        BigInteger minPostId = BigInteger.valueOf(1);
+        BigInteger maxPostId = BigInteger.valueOf(50);
+
         doInJOOQ(sql -> {
             List<FlatPostRecord> posts = sql
                 .select(
@@ -93,6 +97,7 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
                 .leftOuterJoin(TAG).on(TAG.ID.eq(POST_TAG.TAG_ID))
                 .leftOuterJoin(USER_VOTE).on(USER_VOTE.COMMENT_ID.eq(POST_COMMENT.ID))
                 .leftOuterJoin(USER).on(USER.ID.eq(USER_VOTE.USER_ID))
+                .where(POST.ID.between(minPostId, maxPostId))
                 .orderBy(POST_COMMENT.ID.asc(), POST.ID.asc())
                 .fetchInto(FlatPostRecord.class);
 
@@ -122,9 +127,11 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
                 .leftOuterJoin(TAG).on(TAG.ID.eq(POST_TAG.TAG_ID))
                 .leftOuterJoin(USER_VOTE).on(USER_VOTE.COMMENT_ID.eq(POST_COMMENT.ID))
                 .leftOuterJoin(USER).on(USER.ID.eq(USER_VOTE.USER_ID))
+                .where(POST.ID.between(minPostId, maxPostId))
                 .orderBy(POST_COMMENT.ID.asc(), POST.ID.asc())
                 .fetchInto(FlatPostRecord.class)
-                .stream().collect(
+                .stream()
+                .collect(
                     Collectors.collectingAndThen(
                         Collectors.toMap(
                             FlatPostRecord::postId,

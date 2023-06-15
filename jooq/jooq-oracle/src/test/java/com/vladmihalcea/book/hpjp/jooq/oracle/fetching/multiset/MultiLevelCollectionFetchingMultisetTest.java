@@ -7,6 +7,7 @@ import com.vladmihalcea.book.hpjp.jooq.oracle.fetching.multiset.record.UserVoteR
 import org.jooq.Records;
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import static com.vladmihalcea.book.hpjp.jooq.oracle.schema.crud.Tables.*;
@@ -20,6 +21,9 @@ public class MultiLevelCollectionFetchingMultisetTest extends AbstractMultiLevel
 
     @Test
     public void testMultiset() {
+        BigInteger minPostId = BigInteger.valueOf(1);
+        BigInteger maxPostId = BigInteger.valueOf(50);
+
         doInJOOQ(sql -> {
             List<PostRecord> posts = sql
                 .select(
@@ -57,6 +61,7 @@ public class MultiLevelCollectionFetchingMultisetTest extends AbstractMultiLevel
                     ).as("tags").convertFrom(r -> r.map(Records.mapping(TagRecord::new)))
                 )
                 .from(POST)
+                .where(POST.ID.between(minPostId, maxPostId))
                 .orderBy(POST.ID.asc())
                 .fetch(Records.mapping(PostRecord::new));
 
