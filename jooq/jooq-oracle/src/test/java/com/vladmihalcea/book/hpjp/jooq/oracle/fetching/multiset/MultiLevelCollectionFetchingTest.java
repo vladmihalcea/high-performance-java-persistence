@@ -75,6 +75,8 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
         BigInteger maxPostId = BigInteger.valueOf(50);
 
         doInJOOQ(sql -> {
+            sql.execute("ALTER SESSION SET STATISTICS_LEVEL='ALL'");
+
             List<FlatPostRecord> posts = sql
                 .select(
                     POST.ID,
@@ -98,10 +100,24 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
                 .leftOuterJoin(USER_VOTE).on(USER_VOTE.COMMENT_ID.eq(POST_COMMENT.ID))
                 .leftOuterJoin(USER).on(USER.ID.eq(USER_VOTE.USER_ID))
                 .where(POST.ID.between(minPostId, maxPostId))
-                .orderBy(POST_COMMENT.ID.asc(), POST.ID.asc())
+                .orderBy(POST.ID.asc())
                 .fetchInto(FlatPostRecord.class);
 
             assertEquals(POST_COUNT * POST_COMMENT_COUNT * TAG_COUNT * VOTE_COUNT, posts.size());
+
+            String executionPlan = sql
+                .select()
+                .from("TABLE(DBMS_XPLAN.DISPLAY_CURSOR(FORMAT=>'ALLSTATS LAST ALL +OUTLINE'))")
+                .stream()
+                .map(record -> String.valueOf(record.get(0)))
+                .collect(Collectors.joining(System.lineSeparator()));
+
+            LOGGER.info("Execution plan: {}{}",
+                System.lineSeparator(),
+                executionPlan
+            );
+
+            sql.execute("ALTER SESSION SET STATISTICS_LEVEL='TYPICAL'");
         });
 
         doInJOOQ(sql -> {
@@ -128,7 +144,7 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
                 .leftOuterJoin(USER_VOTE).on(USER_VOTE.COMMENT_ID.eq(POST_COMMENT.ID))
                 .leftOuterJoin(USER).on(USER.ID.eq(USER_VOTE.USER_ID))
                 .where(POST.ID.between(minPostId, maxPostId))
-                .orderBy(POST_COMMENT.ID.asc(), POST.ID.asc())
+                .orderBy(POST.ID.asc())
                 .fetchInto(FlatPostRecord.class)
                 .stream()
                 .collect(

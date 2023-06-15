@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.vladmihalcea.book.hpjp.jooq.oracle.schema.crud.Tables.*;
 import static org.jooq.impl.DSL.*;
@@ -25,9 +26,11 @@ public class MultiLevelCollectionFetchingMultisetTest extends AbstractMultiLevel
         BigInteger maxPostId = BigInteger.valueOf(50);
 
         doInJOOQ(sql -> {
+            sql.execute("ALTER SESSION SET STATISTICS_LEVEL='ALL'");
+
             List<PostRecord> posts = sql
                 .select(
-                    POST.ID.cast(Long.class),
+                    POST.ID.cast(Long.class).as("id"),
                     POST.TITLE,
                     multiset(
                         select(
@@ -71,6 +74,20 @@ public class MultiLevelCollectionFetchingMultisetTest extends AbstractMultiLevel
             assertEquals(TAG_COUNT, post.tags().size());
             CommentRecord comment = post.comments().get(0);
             assertEquals(VOTE_COUNT, comment.votes().size());
+
+            String executionPlan = sql
+                .select()
+                .from("TABLE(DBMS_XPLAN.DISPLAY_CURSOR(FORMAT=>'ALLSTATS LAST ALL +OUTLINE'))")
+                .stream()
+                .map(record -> String.valueOf(record.get(0)))
+                .collect(Collectors.joining(System.lineSeparator()));
+
+            LOGGER.info("Execution plan: {}{}",
+                System.lineSeparator(),
+                executionPlan
+            );
+
+            sql.execute("ALTER SESSION SET STATISTICS_LEVEL='TYPICAL'");
         });
     }
 }
