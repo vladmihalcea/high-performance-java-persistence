@@ -1,9 +1,12 @@
 package com.vladmihalcea.book.hpjp.hibernate.type;
 
 import com.vladmihalcea.book.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import io.hypersistence.utils.hibernate.type.HibernateTypesContributor;
 import io.hypersistence.utils.hibernate.type.basic.Inet;
+import io.hypersistence.utils.hibernate.type.basic.PostgreSQLInetType;
 import jakarta.persistence.*;
 import org.hibernate.Session;
+import org.hibernate.usertype.UserType;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
@@ -11,6 +14,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Properties;
+import java.util.function.Predicate;
 
 import static org.junit.Assert.*;
 
@@ -24,6 +29,14 @@ public class IPv4TypeTest extends AbstractPostgreSQLIntegrationTest {
         return new Class<?>[] {
             Event.class
         };
+    }
+
+    @Override
+    protected void additionalProperties(Properties properties) {
+        /*properties.put(
+            HibernateTypesContributor.TYPES_CONTRIBUTOR_FILTER,
+            (Predicate<UserType>) userType -> !(userType instanceof PostgreSQLInetType)
+        );*/
     }
 
     private Event _event;
