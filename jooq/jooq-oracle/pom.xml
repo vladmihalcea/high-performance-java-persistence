@@ -111,6 +111,16 @@
                                     <converter>com.vladmihalcea.hpjp.jooq.oracle.fetching.multiset.domain.VoteTypeConverter</converter>
                                     <includeExpression>.*\.VOTE_TYPE</includeExpression>
                                 </forcedType>
+                                <forcedType>
+                                    <userType>java.lang.Long</userType>
+                                    <converter>com.vladmihalcea.hpjp.jooq.oracle.fetching.multiset.domain.LongConverter</converter>
+                                    <includeExpression>.*\.ID</includeExpression>
+                                </forcedType>
+                                <forcedType>
+                                    <userType>java.lang.Long</userType>
+                                    <converter>com.vladmihalcea.hpjp.jooq.oracle.fetching.multiset.domain.LongConverter</converter>
+                                    <includeExpression>.*\.*_ID</includeExpression>
+                                </forcedType>
                             </forcedTypes>
                         </database>
                         <generate></generate>

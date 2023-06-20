@@ -14,8 +14,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.vladmihalcea.hpjp.jooq.oracle.schema.crud.Tables.*;
-import static org.jooq.impl.DSL.concat;
-import static org.jooq.impl.DSL.space;
+import static org.jooq.impl.DSL.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -71,8 +70,8 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
 
     @Test
     public void testCartesianProduct() {
-        BigInteger minPostId = BigInteger.valueOf(1);
-        BigInteger maxPostId = BigInteger.valueOf(50);
+        Long minPostId = 1L;
+        Long maxPostId = 50L;
 
         doInJOOQ(sql -> {
             sql.execute("ALTER SESSION SET STATISTICS_LEVEL='ALL'");
@@ -89,7 +88,7 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
                     USER_VOTE.VOTE_TYPE,
                     concat(
                         USER.FIRST_NAME,
-                        space(1),
+                        inline(" "),
                         USER.LAST_NAME
                     )
                 )
@@ -133,7 +132,7 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
                     USER_VOTE.VOTE_TYPE,
                     concat(
                         USER.FIRST_NAME,
-                        space(1),
+                        inline(" "),
                         USER.LAST_NAME
                     )
                 )

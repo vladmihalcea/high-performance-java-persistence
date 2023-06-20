@@ -27,7 +27,7 @@ public class BatchTest extends AbstractJOOQOracleSQLIntegrationTest {
             sql.delete(POST).execute();
             BatchBindStep batch = sql.batch(sql
                 .insertInto(POST, POST.ID, POST.TITLE)
-                .values((BigInteger) null, null)
+                .values((Long) null, null)
             );
             for (int i = 0; i < 3; i++) {
                 batch.bind(i, String.format("Post no. %d", i));

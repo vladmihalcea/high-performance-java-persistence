@@ -70,8 +70,6 @@ drop sequence HIBERNATE_SEQUENCE
 /
 create sequence HIBERNATE_SEQUENCE start with 1 increment by 1
 /
-create index idx_post_details_post_id on POST_DETAILS (ID)
-/
 create index idx_post_comment_post_id on POST_COMMENT (POST_ID)
 /
 create index idx_post_tag_post_id on POST_TAG (POST_ID)

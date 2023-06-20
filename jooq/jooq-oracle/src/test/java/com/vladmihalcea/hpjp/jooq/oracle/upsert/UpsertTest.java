@@ -28,15 +28,15 @@ public class UpsertTest extends AbstractJOOQOracleSQLIntegrationTest {
             sql.delete(POST).execute();
             sql
             .insertInto(POST).columns(POST.ID, POST.TITLE)
-            .values(BigInteger.valueOf(1), "High-Performance Java Persistence")
+            .values(1L, "High-Performance Java Persistence")
             .execute();
 
             executeAsync(() -> {
-                upsertPostDetails(sql, BigInteger.valueOf(1), "Alice",
+                upsertPostDetails(sql, 1L, "Alice",
                         LocalDateTime.now());
             });
             executeAsync(() -> {
-                upsertPostDetails(sql, BigInteger.valueOf(1), "Bob",
+                upsertPostDetails(sql, 1L, "Bob",
                         LocalDateTime.now());
             });
 
@@ -45,7 +45,7 @@ public class UpsertTest extends AbstractJOOQOracleSQLIntegrationTest {
     }
 
     private void upsertPostDetails(
-        DSLContext sql, BigInteger id, String owner, LocalDateTime timestamp) {
+        DSLContext sql, Long id, String owner, LocalDateTime timestamp) {
         sql
         .insertInto(POST_DETAILS)
         .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)

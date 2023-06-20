@@ -44,12 +44,12 @@ public class KeysetPaginationFailTest extends AbstractJOOQOracleSQLIntegrationTe
             for (long i = 1; i < 100; i++) {
                 sql
                 .insertInto(POST).columns(POST.ID, POST.TITLE)
-                .values(BigInteger.valueOf(i), String.format("High-Performance Java Persistence - Chapter %d", i))
+                .values(i, String.format("High-Performance Java Persistence - Chapter %d", i))
                 .execute();
 
                 sql
                 .insertInto(POST_DETAILS).columns(POST_DETAILS.ID, POST_DETAILS.CREATED_ON, POST_DETAILS.CREATED_BY)
-                .values(BigInteger.valueOf(i), now.plusHours(i / 10), user)
+                .values(i, now.plusHours(i / 10), user)
                 .execute();
             }
         });
@@ -92,7 +92,7 @@ public class KeysetPaginationFailTest extends AbstractJOOQOracleSQLIntegrationTe
 
     public List<PostSummary> nextPage(int pageSize, PostSummary offsetPostSummary) {
         return doInJOOQ(sql -> {
-            SelectSeekStep2<Record3<BigInteger, String, LocalDateTime>, LocalDateTime, BigInteger> selectStep = sql
+            SelectSeekStep2<Record3<Long, String, LocalDateTime>, LocalDateTime, Long> selectStep = sql
                     .select(POST.ID, POST.TITLE, POST_DETAILS.CREATED_ON)
                     .from(POST)
                     .join(POST_DETAILS).using(POST.ID)
@@ -100,7 +100,7 @@ public class KeysetPaginationFailTest extends AbstractJOOQOracleSQLIntegrationTe
 
             return (offsetPostSummary != null)
                     ? selectStep
-                    .seek(offsetPostSummary.getCreatedOn(), BigInteger.valueOf(offsetPostSummary.getId()))
+                    .seek(offsetPostSummary.getCreatedOn(), offsetPostSummary.getId())
                     .limit(pageSize)
                     .fetchInto(PostSummary.class)
                     : selectStep

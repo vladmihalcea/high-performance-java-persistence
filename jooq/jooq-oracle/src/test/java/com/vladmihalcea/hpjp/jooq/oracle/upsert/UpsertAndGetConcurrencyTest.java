@@ -36,13 +36,13 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQOracleSQLIntegratio
 
             sql
             .insertInto(POST).columns(POST.ID, POST.TITLE)
-            .values(BigInteger.valueOf(1), "High-Performance Java Persistence")
+            .values(1L, "High-Performance Java Persistence")
             .execute();
 
             sql
             .insertInto(POST_DETAILS)
             .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)
-            .values(BigInteger.valueOf(1), "Alice", LocalDateTime.now())
+            .values(1L, "Alice", LocalDateTime.now())
             .onDuplicateKeyIgnore()
             .execute();
 
@@ -56,7 +56,7 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQOracleSQLIntegratio
                         _sql
                         .insertInto(POST_DETAILS)
                         .columns(POST_DETAILS.ID, POST_DETAILS.CREATED_BY, POST_DETAILS.CREATED_ON)
-                        .values(BigInteger.valueOf(1), "Bob", LocalDateTime.now())
+                        .values(1L, "Bob", LocalDateTime.now())
                         .onDuplicateKeyIgnore()
                         .execute();
                     });
@@ -72,7 +72,7 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQOracleSQLIntegratio
             awaitOnLatch(aliceLatch);
 
             PostDetailsRecord postDetailsRecord = sql.selectFrom(POST_DETAILS)
-                .where(field(POST_DETAILS.ID).eq(BigInteger.valueOf(1)))
+                .where(field(POST_DETAILS.ID).eq(1L))
                 .fetchOne();
 
             assertTrue(preventedByLocking.get());
