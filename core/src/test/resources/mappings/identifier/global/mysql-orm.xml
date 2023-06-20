@@ -4,7 +4,7 @@
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm_2_2.xsd"
                  version="2.2">
-    <package>com.vladmihalcea.book.hpjp.hibernate.identifier.global</package>
+    <package>com.vladmihalcea.hpjp.hibernate.identifier.global</package>
     <entity class="Post" access="FIELD">
         <attributes>
             <id name="id">
