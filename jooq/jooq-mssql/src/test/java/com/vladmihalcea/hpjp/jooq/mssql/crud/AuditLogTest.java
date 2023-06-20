@@ -9,8 +9,7 @@ import org.junit.Test;
 import java.time.LocalDateTime;
 
 import static com.vladmihalcea.hpjp.jooq.mssql.schema.crud.high_performance_java_persistence.dbo.Tables.*;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
@@ -225,8 +224,8 @@ public class AuditLogTest extends AbstractJOOQSQLServerSQLIntegrationTest {
             cleanUpPostAuditLog.setBeforeStartTimestamp(LocalDateTime.now().minusDays(30));
             cleanUpPostAuditLog.execute(sql.configuration());
 
-            int deletedRowCount = cleanUpPostAuditLog.getDeletedRowCount();
-            assertSame(1000, deletedRowCount);
+            int deletedRowCount = cleanUpPostAuditLog.getDeletedRowCount().intValue();
+            assertEquals(1000, deletedRowCount);
         });
     }
 
