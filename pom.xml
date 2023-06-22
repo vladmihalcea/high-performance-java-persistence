@@ -556,7 +556,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
-                    <argLine>-Xms1024m -Xmx1024m</argLine>
+                    <argLine>-Xms1024m -Xmx1024m -DObjectStoreEnvironmentBean.objectStoreDir=${project.build.directory}</argLine>
                 </configuration>
             </plugin>
         </plugins>

@@ -5,8 +5,10 @@ import com.blazebit.persistence.Criteria;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.JoinType;
 import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
-import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.providers.Database;
 import io.hypersistence.utils.hibernate.query.ListResultTransformer;
+import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.ParameterExpression;
@@ -16,8 +18,6 @@ import org.hibernate.query.NativeQuery;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.junit.Test;
 
-import jakarta.persistence.*;
-
 import java.util.Date;
 import java.util.List;
 
@@ -26,9 +26,14 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class BlazePersistenceCriteriaTest extends AbstractMySQLIntegrationTest {
+public class BlazePersistenceCriteriaTest extends AbstractTest {
 
     private CriteriaBuilderFactory cbf;
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
 
     @Override
     protected Class<?>[] entities() {
@@ -219,7 +224,7 @@ public class BlazePersistenceCriteriaTest extends AbstractMySQLIntegrationTest {
                 .create(entityManager, Tuple.class)
                 .from(Post.class, "p")
                 .leftJoinOn(PostComment.class, "pc").onExpression("pc.post = p").end()
-                .joinOn(PostDetails.class, "pd", JoinType.INNER).onExpression("pd = p").end()
+                .joinOn(PostDetails.class, "pd", JoinType.INNER).onExpression("pd.post = p").end()
                 .where("pd.createdBy").eqExpression(":createdBy")
                 .groupBy("p.title")
                 .select("p.title", "post_title")
@@ -267,7 +272,7 @@ public class BlazePersistenceCriteriaTest extends AbstractMySQLIntegrationTest {
                     .bind("postTitle").select("p.title")
                     .bind("commentCount").select("count(pc.id)")
                     .leftJoinOn(PostComment.class, "pc").onExpression("pc.post = p").end()
-                    .joinOn(PostDetails.class, "pd", JoinType.INNER).onExpression("pd = p").end()
+                    .joinOn(PostDetails.class, "pd", JoinType.INNER).onExpression("pd.post = p").end()
                     .where("pd.createdBy").eqExpression(":createdBy")
                     .groupBy("p.title", "p.id")
                     .end()

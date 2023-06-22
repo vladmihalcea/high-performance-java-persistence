@@ -23,6 +23,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.vladmihalcea.hpjp.hibernate.connection.jta.FlexyPoolEntities.Post;
+import static com.vladmihalcea.hpjp.util.AbstractTest.ENABLE_LONG_RUNNING_TESTS;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = FlexyPoolTestConfiguration.class)
@@ -61,6 +62,9 @@ public class FlexyPoolTest {
 
     @Test
     public void test() throws InterruptedException, ExecutionException {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         long startNanos = System.nanoTime();
 
         CountDownLatch awaitTermination = new CountDownLatch(threadCount);

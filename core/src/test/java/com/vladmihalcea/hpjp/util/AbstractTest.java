@@ -64,6 +64,8 @@ import static org.junit.Assert.fail;
 
 public abstract class AbstractTest {
 
+    public static final boolean ENABLE_LONG_RUNNING_TESTS = false;
+
     static {
         Thread.currentThread().setName("Alice");
     }
