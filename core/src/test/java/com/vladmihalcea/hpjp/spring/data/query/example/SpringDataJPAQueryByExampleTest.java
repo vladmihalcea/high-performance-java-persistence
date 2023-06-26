@@ -14,9 +14,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -125,10 +123,15 @@ public class SpringDataJPAQueryByExampleTest {
 
     @Test
     public void testFindByPost() {
+        PostComment postComment = new PostComment()
+            .setPost(
+                new Post()
+                    .setId(1L)
+            );
+
         List<PostComment> comments = (List<PostComment>) postCommentRepository.findAll(
             Example.of(
-                new PostComment()
-                    .setPost(new Post().setId(1L)),
+                postComment,
                 ExampleMatcher.matching()
                     .withIgnorePaths(PostComment_.VOTES)
             )
@@ -138,10 +141,15 @@ public class SpringDataJPAQueryByExampleTest {
 
     @Test
     public void testFindByPostOrderByCreatedOn() {
+        PostComment postComment = new PostComment()
+            .setPost(
+                new Post()
+                    .setId(1L)
+            );
+
         List<PostComment> comments = (List<PostComment>) postCommentRepository.findAll(
             Example.of(
-                new PostComment()
-                    .setPost(new Post().setId(1L)),
+                postComment,
                 ExampleMatcher.matching()
                     .withIgnorePaths(PostComment_.VOTES)
             ),
@@ -169,17 +177,20 @@ public class SpringDataJPAQueryByExampleTest {
 
     @Test
     public void testFindByPostAndStatusAndReviewLikeOrderByCreatedOn() {
-        String reviewPattern = "Spam";
+        PostComment postComment = new PostComment()
+            .setPost(new Post().setId(1L))
+            .setStatus(PostComment.Status.PENDING)
+            .setReview("Spam");
 
         List<PostComment> comments = (List<PostComment>) postCommentRepository.findAll(
             Example.of(
-                new PostComment()
-                    .setPost(new Post().setId(1L))
-                    .setStatus(PostComment.Status.PENDING)
-                    .setReview(reviewPattern),
+                postComment,
                 ExampleMatcher.matching()
                     .withIgnorePaths(PostComment_.VOTES)
-                    .withMatcher(PostComment_.REVIEW, ExampleMatcher.GenericPropertyMatcher::contains)
+                    .withMatcher(
+                        PostComment_.REVIEW,
+                        ExampleMatcher.GenericPropertyMatcher::contains
+                    )
             ),
             Sort.by(Sort.Order.asc(PostComment_.CREATED_ON))
         );
@@ -192,17 +203,42 @@ public class SpringDataJPAQueryByExampleTest {
         String reviewPattern = "Awesome";
         int votes = 0;
 
+        PostComment postComment = new PostComment()
+            .setPost(new Post().setId(1L))
+            .setStatus(PostComment.Status.PENDING)
+            .setReview(reviewPattern)
+            .setVotes(votes);
+
         List<PostComment> comments = (List<PostComment>) postCommentRepository.findAll(
             Example.of(
-                new PostComment()
-                    .setPost(new Post().setId(1L))
-                    .setStatus(PostComment.Status.PENDING)
-                    .setReview(reviewPattern)
-                    .setVotes(votes),
+                postComment,
                 ExampleMatcher.matching()
                     .withMatcher(PostComment_.REVIEW, ExampleMatcher.GenericPropertyMatcher::contains)
             ),
             Sort.by(Sort.Order.asc(PostComment_.CREATED_ON))
+        );
+    }
+
+    @Test
+    public void testFindBy() {
+        String reviewPattern = "Awesome";
+        int pageSize = 10;
+
+        PostComment postComment = new PostComment()
+            .setPost(new Post().setId(1L))
+            .setStatus(PostComment.Status.PENDING)
+            .setReview(reviewPattern);
+
+        Page<PostComment> comments = postCommentRepository.findBy(
+            Example.of(
+                postComment,
+                ExampleMatcher.matching()
+                    .withIgnorePaths(PostComment_.VOTES)
+                    .withMatcher(PostComment_.REVIEW, ExampleMatcher.GenericPropertyMatcher::contains)
+            ),
+            q -> q
+                .sortBy(Sort.by(PostComment_.CREATED_ON).ascending())
+                .page(Pageable.ofSize(pageSize))
         );
     }
 }
