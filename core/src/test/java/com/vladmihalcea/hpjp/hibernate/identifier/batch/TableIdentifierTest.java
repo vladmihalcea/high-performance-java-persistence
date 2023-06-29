@@ -16,7 +16,6 @@ public class TableIdentifierTest extends AbstractBatchIdentifierTest {
     @Test
     public void testTableIdentifierGenerator() {
         LOGGER.debug("testTableIdentifierGenerator");
-        int batchSize = 2;
         doInJPA(entityManager -> {
             for (int i = 1; i <= 5; i++) {
                 entityManager.persist(

@@ -40,6 +40,7 @@ public class PooledSequenceIdentifierTest extends AbstractPooledSequenceIdentifi
     }
 
     @Entity(name = "Post")
+    @Table(name = "post")
     public static class Post {
 
         @Id

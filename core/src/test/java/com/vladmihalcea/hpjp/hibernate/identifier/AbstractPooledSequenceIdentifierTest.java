@@ -34,16 +34,39 @@ public abstract class AbstractPooledSequenceIdentifierTest extends AbstractTest 
                 entityManager.flush();
             }
             entityManager.flush();
-            assertEquals(5, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM Post").getSingleResult()).intValue());
+            assertEquals(
+                5,
+                ((Number) entityManager.createNativeQuery("""
+                    SELECT COUNT(*) 
+                    FROM post
+                    """
+                ).getSingleResult()).intValue()
+            );
 
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try(Statement statement = connection.createStatement()) {
-                    statement.executeUpdate("INSERT INTO Post (id) VALUES (nextval('post_sequence'))");
+                    statement.executeUpdate("""
+                        INSERT INTO post (
+                            id, 
+                            title
+                        ) 
+                        VALUES (
+                            nextval('post_sequence'), 
+                            'High-Performance Hibernate'
+                        )
+                        """);
                 }
             });
 
-            assertEquals(6, ((Number) entityManager.createNativeQuery("SELECT COUNT(*) FROM Post").getSingleResult()).intValue());
-            List<Number> ids = entityManager.createNativeQuery("SELECT id FROM Post").getResultList();
+            assertEquals(
+                6,
+                ((Number) entityManager.createNativeQuery("""
+                    SELECT COUNT(*) 
+                    FROM post
+                    """
+                ).getSingleResult()).intValue()
+            );
+            List<Number> ids = entityManager.createNativeQuery("SELECT id FROM post").getResultList();
             for (Number id : ids) {
                 LOGGER.debug("Found id: {}", id);
             }

@@ -1,13 +1,9 @@
 package com.vladmihalcea.hpjp.hibernate.identifier;
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.junit.Test;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 
 public class PooledLoSequenceIdentifierTest extends AbstractPooledSequenceIdentifierTest {
 
@@ -29,6 +25,7 @@ public class PooledLoSequenceIdentifierTest extends AbstractPooledSequenceIdenti
     }
 
     @Entity(name = "Post")
+    @Table(name = "post")
     public static class Post {
 
         @Id
@@ -44,5 +41,23 @@ public class PooledLoSequenceIdentifierTest extends AbstractPooledSequenceIdenti
                 }
         )
         private Long id;
+
+        private String title;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
     }
 }
