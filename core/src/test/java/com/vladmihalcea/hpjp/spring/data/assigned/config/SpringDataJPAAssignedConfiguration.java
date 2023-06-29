@@ -20,7 +20,6 @@ import java.util.Properties;
 @EnableJpaRepositories(
     basePackages = {
         "com.vladmihalcea.hpjp.spring.data.assigned.repository",
-        "io.hypersistence.utils.spring.repository"
     },
     repositoryBaseClass = BaseJpaRepositoryImpl.class
 )

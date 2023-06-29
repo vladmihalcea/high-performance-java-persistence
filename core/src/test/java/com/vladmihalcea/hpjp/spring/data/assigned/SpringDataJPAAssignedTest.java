@@ -2,6 +2,7 @@ package com.vladmihalcea.hpjp.spring.data.assigned;
 
 import com.vladmihalcea.hpjp.spring.data.assigned.config.SpringDataJPAAssignedConfiguration;
 import com.vladmihalcea.hpjp.spring.data.assigned.domain.Book;
+import com.vladmihalcea.hpjp.spring.data.assigned.repository.BookBaseJpaRepository;
 import com.vladmihalcea.hpjp.spring.data.assigned.repository.BookRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +30,9 @@ public class SpringDataJPAAssignedTest {
     @Autowired
     private BookRepository bookRepository;
 
+    @Autowired
+    private BookBaseJpaRepository bookBaseJpaRepository;
+
     @Test
     public void testJpaRepositorySave() {
         transactionTemplate.execute(status -> {
@@ -46,7 +50,7 @@ public class SpringDataJPAAssignedTest {
     @Test
     public void testBaseJpaRepositoryPersist() {
         transactionTemplate.execute(status -> {
-            bookRepository.save(
+            bookBaseJpaRepository.persist(
                 new Book()
                     .setIsbn(9789730228236L)
                     .setTitle("High-Performance Java Persistence")
