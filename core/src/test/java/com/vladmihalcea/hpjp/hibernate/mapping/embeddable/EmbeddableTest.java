@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Vlad Mihalcea
  */
@@ -66,6 +68,15 @@ public class EmbeddableTest extends AbstractTest {
             Post post = entityManager.find(Post.class, 1L);
 
             post.setTitle("High-Performance Java Persistence, 2nd Edition");
+
+            List<Audit> postAudits = entityManager.createQuery("""
+                select p.audit
+                from Post p
+                order by p.id
+                """, Audit.class)
+            .getResultList();
+
+            assertEquals(1, postAudits.size());
         });
 
         LoggedUser.logOut();
