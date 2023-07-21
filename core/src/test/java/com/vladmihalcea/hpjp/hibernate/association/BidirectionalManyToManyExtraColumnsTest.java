@@ -29,6 +29,7 @@ import org.hibernate.annotations.NaturalIdCache;
 import org.junit.Test;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * @author Vlad Mihalcea
@@ -158,6 +159,9 @@ public class BidirectionalManyToManyExtraColumnsTest extends AbstractTest {
             hibernate.getPosts().get(0).getCreatedOn();
 
             entityManager.remove(post);
+
+            entityManager.flush();
+            Assertions.assertNull(entityManager.find(Post.class, 1));
         });
     }
 
