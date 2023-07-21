@@ -281,6 +281,12 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>io.hypersistence</groupId>
+            <artifactId>hypersistence-tsid</artifactId>
+            <version>${hypersistence-tsid.version}</version>
+        </dependency>
+
         <!-- AspectJ -->
 
         <dependency>
@@ -521,6 +527,7 @@
 
         <flyway.version>6.4.4</flyway.version>
         <hypersistence-utils.version>3.5.1</hypersistence-utils.version>
+        <hypersistence-tsid.version>2.1.1</hypersistence-tsid.version>
 
         <blaze-persistence.version>1.6.7</blaze-persistence.version>
 
