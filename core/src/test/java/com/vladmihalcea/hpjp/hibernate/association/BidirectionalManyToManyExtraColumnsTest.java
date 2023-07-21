@@ -113,6 +113,55 @@ public class BidirectionalManyToManyExtraColumnsTest extends AbstractTest {
         });
     }
 
+    @Test
+    public void testDeleteCascade() {
+
+        doInJPA(entityManager -> {
+            Tag hibernate = new Tag("Hibernate");
+            entityManager.persist( hibernate );
+        });
+
+        doInJPA(entityManager -> {
+            Session session = entityManager.unwrap( Session.class );
+            Tag hibernate = session.bySimpleNaturalId(Tag.class).load( "Hibernate" );
+
+            Post hpjp1 = new Post("High-Performance Java Persistence 1st edition");
+            hpjp1.setId(1L);
+
+            hpjp1.addTag(hibernate);
+
+            entityManager.persist(hpjp1);
+
+            Post hpjp2 = new Post("High-Performance Java Persistence 2nd edition");
+            hpjp2.setId(2L);
+
+            hpjp2.addTag(hibernate);
+
+            entityManager.persist(hpjp2);
+        });
+
+        doInJPA(entityManager -> {
+            Tag hibernate = entityManager.unwrap( Session.class )
+                    .bySimpleNaturalId(Tag.class)
+                    .load( "Hibernate" );
+
+            Post post = entityManager.createQuery(
+                            "select p " +
+                                    "from Post p " +
+                                    "join fetch p.tags pt " +
+                                    "join fetch pt.tag " +
+                                    "where p.id = :postId", Post.class)
+                    .setParameter( "postId", 1L )
+                    .getSingleResult();
+
+            // having the PostTag associations from the Tag side loaded prevents the removal.
+            hibernate.getPosts().get(0).getCreatedOn();
+
+            entityManager.remove(post);
+        });
+    }
+
+
     @Entity(name = "Post")
     @Table(name = "post")
     public static class Post {
