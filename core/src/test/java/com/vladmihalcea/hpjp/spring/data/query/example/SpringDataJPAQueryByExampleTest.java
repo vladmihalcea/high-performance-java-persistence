@@ -81,7 +81,6 @@ public class SpringDataJPAQueryByExampleTest {
                         .setId(postId)
                         .setTitle(String.format("Post nr. %d", postId));
 
-
                     for (long i = 1; i <= POST_COMMENT_COUNT; i++) {
                         PostComment comment = new PostComment()
                             .setId(++commentId)
