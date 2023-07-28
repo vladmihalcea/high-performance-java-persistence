@@ -84,6 +84,23 @@ public class ElementCollectionListTest extends AbstractTest {
         });
     }
 
+    @Test
+    public void testFetchAndRemove() {
+        doInJPA(entityManager -> {
+            Post post = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.comments
+                where p.id = :id
+                """, Post.class)
+                .setParameter("id", 1L)
+                .getSingleResult();
+
+            List<String> comments = post.getComments();
+            comments.remove(comments.iterator().next());
+        });
+    }
+
     @Entity(name = "Post")
     @Table(name = "post")
     public static class Post {
