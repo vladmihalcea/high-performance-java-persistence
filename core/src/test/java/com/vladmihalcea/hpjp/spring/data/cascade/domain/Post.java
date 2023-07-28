@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.spring.data.cascade.domain;
 
+import com.vladmihalcea.hpjp.hibernate.association.BidirectionalOneToOneMapsIdTest;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -16,6 +17,12 @@ public class Post {
     private Long id;
 
     private String title;
+    @OneToOne(
+        mappedBy = "post",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL
+    )
+    private PostDetails details;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostComment> comments = new ArrayList<>();
@@ -42,6 +49,19 @@ public class Post {
 
     public Post setTitle(String title) {
         this.title = title;
+        return this;
+    }
+
+    public Post setDetails(PostDetails details) {
+        if (details == null) {
+            if (this.details != null) {
+                this.details.setPost(null);
+            }
+        }
+        else {
+            details.setPost(this);
+        }
+        this.details = details;
         return this;
     }
 

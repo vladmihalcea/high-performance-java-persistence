@@ -3,8 +3,10 @@ package com.vladmihalcea.hpjp.spring.data.cascade;
 import com.vladmihalcea.hpjp.spring.data.cascade.config.SpringDataJPACascadeConfiguration;
 import com.vladmihalcea.hpjp.spring.data.cascade.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.cascade.domain.PostComment;
+import com.vladmihalcea.hpjp.spring.data.cascade.domain.PostDetails;
 import com.vladmihalcea.hpjp.spring.data.cascade.domain.Tag;
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostCommentRepository;
+import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostDetailsRepository;
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.query.example.domain.PostComment_;
 import jakarta.persistence.EntityManager;
@@ -49,6 +51,9 @@ public class SpringDataJPACascadeTest {
     private PostRepository postRepository;
 
     @Autowired
+    private PostDetailsRepository postDetailsRepository;
+
+    @Autowired
     private PostCommentRepository postCommentRepository;
 
     @Test
@@ -72,6 +77,37 @@ public class SpringDataJPACascadeTest {
         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
             Post post = postRepository.findByIdWithComments(1L);
             postRepository.delete(post);
+
+            return null;
+        });
+    }
+
+    @Test
+    public void testSavePostAndPostDetails() {
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            Post post = new Post()
+                .setId(1L)
+                .setTitle("High-Performance Java Persistence")
+                .setDetails(
+                    new PostDetails()
+                        .setCreatedBy("Vlad Mihalcea")
+                );
+
+            postRepository.persist(post);
+            return null;
+        });
+
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            Post post = postRepository.getReferenceById(1L);
+
+            PostDetails postDetails = postDetailsRepository.findById(post.getId()).orElseThrow();
+            assertEquals("Vlad Mihalcea", postDetails.getCreatedBy());
+
+            return null;
+        });
+
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            Post post = postRepository.findById(1L).orElseThrow();
 
             return null;
         });
