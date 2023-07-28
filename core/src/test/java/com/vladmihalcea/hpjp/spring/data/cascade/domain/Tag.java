@@ -1,8 +1,10 @@
 package com.vladmihalcea.hpjp.spring.data.cascade.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.NaturalId;
 
 /**
  * @author Vlad Mihalcea
@@ -12,8 +14,10 @@ import jakarta.persistence.Table;
 public class Tag {
 
     @Id
+    @GeneratedValue
     private Long id;
 
+    @NaturalId
     private String name;
 
     public Long getId() {

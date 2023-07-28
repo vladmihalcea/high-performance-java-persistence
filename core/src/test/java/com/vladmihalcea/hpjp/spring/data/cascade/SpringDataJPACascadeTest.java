@@ -5,31 +5,23 @@ import com.vladmihalcea.hpjp.spring.data.cascade.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.cascade.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.cascade.domain.PostDetails;
 import com.vladmihalcea.hpjp.spring.data.cascade.domain.Tag;
-import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostCommentRepository;
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostDetailsRepository;
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostRepository;
-import com.vladmihalcea.hpjp.spring.data.query.example.domain.PostComment_;
+import com.vladmihalcea.hpjp.spring.data.cascade.repository.TagRepository;
 import jakarta.persistence.EntityManager;
-import org.junit.Before;
+import org.hibernate.Session;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 /**
  * @author Vlad Mihalcea
@@ -48,13 +40,13 @@ public class SpringDataJPACascadeTest {
     private EntityManager entityManager;
 
     @Autowired
+    private TagRepository tagRepository;
+
+    @Autowired
     private PostRepository postRepository;
 
     @Autowired
     private PostDetailsRepository postDetailsRepository;
-
-    @Autowired
-    private PostCommentRepository postCommentRepository;
 
     @Test
     public void testSavePostAndComments() {
@@ -108,6 +100,53 @@ public class SpringDataJPACascadeTest {
 
         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
             Post post = postRepository.findById(1L).orElseThrow();
+
+            return null;
+        });
+    }
+
+    @Test
+    public void testSavePostAndTags() {
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            tagRepository.persist(new Tag().setName("JPA"));
+            tagRepository.persist(new Tag().setName("Hibernate"));
+
+            return null;
+        });
+
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            Session session = entityManager.unwrap(Session.class);
+
+            postRepository.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("JPA with Hibernate")
+                    .addTag(session.bySimpleNaturalId(Tag.class).getReference("JPA"))
+                    .addTag(session.bySimpleNaturalId(Tag.class).getReference("Hibernate"))
+            );
+
+            postRepository.persist(
+                new Post()
+                    .setId(2L)
+                    .addTag(session.bySimpleNaturalId(Tag.class).getReference("Hibernate"))
+            );
+
+            return null;
+        });
+
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            Session session = entityManager.unwrap(Session.class);
+
+            Post post = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.tags
+                where p.id = :id
+                """, Post.class)
+            .setParameter("id", 1L)
+            .getSingleResult();
+
+            post.getTags().remove(session.bySimpleNaturalId(Tag.class).getReference("JPA"));
 
             return null;
         });
