@@ -176,8 +176,7 @@ public class BidirectionalManyToManyLinkEntityEmbeddableTest
     }
 
     @Embeddable
-    public static class PostTagId
-        implements Serializable {
+    public static class PostTagId implements Serializable {
 
         @ManyToOne(fetch = FetchType.LAZY)
         private Post post;

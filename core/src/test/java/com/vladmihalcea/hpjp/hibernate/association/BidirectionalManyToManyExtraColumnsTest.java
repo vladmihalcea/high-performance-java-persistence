@@ -177,8 +177,7 @@ public class BidirectionalManyToManyExtraColumnsTest extends AbstractTest {
     }
 
     @Embeddable
-    public static class PostTagId
-        implements Serializable {
+    public static class PostTagId implements Serializable {
 
         @Column(name = "post_id")
         private Long postId;
@@ -206,13 +205,13 @@ public class BidirectionalManyToManyExtraColumnsTest extends AbstractTest {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             PostTagId that = (PostTagId) o;
-            return Objects.equals(postId, that.getPostId()) &&
-                    Objects.equals(tagId, that.getTagId());
+            return Objects.equals(this.postId, that.getPostId()) &&
+                    Objects.equals(this.tagId, that.getTagId());
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(postId, tagId);
+            return Objects.hash(this.postId, this.tagId);
         }
     }
 
@@ -271,13 +270,12 @@ public class BidirectionalManyToManyExtraColumnsTest extends AbstractTest {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             PostTag that = (PostTag) o;
-            return Objects.equals(post, that.post) &&
-                    Objects.equals(tag, that.tag);
+            return Objects.equals(this.id, that.id);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(post, tag);
+            return Objects.hash(this.id);
         }
     }
 
@@ -341,5 +339,4 @@ public class BidirectionalManyToManyExtraColumnsTest extends AbstractTest {
             return Objects.hash(name);
         }
     }
-
 }

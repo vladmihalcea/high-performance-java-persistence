@@ -32,8 +32,7 @@ import jakarta.persistence.MapKeyJoinColumn;
 /**
  * @author Vlad Mihalcea
  */
-public class BidirectionalManyToManyLinkEntityMapKeyJoinColumnTest
-        extends AbstractTest {
+public class BidirectionalManyToManyLinkEntityMapKeyJoinColumnTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -313,5 +312,4 @@ public class BidirectionalManyToManyLinkEntityMapKeyJoinColumnTest
             return Objects.hash(name);
         }
     }
-
 }

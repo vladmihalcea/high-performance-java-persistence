@@ -254,13 +254,12 @@ public class BidirectionalManyToManyLinkEntityTest extends AbstractTest {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             PostTag that = (PostTag) o;
-            return Objects.equals(post, that.post) &&
-                    Objects.equals(tag, that.tag);
+            return Objects.equals(this.id, that.id);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(post, tag);
+            return Objects.hash(this.id);
         }
     }
 

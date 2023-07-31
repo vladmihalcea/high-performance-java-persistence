@@ -253,6 +253,4 @@ public class BidirectionalManyToManyLinkEntityIdColumnsTest extends AbstractTest
             return Objects.hash(name);
         }
     }
-
-
 }
