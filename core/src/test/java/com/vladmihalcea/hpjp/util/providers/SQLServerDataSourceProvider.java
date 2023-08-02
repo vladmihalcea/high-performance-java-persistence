@@ -16,12 +16,24 @@ public class SQLServerDataSourceProvider extends AbstractContainerDataSourceProv
 
 	private boolean sendStringParametersAsUnicode = false;
 
+	private Boolean useBulkCopyForBatchInsert;
+
 	public boolean isSendStringParametersAsUnicode() {
 		return sendStringParametersAsUnicode;
 	}
 
-	public void setSendStringParametersAsUnicode(boolean sendStringParametersAsUnicode) {
+	public SQLServerDataSourceProvider setSendStringParametersAsUnicode(boolean sendStringParametersAsUnicode) {
 		this.sendStringParametersAsUnicode = sendStringParametersAsUnicode;
+		return this;
+	}
+
+	public Boolean getUseBulkCopyForBatchInsert() {
+		return useBulkCopyForBatchInsert;
+	}
+
+	public SQLServerDataSourceProvider setUseBulkCopyForBatchInsert(Boolean useBulkCopyForBatchInsert) {
+		this.useBulkCopyForBatchInsert = useBulkCopyForBatchInsert;
+		return this;
 	}
 
 	@Override
@@ -45,6 +57,9 @@ public class SQLServerDataSourceProvider extends AbstractContainerDataSourceProv
 		} else {
 			dataSource.setUser(container.getUsername());
 			dataSource.setPassword(container.getPassword());
+		}
+		if (useBulkCopyForBatchInsert != null) {
+			dataSource.setUseBulkCopyForBatchInsert(useBulkCopyForBatchInsert);
 		}
 		dataSource.setSendStringParametersAsUnicode(sendStringParametersAsUnicode);
 		return dataSource;

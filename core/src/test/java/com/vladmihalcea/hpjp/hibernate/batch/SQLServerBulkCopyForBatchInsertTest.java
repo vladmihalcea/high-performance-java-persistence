@@ -1,14 +1,12 @@
 package com.vladmihalcea.hpjp.hibernate.batch;
 
-import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
-import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
+import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.SQLServerDataSourceProvider;
-import org.junit.Ignore;
+import jakarta.persistence.*;
 import org.junit.Test;
 
-import jakarta.persistence.*;
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -17,8 +15,7 @@ import java.util.Properties;
 /**
  * @author Vlad Mihalcea
  */
-@Ignore
-public class SQLServerBatchRewriteTest extends AbstractSQLServerIntegrationTest {
+public class SQLServerBulkCopyForBatchInsertTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -29,29 +26,25 @@ public class SQLServerBatchRewriteTest extends AbstractSQLServerIntegrationTest 
     }
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
+    protected Database database() {
+        return Database.SQLSERVER;
+    }
+
+    @Override
+    protected void additionalProperties(Properties properties) {
         properties.put("hibernate.jdbc.batch_size", "10");
         properties.put("hibernate.order_inserts", "true");
         properties.put("hibernate.order_updates", "true");
-        properties.put("hibernate.jdbc.batch_versioned_data", "true");
-        return properties;
     }
 
     @Override
     protected DataSourceProvider dataSourceProvider() {
-        return new SQLServerDataSourceProvider() {
-            @Override
-            public DataSource dataSource() {
-                SQLServerDataSource dataSource = (SQLServerDataSource) super.dataSource();
-                dataSource.setUseBulkCopyForBatchInsert(true);
-                return dataSource;
-            }
-        };
+        return ((SQLServerDataSourceProvider) super.dataSourceProvider())
+            .setUseBulkCopyForBatchInsert(true)
+            .setSendStringParametersAsUnicode(true);
     }
 
     @Test
-    @Ignore
     public void testInsertPosts() {
         insertPosts();
     }
@@ -66,9 +59,10 @@ public class SQLServerBatchRewriteTest extends AbstractSQLServerIntegrationTest 
         insertPosts();
 
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                """, Post.class)
             .getResultList();
 
             posts.forEach(post -> post.setTitle(post.getTitle().replaceAll("no", "nr")));
@@ -80,10 +74,11 @@ public class SQLServerBatchRewriteTest extends AbstractSQLServerIntegrationTest 
         insertPostsAndComments();
 
         doInJPA(entityManager -> {
-            List<PostComment> comments = entityManager.createQuery(
-                "select c " +
-                "from PostComment c " +
-                "join fetch c.post ", PostComment.class)
+            List<PostComment> comments = entityManager.createQuery("""
+                select c
+                from PostComment c
+                join fetch c.post
+                """, PostComment.class)
             .getResultList();
 
             comments.forEach(comment -> {
@@ -99,9 +94,10 @@ public class SQLServerBatchRewriteTest extends AbstractSQLServerIntegrationTest 
         insertPosts();
 
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                """, Post.class)
             .getResultList();
 
             posts.forEach(entityManager::remove);
@@ -113,10 +109,11 @@ public class SQLServerBatchRewriteTest extends AbstractSQLServerIntegrationTest 
         insertPostsAndComments();
 
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.comments
+                """, Post.class)
             .getResultList();
 
             posts.forEach(entityManager::remove);
@@ -129,10 +126,11 @@ public class SQLServerBatchRewriteTest extends AbstractSQLServerIntegrationTest 
 
         LOGGER.info("testDeletePostsAndCommentsWithManualChildRemoval");
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.comments ", Post.class)
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.comments
+                """, Post.class)
             .getResultList();
 
             for (Post post : posts) {
@@ -155,8 +153,6 @@ public class SQLServerBatchRewriteTest extends AbstractSQLServerIntegrationTest 
                     new Post(String.format("Post no. %d", i + 1))
                 );
             }
-            entityManager.flush();
-            LOGGER.info("a");
         });
     }
 
