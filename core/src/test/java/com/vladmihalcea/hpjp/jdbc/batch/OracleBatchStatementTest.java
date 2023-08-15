@@ -56,6 +56,9 @@ public class OracleBatchStatementTest extends AbstractOracleIntegrationTest {
 
     @Test
     public void testInsert() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         LOGGER.info("Test batch insert");
         long startNanos = System.nanoTime();
         doInJDBC(connection -> {

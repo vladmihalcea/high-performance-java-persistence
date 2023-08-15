@@ -68,8 +68,10 @@ public class MySQLRewriteBatchPreparedStatementTest extends AbstractMySQLIntegra
     }
 
     @Test
-    @Ignore
     public void testInsert() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         long ttlMillis = System.currentTimeMillis() + getRunMillis();
 
         final AtomicInteger postIdHolder = new AtomicInteger();

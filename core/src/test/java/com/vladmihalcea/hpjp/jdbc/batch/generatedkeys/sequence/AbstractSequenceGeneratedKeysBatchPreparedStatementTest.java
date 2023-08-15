@@ -23,6 +23,9 @@ public abstract class AbstractSequenceGeneratedKeysBatchPreparedStatementTest ex
 
     @Test
     public void testBatch() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         doInJDBC(this::batchInsert);
     }
 

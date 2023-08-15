@@ -76,8 +76,10 @@ public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOrac
     }
 
     @Test
-    @Ignore
     public void testInsert() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         LOGGER.info("Test batch insert for defaultExecuteBatch {}", defaultExecuteBatch);
         long startNanos = System.nanoTime();
         doInJDBC(connection -> {

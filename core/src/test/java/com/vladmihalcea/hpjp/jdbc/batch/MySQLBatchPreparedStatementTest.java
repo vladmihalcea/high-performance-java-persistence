@@ -62,8 +62,10 @@ public class MySQLBatchPreparedStatementTest extends AbstractMySQLIntegrationTes
     }
 
     @Test
-    @Ignore
     public void testInsert() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         LOGGER.info("Test MySQL batch insert with cachePrepStmts={}, useServerPrepStmts={}", cachePrepStmts, useServerPrepStmts);
         AtomicInteger statementCount = new AtomicInteger();
         long startNanos = System.nanoTime();

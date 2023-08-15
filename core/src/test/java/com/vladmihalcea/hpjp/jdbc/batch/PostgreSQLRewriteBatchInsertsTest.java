@@ -67,6 +67,9 @@ public class PostgreSQLRewriteBatchInsertsTest extends AbstractPostgreSQLIntegra
 
     @Test
     public void testInsert() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         long ttlMillis = System.currentTimeMillis() + getRunMillis();
 
         final AtomicInteger postIdHolder = new AtomicInteger();

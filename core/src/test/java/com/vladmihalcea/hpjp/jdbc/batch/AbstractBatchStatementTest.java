@@ -36,6 +36,9 @@ public abstract class AbstractBatchStatementTest extends DataSourceProviderInteg
 
     @Test
     public void testInsert() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         LOGGER.info("Test batch insert");
         AtomicInteger statementCount = new AtomicInteger();
         long startNanos = System.nanoTime();

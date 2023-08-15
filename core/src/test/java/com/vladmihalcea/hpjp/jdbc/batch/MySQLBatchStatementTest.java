@@ -60,8 +60,10 @@ public class MySQLBatchStatementTest extends AbstractMySQLIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void testInsert() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         LOGGER.info("Test MySQL batch insert with rewriteBatchedStatements={}", rewriteBatchedStatements);
         AtomicInteger statementCount = new AtomicInteger();
         long startNanos = System.nanoTime();
