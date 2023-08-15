@@ -67,7 +67,7 @@ public class PostgreSQLRewriteBatchInsertsTest extends AbstractPostgreSQLIntegra
 
     @Test
     public void testInsert() {
-        if(!ENABLE_LONG_RUNNING_TESTS) {
+        if (!ENABLE_LONG_RUNNING_TESTS) {
             return;
         }
         long ttlMillis = System.currentTimeMillis() + getRunMillis();
@@ -111,7 +111,7 @@ public class PostgreSQLRewriteBatchInsertsTest extends AbstractPostgreSQLIntegra
     private void executeStatement(PreparedStatement statement, AtomicInteger statementCount) throws SQLException {
         statement.addBatch();
         int count = statementCount.incrementAndGet();
-        if(count % getBatchSize() == 0) {
+        if (count % getBatchSize() == 0) {
             statement.executeBatch();
         }
     }

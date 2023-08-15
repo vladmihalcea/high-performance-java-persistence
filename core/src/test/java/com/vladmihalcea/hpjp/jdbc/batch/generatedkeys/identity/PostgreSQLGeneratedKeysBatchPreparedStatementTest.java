@@ -34,7 +34,7 @@ public class PostgreSQLGeneratedKeysBatchPreparedStatementTest extends AbstractP
     protected void batchInsert(Connection connection) throws SQLException {
         LOGGER.info("Identity generated keys for PostgreSQL");
 
-        try(Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("drop table if exists post cascade");
 
             statement.executeUpdate(

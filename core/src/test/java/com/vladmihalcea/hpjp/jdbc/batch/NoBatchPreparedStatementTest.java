@@ -18,7 +18,7 @@ public class NoBatchPreparedStatementTest extends AbstractBatchPreparedStatement
 
     @Override
     protected void onStatement(PreparedStatement statement) throws SQLException {
-       statement.executeUpdate();
+        statement.executeUpdate();
     }
 
     @Override

@@ -4,7 +4,6 @@ import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.MySQLDataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -63,7 +62,7 @@ public class MySQLBatchPreparedStatementTest extends AbstractMySQLIntegrationTes
 
     @Test
     public void testInsert() {
-        if(!ENABLE_LONG_RUNNING_TESTS) {
+        if (!ENABLE_LONG_RUNNING_TESTS) {
             return;
         }
         LOGGER.info("Test MySQL batch insert with cachePrepStmts={}, useServerPrepStmts={}", cachePrepStmts, useServerPrepStmts);
@@ -106,16 +105,16 @@ public class MySQLBatchPreparedStatementTest extends AbstractMySQLIntegrationTes
             }
         });
         LOGGER.info("{}.testInsert for cachePrepStmts={}, useServerPrepStmts={} took {} millis",
-                getClass().getSimpleName(),
-                cachePrepStmts,
-                useServerPrepStmts,
-                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
+            getClass().getSimpleName(),
+            cachePrepStmts,
+            useServerPrepStmts,
+            TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
     }
 
     private void executeStatement(PreparedStatement statement, AtomicInteger statementCount) throws SQLException {
         statement.addBatch();
         int count = statementCount.incrementAndGet();
-        if(count % getBatchSize() == 0) {
+        if (count % getBatchSize() == 0) {
             statement.executeBatch();
         }
     }

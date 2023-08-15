@@ -44,7 +44,7 @@ public abstract class AbstractBatchPreparedStatementTest extends DataSourceProvi
     private void executeStatement(PreparedStatement statement, AtomicInteger statementCount) throws SQLException {
         onStatement(statement);
         int count = statementCount.incrementAndGet();
-        if(count % getBatchSize() == 0) {
+        if (count % getBatchSize() == 0) {
             onFlush(statement);
         }
     }
@@ -103,10 +103,10 @@ public abstract class AbstractBatchPreparedStatementTest extends DataSourceProvi
             onEnd(postCommentStatement);
 
             LOGGER.info("{}.testInsert for {} using batch size {} took {} millis",
-                    getClass().getSimpleName(),
-                    dataSourceProvider().getClass().getSimpleName(),
-                    getBatchSize(),
-                    TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
+                getClass().getSimpleName(),
+                dataSourceProvider().getClass().getSimpleName(),
+                getBatchSize(),
+                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
 
         }
     }
@@ -116,9 +116,9 @@ public abstract class AbstractBatchPreparedStatementTest extends DataSourceProvi
         AtomicInteger postCommentStatementCount = new AtomicInteger();
 
         try (
-             PreparedStatement postStatement = connection.prepareStatement("update Post set version = ? where id = ?");
-             PreparedStatement postCommentStatement = connection.prepareStatement("update post_comment set version = ? where id = ?");
-             Statement bulkUpdateStatement = connection.createStatement();
+            PreparedStatement postStatement = connection.prepareStatement("update Post set version = ? where id = ?");
+            PreparedStatement postCommentStatement = connection.prepareStatement("update post_comment set version = ? where id = ?");
+            Statement bulkUpdateStatement = connection.createStatement();
         ) {
             int postCount = getPostCount();
             int postCommentCount = getPostCommentCount();
@@ -149,18 +149,18 @@ public abstract class AbstractBatchPreparedStatementTest extends DataSourceProvi
             onEnd(postCommentStatement);
 
             LOGGER.info("{}.testUpdate for {} took {} millis",
-                    getClass().getSimpleName(),
-                    dataSourceProvider().getClass().getSimpleName(),
-                    TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
+                getClass().getSimpleName(),
+                dataSourceProvider().getClass().getSimpleName(),
+                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
 
             LOGGER.info("Test bulk update");
             startNanos = System.nanoTime();
             bulkUpdateStatement.executeUpdate("update Post set version = version + 1");
             bulkUpdateStatement.executeUpdate("update post_comment set version = version + 1");
             LOGGER.info("{}.testBulkUpdate for {} took {} millis",
-                    getClass().getSimpleName(),
-                    dataSourceProvider().getClass().getSimpleName(),
-                    TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
+                getClass().getSimpleName(),
+                dataSourceProvider().getClass().getSimpleName(),
+                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
         }
     }
 
@@ -169,9 +169,9 @@ public abstract class AbstractBatchPreparedStatementTest extends DataSourceProvi
         AtomicInteger postCommentStatementCount = new AtomicInteger();
 
         try (
-                PreparedStatement postStatement = connection.prepareStatement("delete from Post where id = ?");
-                PreparedStatement postCommentStatement = connection.prepareStatement("delete from post_comment where id = ?");
-                Statement bulkUpdateStatement = connection.createStatement();
+            PreparedStatement postStatement = connection.prepareStatement("delete from Post where id = ?");
+            PreparedStatement postCommentStatement = connection.prepareStatement("delete from post_comment where id = ?");
+            Statement bulkUpdateStatement = connection.createStatement();
         ) {
             int postCount = getPostCount();
             int postCommentCount = getPostCommentCount();
@@ -201,9 +201,9 @@ public abstract class AbstractBatchPreparedStatementTest extends DataSourceProvi
             onEnd(postStatement);
 
             LOGGER.info("{}.testDelete for {} took {} millis",
-                    getClass().getSimpleName(),
-                    dataSourceProvider().getClass().getSimpleName(),
-                    TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
+                getClass().getSimpleName(),
+                dataSourceProvider().getClass().getSimpleName(),
+                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
 
             batchInsert(connection);
 
@@ -212,9 +212,9 @@ public abstract class AbstractBatchPreparedStatementTest extends DataSourceProvi
             bulkUpdateStatement.executeUpdate("delete from post_comment where version > 0");
             bulkUpdateStatement.executeUpdate("delete from Post where version > 0");
             LOGGER.info("{}.testBulkDelete for {} took {} millis",
-                    getClass().getSimpleName(),
-                    dataSourceProvider().getClass().getSimpleName(),
-                    TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
+                getClass().getSimpleName(),
+                dataSourceProvider().getClass().getSimpleName(),
+                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
         }
 
     }

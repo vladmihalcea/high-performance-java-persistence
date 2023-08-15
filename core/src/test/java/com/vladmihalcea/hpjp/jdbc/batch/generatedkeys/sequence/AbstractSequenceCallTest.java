@@ -28,9 +28,9 @@ public abstract class AbstractSequenceCallTest extends AbstractTest {
     private Timer timer = metricRegistry.timer("callSequence");
 
     private Slf4jReporter logReporter = Slf4jReporter
-            .forRegistry(metricRegistry)
-            .outputTo(LOGGER)
-            .build();
+        .forRegistry(metricRegistry)
+        .outputTo(LOGGER)
+        .build();
 
     private int ttl = 60;
 
@@ -59,7 +59,7 @@ public abstract class AbstractSequenceCallTest extends AbstractTest {
             while (TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startNanos) < ttl + 1) {
                 long startCall = System.nanoTime();
                 try (ResultSet resultSet = statement.executeQuery(
-                        callSequenceSyntax())) {
+                    callSequenceSyntax())) {
                     resultSet.next();
                     resultSet.getLong(1);
                 }

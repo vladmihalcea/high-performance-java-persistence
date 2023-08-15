@@ -36,7 +36,7 @@ public abstract class AbstractBatchStatementTest extends DataSourceProviderInteg
 
     @Test
     public void testInsert() {
-        if(!ENABLE_LONG_RUNNING_TESTS) {
+        if (!ENABLE_LONG_RUNNING_TESTS) {
             return;
         }
         LOGGER.info("Test batch insert");
@@ -73,9 +73,9 @@ public abstract class AbstractBatchStatementTest extends DataSourceProviderInteg
             }
         });
         LOGGER.info("{}.testInsert for {} took {} millis",
-                getClass().getSimpleName(),
-                dataSourceProvider().getClass().getSimpleName(),
-                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
+            getClass().getSimpleName(),
+            dataSourceProvider().getClass().getSimpleName(),
+            TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
     }
 
     protected abstract void onFlush(Statement statement) throws SQLException;
@@ -83,7 +83,7 @@ public abstract class AbstractBatchStatementTest extends DataSourceProviderInteg
     private void executeStatement(Statement statement, String dml, AtomicInteger statementCount) throws SQLException {
         onStatement(statement, dml);
         int count = statementCount.incrementAndGet();
-        if(count % getBatchSize() == 0) {
+        if (count % getBatchSize() == 0) {
             onFlush(statement);
         }
     }

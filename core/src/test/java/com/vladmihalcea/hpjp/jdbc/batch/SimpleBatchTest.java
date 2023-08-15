@@ -53,7 +53,7 @@ public class SimpleBatchTest extends AbstractPostgreSQLIntegrationTest {
     public void testPreparedStatement() {
         LOGGER.info("Test Statement batch insert");
         doInJDBC(connection -> {
-            try(PreparedStatement postStatement = connection.prepareStatement("""
+            try (PreparedStatement postStatement = connection.prepareStatement("""
                 INSERT INTO post (title, version, id)
                 VALUES (?, ?, ?)
                 """);) {

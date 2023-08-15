@@ -35,11 +35,12 @@ public class SQLServerGeneratedKeysBatchPreparedStatementTest extends AbstractSQ
     protected void batchInsert(Connection connection) throws SQLException {
         LOGGER.info("Identity generated keys for SQL Server");
 
-        try(Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("drop table post");
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) {
+        }
 
-        try(Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(
                 "create table post (" +
                 "    id bigint identity not null, " +

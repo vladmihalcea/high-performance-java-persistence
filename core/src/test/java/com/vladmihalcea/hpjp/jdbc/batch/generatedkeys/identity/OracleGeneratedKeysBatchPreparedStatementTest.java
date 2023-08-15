@@ -34,15 +34,17 @@ public class OracleGeneratedKeysBatchPreparedStatementTest extends AbstractOracl
     protected void batchInsert(Connection connection) throws SQLException {
         LOGGER.info("Identity generated keys for Oracle");
 
-        try(Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("drop sequence post_seq");
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) {
+        }
 
-        try(Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("drop table post");
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) {
+        }
 
-        try(Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
 
             statement.executeUpdate(
                 "CREATE SEQUENCE post_seq"

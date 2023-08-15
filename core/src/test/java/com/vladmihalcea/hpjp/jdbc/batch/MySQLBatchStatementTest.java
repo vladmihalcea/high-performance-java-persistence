@@ -4,7 +4,6 @@ import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.MySQLDataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -61,7 +60,7 @@ public class MySQLBatchStatementTest extends AbstractMySQLIntegrationTest {
 
     @Test
     public void testInsert() {
-        if(!ENABLE_LONG_RUNNING_TESTS) {
+        if (!ENABLE_LONG_RUNNING_TESTS) {
             return;
         }
         LOGGER.info("Test MySQL batch insert with rewriteBatchedStatements={}", rewriteBatchedStatements);
@@ -88,15 +87,15 @@ public class MySQLBatchStatementTest extends AbstractMySQLIntegrationTest {
             }
         });
         LOGGER.info("{}.testInsert for rewriteBatchedStatements={} took {} millis",
-                getClass().getSimpleName(),
-                rewriteBatchedStatements,
-                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
+            getClass().getSimpleName(),
+            rewriteBatchedStatements,
+            TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
     }
 
     private void executeStatement(Statement statement, String dml, AtomicInteger statementCount) throws SQLException {
         statement.addBatch(dml);
         int count = statementCount.incrementAndGet();
-        if(count % getBatchSize() == 0) {
+        if (count % getBatchSize() == 0) {
             statement.executeBatch();
         }
     }

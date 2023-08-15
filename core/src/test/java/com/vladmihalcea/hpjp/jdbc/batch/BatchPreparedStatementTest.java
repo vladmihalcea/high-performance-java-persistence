@@ -18,7 +18,7 @@ public class BatchPreparedStatementTest extends AbstractBatchPreparedStatementTe
 
     @Override
     protected void onStatement(PreparedStatement statement) throws SQLException {
-       statement.addBatch();
+        statement.addBatch();
     }
 
     @Override
@@ -34,6 +34,6 @@ public class BatchPreparedStatementTest extends AbstractBatchPreparedStatementTe
 
     @Override
     protected int getBatchSize() {
-        return 100 * 10 ;
+        return 100 * 10;
     }
 }

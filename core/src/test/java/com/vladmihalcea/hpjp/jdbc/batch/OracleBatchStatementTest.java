@@ -36,7 +36,7 @@ public class OracleBatchStatementTest extends AbstractOracleIntegrationTest {
                 DataSource dataSource = super.dataSource();
                 try {
                     Properties connectionProperties = ReflectionUtils.invokeGetter(dataSource, "connectionProperties");
-                    if(connectionProperties == null) {
+                    if (connectionProperties == null) {
                         connectionProperties = new Properties();
                     }
                     connectionProperties.put("defaultExecuteBatch", 30);
@@ -56,7 +56,7 @@ public class OracleBatchStatementTest extends AbstractOracleIntegrationTest {
 
     @Test
     public void testInsert() {
-        if(!ENABLE_LONG_RUNNING_TESTS) {
+        if (!ENABLE_LONG_RUNNING_TESTS) {
             return;
         }
         LOGGER.info("Test batch insert");
@@ -77,9 +77,9 @@ public class OracleBatchStatementTest extends AbstractOracleIntegrationTest {
             }
         });
         LOGGER.info("{}.testInsert for {} took {} millis",
-                getClass().getSimpleName(),
-                dataSourceProvider().getClass().getSimpleName(),
-                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
+            getClass().getSimpleName(),
+            dataSourceProvider().getClass().getSimpleName(),
+            TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
     }
 
     protected int getPostCount() {

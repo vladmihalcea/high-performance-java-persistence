@@ -5,7 +5,6 @@ import com.vladmihalcea.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.OracleDataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -44,8 +43,8 @@ public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOrac
     @Parameterized.Parameters
     public static Collection<Integer[]> defaultExecuteBatches() {
         List<Integer[]> providers = new ArrayList<>();
-        providers.add(new Integer[] {1});
-        providers.add(new Integer[] {50});
+        providers.add(new Integer[]{1});
+        providers.add(new Integer[]{50});
         return providers;
     }
 
@@ -57,7 +56,7 @@ public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOrac
                 DataSource dataSource = super.dataSource();
                 try {
                     Properties connectionProperties = ReflectionUtils.invokeGetter(dataSource, "connectionProperties");
-                    if(connectionProperties == null) {
+                    if (connectionProperties == null) {
                         connectionProperties = new Properties();
                     }
                     connectionProperties.setProperty("defaultExecuteBatch", String.valueOf(defaultExecuteBatch));
@@ -77,14 +76,14 @@ public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOrac
 
     @Test
     public void testInsert() {
-        if(!ENABLE_LONG_RUNNING_TESTS) {
+        if (!ENABLE_LONG_RUNNING_TESTS) {
             return;
         }
         LOGGER.info("Test batch insert for defaultExecuteBatch {}", defaultExecuteBatch);
         long startNanos = System.nanoTime();
         doInJDBC(connection -> {
             try (
-                    PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
+                PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
             ) {
                 int postCount = getPostCount();
 
@@ -103,7 +102,7 @@ public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOrac
         });
         doInJDBC(connection -> {
             try (
-                    PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
+                PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
             ) {
                 int postCount = getPostCount();
                 int postCommentCount = getPostCommentCount();
@@ -125,9 +124,9 @@ public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOrac
             }
         });
         LOGGER.info("{}.testInsert for defaultExecuteBatch {}, took {} millis",
-                getClass().getSimpleName(),
-                defaultExecuteBatch,
-                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
+            getClass().getSimpleName(),
+            defaultExecuteBatch,
+            TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
     }
 
     protected int getPostCount() {

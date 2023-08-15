@@ -23,7 +23,7 @@ public abstract class AbstractSequenceGeneratedKeysBatchPreparedStatementTest ex
 
     @Test
     public void testBatch() {
-        if(!ENABLE_LONG_RUNNING_TESTS) {
+        if (!ENABLE_LONG_RUNNING_TESTS) {
             return;
         }
         doInJDBC(this::batchInsert);
@@ -51,10 +51,10 @@ public abstract class AbstractSequenceGeneratedKeysBatchPreparedStatementTest ex
         long startNanos = System.nanoTime();
         int postCount = getPostCount();
         int batchSize = getBatchSize();
-        try(PreparedStatement postStatement = connection.prepareStatement(
-                "INSERT INTO post (id, title, version) VALUES (?, ?, ?)")) {
+        try (PreparedStatement postStatement = connection.prepareStatement(
+            "INSERT INTO post (id, title, version) VALUES (?, ?, ?)")) {
             for (int i = 0; i < postCount; i++) {
-                if(i > 0 && i % batchSize == 0) {
+                if (i > 0 && i % batchSize == 0) {
                     postStatement.executeBatch();
                 }
                 postStatement.setLong(1, getNextSequenceValue(connection));
@@ -66,16 +66,16 @@ public abstract class AbstractSequenceGeneratedKeysBatchPreparedStatementTest ex
         }
 
         LOGGER.info("{}.testInsert for {} using allocation size {} took {} millis",
-                getClass().getSimpleName(),
-                dataSourceProvider().getClass().getSimpleName(),
-                getAllocationSize(),
-                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
+            getClass().getSimpleName(),
+            dataSourceProvider().getClass().getSimpleName(),
+            getAllocationSize(),
+            TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
     }
 
     private long getNextSequenceValue(Connection connection)
         throws SQLException {
-        try(Statement statement = connection.createStatement()) {
-            try(ResultSet resultSet = statement.executeQuery(
+        try (Statement statement = connection.createStatement()) {
+            try (ResultSet resultSet = statement.executeQuery(
                 callSequenceSyntax())) {
                 resultSet.next();
                 return resultSet.getLong(1);
@@ -86,14 +86,16 @@ public abstract class AbstractSequenceGeneratedKeysBatchPreparedStatementTest ex
     protected abstract String callSequenceSyntax();
 
     protected void dropSequence(Connection connection) {
-        try(Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("drop sequence post_seq");
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) {
+        }
     }
 
     protected void createSequence(Connection connection) {
-        try(Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(String.format("create sequence post_seq start with 1 increment by %d", getAllocationSize()));
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) {
+        }
     }
 }
