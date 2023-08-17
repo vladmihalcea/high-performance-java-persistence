@@ -22,6 +22,28 @@ public class SimpleBatchTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
+    public void testNoBatching() {
+        LOGGER.info("Test Statement batch insert");
+        doInJDBC(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                int rowCount = statement.executeUpdate("""
+                    INSERT INTO post (title, version, id)
+                    VALUES ('Post no. 1', 0, 1)
+                    """);
+
+                assertEquals(1, rowCount);
+
+                rowCount = statement.executeUpdate("""
+                    INSERT INTO post (title, version, id)
+                    VALUES ('Post no. 2', 0, 2)
+                    """);
+
+                assertEquals(1, rowCount);
+            }
+        });
+    }
+
+    @Test
     public void testStatement() {
         LOGGER.info("Test Statement batch insert");
         doInJDBC(connection -> {
@@ -37,14 +59,10 @@ public class SimpleBatchTest extends AbstractPostgreSQLIntegrationTest {
                     VALUES ('Post no. 2', 0, 2)
                     """);
 
-                statement.addBatch("""
-                    INSERT INTO post (title, version, id)
-                    VALUES ('Post no. 3', 0, 3)
-                    """);
-
                 int[] updateCounts = statement.executeBatch();
-
-                assertEquals(3, updateCounts.length);
+                assertEquals(2, updateCounts.length);
+                assertEquals(1, updateCounts[0]);
+                assertEquals(1, updateCounts[1]);
             }
         });
     }
@@ -71,7 +89,6 @@ public class SimpleBatchTest extends AbstractPostgreSQLIntegrationTest {
                 int[] updateCounts = postStatement.executeBatch();
 
                 assertEquals(2, updateCounts.length);
-
             }
         });
     }
