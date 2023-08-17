@@ -4,7 +4,7 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import org.hibernate.integrator.spi.Integrator;
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.AvailableHints;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.After;
 import org.junit.Test;
@@ -132,7 +132,7 @@ public class QueryCacheDTOTest extends AbstractTest {
             order by p.createdOn desc
             """, PostSummary.class)
         .setMaxResults(maxResults)
-        .setHint(QueryHints.HINT_CACHEABLE, cacheable)
+        .setHint(AvailableHints.HINT_CACHEABLE, cacheable)
         .getResultList();
 
         LOGGER.debug("Latest posts: {}", latestPosts);

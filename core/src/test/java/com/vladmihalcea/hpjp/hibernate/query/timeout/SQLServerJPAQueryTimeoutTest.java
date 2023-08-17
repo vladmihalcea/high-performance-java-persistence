@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.query.timeout;
 
 import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.AvailableHints;
 import org.junit.Test;
 
 import jakarta.persistence.Entity;
@@ -29,7 +29,7 @@ public class SQLServerJPAQueryTimeoutTest extends AbstractSQLServerIntegrationTe
     @Override
     protected void additionalProperties(Properties properties) {
         properties.setProperty(
-            QueryHints.SPEC_HINT_TIMEOUT, String.valueOf(1000)
+            AvailableHints.HINT_TIMEOUT, String.valueOf(1000)
         );
     }
 

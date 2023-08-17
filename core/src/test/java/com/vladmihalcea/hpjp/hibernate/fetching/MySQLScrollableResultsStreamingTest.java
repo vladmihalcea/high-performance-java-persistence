@@ -4,7 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.AvailableHints;
 import org.hibernate.query.Query;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -127,7 +127,7 @@ public class MySQLScrollableResultsStreamingTest extends AbstractMySQLIntegratio
         try(Stream<Post> postStream = entityManager
                 .createQuery("select p from Post p", Post.class)
                 .setMaxResults(resultSetSize)
-                .setHint(QueryHints.HINT_FETCH_SIZE, Integer.MIN_VALUE)
+                .setHint(AvailableHints.HINT_FETCH_SIZE, Integer.MIN_VALUE)
                 .unwrap(Query.class)
                 .stream()) {
             postStream.forEach(post -> sum.incrementAndGet());

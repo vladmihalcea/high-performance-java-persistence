@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.AvailableHints;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.Test;
 
@@ -125,7 +125,7 @@ public class ProjectionTest extends AbstractPostgreSQLIntegrationTest {
                 """)
             .setFirstResult(pageStart)
             .setMaxResults(pageSize)
-            .setHint(QueryHints.HINT_FETCH_SIZE, pageSize)
+            .setHint(AvailableHints.HINT_FETCH_SIZE, pageSize)
             .getResultList();
 
             assertEquals(pageSize, summaries.size());

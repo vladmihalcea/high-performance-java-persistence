@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.cache.query;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.AvailableHints;
 import org.hibernate.query.NativeQuery;
 import org.junit.After;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class QueryCacheTest extends AbstractTest {
             order by pc.post.id desc
             """, PostComment.class)
         .setMaxResults(10)
-        .setHint(QueryHints.HINT_CACHEABLE, true)
+        .setHint(AvailableHints.HINT_CACHEABLE, true)
         .getResultList();
     }
     
@@ -75,7 +75,7 @@ public class QueryCacheTest extends AbstractTest {
             """, PostComment.class)
         .setParameter("postId", 1L)
         .setMaxResults(10)
-        .setHint(QueryHints.HINT_CACHEABLE, true)
+        .setHint(AvailableHints.HINT_CACHEABLE, true)
         .getResultList();
     }
     
@@ -88,7 +88,7 @@ public class QueryCacheTest extends AbstractTest {
             """, PostComment.class)
         .setParameter("post", post)
         .setMaxResults(10)
-        .setHint(QueryHints.HINT_CACHEABLE, true)
+        .setHint(AvailableHints.HINT_CACHEABLE, true)
         .getResultList();
     }
 
@@ -106,7 +106,7 @@ public class QueryCacheTest extends AbstractTest {
             """, PostCommentSummary.class)
         .setParameter("postId", postId)
         .setMaxResults(10)
-        .setHint(QueryHints.HINT_CACHEABLE, true)
+        .setHint(AvailableHints.HINT_CACHEABLE, true)
         .getResultList();
     }
 

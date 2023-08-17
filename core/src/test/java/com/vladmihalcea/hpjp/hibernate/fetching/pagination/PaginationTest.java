@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.Tuple;
 import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.AvailableHints;
 import org.hibernate.query.NativeQuery;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -274,7 +274,7 @@ public class PaginationTest extends AbstractTest {
                     .createNamedQuery("PostWithCommentByRank")
                     .setParameter("titlePattern", "High-Performance Java Persistence %")
                     .setParameter("rank", 2)
-                    .setHint(QueryHints.HINT_READONLY, true)
+                    .setHint(AvailableHints.HINT_READ_ONLY, true)
                     .unwrap(NativeQuery.class)
                     .setResultListTransformer(resultTransformer)
                     .getResultList();

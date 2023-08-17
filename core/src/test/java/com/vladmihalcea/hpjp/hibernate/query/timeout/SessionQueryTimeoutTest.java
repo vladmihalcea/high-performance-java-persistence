@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.query.timeout;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.AvailableHints;
 import org.junit.Test;
 import org.postgresql.util.PSQLException;
 
@@ -37,7 +37,7 @@ public class SessionQueryTimeoutTest extends AbstractTest {
     @Override
     protected void additionalProperties(Properties properties) {
         properties.setProperty(
-            QueryHints.SPEC_HINT_TIMEOUT, String.valueOf(1000)
+            AvailableHints.HINT_TIMEOUT, String.valueOf(1000)
         );
     }
 

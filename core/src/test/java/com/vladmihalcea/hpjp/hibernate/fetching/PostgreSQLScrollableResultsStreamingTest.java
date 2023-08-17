@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.AvailableHints;
 import org.junit.Test;
 
 import jakarta.persistence.Column;
@@ -79,7 +79,7 @@ public class PostgreSQLScrollableResultsStreamingTest extends AbstractPostgreSQL
                 FROM post
                 ORDER BY created_on DESC
                 """, Tuple.class)
-                .setHint(QueryHints.HINT_FETCH_SIZE, 50)
+                .setHint(AvailableHints.HINT_FETCH_SIZE, 50)
                 .getResultStream()
                 .limit(50)
                 .collect(Collectors.toList());

@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.cache.query;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.AvailableHints;
 import org.junit.After;
 import org.junit.Test;
 
@@ -69,7 +69,7 @@ public class QueryCacheNPlus1Test extends AbstractTest {
             order by pc.post.id desc
             """, PostComment.class)
         .setMaxResults(10)
-        .setHint(QueryHints.HINT_CACHEABLE, true)
+        .setHint(AvailableHints.HINT_CACHEABLE, true)
         .getResultList();
     }
 

@@ -5,7 +5,7 @@ import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.UniformReservoir;
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.AvailableHints;
 import org.hibernate.query.*;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -145,7 +145,7 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
             "join c.post p")
         .setFirstResult(10)
         .setMaxResults(20)
-        .setHint(QueryHints.HINT_FETCH_SIZE, 20);
+        .setHint(AvailableHints.HINT_FETCH_SIZE, 20);
     }
 
     protected Query getEntityQuery2(EntityManager entityManager) {
@@ -164,7 +164,7 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
             "join post p on p.id = c.post_id ")
         .setFirstResult(10)
         .setMaxResults(20)
-        .setHint(QueryHints.HINT_FETCH_SIZE, 20);
+        .setHint(AvailableHints.HINT_FETCH_SIZE, 20);
     }
 
     protected Query getNativeQuery2(EntityManager entityManager) {

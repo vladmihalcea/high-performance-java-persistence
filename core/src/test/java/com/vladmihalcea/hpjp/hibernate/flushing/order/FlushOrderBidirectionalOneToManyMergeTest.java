@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.flushing.order;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.annotations.NaturalId;
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.AvailableHints;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -66,7 +66,7 @@ public class FlushOrderBidirectionalOneToManyMergeTest extends AbstractTest {
                 "from Post p " +
                 "join fetch p.comments " +
                 "where p.id = :postId ", Post.class)
-            .setHint(QueryHints.HINT_READONLY, true)
+            .setHint(AvailableHints.HINT_READ_ONLY, true)
             .setParameter("postId", postId)
             .getSingleResult();
         });

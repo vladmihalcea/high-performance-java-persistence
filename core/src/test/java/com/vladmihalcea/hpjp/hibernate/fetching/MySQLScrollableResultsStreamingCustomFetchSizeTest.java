@@ -6,7 +6,7 @@ import com.codahale.metrics.Timer;
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.MySQLDataSourceProvider;
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.AvailableHints;
 import org.hibernate.query.Query;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -136,7 +136,7 @@ public class MySQLScrollableResultsStreamingCustomFetchSizeTest extends Abstract
         try(Stream<Post> postStream = entityManager
                 .createQuery("select p from Post p", Post.class)
                 .setMaxResults(resultSetSize)
-                .setHint(QueryHints.HINT_FETCH_SIZE, resultSetSize)
+                .setHint(AvailableHints.HINT_FETCH_SIZE, resultSetSize)
                 .unwrap(Query.class)
                 .stream()) {
             postStream.forEach(post -> sum.incrementAndGet());
