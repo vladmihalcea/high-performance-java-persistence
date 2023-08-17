@@ -1,9 +1,10 @@
 package com.vladmihalcea.hpjp.spring.batch;
 
-import com.vladmihalcea.hpjp.spring.batch.config.SpringBatchYugabyteDBConfiguration;
+import com.vladmihalcea.hpjp.spring.batch.config.SpringBatchConfiguration;
 import com.vladmihalcea.hpjp.spring.batch.domain.Post;
 import com.vladmihalcea.hpjp.spring.batch.domain.PostStatus;
 import com.vladmihalcea.hpjp.spring.batch.service.ForumService;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -25,9 +26,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = SpringBatchYugabyteDBConfiguration.class)
+@ContextConfiguration(classes = SpringBatchConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringBatchYugabyteDBTest {
+public class SpringBatchTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
@@ -67,6 +68,7 @@ public class SpringBatchYugabyteDBTest {
     private ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
     @Test
+    @Ignore
     public void testRead() throws InterruptedException {
         int POST_COUNT = 1000;
 

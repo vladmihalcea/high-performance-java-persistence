@@ -44,7 +44,7 @@ import java.util.Properties;
         "io.hypersistence.utils.spring.aop"
     }
 )
-public class SpringBatchYugabyteDBConfiguration {
+public class SpringBatchConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 
@@ -57,7 +57,8 @@ public class SpringBatchYugabyteDBConfiguration {
 
     @Bean
     public Database database() {
-        return Database.YUGABYTEDB_CLUSTER;
+        //return Database.YUGABYTEDB_CLUSTER;
+        return Database.POSTGRESQL;
     }
 
     @Bean
