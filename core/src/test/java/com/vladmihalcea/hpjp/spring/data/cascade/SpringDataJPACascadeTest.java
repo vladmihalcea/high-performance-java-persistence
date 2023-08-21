@@ -5,11 +5,13 @@ import com.vladmihalcea.hpjp.spring.data.cascade.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.cascade.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.cascade.domain.PostDetails;
 import com.vladmihalcea.hpjp.spring.data.cascade.domain.Tag;
+import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostCommentRepository;
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostDetailsRepository;
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.TagRepository;
 import jakarta.persistence.EntityManager;
 import org.hibernate.Session;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -20,6 +22,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import java.util.Iterator;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -46,6 +51,9 @@ public class SpringDataJPACascadeTest {
     private PostRepository postRepository;
 
     @Autowired
+    private PostCommentRepository postCommentRepository;
+
+    @Autowired
     private PostDetailsRepository postDetailsRepository;
 
     @Test
@@ -56,12 +64,10 @@ public class SpringDataJPACascadeTest {
                 .setTitle("High-Performance Java Persistence")
                 .addComment(
                     new PostComment()
-                        .setId(1L)
                         .setReview("Best book on JPA and Hibernate!")
                 )
                 .addComment(
                     new PostComment()
-                        .setId(2L)
                         .setReview("A must-read for every Java developer!")
                 )
         );
@@ -147,6 +153,123 @@ public class SpringDataJPACascadeTest {
             .getSingleResult();
 
             post.getTags().remove(session.bySimpleNaturalId(Tag.class).getReference("JPA"));
+
+            return null;
+        });
+    }
+
+    @Test
+    public void testBatchingPersistPostAndComments() {
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            for (long i = 1; i <= 3; i++) {
+                postRepository.persist(
+                    new Post()
+                        .setId(i)
+                        .setTitle(String.format("Post no. %d", i))
+                        .addComment(new PostComment().setReview("Good"))
+                );
+            }
+            return null;
+        });
+    }
+
+    @Test
+    public void testBatchingUpdatePost() {
+        testBatchingPersistPostAndComments();
+
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            List<Post> posts = postRepository.findAllByTitleLike("Post no.%");
+
+            posts.forEach(post -> post.setTitle(post.getTitle().replaceAll("no", "nr")));
+            return null;
+        });
+    }
+    
+    @Test
+    public void testBatchingUpdatePostAndComments() {
+        testBatchingPersistPostAndComments();
+
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            List<PostComment> comments = postCommentRepository.findAllWithPostTitleLike("Post no.%");
+
+            comments.forEach(c -> {
+                c.setReview(c.getReview().replaceAll("Good", "Very good"));
+                Post post = c.getPost();
+                post.setTitle(post.getTitle().replaceAll("no", "nr"));
+            });
+            return null;
+        });
+    }
+
+    @Test
+    public void testBatchingDeletePost() {
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            for (long i = 1; i <= 3; i++) {
+                postRepository.persist(
+                    new Post()
+                        .setId(i)
+                        .setTitle(String.format("Post no. %d", i))
+                );
+            }
+            return null;
+        });
+
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            List<Post> posts = postRepository.findAllByTitleLike("Post no.%");
+
+            posts.forEach(post -> postRepository.delete(post));
+            return null;
+        });
+    }
+
+    @Test
+    public void testBatchingDeletePostAndComments() {
+        testBatchingPersistPostAndComments();
+
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            List<Post> posts = postRepository.findAllByTitleLike("Post no.%");
+
+            posts.forEach(postRepository::delete);
+            return null;
+        });
+    }
+
+    @Test
+    public void testBatchingDeletePostAndCommentsManualOrdering() {
+        testBatchingPersistPostAndComments();
+
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            List<Post> posts = postRepository.findAllByTitleLike("Post no.%");
+
+            posts.forEach(post -> {
+                Iterator<PostComment> it = post.getComments().iterator();
+                while (it.hasNext()) {
+                    it.next().setPost(null);
+                    it.remove();
+                }
+            });
+
+            entityManager.flush();
+
+            posts.forEach(postRepository::delete);
+
+            return null;
+        });
+    }
+
+    @Test
+    @Ignore("""
+        Requires the comments collection to use
+        @OneToMany(mappedBy = \"post\", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+        """)
+    public void testBatchingDeletePostAndCommentsBulkDelete() {
+        testBatchingPersistPostAndComments();
+
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            List<Post> posts = postRepository.findAllByTitleLike("Post no.%");
+
+            postCommentRepository.deleteAllByPost(posts);
+            posts.forEach(postRepository::delete);
 
             return null;
         });

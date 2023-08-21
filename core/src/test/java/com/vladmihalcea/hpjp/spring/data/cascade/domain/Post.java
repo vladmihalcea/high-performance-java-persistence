@@ -75,6 +75,12 @@ public class Post {
         return this;
     }
 
+    public Post removeComment(PostComment comment) {
+        comments.remove(comment);
+        comment.setPost(null);
+        return this;
+    }
+
     public List<Tag> getTags() {
         return tags;
     }

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class PostComment {
 
     @Id
+    @GeneratedValue
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
