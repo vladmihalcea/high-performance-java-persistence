@@ -1,9 +1,8 @@
-package com.vladmihalcea.hpjp.spring.transaction.jpa.dao;
+package com.vladmihalcea.hpjp.spring.transaction.jpa.repository;
 
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.PersistenceContextType;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,17 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * @author Vlad Mihalcea
  */
-@Repository
-public class PostBatchDAOImpl extends GenericDAOImpl<Post, Long> implements PostBatchDAO {
+public class CustomPostRepositoryImpl implements CustomPostRepository {
 
-    @PersistenceContext(type = PersistenceContextType.EXTENDED)
+    @PersistenceContext
     private EntityManager entityManager;
 
     int entityCount = 10;
-
-    protected PostBatchDAOImpl() {
-        super(Post.class);
-    }
 
     @Transactional
     public void savePosts() {

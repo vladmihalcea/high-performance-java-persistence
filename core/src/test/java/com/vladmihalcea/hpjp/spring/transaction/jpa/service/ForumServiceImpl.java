@@ -2,8 +2,8 @@ package com.vladmihalcea.hpjp.spring.transaction.jpa.service;
 
 import com.vladmihalcea.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;
-import com.vladmihalcea.hpjp.spring.transaction.jpa.dao.PostDAO;
-import com.vladmihalcea.hpjp.spring.transaction.jpa.dao.TagDAO;
+import com.vladmihalcea.hpjp.spring.transaction.jpa.repository.PostRepository;
+import com.vladmihalcea.hpjp.spring.transaction.jpa.repository.TagRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.hibernate.engine.spi.EntityEntry;
@@ -24,10 +24,10 @@ import static org.junit.Assert.assertTrue;
 public class ForumServiceImpl implements ForumService {
 
     @Autowired
-    private PostDAO postDAO;
+    private PostRepository postRepository;
 
     @Autowired
-    private TagDAO tagDAO;
+    private TagRepository tagRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -37,14 +37,14 @@ public class ForumServiceImpl implements ForumService {
     public Post newPost(String title, String... tags) {
         Post post = new Post();
         post.setTitle(title);
-        post.getTags().addAll(tagDAO.findByName(tags));
-        return postDAO.persist(post);
+        post.getTags().addAll(tagRepository.findByName(tags));
+        return postRepository.persist(post);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Post> findAllByTitle(String title) {
-        List<Post> posts = postDAO.findByTitle(title);
+        List<Post> posts = postRepository.findByTitle(title);
 
         org.hibernate.engine.spi.PersistenceContext persistenceContext = getHibernatePersistenceContext();
 
@@ -61,7 +61,7 @@ public class ForumServiceImpl implements ForumService {
     @Override
     @Transactional(readOnly = true)
     public Post findById(Long id) {
-        Post post = postDAO.findById(id);
+        Post post = postRepository.findById(id).orElseThrow();
 
         org.hibernate.engine.spi.PersistenceContext persistenceContext = getHibernatePersistenceContext();
 
@@ -75,17 +75,17 @@ public class ForumServiceImpl implements ForumService {
     @Override
     @Transactional(readOnly = true)
     public PostDTO getPostDTOById(Long id) {
-        return postDAO.getPostDTOById(id);
+        return postRepository.getPostDTOById(id);
     }
 
     @Override
     @Transactional
     public PostDTO savePostTitle(Long id, String title) {
-        Post post = postDAO.findById(id);
+        Post post = postRepository.findById(id).orElseThrow();
 
         post.setTitle(title);
 
-        return postDAO.getPostDTOById(id);
+        return postRepository.getPostDTOById(id);
     }
 
     private org.hibernate.engine.spi.PersistenceContext getHibernatePersistenceContext() {

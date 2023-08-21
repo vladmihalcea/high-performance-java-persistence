@@ -6,6 +6,7 @@ import com.vladmihalcea.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
+import io.hypersistence.utils.spring.repository.BaseJpaRepositoryImpl;
 import jakarta.persistence.EntityManagerFactory;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
@@ -16,6 +17,7 @@ import org.hibernate.resource.jdbc.spi.PhysicalConnectionHandlingMode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -35,9 +37,13 @@ import java.util.Properties;
 @Configuration
 @PropertySource({"/META-INF/jdbc-postgresql.properties"})
 @ComponentScan(basePackages = {
-    "com.vladmihalcea.hpjp.spring.transaction.jpa.dao",
+    "com.vladmihalcea.hpjp.spring.transaction.jpa.repository",
     "com.vladmihalcea.hpjp.spring.transaction.jpa.service",
 })
+@EnableJpaRepositories(
+    value = "com.vladmihalcea.hpjp.spring.transaction.jpa.repository",
+    repositoryBaseClass = BaseJpaRepositoryImpl.class
+)
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
 public class ResourceLocalReleaseAfterStatementConfiguration {

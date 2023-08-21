@@ -4,8 +4,8 @@ import com.vladmihalcea.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Tag;
 import com.vladmihalcea.hpjp.spring.transaction.jpa.config.JPATransactionManagerConfiguration;
-import com.vladmihalcea.hpjp.spring.transaction.jpa.dao.PostBatchDAO;
-import com.vladmihalcea.hpjp.spring.transaction.jpa.dao.TagDAO;
+import com.vladmihalcea.hpjp.spring.transaction.jpa.repository.PostRepository;
+import com.vladmihalcea.hpjp.spring.transaction.jpa.repository.TagRepository;
 import com.vladmihalcea.hpjp.spring.transaction.jpa.service.ForumService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -45,10 +45,10 @@ public class JPATransactionManagerTest {
     private ForumService forumService;
 
     @Autowired
-    private PostBatchDAO postBatchDAO;
+    private PostRepository postRepository;
 
     @Autowired
-    private TagDAO tagDAO;
+    private TagRepository tagDAO;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -68,7 +68,7 @@ public class JPATransactionManagerTest {
                 jpa.setName("jpa");
                 tagDAO.persist(jpa);
 
-                postBatchDAO.savePosts();
+                postRepository.savePosts();
                 return null;
             });
         } catch (TransactionException e) {

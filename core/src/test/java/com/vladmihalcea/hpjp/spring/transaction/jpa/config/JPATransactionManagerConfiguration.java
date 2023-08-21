@@ -9,6 +9,7 @@ import com.vladmihalcea.hpjp.util.providers.Database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
+import io.hypersistence.utils.spring.repository.BaseJpaRepositoryImpl;
 import jakarta.persistence.EntityManagerFactory;
 import net.ttddyy.dsproxy.ExecutionInfo;
 import net.ttddyy.dsproxy.QueryInfo;
@@ -24,6 +25,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
@@ -46,9 +48,13 @@ import java.util.concurrent.atomic.LongAdder;
  */
 @Configuration
 @ComponentScan(basePackages = {
-    "com.vladmihalcea.hpjp.spring.transaction.jpa.dao",
+    "com.vladmihalcea.hpjp.spring.transaction.jpa.repository",
     "com.vladmihalcea.hpjp.spring.transaction.jpa.service",
 })
+@EnableJpaRepositories(
+    value = "com.vladmihalcea.hpjp.spring.transaction.jpa.repository",
+    repositoryBaseClass = BaseJpaRepositoryImpl.class
+)
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
 public class JPATransactionManagerConfiguration {

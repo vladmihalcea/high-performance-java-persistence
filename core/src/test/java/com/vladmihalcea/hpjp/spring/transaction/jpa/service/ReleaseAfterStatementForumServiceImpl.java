@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.spring.transaction.jpa.service;
 
 import com.vladmihalcea.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;
-import com.vladmihalcea.hpjp.spring.transaction.jpa.dao.PostDAO;
+import com.vladmihalcea.hpjp.spring.transaction.jpa.repository.PostRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.hibernate.Session;
@@ -39,7 +39,7 @@ public class ReleaseAfterStatementForumServiceImpl implements ReleaseAfterStatem
     private static final CountDownLatch latch3 = new CountDownLatch(1);
 
     @Autowired
-    private PostDAO postDAO;
+    private PostRepository postDAO;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -58,7 +58,7 @@ public class ReleaseAfterStatementForumServiceImpl implements ReleaseAfterStatem
     @Override
     @Transactional
     public PostDTO savePostTitle(Long id, String title) {
-        Post post = postDAO.findById(id);
+        Post post = postDAO.findById(id).orElseThrow();
 
         post.setTitle(title);
         entityManager.flush();

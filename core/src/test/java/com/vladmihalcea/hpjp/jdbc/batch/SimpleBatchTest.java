@@ -1,6 +1,8 @@
 package com.vladmihalcea.hpjp.jdbc.batch;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
 import org.junit.Test;
 
@@ -12,13 +14,18 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class SimpleBatchTest extends AbstractPostgreSQLIntegrationTest {
+public class SimpleBatchTest extends AbstractTest {
 
     private BlogEntityProvider blogEntityProvider = new BlogEntityProvider();
 
     @Override
     protected Class<?>[] entities() {
         return blogEntityProvider.entities();
+    }
+
+    @Override
+    protected Database database() {
+        return Database.SQLSERVER;
     }
 
     @Test
@@ -74,7 +81,8 @@ public class SimpleBatchTest extends AbstractPostgreSQLIntegrationTest {
             try (PreparedStatement postStatement = connection.prepareStatement("""
                 INSERT INTO post (title, version, id)
                 VALUES (?, ?, ?)
-                """);) {
+                """)
+            ) {
 
                 postStatement.setString(1, String.format("Post no. %1$d", 1));
                 postStatement.setInt(2, 0);
