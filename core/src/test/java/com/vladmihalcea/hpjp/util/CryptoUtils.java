@@ -20,7 +20,7 @@ public final class CryptoUtils {
     public static SecretKeySpec getEncryptionKey() {
         MessageDigest sha;
         try {
-            sha = MessageDigest.getInstance("SHA-1");
+            sha = MessageDigest.getInstance("SHA-256");
             byte[] key = sha.digest(ENCRYPT_KEY_BYTES);
             key = Arrays.copyOf(key, 16);
             return new SecretKeySpec(key, "AES");
@@ -29,12 +29,18 @@ public final class CryptoUtils {
         }
     }
 
-    public static String encrypt(String message) {
+    public static String encrypt(Object message) {
+        if(message == null) {
+            throw new IllegalArgumentException("Only not-null values can be encrypted!");
+        }
         try {
             Cipher cipher = getCipher();
             cipher.init(Cipher.ENCRYPT_MODE, getEncryptionKey());
+            String messageValue = (message instanceof String) ?
+                (String) message :
+                String.valueOf(message);
             return Base64.getEncoder().encodeToString(
-                cipher.doFinal(message.getBytes(ENCODING))
+                cipher.doFinal(messageValue.getBytes(ENCODING))
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -46,6 +52,20 @@ public final class CryptoUtils {
             Cipher cipher = getCipher();
             cipher.init(Cipher.DECRYPT_MODE, getEncryptionKey());
             return new String(cipher.doFinal(Base64.getDecoder().decode(message)));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> T decrypt(String message, Class<T> clazz) {
+        try {
+            Cipher cipher = getCipher();
+            cipher.init(Cipher.DECRYPT_MODE, getEncryptionKey());
+            String decryptedValue = new String(cipher.doFinal(Base64.getDecoder().decode(message)));
+            return ReflectionUtils.invokeStaticMethod(
+                ReflectionUtils.getMethodOrNull(clazz, "valueOf", String.class),
+                decryptedValue
+            );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
