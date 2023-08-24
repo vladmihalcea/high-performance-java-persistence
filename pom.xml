@@ -489,6 +489,8 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <argLine>-Xms1024m -Xmx1024m -DObjectStoreEnvironmentBean.objectStoreDir=${project.build.directory} -Dcom.arjuna.ats.arjuna.objectstore.objectStoreDir=${project.build.directory}</argLine>
+
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
         <commons-lang.version>3.12.0</commons-lang.version>
@@ -562,7 +564,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
-                    <argLine>-Xms1024m -Xmx1024m -DObjectStoreEnvironmentBean.objectStoreDir=${project.build.directory}</argLine>
+                    <argLine>${argLine}</argLine>
                 </configuration>
             </plugin>
         </plugins>
