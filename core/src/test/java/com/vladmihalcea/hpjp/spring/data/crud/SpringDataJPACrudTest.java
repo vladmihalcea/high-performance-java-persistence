@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
@@ -182,6 +181,10 @@ public class SpringDataJPACrudTest {
             return null;
         });
         SQLStatementCountValidator.assertInsertCount(1);
+        List<Post> posts = postRepository.findAllById(List.of(1L, 2L, 3L));
+        assertSame(3, posts.size());
+        posts = postRepository.findAllById(List.of(1L, 2L, 3L, 4L));
+        assertSame(4, posts.size());
     }
 
     @Test
