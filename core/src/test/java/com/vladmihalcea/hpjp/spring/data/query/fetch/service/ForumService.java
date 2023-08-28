@@ -7,7 +7,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author Vlad Mihalcea
@@ -26,5 +28,12 @@ public class ForumService {
                 pageRequest
             )
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<Post> findAllPostsPublishedToday() {
+        try(Stream stream = postRepository.streamByCreatedOnSince(LocalDate.now())) {
+            return stream.toList();
+        }
     }
 }

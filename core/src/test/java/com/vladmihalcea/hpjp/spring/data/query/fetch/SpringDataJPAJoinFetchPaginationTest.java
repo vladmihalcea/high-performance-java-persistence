@@ -25,6 +25,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.LongStream;
@@ -53,18 +54,16 @@ public class SpringDataJPAJoinFetchPaginationTest {
     @Autowired
     private DataSource dataSource;
 
+    public static final int POST_COUNT = 1_000;
+    public static final int COMMENT_COUNT = 10;;
+
     @Before
     public void init() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+                LocalDateTime timestamp = LocalDate.now().atStartOfDay().plusHours(12);
 
-                int COMMENT_COUNT = 10;
-
-                LocalDateTime timestamp = LocalDateTime.of(
-                    2023, 3, 22, 12, 0, 0, 0
-                );
-
-                LongStream.rangeClosed(1, 1_000).forEach(postId -> {
+                LongStream.rangeClosed(1, POST_COUNT).forEach(postId -> {
                     Post post = new Post()
                         .setId(postId)
                         .setTitle(
@@ -139,6 +138,13 @@ public class SpringDataJPAJoinFetchPaginationTest {
         );
 
         assertEquals(maxCount, posts.size());
+    }
+
+    @Test
+    public void testFindAllPostsPublishedToday() {
+        List<Post> posts = forumService.findAllPostsPublishedToday();
+
+        assertEquals(POST_COUNT, posts.size());
     }
 
     protected void executeStatement(DataSource dataSource, String sql) {

@@ -2,13 +2,18 @@ package com.vladmihalcea.hpjp.spring.data.query.fetch.repository;
 
 import com.vladmihalcea.hpjp.spring.data.query.fetch.domain.Post;
 import io.hypersistence.utils.spring.repository.BaseJpaRepository;
+import jakarta.persistence.QueryHint;
+import org.hibernate.jpa.AvailableHints;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author Vlad Mihalcea
@@ -75,4 +80,15 @@ public interface PostRepository extends BaseJpaRepository<Post, Long> {
         """
     )
     List<Post> findAllByIdWithComments(@Param("postIds") List<Long> postIds);
+
+    @Query("""
+        select p
+        from Post p
+        where date(p.createdOn) >= :sinceDate
+        """
+    )
+    @QueryHints(
+        @QueryHint(name = AvailableHints.HINT_FETCH_SIZE, value = "25")
+    )
+    Stream<Post> streamByCreatedOnSince(@Param("sinceDate") LocalDate sinceDate);
 }
