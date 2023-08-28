@@ -1,6 +1,6 @@
 package com.vladmihalcea.hpjp.util;
 
-import com.vladmihalcea.hpjp.util.providers.*;
+import com.vladmihalcea.hpjp.util.providers.Database;
 import org.assertj.core.util.Arrays;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -17,10 +17,10 @@ import java.util.List;
 @RunWith(Parameterized.class)
 public abstract class DataSourceProviderIntegrationTest extends AbstractTest {
 
-    private final DataSourceProvider dataSourceProvider;
+    private final Database database;
 
     public DataSourceProviderIntegrationTest(Database database) {
-        this.dataSourceProvider = database.dataSourceProvider();
+        this.database = database;
     }
 
     @Parameterized.Parameters
@@ -35,7 +35,7 @@ public abstract class DataSourceProviderIntegrationTest extends AbstractTest {
     }
 
     @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return dataSourceProvider;
+    protected Database database() {
+        return database;
     }
 }

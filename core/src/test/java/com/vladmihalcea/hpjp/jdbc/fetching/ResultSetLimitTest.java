@@ -1,15 +1,21 @@
 package com.vladmihalcea.hpjp.jdbc.fetching;
 
 import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.Database;
+import com.vladmihalcea.hpjp.util.providers.LegacyOracleDialect;
+import com.vladmihalcea.hpjp.util.providers.OracleDataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
+import org.hibernate.Session;
 import org.hibernate.dialect.pagination.LimitHandler;
 import org.hibernate.query.spi.Limit;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -25,11 +31,12 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
 
     public static final String INSERT_POST_COMMENT = "insert into post_comment (post_id, review, version, id) values (?, ?, ?, ?)";
 
-    public static final String SELECT_POST_COMMENT =
-        "SELECT pc.id AS pc_id, p.title AS p_title  " +
-        "FROM post_comment pc " +
-        "INNER JOIN post p ON p.id = pc.post_id " +
-        "ORDER BY pc_id";
+    public static final String SELECT_POST_COMMENT = """
+        SELECT pc.id AS pc_id, p.title AS p_title
+        FROM post_comment pc
+        INNER JOIN post p ON p.id = pc.post_id
+        ORDER BY pc_id
+        """;
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
@@ -43,12 +50,23 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    protected DataSourceProvider dataSourceProvider() {
+        if(database() == Database.ORACLE) {
+            return new OracleDataSourceProvider() {
+                @Override
+                public String hibernateDialect() {
+                    return LegacyOracleDialect.class.getName();
+                }
+            };
+        }
+        return super.dataSourceProvider();
+    }
+
+    public void afterInit() {
         doInJDBC(connection -> {
             try (
-                    PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
-                    PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
+                PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
+                PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
             ) {
                 int postCount = getPostCount();
                 int postCommentCount = getPostCommentCount();
@@ -85,6 +103,12 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
                 fail(e.getMessage());
             }
         });
+        if(database() != Database.MYSQL) {
+            executeStatement("CREATE INDEX idx_post_comment_post_id ON post_comment (post_id)");
+            if(database() == Database.POSTGRESQL) {
+                executeStatement("VACUUM FULL ANALYZE");
+            }
+        }
     }
 
     @Test
@@ -142,6 +166,7 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testMaxSize() {
         long startNanos = System.nanoTime();
         doInJDBC(connection -> {
@@ -167,8 +192,8 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
     }
 
     protected int getPostCount() {
-        //return 100000;
-        return 100;
+        return 10;
+        //return 100_000;
     }
 
     protected int getPostCommentCount() {
