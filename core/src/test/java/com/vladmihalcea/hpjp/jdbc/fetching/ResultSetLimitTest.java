@@ -1,5 +1,8 @@
 package com.vladmihalcea.hpjp.jdbc.fetching;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Slf4jReporter;
+import com.codahale.metrics.Timer;
 import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.Database;
@@ -27,6 +30,7 @@ import static org.junit.Assert.fail;
  * @author Vlad Mihalcea
  */
 public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
+
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 
     public static final String INSERT_POST_COMMENT = "insert into post_comment (post_id, review, version, id) values (?, ?, ?, ?)";
@@ -39,6 +43,17 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
         """;
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
+
+    private MetricRegistry metricRegistry = new MetricRegistry();
+
+    private Slf4jReporter logReporter = Slf4jReporter
+        .forRegistry(metricRegistry)
+        .outputTo(LOGGER)
+        .build();
+
+    private Timer noLimitTimer = metricRegistry.timer("noLimitTimer");
+    private Timer limitTimer = metricRegistry.timer("limitTimer");
+    private Timer maxSizeTimer = metricRegistry.timer("maxSizeTimer");
 
     public ResultSetLimitTest(Database database) {
         super(database);
@@ -112,88 +127,104 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
     }
 
     @Test
-    public void testNoLimit() {
-        long startNanos = System.nanoTime();
+    public void test() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         doInJDBC(connection -> {
             try (PreparedStatement statement = connection.prepareStatement(
-                    SELECT_POST_COMMENT
+                SELECT_POST_COMMENT
             )) {
-                statement.execute();
-                ResultSet resultSet = statement.getResultSet();
-                int count = 0;
-                while (resultSet.next()) {
-                    resultSet.getLong(1);
-                    count++;
+                for (int i = 0; i < runCount() / 10; i++) {
+                    noLimit(statement);
                 }
-                assertEquals(getPostCount() * getPostCommentCount(), count);
+                for (int i = 0; i < runCount(); i++) {
+                    long startNanos = System.nanoTime();
+                    noLimit(statement);
+                    noLimitTimer.update((System.nanoTime() - startNanos), TimeUnit.NANOSECONDS);
+                }
             } catch (SQLException e) {
                 fail(e.getMessage());
             }
-
         });
-        LOGGER.info("{} Result Set without limit took {} millis",
-                dataSourceProvider().database(),
-                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
-    }
 
-    @Test
-    public void testLimit() {
-        final Limit rowSelection = new Limit();
-        rowSelection.setMaxRows(getMaxRows());
-        LimitHandler limitHandler = dialect().getLimitHandler();
-        String limitStatement = limitHandler.processSql(SELECT_POST_COMMENT, rowSelection);
-        long startNanos = System.nanoTime();
         doInJDBC(connection -> {
+            final Limit rowSelection = new Limit();
+            rowSelection.setMaxRows(getMaxRows());
+            LimitHandler limitHandler = dialect().getLimitHandler();
+            String limitStatement = limitHandler.processSql(SELECT_POST_COMMENT, rowSelection);
             try (PreparedStatement statement = connection.prepareStatement(limitStatement)) {
-                limitHandler.bindLimitParametersAtEndOfQuery(rowSelection, statement, 1);
-                statement.setInt(1, getMaxRows());
-                statement.execute();
-                int count = 0;
-                ResultSet resultSet = statement.getResultSet();
-                while (resultSet.next()) {
-                    resultSet.getLong(1);
-                    count++;
+                for (int i = 0; i < runCount() / 10; i++) {
+                    limit(statement, limitHandler, rowSelection);
                 }
-                assertEquals(getMaxRows(), count);
+                for (int i = 0; i < runCount(); i++) {
+                    long startNanos = System.nanoTime();
+                    limit(statement, limitHandler, rowSelection);
+                    limitTimer.update((System.nanoTime() - startNanos), TimeUnit.NANOSECONDS);
+                }
             } catch (SQLException e) {
                 fail(e.getMessage());
             }
-
         });
-        LOGGER.info("{} Result Set with limit took {} millis",
-                dataSourceProvider().database(),
-                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
-    }
 
-    @Test
-    @Ignore
-    public void testMaxSize() {
-        long startNanos = System.nanoTime();
         doInJDBC(connection -> {
             try (PreparedStatement statement = connection.prepareStatement(
-                    SELECT_POST_COMMENT
+                SELECT_POST_COMMENT
             )) {
-                statement.setMaxRows(getMaxRows());
-                ResultSet resultSet = statement.executeQuery();
-                int count = 0;
-                while (resultSet.next()) {
-                    resultSet.getLong(1);
-                    count++;
+                for (int i = 0; i < runCount() / 10; i++) {
+                    maxSize(statement);
                 }
-                assertEquals(getMaxRows(), count);
+                for (int i = 0; i < runCount(); i++) {
+                    long startNanos = System.nanoTime();
+                    maxSize(statement);
+                    maxSizeTimer.update((System.nanoTime() - startNanos), TimeUnit.NANOSECONDS);
+                }
             } catch (SQLException e) {
                 fail(e.getMessage());
             }
-
         });
-        LOGGER.info("{} Result Set maxSize took {} millis",
-                dataSourceProvider().database(),
-                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
+        LOGGER.info("{} results:", database());
+        logReporter.report();
+    }
+
+    private void noLimit(PreparedStatement statement) throws SQLException {
+        statement.setFetchSize(100);
+        statement.execute();
+        ResultSet resultSet = statement.getResultSet();
+        int count = 0;
+        while (resultSet.next()) {
+            resultSet.getLong(1);
+            count++;
+        }
+        assertEquals(getPostCount() * getPostCommentCount(), count);
+    }
+
+    public void limit(PreparedStatement statement, LimitHandler limitHandler, Limit rowSelection) throws SQLException {
+        limitHandler.bindLimitParametersAtEndOfQuery(rowSelection, statement, 1);
+        statement.setInt(1, getMaxRows());
+        statement.execute();
+        int count = 0;
+        ResultSet resultSet = statement.getResultSet();
+        while (resultSet.next()) {
+            resultSet.getLong(1);
+            count++;
+        }
+        assertEquals(getMaxRows(), count);
+    }
+
+    public void maxSize(PreparedStatement statement) throws SQLException {
+        statement.setMaxRows(getMaxRows());
+        ResultSet resultSet = statement.executeQuery();
+        int count = 0;
+        while (resultSet.next()) {
+            resultSet.getLong(1);
+            count++;
+        }
+        assertEquals(getMaxRows(), count);
     }
 
     protected int getPostCount() {
-        return 10;
-        //return 100_000;
+        return 10_000;
     }
 
     protected int getPostCommentCount() {
@@ -204,6 +235,9 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
         return 100;
     }
 
+    private int runCount() {
+        return 1000;
+    }
 
     @Override
     protected boolean proxyDataSource() {
