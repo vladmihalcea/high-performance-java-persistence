@@ -102,6 +102,54 @@ public class SpringDataJPAJoinFetchPaginationTest {
     }
 
     @Test
+    public void testFindAllByTitleTopN() {
+        int maxCount = 25;
+
+        Page<Post> posts = postRepository.findAllByTitleLike(
+            "High-Performance Java Persistence %",
+            PageRequest.of(0, maxCount, Sort.by("createdOn"))
+        );
+
+        assertEquals(maxCount, posts.getSize());
+    }
+
+    @Test
+    public void testFindAllByTitleNextN() {
+        int maxCount = 25;
+
+        Page<Post> posts = postRepository.findAllByTitleLike(
+            "High-Performance Java Persistence %",
+            PageRequest.of(1, maxCount, Sort.by("createdOn"))
+        );
+
+        assertEquals(maxCount, posts.getSize());
+    }
+
+    @Test
+    public void testFindAllByTitleTopNWithNativeQuery() {
+        int maxCount = 25;
+
+        Page<Post> posts = postRepository.findAllByTitleLikeNativeQuery(
+            "High-Performance Java Persistence %",
+            PageRequest.of(0, maxCount)
+        );
+
+        assertEquals(maxCount, posts.getSize());
+    }
+
+    @Test
+    public void testFindAllByTitleNextNWithNativeQuery() {
+        int maxCount = 25;
+
+        Page<Post> posts = postRepository.findAllByTitleLikeNativeQuery(
+            "High-Performance Java Persistence %",
+            PageRequest.of(1, maxCount)
+        );
+
+        assertEquals(maxCount, posts.getSize());
+    }
+
+    @Test
     public void testFindAllWithCommentsByTitleAntiPattern() {
 
         int maxCount = 25;

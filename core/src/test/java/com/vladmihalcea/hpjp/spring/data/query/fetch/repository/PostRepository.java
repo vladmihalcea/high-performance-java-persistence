@@ -21,6 +21,26 @@ import java.util.stream.Stream;
 @Repository
 public interface PostRepository extends BaseJpaRepository<Post, Long> {
 
+    Page<Post> findAllByTitleLike(@Param("titlePattern") String titlePattern, Pageable pageRequest);
+
+    @Query("""
+        select p
+        from Post p
+        where p.title like :titlePattern
+        """
+    )
+    Page<Post> findAllByTitleLikeQuery(@Param("titlePattern") String titlePattern, Pageable pageRequest);
+
+    @Query(value = """
+        SELECT p.id, p.title, p.created_on
+        FROM post p
+        WHERE p.title ilike :titlePattern
+        ORDER BY p.created_on
+        """,
+        nativeQuery = true
+    )
+    Page<Post> findAllByTitleLikeNativeQuery(@Param("titlePattern") String titlePattern, Pageable pageRequest);
+
     @Query(
         value = """
             select p
@@ -34,7 +54,7 @@ public interface PostRepository extends BaseJpaRepository<Post, Long> {
             where p.title like :titlePattern
             """
     )
-    Page<Post> findAllByTitleWithCommentsAntiPattern(@Param("titlePattern") String titlePattern, Pageable pageable);
+    Page<Post> findAllByTitleWithCommentsAntiPattern(@Param("titlePattern") String titlePattern, Pageable pageRequest);
 
     @Query("""
         select p
@@ -70,7 +90,7 @@ public interface PostRepository extends BaseJpaRepository<Post, Long> {
             where p.title like :titlePattern
             """
     )
-    List<Long> findAllPostIdsByTitle(@Param("titlePattern") String titlePattern, Pageable pageable);
+    List<Long> findAllPostIdsByTitle(@Param("titlePattern") String titlePattern, Pageable pageRequest);
 
     @Query("""
         select p
