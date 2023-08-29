@@ -28,7 +28,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, CustomPostRep
         where p.title like :postTitle
         order by c.id
         """)
-    List<Tuple> findCommentTupleByTitle(@Param("postTitle") String postTitle);
+    List<Tuple> findAllCommentTuplesByTitle(@Param("postTitle") String postTitle);
 
     @Query("""
         select 
@@ -40,7 +40,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, CustomPostRep
         where p.title like :postTitle
         order by c.id
         """)
-    List<PostCommentSummary> findCommentSummaryByTitle(@Param("postTitle") String postTitle);
+    List<PostCommentSummary> findAllCommentSummariesByTitle(@Param("postTitle") String postTitle);
 
     @Query("""
         select new PostCommentDTO(

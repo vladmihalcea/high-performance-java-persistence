@@ -88,21 +88,33 @@ public class SpringDataJPAProjectionTest {
         String titleToken = "High-Performance Java Persistence%";
 
         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
-            List<Tuple> commentTuples = postRepository.findCommentTupleByTitle(titleToken);
+            {
+                List<Tuple> commentTuples = postRepository
+                    .findAllCommentTuplesByTitle(titleToken);
 
-            assertFalse(commentTuples.isEmpty());
+                assertFalse(commentTuples.isEmpty());
 
-            Tuple commentTuple = commentTuples.get(0);
-            assertEquals(1L, ((Number) commentTuple.get("id")).longValue());
-            assertTrue(((String) commentTuple.get("title")).contains("Chapter nr. 1"));
+                Tuple commentTuple = commentTuples.get(0);
+                long id = commentTuple.get("id", Number.class).longValue();
+                String title = commentTuple.get("title", String.class);
 
-            List<PostCommentSummary> commentSummaries = postRepository.findCommentSummaryByTitle(titleToken);
+                assertEquals(1L, id);
+                assertTrue(title.contains("Chapter nr. 1"));
+            }
 
-            assertFalse(commentSummaries.isEmpty());
+            {
+                List<PostCommentSummary> commentSummaries = postRepository
+                    .findAllCommentSummariesByTitle(titleToken);
 
-            PostCommentSummary commentSummary = commentSummaries.get(0);
-            assertEquals(Long.valueOf(1), commentSummary.getId());
-            assertTrue(commentSummary.getTitle().contains("Chapter nr. 1"));
+                assertFalse(commentSummaries.isEmpty());
+
+                PostCommentSummary commentSummary = commentSummaries.get(0);
+                long id = commentSummary.getId();
+                String title = commentSummary.getTitle();
+
+                assertEquals(1L, id);
+                assertTrue(title.contains("Chapter nr. 1"));
+            }
 
             List<PostCommentDTO> commentDTOs = postRepository.findCommentDTOByTitle(titleToken);
 
