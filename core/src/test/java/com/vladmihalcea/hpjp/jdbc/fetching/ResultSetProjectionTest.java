@@ -22,7 +22,7 @@ import static org.junit.Assert.fail;
  *
  * @author Vlad Mihalcea
  */
-public class ResultSetColumnSizeTest extends DataSourceProviderIntegrationTest {
+public class ResultSetProjectionTest extends DataSourceProviderIntegrationTest {
 
     public static final String INSERT_POST = """
         INSERT INTO post (title, version, id)
@@ -42,20 +42,21 @@ public class ResultSetColumnSizeTest extends DataSourceProviderIntegrationTest {
     public static final String SELECT_ALL = """
         SELECT *
         FROM post_comment pc
-        INNER JOIN post p ON p.id = pc.post_id
-        INNER JOIN post_details pd ON p.id = pd.id
+        LEFT JOIN post p ON p.id = pc.post_id
+        LEFT JOIN post_details pd ON p.id = pd.id
         """;
 
     public static final String SELECT_ID = """
-        SELECT pc.version
+        SELECT pc.id, pc.review
         FROM post_comment pc
-        INNER JOIN post p ON p.id = pc.post_id
-        INNER JOIN post_details pd ON p.id = pd.id
+        LEFT JOIN post p ON p.id = pc.post_id
+        LEFT JOIN post_details pd ON p.id = pd.id
         """;
 
     private MetricRegistry metricRegistry = new MetricRegistry();
 
-    private Timer timer = metricRegistry.timer("callSequence");
+    private Timer fetchAllColumnsTimer = metricRegistry.timer("fetchAllColumnsTimer");
+    private Timer fetchProjectionTimer = metricRegistry.timer("fetchProjectionTimer");
 
     private Slf4jReporter logReporter = Slf4jReporter
             .forRegistry(metricRegistry)
@@ -64,7 +65,7 @@ public class ResultSetColumnSizeTest extends DataSourceProviderIntegrationTest {
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
-    public ResultSetColumnSizeTest(Database database) {
+    public ResultSetProjectionTest(Database database) {
         super(database);
     }
 
@@ -148,24 +149,28 @@ public class ResultSetColumnSizeTest extends DataSourceProviderIntegrationTest {
                 fail(e.getMessage());
             }
         });
+        executeStatement("CREATE INDEX idx_post_comment_review ON post_comment (review)");
+        if(database() == Database.POSTGRESQL) {
+            executeStatement("VACUUM FULL ANALYZE");
+        }
     }
 
     @Test
-    public void testSelectAll() {
-        testInternal(SELECT_ALL);
+    public void test() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
+        testInternal(SELECT_ALL, fetchAllColumnsTimer);
+        testInternal(SELECT_ID, fetchProjectionTimer);
+        LOGGER.info("{} results:", database());
+        logReporter.report();
     }
 
-    @Test
-    public void testProjection() {
-        testInternal(SELECT_ID);
-    }
-
-    public void testInternal(String sql) {
+    public void testInternal(String sql, Timer timer) {
         doInJDBC(connection -> {
+            LOGGER.info("Fetching {} on {}", sql, database());
             for (int i = 0; i < runCount(); i++) {
-                try (PreparedStatement statement = connection.prepareStatement(
-                        sql
-                )) {
+                try (PreparedStatement statement = connection.prepareStatement(sql)) {
                     statement.execute();
                     long startNanos = System.nanoTime();
                     ResultSet resultSet = statement.getResultSet();
@@ -181,12 +186,10 @@ public class ResultSetColumnSizeTest extends DataSourceProviderIntegrationTest {
                 }
             }
         });
-        LOGGER.info("{} Result Set statement {}", dataSourceProvider().database(), sql);
-        logReporter.report();
     }
 
     private int runCount() {
-        return 10;
+        return 1000;
     }
 
     protected int getPostCount() {
