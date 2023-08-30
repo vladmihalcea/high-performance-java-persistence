@@ -33,8 +33,8 @@ public class PostgreSQLStatementCacheTest extends AbstractPostgreSQLIntegrationT
     @Override
     public void afterInit() {
         doInJDBC(connection -> {
-            try (PreparedStatement postStatement = connection.prepareStatement(INSERT_TASK)) {
-                int postCount = getPostCount();
+            try (PreparedStatement taskStatement = connection.prepareStatement(INSERT_TASK)) {
+                int postCount = getTaskCount();
 
                 int index;
 
@@ -48,9 +48,9 @@ public class PostgreSQLStatementCacheTest extends AbstractPostgreSQLIntegrationT
                     } else {
                         statusType = TaskEntityProvider.StatusType.DONE;
                     }
-                    postStatement.setInt(++index, i);
-                    postStatement.setString(++index, statusType.name());
-                    postStatement.executeUpdate();
+                    taskStatement.setInt(++index, i);
+                    taskStatement.setString(++index, statusType.name());
+                    taskStatement.executeUpdate();
                 }
             } catch (SQLException e) {
                 fail(e.getMessage());
@@ -60,6 +60,9 @@ public class PostgreSQLStatementCacheTest extends AbstractPostgreSQLIntegrationT
 
     @Test
     public void testStatementCaching() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         doInJDBC(connection -> {
             try (PreparedStatement statement = connection.prepareStatement("""
                 SELECT *
@@ -73,7 +76,7 @@ public class PostgreSQLStatementCacheTest extends AbstractPostgreSQLIntegrationT
         });
     }
 
-    protected int getPostCount() {
+    protected int getTaskCount() {
         return 10_000;
     }
 
