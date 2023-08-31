@@ -1,6 +1,7 @@
 package com.vladmihalcea.hpjp.spring.data.custom.repository;
 
 import com.vladmihalcea.hpjp.hibernate.forum.Post;
+import com.vladmihalcea.hpjp.hibernate.query.dto.projection.transformer.DistinctListTransformer;
 import com.vladmihalcea.hpjp.hibernate.query.dto.projection.transformer.PostDTO;
 import com.vladmihalcea.hpjp.hibernate.query.dto.projection.transformer.PostDTOResultTransformer;
 import jakarta.persistence.EntityManager;
@@ -28,7 +29,8 @@ public class CustomPostRepositoryImpl implements CustomPostRepository {
             ORDER BY pc.id
             """)
         .unwrap(org.hibernate.query.Query.class)
-        .setResultTransformer(new PostDTOResultTransformer())
+        .setTupleTransformer(new PostDTOResultTransformer())
+        .setResultListTransformer(DistinctListTransformer.INSTANCE)
         .getResultList();
     }
 

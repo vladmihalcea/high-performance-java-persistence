@@ -1,18 +1,9 @@
 package com.vladmihalcea.hpjp.hibernate.query.dto.projection.transformer;
 
-import org.hibernate.transform.ResultTransformer;
-
-import java.util.List;
-
 /**
  *
  * @author Vlad Mihalcea
  */
-public class PostDTOResultTransformer extends PostDTOTupleTransformer
-    implements ResultTransformer {
+public class PostDTOResultTransformer extends PostDTOTupleTransformer {
 
-    @Override
-    public List<PostDTO> transformList(List collection) {
-        return DistinctListTransformer.INSTANCE.transformList(collection);
-    }
 }

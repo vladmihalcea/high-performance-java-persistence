@@ -1,9 +1,11 @@
 package com.vladmihalcea.hpjp.spring.data.projection.repository;
 
+import com.vladmihalcea.hpjp.hibernate.query.dto.projection.transformer.DistinctListTransformer;
 import com.vladmihalcea.hpjp.hibernate.query.dto.projection.transformer.PostDTO;
 import com.vladmihalcea.hpjp.hibernate.query.dto.projection.transformer.PostDTOResultTransformer;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.hibernate.query.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -29,8 +31,9 @@ public class CustomPostRepositoryImpl implements CustomPostRepository {
             ORDER BY pc.id
             """)
         .setParameter("postTitle", postTitle)
-        .unwrap(org.hibernate.query.Query.class)
+        .unwrap(Query.class)
         .setTupleTransformer(new PostDTOResultTransformer())
+        .setResultListTransformer(DistinctListTransformer.INSTANCE)
         .getResultList();
     }
 }
