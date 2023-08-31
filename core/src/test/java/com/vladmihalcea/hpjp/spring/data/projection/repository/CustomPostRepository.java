@@ -10,5 +10,5 @@ import java.util.List;
  */
 public interface CustomPostRepository {
 
-    List<PostDTO> findPostDTOByTitle(@Param("postTitle") String postTitle);
+    List<PostDTO> findPostDTOByPostTitle(@Param("postTitle") String postTitle);
 }

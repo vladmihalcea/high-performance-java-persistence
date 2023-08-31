@@ -90,7 +90,7 @@ public class SpringDataJPAProjectionTest {
         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
             {
                 List<Tuple> commentTuples = postRepository
-                    .findAllCommentTuplesByTitle(titleToken);
+                    .findAllCommentTuplesByPostTitle(titleToken);
 
                 assertFalse(commentTuples.isEmpty());
 
@@ -104,51 +104,59 @@ public class SpringDataJPAProjectionTest {
 
             {
                 List<PostCommentSummary> commentSummaries = postRepository
-                    .findAllCommentSummariesByTitle(titleToken);
+                    .findAllCommentSummariesByPostTitle(titleToken);
 
                 assertFalse(commentSummaries.isEmpty());
 
                 PostCommentSummary commentSummary = commentSummaries.get(0);
-                long id = commentSummary.getId();
+                Long id = commentSummary.getId();
                 String title = commentSummary.getTitle();
 
-                assertEquals(1L, id);
+                assertEquals(1L, id.longValue());
                 assertTrue(title.contains("Chapter nr. 1"));
             }
 
-            List<PostCommentDTO> commentDTOs = postRepository.findCommentDTOByTitle(titleToken);
+            {
+                List<PostCommentDTO> commentDTOs = postRepository.findCommentDTOByPostTitle(titleToken);
 
-            assertFalse(commentDTOs.isEmpty());
+                assertFalse(commentDTOs.isEmpty());
 
-            PostCommentDTO commentDTO = commentDTOs.get(0);
-            assertEquals(Long.valueOf(1), commentDTO.getId());
-            assertTrue(commentDTO.getTitle().contains("Chapter nr. 1"));
-            assertEquals(
-                commentDTO,
-                new PostCommentDTO(
-                    commentDTO.getId(),
-                    commentDTO.getTitle(),
-                    commentDTO.getReview()
-                )
-            );
+                PostCommentDTO commentDTO = commentDTOs.get(0);
+                Long id = commentDTO.getId();
+                String title = commentDTO.getTitle();
+                assertEquals(1L, id.longValue());
+                assertTrue(title.contains("Chapter nr. 1"));
+                assertEquals(
+                    commentDTO,
+                    new PostCommentDTO(
+                        commentDTO.getId(),
+                        commentDTO.getTitle(),
+                        commentDTO.getReview()
+                    )
+                );
+            }
 
-            List<PostCommentRecord> commentRecords = postRepository.findCommentRecordByTitle(titleToken);
+            {
+                List<PostCommentRecord> commentRecords = postRepository.findCommentRecordByPostTitle(titleToken);
 
-            assertFalse(commentRecords.isEmpty());
+                assertFalse(commentRecords.isEmpty());
 
-            PostCommentRecord commentRecord = commentRecords.get(0);
-            assertEquals(Long.valueOf(1), commentRecord.id());
-            assertTrue(commentRecord.title().contains("Chapter nr. 1"));
-            assertEquals(
-                commentRecord,
-                new PostCommentRecord(
-                    commentRecord.id(),
-                    commentRecord.title(),
-                    commentRecord.review()
-                )
-            );
+                PostCommentRecord commentRecord = commentRecords.get(0);
+                Long id = commentRecord.id();
+                String title = commentRecord.title();
+                assertEquals(1L, id.longValue());
+                assertTrue(title.contains("Chapter nr. 1"));
+                assertEquals(
+                    commentRecord,
+                    new PostCommentRecord(
+                        commentRecord.id(),
+                        commentRecord.title(),
+                        commentRecord.review()
+                    )
+                );
+            }
 
-            List<PostDTO> postDTOs = postRepository.findPostDTOByTitle(titleToken);
+            List<PostDTO> postDTOs = postRepository.findPostDTOByPostTitle(titleToken);
 
             assertEquals(POST_COUNT, postDTOs.size());
 

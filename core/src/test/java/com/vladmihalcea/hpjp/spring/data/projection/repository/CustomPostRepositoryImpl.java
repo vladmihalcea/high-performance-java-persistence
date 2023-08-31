@@ -17,7 +17,7 @@ public class CustomPostRepositoryImpl implements CustomPostRepository {
     private EntityManager entityManager;
 
     @Override
-    public List<PostDTO> findPostDTOByTitle(@Param("postTitle") String postTitle) {
+    public List<PostDTO> findPostDTOByPostTitle(@Param("postTitle") String postTitle) {
         return entityManager.createNativeQuery("""
             SELECT p.id AS p_id, 
                    p.title AS p_title,
@@ -30,7 +30,7 @@ public class CustomPostRepositoryImpl implements CustomPostRepository {
             """)
         .setParameter("postTitle", postTitle)
         .unwrap(org.hibernate.query.Query.class)
-        .setResultTransformer(new PostDTOResultTransformer())
+        .setTupleTransformer(new PostDTOResultTransformer())
         .getResultList();
     }
 }
