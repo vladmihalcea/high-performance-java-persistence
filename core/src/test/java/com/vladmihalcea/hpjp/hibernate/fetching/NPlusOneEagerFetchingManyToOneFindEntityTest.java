@@ -51,8 +51,7 @@ public class NPlusOneEagerFetchingManyToOneFindEntityTest extends AbstractPostgr
 
         doInJPA(entityManager -> {
             LOGGER.info("N+1 query problem");
-            List<PostComment> comments = entityManager
-            .createQuery("""
+            List<PostComment> comments = entityManager.createQuery("""
                 select pc
                 from PostComment pc
                 """, PostComment.class)
@@ -69,7 +68,9 @@ public class NPlusOneEagerFetchingManyToOneFindEntityTest extends AbstractPostgr
                 join fetch pc.post p
                 """, PostComment.class)
             .getResultList();
+
             LOGGER.info("Loaded {} comments", comments.size());
+
             for(PostComment comment : comments) {
                 LOGGER.info("The Post '{}' got this review '{}'", comment.getPost().getTitle(), comment.getReview());
             }

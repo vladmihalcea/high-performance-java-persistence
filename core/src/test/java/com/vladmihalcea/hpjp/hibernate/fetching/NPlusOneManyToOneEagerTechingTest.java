@@ -1,34 +1,35 @@
 package com.vladmihalcea.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.LazyInitializationException;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import org.junit.Test;
 
-import jakarta.persistence.*;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vlad Mihalcea
  */
-public class LazyInitializationExceptionTest extends AbstractPostgreSQLIntegrationTest {
+public class NPlusOneManyToOneEagerTechingTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
             Post.class,
-            PostComment.class,
+            PostComment.class
         };
     }
 
-    private String review = "Excellent!";
+    @Test
+    public void testNPlusOne() {
 
-    @Override
-    protected void afterInit() {
+        String review = "Excellent!";
+
         doInJPA(entityManager -> {
-            for (long i = 1; i < 4; i++) {
+
+            for (long i = 1; i <= 3; i++) {
                 Post post = new Post();
                 post.setId(i);
                 post.setTitle(String.format("Post nr. %d", i));
@@ -41,66 +42,41 @@ public class LazyInitializationExceptionTest extends AbstractPostgreSQLIntegrati
                 entityManager.persist(comment);
             }
         });
-    }
 
-    @Test
-    public void testNPlusOne() {
-
-        List<PostComment> comments = null;
-
-        EntityManager entityManager = null;
-        EntityTransaction transaction = null;
-        try {
-            entityManager = entityManagerFactory().createEntityManager();
-            transaction = entityManager.getTransaction();
-            transaction.begin();
-
-            comments = entityManager.createQuery(
-                "select pc " +
-                "from PostComment pc " +
-                "where pc.review = :review", PostComment.class)
-            .setParameter("review", review)
-            .getResultList();
-
-            transaction.commit();
-        } catch (Throwable e) {
-            if ( transaction != null && transaction.isActive())
-                transaction.rollback();
-            throw e;
-        } finally {
-            if (entityManager != null) {
-                entityManager.close();
-            }
-        }
-        try {
-            for(PostComment comment : comments) {
-                LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
-            }
-        } catch (LazyInitializationException expected) {
-            assertTrue(expected.getMessage().contains("could not initialize proxy"));
-        }
-    }
-
-    @Test
-    public void testNPlusOneSimplified() {
-
-        List<PostComment> comments = doInJPA(entityManager -> {
-            return entityManager.createQuery("""
+        doInJPA(entityManager -> {
+            LOGGER.info("N+1 query problem");
+            List<PostComment> comments = entityManager.createQuery("""
                 select pc
                 from PostComment pc
                 where pc.review = :review
                 """, PostComment.class)
             .setParameter("review", review)
             .getResultList();
-        });
 
-        try {
-            for(PostComment comment : comments) {
+            LOGGER.info("Loaded {} comments", comments.size());
+
+            for (PostComment comment : comments) {
                 LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
             }
-        } catch (LazyInitializationException expected) {
-            assertTrue(expected.getMessage().contains("could not initialize proxy"));
-        }
+        });
+
+        doInJPA(entityManager -> {
+            LOGGER.info("N+1 query problem fixed");
+            List<PostComment> comments = entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                join fetch pc.post p
+                where pc.review = :review
+                """, PostComment.class)
+            .setParameter("review", review)
+            .getResultList();
+
+            LOGGER.info("Loaded {} comments", comments.size());
+
+            for (PostComment comment : comments) {
+                LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
+            }
+        });
     }
 
     @Entity(name = "Post")
@@ -147,7 +123,7 @@ public class LazyInitializationExceptionTest extends AbstractPostgreSQLIntegrati
         @Id
         private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY)
+        @ManyToOne
         private Post post;
 
         private String review;

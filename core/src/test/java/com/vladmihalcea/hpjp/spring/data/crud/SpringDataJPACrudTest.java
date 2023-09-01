@@ -3,8 +3,10 @@ package com.vladmihalcea.hpjp.spring.data.crud;
 import com.vladmihalcea.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.hpjp.spring.data.crud.config.SpringDataJPACrudConfiguration;
 import com.vladmihalcea.hpjp.spring.data.crud.domain.Post;
+import com.vladmihalcea.hpjp.spring.data.crud.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.crud.domain.PostStatus;
 import com.vladmihalcea.hpjp.spring.data.crud.repository.PostRepository;
+import com.vladmihalcea.hpjp.spring.data.crud.repository.PostCommentRepository;
 import com.vladmihalcea.hpjp.spring.data.crud.service.PostService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -41,6 +43,9 @@ public class SpringDataJPACrudTest {
 
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private PostCommentRepository postCommentRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -133,8 +138,11 @@ public class SpringDataJPACrudTest {
         postService.addNewPostComment("Best book on JPA and Hibernate!", postId);
 
         //The sequence call
-        SQLStatementCountValidator.assertSelectCount(0);
+        SQLStatementCountValidator.assertSelectCount(1);
         SQLStatementCountValidator.assertInsertCount(1);
+
+        PostComment comment = postCommentRepository.findById(1L).orElseThrow();
+        assertNotNull(comment);
     }
 
     @Test

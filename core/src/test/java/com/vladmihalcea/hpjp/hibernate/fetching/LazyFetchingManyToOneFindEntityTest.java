@@ -1,13 +1,11 @@
 package com.vladmihalcea.hpjp.hibernate.fetching;
 
-import com.vladmihalcea.hpjp.hibernate.forum.*;
+import com.vladmihalcea.hpjp.hibernate.forum.PostComment_;
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import jakarta.persistence.*;
 import org.hibernate.LazyInitializationException;
 import org.junit.Test;
 
-import jakarta.persistence.EntityGraph;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,9 +20,7 @@ public class LazyFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInteg
     protected Class<?>[] entities() {
         return new Class<?>[]{
             Post.class,
-            PostComment.class,
-            PostDetails.class,
-            Tag.class
+            PostComment.class
         };
     }
 
@@ -44,6 +40,7 @@ public class LazyFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInteg
 
         doInJPA(entityManager -> {
             PostComment comment = entityManager.find(PostComment.class, 1L);
+
             LOGGER.info("Loaded comment entity");
             LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
             assertNotNull(comment);
@@ -54,7 +51,7 @@ public class LazyFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInteg
 
             EntityGraph<PostComment> postEntityGraph = entityManager.createEntityGraph(
                 PostComment.class);
-            postEntityGraph.addAttributeNodes(PostComment_.post);
+            postEntityGraph.addAttributeNodes("post");
 
             PostComment comment = entityManager.find(PostComment.class, 1L,
                 Collections.singletonMap("jakarta.persistence.fetchgraph", postEntityGraph)
@@ -66,11 +63,12 @@ public class LazyFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInteg
         doInJPA(entityManager -> {
             LOGGER.info("Using JPQL");
 
-            PostComment comment = entityManager.createQuery(
-                "select pc " +
-                "from PostComment pc " +
-                "join fetch pc.post p " +
-                "where pc.id = :id", PostComment.class)
+            PostComment comment = entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                join fetch pc.post p
+                where pc.id = :id
+                """, PostComment.class)
             .setParameter("id", 1L)
             .getSingleResult();
             assertNotNull(comment);
@@ -84,7 +82,7 @@ public class LazyFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInteg
 
         doInJPA(entityManager -> {
 
-            for (long i = 1; i < 4; i++) {
+            for (long i = 1; i <= 3; i++) {
                 Post post = new Post();
                 post.setId(i);
                 post.setTitle(String.format("Post nr. %d", i));
@@ -100,13 +98,16 @@ public class LazyFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInteg
 
         doInJPA(entityManager -> {
             LOGGER.info("N+1 query problem");
-            List<PostComment> comments = entityManager.createQuery(
-                "select pc " +
-                "from PostComment pc " +
-                "where pc.review = :review", PostComment.class)
+            List<PostComment> comments = entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                where pc.review = :review
+                """, PostComment.class)
             .setParameter("review", review)
             .getResultList();
+
             LOGGER.info("Loaded {} comments", comments.size());
+
             for(PostComment comment : comments) {
                 LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
             }
@@ -114,11 +115,12 @@ public class LazyFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInteg
 
         doInJPA(entityManager -> {
             LOGGER.info("N+1 query problem fixed");
-            List<PostComment> comments = entityManager.createQuery(
-                "select pc " +
-                "from PostComment pc " +
-                "join fetch pc.post p " +
-                "where pc.review = :review", PostComment.class)
+            List<PostComment> comments = entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                join fetch pc.post p
+                where pc.review = :review
+                """, PostComment.class)
             .setParameter("review", review)
             .getResultList();
             LOGGER.info("Loaded {} comments", comments.size());
@@ -165,5 +167,86 @@ public class LazyFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInteg
         }
 
         LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
+    }
+
+    @Entity(name = "Post")
+    @Table(name = "post")
+    public static class Post {
+
+        @Id
+        private Long id;
+
+        private String title;
+
+        public Post() {
+        }
+
+        public Post(Long id) {
+            this.id = id;
+        }
+
+        public Post(String title) {
+            this.title = title;
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+    }
+
+    @Entity(name = "PostComment")
+    @Table(name = "post_comment")
+    public static class PostComment {
+
+        @Id
+        private Long id;
+
+        @ManyToOne(fetch = FetchType.LAZY)
+        private Post post;
+
+        private String review;
+
+        public PostComment() {
+        }
+
+        public PostComment(String review) {
+            this.review = review;
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public Post getPost() {
+            return post;
+        }
+
+        public void setPost(Post post) {
+            this.post = post;
+        }
+
+        public String getReview() {
+            return review;
+        }
+
+        public void setReview(String review) {
+            this.review = review;
+        }
     }
 }

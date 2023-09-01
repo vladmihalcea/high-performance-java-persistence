@@ -60,9 +60,10 @@ public class NaturalIdTest extends AbstractTest {
         doInJPA(entityManager -> {
             String slug = "high-performance-java-persistence";
 
-            Post post = entityManager.unwrap(Session.class)
-            .bySimpleNaturalId(Post.class)
-            .load(slug);
+            Post post = entityManager
+                .unwrap(Session.class)
+                .bySimpleNaturalId(Post.class)
+                .load(slug);
 
             printNaturalIdCacheRegionStatistics(Post.class);
 
@@ -186,8 +187,8 @@ public class NaturalIdTest extends AbstractTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @NaturalIdCache
+    /*@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @NaturalIdCache*/
     public static class Post {
 
         @Id

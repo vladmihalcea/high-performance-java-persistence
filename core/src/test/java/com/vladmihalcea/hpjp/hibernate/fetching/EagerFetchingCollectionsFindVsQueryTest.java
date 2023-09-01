@@ -1,6 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import jakarta.persistence.*;
@@ -19,11 +20,17 @@ public class EagerFetchingCollectionsFindVsQueryTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostComment.class,
-                Tag.class
+            Post.class,
+            PostComment.class,
+            Tag.class
         };
     }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
     @Override
     public void afterInit() {
         doInJPA(entityManager -> {
@@ -65,7 +72,7 @@ public class EagerFetchingCollectionsFindVsQueryTest extends AbstractTest {
     @Test
     public void testFindEntityById() {
         doInJPA(entityManager -> {
-            Post post =  entityManager.find(Post.class, 1L);
+            Post post = entityManager.find(Post.class, 1L);
 
             assertFalse(post.getComments().isEmpty());
             assertFalse(post.getTags().isEmpty());
@@ -76,7 +83,8 @@ public class EagerFetchingCollectionsFindVsQueryTest extends AbstractTest {
     public void testQueryEntityById() {
         doInJPA(entityManager -> {
             Post post = entityManager.createQuery(
-                "select p from Post p where p.id = 1L", Post.class)
+                "select p from Post p where p.id = :postId", Post.class)
+            .setParameter("postId", 1L)
             .getSingleResult();
 
             assertFalse(post.getComments().isEmpty());
