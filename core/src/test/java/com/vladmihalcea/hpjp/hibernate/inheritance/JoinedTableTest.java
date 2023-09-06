@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -270,6 +271,36 @@ public class JoinedTableTest extends AbstractTest {
             assertEquals(1, postOnlyBoards.size());
             assertEquals("JPA", postOnlyBoards.get(0).getName());
         });
+    }
+
+    @Test
+    public void testBatching() {
+        doInJPA(entityManager -> {
+            Board board1 = new Board();
+            board1.setId(1L);
+            board1.setName("Hibernate");
+
+            entityManager.persist(board1);
+
+            for (int i = 0; i < 10; i++) {
+                Post post = new Post();
+                post.setOwner("John Doe");
+                post.setTitle("Inheritance");
+                post.setContent("Best practices");
+                post.setBoard(board1);
+
+                entityManager.persist(post);
+            }
+
+            LOGGER.info("Before flush");
+        });
+    }
+
+    @Override
+    protected void additionalProperties(Properties properties) {
+        properties.put("hibernate.jdbc.batch_size", "100");
+        properties.put("hibernate.order_inserts", "true");
+        properties.put("hibernate.order_updates", "true");
     }
 
     @Entity(name = "Board")
