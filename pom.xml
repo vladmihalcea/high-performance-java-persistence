@@ -401,6 +401,20 @@
             <version>${blaze-persistence.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-entity-view-api-jakarta</artifactId>
+            <version>${blaze-persistence.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-entity-view-impl-jakarta</artifactId>
+            <version>${blaze-persistence.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Table Generator -->
 
         <dependency>

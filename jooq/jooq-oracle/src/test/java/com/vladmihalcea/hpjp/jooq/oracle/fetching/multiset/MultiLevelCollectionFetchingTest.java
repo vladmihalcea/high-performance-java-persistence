@@ -47,7 +47,7 @@ public class MultiLevelCollectionFetchingTest extends AbstractMultiLevelCollecti
             entityManager.createQuery("""
                 select pc
                 from PostComment pc
-                left join fetch pc.votes t
+                left join fetch pc.votes v
                 join pc.post p
                 where p in :posts
                 """, PostComment.class)

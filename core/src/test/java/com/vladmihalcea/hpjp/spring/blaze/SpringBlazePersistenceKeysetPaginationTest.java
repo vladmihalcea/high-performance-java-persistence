@@ -1,8 +1,8 @@
 package com.vladmihalcea.hpjp.spring.blaze;
 
 import com.blazebit.persistence.PagedList;
-import com.vladmihalcea.hpjp.hibernate.fetching.pagination.Post;
 import com.vladmihalcea.hpjp.spring.blaze.config.SpringBlazePersistenceConfiguration;
+import com.vladmihalcea.hpjp.spring.blaze.domain.Post;
 import com.vladmihalcea.hpjp.spring.blaze.service.ForumService;
 import jakarta.persistence.EntityManager;
 import org.junit.Before;
@@ -31,12 +31,11 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringBlazePersistenceConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringBlazePersistenceTest {
+public class SpringBlazePersistenceKeysetPaginationTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     public static final int POST_COUNT = 50;
-
     public static final int PAGE_SIZE = 25;
 
     @Autowired
@@ -69,7 +68,7 @@ public class SpringBlazePersistenceTest {
 
                     entityManager.persist(post);
                 });
-                
+
                 return null;
             });
         } catch (TransactionException e) {

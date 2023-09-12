@@ -3,12 +3,19 @@ package com.vladmihalcea.hpjp.spring.blaze.config;
 import com.blazebit.persistence.Criteria;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
+import com.blazebit.persistence.view.EntityViewManager;
+import com.blazebit.persistence.view.EntityViews;
+import com.blazebit.persistence.view.spi.EntityViewConfiguration;
+import com.vladmihalcea.hpjp.spring.blaze.domain.Post;
+import com.vladmihalcea.hpjp.spring.blaze.domain.views.PostView;
 import com.vladmihalcea.hpjp.util.DataSourceProxyType;
+import com.vladmihalcea.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.hypersistence.utils.spring.repository.BaseJpaRepositoryImpl;
 import jakarta.persistence.EntityManagerFactory;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
@@ -35,12 +42,15 @@ import java.util.Properties;
 @Configuration
 @ComponentScan(
     basePackages = {
-        "com.vladmihalcea.hpjp.spring.blaze.service",
+        "com.vladmihalcea.hpjp.spring.blaze",
     }
 )
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-@EnableJpaRepositories("com.vladmihalcea.hpjp.spring.blaze.repository")
+@EnableJpaRepositories(
+    basePackages = "com.vladmihalcea.hpjp.spring.blaze.repository",
+    repositoryBaseClass = BaseJpaRepositoryImpl.class
+)
 public class SpringBlazePersistenceConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
@@ -108,15 +118,32 @@ public class SpringBlazePersistenceConfiguration {
         return config.createCriteriaBuilderFactory(entityManagerFactory);
     }
 
+    @Bean
+    public EntityViewConfiguration entityViewConfiguration(CriteriaBuilderFactory criteriaBuilderFactory) {
+        EntityViewConfiguration entityViewConfiguration = EntityViews.createDefaultConfiguration();
+        for(Class entityViewClass : ReflectionUtils.getClassesByPackage(PostView.class.getPackageName())) {
+            entityViewConfiguration.addEntityView(entityViewClass);
+        }
+        return entityViewConfiguration;
+    }
+
+    @Bean
+    public EntityViewManager entityViewManager(CriteriaBuilderFactory cbf, EntityViewConfiguration entityViewConfiguration) {
+        return entityViewConfiguration.createEntityViewManager(cbf);
+    }
+
     protected Properties additionalProperties() {
         Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+        properties.setProperty("hibernate.jdbc.batch_size", "50");
+        properties.setProperty("hibernate.order_inserts", "true");
+        properties.setProperty("hibernate.order_updates", "true");
         return properties;
     }
 
     protected String[] packagesToScan() {
         return new String[]{
-            "com.vladmihalcea.hpjp.hibernate.fetching.pagination"
+            Post.class.getPackage().getName()
         };
     }
 }

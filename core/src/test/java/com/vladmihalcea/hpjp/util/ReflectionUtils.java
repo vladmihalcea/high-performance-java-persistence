@@ -1,8 +1,19 @@
 package com.vladmihalcea.hpjp.util;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * <code>ReflectionUtils</code> - Reflection utilities holder.
@@ -505,6 +516,16 @@ public final class ReflectionUtils {
     }
 
     /**
+     * Get the {@link URI} resource with the given fully-qualified name.
+     *
+     * @param name the {@link URI} resource to be retrieved
+     * @return the Java {@link Class} object
+     */
+    public static URL getResource(String name) {
+        return Thread.currentThread().getContextClassLoader().getResource(name);
+    }
+
+    /**
      * Get the Java {@link Class} with the given fully-qualified name or or {@code null}
      * if no {@link Class} was found matching the provided name.
      *
@@ -631,6 +652,34 @@ public final class ReflectionUtils {
     public static Type getMemberGenericTypeOrNull(Class targetClass, String memberName) {
         Field field = getFieldOrNull(targetClass, memberName);
         return (field != null) ? field.getGenericType() : getMethodOrNull(targetClass, memberName).getGenericReturnType();
+    }
+
+    /**
+     * Get classes by their package name
+     * @param packageName package name
+     * @return classes
+     */
+    public static List<Class> getClassesByPackage(String packageName) {
+        List<Class> classes = new ArrayList<>();
+
+        try {
+            final String packagePath = packageName.replace('.', File.separatorChar);
+            final String javaClassExtension = ".class";
+            try (Stream<Path> allPaths = Files.walk(Paths.get(getResource(packagePath).toURI()))) {
+                allPaths.filter(Files::isRegularFile).forEach(file -> {
+                    final String path = file.toString().replace(File.separatorChar, '.');
+                    final String name = path.substring(
+                        path.indexOf(packageName),
+                        path.length() - javaClassExtension.length()
+                    );
+                    classes.add(ReflectionUtils.getClass(name));
+                });
+            }
+        } catch (URISyntaxException | IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+
+        return classes;
     }
 
     /**
