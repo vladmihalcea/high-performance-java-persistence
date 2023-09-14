@@ -22,6 +22,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
@@ -79,6 +80,9 @@ public class SpringDataJPALockTest {
 
             return null;
         });
+
+        Post post = postRepository.findBySlug("high-performance-java-persistence");
+        assertNotNull(post);
 
         transactionTemplate.execute(transactionStatus -> {
             Post postWithSharedLock = postRepository.lockById(1L, LockModeType.PESSIMISTIC_READ);
