@@ -45,8 +45,7 @@ public class NaturalIdTest extends AbstractTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Post post = new Post();
             post.setTitle("High-Performance Java persistence");
@@ -187,8 +186,8 @@ public class NaturalIdTest extends AbstractTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
-    /*@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @NaturalIdCache*/
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @NaturalIdCache
     public static class Post {
 
         @Id
