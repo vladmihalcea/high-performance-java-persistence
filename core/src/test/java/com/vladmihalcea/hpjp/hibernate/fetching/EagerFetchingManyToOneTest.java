@@ -182,10 +182,10 @@ public class EagerFetchingManyToOneTest extends AbstractPostgreSQLIntegrationTes
         @Id
         private Long id;
 
+        private String review;
+
         @ManyToOne
         private Post post;
-
-        private String review;
 
         public PostComment setId(Long id) {
             this.id = id;
