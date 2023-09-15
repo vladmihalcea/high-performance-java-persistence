@@ -129,22 +129,45 @@ public class EagerFetchingManyToOneTest extends AbstractPostgreSQLIntegrationTes
             LOGGER.info("Detect N+1");
             SQLStatementCountValidator.reset();
 
-            List<PostComment> comments = doInJPA(entityManager -> {
-                return entityManager.createQuery("""
+            List<PostComment> _comments = doInJPA(entityManager -> {
+                List<PostComment> comments = entityManager.createQuery("""
                     select pc
                     from PostComment pc
                     where pc.review like :reviewPattern
                     """, PostComment.class)
                 .setParameter("reviewPattern", "%excellent")
                 .getResultList();
+
+                return comments;
             });
 
-            assertEquals(3, comments.size());
+            assertEquals(3, _comments.size());
 
             SQLStatementCountValidator.assertSelectCount(1);
         } catch (Exception expected) {
             LOGGER.error("Exception", expected);
         }
+    }
+
+    @Test
+    public void testFixingNPlusOne() {
+        LOGGER.info("Fixing N+1");
+        SQLStatementCountValidator.reset();
+
+        doInJPA(entityManager -> {
+            List<PostComment> comments = entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                join fetch pc.post
+                where pc.review like :reviewPattern
+                """, PostComment.class)
+            .setParameter("reviewPattern", "%excellent")
+            .getResultList();
+
+            assertEquals(3, comments.size());
+
+            SQLStatementCountValidator.assertSelectCount(1);
+        });
     }
 
     @Entity(name = "Post")
