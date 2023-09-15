@@ -23,6 +23,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -72,10 +73,47 @@ public class SpringDataJPACascadeTest {
                 )
         );
 
-        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+        transactionTemplate.execute(transactionStatus -> {
             Post post = postRepository.findByIdWithComments(1L);
             postRepository.delete(post);
 
+            return null;
+        });
+    }
+
+    @Test
+    public void testSavePostWithDetailsAndComments() {
+        Post post = new Post()
+            .setId(1L)
+            .setTitle("High-Performance Java Persistence")
+            .setDetails(
+                new PostDetails()
+                    .setCreatedBy("Vlad Mihalcea")
+            )
+            .addComment(
+                new PostComment()
+                    .setReview("Best book on JPA and Hibernate!")
+            )
+            .addComment(
+                new PostComment()
+                    .setReview("A must-read for every Java developer!")
+            );
+
+        List<Long> postCommentIds = transactionTemplate.execute(transactionStatus -> {
+            postRepository.persist(post);
+            return post.getComments().stream().map(PostComment::getId).toList();
+        });
+
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            Long minId = Collections.min(postCommentIds);
+            Long maxId = Collections.max(postCommentIds);
+
+            List<PostComment> postComments = postCommentRepository.findAllWithPostAndDetailsByIds(
+                minId,
+                maxId
+            );
+
+            assertEquals(postCommentIds.size(), postComments.size());
             return null;
         });
     }

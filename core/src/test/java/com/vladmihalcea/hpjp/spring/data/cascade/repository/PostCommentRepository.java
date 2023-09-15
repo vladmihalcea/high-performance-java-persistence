@@ -25,6 +25,18 @@ public interface PostCommentRepository extends BaseJpaRepository<PostComment, Lo
         """)
     List<PostComment> findAllWithPostTitleLike(@Param("titlePrefix") String titlePrefix);
 
+    @Query("""
+        select pc
+        from PostComment pc
+        join fetch pc.post p
+        join fetch p.details d
+        where pc.id between :minId and :maxId
+        """)
+    List<PostComment> findAllWithPostAndDetailsByIds(
+        @Param("minId") Long minId,
+        @Param("maxId") Long maxId
+    );
+
     @Modifying
     @Query("""
         delete from PostComment c
