@@ -1,6 +1,8 @@
 package com.vladmihalcea.hpjp.spring.data.query.multibag.service;
 
 import com.vladmihalcea.hpjp.spring.data.query.multibag.domain.Post;
+import com.vladmihalcea.hpjp.spring.data.query.multibag.domain.PostComment;
+import com.vladmihalcea.hpjp.spring.data.query.multibag.repository.PostCommentRepository;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,13 +15,19 @@ import java.util.List;
  */
 @Service
 @Transactional(readOnly = true)
-public class PostServiceImpl implements PostService {
+public class ForumService {
 
     @Autowired
     private PostRepository postRepository;
 
-    @Override
-    public List<Post> findAllWithCommentsAndTags(long minId, long maxId) {
+    @Autowired
+    private PostCommentRepository postCommentRepository;
+
+    public List<PostComment> findAllCommentsByReview(String review) {
+        return postCommentRepository.findAllByReview(review);
+    }
+
+    public List<Post> findAllWithCommentsAndTags(Long minId, Long maxId) {
         List<Post> posts = postRepository.findAllWithComments(minId, maxId);
 
         return !posts.isEmpty() ?

@@ -2,6 +2,7 @@ package com.vladmihalcea.hpjp.spring.data.query.multibag.config;
 
 import com.vladmihalcea.hpjp.spring.data.base.config.SpringDataJPABaseConfiguration;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.domain.Post;
+import io.hypersistence.utils.spring.repository.BaseJpaRepositoryImpl;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
@@ -16,7 +17,10 @@ import java.util.Properties;
         "com.vladmihalcea.hpjp.spring.data.query.multibag",
     }
 )
-@EnableJpaRepositories("com.vladmihalcea.hpjp.spring.data.query.multibag.repository")
+@EnableJpaRepositories(
+    basePackages = "com.vladmihalcea.hpjp.spring.data.query.multibag.repository",
+    repositoryBaseClass = BaseJpaRepositoryImpl.class
+)
 public class SpringDataJPAMultipleBagFetchConfiguration extends SpringDataJPABaseConfiguration {
 
     @Override

@@ -1,7 +1,7 @@
 package com.vladmihalcea.hpjp.spring.data.query.multibag.repository;
 
 import com.vladmihalcea.hpjp.spring.data.query.multibag.domain.Post;
-import org.springframework.data.jpa.repository.JpaRepository;
+import io.hypersistence.utils.spring.repository.BaseJpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,7 +12,7 @@ import java.util.List;
  * @author Vlad Mihalcea
  */
 @Repository
-public interface PostRepository extends JpaRepository<Post, Long>, CustomPostRepository {
+public interface PostRepository extends BaseJpaRepository<Post, Long>, CustomPostRepository {
 
     //This query will throw a MultipleBagFetchException when Spring bootstraps
     /*
@@ -32,7 +32,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, CustomPostRep
         left join fetch p.comments
         where p.id between :minId and :maxId
         """)
-    List<Post> findAllWithComments(@Param("minId") long minId, @Param("maxId") long maxId);
+    List<Post> findAllWithComments(@Param("minId") Long minId, @Param("maxId") Long maxId);
 
     @Query("""
         select p
@@ -40,5 +40,5 @@ public interface PostRepository extends JpaRepository<Post, Long>, CustomPostRep
         left join fetch p.tags
         where p.id between :minId and :maxId
         """)
-    List<Post> findAllWithTags(@Param("minId") long minId, @Param("maxId") long maxId);
+    List<Post> findAllWithTags(@Param("minId") Long minId, @Param("maxId") Long maxId);
 }

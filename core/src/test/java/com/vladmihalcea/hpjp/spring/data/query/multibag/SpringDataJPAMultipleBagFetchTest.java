@@ -1,13 +1,15 @@
 package com.vladmihalcea.hpjp.spring.data.query.multibag;
 
+import com.vladmihalcea.hpjp.hibernate.fetching.LazyInitializationExceptionTest;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.config.SpringDataJPAMultipleBagFetchConfiguration;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.domain.Tag;
-import com.vladmihalcea.hpjp.spring.data.query.multibag.service.BrokenPostService;
-import com.vladmihalcea.hpjp.spring.data.query.multibag.service.PostService;
+import com.vladmihalcea.hpjp.spring.data.query.multibag.service.BrokenForumService;
+import com.vladmihalcea.hpjp.spring.data.query.multibag.service.ForumService;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import jakarta.persistence.EntityManager;
+import org.hibernate.LazyInitializationException;
 import org.hibernate.loader.MultipleBagFetchException;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,8 +27,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
@@ -38,9 +39,9 @@ public class SpringDataJPAMultipleBagFetchTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    public static final int POST_COUNT = 50;
-    public static final int POST_COMMENT_COUNT = 20;
-    public static final int TAG_COUNT = 10;
+    public static final long POST_COUNT = 50;
+    public static final long POST_COMMENT_COUNT = 20;
+    public static final long TAG_COUNT = 10;
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -49,10 +50,10 @@ public class SpringDataJPAMultipleBagFetchTest {
     private EntityManager entityManager;
 
     @Autowired
-    private BrokenPostService brokenPostService;
+    private BrokenForumService brokenForumService;
 
     @Autowired
-    private PostService postService;
+    private ForumService forumService;
 
     @Before
     public void init() {
@@ -100,30 +101,15 @@ public class SpringDataJPAMultipleBagFetchTest {
     }
 
     @Test
-    public void test() {
+    public void testLazyInitializationException() {
+        List<PostComment> comments = forumService.findAllCommentsByReview("Excellent!");
+
         try {
-            List<Post> posts = brokenPostService.findAllWithCommentsAndTags(
-                1L,
-                POST_COUNT
-            );
-
-            fail("Should have thrown MultipleBagFetchException!");
-        } catch (Exception expected) {
-            MultipleBagFetchException rootCause = ExceptionUtil.rootCause(expected);
-            LOGGER.error(
-                "Cannot fetch the following collections simultaneously: {}",
-                rootCause.getBagRoles()
-            );
-        }
-
-        List<Post> posts = postService.findAllWithCommentsAndTags(
-            1L,
-            POST_COUNT
-        );
-
-        for (Post post : posts) {
-            assertEquals(POST_COMMENT_COUNT, post.getComments().size());
-            assertEquals(TAG_COUNT, post.getTags().size());
+            for(PostComment comment : comments) {
+                LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
+            }
+        } catch (LazyInitializationException expected) {
+            assertTrue(expected.getMessage().contains("could not initialize proxy"));
         }
     }
 }

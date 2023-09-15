@@ -15,14 +15,13 @@ import java.util.List;
  */
 @Service
 @Transactional(readOnly = true)
-public class BrokenPostServiceImpl implements BrokenPostService {
+public class BrokenForumService {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private PostRepository postRepository;
 
-    @Override
     public List<Post> findAllWithCommentsAndTags(long minId, long maxId) {
         return postRepository.findAllWithCommentsAndTags(minId, maxId);
     }
