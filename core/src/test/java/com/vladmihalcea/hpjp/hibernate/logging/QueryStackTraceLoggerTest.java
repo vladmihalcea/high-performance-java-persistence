@@ -1,10 +1,12 @@
 package com.vladmihalcea.hpjp.hibernate.logging;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import io.hypersistence.utils.hibernate.query.QueryStackTraceLogger;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import org.hibernate.cfg.AvailableSettings;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -12,7 +14,7 @@ import java.util.Properties;
 /**
  * @author Vlad Mihalcea
  */
-public class StatementInspectorLoggingTest extends AbstractTest {
+public class QueryStackTraceLoggerTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -24,8 +26,8 @@ public class StatementInspectorLoggingTest extends AbstractTest {
     @Override
     protected void additionalProperties(Properties properties) {
         properties.put(
-            "hibernate.session_factory.statement_inspector",
-            new LoggingStatementInspector(getClass().getPackage().getName())
+            AvailableSettings.STATEMENT_INSPECTOR,
+            new QueryStackTraceLogger("com.vladmihalcea.hpjp")
         );
     }
 
@@ -44,16 +46,16 @@ public class StatementInspectorLoggingTest extends AbstractTest {
     public void testBatch() {
         doInJPA(entityManager -> {
             for (long id = 1; id <= 5; id++) {
-                Post post = new Post();
-                post.setId(id);
-                post.setTitle(
-                    String.format(
-                        "High-Performance Java Persistence, part %d",
-                        id
-                    )
+                entityManager.persist(
+                    new Post()
+                        .setId(id)
+                        .setTitle(
+                            String.format(
+                                "High-Performance Java Persistence, part %d",
+                                id
+                            )
+                        )
                 );
-
-                entityManager.persist(post);
             }
         });
     }
@@ -74,17 +76,18 @@ public class StatementInspectorLoggingTest extends AbstractTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
     }
-
 }

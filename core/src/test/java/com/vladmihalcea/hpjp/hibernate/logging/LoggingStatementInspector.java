@@ -6,10 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link com.vladmihalcea.hpjp.hibernate.logging.LoggingStatementInspector}
- *
  * @author Vlad Mihalcea
- * @since 1.x.y
  */
 public class LoggingStatementInspector implements StatementInspector {
 
