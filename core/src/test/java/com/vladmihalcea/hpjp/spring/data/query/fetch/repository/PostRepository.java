@@ -54,7 +54,10 @@ public interface PostRepository extends BaseJpaRepository<Post, Long> {
             where p.title like :titlePattern
             """
     )
-    Page<Post> findAllByTitleWithCommentsAntiPattern(@Param("titlePattern") String titlePattern, Pageable pageRequest);
+    Page<Post> findAllByTitleWithCommentsAntiPattern(
+        @Param("titlePattern") String titlePattern,
+        Pageable pageRequest
+    );
 
     @Query("""
         select p
@@ -65,7 +68,7 @@ public interface PostRepository extends BaseJpaRepository<Post, Long> {
             from (
               select
                  id as id,
-                 dense_rank() over (order by createdOn ASC) as ranking
+                 dense_rank() over (order by createdOn, id) as ranking
               from Post
               where title like :titlePattern
             ) pr
@@ -78,17 +81,11 @@ public interface PostRepository extends BaseJpaRepository<Post, Long> {
         @Param("maxCount") int maxCount
     );
 
-    @Query(
-        value = """
-            select p.id
-            from Post p
-            where p.title like :titlePattern
-            """,
-        countQuery = """
-            select count(p)
-            from Post p
-            where p.title like :titlePattern
-            """
+    @Query("""
+        select p.id
+        from Post p
+        where p.title like :titlePattern
+        """
     )
     List<Long> findAllPostIdsByTitle(@Param("titlePattern") String titlePattern, Pageable pageRequest);
 

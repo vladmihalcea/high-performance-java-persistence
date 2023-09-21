@@ -32,5 +32,6 @@ public class SpringDataJPAJoinFetchPaginationConfiguration extends SpringDataJPA
     protected void additionalProperties(Properties properties) {
         properties.put("hibernate.jdbc.batch_size", "100");
         properties.put("hibernate.order_inserts", "true");
+        //properties.put("hibernate.query.fail_on_pagination_over_collection_fetch", "true");
     }
 }

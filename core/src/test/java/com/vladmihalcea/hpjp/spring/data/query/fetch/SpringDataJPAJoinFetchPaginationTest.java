@@ -5,6 +5,7 @@ import com.vladmihalcea.hpjp.spring.data.query.fetch.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.service.ForumService;
+import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.stream.LongStream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -154,12 +156,18 @@ public class SpringDataJPAJoinFetchPaginationTest {
 
         int maxCount = 25;
 
-        Page<Post> posts = postRepository.findAllByTitleWithCommentsAntiPattern(
-            "High-Performance Java Persistence %",
-            PageRequest.of(0, maxCount, Sort.by("createdOn"))
-        );
+        try {
+            Page<Post> posts = postRepository.findAllByTitleWithCommentsAntiPattern(
+                "High-Performance Java Persistence %",
+                PageRequest.of(0, maxCount, Sort.by("createdOn", "id"))
+            );
 
-        assertEquals(maxCount, posts.getSize());
+            assertEquals(maxCount, posts.getSize());
+        } catch (Exception e) {
+            LOGGER.error("In-memory pagination", e);
+
+            assertTrue(ExceptionUtil.rootCause(e).getMessage().startsWith("firstResult/maxResults specified with collection fetch"));
+        }
     }
 
     @Test
