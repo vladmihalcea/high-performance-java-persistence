@@ -193,7 +193,7 @@ public class PaginationTest extends AbstractTest {
                 from Post p
                 left join fetch p.comments
                 where p.title like :titlePattern
-                order by p.createdOn
+                order by p.createdOn, p.id
                 """, Post.class)
             .setParameter("titlePattern", "High-Performance Java Persistence %")
             .setMaxResults(5)
@@ -214,7 +214,7 @@ public class PaginationTest extends AbstractTest {
                 select p.id
                 from Post p
                 where p.title like :titlePattern
-                order by p.createdOn
+                order by p.createdOn, p.id
                 """, Long.class)
             .setParameter("titlePattern", "High-Performance Java Persistence %")
             .setMaxResults(5)
@@ -225,7 +225,7 @@ public class PaginationTest extends AbstractTest {
                 from Post p
                 left join fetch p.comments
                 where p.id in (:postIds)
-                order by p.createdOn
+                order by p.createdOn, p.id
                 """, Post.class)
             .setParameter("postIds", postIds)
             .getResultList();
