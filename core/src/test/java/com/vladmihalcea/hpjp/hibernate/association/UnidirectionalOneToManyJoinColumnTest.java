@@ -26,8 +26,13 @@ public class UnidirectionalOneToManyJoinColumnTest extends AbstractTest {
         return Database.POSTGRESQL;
     }
 
+    private boolean POST_ID_SET_NOT_NULL = false;
+
     @Override
     protected void afterInit() {
+        if (POST_ID_SET_NOT_NULL) {
+            executeStatement("ALTER TABLE post_comment ALTER COLUMN post_id SET NOT NULL");
+        }
         doInJPA(entityManager -> {
             entityManager.persist(
                 new Post()
