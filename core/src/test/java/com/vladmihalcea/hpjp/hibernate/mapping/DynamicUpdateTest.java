@@ -6,7 +6,9 @@ import org.junit.Test;
 
 import jakarta.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -35,15 +37,17 @@ public class DynamicUpdateTest extends AbstractTest {
     public void test() {
 
         doInJPA(entityManager -> {
-            Post post1 = new Post();
-            post1.setId(1L);
-            post1.setTitle("High-Performance Java Persistence");
-            entityManager.persist(post1);
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+            );
 
-            Post post2 = new Post();
-            post2.setId(2L);
-            post2.setTitle("Java Persistence with Hibernate");
-            entityManager.persist(post2);
+            entityManager.persist(
+                new Post()
+                    .setId(2L)
+                    .setTitle("Java Persistence with Hibernate")
+            );
         });
 
         doInJPA(entityManager -> {
@@ -52,6 +56,36 @@ public class DynamicUpdateTest extends AbstractTest {
 
             Post post2 = entityManager.find(Post.class, 2L);
             post2.setLikes(12);
+        });
+    }
+
+    @Test
+    public void testBatch() {
+
+        doInJPA(entityManager -> {
+            for (long i = 1; i <= 5; i++) {
+                entityManager.persist(
+                    new Post()
+                        .setId(i)
+                        .setTitle(String.format("Post %s", i))
+                );
+            }
+        });
+
+        doInJPA(entityManager -> {
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                """, Post.class)
+            .getResultList();
+
+            for(Post post : posts) {
+                if (post.getId() % 2 == 0) {
+                    post.setTitle(post.getTitle() + " is great!");
+                } else  {
+                    post.setLikes(post.getId() * 2);
+                }
+            }
         });
     }
 
@@ -68,61 +102,36 @@ public class DynamicUpdateTest extends AbstractTest {
         private long likes;
 
         @Column(name = "created_on", nullable = false, updatable = false)
-        private Timestamp createdOn;
-
-        @Transient
-        private String creationTimestamp;
-
-        public Post() {
-            this.createdOn = new Timestamp(System.currentTimeMillis());
-        }
-
-        public String getCreationTimestamp() {
-            if(creationTimestamp == null) {
-                creationTimestamp = DateTimeFormatter.ISO_DATE_TIME.format(
-                    createdOn.toLocalDateTime()
-                );
-            }
-            return creationTimestamp;
-        }
-
-        @Override
-        public String toString() {
-            return String.format(
-                "Post{\n" +
-                "  id=%d\n" +
-                "  title='%s'\n" +
-                "  likes=%d\n" +
-                "  creationTimestamp='%s'\n" +
-                '}', id, title, likes, getCreationTimestamp()
-            );
-        }
+        private LocalDateTime createdOn = LocalDateTime.now();
 
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public long getLikes() {
             return likes;
         }
 
-        public void setLikes(long likes) {
+        public Post setLikes(long likes) {
             this.likes = likes;
+            return this;
         }
 
-        public Timestamp getCreatedOn() {
+        public LocalDateTime getCreatedOn() {
             return createdOn;
         }
     }
