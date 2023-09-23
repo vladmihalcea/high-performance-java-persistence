@@ -13,6 +13,7 @@ public class OracleQueries implements Queries {
             SELECT RAWTOHEX(tx.xid)
             FROM v$transaction tx
             JOIN v$session s ON tx.addr=s.taddr
+            WHERE s.sid = sys_context('userenv','sid')
             """ ;
     }
 }
