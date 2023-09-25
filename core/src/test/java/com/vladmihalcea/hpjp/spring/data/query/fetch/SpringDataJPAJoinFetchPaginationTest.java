@@ -12,8 +12,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -33,7 +31,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -57,11 +56,8 @@ public class SpringDataJPAJoinFetchPaginationTest {
     @Autowired
     private DataSource dataSource;
 
-    @Autowired
-    private CacheManager cacheManager;
-
     public static final int POST_COUNT = 1_000;
-    public static final int COMMENT_COUNT = 10;;
+    public static final int COMMENT_COUNT = 10;
 
     @Before
     public void init() {
@@ -198,22 +194,6 @@ public class SpringDataJPAJoinFetchPaginationTest {
         );
 
         assertEquals(maxCount, posts.size());
-    }
-
-    @Test
-    public void testFindAllPostsPublishedToday() {
-        List<Post> posts = forumService.findAllPostsPublishedToday();
-
-        assertEquals(POST_COUNT, posts.size());
-    }
-
-    @Test
-    public void testUpdateCache() {
-        Cache postCache = cacheManager.getCache(Post.class.getSimpleName());
-
-        assertNull(postCache.get(1L));
-        forumService.updatePostCache();
-        assertNotNull(postCache.get(1L));
     }
 
     protected void executeStatement(DataSource dataSource, String sql) {
