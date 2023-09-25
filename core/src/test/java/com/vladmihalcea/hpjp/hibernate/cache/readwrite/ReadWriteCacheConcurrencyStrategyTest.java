@@ -3,6 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.cache.readwrite;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.cache.internal.EnabledCaching;
 import org.junit.Test;
 
 import jakarta.persistence.*;
@@ -157,6 +158,31 @@ public class ReadWriteCacheConcurrencyStrategyTest extends AbstractTest {
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             assertNull(post);
+        });
+    }
+
+    @Test
+    public void testNPlusOneCollectionInvalidation() {
+        //Test N+1 issue with cached collections
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            assertEquals(2, post.getComments().size());
+        });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            assertEquals(2, post.getComments().size());
+
+            LOGGER.info("Clear PostComment cache entries");
+            Cache cache = entityManager.getEntityManagerFactory().getCache();
+            cache.evict(PostComment.class);
+        });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            for(PostComment comment : post.getComments()) {
+                LOGGER.info("Comment {}", comment.getReview());
+            }
         });
     }
 
