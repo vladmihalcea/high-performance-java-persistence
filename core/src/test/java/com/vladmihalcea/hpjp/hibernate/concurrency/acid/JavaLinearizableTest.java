@@ -27,11 +27,11 @@ public class JavaLinearizableTest extends AbstractTest {
     public static ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
 
     public void transfer(Account from, Account to, long transferCents) {
-        long fromBalance = from.getBalance();
+        long fromBalance = from.getAccountBalance();
 
         if(fromBalance >= transferCents) {
-            from.addBalance(-1 * transferCents);
-            to.addBalance(transferCents);
+            from.addToAccountBalance(-1 * transferCents);
+            to.addToAccountBalance(transferCents);
         }
     }
 
@@ -68,8 +68,8 @@ public class JavaLinearizableTest extends AbstractTest {
             }
         }
 
-        LOGGER.info("Alice's balance {}", fromAccount.getBalance());
-        LOGGER.info("Bob's balance {}", toAccount.getBalance());
+        LOGGER.info("Alice's balance {}", fromAccount.getAccountBalance());
+        LOGGER.info("Bob's balance {}", toAccount.getAccountBalance());
     }
 
     public static class Account {
@@ -96,7 +96,7 @@ public class JavaLinearizableTest extends AbstractTest {
             this.owner = owner;
         }
 
-        public long getBalance() {
+        public long getAccountBalance() {
             return balance;
         }
 
@@ -104,7 +104,7 @@ public class JavaLinearizableTest extends AbstractTest {
             this.balance = balance;
         }
 
-        public void addBalance(long amount) {
+        public void addToAccountBalance(long amount) {
             this.balance += amount;
         }
     }

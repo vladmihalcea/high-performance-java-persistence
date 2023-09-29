@@ -31,7 +31,7 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
 
     @Override
     protected Database database() {
-        return Database.POSTGRESQL;
+        return Database.MYSQL;
     }
 
     protected boolean connectionPooling() {
@@ -59,10 +59,10 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
 
     @Test
     public void testParallelExecution() {
-        assertEquals(10L, getBalance("Alice-123"));
-        assertEquals(0L, getBalance("Bob-456"));
+        assertEquals(10L, getAccountBalance("Alice-123"));
+        assertEquals(0L, getAccountBalance("Bob-456"));
 
-        int threadCount = 16;
+        int threadCount = 32;
 
         String fromIban = "Alice-123";
         String toIban = "Bob-456";
@@ -79,12 +79,12 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
 
                         awaitOnLatch(startLatch);
 
-                        long fromBalance = getBalance(connection, fromIban);
+                        long fromBalance = getAccountBalance(connection, fromIban);
 
                         if(fromBalance >= transferCents) {
-                            addBalance(connection, fromIban, (-1) * transferCents);
+                            addToAccountBalance(connection, fromIban, (-1) * transferCents);
 
-                            addBalance(connection, toIban, transferCents);
+                            addToAccountBalance(connection, toIban, transferCents);
                         }
                     });
                 } catch (Exception e) {
@@ -98,14 +98,14 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         startLatch.countDown();
         awaitOnLatch(endLatch);
 
-        LOGGER.info("Alice's balance: {}", getBalance("Alice-123"));
-        LOGGER.info("Bob's balance: {}", getBalance("Bob-456"));
+        LOGGER.info("Alice's balance: {}", getAccountBalance("Alice-123"));
+        LOGGER.info("Bob's balance: {}", getAccountBalance("Bob-456"));
     }
 
     protected void setIsolationLevel(Connection connection) throws SQLException {
-        boolean enable = false;
+        boolean enable = true;
         if (enable) {
-            connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+            connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
             printIsolationLevel(connection);
         }
     }
@@ -133,7 +133,7 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         LOGGER.info("Transaction isolation level: {}", isolationLevelStringValue);
     }
 
-    private long getBalance(Connection connection, final String iban) {
+    private long getAccountBalance(Connection connection, final String iban) {
         try(PreparedStatement statement = connection.prepareStatement("""
             SELECT balance
             FROM account
@@ -151,20 +151,20 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         throw new IllegalArgumentException("Can't find account with IBAN: " + iban);
     }
 
-    private long getBalance(final String iban) {
+    private long getAccountBalance(final String iban) {
         return doInJDBC(connection -> {
-            return getBalance(connection, iban);
+            return getAccountBalance(connection, iban);
         });
     }
 
-    private void addBalance(Connection connection, final String iban, long balance) {
+    private void addToAccountBalance(Connection connection, final String iban, long amount) {
         try(PreparedStatement statement = connection.prepareStatement("""
             UPDATE account
             SET balance = balance + ? 
             WHERE iban = ?
             """)
         ) {
-            statement.setLong(1, balance);
+            statement.setLong(1, amount);
             statement.setString(2, iban);
 
             statement.executeUpdate();
@@ -247,7 +247,7 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
             this.owner = owner;
         }
 
-        public long getBalance() {
+        public long getAccountBalance() {
             return balance;
         }
 

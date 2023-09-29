@@ -31,7 +31,7 @@ public class ACIDRaceConditionTest extends AbstractTest {
 
     @Override
     protected Database database() {
-        return Database.POSTGRESQL;
+        return Database.MYSQL;
     }
 
     protected boolean connectionPooling() {
@@ -58,16 +58,16 @@ public class ACIDRaceConditionTest extends AbstractTest {
     }
 
     public void transfer(String fromIban, String toIban, long transferCents) {
-        long fromBalance = getBalance(fromIban);
+        long fromBalance = getAccountBalance(fromIban);
 
         if(fromBalance >= transferCents) {
-            addBalance(fromIban, (-1) * transferCents);
+            addToAccountBalance(fromIban, (-1) * transferCents);
 
-            addBalance(toIban, transferCents);
+            addToAccountBalance(toIban, transferCents);
         }
     }
 
-    private long getBalance(final String iban) {
+    private long getAccountBalance(final String iban) {
         return doInJDBC(connection -> {
             try(PreparedStatement statement = connection.prepareStatement("""
                     SELECT balance
@@ -85,7 +85,7 @@ public class ACIDRaceConditionTest extends AbstractTest {
         });
     }
 
-    private void addBalance(final String iban, long balance) {
+    private void addToAccountBalance(final String iban, long amount) {
         doInJDBC(connection -> {
             try(PreparedStatement statement = connection.prepareStatement("""
                     UPDATE account
@@ -93,7 +93,7 @@ public class ACIDRaceConditionTest extends AbstractTest {
                     WHERE iban = ?
                     """)
             ) {
-                statement.setLong(1, balance);
+                statement.setLong(1, amount);
                 statement.setString(2, iban);
 
                 statement.executeUpdate();
@@ -150,29 +150,29 @@ public class ACIDRaceConditionTest extends AbstractTest {
 
     @Test
     public void testSerialExecution() {
-        assertEquals(10L, getBalance("Alice-123"));
-        assertEquals(0L, getBalance("Bob-456"));
+        assertEquals(10L, getAccountBalance("Alice-123"));
+        assertEquals(0L, getAccountBalance("Bob-456"));
 
         transfer("Alice-123", "Bob-456", 5L);
 
-        assertEquals(5L, getBalance("Alice-123"));
-        assertEquals(5L, getBalance("Bob-456"));
+        assertEquals(5L, getAccountBalance("Alice-123"));
+        assertEquals(5L, getAccountBalance("Bob-456"));
 
         transfer("Alice-123", "Bob-456", 5L);
 
-        assertEquals(0L, getBalance("Alice-123"));
-        assertEquals(10L, getBalance("Bob-456"));
+        assertEquals(0L, getAccountBalance("Alice-123"));
+        assertEquals(10L, getAccountBalance("Bob-456"));
 
         transfer("Alice-123", "Bob-456", 5L);
 
-        assertEquals(0L, getBalance("Alice-123"));
-        assertEquals(10L, getBalance("Bob-456"));
+        assertEquals(0L, getAccountBalance("Alice-123"));
+        assertEquals(10L, getAccountBalance("Bob-456"));
     }
 
     @Test
     public void testParallelExecution() {
-        assertEquals(10L, getBalance("Alice-123"));
-        assertEquals(0L, getBalance("Bob-456"));
+        assertEquals(10L, getAccountBalance("Alice-123"));
+        assertEquals(0L, getAccountBalance("Bob-456"));
 
         int threadCount = 16;
 
@@ -192,8 +192,8 @@ public class ACIDRaceConditionTest extends AbstractTest {
         startLatch.countDown();
         awaitOnLatch(endLatch);
 
-        LOGGER.info("Alice's balance: {}", getBalance("Alice-123"));
-        LOGGER.info("Bob's balance: {}", getBalance("Bob-456"));
+        LOGGER.info("Alice's balance: {}", getAccountBalance("Alice-123"));
+        LOGGER.info("Bob's balance: {}", getAccountBalance("Bob-456"));
     }
 
     @Entity(name = "Account")
@@ -223,7 +223,7 @@ public class ACIDRaceConditionTest extends AbstractTest {
             this.owner = owner;
         }
 
-        public long getBalance() {
+        public long getAccountBalance() {
             return balance;
         }
 

@@ -31,5 +31,5 @@ public interface AccountRepository extends JpaRepository<Account, String> {
         nativeQuery = true)
     @Modifying
     @Transactional
-    int addBalance(@Param("iban") String iban, @Param("cents") long cents);
+    int addToBalance(@Param("iban") String iban, @Param("cents") long cents);
 }
