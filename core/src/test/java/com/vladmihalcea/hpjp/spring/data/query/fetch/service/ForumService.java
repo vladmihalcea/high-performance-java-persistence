@@ -21,15 +21,21 @@ import java.util.stream.Stream;
 @Service
 public class ForumService {
 
-    @Autowired
-    private PostRepository postRepository;
+    private final PostRepository postRepository;
 
-    @Autowired
-    private CacheManager cacheManager;
+    private final CacheManager cacheManager;
+
+    private final Cache postCache;
 
     private static final ExecutorService executorService = Executors.newFixedThreadPool(
         Runtime.getRuntime().availableProcessors()
     );
+
+    public ForumService(PostRepository postRepository, CacheManager cacheManager) {
+        this.postRepository = postRepository;
+        this.cacheManager = cacheManager;
+        this.postCache = cacheManager.getCache(Post.class.getSimpleName());
+    }
 
     @Transactional(readOnly = true)
     public List<Post> findAllPostsByTitleWithComments(String titlePattern, PageRequest pageRequest) {
@@ -50,9 +56,8 @@ public class ForumService {
 
     @Transactional
     public void updatePostCache() {
-        try(Stream<Post> postStream = postRepository.streamByCreatedOnSince(LocalDate.now().minusDays(1))) {
-            Cache postCache = cacheManager.getCache(Post.class.getSimpleName());
-
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        try(Stream<Post> postStream = postRepository.streamByCreatedOnSince(yesterday)) {
             postStream.forEach(post -> executorService.submit(() -> postCache.put(post.getId(), post)));
         }
     }
