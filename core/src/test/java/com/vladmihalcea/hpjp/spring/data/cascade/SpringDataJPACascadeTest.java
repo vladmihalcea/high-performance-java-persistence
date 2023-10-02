@@ -9,7 +9,9 @@ import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostCommentRepositor
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostDetailsRepository;
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.TagRepository;
+import com.vladmihalcea.hpjp.spring.data.cascade.service.ForumService;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.hibernate.Session;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -40,9 +42,12 @@ public class SpringDataJPACascadeTest {
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private TransactionTemplate transactionTemplate;
+    private ForumService forumService;
 
     @Autowired
+    private TransactionTemplate transactionTemplate;
+
+    @PersistenceContext
     private EntityManager entityManager;
 
     @Autowired
@@ -79,6 +84,18 @@ public class SpringDataJPACascadeTest {
 
             return null;
         });
+    }
+
+    @Test
+    public void testSaveAndRemoveChildEntityWithoutCascading() {
+        postRepository.persist(
+            new Post()
+                .setId(1L)
+                .setTitle("High-Performance Java Persistence")
+        );
+
+        PostComment comment = forumService.addPostComment("Best book on JPA and Hibernate!", 1L);
+        forumService.removePostComment(comment.getId());
     }
 
     @Test
