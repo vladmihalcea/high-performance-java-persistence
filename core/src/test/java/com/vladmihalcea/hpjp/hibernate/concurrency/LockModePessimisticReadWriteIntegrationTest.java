@@ -1,31 +1,28 @@
 package com.vladmihalcea.hpjp.hibernate.concurrency;
 
-import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.providers.Database;
+import jakarta.persistence.*;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.Before;
 import org.junit.Test;
 
-import jakarta.persistence.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 
 /**
- * LockModePessimisticReadWriteIntegrationTest - Test to check LockMode.PESSIMISTIC_READ and LockMode.PESSIMISTIC_WRITE
- *
  * @author Vlad Mihalcea
  */
-public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgreSQLIntegrationTest {
+public class LockModePessimisticReadWriteIntegrationTest extends AbstractTest {
 
     public static final int WAIT_MILLIS = 500;
 
@@ -38,19 +35,22 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostComment.class
+            Post.class,
+            PostComment.class
         };
     }
 
-    @Before
-    public void init() {
-        super.init();
+    @Override
+    protected Database database() {
+        return Database.MYSQL;
+    }
+
+    @Override
+    public void afterInit() {
         doInJPA(entityManager -> {
             Post post = new Post();
             post.setId(1L);
             post.setTitle("High-Performance Java Persistence");
-            post.setBody("Chapter 17 summary");
             entityManager.persist(post);
         });
     }
@@ -156,7 +156,7 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
                     LOGGER.info("PESSIMISTIC_READ acquired");
                 },
                 (session, post) -> {
-                    post.setBody("Chapter 16 summary");
+                    post.setTitle("High-Performance Java Persistence 2nd edition");
                     session.flush();
                     LOGGER.info("Implicit lock acquired");
                 }
@@ -291,11 +291,6 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
 
         private String title;
 
-        private String body;
-
-        @Version
-        private short version;
-
         public Long getId() {
             return id;
         }
@@ -311,14 +306,6 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
         public void setTitle(String title) {
             this.title = title;
         }
-
-        public String getBody() {
-            return body;
-        }
-
-        public void setBody(String body) {
-            this.body = body;
-        }
     }
 
     @Entity(name = "PostComment")
@@ -328,13 +315,10 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
         @Id
         private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        private Post post;
-
         private String review;
 
-        @Version
-        private short version;
+        @ManyToOne(fetch = FetchType.LAZY)
+        private Post post;
 
         public Long getId() {
             return id;
@@ -344,20 +328,20 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractPostgre
             this.id = id;
         }
 
-        public Post getPost() {
-            return post;
-        }
-
-        public void setPost(Post post) {
-            this.post = post;
-        }
-
         public String getReview() {
             return review;
         }
 
         public void setReview(String review) {
             this.review = review;
+        }
+
+        public Post getPost() {
+            return post;
+        }
+
+        public void setPost(Post post) {
+            this.post = post;
         }
     }
 }
