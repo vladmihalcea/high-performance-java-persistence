@@ -31,11 +31,17 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
 
     @Override
     protected Database database() {
-        return Database.MYSQL;
+        return Database.POSTGRESQL;
     }
 
+    @Override
     protected boolean connectionPooling() {
         return true;
+    }
+
+    @Override
+    protected int connectionPoolSize() {
+        return threadCount();
     }
 
     @Override
@@ -57,16 +63,16 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         });
     }
 
+    private int threadCount() {
+        return 16;
+    }
+
     @Test
     public void testParallelExecution() {
         assertEquals(10L, getAccountBalance("Alice-123"));
         assertEquals(0L, getAccountBalance("Bob-456"));
 
-        int threadCount = 32;
-
-        String fromIban = "Alice-123";
-        String toIban = "Bob-456";
-        long transferCents = 5L;
+        int threadCount = threadCount();
 
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch endLatch = new CountDownLatch(threadCount);
@@ -75,17 +81,11 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
             new Thread(() -> {
                 try {
                     doInJDBC(connection -> {
-                        setIsolationLevel(connection);
+                        preventLostUpdate(connection, false);
 
                         awaitOnLatch(startLatch);
 
-                        long fromBalance = getAccountBalance(connection, fromIban);
-
-                        if(fromBalance >= transferCents) {
-                            addToAccountBalance(connection, fromIban, (-1) * transferCents);
-
-                            addToAccountBalance(connection, toIban, transferCents);
-                        }
+                        transfer(connection, "Alice-123", "Bob-456", 5L);
                     });
                 } catch (Exception e) {
                     LOGGER.error("Transfer failure", e);
@@ -102,38 +102,29 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         LOGGER.info("Bob's balance: {}", getAccountBalance("Bob-456"));
     }
 
-    protected void setIsolationLevel(Connection connection) throws SQLException {
-        boolean enable = true;
-        if (enable) {
-            connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-            printIsolationLevel(connection);
+    private void preventLostUpdate(Connection connection, boolean prevent) throws SQLException {
+        if(prevent) {
+            Database database = database();
+            if (database == Database.POSTGRESQL || database == Database.SQLSERVER) {
+                connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+            } else if (database == Database.MYSQL || database == Database.ORACLE) {
+                connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+            }
+        }
+        printIsolationLevel(connection);
+    }
+
+    public static void transfer(Connection connection, String fromIban, String toIban, long transferCents) {
+        long fromBalance = getAccountBalance(connection, fromIban);
+
+        if(fromBalance >= transferCents) {
+            addToAccountBalance(connection, fromIban, (-1) * transferCents);
+
+            addToAccountBalance(connection, toIban, transferCents);
         }
     }
 
-    private void printIsolationLevel(Connection connection) throws SQLException {
-        int isolationLevelIntegerValue = connection.getTransactionIsolation();
-
-        String isolationLevelStringValue = null;
-
-        switch (isolationLevelIntegerValue) {
-            case Connection.TRANSACTION_READ_UNCOMMITTED:
-                isolationLevelStringValue = "READ_UNCOMMITTED";
-                break;
-            case Connection.TRANSACTION_READ_COMMITTED:
-                isolationLevelStringValue = "READ_COMMITTED";
-                break;
-            case Connection.TRANSACTION_REPEATABLE_READ:
-                isolationLevelStringValue = "REPEATABLE_READ";
-                break;
-            case Connection.TRANSACTION_SERIALIZABLE:
-                isolationLevelStringValue = "SERIALIZABLE";
-                break;
-        }
-
-        LOGGER.info("Transaction isolation level: {}", isolationLevelStringValue);
-    }
-
-    private long getAccountBalance(Connection connection, final String iban) {
+    private static long getAccountBalance(Connection connection, final String iban) {
         try(PreparedStatement statement = connection.prepareStatement("""
             SELECT balance
             FROM account
@@ -151,13 +142,7 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         throw new IllegalArgumentException("Can't find account with IBAN: " + iban);
     }
 
-    private long getAccountBalance(final String iban) {
-        return doInJDBC(connection -> {
-            return getAccountBalance(connection, iban);
-        });
-    }
-
-    private void addToAccountBalance(Connection connection, final String iban, long amount) {
+    private static void addToAccountBalance(Connection connection, final String iban, long amount) {
         try(PreparedStatement statement = connection.prepareStatement("""
             UPDATE account
             SET balance = balance + ? 
@@ -171,6 +156,12 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    private long getAccountBalance(final String iban) {
+        return doInJDBC(connection -> {
+            return getAccountBalance(connection, iban);
+        });
     }
 
     protected void doInJDBC(ConnectionVoidCallable callable) {
@@ -218,6 +209,29 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    private void printIsolationLevel(Connection connection) throws SQLException {
+        int isolationLevelIntegerValue = connection.getTransactionIsolation();
+
+        String isolationLevelStringValue = null;
+
+        switch (isolationLevelIntegerValue) {
+            case Connection.TRANSACTION_READ_UNCOMMITTED:
+                isolationLevelStringValue = "READ_UNCOMMITTED";
+                break;
+            case Connection.TRANSACTION_READ_COMMITTED:
+                isolationLevelStringValue = "READ_COMMITTED";
+                break;
+            case Connection.TRANSACTION_REPEATABLE_READ:
+                isolationLevelStringValue = "REPEATABLE_READ";
+                break;
+            case Connection.TRANSACTION_SERIALIZABLE:
+                isolationLevelStringValue = "SERIALIZABLE";
+                break;
+        }
+
+        LOGGER.info("Transaction isolation level: {}", isolationLevelStringValue);
     }
 
     @Entity(name = "Account")

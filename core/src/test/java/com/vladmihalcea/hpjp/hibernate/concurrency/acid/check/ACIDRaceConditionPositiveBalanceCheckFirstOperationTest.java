@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.hibernate.concurrency.acid;
+package com.vladmihalcea.hpjp.hibernate.concurrency.acid.check;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class ACIDRaceConditionPositiveBalanceCheckLastOperationTest extends AbstractTest {
+public class ACIDRaceConditionPositiveBalanceCheckFirstOperationTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -113,9 +113,9 @@ public class ACIDRaceConditionPositiveBalanceCheckLastOperationTest extends Abst
         long fromBalance = getAccountBalance(fromIban);
 
         if(fromBalance >= transferCents) {
-            addToAccountBalance(toIban, transferCents);
-
             addToAccountBalance(fromIban, (-1) * transferCents);
+
+            addToAccountBalance(toIban, transferCents);
         }
     }
 

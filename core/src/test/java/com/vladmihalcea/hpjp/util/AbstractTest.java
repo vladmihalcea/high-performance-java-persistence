@@ -375,14 +375,18 @@ public abstract class AbstractTest {
 
     protected HikariConfig hikariConfig(DataSource dataSource) {
         HikariConfig hikariConfig = new HikariConfig();
-        int cpuCores = Runtime.getRuntime().availableProcessors();
-        hikariConfig.setMaximumPoolSize(cpuCores * 4);
+        hikariConfig.setMaximumPoolSize(connectionPoolSize());
         hikariConfig.setDataSource(dataSource);
         return hikariConfig;
     }
 
     protected boolean connectionPooling() {
         return false;
+    }
+
+    protected int connectionPoolSize() {
+        int cpuCores = Runtime.getRuntime().availableProcessors();
+        return cpuCores * 4;
     }
 
     protected DataSourceProvider dataSourceProvider() {

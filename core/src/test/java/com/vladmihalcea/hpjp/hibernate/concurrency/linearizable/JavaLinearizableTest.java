@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.hibernate.concurrency.acid;
+package com.vladmihalcea.hpjp.hibernate.concurrency.linearizable;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.junit.Test;

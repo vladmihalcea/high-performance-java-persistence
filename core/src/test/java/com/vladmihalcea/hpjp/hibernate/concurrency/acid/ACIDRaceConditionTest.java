@@ -31,11 +31,17 @@ public class ACIDRaceConditionTest extends AbstractTest {
 
     @Override
     protected Database database() {
-        return Database.MYSQL;
+        return Database.POSTGRESQL;
     }
 
+    @Override
     protected boolean connectionPooling() {
         return true;
+    }
+
+    @Override
+    protected int connectionPoolSize() {
+        return threadCount();
     }
 
     @Override
@@ -169,12 +175,16 @@ public class ACIDRaceConditionTest extends AbstractTest {
         assertEquals(10L, getAccountBalance("Bob-456"));
     }
 
+    private int threadCount() {
+        return 16;
+    }
+
     @Test
     public void testParallelExecution() {
         assertEquals(10L, getAccountBalance("Alice-123"));
         assertEquals(0L, getAccountBalance("Bob-456"));
 
-        int threadCount = 16;
+        int threadCount = threadCount();
 
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch endLatch = new CountDownLatch(threadCount);
