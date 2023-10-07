@@ -15,6 +15,6 @@ public class OracleTableLockTest extends AbstractTableLockTest {
 
     @Override
     protected String lockEmployeeTableSql() {
-        return "LOCK TABLE employee IN SHARE MODE NOWAIT";
+        return "LOCK TABLE employee IN SHARE MODE";
     }
 }

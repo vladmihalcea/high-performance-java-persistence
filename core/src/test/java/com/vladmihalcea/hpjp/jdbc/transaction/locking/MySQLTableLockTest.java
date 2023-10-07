@@ -17,7 +17,7 @@ public class MySQLTableLockTest extends AbstractTableLockTest {
 
     @Override
     protected String lockEmployeeTableSql() {
-        return "SELECT * FROM employee WHERE department_id = 1 FOR UPDATE";
+        return "SELECT 1 FROM employee WHERE department_id = 1 FOR UPDATE";
     }
 
     @Override

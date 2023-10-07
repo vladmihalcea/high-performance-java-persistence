@@ -22,7 +22,7 @@ import static org.junit.Assert.fail;
 /**
  * @author Vlad Mihalcea
  */
-public class LockModePessimisticReadWriteIntegrationTest extends AbstractTest {
+public class LockModePessimisticReadWriteTest extends AbstractTest {
 
     public static final int WAIT_MILLIS = 500;
 
@@ -42,7 +42,7 @@ public class LockModePessimisticReadWriteIntegrationTest extends AbstractTest {
 
     @Override
     protected Database database() {
-        return Database.MYSQL;
+        return Database.ORACLE;
     }
 
     @Override

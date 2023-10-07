@@ -17,7 +17,7 @@ public class PostgreSQLTableLockTest extends AbstractTableLockTest {
 
     @Override
     protected String lockEmployeeTableSql() {
-        return "LOCK TABLE employee IN SHARE ROW EXCLUSIVE MODE NOWAIT";
+        return "LOCK TABLE employee IN SHARE ROW EXCLUSIVE MODE";
     }
 
     @Override
