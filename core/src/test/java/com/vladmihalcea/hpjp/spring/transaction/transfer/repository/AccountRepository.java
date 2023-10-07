@@ -18,18 +18,18 @@ public interface AccountRepository extends JpaRepository<Account, String> {
     @Query(value = """
         SELECT balance
         FROM account
-        WHERE iban = :iban
+        WHERE id = :id
         """,
         nativeQuery = true)
-    long getBalance(@Param("iban") String iban);
+    long getBalance(@Param("id") String id);
 
     @Query(value = """
         UPDATE account
-        SET balance = balance + :cents
-        WHERE iban = :iban
+        SET balance = balance + :amount
+        WHERE id = :id
         """,
         nativeQuery = true)
     @Modifying
     @Transactional
-    int addToBalance(@Param("iban") String iban, @Param("cents") long cents);
+    int addToBalance(@Param("id") String id, @Param("amount") long cents);
 }

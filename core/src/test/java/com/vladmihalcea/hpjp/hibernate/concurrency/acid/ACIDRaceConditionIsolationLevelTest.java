@@ -6,9 +6,6 @@ import com.vladmihalcea.hpjp.util.transaction.ConnectionCallable;
 import com.vladmihalcea.hpjp.util.transaction.ConnectionVoidCallable;
 import org.junit.Test;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
+public class ACIDRaceConditionIsolationLevelTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -48,14 +45,14 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
     protected void afterInit() {
         doInJPA(entityManager -> {
             Account from = new Account();
-            from.setIban("Alice-123");
+            from.setId("Alice-123");
             from.setOwner("Alice");
             from.setBalance(10);
 
             entityManager.persist(from);
 
             Account to = new Account();
-            to.setIban("Bob-456");
+            to.setId("Bob-456");
             to.setOwner("Bob");
             to.setBalance(0L);
 
@@ -114,13 +111,16 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         printIsolationLevel(connection);
     }
 
-    public static void transfer(Connection connection, String fromIban, String toIban, long transferCents) {
-        long fromBalance = getAccountBalance(connection, fromIban);
+    public static void transfer(
+            Connection connection,
+            String sourceAccount,
+            String destinationAccount,
+            long amount) {
 
-        if(fromBalance >= transferCents) {
-            addToAccountBalance(connection, fromIban, (-1) * transferCents);
+        if(getAccountBalance(connection, sourceAccount) >= amount) {
+            addToAccountBalance(connection, sourceAccount, (-1) * amount);
 
-            addToAccountBalance(connection, toIban, transferCents);
+            addToAccountBalance(connection, destinationAccount, amount);
         }
     }
 
@@ -128,7 +128,7 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         try(PreparedStatement statement = connection.prepareStatement("""
             SELECT balance
             FROM account
-            WHERE iban = ?
+            WHERE id = ?
             """)
         ) {
             statement.setString(1, iban);
@@ -146,7 +146,7 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         try(PreparedStatement statement = connection.prepareStatement("""
             UPDATE account
             SET balance = balance + ? 
-            WHERE iban = ?
+            WHERE id = ?
             """)
         ) {
             statement.setLong(1, amount);
@@ -232,41 +232,5 @@ public class ACIDRaceConditionDefaultIsolationLevelTest extends AbstractTest {
         }
 
         LOGGER.info("Transaction isolation level: {}", isolationLevelStringValue);
-    }
-
-    @Entity(name = "Account")
-    @Table(name = "account")
-    public static class Account {
-
-        @Id
-        private String iban;
-
-        private String owner;
-
-        private long balance;
-
-        public String getIban() {
-            return iban;
-        }
-
-        public void setIban(String iban) {
-            this.iban = iban;
-        }
-
-        public String getOwner() {
-            return owner;
-        }
-
-        public void setOwner(String owner) {
-            this.owner = owner;
-        }
-
-        public long getAccountBalance() {
-            return balance;
-        }
-
-        public void setBalance(long balance) {
-            this.balance = balance;
-        }
     }
 }

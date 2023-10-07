@@ -1,9 +1,8 @@
-package com.vladmihalcea.hpjp.spring.transaction.transfer.domain;
+package com.vladmihalcea.hpjp.hibernate.concurrency.acid;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 
 /**
  * @author Vlad Mihalcea
@@ -19,33 +18,27 @@ public class Account {
 
     private long balance;
 
-    @Version
-    private short version;
-
     public String getId() {
         return id;
     }
 
-    public Account setId(String iban) {
+    public void setId(String iban) {
         this.id = iban;
-        return this;
     }
 
     public String getOwner() {
         return owner;
     }
 
-    public Account setOwner(String owner) {
+    public void setOwner(String owner) {
         this.owner = owner;
-        return this;
     }
 
-    public long getBalance() {
+    public long getAccountBalance() {
         return balance;
     }
 
-    public Account setBalance(long balance) {
+    public void setBalance(long balance) {
         this.balance = balance;
-        return this;
     }
 }

@@ -16,14 +16,15 @@ public class TransferService {
     private AccountRepository accountRepository;
 
     //@Transactional
-    public boolean transfer(String fromIban, String toIban, long cents) {
+    public boolean transfer(
+            String sourceAccount,
+            String destinationAccount,
+            long amount) {
         boolean status = true;
 
-        long fromBalance = accountRepository.getBalance(fromIban);
-
-        if(fromBalance >= cents) {
-            status &= accountRepository.addToBalance(fromIban, (-1) * cents) > 0;
-            status &= accountRepository.addToBalance(toIban, cents) > 0;
+        if(accountRepository.getBalance(sourceAccount) >= amount) {
+            status &= accountRepository.addToBalance(sourceAccount, (-1) * amount) > 0;
+            status &= accountRepository.addToBalance(destinationAccount, amount) > 0;
         }
 
         return status;

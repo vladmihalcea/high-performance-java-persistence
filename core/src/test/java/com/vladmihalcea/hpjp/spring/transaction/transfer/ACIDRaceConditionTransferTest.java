@@ -54,14 +54,14 @@ public class ACIDRaceConditionTransferTest {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 entityManager.persist(
                     new Account()
-                        .setIban("Alice-123")
+                        .setId("Alice-123")
                         .setOwner("Alice")
                         .setBalance(10)
                 );
 
                 entityManager.persist(
                     new Account()
-                        .setIban("Bob-456")
+                        .setId("Bob-456")
                         .setOwner("Bob")
                         .setBalance(0)
                 );

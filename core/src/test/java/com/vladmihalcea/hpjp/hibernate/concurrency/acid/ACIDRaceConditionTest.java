@@ -4,9 +4,6 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.transaction.ConnectionCallable;
 import com.vladmihalcea.hpjp.util.transaction.ConnectionVoidCallable;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -48,14 +45,14 @@ public class ACIDRaceConditionTest extends AbstractTest {
     protected void afterInit() {
         doInJPA(entityManager -> {
             Account from = new Account();
-            from.setIban("Alice-123");
+            from.setId("Alice-123");
             from.setOwner("Alice");
             from.setBalance(10);
 
             entityManager.persist(from);
 
             Account to = new Account();
-            to.setIban("Bob-456");
+            to.setId("Bob-456");
             to.setOwner("Bob");
             to.setBalance(0L);
 
@@ -63,13 +60,15 @@ public class ACIDRaceConditionTest extends AbstractTest {
         });
     }
 
-    public void transfer(String fromIban, String toIban, long transferCents) {
-        long fromBalance = getAccountBalance(fromIban);
+    public void transfer(
+            String sourceAccount,
+            String destinationAccount,
+            long amount) {
 
-        if(fromBalance >= transferCents) {
-            addToAccountBalance(fromIban, (-1) * transferCents);
+        if(getAccountBalance(sourceAccount) >= amount) {
+            addToAccountBalance(sourceAccount, (-1) * amount);
 
-            addToAccountBalance(toIban, transferCents);
+            addToAccountBalance(destinationAccount, amount);
         }
     }
 
@@ -78,7 +77,7 @@ public class ACIDRaceConditionTest extends AbstractTest {
             try(PreparedStatement statement = connection.prepareStatement("""
                     SELECT balance
                     FROM account
-                    WHERE iban = ? 
+                    WHERE id = ? 
                     """)
             ) {
                 statement.setString(1, iban);
@@ -96,7 +95,7 @@ public class ACIDRaceConditionTest extends AbstractTest {
             try(PreparedStatement statement = connection.prepareStatement("""
                     UPDATE account
                     SET balance = balance + ?
-                    WHERE iban = ?
+                    WHERE id = ?
                     """)
             ) {
                 statement.setLong(1, amount);
@@ -206,39 +205,4 @@ public class ACIDRaceConditionTest extends AbstractTest {
         LOGGER.info("Bob's balance: {}", getAccountBalance("Bob-456"));
     }
 
-    @Entity(name = "Account")
-    @Table(name = "account")
-    public static class Account {
-
-        @Id
-        private String iban;
-
-        private String owner;
-
-        private long balance;
-
-        public String getIban() {
-            return iban;
-        }
-
-        public void setIban(String iban) {
-            this.iban = iban;
-        }
-
-        public String getOwner() {
-            return owner;
-        }
-
-        public void setOwner(String owner) {
-            this.owner = owner;
-        }
-
-        public long getAccountBalance() {
-            return balance;
-        }
-
-        public void setBalance(long balance) {
-            this.balance = balance;
-        }
-    }
 }
