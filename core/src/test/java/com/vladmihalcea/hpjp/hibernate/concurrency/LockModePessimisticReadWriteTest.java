@@ -222,7 +222,7 @@ public class LockModePessimisticReadWriteTest extends AbstractTest {
                     Post _post = _entityManager.find(Post.class, 1L,
                         LockModeType.PESSIMISTIC_WRITE,
                         Collections.singletonMap(
-                            AvailableSettings.JPA_LOCK_TIMEOUT, LockOptions.NO_WAIT
+                            AvailableSettings.JAKARTA_LOCK_TIMEOUT, LockOptions.NO_WAIT
                         )
                     );
                     fail("Should throw PessimisticEntityLockException");
