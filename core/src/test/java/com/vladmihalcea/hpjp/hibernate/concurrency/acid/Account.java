@@ -22,8 +22,8 @@ public class Account {
         return id;
     }
 
-    public void setId(String iban) {
-        this.id = iban;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getOwner() {

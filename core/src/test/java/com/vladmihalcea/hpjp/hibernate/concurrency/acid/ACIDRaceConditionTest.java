@@ -72,7 +72,7 @@ public class ACIDRaceConditionTest extends AbstractTest {
         }
     }
 
-    private long getAccountBalance(final String iban) {
+    private long getAccountBalance(final String id) {
         return doInJDBC(connection -> {
             try(PreparedStatement statement = connection.prepareStatement("""
                     SELECT balance
@@ -80,17 +80,17 @@ public class ACIDRaceConditionTest extends AbstractTest {
                     WHERE id = ? 
                     """)
             ) {
-                statement.setString(1, iban);
+                statement.setString(1, id);
                 ResultSet resultSet = statement.executeQuery();
                 if(resultSet.next()) {
                     return resultSet.getLong(1);
                 }
             }
-            throw new IllegalArgumentException("Can't find account with IBAN: " + iban);
+            throw new IllegalArgumentException("Can't find account with id: " + id);
         });
     }
 
-    private void addToAccountBalance(final String iban, long amount) {
+    private void addToAccountBalance(final String id, long amount) {
         doInJDBC(connection -> {
             try(PreparedStatement statement = connection.prepareStatement("""
                     UPDATE account
@@ -99,7 +99,7 @@ public class ACIDRaceConditionTest extends AbstractTest {
                     """)
             ) {
                 statement.setLong(1, amount);
-                statement.setString(2, iban);
+                statement.setString(2, id);
 
                 statement.executeUpdate();
             }

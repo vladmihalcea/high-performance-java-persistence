@@ -39,12 +39,12 @@ public class JavaLinearizableTest extends AbstractTest {
     public void testParallelExecution() {
 
         Account fromAccount = new Account();
-        fromAccount.setIban("Alice-123");
+        fromAccount.setId("Alice-123");
         fromAccount.setOwner("Alice");
         fromAccount.setBalance(10);
 
         Account toAccount = new Account();
-        toAccount.setIban("Bob-456");
+        toAccount.setId("Bob-456");
         toAccount.setOwner("Bob");
         toAccount.setBalance(0L);
 
@@ -74,18 +74,18 @@ public class JavaLinearizableTest extends AbstractTest {
 
     public static class Account {
 
-        private String iban;
+        private String id;
 
         private String owner;
 
         private long balance;
 
-        public String getIban() {
-            return iban;
+        public String getId() {
+            return id;
         }
 
-        public void setIban(String iban) {
-            this.iban = iban;
+        public void setId(String id) {
+            this.id = id;
         }
 
         public String getOwner() {

@@ -1,12 +1,10 @@
 package com.vladmihalcea.hpjp.hibernate.concurrency.acid.check;
 
+import com.vladmihalcea.hpjp.hibernate.concurrency.acid.Account;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import org.junit.Test;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.concurrent.CountDownLatch;
@@ -41,14 +39,14 @@ public class ACIDRaceConditionPositiveBalanceCheckLastOperationTest extends Abst
 
         doInJPA(entityManager -> {
             Account from = new Account();
-            from.setIban("Alice-123");
+            from.setId("Alice-123");
             from.setOwner("Alice");
             from.setBalance(10);
 
             entityManager.persist(from);
 
             Account to = new Account();
-            to.setIban("Bob-456");
+            to.setId("Bob-456");
             to.setOwner("Bob");
             to.setBalance(0L);
 
@@ -119,73 +117,37 @@ public class ACIDRaceConditionPositiveBalanceCheckLastOperationTest extends Abst
         }
     }
 
-    private long getAccountBalance(final String iban) {
+    private long getAccountBalance(final String id) {
         return doInJDBC(connection -> {
             try(PreparedStatement statement = connection.prepareStatement("""
                     SELECT balance
                     FROM account
-                    WHERE iban = ? 
+                    WHERE id = ? 
                     """)
             ) {
-                statement.setString(1, iban);
+                statement.setString(1, id);
                 ResultSet resultSet = statement.executeQuery();
                 if(resultSet.next()) {
                     return resultSet.getLong(1);
                 }
             }
-            throw new IllegalArgumentException("Can't find account with IBAN: " + iban);
+            throw new IllegalArgumentException("Can't find account with id: " + id);
         });
     }
 
-    private void addToAccountBalance(final String iban, long amount) {
+    private void addToAccountBalance(final String id, long amount) {
         doInJDBC(connection -> {
             try(PreparedStatement statement = connection.prepareStatement("""
                     UPDATE account
                     SET balance = balance + ?
-                    WHERE iban = ?
+                    WHERE id = ?
                     """)
             ) {
                 statement.setLong(1, amount);
-                statement.setString(2, iban);
+                statement.setString(2, id);
 
                 statement.executeUpdate();
             }
         });
-    }
-
-    @Entity(name = "Account")
-    @Table(name = "account")
-    public static class Account {
-
-        @Id
-        private String iban;
-
-        private String owner;
-
-        private volatile long balance;
-
-        public String getIban() {
-            return iban;
-        }
-
-        public void setIban(String iban) {
-            this.iban = iban;
-        }
-
-        public String getOwner() {
-            return owner;
-        }
-
-        public void setOwner(String owner) {
-            this.owner = owner;
-        }
-
-        public long getAccountBalance() {
-            return balance;
-        }
-
-        public void setBalance(long balance) {
-            this.balance = balance;
-        }
     }
 }

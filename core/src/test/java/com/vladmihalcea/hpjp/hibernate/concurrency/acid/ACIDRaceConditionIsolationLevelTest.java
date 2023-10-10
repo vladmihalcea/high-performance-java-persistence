@@ -124,14 +124,14 @@ public class ACIDRaceConditionIsolationLevelTest extends AbstractTest {
         }
     }
 
-    private static long getAccountBalance(Connection connection, final String iban) {
+    private static long getAccountBalance(Connection connection, final String id) {
         try(PreparedStatement statement = connection.prepareStatement("""
             SELECT balance
             FROM account
             WHERE id = ?
             """)
         ) {
-            statement.setString(1, iban);
+            statement.setString(1, id);
             ResultSet resultSet = statement.executeQuery();
             if(resultSet.next()) {
                 return resultSet.getLong(1);
@@ -139,10 +139,10 @@ public class ACIDRaceConditionIsolationLevelTest extends AbstractTest {
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
-        throw new IllegalArgumentException("Can't find account with IBAN: " + iban);
+        throw new IllegalArgumentException("Can't find account with id: " + id);
     }
 
-    private static void addToAccountBalance(Connection connection, final String iban, long amount) {
+    private static void addToAccountBalance(Connection connection, final String id, long amount) {
         try(PreparedStatement statement = connection.prepareStatement("""
             UPDATE account
             SET balance = balance + ? 
@@ -150,7 +150,7 @@ public class ACIDRaceConditionIsolationLevelTest extends AbstractTest {
             """)
         ) {
             statement.setLong(1, amount);
-            statement.setString(2, iban);
+            statement.setString(2, id);
 
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -158,9 +158,9 @@ public class ACIDRaceConditionIsolationLevelTest extends AbstractTest {
         }
     }
 
-    private long getAccountBalance(final String iban) {
+    private long getAccountBalance(final String id) {
         return doInJDBC(connection -> {
-            return getAccountBalance(connection, iban);
+            return getAccountBalance(connection, id);
         });
     }
 
