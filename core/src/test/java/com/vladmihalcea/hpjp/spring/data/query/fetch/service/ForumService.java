@@ -27,14 +27,16 @@ public class ForumService {
 
     private final Cache postCache;
 
-    private static final ExecutorService executorService = Executors.newFixedThreadPool(
-        Runtime.getRuntime().availableProcessors()
-    );
+    private final ExecutorService executorService;
 
-    public ForumService(PostRepository postRepository, CacheManager cacheManager) {
+    public ForumService(
+            PostRepository postRepository,
+            CacheManager cacheManager,
+            ExecutorService executorService) {
         this.postRepository = postRepository;
         this.cacheManager = cacheManager;
         this.postCache = cacheManager.getCache(Post.class.getSimpleName());
+        this.executorService = executorService;
     }
 
     @Transactional(readOnly = true)
@@ -54,7 +56,7 @@ public class ForumService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public void updatePostCache() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
         try(Stream<Post> postStream = postRepository.streamByCreatedOnSince(yesterday)) {

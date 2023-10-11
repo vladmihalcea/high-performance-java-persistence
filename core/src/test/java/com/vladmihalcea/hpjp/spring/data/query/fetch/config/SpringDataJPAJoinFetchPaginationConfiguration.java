@@ -13,6 +13,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  *
@@ -52,5 +54,12 @@ public class SpringDataJPAJoinFetchPaginationConfiguration extends SpringDataJPA
             .toArray(String[]::new);
 
         return new ConcurrentMapCacheManager(entityNames);
+    }
+
+    @Bean
+    public ExecutorService executorService() {
+        return Executors.newFixedThreadPool(
+            Runtime.getRuntime().availableProcessors()
+        );
     }
 }

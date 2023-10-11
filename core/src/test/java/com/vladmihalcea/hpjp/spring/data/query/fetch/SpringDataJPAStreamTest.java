@@ -30,6 +30,8 @@ import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
 import static org.junit.Assert.*;
@@ -56,8 +58,8 @@ public class SpringDataJPAStreamTest {
     @Autowired
     private CacheManager cacheManager;
 
-    @PersistenceUnit
-    private EntityManagerFactory entityManagerFactory;
+    @Autowired
+    private ExecutorService executorService;
 
     public static final int POST_COUNT = 10;
     public static final int COMMENT_COUNT = 10;
@@ -110,41 +112,15 @@ public class SpringDataJPAStreamTest {
     }
 
     @Test
-    public void testUpdateCache() {
+    public void testUpdateCache() throws InterruptedException {
         Cache postCache = cacheManager.getCache(Post.class.getSimpleName());
 
         assertNull(postCache.get(1L));
         forumService.updatePostCache();
+
+        executorService.shutdown();
+        executorService.awaitTermination(1, TimeUnit.SECONDS);
         assertNotNull(postCache.get(1L));
-    }
-
-    @Test
-    public void testOSIV() {
-        try(EntityManager entityManager = entityManagerFactory.createEntityManager()) {
-            EntityManagerHolder entityManagerHolder = new EntityManagerHolder(entityManager);
-            TransactionSynchronizationManager.bindResource(
-                entityManagerFactory,
-                entityManagerHolder
-            );
-
-            Page<Post> posts = transactionTemplate.execute(
-                status -> postRepository.findAll(
-                    Example.of(
-                        new Post()
-                            .setTitle("High-Performance Java Persistence"),
-                        ExampleMatcher.matching()
-                            .withStringMatcher(ExampleMatcher.StringMatcher.STARTING)
-                    ),
-                    PageRequest.of(0, 50, Sort.by("createdOn"))
-                )
-            );
-
-            for(Post post : posts) {
-                LOGGER.info("Post has {} comments", post.getComments().size());
-            }
-        } finally {
-            TransactionSynchronizationManager.unbindResource(entityManagerFactory);
-        }
     }
 }
 
