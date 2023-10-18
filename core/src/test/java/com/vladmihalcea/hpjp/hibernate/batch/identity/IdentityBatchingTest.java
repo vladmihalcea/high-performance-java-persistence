@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.hibernate.batch;
+package com.vladmihalcea.hpjp.hibernate.batch.identity;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.junit.Test;
