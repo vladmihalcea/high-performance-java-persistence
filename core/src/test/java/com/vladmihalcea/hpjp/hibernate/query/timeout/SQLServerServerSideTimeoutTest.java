@@ -30,6 +30,9 @@ public class SQLServerServerSideTimeoutTest extends AbstractSQLServerIntegration
 
     @Test
     public void testQueryTimeout() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         try {
             executeStatement("EXEC sp_configure 'remote query timeout', 1");
             executeStatement("RECONFIGURE");

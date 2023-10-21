@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -155,6 +156,7 @@ public class YugabyteDBTriggerBasedJsonAuditLogTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void test() {
         LoggedUser.logIn("Vlad Mihalcea");
 

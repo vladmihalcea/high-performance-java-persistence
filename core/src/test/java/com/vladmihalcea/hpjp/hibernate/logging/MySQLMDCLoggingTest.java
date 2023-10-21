@@ -2,11 +2,11 @@ package com.vladmihalcea.hpjp.hibernate.logging;
 
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
+import jakarta.persistence.*;
 import org.hibernate.LockOptions;
 import org.junit.Test;
 import org.slf4j.MDC;
 
-import jakarta.persistence.*;
 import java.util.Properties;
 
 import static org.junit.Assert.assertTrue;
@@ -18,14 +18,14 @@ public class MySQLMDCLoggingTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
+        return new Class<?>[]{
             Post.class
         };
     }
 
     @Override
     protected void additionalProperties(Properties properties) {
-        properties.put( "hibernate.jdbc.batch_size", "5" );
+        properties.put("hibernate.jdbc.batch_size", "5");
     }
 
     @Override
@@ -37,8 +37,8 @@ public class MySQLMDCLoggingTest extends AbstractMySQLIntegrationTest {
     protected void afterInit() {
         doInJPA(entityManager -> {
             Post post = new Post();
-            post.setId( 1L );
-            post.setTitle( "Post it!" );
+            post.setId(1L);
+            post.setTitle("Post it!");
 
             entityManager.persist(post);
         });
@@ -52,44 +52,51 @@ public class MySQLMDCLoggingTest extends AbstractMySQLIntegrationTest {
                 from Post p
                 where p.id = :id
                 """, Post.class)
-            .setParameter("id", 1L)
-            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-            .getSingleResult();
+                .setParameter("id", 1L)
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .getSingleResult();
 
-            try(MDC.MDCCloseable closable = MDC.putCloseable(
-                    "txId",
-                    String.format(" TxId: [%s]", transactionId(entityManager))
-                )) {
+            try (MDC.MDCCloseable closable = MDC.putCloseable(
+                "txId",
+                String.format(" TxId: [%s]", transactionId(entityManager))
+            )) {
                 try {
                     executeSync(() -> {
                         doInJPA(_entityManager -> {
-                            try(MDC.MDCCloseable _closable = MDC.putCloseable(
-                                    "txId",
-                                    String.format(" TxId: [%s]", transactionId(_entityManager))
-                                )) {
+                            LOGGER.info("Acquire lock so that the TxId is assigned");
+                            _entityManager.persist(
+                                new Post()
+                                    .setId(2L)
+                                    .setTitle("New Post!")
+                            );
+
+                            try (MDC.MDCCloseable _closable = MDC.putCloseable(
+                                "txId",
+                                String.format(" TxId: [%s]", transactionId(_entityManager))
+                            )) {
 
                                 Post _post = (Post) _entityManager.createQuery("""
                                     select p
                                     from Post p
                                     where p.id = :id
                                     """, Post.class)
-                                .setParameter("id", 1L)
-                                .unwrap(org.hibernate.query.Query.class)
-                                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-                                .setHint(
-                                    "jakarta.persistence.lock.timeout",
-                                    LockOptions.NO_WAIT
-                                )
-                                .getSingleResult();
+                                    .setParameter("id", 1L)
+                                    .unwrap(org.hibernate.query.Query.class)
+                                    .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                                    .setHint(
+                                        "jakarta.persistence.lock.timeout",
+                                        LockOptions.NO_WAIT
+                                    )
+                                    .getSingleResult();
                             }
                         });
                     });
                 } catch (Exception expected) {
                     assertTrue(
                         ExceptionUtil
-                        .rootCause(expected)
-                        .getMessage()
-                        .contains("lock(s) could not be acquired")
+                            .rootCause(expected)
+                            .getMessage()
+                            .contains("lock(s) could not be acquired")
                     );
                 }
             }
@@ -120,16 +127,18 @@ public class MySQLMDCLoggingTest extends AbstractMySQLIntegrationTest {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
     }
 }

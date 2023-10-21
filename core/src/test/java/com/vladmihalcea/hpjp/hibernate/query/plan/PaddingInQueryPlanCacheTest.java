@@ -68,7 +68,8 @@ public class PaddingInQueryPlanCacheTest extends AbstractTest {
                     IntStream.range(1, i).boxed().toArray(Integer[]::new)
                 );
             }
-            assertEquals(6L, statistics.getQueryPlanCacheMissCount());
+            LOGGER.info("Hibernate 6 generates a single plan now!");
+            assertEquals(1L, statistics.getQueryPlanCacheMissCount());
 
             for (String query : statistics.getQueries()) {
                 LOGGER.info("Executed query: {}", query);

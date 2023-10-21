@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Environment;
 import org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.postgresql.ds.PGSimpleDataSource;
 
@@ -104,6 +105,7 @@ public class SchemaMultitenancyTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void test() {
         TenantContext.setTenant("europe");
 

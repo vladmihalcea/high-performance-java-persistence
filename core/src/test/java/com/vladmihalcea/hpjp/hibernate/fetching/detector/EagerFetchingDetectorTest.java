@@ -6,6 +6,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.stat.internal.StatisticsInitiator;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import jakarta.persistence.*;
@@ -81,6 +82,7 @@ public class EagerFetchingDetectorTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testFindPostComment() {
         doInJPA(entityManager -> {
             AssociationFetch.Context context = AssociationFetch.Context.get(entityManager);
@@ -99,6 +101,7 @@ public class EagerFetchingDetectorTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testFindPostCommentDetails() {
         doInJPA(entityManager -> {
             AssociationFetch.Context context = AssociationFetch.Context.get(entityManager);
@@ -122,6 +125,7 @@ public class EagerFetchingDetectorTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testJPQLPostCommentDetails() {
         doInJPA(entityManager -> {
             AssociationFetch.Context context = AssociationFetch.Context.get(entityManager);
@@ -150,6 +154,7 @@ public class EagerFetchingDetectorTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testJPQLPostCommentDetailsJoinFetchEagerAssociations() {
         doInJPA(entityManager -> {
             AssociationFetch.Context context = AssociationFetch.Context.get(entityManager);

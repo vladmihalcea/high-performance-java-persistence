@@ -67,7 +67,8 @@ public class DefaultInQueryPlanCacheTest extends AbstractTest {
             }
         });
 
-        assertEquals(16L, statistics.getQueryPlanCacheMissCount());
+        LOGGER.info("Hibernate 6 generates a single plan now!");
+        assertEquals(1L, statistics.getQueryPlanCacheMissCount());
 
         for (String query : statistics.getQueries()) {
             LOGGER.info("Executed query: {}", query);

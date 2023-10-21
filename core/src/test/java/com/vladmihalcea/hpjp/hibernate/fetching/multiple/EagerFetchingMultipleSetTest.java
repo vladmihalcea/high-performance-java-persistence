@@ -1,6 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.fetching.multiple;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import io.hypersistence.utils.hibernate.query.SQLExtractor;
 import org.junit.Test;
 
 import jakarta.persistence.*;
@@ -77,7 +78,7 @@ public class EagerFetchingMultipleSetTest extends AbstractPostgreSQLIntegrationT
     @Test
     public void testFindWithJoinFetchQuery() {
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery("""
+            Query jpqlQuery = entityManager.createQuery("""
                 select p
                 from Post p
                 left join fetch p.comments
@@ -85,7 +86,13 @@ public class EagerFetchingMultipleSetTest extends AbstractPostgreSQLIntegrationT
                 where p.id between :minId and :maxId
                 """, Post.class)
             .setParameter("minId", 1L)
-            .setParameter("maxId", 50L)
+            .setParameter("maxId", 50L);
+
+            List<Tuple> posts = entityManager.createNativeQuery(
+                SQLExtractor.from(jpqlQuery)
+                , Tuple.class)
+            .setParameter(1, 1L)
+            .setParameter(2, 50L)
             .getResultList();
 
             assertEquals(POST_COUNT * POST_COMMENT_COUNT * TAG_COUNT, posts.size());

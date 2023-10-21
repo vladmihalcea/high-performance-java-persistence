@@ -9,6 +9,8 @@ import com.vladmihalcea.hpjp.util.logging.InlineQueryLogEntryCreator;
 import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
+import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.engine.transaction.jta.platform.internal.JBossStandAloneJtaPlatform;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.hsqldb.jdbc.pool.JDBCXADataSource;
@@ -33,7 +35,7 @@ import java.util.Properties;
  * @author Vlad Mihalcea
  */
 @Configuration
-@PropertySource({"/META-INF/jta-hsqldb.properties"})
+@PropertySource({"/META-INF/jta-postgresql.properties"})
 @ComponentScan(basePackages = "com.vladmihalcea.hpjp.spring.transaction.jta")
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
@@ -42,43 +44,45 @@ public class JTATransactionManagerConfiguration {
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 
     @Value("${jdbc.dataSourceClassName}")
-    private String dataSourceClassName;
-
-    @Value("${jdbc.url}")
-    private String jdbcUrl;
+    protected String dataSourceClassName;
 
     @Value("${jdbc.username}")
-    private String jdbcUser;
+    protected String jdbcUser;
 
     @Value("${jdbc.password}")
-    private String jdbcPassword;
+    protected String jdbcPassword;
 
-    @Value("${btm.config.journal:null}")
-    private String btmJournal;
+    @Value("${jdbc.database}")
+    protected String jdbcDatabase;
+
+    @Value("${jdbc.host}")
+    protected String jdbcHost;
+
+    @Value("${jdbc.port}")
+    protected String jdbcPort;
 
     @Value("${hibernate.dialect}")
-    private String hibernateDialect;
+    protected String hibernateDialect;
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties() {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
-    @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(JDBCXADataSource.class.getName());
-        dataSource.setUrl(jdbcUrl);
+        dataSource.setDriverClassName(dataSourceClassName);
+        dataSource.setUrl(
+            String.format(
+                "jdbc:postgresql://%s:%s/%s",
+                jdbcHost,
+                jdbcPort,
+                jdbcDatabase
+            )
+        );
         dataSource.setUsername(jdbcUser);
         dataSource.setPassword(jdbcPassword);
-
-        SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
-        loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
-        return ProxyDataSourceBuilder
-                .create(dataSource)
-                .name(DATA_SOURCE_PROXY_NAME)
-                .listener(loggingListener)
-                .build();
+        return dataSource;
     }
 
     @Bean
@@ -123,7 +127,10 @@ public class JTATransactionManagerConfiguration {
 
     protected Properties additionalProperties() {
         Properties properties = new Properties();
-        properties.setProperty("hibernate.dialect", hibernateDialect);
+        properties.put(
+            AvailableSettings.JTA_PLATFORM,
+            JBossStandAloneJtaPlatform.class
+        );
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         properties.put(
             "hibernate.session_factory.statement_inspector",

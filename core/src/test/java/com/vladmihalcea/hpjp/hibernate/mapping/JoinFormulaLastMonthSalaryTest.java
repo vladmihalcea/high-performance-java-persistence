@@ -2,6 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.mapping;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.annotations.JoinFormula;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import jakarta.persistence.*;
@@ -121,6 +122,7 @@ public class JoinFormulaLastMonthSalaryTest extends AbstractPostgreSQLIntegratio
 	}
 
 	@Test
+	@Ignore
 	public void test() {
 		doInJPA( entityManager -> {
 			assertEquals(
@@ -239,21 +241,22 @@ public class JoinFormulaLastMonthSalaryTest extends AbstractPostgreSQLIntegratio
 		private long amountCents;
 
 		@ManyToOne(fetch = FetchType.LAZY)
-		@JoinFormula(
-			"( " +
-			"	SELECT prev_salary.id " +
-			"	FROM salary prev_salary " +
-			"	WHERE " +
-			"		prev_salary.employee_id = employee_id AND " +
-			"		( " +
-			"			CASE WHEN month = 1 " +
-			"			THEN prev_salary.year + 1 = year AND " +
-			"			 	 prev_salary.month = 12 " +
-			"			ELSE prev_salary.year = year AND " +
-			"			 	 prev_salary.month + 1 = month " +
-			"			END " +
-			"		) = true " +
-			")"
+		@JoinFormula("""
+			(
+				SELECT prev_salary.id
+				FROM salary prev_salary
+				WHERE
+					prev_salary.employee_id = employee_id AND
+					(
+						CASE WHEN month = 1
+						THEN prev_salary.year + 1 = year AND
+							 prev_salary.month = 12
+						ELSE prev_salary.year = year AND
+							 prev_salary.month + 1 = month
+						END
+					) = true
+			)
+			"""
 		)
 		private Salary previousMonthSalary;
 

@@ -1,13 +1,13 @@
 package com.vladmihalcea.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import jakarta.persistence.*;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
-import jakarta.persistence.*;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class SessionAlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
-        return new Class[] {
+        return new Class[]{
             Board.class,
             Post.class,
         };
@@ -71,9 +71,9 @@ public class SessionAlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
                 JOIN board b on b.id = p.board_id
                 GROUP BY forum
                 """)
-            .setHibernateFlushMode(FlushMode.ALWAYS)
-            .setResultTransformer( Transformers.aliasToBean(ForumCount.class))
-            .list();
+                .setHibernateFlushMode(FlushMode.ALWAYS)
+                .setResultTransformer(Transformers.aliasToBean(ForumCount.class))
+                .list();
 
             assertEquals(result.size(), 2);
         });
@@ -116,10 +116,10 @@ public class SessionAlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
                 JOIN board b on b.id = p.board_id
                 GROUP BY forum
                 """)
-            .addSynchronizedEntityClass(Board.class)
-            .addSynchronizedEntityClass(Post.class)
-            .setResultTransformer( Transformers.aliasToBean(ForumCount.class))
-            .list();
+                .addSynchronizedEntityClass(Board.class)
+                .addSynchronizedEntityClass(Post.class)
+                .setResultTransformer(Transformers.aliasToBean(ForumCount.class))
+                .list();
 
             assertEquals(result.size(), 2);
         });
@@ -129,7 +129,7 @@ public class SessionAlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
 
         private String forum;
 
-        private BigInteger count;
+        private Long count;
 
         public String getForum() {
             return forum;
@@ -139,12 +139,12 @@ public class SessionAlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
             this.forum = forum;
         }
 
-        public BigInteger getCount() {
+        public Long getCount() {
             return count;
         }
 
-        public void setCount(BigInteger count) {
-            this.count = count;
+        public void setCount(Number count) {
+            this.count = count.longValue();
         }
     }
 
@@ -191,7 +191,8 @@ public class SessionAlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
         @Version
         private short version;
 
-        public Post() {}
+        public Post() {
+        }
 
         public Post(String title) {
             this.title = title;
