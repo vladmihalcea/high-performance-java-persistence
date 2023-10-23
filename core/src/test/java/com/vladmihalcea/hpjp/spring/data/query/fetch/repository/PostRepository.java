@@ -64,15 +64,15 @@ public interface PostRepository extends BaseJpaRepository<Post, Long> {
         from Post p
         left join fetch p.comments pc
         where p.id in (
-            select id
+            select pr.id
             from (
               select
-                 id as id,
-                 dense_rank() over (order by createdOn, id) as ranking
-              from Post
-              where title like :titlePattern
+                 p1.id as id,
+                 dense_rank() over (order by p1.createdOn, p1.id) as ranking
+              from Post p1
+              where p1.title like :titlePattern
             ) pr
-            where ranking <= :maxCount
+            where pr.ranking <= :maxCount
         )
         """
     )

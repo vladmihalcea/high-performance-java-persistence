@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.jdbc.fetching;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
-import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
 
@@ -22,7 +22,7 @@ import static org.junit.Assert.fail;
  *
  * @author Vlad Mihalcea
  */
-public class ResultSetCursorTest extends DataSourceProviderIntegrationTest {
+public class ResultSetCursorTest extends DatabaseProviderIntegrationTest {
 
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 

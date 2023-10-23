@@ -1,6 +1,6 @@
 package com.vladmihalcea.hpjp.jdbc.fetching;
 
-import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.*;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
 
@@ -22,7 +22,7 @@ import static org.junit.Assert.fail;
  *
  * @author Vlad Mihalcea
  */
-public class ResultSetFetchSizeTest extends DataSourceProviderIntegrationTest {
+public class ResultSetFetchSizeTest extends DatabaseProviderIntegrationTest {
 
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 

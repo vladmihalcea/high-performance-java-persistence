@@ -39,7 +39,7 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
             DataSource dataSource = super.dataSource();
             try {
                 Properties connectionProperties = ReflectionUtils.invokeGetter(dataSource, "connectionProperties");
-                if(connectionProperties == null) {
+                if (connectionProperties == null) {
                     connectionProperties = new Properties();
                 }
                 connectionProperties.put("oracle.jdbc.implicitStatementCacheSize", Integer.toString(cacheSize));
@@ -53,8 +53,8 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
         @Override
         public String toString() {
             return "CachingOracleDataSourceProvider{" +
-                    "cacheSize=" + cacheSize +
-                    '}';
+                   "cacheSize=" + cacheSize +
+                   '}';
         }
     }
 
@@ -76,8 +76,8 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
         @Override
         public String toString() {
             return "CachingSQLServerDataSourceProvider{" +
-                    "cacheSize=" + cacheSize +
-                    '}';
+                   "cacheSize=" + cacheSize +
+                   '}';
         }
     }
 
@@ -98,8 +98,8 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
         @Override
         public String toString() {
             return "CachingPostgreSQLDataSourceProvider{" +
-                    "cacheSize=" + cacheSize +
-                    '}';
+                   "cacheSize=" + cacheSize +
+                   '}';
         }
     }
 
@@ -109,27 +109,27 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
-    public StatementCachePoolableTest(Database database) {
-        super(database);
+    public StatementCachePoolableTest(DataSourceProvider dataSourceProvider) {
+        super(dataSourceProvider);
     }
 
     @Parameterized.Parameters
     public static Collection<DataSourceProvider[]> rdbmsDataSourceProvider() {
         List<DataSourceProvider[]> providers = new ArrayList<>();
         providers.add(new DataSourceProvider[]{
-                new CachingOracleDataSourceProvider(1)
+            new CachingOracleDataSourceProvider(1)
         });
         providers.add(new DataSourceProvider[]{
-                new CachingSQLServerDataSourceProvider(1)
+            new CachingSQLServerDataSourceProvider(1)
         });
         providers.add(new DataSourceProvider[]{
-                new CachingPostgreSQLDataSourceProvider(1)
+            new CachingPostgreSQLDataSourceProvider(1)
         });
         MySQLDataSourceProvider mySQLCachingDataSourceProvider = new MySQLDataSourceProvider();
         mySQLCachingDataSourceProvider.setUseServerPrepStmts(true);
         mySQLCachingDataSourceProvider.setCachePrepStmts(true);
         providers.add(new DataSourceProvider[]{
-                mySQLCachingDataSourceProvider
+            mySQLCachingDataSourceProvider
         });
         return providers;
     }
@@ -144,8 +144,8 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
         super.init();
         doInJDBC(connection -> {
             try (
-                    PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
-                    PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
+                PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
+                PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
             ) {
                 int postCount = getPostCount();
                 int postCommentCount = getPostCommentCount();
@@ -182,14 +182,14 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
         doInJDBC(connection -> {
             for (int i = 0; i < 2; i++) {
                 try (PreparedStatement statement = connection.prepareStatement("""
-                        SELECT p.title, pd.created_on
-                        FROM post p
-                        LEFT JOIN post_details pd ON p.id = pd.id
-                        WHERE EXISTS (
-                           SELECT 1 
-                           FROM post_comment 
-                           WHERE post_id > p.id AND version = ?
-                        )"""
+                    SELECT p.title, pd.created_on
+                    FROM post p
+                    LEFT JOIN post_details pd ON p.id = pd.id
+                    WHERE EXISTS (
+                       SELECT 1 
+                       FROM post_comment 
+                       WHERE post_id > p.id AND version = ?
+                    )"""
                 )) {
                     statement.setPoolable(false);
                     statement.setInt(1, counter.incrementAndGet());
@@ -200,8 +200,8 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
             }
         });
         LOGGER.info("When using {}, throughput is {} statements",
-                dataSourceProvider(),
-                counter.get());
+            dataSourceProvider(),
+            counter.get());
     }
 
     protected int getPostCount() {

@@ -4,7 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
-import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.*;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
 import oracle.jdbc.pool.OracleDataSource;
@@ -31,7 +31,7 @@ import static org.junit.Assert.fail;
 /**
  * @author Vlad Mihalcea
  */
-public class StatementCacheTest extends DataSourceProviderIntegrationTest {
+public class StatementCacheTest extends DatabaseProviderIntegrationTest {
 
     public static class CachingOracleDataSourceProvider extends OracleDataSourceProvider {
         private final int cacheSize;

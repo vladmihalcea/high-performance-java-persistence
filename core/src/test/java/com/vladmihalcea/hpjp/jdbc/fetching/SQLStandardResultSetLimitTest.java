@@ -1,11 +1,9 @@
 package com.vladmihalcea.hpjp.jdbc.fetching;
 
-import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
-import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import com.vladmihalcea.hpjp.util.providers.PostgreSQLDataSourceProvider;
-import com.vladmihalcea.hpjp.util.providers.SQLServerDataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
+import org.assertj.core.util.Arrays;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -25,7 +23,7 @@ import static org.junit.Assert.fail;
  *
  * @author Vlad Mihalcea
  */
-public class SQLStandardResultSetLimitTest extends DataSourceProviderIntegrationTest {
+public class SQLStandardResultSetLimitTest extends DatabaseProviderIntegrationTest {
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 
     public static final String INSERT_POST_COMMENT = "insert into post_comment (post_id, review, version, id) values (?, ?, ?, ?)";
@@ -53,11 +51,11 @@ public class SQLStandardResultSetLimitTest extends DataSourceProviderIntegration
     }
 
     @Parameterized.Parameters
-    public static Collection<DataSourceProvider[]> rdbmsDataSourceProvider() {
-        List<DataSourceProvider[]> providers = new ArrayList<>();
-        providers.add(new DataSourceProvider[]{new SQLServerDataSourceProvider()});
-        providers.add(new DataSourceProvider[]{new PostgreSQLDataSourceProvider()});
-        return providers;
+    public static Collection<Database[]> databases() {
+        List<Database[]> databases = new ArrayList<>();
+        databases.add(Arrays.array(Database.SQLSERVER));
+        databases.add(Arrays.array(Database.POSTGRESQL));
+        return databases;
     }
 
     @Override

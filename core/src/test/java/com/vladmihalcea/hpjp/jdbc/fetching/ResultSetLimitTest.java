@@ -3,22 +3,19 @@ package com.vladmihalcea.hpjp.jdbc.fetching;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
-import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.LegacyOracleDialect;
 import com.vladmihalcea.hpjp.util.providers.OracleDataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-import org.hibernate.Session;
 import org.hibernate.dialect.pagination.LimitHandler;
 import org.hibernate.query.spi.Limit;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -29,7 +26,7 @@ import static org.junit.Assert.fail;
  *
  * @author Vlad Mihalcea
  */
-public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
+public class ResultSetLimitTest extends DatabaseProviderIntegrationTest {
 
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 
@@ -78,6 +75,9 @@ public class ResultSetLimitTest extends DataSourceProviderIntegrationTest {
     }
 
     public void afterInit() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         doInJDBC(connection -> {
             try (
                 PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);

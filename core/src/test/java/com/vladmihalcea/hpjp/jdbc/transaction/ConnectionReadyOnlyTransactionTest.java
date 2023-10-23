@@ -1,6 +1,6 @@
 package com.vladmihalcea.hpjp.jdbc.transaction;
 
-import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
 import org.junit.Test;
@@ -14,7 +14,7 @@ import java.sql.SQLException;
  *
  * @author Vlad Mihalcea
  */
-public class ConnectionReadyOnlyTransactionTest extends DataSourceProviderIntegrationTest {
+public class ConnectionReadyOnlyTransactionTest extends DatabaseProviderIntegrationTest {
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();

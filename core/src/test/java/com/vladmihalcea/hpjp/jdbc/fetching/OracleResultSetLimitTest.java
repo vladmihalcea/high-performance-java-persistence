@@ -1,10 +1,9 @@
 package com.vladmihalcea.hpjp.jdbc.fetching;
 
-import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
-import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import com.vladmihalcea.hpjp.util.providers.OracleDataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
+import org.assertj.core.util.Arrays;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -24,7 +23,7 @@ import static org.junit.Assert.fail;
  *
  * @author Vlad Mihalcea
  */
-public class OracleResultSetLimitTest extends DataSourceProviderIntegrationTest {
+public class OracleResultSetLimitTest extends DatabaseProviderIntegrationTest {
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 
     public static final String SELECT_POST =
@@ -38,10 +37,10 @@ public class OracleResultSetLimitTest extends DataSourceProviderIntegrationTest 
     }
 
     @Parameterized.Parameters
-    public static Collection<DataSourceProvider[]> rdbmsDataSourceProvider() {
-        List<DataSourceProvider[]> providers = new ArrayList<>();
-        providers.add(new DataSourceProvider[]{new OracleDataSourceProvider()});
-        return providers;
+    public static Collection<Database[]> databases() {
+        List<Database[]> databases = new ArrayList<>();
+        databases.add(Arrays.array(Database.ORACLE));
+        return databases;
     }
 
     @Override

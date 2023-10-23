@@ -19,6 +19,7 @@ public class IndexEntityProvider implements EntityProvider {
     }
 
     @Entity(name = "Task")
+    @Table(name = "task")
     public static class Task {
 
         @Id

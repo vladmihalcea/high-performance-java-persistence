@@ -1,6 +1,6 @@
 package com.vladmihalcea.hpjp.jdbc.batch;
 
-import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import static org.junit.Assert.fail;
  *
  * @author Vlad Mihalcea
  */
-public abstract class AbstractBatchStatementTest extends DataSourceProviderIntegrationTest {
+public abstract class AbstractBatchStatementTest extends DatabaseProviderIntegrationTest {
 
     public static final String INSERT_POST = "insert into post (title, version, id) values ('Post no. %1$d', 0, %1$d)";
 

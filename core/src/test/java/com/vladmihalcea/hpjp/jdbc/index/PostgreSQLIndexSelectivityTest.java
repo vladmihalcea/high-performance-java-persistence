@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
  */
 public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegrationTest {
 
-    public static final String INSERT_TASK = "insert into Task (id, status) values (?, ?)";
+    public static final String INSERT_TASK = "insert into task (id, status) values (?, ?)";
 
     private final IndexEntityProvider entityProvider = new IndexEntityProvider();
 
@@ -68,7 +68,7 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
 
                 assertFalse(isUseServerPrepare(statement));
                 setPrepareThreshold(statement, 1);
-                statement.setInt(1, 100);
+                statement.setString(1, IndexEntityProvider.Task.Status.TO_DO.name());
                 statement.execute();
                 assertTrue(isUseServerPrepare(statement));
             }

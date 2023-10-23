@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.jdbc.connection;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
-import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * @author Vlad Mihalcea
  */
 @Ignore
-public class ConnectionPoolCallTest extends DataSourceProviderIntegrationTest {
+public class ConnectionPoolCallTest extends DatabaseProviderIntegrationTest {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 

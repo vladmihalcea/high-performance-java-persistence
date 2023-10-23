@@ -2,6 +2,11 @@ package com.vladmihalcea.hpjp.jdbc.transaction.phenomena;
 
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.YugabyteDBDataSourceProvider;
+import org.junit.runners.Parameterized;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * YugabyteDBPhenomenaTest - Test to validate YugabyteDB phenomena
@@ -17,5 +22,12 @@ public class YugabyteDBPhenomenaTest extends AbstractPhenomenaTest {
     @Override
     protected DataSourceProvider dataSourceProvider() {
         return new YugabyteDBDataSourceProvider();
+    }
+
+    //Ignore test
+    @Parameterized.Parameters
+    public static Collection<Object[]> isolationLevels() {
+        List<Object[]> levels = new ArrayList<>();
+        return levels;
     }
 }

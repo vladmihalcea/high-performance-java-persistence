@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.jdbc.caching;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
-import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.MySQLDataSourceProvider;
@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 /**
  * @author Vlad Mihalcea
  */
-public class MySQLStatementCacheTest extends DataSourceProviderIntegrationTest {
+public class MySQLStatementCacheTest extends DatabaseProviderIntegrationTest {
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 

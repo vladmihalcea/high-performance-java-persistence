@@ -32,6 +32,9 @@ public class SQLServerMissingIndexTest extends AbstractSQLServerIntegrationTest 
 
     @Test
     public void testInsert() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         long startNanos = System.nanoTime();
         doInJPA(entityManager -> {
             int taskCount = getPostCount();
@@ -55,7 +58,7 @@ public class SQLServerMissingIndexTest extends AbstractSQLServerIntegrationTest 
             doInJPA(entityManager -> {
                 List<Task> tasks = entityManager.createQuery("""
                 select t
-                from Task t
+                from task t
                 where t.status =:status
                 """, Task.class)
             .setParameter("status", Task.Status.random())
@@ -65,7 +68,7 @@ public class SQLServerMissingIndexTest extends AbstractSQLServerIntegrationTest 
         }
 
         LOGGER.info("Check missing indexes");
-
+        //TODO: Not done
     }
 
     protected int getPostCount() {

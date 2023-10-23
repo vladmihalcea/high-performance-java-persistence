@@ -1,6 +1,6 @@
 package com.vladmihalcea.hpjp.jdbc.batch;
 
-import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Vlad Mihalcea
  */
-public abstract class AbstractBatchPreparedStatementTest extends DataSourceProviderIntegrationTest {
+public abstract class AbstractBatchPreparedStatementTest extends DatabaseProviderIntegrationTest {
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
@@ -32,6 +32,9 @@ public abstract class AbstractBatchPreparedStatementTest extends DataSourceProvi
 
     @Test
     public void testBatch() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         doInJDBC(connection -> {
             batchInsert(connection);
             batchUpdate(connection);

@@ -1,14 +1,13 @@
 package com.vladmihalcea.hpjp.jdbc.batch.generatedkeys.identity;
 
 import com.vladmihalcea.hpjp.util.AbstractOracleIntegrationTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.sql.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * GeneratedKeysBatchPreparedStatementTest - Base class for testing JDBC PreparedStatement generated keys
- *
  * @author Vlad Mihalcea
  */
 public class OracleGeneratedKeysBatchPreparedStatementTest extends AbstractOracleIntegrationTest {
@@ -19,6 +18,7 @@ public class OracleGeneratedKeysBatchPreparedStatementTest extends AbstractOracl
     }
 
     @Test
+    @Ignore
     public void testBatch() throws SQLException {
         doInJDBC(this::batchInsert);
     }

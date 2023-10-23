@@ -4,11 +4,13 @@ import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.SQLServerDataSourceProvider;
+import org.assertj.core.util.Arrays;
 import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 /**
  * SQLServerConnectionReadyOnlyTransactionTest - Test to verify SQL Server driver supports read-only transactions
@@ -22,18 +24,20 @@ public class SQLServerConnectionReadyOnlyTransactionTest extends ConnectionReady
     }
 
     @Parameterized.Parameters
-    public static Collection<DataSourceProvider[]> rdbmsDataSourceProvider() {
-        return Collections.singletonList(new DataSourceProvider[]{
-            new SQLServerDataSourceProvider() {
-                @Override
-                public DataSource dataSource() {
-                    SQLServerDataSource dataSource = (SQLServerDataSource) super.dataSource();
-                    dataSource.setURL(dataSource.getURL() + ";ApplicationIntent=ReadOnly");
-                    return dataSource;
-                }
-            }}
-        );
+    public static Collection<Database[]> databases() {
+        List<Database[]> databases = new ArrayList<>();
+        databases.add(Arrays.array(Database.SQLSERVER));
+        return databases;
     }
 
-
+    protected DataSourceProvider dataSourceProvider() {
+        return new SQLServerDataSourceProvider() {
+            @Override
+            public DataSource dataSource() {
+                SQLServerDataSource dataSource = (SQLServerDataSource) super.dataSource();
+                dataSource.setURL(dataSource.getURL() + ";ApplicationIntent=ReadOnly");
+                return dataSource;
+            }
+        };
+    }
 }
