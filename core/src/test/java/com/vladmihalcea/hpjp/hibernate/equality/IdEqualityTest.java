@@ -22,7 +22,7 @@ public class IdEqualityTest
     @Override
     protected Class<?>[] entities() {
         return new Class[]{
-                Post.class
+            Post.class
         };
     }
 
