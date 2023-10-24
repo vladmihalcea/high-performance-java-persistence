@@ -1,6 +1,6 @@
 package com.vladmihalcea.hpjp.spring.data.unidirectional;
 
-import com.vladmihalcea.hpjp.spring.data.unidirectional.config.SpringDataJPAUnidirectionalConfiguration;
+import com.vladmihalcea.hpjp.spring.data.unidirectional.config.SpringDataJPAUnidirectionalEventListenerConfiguration;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.domain.*;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.repository.*;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.service.ForumService;
@@ -20,9 +20,9 @@ import org.springframework.transaction.support.TransactionTemplate;
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = SpringDataJPAUnidirectionalConfiguration.class)
+@ContextConfiguration(classes = SpringDataJPAUnidirectionalEventListenerConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPAUnidirectionalTest {
+public class SpringDataJPAUnidirectionalEventListenerTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
@@ -43,9 +43,6 @@ public class SpringDataJPAUnidirectionalTest {
 
     @Autowired
     private PostTagRepository postTagRepository;
-
-    @Autowired
-    private ForumService forumService;
 
     @Before
     public void init() {
@@ -90,8 +87,8 @@ public class SpringDataJPAUnidirectionalTest {
     }
 
     @Test
-    public void testDeleteWithBulk() {
-        forumService.deletePostById(1L);
+    public void testDeleteWithEventListener() {
+        postRepository.deleteById(1L);
     }
 }
 
