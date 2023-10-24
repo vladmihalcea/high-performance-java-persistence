@@ -8,7 +8,7 @@ import java.util.Objects;
 /**
  * @author Vlad Mihalcea
  */
-@Entity(name = "PostTag")
+@Entity
 @Table(name = "post_tag")
 public class PostTag {
 

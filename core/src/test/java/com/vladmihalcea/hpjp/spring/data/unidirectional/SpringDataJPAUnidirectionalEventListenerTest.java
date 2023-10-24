@@ -3,7 +3,6 @@ package com.vladmihalcea.hpjp.spring.data.unidirectional;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.config.SpringDataJPAUnidirectionalEventListenerConfiguration;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.domain.*;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.repository.*;
-import com.vladmihalcea.hpjp.spring.data.unidirectional.service.ForumService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +32,12 @@ public class SpringDataJPAUnidirectionalEventListenerTest {
     private PostRepository postRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserVoteRepository userVoteRepository;
+
+    @Autowired
     private PostDetailsRepository postDetailsRepository;
 
     @Autowired
@@ -47,6 +52,17 @@ public class SpringDataJPAUnidirectionalEventListenerTest {
     @Before
     public void init() {
         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            User alice = new User()
+                .setId(1L)
+                .setName("Alice");
+
+            User bob = new User()
+                .setId(2L)
+                .setName("Bob");
+
+            userRepository.persist(alice);
+            userRepository.persist(bob);
+
             Post post = new Post()
                 .setId(1L)
                 .setTitle("High-Performance Java Persistence");
@@ -58,16 +74,29 @@ public class SpringDataJPAUnidirectionalEventListenerTest {
                     .setPost(post)
             );
 
-            postCommentRepository.persist(
-                new PostComment()
-                    .setReview("Best book on JPA and Hibernate!")
-                    .setPost(post)
+            PostComment comment1 = new PostComment()
+                .setReview("Best book on JPA and Hibernate!")
+                .setPost(post);
+
+            PostComment comment2 = new PostComment()
+                .setReview("A must-read for every Java developer!")
+                .setPost(post);
+
+            postCommentRepository.persist(comment1);
+            postCommentRepository.persist(comment2);
+
+            userVoteRepository.persist(
+                new UserVote()
+                    .setUser(alice)
+                    .setComment(comment1)
+                    .setScore(Math.random() > 0.5 ? 1 : -1)
             );
 
-            postCommentRepository.persist(
-                new PostComment()
-                    .setReview("A must-read for every Java developer!")
-                    .setPost(post)
+            userVoteRepository.persist(
+                new UserVote()
+                    .setUser(bob)
+                    .setComment(comment2)
+                    .setScore(Math.random() > 0.5 ? 1 : -1)
             );
 
             Tag jdbc = new Tag().setName("JDBC");

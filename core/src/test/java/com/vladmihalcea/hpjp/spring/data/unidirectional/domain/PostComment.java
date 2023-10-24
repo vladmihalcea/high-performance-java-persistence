@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 /**
  * @author Vlad Mihalcea
  */
-@Entity(name = "PostComment")
+@Entity
 @Table(name = "post_comment")
 public class PostComment {
 

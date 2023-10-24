@@ -19,6 +19,9 @@ public class ForumService {
     private PostDetailsRepository postDetailsRepository;
 
     @Autowired
+    private UserVoteRepository userVoteRepository;
+
+    @Autowired
     private PostCommentRepository postCommentRepository;
 
     @Autowired
@@ -27,6 +30,7 @@ public class ForumService {
     @Transactional
     public void deletePostById(Long postId) {
         postDetailsRepository.deleteById(postId);
+        userVoteRepository.deleteAllByPostId(postId);
         postCommentRepository.deleteAllByPostId(postId);
         postTagRepository.deleteAllByPostId(postId);
 

@@ -1,9 +1,6 @@
 package com.vladmihalcea.hpjp.spring.data.unidirectional.event;
 
-import com.vladmihalcea.hpjp.spring.data.unidirectional.domain.Post;
-import com.vladmihalcea.hpjp.spring.data.unidirectional.domain.PostComment;
-import com.vladmihalcea.hpjp.spring.data.unidirectional.domain.PostDetails;
-import com.vladmihalcea.hpjp.spring.data.unidirectional.domain.PostTag;
+import com.vladmihalcea.hpjp.spring.data.unidirectional.domain.*;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.event.spi.DeleteContext;
@@ -22,12 +19,27 @@ public class CascadeDeleteEventListener implements DeleteEventListener {
     @Override
     public void onDelete(DeleteEvent event) throws HibernateException {
         final Object entity = event.getObject();
+        Session session = event.getSession();
 
         if (entity instanceof Post post) {
-            Session session = event.getSession();
-
             PostDetails details = session.find(PostDetails.class, post.getId());
             session.remove(details);
+
+            List<UserVote> userVotes = session.createQuery("""
+                select uv
+                from UserVote uv
+                where uv.comment.id in (
+                    select id
+                    from PostComment
+                    where post.id = :postId
+                )
+                """, UserVote.class)
+            .setParameter("postId", post.getId())
+            .getResultList();
+
+            for(UserVote userVote : userVotes) {
+                session.remove(userVote);
+            }
 
             List<PostComment> comments = session.createQuery("""
                 select pc

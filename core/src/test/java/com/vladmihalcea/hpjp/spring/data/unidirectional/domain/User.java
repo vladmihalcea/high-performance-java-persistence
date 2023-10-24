@@ -1,30 +1,26 @@
 package com.vladmihalcea.hpjp.spring.data.unidirectional.domain;
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.NaturalId;
-
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 /**
  * @author Vlad Mihalcea
  */
 @Entity
-@Table(name = "tag")
-public class Tag {
+@Table(name = "blog_user")
+public class User {
 
     @Id
-    @GeneratedValue
     private Long id;
 
-    @NaturalId
     private String name;
 
     public Long getId() {
         return id;
     }
 
-    public Tag setId(Long id) {
+    public User setId(Long id) {
         this.id = id;
         return this;
     }
@@ -33,7 +29,7 @@ public class Tag {
         return name;
     }
 
-    public Tag setName(String name) {
+    public User setName(String name) {
         this.name = name;
         return this;
     }
