@@ -16,6 +16,12 @@ public class PostDetails {
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
+    @JoinColumn(
+        name = "id",
+        foreignKey = @ForeignKey(
+            name = "FK_post_details_id"
+        )
+    )
     private Post post;
 
     @Column(name = "created_on")

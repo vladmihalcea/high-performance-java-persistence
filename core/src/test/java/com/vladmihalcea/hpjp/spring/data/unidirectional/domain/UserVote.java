@@ -14,9 +14,19 @@ public class UserVote {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+        foreignKey = @ForeignKey(
+            name = "FK_user_vote_user_id"
+        )
+    )
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+        foreignKey = @ForeignKey(
+            name = "FK_user_vote_comment_id"
+        )
+    )
     private PostComment comment;
 
     private int score;

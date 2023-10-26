@@ -4,17 +4,25 @@ import com.vladmihalcea.hpjp.spring.data.unidirectional.config.SpringDataJPAUnid
 import com.vladmihalcea.hpjp.spring.data.unidirectional.domain.*;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.repository.*;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.service.ForumService;
+import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Vlad Mihalcea
@@ -31,6 +39,9 @@ public class SpringDataJPAUnidirectionalBulkTest {
 
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private DefaultPostRepository defaultPostRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -53,20 +64,12 @@ public class SpringDataJPAUnidirectionalBulkTest {
     @Autowired
     private ForumService forumService;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Before
     public void init() {
         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
-            User alice = new User()
-                .setId(1L)
-                .setName("Alice");
-
-            User bob = new User()
-                .setId(2L)
-                .setName("Bob");
-
-            userRepository.persist(alice);
-            userRepository.persist(bob);
-            
             Post post = new Post()
                 .setId(1L)
                 .setTitle("High-Performance Java Persistence");
@@ -88,6 +91,17 @@ public class SpringDataJPAUnidirectionalBulkTest {
 
             postCommentRepository.persist(comment1);
             postCommentRepository.persist(comment2);
+
+            User alice = new User()
+                .setId(1L)
+                .setName("Alice");
+
+            User bob = new User()
+                .setId(2L)
+                .setName("Bob");
+
+            userRepository.persist(alice);
+            userRepository.persist(bob);
 
             userVoteRepository.persist(
                 new UserVote()
@@ -117,6 +131,23 @@ public class SpringDataJPAUnidirectionalBulkTest {
 
             return null;
         });
+    }
+
+    @Test
+    public void testDefaultDeleteById() {
+        try {
+            final JpaRepository postRepository = defaultPostRepository;
+            transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+                postRepository.deleteById(1L);
+
+                return null;
+            });
+
+            fail("Should have thrown ConstraintViolationException");
+        } catch (Exception e) {
+            LOGGER.info("Expected", e);
+            assertTrue(ExceptionUtil.isCausedBy(e, ConstraintViolationException.class));
+        }
     }
 
     @Test

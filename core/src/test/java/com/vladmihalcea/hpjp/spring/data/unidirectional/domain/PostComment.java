@@ -14,6 +14,11 @@ public class PostComment {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+        foreignKey = @ForeignKey(
+            name = "FK_post_comment_post_id"
+        )
+    )
     private Post post;
 
     private String review;

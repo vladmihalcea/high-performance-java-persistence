@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -30,6 +31,9 @@ public class SpringDataJPAUnidirectionalEventListenerTest {
 
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private DefaultPostRepository defaultPostRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -117,6 +121,7 @@ public class SpringDataJPAUnidirectionalEventListenerTest {
 
     @Test
     public void testDeleteWithEventListener() {
+        final JpaRepository postRepository = defaultPostRepository;
         postRepository.deleteById(1L);
     }
 }
