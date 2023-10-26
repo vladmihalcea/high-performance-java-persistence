@@ -4,7 +4,6 @@ import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**

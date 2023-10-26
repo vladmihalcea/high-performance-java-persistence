@@ -2,7 +2,6 @@ package com.vladmihalcea.hpjp.spring.data.query.fetch.service;
 
 import com.vladmihalcea.hpjp.spring.data.query.fetch.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.repository.PostRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.PageRequest;
@@ -12,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 /**

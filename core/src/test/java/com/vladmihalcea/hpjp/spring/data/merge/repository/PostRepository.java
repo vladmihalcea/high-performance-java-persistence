@@ -1,7 +1,6 @@
 package com.vladmihalcea.hpjp.spring.data.merge.repository;
 
 import com.vladmihalcea.hpjp.spring.data.merge.domain.Post;
-import io.hypersistence.utils.spring.repository.BaseJpaRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

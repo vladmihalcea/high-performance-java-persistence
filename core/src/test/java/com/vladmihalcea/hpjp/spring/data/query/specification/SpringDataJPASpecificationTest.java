@@ -24,10 +24,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.vladmihalcea.hpjp.spring.data.query.specification.repository.PostCommentRepository.Specs.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-
-import static com.vladmihalcea.hpjp.spring.data.query.specification.repository.PostCommentRepository.Specs.*;
 
 
 /**

@@ -1,16 +1,13 @@
 package com.vladmihalcea.hpjp.spring.data.query.multibag;
 
-import com.vladmihalcea.hpjp.hibernate.fetching.LazyInitializationExceptionTest;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.config.SpringDataJPAMultipleBagFetchConfiguration;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.domain.Tag;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.service.BrokenForumService;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.service.ForumService;
-import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import jakarta.persistence.EntityManager;
 import org.hibernate.LazyInitializationException;
-import org.hibernate.loader.MultipleBagFetchException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +24,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vlad Mihalcea

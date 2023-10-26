@@ -1,12 +1,9 @@
 package com.vladmihalcea.hpjp.spring.data.update.domain;
 
-import com.vladmihalcea.hpjp.hibernate.mapping.DefaultUpdateTest;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Vlad Mihalcea

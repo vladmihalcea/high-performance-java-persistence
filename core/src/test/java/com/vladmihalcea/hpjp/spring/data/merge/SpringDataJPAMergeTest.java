@@ -3,7 +3,6 @@ package com.vladmihalcea.hpjp.spring.data.merge;
 import com.vladmihalcea.hpjp.spring.data.merge.config.SpringDataJPAMergeConfiguration;
 import com.vladmihalcea.hpjp.spring.data.merge.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.merge.domain.PostComment;
-import com.vladmihalcea.hpjp.spring.data.merge.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.merge.service.ForumService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

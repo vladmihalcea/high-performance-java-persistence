@@ -2,7 +2,6 @@ package com.vladmihalcea.hpjp.spring.blaze.domain.views;
 
 import com.blazebit.persistence.view.EntityView;
 import com.blazebit.persistence.view.IdMapping;
-import com.vladmihalcea.hpjp.spring.blaze.domain.Tag;
 import com.vladmihalcea.hpjp.spring.blaze.domain.UserVote;
 
 /**

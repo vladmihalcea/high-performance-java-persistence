@@ -1,8 +1,8 @@
 package com.vladmihalcea.hpjp.spring.data.update;
 
+import com.vladmihalcea.hpjp.spring.data.update.config.SpringDataJPAUpdateConfiguration;
 import com.vladmihalcea.hpjp.spring.data.update.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.update.repository.PostRepository;
-import com.vladmihalcea.hpjp.spring.data.update.config.SpringDataJPAUpdateConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -13,8 +13,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea

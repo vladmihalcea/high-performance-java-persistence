@@ -3,8 +3,6 @@ package com.vladmihalcea.hpjp.spring.transaction.transfer.service;
 import com.vladmihalcea.hpjp.spring.transaction.transfer.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Vlad Mihalcea

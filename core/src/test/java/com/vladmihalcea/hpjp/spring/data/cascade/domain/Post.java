@@ -1,6 +1,5 @@
 package com.vladmihalcea.hpjp.spring.data.cascade.domain;
 
-import com.vladmihalcea.hpjp.hibernate.association.BidirectionalOneToOneMapsIdTest;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;

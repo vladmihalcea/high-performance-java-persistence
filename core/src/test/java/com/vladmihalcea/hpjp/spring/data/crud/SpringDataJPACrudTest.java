@@ -5,8 +5,8 @@ import com.vladmihalcea.hpjp.spring.data.crud.config.SpringDataJPACrudConfigurat
 import com.vladmihalcea.hpjp.spring.data.crud.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.crud.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.crud.domain.PostStatus;
-import com.vladmihalcea.hpjp.spring.data.crud.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.crud.repository.PostCommentRepository;
+import com.vladmihalcea.hpjp.spring.data.crud.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.crud.service.PostService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
