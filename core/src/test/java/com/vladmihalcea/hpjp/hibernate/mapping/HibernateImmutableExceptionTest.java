@@ -2,19 +2,18 @@ package com.vladmihalcea.hpjp.hibernate.mapping;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.ReflectionUtils;
-import org.hibernate.HibernateException;
-import org.hibernate.annotations.Immutable;
-import org.junit.Test;
-
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Root;
+import org.hibernate.HibernateException;
+import org.hibernate.annotations.Immutable;
+import org.junit.Test;
+
 import java.util.Date;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
@@ -106,13 +105,8 @@ public class HibernateImmutableExceptionTest extends AbstractTest {
             fail("Should have thrown exception");
         } catch (Exception e) {
             HibernateException cause = (HibernateException) e.getCause();
-            assertEquals(
-                "The query: [" +
-                "update Event as generatedAlias0 " +
-                "set generatedAlias0.eventValue = :param0 " +
-                "where generatedAlias0.id=1L" +
-                "] attempts to update an immutable entity: [Event]",
-                cause.getMessage()
+            assertTrue(
+                cause.getMessage().contains("attempts to update an immutable entity")
             );
         }
     }

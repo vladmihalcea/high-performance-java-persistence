@@ -24,7 +24,7 @@ public class SQLServerServerSideTimeoutTest extends AbstractSQLServerIntegration
     @Override
     protected void additionalProperties(Properties properties) {
         properties.setProperty(
-            AvailableHints.HINT_TIMEOUT, String.valueOf(1000)
+            AvailableHints.HINT_TIMEOUT, String.valueOf(1)
         );
     }
 

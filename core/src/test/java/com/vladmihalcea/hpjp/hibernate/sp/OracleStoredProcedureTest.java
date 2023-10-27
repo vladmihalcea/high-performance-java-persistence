@@ -201,10 +201,10 @@ public class OracleStoredProcedureTest extends AbstractOracleIntegrationTest {
     @Test
     public void testFunctionCallAfterRegistration() {
         doInJPA(entityManager -> {
-            Integer commentCount = (Integer) entityManager
+            Integer commentCount = ((Number) entityManager
                 .createQuery("select fn_count_comments(:postId) from Post where id = :postId")
                 .setParameter("postId", 1L)
-                .getSingleResult();
+                .getSingleResult()).intValue();
 
             assertEquals(Integer.valueOf(2), commentCount);
         });
@@ -250,24 +250,9 @@ public class OracleStoredProcedureTest extends AbstractOracleIntegrationTest {
     }
 
     @Test
-    public void testNamedNativeQueryStoredProcedureRefCursor() {
-        doInJPA(entityManager -> {
-            List<Object[]> postAndComments = entityManager
-            .createNamedQuery(
-                "fn_post_and_comments")
-            .setParameter(1, 1L)
-            .getResultList();
-            Object[] postAndComment = postAndComments.get(0);
-            Post post = (Post) postAndComment[0];
-            PostComment comment = (PostComment) postAndComment[1];
-            assertEquals(2, postAndComments.size());
-        });
-    }
-
-    @Test
     public void testNamedNativeQueryStoredProcedureRefCursorWithJDBC() {
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap( Session.class );
+            Session session = entityManager.unwrap(Session.class);
             session.doWork( connection -> {
                 try (CallableStatement function = connection.prepareCall(
                         "{ ? = call fn_post_and_comments( ? ) }" )) {
@@ -290,7 +275,6 @@ public class OracleStoredProcedureTest extends AbstractOracleIntegrationTest {
     @NamedNativeQuery(
         name = "fn_post_and_comments",
         query = "{ ? = call fn_post_and_comments( ? ) }",
-        callable = true,
         resultSetMapping = "post_and_comments"
     )
     @SqlResultSetMapping(

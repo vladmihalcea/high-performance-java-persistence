@@ -60,21 +60,23 @@ public class MySQLMDCLoggingTest extends AbstractMySQLIntegrationTest {
                 "txId",
                 String.format(" TxId: [%s]", transactionId(entityManager))
             )) {
-                try {
-                    executeSync(() -> {
-                        doInJPA(_entityManager -> {
-                            LOGGER.info("Acquire lock so that the TxId is assigned");
-                            _entityManager.persist(
-                                new Post()
-                                    .setId(2L)
-                                    .setTitle("New Post!")
-                            );
+                executeSync(() -> {
+                    doInJPA(_entityManager -> {
+                        LOGGER.info("Acquire lock so that the TxId is assigned");
+                        _entityManager.persist(
+                            new Post()
+                                .setId(2L)
+                                .setTitle("New Post!")
+                        );
+                        _entityManager.flush();
+                        sleep(100);
 
-                            try (MDC.MDCCloseable _closable = MDC.putCloseable(
-                                "txId",
-                                String.format(" TxId: [%s]", transactionId(_entityManager))
-                            )) {
+                        try (MDC.MDCCloseable _closable = MDC.putCloseable(
+                            "txId",
+                            String.format(" TxId: [%s]", transactionId(_entityManager))
+                        )) {
 
+                            try {
                                 Post _post = (Post) _entityManager.createQuery("""
                                     select p
                                     from Post p
@@ -88,17 +90,12 @@ public class MySQLMDCLoggingTest extends AbstractMySQLIntegrationTest {
                                         LockOptions.NO_WAIT
                                     )
                                     .getSingleResult();
+                            } catch (Exception expected) {
+                                assertTrue(ExceptionUtil.isLockTimeout(expected));
                             }
-                        });
+                        }
                     });
-                } catch (Exception expected) {
-                    assertTrue(
-                        ExceptionUtil
-                            .rootCause(expected)
-                            .getMessage()
-                            .contains("lock(s) could not be acquired")
-                    );
-                }
+                });
             }
         });
     }

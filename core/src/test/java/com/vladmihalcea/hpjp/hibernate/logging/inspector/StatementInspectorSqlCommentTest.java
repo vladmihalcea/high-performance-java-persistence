@@ -11,8 +11,8 @@ public class StatementInspectorSqlCommentTest extends SQLCommentTest {
     protected void additionalProperties(Properties properties) {
         super.additionalProperties(properties);
         properties.put(
-                "hibernate.session_factory.statement_inspector",
-                "com.vladmihalcea.hpjp.hibernate.logging.inspector.SqlCommentStatementInspector"
+            "hibernate.session_factory.statement_inspector",
+            SQLCommentStatementInspector.class.getName()
         );
     }
 

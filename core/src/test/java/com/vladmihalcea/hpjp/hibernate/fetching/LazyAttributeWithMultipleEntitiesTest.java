@@ -1,7 +1,8 @@
 package com.vladmihalcea.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.hpjp.hibernate.forum.MediaType;
-import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import jakarta.persistence.*;
@@ -18,7 +19,7 @@ import static org.junit.Assert.fail;
 /**
  * @author Vlad Mihalcea
  */
-public class LazyAttributeWithMultipleEntitiesTest extends AbstractMySQLIntegrationTest {
+public class LazyAttributeWithMultipleEntitiesTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -26,6 +27,16 @@ public class LazyAttributeWithMultipleEntitiesTest extends AbstractMySQLIntegrat
             Attachment.class,
             AttachmentSummary.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.MYSQL;
+    }
+
+    @Override
+    protected void afterInit() {
+        executeStatement("ALTER TABLE attachment MODIFY content LONGTEXT");
     }
 
     @Test

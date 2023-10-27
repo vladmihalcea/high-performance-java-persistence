@@ -26,20 +26,16 @@ public class SQLServerJPAQueryTimeoutTest extends AbstractSQLServerIntegrationTe
         };
     }
 
-    @Override
-    protected void additionalProperties(Properties properties) {
-        properties.setProperty(
-            AvailableHints.HINT_TIMEOUT, String.valueOf(1000)
-        );
-    }
-
     @Test
     public void testQueryTimeout() {
         doInJPA(entityManager -> {
             LOGGER.info("Start waiting");
             //Works only for queries executed via JPA and Hibernate
             try {
-                entityManager.createNativeQuery("WAITFOR DELAY '00:00:02'").executeUpdate();
+                entityManager
+                    .createNativeQuery("WAITFOR DELAY '00:00:02'")
+                    .setHint(AvailableHints.HINT_TIMEOUT, String.valueOf(1))
+                    .executeUpdate();
 
                 fail("Should have thrown a query timeout!");
             } catch (Exception e) {

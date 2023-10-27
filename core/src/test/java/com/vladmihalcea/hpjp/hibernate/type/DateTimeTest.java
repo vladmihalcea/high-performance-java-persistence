@@ -1,18 +1,17 @@
 package com.vladmihalcea.hpjp.hibernate.type;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import jakarta.persistence.*;
+import org.hibernate.cfg.AvailableSettings;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import jakarta.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.time.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-
-import org.hibernate.cfg.AvailableSettings;
 
 import static org.junit.Assert.assertEquals;
 
@@ -125,13 +124,21 @@ public class DateTimeTest extends AbstractPostgreSQLIntegrationTest {
             ZonedDateTime zdt = dt.atZone(ZoneOffset.systemDefault());
             ZoneOffset offset = zdt.getOffset();
 
-            List<TimestampEvent> events = entityManager
-                .createQuery(
-                    "select e " +
-                    "from TimestampEvent e " +
-                    "where function('trunc', e.createdOn) >= :createdOn " +
-                    "order by e.createdOn asc")
-                .setParameter("createdOn", Timestamp.from(LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT).minusSeconds(offset.getTotalSeconds()).toInstant(ZoneOffset.UTC)), TemporalType.DATE)
+            List<TimestampEvent> events = entityManager.createQuery("""
+                select e
+                from TimestampEvent e
+                where function('trunc', e.createdOn) >= :createdOn
+                order by e.createdOn asc
+                """)
+                .setParameter(
+                    "createdOn",
+                    Timestamp.from(
+                        LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT)
+                            .minusSeconds(offset.getTotalSeconds())
+                            .toInstant(ZoneOffset.UTC)
+                    ),
+                    TemporalType.DATE
+                )
                 .getResultList();
             assertEquals(1, events.size());
         });

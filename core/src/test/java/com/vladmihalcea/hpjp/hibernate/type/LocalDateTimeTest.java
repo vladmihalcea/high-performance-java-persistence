@@ -1,25 +1,15 @@
 package com.vladmihalcea.hpjp.hibernate.type;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-
+import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import io.hypersistence.utils.hibernate.type.interval.PostgreSQLIntervalType;
+import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
-
+import org.hibernate.annotations.Type;
 import org.junit.Test;
 
-import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import java.time.*;
+import java.time.temporal.ChronoUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -172,6 +162,8 @@ public class LocalDateTimeTest extends AbstractPostgreSQLIntegrationTest {
 		@Column(name = "starts_at")
 		private ZonedDateTime startsAt;
 
+		@Type(PostgreSQLIntervalType.class)
+		@Column(columnDefinition = "interval")
 		private Duration duration;
 
 		public Long getId() {

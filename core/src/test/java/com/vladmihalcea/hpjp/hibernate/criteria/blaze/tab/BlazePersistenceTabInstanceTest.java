@@ -132,7 +132,7 @@ public class BlazePersistenceTabInstanceTest extends AbstractOracleIntegrationTe
             JOIN (
                 SELECT
                     o.tab_key AS tab_key,
-                    nvl(bf.tab_ver, a.tab_ver) AS tab_ver
+                    coalesce(bf.tab_ver, a.tab_ver) AS tab_ver
                 FROM tab_object o
                 LEFT OUTER JOIN tab_instance bf ON bf.tab_key = o.tab_key
                 JOIN tab_version vf ON bf.tab_ver = vf.tab_key
@@ -166,7 +166,7 @@ public class BlazePersistenceTabInstanceTest extends AbstractOracleIntegrationTe
                 .innerJoinOnSubquery(TabKeyVer.class, "o2")
                     .from(TabObject.class, "o")
                     .bind("tabKey").select("o.tabKey")
-                    .bind("tabVer").select("nvl(bf.tabVersion.tabKey, a.tabVer)")
+                    .bind("tabVer").select("coalesce(bf.tabVersion.tabKey, a.tabVer)")
                     .leftJoin("o.tabInstances", "bf")
                     .innerJoin("bf.tabVersion", "vf")
                     .innerJoinOn(TabSource.class, "df")
@@ -214,7 +214,7 @@ public class BlazePersistenceTabInstanceTest extends AbstractOracleIntegrationTe
             /*
              * SELECT
              *     o.tab_key AS tab_key,
-             *     nvl(bf.tab_ver, a.tab_ver) AS tab_ver
+             *     coalesce(bf.tab_ver, a.tab_ver) AS tab_ver
              * FROM tab_object o
              * LEFT OUTER JOIN tab_instance bf ON bf.tab_key = o.tab_key
              * JOIN tab_version vf ON bf.tab_ver = vf.tab_key
@@ -264,7 +264,7 @@ public class BlazePersistenceTabInstanceTest extends AbstractOracleIntegrationTe
                     .where("a.tabVer").isNotNull()
                 .endOr()
                 .select("o.tabKey", "tabKey")
-                .select("nvl(bf.tabVersion.tabKey, a.tabVer)", "tabVer")
+                .select("coalesce(bf.tabVersion.tabKey, a.tabVer)", "tabVer")
                 .setParameter("tabAcronym", "Central")
                 .getResultList();
 

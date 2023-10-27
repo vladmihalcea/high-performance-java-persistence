@@ -1,10 +1,10 @@
 package com.vladmihalcea.hpjp.hibernate.query;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import jakarta.persistence.*;
 import org.hibernate.query.NativeQuery;
 import org.junit.Test;
 
-import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -45,14 +45,16 @@ public class NativeQueryEntityMappingTest extends AbstractPostgreSQLIntegrationT
             return post1.id;
         });
         doInJPA(entityManager -> {
-            List<Object[]> tuples = entityManager.createNativeQuery(
-                "SELECT * "+
-                "FROM post p "+
-                "LEFT JOIN post_tag pt ON p.id = pt.post_id "+
-                "LEFT JOIN tag t ON t.id = pt.tag_id ")
-            .unwrap( NativeQuery.class )
-            .addEntity("post", Post.class)
-            .addJoin("tag", "post.tags")
+            List<Object[]> tuples = entityManager.createNativeQuery("""
+                SELECT 
+                    {p.*}, {t.*}
+                FROM post p
+                LEFT JOIN post_tag pt ON p.id = pt.post_id
+                LEFT JOIN tag t ON t.id = pt.tag_id
+                """)
+            .unwrap(NativeQuery.class)
+            .addEntity("p", Post.class)
+            .addEntity("t", Tag.class)
             .getResultList();
 
             assertEquals(3, tuples.size());
@@ -69,35 +71,36 @@ public class NativeQueryEntityMappingTest extends AbstractPostgreSQLIntegrationT
 
     @NamedNativeQuery(
             name = "find_posts_with_tags",
-            query =
-                "SELECT " +
-                "       p.id as \"p.id\", "+
-                "       p.title as \"p.title\", "+
-                "       t.id as \"t.id\", "+
-                "       t.name as \"t.name\" "+
-                "FROM post p "+
-                "LEFT JOIN post_tag pt ON p.id = pt.post_id "+
-                "LEFT JOIN tag t ON t.id = pt.tag_id ",
+            query = """
+                SELECT
+                   p.id as "p.id",
+                   p.title as "p.title",
+                   t.id as "t.id",
+                   t.name as "t.name"
+                FROM post p
+                LEFT JOIN post_tag pt ON p.id = pt.post_id
+                LEFT JOIN tag t ON t.id = pt.tag_id
+                """,
             resultSetMapping = "posts_with_tags"
     )
     @SqlResultSetMapping(
-            name = "posts_with_tags",
-            entities = {
-                    @EntityResult(
-                            entityClass = Post.class,
-                            fields = {
-                                @FieldResult( name = "id", column = "p.id" ),
-                                @FieldResult( name = "title", column = "p.title" ),
-                            }
-                    ),
-                    @EntityResult(
-                            entityClass = Tag.class,
-                            fields = {
-                                @FieldResult( name = "id", column = "t.id" ),
-                                @FieldResult( name = "name", column = "t.name" ),
-                            }
-                    )
-            }
+        name = "posts_with_tags",
+        entities = {
+            @EntityResult(
+                entityClass = Post.class,
+                fields = {
+                    @FieldResult(name = "id", column = "p.id"),
+                    @FieldResult(name = "title", column = "p.title"),
+                }
+            ),
+            @EntityResult(
+                entityClass = Tag.class,
+                fields = {
+                    @FieldResult(name = "id", column = "t.id"),
+                    @FieldResult(name = "name", column = "t.name"),
+                }
+            )
+        }
     )
     @Entity(name = "Post")
     @Table(name = "post")

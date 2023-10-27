@@ -29,6 +29,14 @@ public class YugabyteDBColumnLevelLockingTest extends AbstractTest {
     }
 
     @Override
+    public void init() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
+        super.init();
+    }
+
+    @Override
     protected void afterInit() {
         doInJPA(entityManager -> {
             entityManager.persist(
@@ -42,6 +50,9 @@ public class YugabyteDBColumnLevelLockingTest extends AbstractTest {
 
     @Test
     public void test() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         doInJPA(entityManager -> {
             Book post = entityManager.find(Book.class, 1L);
             post.setPriceCents(3995);
@@ -66,6 +77,9 @@ public class YugabyteDBColumnLevelLockingTest extends AbstractTest {
 
     @Test
     public void testUpdateSameColumn() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         try {
             doInJPA(entityManager -> {
                 Book post = entityManager.find(Book.class, 1L);

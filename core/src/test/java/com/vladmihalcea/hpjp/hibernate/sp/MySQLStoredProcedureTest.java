@@ -2,6 +2,8 @@ package com.vladmihalcea.hpjp.hibernate.sp;
 
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureQuery;
 import org.hibernate.Session;
 import org.hibernate.procedure.ProcedureCall;
 import org.hibernate.result.Output;
@@ -9,8 +11,6 @@ import org.hibernate.result.ResultSetOutput;
 import org.junit.Before;
 import org.junit.Test;
 
-import jakarta.persistence.ParameterMode;
-import jakarta.persistence.StoredProcedureQuery;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.Statement;

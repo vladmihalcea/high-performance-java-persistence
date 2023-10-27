@@ -3,16 +3,12 @@ package com.vladmihalcea.hpjp.hibernate.query.timeout;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.hpjp.util.providers.Database;
+import jakarta.persistence.*;
 import org.hibernate.jpa.AvailableHints;
 import org.junit.Test;
 import org.postgresql.util.PSQLException;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import java.util.List;
-import java.util.Properties;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -34,22 +30,16 @@ public class SessionQueryTimeoutTest extends AbstractTest {
         return Database.POSTGRESQL;
     }
 
-    @Override
-    protected void additionalProperties(Properties properties) {
-        properties.setProperty(
-            AvailableHints.HINT_TIMEOUT, String.valueOf(1000)
-        );
-    }
-
     @Test
     public void testJPATimeout() {
         doInJPA(entityManager -> {
+            entityManager.persist(new Post().setTitle("High-Performance Java Persistence"));
             try {
-                List<Post> posts = entityManager
-                .createQuery(
-                    "select p " +
-                    "from Post p " +
-                    "where function('1 >= ALL ( SELECT 1 FROM pg_locks, pg_sleep(2) ) --',) is ''", Post.class)
+                List<Tuple> posts = entityManager.createQuery("""
+                    select p.id, pg_sleep(2)
+                    from Post p
+                    """, Tuple.class)
+                .setHint(AvailableHints.HINT_TIMEOUT, String.valueOf(1))
                 .getResultList();
 
                 fail("Timeout failure expected");

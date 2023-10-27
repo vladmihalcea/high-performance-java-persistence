@@ -19,7 +19,7 @@ public class Attachment {
     private MediaType mediaType;
 
     @Lob
-    @Basic( fetch = FetchType.LAZY )
+    @Basic(fetch = FetchType.LAZY)
     private byte[] content;
 
     public Long getId() {

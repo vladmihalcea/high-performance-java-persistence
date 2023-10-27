@@ -1,11 +1,11 @@
 package com.vladmihalcea.hpjp.hibernate.sp;
 
 import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
+import jakarta.persistence.EntityManager;
 import org.hibernate.Session;
 import org.junit.Before;
 import org.junit.Test;
 
-import jakarta.persistence.EntityManager;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +25,9 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
 
     @Before
     public void init() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         super.init();
         if (recreateTables) {
             executeStatement("DROP table ACT_HI_PROCINST");
@@ -898,6 +901,9 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
 
     @Test
     public void testDeleteActivityHistory() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         try(Connection connection = dataSourceProvider().dataSource().getConnection()) {
             deleteActivityHistoryBeforeDate(
                 connection,

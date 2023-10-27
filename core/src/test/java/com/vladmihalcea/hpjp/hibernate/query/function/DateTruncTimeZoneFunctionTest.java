@@ -28,20 +28,20 @@ public class DateTruncTimeZoneFunctionTest extends AbstractPostgreSQLIntegration
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
+            Post.class,
         };
     }
 
     @Override
     protected void additionalProperties(Properties properties) {
         properties.put(
-                "hibernate.metadata_builder_contributor",
-                SqlFunctionsMetadataBuilderContributor.class
+            "hibernate.metadata_builder_contributor",
+            SqlFunctionsMetadataBuilderContributor.class
         );
     }
 
     public static class SqlFunctionsMetadataBuilderContributor
-            implements MetadataBuilderContributor {
+        implements MetadataBuilderContributor {
 
         @Override
         public void contribute(MetadataBuilder metadataBuilder) {
@@ -101,9 +101,9 @@ public class DateTruncTimeZoneFunctionTest extends AbstractPostgreSQLIntegration
                 where
                    p.id = :postId
                 """, Tuple.class)
-            .setParameter("postId", 1L)
-            .setParameter("timezone", "UTC")
-            .getSingleResult();
+                .setParameter("postId", 1L)
+                .setParameter("timezone", "UTC")
+                .getSingleResult();
 
             assertEquals("High-Performance Java Persistence", tuple.get("title"));
             assertEquals(Timestamp.valueOf(LocalDateTime.of(2018, 11, 23, 0, 0, 0)), tuple.get("creation_date"));

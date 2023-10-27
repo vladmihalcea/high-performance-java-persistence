@@ -1,12 +1,15 @@
 package com.vladmihalcea.hpjp.hibernate.type;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import io.hypersistence.utils.hibernate.type.basic.YearMonthDateType;
 import io.hypersistence.utils.hibernate.type.interval.PostgreSQLIntervalType;
+import io.hypersistence.utils.hibernate.type.json.JsonStringType;
 import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
+import org.hibernate.jpa.boot.spi.TypeContributorList;
 import org.hibernate.query.NativeQuery;
 import org.junit.Test;
 
@@ -14,7 +17,10 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
+import java.util.Collections;
+import java.util.Properties;
 
+import static org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.TYPE_CONTRIBUTORS;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -27,6 +33,17 @@ public class PostgreSQLIntervalDurationTest extends AbstractPostgreSQLIntegratio
         return new Class<?>[]{
             Book.class
         };
+    }
+
+    @Override
+    protected void additionalProperties(Properties properties) {
+        properties.put(TYPE_CONTRIBUTORS,
+            (TypeContributorList) () -> Collections.singletonList(
+                (typeContributions, serviceRegistry) -> {
+                    typeContributions.contributeType(YearMonthDateType.INSTANCE);
+                }
+            )
+        );
     }
 
     @Test
@@ -62,19 +79,16 @@ public class PostgreSQLIntervalDurationTest extends AbstractPostgreSQLIntegratio
         });
 
         doInJPA(entityManager -> {
-            Tuple result = (Tuple) entityManager
-                .createNativeQuery(
-                    "SELECT " +
-                    "   b.published_on AS published_on, " +
-                    "   b.presale_period  AS presale_period " +
-                    "FROM " +
-                    "   book b " +
-                    "WHERE " +
-                    "   b.isbn = :isbn ", Tuple.class)
+            Tuple result = entityManager.createQuery("""
+                SELECT
+                   b.publishedOn AS published_on,
+                   b.presalePeriod  AS presale_period
+                FROM
+                   Book b
+                WHERE
+                   b.isbn = :isbn
+                """, Tuple.class)
             .setParameter("isbn", "978-9730228236")
-            .unwrap(NativeQuery.class)
-            .addScalar("published_on", YearMonth.class)
-            .addScalar("presale_period", Duration.class)
             .getSingleResult();
 
             assertEquals(

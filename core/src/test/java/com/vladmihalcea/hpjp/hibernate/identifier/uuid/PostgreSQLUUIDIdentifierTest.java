@@ -29,11 +29,7 @@ public class PostgreSQLUUIDIdentifierTest extends AbstractPostgreSQLIntegrationT
 
     @Override
     protected void afterInit() {
-        doInJPA(entityManager -> {
-            entityManager.createNativeQuery(
-                    "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""
-            ).executeUpdate();
-        });
+        executeStatement("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"");
     }
 
     @Test

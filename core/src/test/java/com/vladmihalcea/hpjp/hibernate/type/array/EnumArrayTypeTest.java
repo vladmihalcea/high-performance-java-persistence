@@ -23,6 +23,12 @@ public class EnumArrayTypeTest extends AbstractPostgreSQLIntegrationTest {
         };
     }
 
+    @Override
+    protected void beforeInit() {
+        executeStatement("DROP TYPE IF EXISTS sudoku_state");
+        executeStatement("CREATE TYPE sudoku_state AS ENUM ('POSSIBLE', 'IMPOSSIBLE', 'UNDEFINED', 'UNKNOWN')");
+    }
+
     @Test
     public void test() {
         doInJPA(entityManager -> {
@@ -53,8 +59,14 @@ public class EnumArrayTypeTest extends AbstractPostgreSQLIntegrationTest {
     @Table(name = "sudoku")
     public static class Sudoku extends BaseEntity {
 
-        @Type(EnumArrayType.class)
-        @Column(name = "sensor_values", columnDefinition = "integer[]")
+        @Type(
+            value = EnumArrayType.class,
+            parameters = @org.hibernate.annotations.Parameter(
+                name = "sql_array_type",
+                value = "sudoku_state"
+            )
+        )
+        @Column(name = "sensor_values", columnDefinition = "sudoku_state[]")
         private SudokuPossibleValueState[] stateValues;
 
         public SudokuPossibleValueState[] getStateValues() {

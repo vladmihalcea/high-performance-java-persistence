@@ -1,10 +1,14 @@
 package com.vladmihalcea.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
+import jakarta.persistence.*;
+import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.Test;
 
-import jakarta.persistence.*;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * @author Vlad Mihalcea
@@ -17,6 +21,16 @@ public class LazyInitializationExceptionFixWithDTOTest extends AbstractPostgreSQ
             Post.class,
             PostComment.class,
         };
+    }
+
+    @Override
+    protected void additionalProperties(Properties properties) {
+        properties.put(
+            "hibernate.integrator_provider",
+            (IntegratorProvider) () -> Collections.singletonList(
+                new ClassImportIntegrator(Collections.singletonList(PostCommentDTO.class))
+            )
+        );
     }
 
     @Test
@@ -41,14 +55,15 @@ public class LazyInitializationExceptionFixWithDTOTest extends AbstractPostgreSQ
         });
 
         List<PostCommentDTO> comments = doInJPA(entityManager -> {
-            return entityManager.createQuery(
-                "select new " +
-                "   com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentDTO(" +
-                "       pc.id, pc.review, p.title" +
-                "   ) " +
-                "from PostComment pc " +
-                "join pc.post p " +
-                "where pc.review = :review", PostCommentDTO.class)
+            return entityManager.createQuery("""
+                select new
+                   PostCommentDTO(
+                       pc.id, pc.review, p.title
+                   )
+                from PostComment pc
+                join pc.post p
+                where pc.review = :review
+                """, PostCommentDTO.class)
             .setParameter("review", review)
             .getResultList();
         });

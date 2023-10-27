@@ -2,7 +2,8 @@ package com.vladmihalcea.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.hpjp.hibernate.forum.Attachment;
 import com.vladmihalcea.hpjp.hibernate.forum.MediaType;
-import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ import static org.junit.Assert.fail;
 /**
  * @author Vlad Mihalcea
  */
-public class LazyAttributeTest extends AbstractMySQLIntegrationTest {
+public class LazyAttributeTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -28,10 +29,18 @@ public class LazyAttributeTest extends AbstractMySQLIntegrationTest {
     }
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
+    protected Database database() {
+        return Database.MYSQL;
+    }
+
+    @Override
+    protected void additionalProperties(Properties properties) {
         //properties.setProperty(AvailableSettings.USE_STREAMS_FOR_BINARY, Boolean.FALSE.toString());
-        return properties;
+    }
+
+    @Override
+    protected void afterInit() {
+        executeStatement("ALTER TABLE attachment MODIFY content LONGTEXT");
     }
 
     @Test

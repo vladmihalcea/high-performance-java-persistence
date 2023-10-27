@@ -30,6 +30,14 @@ public class YugabyteDBColumnLevelLockingReadCommittedTest extends AbstractTest 
     }
 
     @Override
+    public void init() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
+        super.init();
+    }
+
+    @Override
     protected void afterInit() {
         doInJPA(entityManager -> {
             entityManager.persist(
@@ -43,6 +51,9 @@ public class YugabyteDBColumnLevelLockingReadCommittedTest extends AbstractTest 
 
     @Test
     public void test() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         doInJPA(entityManager -> {
             Book post = entityManager.find(Book.class, 1L);
             post.setPriceCents(3995);
@@ -67,6 +78,9 @@ public class YugabyteDBColumnLevelLockingReadCommittedTest extends AbstractTest 
 
     @Test
     public void testUpdateSameColumn() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         doInJPA(entityManager -> {
             executeStatement(entityManager, "set default_transaction_isolation to \"read committed\";");
 

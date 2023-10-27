@@ -24,21 +24,12 @@ public class PostgreSQLEncryptTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
     protected void afterInit() {
-        doInJPA(entityManager -> {
-            entityManager.createNativeQuery(
-                "CREATE EXTENSION IF NOT EXISTS pgcrypto"
-            ).executeUpdate();
-        });
+        executeStatement("CREATE EXTENSION IF NOT EXISTS \"pgcrypto\"");
     }
 
     @Override
-    public void destroy() {
-        doInJPA(entityManager -> {
-            entityManager.createNativeQuery(
-                "DROP EXTENSION pgcrypto CASCADE"
-            ).executeUpdate();
-        });
-        super.destroy();
+    public void afterDestroy() {
+        executeStatement("DROP EXTENSION \"pgcrypto\" CASCADE");
     }
 
     @Test

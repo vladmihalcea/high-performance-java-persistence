@@ -109,7 +109,7 @@ public class PostgreSQLJsonBinaryTypeNativeTest extends AbstractPostgreSQLIntegr
                             .setReview("The best JPA ORM book out there")
                             .setRating(5)
                     ),
-                    JsonBinaryType.INSTANCE
+                    new JsonBinaryType(BookProperties.class)
                 )
                 .executeUpdate();
 
@@ -144,7 +144,7 @@ public class PostgreSQLJsonBinaryTypeNativeTest extends AbstractPostgreSQLIntegr
                         .setWidth(new BigDecimal("8.5"))
                         .setHeight(new BigDecimal("11"))
                         .setWeight(new BigDecimal("2.5")),
-                    JsonBinaryType.INSTANCE
+                    new JsonBinaryType(BookProperties.class)
                 )
                 .executeUpdate();
 

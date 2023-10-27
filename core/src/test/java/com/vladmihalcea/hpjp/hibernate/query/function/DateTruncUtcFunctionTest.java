@@ -4,12 +4,18 @@ import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import jakarta.persistence.*;
 import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.spi.MetadataBuilderContributor;
-import org.hibernate.dialect.function.StandardSQLFunction;
-import org.hibernate.type.StandardBasicTypes;
+import org.hibernate.query.sqm.function.NamedSqmFunctionDescriptor;
+import org.hibernate.query.sqm.produce.function.StandardArgumentsValidators;
+import org.hibernate.sql.ast.SqlAstNodeRenderingMode;
+import org.hibernate.sql.ast.SqlAstTranslator;
+import org.hibernate.sql.ast.spi.SqlAppender;
+import org.hibernate.sql.ast.tree.SqlAstNode;
+import org.hibernate.sql.ast.tree.expression.Expression;
 import org.junit.Test;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -22,27 +28,48 @@ public class DateTruncUtcFunctionTest extends AbstractPostgreSQLIntegrationTest 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
+            Post.class,
         };
     }
 
     @Override
     protected void additionalProperties(Properties properties) {
         properties.put(
-                "hibernate.metadata_builder_contributor",
-                SqlFunctionsMetadataBuilderContributor.class
+            "hibernate.metadata_builder_contributor",
+            SqlFunctionsMetadataBuilderContributor.class
         );
     }
 
     public static class SqlFunctionsMetadataBuilderContributor
-            implements MetadataBuilderContributor {
+        implements MetadataBuilderContributor {
 
         @Override
         public void contribute(MetadataBuilder metadataBuilder) {
             metadataBuilder.applySqlFunction(
                 "date_trunc",
-                new StandardSQLFunction("date_trunc('day', (?1 AT TIME ZONE 'UTC'))", false, StandardBasicTypes.TIMESTAMP)
+                DateTruncFunction.INSTANCE
             );
+        }
+
+        public static class DateTruncFunction extends NamedSqmFunctionDescriptor {
+
+            public static final DateTruncFunction INSTANCE = new DateTruncFunction();
+
+            public DateTruncFunction() {
+                super(
+                    "date_trunc",
+                    false,
+                    StandardArgumentsValidators.exactly(1),
+                    null
+                );
+            }
+
+            public void render(SqlAppender sqlAppender, List<? extends SqlAstNode> arguments, SqlAstTranslator<?> walker) {
+                Expression timestamp = (Expression) arguments.get(0);
+                sqlAppender.appendSql("date_trunc('day', (");
+                walker.render(timestamp, SqlAstNodeRenderingMode.DEFAULT);
+                sqlAppender.appendSql(" AT TIME ZONE 'UTC'))");
+            }
         }
     }
 
@@ -63,12 +90,12 @@ public class DateTruncUtcFunctionTest extends AbstractPostgreSQLIntegrationTest 
     public void test() {
         doInJPA(entityManager -> {
             Tuple tuple = entityManager
-            .createQuery(
-                "select p.title as title, date_trunc(p.createdOn) as creation_date " +
-                "from Post p " +
-                "where p.id = :postId", Tuple.class)
-            .setParameter("postId", 1L)
-            .getSingleResult();
+                .createQuery(
+                    "select p.title as title, date_trunc(p.createdOn) as creation_date " +
+                    "from Post p " +
+                    "where p.id = :postId", Tuple.class)
+                .setParameter("postId", 1L)
+                .getSingleResult();
 
             assertEquals("High-Performance Java Persistence", tuple.get("title"));
             assertEquals(Timestamp.valueOf(LocalDateTime.of(2018, 11, 23, 0, 0, 0)), tuple.get("creation_date"));

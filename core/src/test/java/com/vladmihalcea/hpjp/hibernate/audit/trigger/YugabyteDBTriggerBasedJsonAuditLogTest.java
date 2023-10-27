@@ -34,6 +34,14 @@ public class YugabyteDBTriggerBasedJsonAuditLogTest extends AbstractTest {
     }
 
     @Override
+    public void init() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
+        super.init();
+    }
+
+    @Override
     protected void afterInit() {
         executeStatement("DROP TYPE dml_type CASCADE");
         executeStatement("CREATE TYPE dml_type AS ENUM ('INSERT', 'UPDATE', 'DELETE')");
@@ -156,8 +164,10 @@ public class YugabyteDBTriggerBasedJsonAuditLogTest extends AbstractTest {
     }
 
     @Test
-    @Ignore
     public void test() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         LoggedUser.logIn("Vlad Mihalcea");
 
         AtomicInteger auditLogCount = new AtomicInteger();

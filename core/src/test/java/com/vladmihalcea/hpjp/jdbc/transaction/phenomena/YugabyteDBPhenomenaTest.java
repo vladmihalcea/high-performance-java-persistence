@@ -4,9 +4,8 @@ import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.YugabyteDBDataSourceProvider;
 import org.junit.runners.Parameterized;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 
 /**
  * YugabyteDBPhenomenaTest - Test to validate YugabyteDB phenomena
@@ -24,10 +23,11 @@ public class YugabyteDBPhenomenaTest extends AbstractPhenomenaTest {
         return new YugabyteDBDataSourceProvider();
     }
 
-    //Ignore test
     @Parameterized.Parameters
     public static Collection<Object[]> isolationLevels() {
-        List<Object[]> levels = new ArrayList<>();
-        return levels;
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return Collections.emptyList();
+        }
+        return AbstractPhenomenaTest.isolationLevels();
     }
 }

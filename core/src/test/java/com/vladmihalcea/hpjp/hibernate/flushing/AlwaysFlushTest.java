@@ -9,7 +9,6 @@ import org.hibernate.transform.Transformers;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
-import java.math.BigInteger;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -74,7 +73,7 @@ public class AlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
                 """)
             .unwrap(NativeQuery.class)
             .setHibernateFlushMode(FlushMode.ALWAYS)
-            .setResultTransformer(Transformers.aliasToBean(ForumCount.class))
+            .setTupleTransformer(Transformers.aliasToBean(ForumCount.class))
             .getResultList();
 
             assertEquals(result.size(), 2);
@@ -122,7 +121,7 @@ public class AlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
             .unwrap(NativeQuery.class)
             .addSynchronizedEntityClass(Board.class)
             .addSynchronizedEntityClass(Post.class)
-            .setResultTransformer(Transformers.aliasToBean(ForumCount.class))
+            .setTupleTransformer(Transformers.aliasToBean(ForumCount.class))
             .getResultList();
 
             assertEquals(result.size(), 2);
@@ -133,7 +132,7 @@ public class AlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
 
         private String forumName;
 
-        private BigInteger postCount;
+        private long postCount;
 
         public String getForumName() {
             return forumName;
@@ -143,12 +142,12 @@ public class AlwaysFlushTest extends AbstractPostgreSQLIntegrationTest {
             this.forumName = forumName;
         }
 
-        public BigInteger getPostCount() {
+        public long getPostCount() {
             return postCount;
         }
 
-        public void setPostCount(BigInteger postCount) {
-            this.postCount = postCount;
+        public void setPostCount(Number postCount) {
+            this.postCount = postCount.longValue();
         }
     }
 

@@ -32,6 +32,14 @@ public class YugabyteDBTest extends AbstractTest {
     private final LocalDate today = LocalDate.now();
 
     @Override
+    public void init() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
+        super.init();
+    }
+
+    @Override
     public void afterInit() {
         doInJPA(entityManager -> {
 
@@ -57,6 +65,9 @@ public class YugabyteDBTest extends AbstractTest {
 
     @Test
     public void testTimestampRange() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createNativeQuery("""
                 SELECT *

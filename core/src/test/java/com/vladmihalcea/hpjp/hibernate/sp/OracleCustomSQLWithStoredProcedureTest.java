@@ -1,6 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.sp;
 
 import com.vladmihalcea.hpjp.util.AbstractOracleIntegrationTest;
+import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.Loader;
 import org.hibernate.annotations.ResultCheckStyle;
@@ -9,7 +10,6 @@ import org.hibernate.annotations.SQLInsert;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
-import jakarta.persistence.*;
 import java.sql.Statement;
 
 import static org.junit.Assert.assertNotNull;

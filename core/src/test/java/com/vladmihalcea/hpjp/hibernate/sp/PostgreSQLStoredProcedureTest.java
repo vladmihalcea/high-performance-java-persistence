@@ -3,6 +3,8 @@ package com.vladmihalcea.hpjp.hibernate.sp;
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureQuery;
 import org.hibernate.Session;
 import org.hibernate.procedure.ProcedureCall;
 import org.hibernate.procedure.ProcedureOutputs;
@@ -10,9 +12,6 @@ import org.hibernate.result.Output;
 import org.hibernate.result.ResultSetOutput;
 import org.junit.Before;
 import org.junit.Test;
-
-import jakarta.persistence.ParameterMode;
-import jakarta.persistence.StoredProcedureQuery;
 
 import java.sql.*;
 import java.util.List;

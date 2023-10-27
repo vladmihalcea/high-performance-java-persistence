@@ -1,21 +1,13 @@
 package com.vladmihalcea.hpjp.hibernate.query.spatial;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import jakarta.persistence.*;
-import jakarta.persistence.spi.PersistenceUnitInfo;
-import org.hibernate.annotations.JavaType;
-import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
-import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
-import org.hibernate.spatial.JTSGeometryJavaType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -32,64 +24,13 @@ public class SpatialTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Override
-    public void init() {
-        PersistenceUnitInfo persistenceUnitInfo = persistenceUnitInfo(getClass().getSimpleName());
-        persistenceUnitInfo.getProperties().put(AvailableSettings.HBM2DDL_AUTO, "none");
-        Map<String, Object> configuration = new HashMap<>();
-        EntityManagerFactoryBuilderImpl entityManagerFactoryBuilder = new EntityManagerFactoryBuilderImpl(
-            new PersistenceUnitInfoDescriptor(persistenceUnitInfo), configuration
-        );
-        EntityManagerFactory entityManagerFactory = entityManagerFactoryBuilder.build();
-
-        EntityManager entityManager = null;
-        EntityTransaction txn = null;
-        try {
-            entityManager = entityManagerFactory.createEntityManager();
-            txn = entityManager.getTransaction();
-            txn.begin();
-
-            entityManager.createNativeQuery(
-                    "CREATE EXTENSION IF NOT EXISTS postgis"
-            ).executeUpdate();
-
-            if ( !txn.getRollbackOnly() ) {
-                txn.commit();
-            }
-            else {
-                try {
-                    txn.rollback();
-                }
-                catch (Exception e) {
-                    LOGGER.error( "Rollback failure", e );
-                }
-            }
-        } catch (Throwable t) {
-            if ( txn != null && txn.isActive() ) {
-                try {
-                    txn.rollback();
-                }
-                catch (Exception e) {
-                    LOGGER.error( "Rollback failure", e );
-                }
-            }
-            throw t;
-        } finally {
-            if (entityManager != null) {
-                entityManager.close();
-            }
-            entityManagerFactory.close();
-        }
-        super.init();
+    protected void beforeInit() {
+        executeStatement("CREATE EXTENSION IF NOT EXISTS \"postgis\"");
     }
 
     @Override
-    public void destroy() {
-        doInJPA(entityManager -> {
-            entityManager.createNativeQuery(
-                    "DROP EXTENSION postgis CASCADE"
-            ).executeUpdate();
-        });
-        super.destroy();
+    public void afterDestroy() {
+        executeStatement("DROP EXTENSION \"postgis\" CASCADE");
     }
 
     @Test
@@ -127,7 +68,6 @@ public class SpatialTest extends AbstractPostgreSQLIntegrationTest {
 
         private String number;
 
-        @JavaType(JTSGeometryJavaType.class)
         private Point location;
 
         public Long getId() {

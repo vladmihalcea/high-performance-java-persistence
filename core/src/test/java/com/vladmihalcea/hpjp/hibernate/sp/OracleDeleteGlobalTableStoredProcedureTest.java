@@ -1,13 +1,13 @@
 package com.vladmihalcea.hpjp.hibernate.sp;
 
 import com.vladmihalcea.hpjp.util.AbstractOracleIntegrationTest;
-import org.junit.Test;
-
 import jakarta.persistence.*;
+import org.junit.Test;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Date;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 /**
