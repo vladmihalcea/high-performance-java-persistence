@@ -15,7 +15,7 @@ public class TenantContext {
         TENANT_IDENTIFIER.set(tenantIdentifier);
     }
 
-    public static void reset(String tenantIdentifier) {
+    public static void reset() {
         TENANT_IDENTIFIER.remove();
     }
 
@@ -32,5 +32,4 @@ public class TenantContext {
             return false;
         }
     }
-
 }

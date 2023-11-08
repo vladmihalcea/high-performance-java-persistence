@@ -3,10 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.criteria.blaze.bulk;
 import jakarta.persistence.*;
 
 /**
- * The {@link PostComment}
- *
  * @author Vlad Mihalcea
- * @since 1.x.y
  */
 @Entity(name = "PostComment")
 @Table(name = "post_comment")

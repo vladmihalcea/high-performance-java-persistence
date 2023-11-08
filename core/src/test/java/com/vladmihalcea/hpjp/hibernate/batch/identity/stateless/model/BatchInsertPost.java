@@ -5,10 +5,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.SQLInsert;
 
 /**
- * The {@link BatchInsertPost}
- *
  * @author Vlad Mihalcea
- * @since 1.x.y
  */
 @Entity(name = "Post")
 @Table(name = "post")
