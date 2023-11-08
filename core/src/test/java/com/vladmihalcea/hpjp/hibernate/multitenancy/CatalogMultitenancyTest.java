@@ -26,8 +26,8 @@ public class CatalogMultitenancyTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                User.class,
-                Post.class
+            User.class,
+            Post.class
         };
     }
 
@@ -58,9 +58,7 @@ public class CatalogMultitenancyTest extends AbstractTest {
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try(Statement statement = connection.createStatement()) {
                     statement.executeUpdate(String.format("drop database if exists %s", catalogName));
-
                     statement.executeUpdate(String.format("create database %s", catalogName));
-
                     statement.executeUpdate(String.format("USE %s", catalogName));
 
                     statement.executeUpdate("create table posts (id bigint not null auto_increment, created_on datetime(6), title varchar(255), user_id bigint, primary key (id)) engine=InnoDB");
@@ -84,8 +82,8 @@ public class CatalogMultitenancyTest extends AbstractTest {
         tenantDataSource.setPassword(dataSourceProvider.password());
 
         properties.put(
-                Environment.DATASOURCE,
-                dataSourceProxyType().dataSource(tenantDataSource)
+            Environment.DATASOURCE,
+            dataSourceProxyType().dataSource(tenantDataSource)
         );
 
         addTenantConnectionProvider(tenantId, tenantDataSource, properties);
@@ -96,7 +94,7 @@ public class CatalogMultitenancyTest extends AbstractTest {
         connectionProvider.setDataSource(tenantDataSource);
         connectionProvider.configure(properties);
         MultiTenantConnectionProvider.INSTANCE.getConnectionProviderMap().put(
-                tenantId, connectionProvider
+            tenantId, connectionProvider
         );
     }
 

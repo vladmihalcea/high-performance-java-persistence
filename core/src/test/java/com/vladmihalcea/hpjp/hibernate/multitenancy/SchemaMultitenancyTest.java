@@ -8,7 +8,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Environment;
 import org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.postgresql.ds.PGSimpleDataSource;
 
@@ -26,8 +25,8 @@ public class SchemaMultitenancyTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                User.class,
-                Post.class
+            User.class,
+            Post.class
         };
     }
 
@@ -57,12 +56,11 @@ public class SchemaMultitenancyTest extends AbstractTest {
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try(Statement statement = connection.createStatement()) {
                     statement.executeUpdate(String.format("drop schema if exists %s cascade", schemaName));
-
                     statement.executeUpdate(String.format("create schema %s", schemaName));
-
                     statement.executeUpdate(String.format("SET search_path TO %s,public", schemaName));
 
-                    statement.executeUpdate("create sequence hibernate_sequence start 1 increment 1");
+                    statement.executeUpdate("create sequence if not exists users_seq start 1 increment 1");
+                    statement.executeUpdate("create sequence if not exists posts_seq start 1 increment 1");
                     statement.executeUpdate("create table posts (id int8 not null, created_on timestamp, title varchar(255), user_id int8, primary key (id))");
                     statement.executeUpdate("create table users (id int8 not null, registered_on timestamp, firstName varchar(255), lastName varchar(255), primary key (id))");
                     statement.executeUpdate("alter table if exists posts add constraint fk_user_id foreign key (user_id) references users");
@@ -88,8 +86,8 @@ public class SchemaMultitenancyTest extends AbstractTest {
         tenantDataSource.setPassword(defaultDataSource.getPassword());
 
         properties.put(
-                Environment.DATASOURCE,
-                dataSourceProxyType().dataSource(tenantDataSource)
+            Environment.DATASOURCE,
+            dataSourceProxyType().dataSource(tenantDataSource)
         );
 
         addTenantConnectionProvider(tenantId, tenantDataSource, properties);
@@ -100,20 +98,19 @@ public class SchemaMultitenancyTest extends AbstractTest {
         connectionProvider.setDataSource(tenantDataSource);
         connectionProvider.configure(properties);
         MultiTenantConnectionProvider.INSTANCE.getConnectionProviderMap().put(
-                tenantId, connectionProvider
+            tenantId, connectionProvider
         );
     }
 
     @Test
-    @Ignore
     public void test() {
         TenantContext.setTenant("europe");
 
         User vlad = doInJPA(entityManager -> {
 
             LOGGER.info(
-                    "Current schema: {}",
-                    entityManager.createNativeQuery("select current_schema()").getSingleResult()
+                "Current schema: {}",
+                entityManager.createNativeQuery("select current_schema()").getSingleResult()
             );
 
             User user = new User();
@@ -130,8 +127,8 @@ public class SchemaMultitenancyTest extends AbstractTest {
         doInJPA(entityManager -> {
 
             LOGGER.info(
-                    "Current schema: {}",
-                    entityManager.createNativeQuery("select current_schema()").getSingleResult()
+                "Current schema: {}",
+                entityManager.createNativeQuery("select current_schema()").getSingleResult()
             );
 
             User user = new User();
@@ -146,8 +143,8 @@ public class SchemaMultitenancyTest extends AbstractTest {
         doInJPA(entityManager -> {
 
             LOGGER.info(
-                    "Current schema: {}",
-                    entityManager.createNativeQuery("select current_schema()").getSingleResult()
+                "Current schema: {}",
+                entityManager.createNativeQuery("select current_schema()").getSingleResult()
             );
 
             Post post = new Post();
