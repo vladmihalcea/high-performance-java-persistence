@@ -505,15 +505,15 @@
 
         <argLine>-Xms1024m -Xmx1024m -DObjectStoreEnvironmentBean.objectStoreDir=${project.build.directory} -Dcom.arjuna.ats.arjuna.objectstore.objectStoreDir=${project.build.directory}</argLine>
 
-        <slf4j.version>1.7.25</slf4j.version>
-        <logback.version>1.2.3</logback.version>
+        <slf4j.version>1.7.36</slf4j.version>
+        <logback.version>1.2.11</logback.version>
         <commons-lang.version>3.12.0</commons-lang.version>
         <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
         <hibernate.version>6.2.13.Final</hibernate.version>
         <hibernate.validator.version>6.2.1.Final</hibernate.validator.version>
         <javassist.version>3.18.1-GA</javassist.version>
         <ehcache.version>3.10.0</ehcache.version>
-        <datasource-proxy.version>1.6</datasource-proxy.version>
+        <datasource-proxy.version>1.7</datasource-proxy.version>
         <p6spy.version>3.9.1</p6spy.version>
 
         <testcontainers.version>1.18.3</testcontainers.version>
@@ -532,14 +532,14 @@
         <javax.transaction.version>1.1</javax.transaction.version>
 
         <dropwizard.metrics.version>3.1.0</dropwizard.metrics.version>
-        <hikari.version>4.0.3</hikari.version>
+        <hikari.version>5.0.1</hikari.version>
         <flexy-pool.version>2.0.0</flexy-pool.version>
 
         <aspectj.version>1.9.19</aspectj.version>
         <spring.version>6.0.8</spring.version>
         <spring-data.version>3.0.7</spring-data.version>
 
-        <jackson.version>2.12.7.1</jackson.version>
+        <jackson.version>2.13.2.2</jackson.version>
 
         <flyway.version>6.4.4</flyway.version>
         <hypersistence-utils.version>3.5.3</hypersistence-utils.version>
@@ -549,7 +549,7 @@
 
         <hypersistence-optimizer.version>2.4.2</hypersistence-optimizer.version>
 
-        <junit.version>4.13.1</junit.version>
+        <junit.version>4.13.2</junit.version>
     </properties>
 
     <repositories>
