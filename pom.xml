@@ -539,7 +539,7 @@
         <spring.version>6.0.8</spring.version>
         <spring-data.version>3.0.7</spring-data.version>
 
-        <jackson.version>2.13.2.2</jackson.version>
+        <jackson.version>2.13.4.2</jackson.version>
 
         <flyway.version>6.4.4</flyway.version>
         <hypersistence-utils.version>3.5.3</hypersistence-utils.version>
