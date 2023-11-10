@@ -252,14 +252,12 @@ public class SQLServerTriggerBasedJsonAuditLogTest extends AbstractTest {
             LoggedUser.get()
         );
 
-        session.doWork(connection -> {
-            update(
-                connection,
-                String.format(
-                    "EXEC sys.sp_set_session_context @key = N'loggedUser', @value = N%s, @read_only = 1", loggedUser
-                )
-            );
-        });
+        session.doWork(connection -> update(
+            connection,
+            String.format(
+                "EXEC sys.sp_set_session_context @key = N'loggedUser', @value = N%s, @read_only = 1", loggedUser
+            )
+        ));
     }
 
     private List<Tuple> getPostRevisions(EntityManager entityManager) {

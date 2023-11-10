@@ -216,14 +216,12 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
         Dialect dialect = session.getSessionFactory().unwrap(SessionFactoryImplementor.class).getJdbcServices().getDialect();
         String loggedUser = dialect.inlineLiteral(LoggedUser.get());
 
-        session.doWork(connection -> {
-            update(
-                connection,
-                String.format(
-                    "SET LOCAL var.logged_user = %s", loggedUser
-                )
-            );
-        });
+        session.doWork(connection -> update(
+            connection,
+            String.format(
+                "SET LOCAL var.logged_user = %s", loggedUser
+            )
+        ));
     }
 
     private List<Tuple> getPostRevisions(EntityManager entityManager) {
