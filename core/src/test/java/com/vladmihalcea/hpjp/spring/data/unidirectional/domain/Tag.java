@@ -1,23 +1,21 @@
 package com.vladmihalcea.hpjp.spring.data.unidirectional.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import org.hibernate.annotations.NaturalId;
 
 /**
  * @author Vlad Mihalcea
  */
 @Entity
-@Table(name = "tag")
-public class Tag {
+@Table(name = "tags")
+public class Tag extends VersionedEntity {
 
     @Id
     @GeneratedValue
     private Long id;
 
     @NaturalId
+    @Column(length = 40)
     private String name;
 
     public Long getId() {

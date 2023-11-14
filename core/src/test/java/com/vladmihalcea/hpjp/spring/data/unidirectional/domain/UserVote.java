@@ -6,8 +6,8 @@ import jakarta.persistence.*;
  * @author Vlad Mihalcea
  */
 @Entity
-@Table(name = "user_vote")
-public class UserVote {
+@Table(name = "user_votes")
+public class UserVote extends VersionedEntity {
 
     @Id
     @GeneratedValue

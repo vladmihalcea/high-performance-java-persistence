@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.spring.data.unidirectional.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -8,12 +9,13 @@ import jakarta.persistence.Table;
  * @author Vlad Mihalcea
  */
 @Entity
-@Table(name = "post")
-public class Post {
+@Table(name = "posts")
+public class Post extends VersionedEntity {
 
     @Id
     private Long id;
 
+    @Column(length = 250)
     private String title;
 
     public Long getId() {

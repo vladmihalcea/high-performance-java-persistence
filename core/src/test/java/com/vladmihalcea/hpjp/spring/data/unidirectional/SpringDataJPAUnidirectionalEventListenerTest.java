@@ -58,11 +58,13 @@ public class SpringDataJPAUnidirectionalEventListenerTest {
         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
             User alice = new User()
                 .setId(1L)
-                .setName("Alice");
+                .setFirstName("Alice")
+                .setLastName("Smith");
 
             User bob = new User()
                 .setId(2L)
-                .setName("Bob");
+                .setFirstName("Bob")
+                .setLastName("Johnson");
 
             userRepository.persist(alice);
             userRepository.persist(bob);

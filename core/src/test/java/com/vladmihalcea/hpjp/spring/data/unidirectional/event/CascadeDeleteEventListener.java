@@ -22,10 +22,11 @@ public class CascadeDeleteEventListener implements DeleteEventListener {
         Session session = event.getSession();
 
         if (entity instanceof Post post) {
-            PostDetails details = session.find(PostDetails.class, post.getId());
-            session.remove(details);
+            session.remove(
+                session.find(PostDetails.class, post.getId())
+            );
 
-            List<UserVote> userVotes = session.createQuery("""
+            session.createQuery("""
                 select uv
                 from UserVote uv
                 where uv.comment.id in (
@@ -35,35 +36,26 @@ public class CascadeDeleteEventListener implements DeleteEventListener {
                 )
                 """, UserVote.class)
             .setParameter("postId", post.getId())
-            .getResultList();
+            .getResultList()
+            .forEach(session::remove);
 
-            for(UserVote userVote : userVotes) {
-                session.remove(userVote);
-            }
-
-            List<PostComment> comments = session.createQuery("""
+            session.createQuery("""
                 select pc
                 from PostComment pc
                 where pc.post.id = :postId
                 """, PostComment.class)
             .setParameter("postId", post.getId())
-            .getResultList();
+            .getResultList()
+            .forEach(session::remove);
 
-            for(PostComment comment : comments) {
-                session.remove(comment);
-            }
-
-            List<PostTag> postTags = session.createQuery("""
+            session.createQuery("""
                 select pt
                 from PostTag pt
                 where pt.post.id = :postId
                 """, PostTag.class)
             .setParameter("postId", post.getId())
-            .getResultList();
-
-            for(PostTag postTag : postTags) {
-                session.remove(postTag);
-            }
+            .getResultList()
+            .forEach(session::remove);
         }
     }
 

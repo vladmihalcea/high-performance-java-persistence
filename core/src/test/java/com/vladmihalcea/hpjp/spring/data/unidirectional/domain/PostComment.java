@@ -6,8 +6,8 @@ import jakarta.persistence.*;
  * @author Vlad Mihalcea
  */
 @Entity
-@Table(name = "post_comment")
-public class PostComment {
+@Table(name = "post_comments")
+public class PostComment extends VersionedEntity {
 
     @Id
     @GeneratedValue
@@ -21,6 +21,7 @@ public class PostComment {
     )
     private Post post;
 
+    @Column(length = 250)
     private String review;
 
     public Long getId() {

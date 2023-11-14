@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "post_details")
-public class PostDetails {
+public class PostDetails extends VersionedEntity {
 
     @Id
     private Long id;
@@ -46,6 +46,9 @@ public class PostDetails {
     public PostDetails setPost(Post post) {
         this.post = post;
         this.id = post.getId();
+        if (getVersion() == null) {
+            setVersion(post.getVersion());
+        }
         return this;
     }
 

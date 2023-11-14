@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.spring.data.unidirectional.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -8,13 +9,17 @@ import jakarta.persistence.Table;
  * @author Vlad Mihalcea
  */
 @Entity
-@Table(name = "blog_user")
-public class User {
+@Table(name = "users")
+public class User extends VersionedEntity {
 
     @Id
     private Long id;
 
-    private String name;
+    @Column(name = "first_name", length = 50)
+    private String firstName;
+
+    @Column(name = "last_name", length = 50)
+    private String lastName;
 
     public Long getId() {
         return id;
@@ -25,12 +30,21 @@ public class User {
         return this;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public User setName(String name) {
-        this.name = name;
+    public User setFirstName(String firstName) {
+        this.firstName = firstName;
+        return this;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public User setLastName(String lastName) {
+        this.lastName = lastName;
         return this;
     }
 }

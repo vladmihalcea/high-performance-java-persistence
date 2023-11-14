@@ -5,8 +5,6 @@ import com.vladmihalcea.hpjp.spring.data.unidirectional.domain.*;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.repository.*;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.service.ForumService;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,12 +62,22 @@ public class SpringDataJPAUnidirectionalBulkTest {
     @Autowired
     private ForumService forumService;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @Before
     public void init() {
         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            User alice = new User()
+                .setId(1L)
+                .setFirstName("Alice")
+                .setLastName("Smith");
+
+            User bob = new User()
+                .setId(2L)
+                .setFirstName("Bob")
+                .setLastName("Johnson");
+
+            userRepository.persist(alice);
+            userRepository.persist(bob);
+
             Post post = new Post()
                 .setId(1L)
                 .setTitle("High-Performance Java Persistence");
@@ -91,17 +99,6 @@ public class SpringDataJPAUnidirectionalBulkTest {
 
             postCommentRepository.persist(comment1);
             postCommentRepository.persist(comment2);
-
-            User alice = new User()
-                .setId(1L)
-                .setName("Alice");
-
-            User bob = new User()
-                .setId(2L)
-                .setName("Bob");
-
-            userRepository.persist(alice);
-            userRepository.persist(bob);
 
             userVoteRepository.persist(
                 new UserVote()

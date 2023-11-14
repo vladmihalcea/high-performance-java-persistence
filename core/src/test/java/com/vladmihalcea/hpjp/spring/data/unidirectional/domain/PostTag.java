@@ -9,8 +9,8 @@ import java.util.Objects;
  * @author Vlad Mihalcea
  */
 @Entity
-@Table(name = "post_tag")
-public class PostTag {
+@Table(name = "post_tags")
+public class PostTag extends VersionedEntity {
 
     @EmbeddedId
     private PostTagId id;
