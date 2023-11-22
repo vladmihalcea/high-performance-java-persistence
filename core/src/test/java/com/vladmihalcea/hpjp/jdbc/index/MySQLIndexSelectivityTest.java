@@ -2,32 +2,30 @@ package com.vladmihalcea.hpjp.jdbc.index;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
 import jakarta.persistence.*;
-import org.hibernate.annotations.Type;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.postgresql.PGStatement;
-import org.postgresql.util.PGobject;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 /**
  * PostgresIndexSelectivityTest - Test PostgreSQL index selectivity
  *
  * @author Vlad Mihalcea
  */
-public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegrationTest {
+public class MySQLIndexSelectivityTest extends AbstractPostgreSQLIntegrationTest {
 
     public static final String INSERT_TASK = "INSERT INTO task (id, name, status) VALUES (?, ?, ?)";
 
@@ -39,39 +37,29 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
     }
 
     @Override
-    protected void beforeInit() {
-        executeStatement("DROP TYPE IF EXISTS task_status");
-        executeStatement("CREATE TYPE task_status AS ENUM ('TO_DO', 'DONE', 'FAILED')");
-    }
-
-    @Override
     protected Database database() {
-        return Database.POSTGRESQL;
-    }
-
-    @Override
-    protected void additionalProperties(Properties properties) {
-        properties.put("hibernate.jdbc.batch_size", "50");
+        return Database.MYSQL;
     }
 
     @Test
-    public void testSelectivity() {
+    @Ignore("Requires changes")
+    public void testInsert() {
         AtomicInteger statementCount = new AtomicInteger();
         long startNanos = System.nanoTime();
         doInJDBC(connection -> {
             try (PreparedStatement statement = connection.prepareStatement(INSERT_TASK)) {
                 int taskCount = getTaskCount();
 
-                for (int i = 1; i <= taskCount; i++) {
-                    Task.Status status = Task.Status.DONE;
+                for (int i = 0; i < taskCount; i++) {
+                    String status = Task.Status.DONE.name();
                     if (i > 99000) {
-                        status = Task.Status.TO_DO;
+                        status = Task.Status.TO_DO.name();
                     } else if (i > 95000) {
-                        status = Task.Status.FAILED;
+                        status = Task.Status.FAILED.name();
                     }
                     statement.setLong(1, i);
                     statement.setString(2, String.format("Task %d", i));
-                    statement.setObject(3, toPgObject(status), Types.OTHER);
+                    statement.setString(3, status);
                     executeStatement(statement, statementCount);
                 }
                 statement.executeBatch();
@@ -82,52 +70,13 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
         LOGGER.info("{}.testInsert took {} millis",
                 getClass().getSimpleName(),
                 TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
-        executeStatement("CREATE INDEX IF NOT EXISTS idx_task_status ON task (status)");
-        executeStatement("VACUUM ANALYZE");
+        executeStatement("CREATE INDEX idx_task_status ON task (status)");
+        executeStatement("OPTIMIZE TABLE task");
 
         doInJDBC(connection -> {
             printExecutionPlanForSelectByStatus(connection, Task.Status.DONE);
             printExecutionPlanForSelectByStatus(connection, Task.Status.TO_DO);
         });
-
-        LOGGER.info("Using a Partial Index");
-
-        executeStatement("DROP INDEX IF EXISTS idx_task_status");
-        executeStatement("CREATE INDEX idx_task_status ON task (status) WHERE status <> 'DONE'");
-        executeStatement("VACUUM ANALYZE");
-
-        doInJDBC(connection -> {
-            printExecutionPlanForSelectByStatus(connection, Task.Status.DONE);
-            printExecutionPlanForSelectByStatus(connection, Task.Status.TO_DO);
-        });
-    }
-
-    public boolean isUseServerPrepare(Statement statement) {
-        if(statement instanceof PGStatement) {
-            PGStatement pgStatement = (PGStatement) statement;
-            return pgStatement.isUseServerPrepare();
-        } else {
-            InvocationHandler handler = Proxy.getInvocationHandler(statement);
-            try {
-                return (boolean) handler.invoke(statement, PGStatement.class.getMethod("isUseServerPrepare"), null);
-            } catch (Throwable e) {
-                throw new IllegalArgumentException(e);
-            }
-        }
-    }
-
-    public void setPrepareThreshold(Statement statement, int threshold) throws SQLException {
-        if(statement instanceof PGStatement) {
-            PGStatement pgStatement = (PGStatement) statement;
-            pgStatement.setPrepareThreshold(threshold);
-        } else {
-            InvocationHandler handler = Proxy.getInvocationHandler(statement);
-            try {
-                handler.invoke(statement, PGStatement.class.getMethod("setPrepareThreshold", int.class), new Object[]{threshold});
-            } catch (Throwable throwable) {
-                throw new IllegalArgumentException(throwable);
-            }
-        }
     }
 
     private void executeStatement(PreparedStatement statement, AtomicInteger statementCount) throws SQLException {
@@ -139,7 +88,7 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
     }
 
     protected int getTaskCount() {
-        return 100 * 1000;
+        return 250 * 1000;
     }
 
     protected int getBatchSize() {
@@ -148,16 +97,13 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
 
     private void printExecutionPlanForSelectByStatus(Connection connection, Task.Status status) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement("""
-                EXPLAIN ANALYZE
+                EXPLAIN FORMAT=JSON
                 SELECT *
                 FROM task
                 WHERE status = ?
                 """
         )) {
-
-            assertFalse(isUseServerPrepare(statement));
-            setPrepareThreshold(statement, 1);
-            statement.setObject(1, toPgObject(status), Types.OTHER);
+            statement.setString(1, status.name());
             ResultSet resultSet = statement.executeQuery();
 
             List<String> planLines = new ArrayList<>();
@@ -168,16 +114,7 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
                 System.lineSeparator(),
                 planLines.stream().collect(Collectors.joining(System.lineSeparator()))
             );
-
-            assertTrue(isUseServerPrepare(statement));
         }
-    }
-
-    protected PGobject toPgObject(Task.Status status) throws SQLException {
-        PGobject object = new PGobject();
-        object.setType("task_status");
-        object.setValue(status.name());
-        return object;
     }
 
     @Entity(name = "Task")
@@ -185,15 +122,12 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
     public static class Task {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private Long id;
 
-        @Column(length = 50)
         private String name;
 
-        @Column(columnDefinition = "task_status")
-        @Type(PostgreSQLEnumType.class)
-        private Task.Status status;
+        @Enumerated(EnumType.STRING)
+        private Status status;
 
         public Long getId() {
             return id;
@@ -213,11 +147,11 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
             return this;
         }
 
-        public Task.Status getStatus() {
+        public Status getStatus() {
             return status;
         }
 
-        public Task setStatus(Task.Status status) {
+        public Task setStatus(Status status) {
             this.status = status;
             return this;
         }
@@ -227,9 +161,9 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
             TO_DO,
             FAILED;
 
-            public static Task.Status random() {
+            public static Status random() {
                 ThreadLocalRandom random = ThreadLocalRandom.current();
-                Task.Status[] values = Task.Status.values();
+                Status[] values = Status.values();
                 return values[random.nextInt(values.length)];
             }
         }
