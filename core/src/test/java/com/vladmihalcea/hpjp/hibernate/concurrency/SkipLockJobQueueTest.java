@@ -4,6 +4,7 @@ import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
+import org.hibernate.query.Query;
 import org.junit.Test;
 
 import jakarta.persistence.*;
@@ -153,8 +154,8 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
             """, Post.class)
         .setParameter("status", status)
         .setMaxResults(postCount)
-        .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-        .setHint("jakarta.persistence.lock.timeout", LockOptions.SKIP_LOCKED)
+        .unwrap(Query.class)
+        .setHibernateLockMode(LockMode.UPGRADE_SKIPLOCKED)
         .getResultList();
     }
 
