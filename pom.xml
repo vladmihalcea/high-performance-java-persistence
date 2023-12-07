@@ -340,6 +340,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-instrument</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
@@ -503,7 +509,7 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <argLine>-Xms1024m -Xmx1024m -DObjectStoreEnvironmentBean.objectStoreDir=${project.build.directory} -Dcom.arjuna.ats.arjuna.objectstore.objectStoreDir=${project.build.directory}</argLine>
+        <argLine>-Xms1024m -Xmx1024m -DObjectStoreEnvironmentBean.objectStoreDir=${project.build.directory} -Dcom.arjuna.ats.arjuna.objectstore.objectStoreDir=${project.build.directory} ${cmd.args}</argLine>
 
         <slf4j.version>1.7.36</slf4j.version>
         <logback.version>1.2.11</logback.version>

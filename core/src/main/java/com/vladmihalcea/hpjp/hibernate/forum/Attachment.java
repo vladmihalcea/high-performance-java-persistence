@@ -19,6 +19,7 @@ public class Attachment {
     private MediaType mediaType;
 
     @Lob
+    @Column(columnDefinition="BLOB")
     @Basic(fetch = FetchType.LAZY)
     private byte[] content;
 
