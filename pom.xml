@@ -28,6 +28,18 @@
                 </property>
             </activation>
         </profile>
+        <profile>
+            <id>hypersistence</id>
+            <dependencies>
+                <dependency>
+                    <groupId>io.hypersistence</groupId>
+                    <artifactId>hypersistence-optimizer</artifactId>
+                    <version>${hypersistence-optimizer.version}</version>
+                    <classifier>jakarta</classifier>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 
     <dependencyManagement>
@@ -446,13 +458,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!--<dependency>
-            <groupId>io.hypersistence</groupId>
-            <artifactId>hypersistence-optimizer</artifactId>
-            <version>${hypersistence-optimizer.version}</version>
-            <scope>test</scope>
-        </dependency>-->
-
         <!-- Test containers -->
 
         <dependency>
@@ -553,7 +558,7 @@
 
         <blaze-persistence.version>1.6.9</blaze-persistence.version>
 
-        <hypersistence-optimizer.version>2.4.2</hypersistence-optimizer.version>
+        <hypersistence-optimizer.version>2.8.1</hypersistence-optimizer.version>
 
         <junit.version>4.13.2</junit.version>
     </properties>

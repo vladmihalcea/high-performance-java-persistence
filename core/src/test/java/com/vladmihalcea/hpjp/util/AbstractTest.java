@@ -1172,4 +1172,8 @@ public abstract class AbstractTest {
 
         return tableBuilder.build().serialize();
     }
+
+    protected boolean isHypersistenceOptimizer() {
+        return ReflectionUtils.getClassOrNull("io.hypersistence.optimizer.HypersistenceOptimizer") != null;
+    }
 }
