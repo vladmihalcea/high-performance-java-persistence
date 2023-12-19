@@ -7,11 +7,11 @@ import com.vladmihalcea.hpjp.util.providers.LockType;
 import com.vladmihalcea.hpjp.util.transaction.*;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import net.steppschuh.markdowngenerator.table.Table;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.spi.PersistenceUnitInfo;
+import net.steppschuh.markdowngenerator.table.Table;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.*;
@@ -89,7 +89,7 @@ public abstract class AbstractTest {
     @Before
     public void init() {
         beforeInit();
-        if(nativeHibernateSessionFactoryBootstrap()) {
+        if (nativeHibernateSessionFactoryBootstrap()) {
             sf = newSessionFactory();
         } else {
             emf = newEntityManagerFactory();
@@ -107,7 +107,7 @@ public abstract class AbstractTest {
 
     @After
     public void destroy() {
-        if(nativeHibernateSessionFactoryBootstrap()) {
+        if (nativeHibernateSessionFactoryBootstrap()) {
             if (sf != null) {
                 sf.close();
             }
@@ -116,7 +116,7 @@ public abstract class AbstractTest {
                 emf.close();
             }
         }
-        for(Closeable closeable : closeables) {
+        for (Closeable closeable : closeables) {
             try {
                 closeable.close();
             } catch (IOException e) {
@@ -136,15 +136,16 @@ public abstract class AbstractTest {
     }
 
     public SessionFactory sessionFactory() {
-        if(nativeHibernateSessionFactoryBootstrap()) {
+        if (nativeHibernateSessionFactoryBootstrap()) {
             return sf;
         }
         EntityManagerFactory entityManagerFactory = entityManagerFactory();
-        if(entityManagerFactory == null) {
+        if (entityManagerFactory == null) {
             return null;
         }
         return entityManagerFactory.unwrap(SessionFactory.class);
     }
+
     protected boolean nativeHibernateSessionFactoryBootstrap() {
         return false;
     }
@@ -175,7 +176,7 @@ public abstract class AbstractTest {
 
         Integrator integrator = integrator();
         if (integrator != null) {
-            bsrb.applyIntegrator( integrator );
+            bsrb.applyIntegrator(integrator);
         }
 
         final BootstrapServiceRegistry bsr = bsrb.build();
@@ -205,7 +206,7 @@ public abstract class AbstractTest {
         }
 
         final MetadataBuilder metadataBuilder = metadataSources.getMetadataBuilder()
-        .applyImplicitNamingStrategy(ImplicitNamingStrategyLegacyJpaImpl.INSTANCE);
+            .applyImplicitNamingStrategy(ImplicitNamingStrategyLegacyJpaImpl.INSTANCE);
 
         final List<UserType<?>> additionalTypes = additionalTypes();
         if (additionalTypes != null) {
@@ -220,7 +221,7 @@ public abstract class AbstractTest {
 
         final SessionFactoryBuilder sfb = metadata.getSessionFactoryBuilder();
         Interceptor interceptor = interceptor();
-        if(interceptor != null) {
+        if (interceptor != null) {
             sfb.applyInterceptor(interceptor);
         }
 
@@ -230,12 +231,12 @@ public abstract class AbstractTest {
     private SessionFactory newLegacySessionFactory() {
         Properties properties = properties();
         Configuration configuration = new Configuration().addProperties(properties);
-        for(Class<?> entityClass : entities()) {
+        for (Class<?> entityClass : entities()) {
             configuration.addAnnotatedClass(entityClass);
         }
         String[] packages = packages();
-        if(packages != null) {
-            for(String scannedPackage : packages) {
+        if (packages != null) {
+            for (String scannedPackage : packages) {
                 configuration.addPackage(scannedPackage);
             }
         }
@@ -246,7 +247,7 @@ public abstract class AbstractTest {
             }
         }
         Interceptor interceptor = interceptor();
-        if(interceptor != null) {
+        if (interceptor != null) {
             configuration.setInterceptor(interceptor);
         }
 
@@ -258,9 +259,9 @@ public abstract class AbstractTest {
             );
         }
         return configuration.buildSessionFactory(
-                new StandardServiceRegistryBuilder()
-                        .applySettings(properties)
-                        .build()
+            new StandardServiceRegistryBuilder()
+                .applySettings(properties)
+                .build()
         );
     }
 
@@ -345,7 +346,7 @@ public abstract class AbstractTest {
     }
 
     protected DataSource dataSource() {
-        if(dataSource == null) {
+        if (dataSource == null) {
             dataSource = newDataSource();
         }
         return dataSource;
@@ -353,10 +354,10 @@ public abstract class AbstractTest {
 
     protected DataSource newDataSource() {
         DataSource dataSource =
-        proxyDataSource()
-            ? dataSourceProxyType().dataSource(dataSourceProvider().dataSource())
-            : dataSourceProvider().dataSource();
-        if(connectionPooling()) {
+            proxyDataSource()
+                ? dataSourceProxyType().dataSource(dataSourceProvider().dataSource())
+                : dataSourceProvider().dataSource();
+        if (connectionPooling()) {
             HikariDataSource poolingDataSource = connectionPoolDataSource(dataSource);
             closeables.add(poolingDataSource::close);
             return poolingDataSource;
@@ -415,24 +416,21 @@ public abstract class AbstractTest {
             txn = session.beginTransaction();
 
             result = callable.apply(session);
-            if ( !txn.getRollbackOnly() ) {
+            if (!txn.getRollbackOnly()) {
                 txn.commit();
-            }
-            else {
+            } else {
                 try {
                     txn.rollback();
-                }
-                catch (Exception e) {
-                    LOGGER.error( "Rollback failure", e );
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
                 }
             }
         } catch (Throwable t) {
-            if ( txn != null && txn.isActive() ) {
+            if (txn != null && txn.isActive()) {
                 try {
                     txn.rollback();
-                }
-                catch (Exception e) {
-                    LOGGER.error( "Rollback failure", e );
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
                 }
             }
             throw t;
@@ -454,29 +452,92 @@ public abstract class AbstractTest {
             txn = session.beginTransaction();
 
             callable.accept(session);
-            if ( !txn.getRollbackOnly() ) {
+            if (!txn.getRollbackOnly()) {
                 txn.commit();
-            }
-            else {
+            } else {
                 try {
                     txn.rollback();
-                }
-                catch (Exception e) {
-                    LOGGER.error( "Rollback failure", e );
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
                 }
             }
         } catch (Throwable t) {
-            if ( txn != null && txn.isActive() ) {
+            if (txn != null && txn.isActive()) {
                 try {
                     txn.rollback();
-                }
-                catch (Exception e) {
-                    LOGGER.error( "Rollback failure", e );
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
                 }
             }
             throw t;
         } finally {
             callable.afterTransactionCompletion();
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    protected <T> T doInStatelessHibernate(HibernateStatelessTransactionFunction<T> callable) {
+        T result = null;
+        StatelessSession session = null;
+        Transaction transaction = null;
+        try {
+            session = sessionFactory().withStatelessOptions().openStatelessSession();
+            transaction = session.beginTransaction();
+            result = callable.apply(session);
+            if (!transaction.getRollbackOnly()) {
+                transaction.commit();
+            } else {
+                try {
+                    transaction.rollback();
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
+                }
+            }
+        } catch (Throwable t) {
+            if (transaction != null && transaction.isActive()) {
+                try {
+                    transaction.rollback();
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
+                }
+            }
+            throw t;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+        return result;
+    }
+
+    protected void doInStatelessHibernate(HibernateStatelessTransactionConsumer callable) {
+        StatelessSession session = null;
+        Transaction transaction = null;
+        try {
+            session = sessionFactory().withStatelessOptions().openStatelessSession();
+            transaction = session.beginTransaction();
+            callable.accept(session);
+            if (!transaction.getRollbackOnly()) {
+                transaction.commit();
+            } else {
+                try {
+                    transaction.rollback();
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
+                }
+            }
+        } catch (Throwable t) {
+            if (transaction != null && transaction.isActive()) {
+                try {
+                    transaction.rollback();
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
+                }
+            }
+            throw t;
+        } finally {
             if (session != null) {
                 session.close();
             }
@@ -493,24 +554,21 @@ public abstract class AbstractTest {
             txn = entityManager.getTransaction();
             txn.begin();
             result = function.apply(entityManager);
-            if ( !txn.getRollbackOnly() ) {
+            if (!txn.getRollbackOnly()) {
                 txn.commit();
-            }
-            else {
+            } else {
                 try {
                     txn.rollback();
-                }
-                catch (Exception e) {
-                    LOGGER.error( "Rollback failure", e );
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
                 }
             }
         } catch (Throwable t) {
-            if ( txn != null && txn.isActive() ) {
+            if (txn != null && txn.isActive()) {
                 try {
                     txn.rollback();
-                }
-                catch (Exception e) {
-                    LOGGER.error( "Rollback failure", e );
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
                 }
             }
             throw t;
@@ -532,24 +590,21 @@ public abstract class AbstractTest {
             txn = entityManager.getTransaction();
             txn.begin();
             function.accept(entityManager);
-            if ( !txn.getRollbackOnly() ) {
+            if (!txn.getRollbackOnly()) {
                 txn.commit();
-            }
-            else {
+            } else {
                 try {
                     txn.rollback();
-                }
-                catch (Exception e) {
-                    LOGGER.error( "Rollback failure", e );
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
                 }
             }
         } catch (Throwable t) {
-            if ( txn != null && txn.isActive() ) {
+            if (txn != null && txn.isActive()) {
                 try {
                     txn.rollback();
-                }
-                catch (Exception e) {
-                    LOGGER.error( "Rollback failure", e );
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
                 }
             }
             throw t;
@@ -571,24 +626,21 @@ public abstract class AbstractTest {
             session.doWork(connection -> {
                 result.set(callable.execute(connection));
             });
-            if ( !txn.getRollbackOnly() ) {
+            if (!txn.getRollbackOnly()) {
                 txn.commit();
-            }
-            else {
+            } else {
                 try {
                     txn.rollback();
-                }
-                catch (Exception e) {
-                    LOGGER.error( "Rollback failure", e );
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
                 }
             }
         } catch (Throwable t) {
-            if ( txn != null && txn.isActive() ) {
+            if (txn != null && txn.isActive()) {
                 try {
                     txn.rollback();
-                }
-                catch (Exception e) {
-                    LOGGER.error( "Rollback failure", e );
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
                 }
             }
             throw t;
@@ -609,24 +661,21 @@ public abstract class AbstractTest {
             session.setHibernateFlushMode(FlushMode.MANUAL);
             txn = session.beginTransaction();
             session.doWork(callable::execute);
-            if ( !txn.getRollbackOnly() ) {
+            if (!txn.getRollbackOnly()) {
                 txn.commit();
-            }
-            else {
+            } else {
                 try {
                     txn.rollback();
-                }
-                catch (Exception e) {
-                    LOGGER.error( "Rollback failure", e );
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
                 }
             }
         } catch (Throwable t) {
-            if ( txn != null && txn.isActive() ) {
+            if (txn != null && txn.isActive()) {
                 try {
                     txn.rollback();
-                }
-                catch (Exception e) {
-                    LOGGER.error( "Rollback failure", e );
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
                 }
             }
             throw t;
@@ -682,11 +731,11 @@ public abstract class AbstractTest {
         return executorService.submit(callable);
     }
 
-    protected  void transact(Consumer<Connection> callback) {
+    protected void transact(Consumer<Connection> callback) {
         transact(callback, null);
     }
 
-    protected  void transact(Consumer<Connection> callback, Consumer<Connection> before) {
+    protected void transact(Consumer<Connection> callback, Consumer<Connection> before) {
         Connection connection = null;
         try {
             connection = dataSource().getConnection();
@@ -701,13 +750,13 @@ public abstract class AbstractTest {
                 try {
                     connection.rollback();
                 } catch (SQLException ex) {
-                    throw new DataAccessException( e);
+                    throw new DataAccessException(e);
                 }
             }
             throw (e instanceof DataAccessException ?
-                    (DataAccessException) e : new DataAccessException(e));
+                (DataAccessException) e : new DataAccessException(e));
         } finally {
-            if(connection != null) {
+            if (connection != null) {
                 try {
                     connection.close();
                 } catch (SQLException e) {
@@ -760,10 +809,10 @@ public abstract class AbstractTest {
 
     protected String selectStringColumn(Connection connection, String sql) {
         try {
-            try(Statement statement = connection.createStatement()) {
+            try (Statement statement = connection.createStatement()) {
                 statement.setQueryTimeout(1);
                 ResultSet resultSet = statement.executeQuery(sql);
-                if(!resultSet.next()) {
+                if (!resultSet.next()) {
                     throw new IllegalArgumentException("There was no row to be selected!");
                 }
                 return resultSet.getString(1);
@@ -779,12 +828,12 @@ public abstract class AbstractTest {
 
     protected <T> T selectColumn(Connection connection, String sql, Class<T> clazz, Duration timeout) {
         try {
-            try(Statement statement = connection.createStatement()) {
+            try (Statement statement = connection.createStatement()) {
                 if (timeout != null) {
                     statement.setQueryTimeout((int) timeout.toSeconds());
                 }
                 ResultSet resultSet = statement.executeQuery(sql);
-                if(!resultSet.next()) {
+                if (!resultSet.next()) {
                     throw new IllegalArgumentException("There was no row to be selected!");
                 }
                 return clazz.cast(resultSet.getObject(1));
@@ -797,7 +846,7 @@ public abstract class AbstractTest {
     protected <T> List<T> selectColumnList(Connection connection, String sql, Class<T> clazz) {
         List<T> result = new ArrayList<>();
         try {
-            try(Statement statement = connection.createStatement()) {
+            try (Statement statement = connection.createStatement()) {
                 statement.setQueryTimeout(1);
                 ResultSet resultSet = statement.executeQuery(sql);
                 while (resultSet.next()) {
@@ -812,7 +861,7 @@ public abstract class AbstractTest {
 
     protected int update(Connection connection, String sql) {
         try {
-            try(Statement statement = connection.createStatement()) {
+            try (Statement statement = connection.createStatement()) {
                 statement.setQueryTimeout(1);
                 return statement.executeUpdate(sql);
             }
@@ -832,7 +881,7 @@ public abstract class AbstractTest {
 
     protected void executeStatement(Connection connection, String sql) {
         try {
-            try(Statement statement = connection.createStatement()) {
+            try (Statement statement = connection.createStatement()) {
                 statement.execute(sql);
             }
         } catch (SQLException e) {
@@ -842,7 +891,7 @@ public abstract class AbstractTest {
 
     protected void executeStatement(Connection connection, String sql, int timeout) {
         try {
-            try(Statement statement = connection.createStatement()) {
+            try (Statement statement = connection.createStatement()) {
                 statement.setQueryTimeout(timeout);
                 statement.execute(sql);
             }
@@ -880,7 +929,7 @@ public abstract class AbstractTest {
 
     protected int update(Connection connection, String sql, Object[] params) {
         try {
-            try(PreparedStatement statement = connection.prepareStatement(sql)) {
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setQueryTimeout(1);
                 for (int i = 0; i < params.length; i++) {
                     statement.setObject(i + 1, params[i]);
@@ -894,10 +943,10 @@ public abstract class AbstractTest {
 
     protected int count(Connection connection, String sql) {
         try {
-            try(Statement statement = connection.createStatement()) {
+            try (Statement statement = connection.createStatement()) {
                 statement.setQueryTimeout(1);
                 ResultSet resultSet = statement.executeQuery(sql);
-                if(!resultSet.next()) {
+                if (!resultSet.next()) {
                     throw new IllegalArgumentException("There was no row to be selected!");
                 }
                 return ((Number) resultSet.getObject(1)).intValue();
@@ -919,7 +968,7 @@ public abstract class AbstractTest {
     /**
      * Set JDBC Connection or Statement timeout
      *
-     * @param connection JDBC Connection time out
+     * @param connection   JDBC Connection time out
      * @param timoutMillis millis to wait
      */
     public void setJdbcTimeout(Connection connection, long timoutMillis) {
@@ -954,10 +1003,10 @@ public abstract class AbstractTest {
         return String.valueOf(
             entityManager.createNativeQuery(
                 dataSourceProvider()
-                .queries()
-                .transactionId()
+                    .queries()
+                    .transactionId()
             )
-            .getSingleResult()
+                .getSingleResult()
         );
     }
 
@@ -1045,7 +1094,7 @@ public abstract class AbstractTest {
                             cacheEntriesBuilder.append(
                                 ToStringBuilder.reflectionToString(standardCacheEntry, ToStringStyle.SHORT_PREFIX_STYLE)
                             );
-                        } else if(value.getClass().getPackageName().startsWith("java")) {
+                        } else if (value.getClass().getPackageName().startsWith("java")) {
                             cacheEntriesBuilder.append(value);
                         } else {
                             cacheEntriesBuilder.append(
@@ -1073,7 +1122,7 @@ public abstract class AbstractTest {
 
     private org.ehcache.core.Ehcache getEhcache(StorageAccess storageAccess) {
         Object cacheHolder = storageAccess;
-        if(storageAccess instanceof JCacheAccessImpl) {
+        if (storageAccess instanceof JCacheAccessImpl) {
             cacheHolder = ReflectionUtils.getFieldValue(storageAccess, "underlyingCache");
         }
         return ReflectionUtils.getFieldValue(cacheHolder, "ehCache");
@@ -1081,11 +1130,10 @@ public abstract class AbstractTest {
 
 
     private StorageAccess getStorageAccess(AbstractRegion region) {
-        if(region instanceof DirectAccessRegionTemplate) {
+        if (region instanceof DirectAccessRegionTemplate) {
             DirectAccessRegionTemplate directAccessRegionTemplate = (DirectAccessRegionTemplate) region;
             return directAccessRegionTemplate.getStorageAccess();
-        }
-        else if(region instanceof DomainDataRegionTemplate) {
+        } else if (region instanceof DomainDataRegionTemplate) {
             DomainDataRegionTemplate domainDataRegionTemplate = (DomainDataRegionTemplate) region;
             return domainDataRegionTemplate.getCacheStorageAccess();
         }
@@ -1101,7 +1149,7 @@ public abstract class AbstractTest {
     }
 
     public static long longValue(Object number) {
-        if(number instanceof String) {
+        if (number instanceof String) {
             return Long.parseLong((String) number);
         }
         return ((Number) number).longValue();
