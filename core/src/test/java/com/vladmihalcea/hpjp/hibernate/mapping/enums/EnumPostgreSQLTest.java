@@ -1,9 +1,10 @@
 package com.vladmihalcea.hpjp.hibernate.mapping.enums;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.Type;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -65,7 +66,7 @@ public class EnumPostgreSQLTest extends AbstractPostgreSQLIntegrationTest {
 
         @Enumerated(EnumType.STRING)
         @Column(columnDefinition = "post_status_info")
-        @Type(PostgreSQLEnumType.class)
+        @JdbcType(PostgreSQLEnumJdbcType.class)
         private PostStatus status;
 
         public Long getId() {

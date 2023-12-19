@@ -283,7 +283,7 @@
 
         <dependency>
             <groupId>io.hypersistence</groupId>
-            <artifactId>hypersistence-utils-hibernate-62</artifactId>
+            <artifactId>hypersistence-utils-hibernate-63</artifactId>
             <version>${hypersistence-utils.version}</version>
             <exclusions>
                 <exclusion>
@@ -502,6 +502,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4</artifactId>
+            <version>${antlr.version}</version>
+        </dependency>
+
     </dependencies>
 
     <properties>
@@ -520,7 +526,7 @@
         <logback.version>1.2.11</logback.version>
         <commons-lang.version>3.12.0</commons-lang.version>
         <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
-        <hibernate.version>6.2.13.Final</hibernate.version>
+        <hibernate.version>6.3.1.Final</hibernate.version>
         <hibernate.validator.version>6.2.1.Final</hibernate.validator.version>
         <javassist.version>3.18.1-GA</javassist.version>
         <ehcache.version>3.10.0</ehcache.version>
@@ -553,14 +559,16 @@
         <jackson.version>2.13.2.2</jackson.version>
 
         <flyway.version>6.4.4</flyway.version>
-        <hypersistence-utils.version>3.5.3</hypersistence-utils.version>
+        <hypersistence-utils.version>3.7.0</hypersistence-utils.version>
         <hypersistence-tsid.version>2.1.1</hypersistence-tsid.version>
 
-        <blaze-persistence.version>1.6.9</blaze-persistence.version>
+        <blaze-persistence.version>1.6.10</blaze-persistence.version>
 
         <hypersistence-optimizer.version>2.8.1</hypersistence-optimizer.version>
 
         <junit.version>4.13.2</junit.version>
+
+        <antlr.version>4.13.1</antlr.version>
     </properties>
 
     <repositories>

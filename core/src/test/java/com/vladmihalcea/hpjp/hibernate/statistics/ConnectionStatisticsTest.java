@@ -4,6 +4,7 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.cfg.StatisticsSettings;
 import org.hibernate.stat.Statistics;
 import org.hibernate.stat.internal.StatisticsInitiator;
 import org.junit.Test;
@@ -32,7 +33,7 @@ public class ConnectionStatisticsTest extends AbstractTest {
         );
 
         properties.put(
-            StatisticsInitiator.STATS_BUILDER,
+            StatisticsSettings.STATS_BUILDER,
             TransactionStatisticsFactory.class.getName()
         );
     }

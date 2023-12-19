@@ -4,6 +4,7 @@ import com.vladmihalcea.hpjp.spring.data.base.config.SpringDataJPABaseConfigurat
 import com.vladmihalcea.hpjp.spring.transaction.readonly.config.stats.SpringTransactionStatisticsFactory;
 import com.vladmihalcea.hpjp.spring.transaction.readonly.domain.Product;
 import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.cfg.StatisticsSettings;
 import org.hibernate.resource.jdbc.spi.PhysicalConnectionHandlingMode;
 import org.hibernate.stat.internal.StatisticsInitiator;
 import org.springframework.context.annotation.Bean;
@@ -51,7 +52,7 @@ public class SpringDataJPAReadOnlyConfiguration extends SpringDataJPABaseConfigu
             Boolean.TRUE.toString()
         );
         properties.setProperty(
-            StatisticsInitiator.STATS_BUILDER,
+            StatisticsSettings.STATS_BUILDER,
             SpringTransactionStatisticsFactory.class.getName()
         );
         properties.setProperty(

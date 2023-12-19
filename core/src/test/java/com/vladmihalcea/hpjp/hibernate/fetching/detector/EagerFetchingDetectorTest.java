@@ -4,6 +4,7 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.cfg.StatisticsSettings;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.stat.internal.StatisticsInitiator;
 import org.junit.Ignore;
@@ -38,7 +39,7 @@ public class EagerFetchingDetectorTest extends AbstractTest {
             Boolean.TRUE.toString()
         );
         properties.put(
-            StatisticsInitiator.STATS_BUILDER,
+            StatisticsSettings.STATS_BUILDER,
             SessionStatistics.Factory.INSTANCE
         );
     }

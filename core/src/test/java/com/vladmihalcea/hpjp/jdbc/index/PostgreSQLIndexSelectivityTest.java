@@ -2,9 +2,10 @@ package com.vladmihalcea.hpjp.jdbc.index;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.Type;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import org.junit.Test;
 import org.postgresql.PGStatement;
 import org.postgresql.util.PGobject;
@@ -192,7 +193,7 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
         private String name;
 
         @Column(columnDefinition = "task_status")
-        @Type(PostgreSQLEnumType.class)
+        @JdbcType(PostgreSQLEnumJdbcType.class)
         private Task.Status status;
 
         public Long getId() {

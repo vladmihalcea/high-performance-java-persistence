@@ -2,18 +2,13 @@ package com.vladmihalcea.hpjp.spring.data.bytecode;
 
 import com.vladmihalcea.hpjp.hibernate.forum.Attachment;
 import com.vladmihalcea.hpjp.hibernate.forum.MediaType;
-import com.vladmihalcea.hpjp.spring.data.bytecode.config.SpringDataJPARuntimeBytecodeEnhancementConfiguration;
 import com.vladmihalcea.hpjp.spring.data.bytecode.repository.AttachmentRepository;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
-import io.hypersistence.utils.hibernate.util.ReflectionUtils;
+import io.hypersistence.utils.common.ReflectionUtils;
 import org.hibernate.LazyInitializationException;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
