@@ -170,7 +170,7 @@ public class MySQLStoredProcedureTest extends AbstractMySQLIntegrationTest {
                 assertNotNull(postComments);
             });
         } catch (Exception e) {
-            assertTrue(Pattern.compile("Dialect .*? not known to support REF_CURSOR parameters").matcher(e.getCause().getMessage()).matches());
+            assertTrue(Pattern.compile("Dialect .*? not known to support REF_CURSOR parameters").matcher(e.getMessage()).matches());
         }
     }
 

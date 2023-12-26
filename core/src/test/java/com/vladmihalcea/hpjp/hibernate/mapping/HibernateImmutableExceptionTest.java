@@ -75,7 +75,7 @@ public class HibernateImmutableExceptionTest extends AbstractTest {
             fail("Should have thrown exception");
         } catch (HibernateException e) {
             assertEquals(
-                "The query: [update Event set eventValue = :eventValue where id = :id] " +
+                "The query [update Event set eventValue = :eventValue where id = :id] " +
                 "attempts to update an immutable entity: [Event]",
                 e.getMessage()
             );
@@ -103,7 +103,7 @@ public class HibernateImmutableExceptionTest extends AbstractTest {
             fail("Should have thrown exception");
         } catch (HibernateException e) {
             assertEquals(
-                "The query: [<criteria>] attempts to update an immutable entity: [Event]",
+                "The query [<criteria>] attempts to update an immutable entity: [Event]",
                 e.getMessage()
             );
         }

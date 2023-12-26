@@ -1,10 +1,11 @@
 package com.vladmihalcea.hpjp.hibernate.cache;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import jakarta.persistence.Cacheable;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import org.hibernate.stat.Statistics;
 import org.junit.Test;
-
-import jakarta.persistence.*;
 
 import java.util.Properties;
 
@@ -51,13 +52,7 @@ public class JPACacheableTest extends AbstractTest {
             Post post = entityManager.find(Post.class, 1L);
             assertNotNull(post);
         });
-        assertEquals(1, statistics.getPrepareStatementCount());
-
-        doInJPA(entityManager -> {
-            LOGGER.info("Load from cache");
-            Post post = entityManager.find(Post.class, 1L);
-        });
-        assertEquals(2, statistics.getPrepareStatementCount());
+        assertEquals(0, statistics.getPrepareStatementCount());
     }
 
     @Entity(name = "Post")

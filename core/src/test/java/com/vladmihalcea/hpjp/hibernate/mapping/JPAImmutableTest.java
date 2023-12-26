@@ -69,7 +69,7 @@ public class JPAImmutableTest extends AbstractSQLServerIntegrationTest {
 
             fail("Should have thrown Exception");
         } catch (Exception expected) {
-            assertEquals("The query: [update Event set eventValue = :eventValue where id = :id] attempts to update an immutable entity: [Event]", ExceptionUtil.rootCause(expected).getMessage());
+            assertEquals("The query [update Event set eventValue = :eventValue where id = :id] attempts to update an immutable entity: [Event]", ExceptionUtil.rootCause(expected).getMessage());
         }
 
         doInJPA(entityManager -> {

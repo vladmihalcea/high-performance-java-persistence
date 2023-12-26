@@ -101,7 +101,7 @@ public class FailOnPaginationWithCollectionFetchTest extends AbstractTest {
                 fail("Should have thrown Exception");
             } catch (Exception e) {
                 LOGGER.debug("Expected", e);
-                assertTrue(e.getMessage().contains("In memory pagination was about to be applied"));
+                assertTrue(e.getMessage().contains("in-memory pagination"));
             }
         });
     }
@@ -138,7 +138,7 @@ public class FailOnPaginationWithCollectionFetchTest extends AbstractTest {
 
                 fail("Should have thrown Exception");
             } catch (Exception e) {
-                assertTrue(e.getMessage().contains("In memory pagination was about to be applied"));
+                assertTrue(e.getMessage().contains("in-memory pagination"));
             }
         });
     }
