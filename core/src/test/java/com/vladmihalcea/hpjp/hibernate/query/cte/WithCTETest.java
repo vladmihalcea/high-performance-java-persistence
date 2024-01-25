@@ -211,7 +211,7 @@ public class WithCTETest extends AbstractTest {
     }
 
     @Test
-    @Ignore("Still not working on Hibernate 6.2")
+    @Ignore("Still not working on Hibernate 6.3")
     public void testWithCTEJPQL() {
         List<Tuple> tuples = doInJPA(entityManager -> {
             return entityManager.createQuery("""

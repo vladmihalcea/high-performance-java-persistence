@@ -440,7 +440,7 @@ public class PaginationTest extends AbstractTest {
     }
 
     @Test
-    @Ignore("Still not working on Hibernate 6.2")
+    @Ignore("Still not working on Hibernate 6.3")
     public void testFetchAndPaginateUsingDenseRankJPQLWithCTE() {
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery("""
