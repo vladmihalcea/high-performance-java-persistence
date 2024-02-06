@@ -13,7 +13,7 @@ import java.util.Properties;
 /**
  * @author Vlad Mihalcea
  */
-public class StatelessSessionTest extends AbstractTest {
+public class MySQLIdentityStatelessSessionTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {

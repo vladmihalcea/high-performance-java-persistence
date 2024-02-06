@@ -34,7 +34,7 @@ public class HibernateUpsertTest extends AbstractTest {
 
     @Test
     public void test() {
-        doInStatelessHibernate(session -> {
+        doInStatelessSession(session -> {
             session.upsert(
                 new Book()
                     .setId(1L)
@@ -55,7 +55,7 @@ public class HibernateUpsertTest extends AbstractTest {
     public void testTimeoutOnSecondTransaction() {
         CountDownLatch aliceLatch = new CountDownLatch(1);
 
-        doInStatelessHibernate(session -> {
+        doInStatelessSession(session -> {
             session.upsert(
                 new Book()
                     .setId(1L)
@@ -68,7 +68,7 @@ public class HibernateUpsertTest extends AbstractTest {
 
             executeAsync(() -> {
                 try {
-                    doInStatelessHibernate(_session -> {
+                    doInStatelessSession(_session -> {
                         _session.doWork(this::setJdbcTimeout);
 
                         _session.upsert(

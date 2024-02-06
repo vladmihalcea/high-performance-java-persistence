@@ -478,7 +478,7 @@ public abstract class AbstractTest {
         }
     }
 
-    protected <T> T doInStatelessHibernate(HibernateStatelessTransactionFunction<T> callable) {
+    protected <T> T doInStatelessSession(HibernateStatelessTransactionFunction<T> callable) {
         T result = null;
         StatelessSession session = null;
         Transaction transaction = null;
@@ -512,7 +512,7 @@ public abstract class AbstractTest {
         return result;
     }
 
-    protected void doInStatelessHibernate(HibernateStatelessTransactionConsumer callable) {
+    protected void doInStatelessSession(HibernateStatelessTransactionConsumer callable) {
         StatelessSession session = null;
         Transaction transaction = null;
         try {

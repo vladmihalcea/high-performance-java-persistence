@@ -2,21 +2,24 @@ package com.vladmihalcea.hpjp.hibernate.batch;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
+import jakarta.persistence.*;
+import jakarta.persistence.criteria.Root;
 import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaDelete;
 import org.junit.Test;
 
-import jakarta.persistence.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.LongStream;
 
 /**
  * BatchingTest - Test to check the JDBC batch support
  *
  * @author Vlad Mihalcea
  */
-public class BatchingTest extends AbstractTest {
+public class StatelessSessionBatchingTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -26,6 +29,8 @@ public class BatchingTest extends AbstractTest {
         };
     }
 
+    private static final int POST_COUNT = 3;
+
     @Override
     protected Database database() {
         return Database.POSTGRESQL;
@@ -33,9 +38,7 @@ public class BatchingTest extends AbstractTest {
 
     @Override
     protected void additionalProperties(Properties properties) {
-        properties.put(AvailableSettings.STATEMENT_BATCH_SIZE, "5");
-        properties.put(AvailableSettings.ORDER_INSERTS, Boolean.TRUE);
-        properties.put(AvailableSettings.ORDER_UPDATES, Boolean.TRUE);
+        properties.put(AvailableSettings.STATEMENT_BATCH_SIZE, "50");
     }
 
     @Test
@@ -52,37 +55,28 @@ public class BatchingTest extends AbstractTest {
 
     @Test
     public void testUpdatePosts() {
+        LOGGER.info("testUpdatePosts");
         insertPosts();
 
-        LOGGER.info("testUpdatePosts");
-        doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery("""
+        LOGGER.info("Load Post entities");
+
+        List<Post> posts = doInJPA(entityManager -> {
+            return entityManager.createQuery("""
                 select p
-                from Post p     
+                from Post p   
                 """, Post.class)
+            .setMaxResults(POST_COUNT)
             .getResultList();
-
-            posts.forEach(post -> post.setTitle(post.getTitle().replaceAll("no", "nr")));
         });
-    }
 
-    @Test
-    public void testUpdatePostsAndComments() {
-        insertPostsAndComments();
+        posts.forEach(post ->
+            post.setTitle(post.getTitle().replaceAll("no", "nr"))
+        );
 
-        LOGGER.info("testUpdatePostsAndComments");
-        doInJPA(entityManager -> {
-            entityManager.createQuery("""
-                select c
-                from PostComment c
-                join fetch c.post  
-                """, PostComment.class)
-            .getResultList()
-            .forEach(c -> {
-                c.setReview(c.getReview().replaceAll("Good", "Very good"));
-                Post post = c.getPost();
-                post.setTitle(post.getTitle().replaceAll("no", "nr"));
-            });
+        LOGGER.info("Update Post entities");
+
+        doInStatelessSession(session -> {
+            posts.forEach(session::update);
         });
     }
 
@@ -91,64 +85,50 @@ public class BatchingTest extends AbstractTest {
         insertPosts();
 
         LOGGER.info("testDeletePosts");
-        doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery("""
+        doInStatelessSession(session -> {
+            List<Post> posts = session.createQuery("""
                 select p
                 from Post p     
                 """, Post.class)
             .getResultList();
 
-            posts.forEach(entityManager::remove);
+            posts.forEach(session::delete);
         });
     }
 
     @Test
     public void testDeletePostsAndComments() {
-        insertPostsAndComments();
-
         LOGGER.info("testDeletePostsAndComments");
-        doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery("""
-                select p
-                from Post p
-                join fetch p.comments
-                """, Post.class)
-            .getResultList();
-
-            posts.forEach(entityManager::remove);
-        });
-    }
-
-    @Test
-    public void testDeletePostsAndCommentsWithManualChildRemoval() {
         insertPostsAndComments();
 
-        LOGGER.info("testDeletePostsAndCommentsWithManualChildRemoval");
-        doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery("""
+        List<Post> posts = doInJPA(entityManager -> {
+            return entityManager.createQuery("""
                 select p
-                from Post p
-                join fetch p.comments
+                from Post p 
                 """, Post.class)
+            .setMaxResults(POST_COUNT)
             .getResultList();
+        });
 
-            for (Post post : posts) {
-                for (Iterator<PostComment> commentIterator = post.getComments().iterator();
-                        commentIterator.hasNext(); ) {
-                    PostComment comment = commentIterator.next();
-                    comment.setPost(null);
-                    commentIterator.remove();
-                }
-            }
-            entityManager.flush();
-            posts.forEach(entityManager::remove);
+        doInStatelessSession(session -> {
+            HibernateCriteriaBuilder builder = session.getCriteriaBuilder();
+
+            JpaCriteriaDelete<PostComment> criteria = builder.createCriteriaDelete(PostComment.class);
+            Root<PostComment> post = criteria.from(PostComment.class);
+            session.createQuery(
+                criteria
+                    .where(builder.in(post.get("post"), posts))
+            )
+            .executeUpdate();
+            
+            posts.forEach(session::delete);
         });
     }
 
     private void insertPosts() {
-        doInJPA(entityManager -> {
-            for (long i = 1; i <= 3; i++) {
-                entityManager.persist(
+        doInStatelessSession(session -> {
+            for (long i = 1; i <= POST_COUNT; i++) {
+                session.insert(
                     new Post()
                         .setId(i)
                         .setTitle(String.format("Post no. %d", i))
@@ -158,15 +138,35 @@ public class BatchingTest extends AbstractTest {
     }
 
     private void insertPostsAndComments() {
-        doInJPA(entityManager -> {
-            for (long i = 1; i <= 3; i++) {
-                entityManager.persist(
-                    new Post()
+        doInStatelessSession(session -> {
+            List<Post> posts = LongStream.rangeClosed(1, POST_COUNT).boxed()
+                .map(i -> {
+                    Post post = new Post()
                         .setId(i)
-                        .setTitle(String.format("Post no. %d", i))
-                        .addComment(new PostComment("Good"))
-                );
-            }
+                        .setTitle(String.format("Post no. %d", i));
+
+                    session.insert(post);
+
+                    return post;
+                })
+                .toList();
+
+            final int COMMENT_COUNT = 5;
+
+            posts.forEach(post -> {
+                for (long i = 1; i <= COMMENT_COUNT; i++) {
+                    session.insert(
+                        new PostComment()
+                            .setPost(post)
+                            .setReview(
+                                String.format(
+                                    "Post comment no. %d",
+                                    (post.getId() - 1) * COMMENT_COUNT + i
+                                )
+                            )
+                    );
+                }
+            });
         });
     }
 
@@ -243,16 +243,18 @@ public class BatchingTest extends AbstractTest {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostComment setPost(Post post) {
             this.post = post;
+            return this;
         }
 
         public String getReview() {
             return review;
         }
 
-        public void setReview(String review) {
+        public PostComment setReview(String review) {
             this.review = review;
+            return this;
         }
     }
 }
