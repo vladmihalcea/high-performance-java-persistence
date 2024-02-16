@@ -60,8 +60,7 @@ public class OptimisticLockingAggregateRootVersionTest extends AbstractTest {
         public void onPersist(PersistEvent event) throws HibernateException {
             final Object entity = event.getObject();
 
-            if(entity instanceof RootAware) {
-                RootAware rootAware = (RootAware) entity;
+            if(entity instanceof RootAware rootAware) {
                 Object root = rootAware.root();
                 event.getSession().lock(root, LockMode.OPTIMISTIC_FORCE_INCREMENT);
 
@@ -87,8 +86,7 @@ public class OptimisticLockingAggregateRootVersionTest extends AbstractTest {
             final Object entity = event.getEntity();
             final boolean mightBeDirty = entry.requiresDirtyCheck( entity );
 
-            if(mightBeDirty && entity instanceof RootAware) {
-                RootAware rootAware = (RootAware) entity;
+            if(mightBeDirty && entity instanceof RootAware rootAware) {
                 if(updated(event)) {
                     Object root = rootAware.root();
                     LOGGER.info("Incrementing {} entity version because a {} child entity has been updated", root, entity);
