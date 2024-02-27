@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.hibernate.time;
+package com.vladmihalcea.hpjp.hibernate.time.offset;
 
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
 import org.hibernate.cfg.AvailableSettings;

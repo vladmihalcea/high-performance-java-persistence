@@ -1,20 +1,23 @@
-package com.vladmihalcea.hpjp.hibernate.time;
+package com.vladmihalcea.hpjp.hibernate.time.offset;
 
-import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
-import org.hibernate.cfg.AvailableSettings;
+import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.providers.Database;
+import jakarta.persistence.*;
+import org.hibernate.annotations.TimeZoneColumn;
+import org.hibernate.annotations.TimeZoneStorage;
+import org.hibernate.annotations.TimeZoneStorageType;
 import org.junit.Test;
 
-import jakarta.persistence.*;
-import java.sql.Timestamp;
-import java.time.*;
-import java.util.Properties;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class OffsetDateTimeTest extends AbstractMySQLIntegrationTest {
+public class OffsetDateTimeTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -25,20 +28,16 @@ public class OffsetDateTimeTest extends AbstractMySQLIntegrationTest {
     }
 
     @Override
-    protected void additionalProperties(Properties properties) {
-        properties.setProperty(AvailableSettings.JDBC_TIME_ZONE, "UTC");
+    protected Database database() {
+        return Database.MYSQL;
     }
 
     @Test
     public void test() {
-        OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(
-            Timestamp.valueOf(
-                LocalDateTime.of(
-                    2020, 5, 1,
-                    12, 30, 0
-                )
-            ).toInstant(),
-            ZoneId.systemDefault()
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(
+            2024, 2, 29,
+            12, 30, 0, 0,
+            ZoneOffset.of("+01:00")
         );
 
         doInJPA(entityManager -> {
@@ -99,6 +98,8 @@ public class OffsetDateTimeTest extends AbstractMySQLIntegrationTest {
         private UserAccount createdBy;
 
         @Column(name = "published_on")
+        @TimeZoneStorage(TimeZoneStorageType.COLUMN)
+        @TimeZoneColumn(name = "published_on_offset")
         private OffsetDateTime publishedOn;
 
         public Long getId() {
