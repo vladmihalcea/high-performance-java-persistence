@@ -879,6 +879,17 @@ public abstract class AbstractTest {
         }
     }
 
+    protected void executeStatement(String... sqls) {
+        try (Connection connection = dataSource().getConnection();
+             Statement statement = connection.createStatement()) {
+            for(String sql : sqls) {
+                statement.executeUpdate(sql);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("Statement failed", e);
+        }
+    }
+
     protected void executeStatement(Connection connection, String sql) {
         try {
             try (Statement statement = connection.createStatement()) {

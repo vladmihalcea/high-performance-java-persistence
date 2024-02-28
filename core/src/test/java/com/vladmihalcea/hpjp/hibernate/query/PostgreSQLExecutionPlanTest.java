@@ -70,27 +70,28 @@ public class PostgreSQLExecutionPlanTest extends AbstractTest {
         */
 
         List<String> executionPlanLines = doInJPA(entityManager -> {
-            return entityManager.createNativeQuery(
-                "EXPLAIN ANALYZE " +
-                "SELECT " +
-                "    p.id " +
-                "FROM " +
-                "    post p " +
-                "WHERE EXISTS ( " +
-                "    SELECT 1 " +
-                "    FROM " +
-                "        post_comment pc " +
-                "    WHERE " +
-                "        pc.post_id = p.id AND " +
-                "        pc.review = 'Bingo' " +
-                ") " +
-                "ORDER BY " +
-                "   p.title " +
-                "LIMIT 10")
+            return entityManager.createNativeQuery("""
+                EXPLAIN ANALYZE
+                SELECT
+                    p.id
+                FROM
+                    post p
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM
+                        post_comment pc
+                    WHERE
+                        pc.post_id = p.id AND
+                        pc.review = 'Bingo'
+                )
+                ORDER BY
+                   p.title
+                LIMIT 10
+                """)
             .getResultList();
         });
 
-        LOGGER.info("Execution plan: \n{}", executionPlanLines.stream().collect(Collectors.joining("\n")));
+        LOGGER.info("Execution plan: \n{}", String.join("\n", executionPlanLines));
     }
 
     @Entity(name = "Post")
