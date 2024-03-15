@@ -21,18 +21,6 @@ public class EnumPostgreSQLTest extends AbstractPostgreSQLIntegrationTest {
         };
     }
 
-    @Override
-    protected void beforeInit() {
-        executeStatement("DROP TABLE IF EXISTS post_status_info CASCADE");
-        executeStatement("DROP TYPE post_status_info CASCADE");
-        executeStatement("CREATE TYPE post_status_info AS ENUM ('PENDING', 'APPROVED', 'SPAM')");
-    }
-
-    @Override
-    protected void afterDestroy() {
-        executeStatement("DROP TYPE IF EXISTS post_status_info CASCADE");
-    }
-
     @Test
     public void test() {
         doInJPA(entityManager -> {
@@ -64,8 +52,7 @@ public class EnumPostgreSQLTest extends AbstractPostgreSQLIntegrationTest {
 
         private String title;
 
-        @Enumerated(EnumType.STRING)
-        @Column(columnDefinition = "post_status_info")
+        @Enumerated
         @JdbcType(PostgreSQLEnumJdbcType.class)
         private PostStatus status;
 
