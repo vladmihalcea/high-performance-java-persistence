@@ -69,9 +69,10 @@ public class CustomPostRepositoryImpl implements CustomPostRepository {
                 select p
                 from Post p
                 left join fetch p.tags t
-                where p in :posts
+                where p.id between :minId and :maxId
                 """, Post.class)
-            .setParameter("posts", posts)
+            .setParameter("minId", 1L)
+            .setParameter("maxId", 50L)
             .getResultList();
 
         entityManager.createQuery("""
@@ -80,9 +81,10 @@ public class CustomPostRepositoryImpl implements CustomPostRepository {
                 left join fetch pc.votes v
                 left join fetch v.user u
                 join pc.post p
-                where p in :posts
+                where p.id between :minId and :maxId
                 """, PostComment.class)
-            .setParameter("posts", posts)
+            .setParameter("minId", 1L)
+            .setParameter("maxId", 50L)
             .getResultList();
 
         return posts;
