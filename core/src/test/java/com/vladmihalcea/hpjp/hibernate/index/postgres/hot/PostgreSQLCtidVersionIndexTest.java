@@ -4,6 +4,9 @@ import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import jakarta.persistence.*;
 import org.junit.Test;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -69,6 +72,34 @@ public class PostgreSQLCtidVersionIndexTest extends AbstractPostgreSQLIntegratio
         checkCtid();
     }
 
+    @Test
+    public void testVersionUpdate() {
+        AtomicInteger revision = new AtomicInteger();
+        doInJPA(entityManager -> {
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle(
+                        String.format(
+                            "High-Performance Java Persistence, revision %d",
+                            revision.incrementAndGet()
+                        )
+                    )
+            );
+        });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+
+            post.setTitle(
+                String.format(
+                    "High-Performance Java Persistence, revision %d",
+                    revision.incrementAndGet()
+                )
+            );
+        });
+    }
+
     private void checkCtid() {
         doInJPA(entityManager -> {
             Tuple tuple = (Tuple) entityManager
@@ -94,6 +125,66 @@ public class PostgreSQLCtidVersionIndexTest extends AbstractPostgreSQLIntegratio
         });
     }
 
+    @Test
+    public void testHOT() {
+        AtomicInteger revision = new AtomicInteger();
+
+        doInJPA(entityManager -> {
+            String title = String.format(
+                "High-Performance Java Persistence, revision %d",
+                revision.get()
+            );
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle(title)
+            );
+        });
+
+        checkHeapOnlyTuples();
+
+        while (revision.incrementAndGet() <= 5){
+            doInJPA(entityManager -> {
+                Post post = entityManager.find(Post.class, 1L);
+
+                post.setTitle(
+                    String.format(
+                        "High-Performance Java Persistence, revision %d",
+                        revision.get()
+                    )
+                );
+            });
+        }
+
+        checkHeapOnlyTuples();
+    }
+
+    private void checkHeapOnlyTuples() {
+        doInJDBC(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                ResultSet resultSet = statement.executeQuery("""
+                    SELECT n_tup_upd, n_tup_hot_upd
+                    FROM pg_stat_user_tables
+                    WHERE relname = 'post'
+                    """
+                );
+                while (resultSet.next()) {
+                    int i = 0;
+                    long n_tup_upd = resultSet.getLong(++i);
+                    long n_tup_hot_upd = resultSet.getLong(++i);
+
+                    LOGGER.info(
+                        "n_tup_upd: {}, n_tup_hot_upd: {}",
+                        n_tup_upd,
+                        n_tup_hot_upd
+                    );
+                }
+            } catch (SQLException e) {
+                throw new IllegalStateException(e);
+            }
+        });
+    }
+
     @Entity(name = "Post")
     @Table(name = "post")
     public static class Post {
@@ -101,6 +192,7 @@ public class PostgreSQLCtidVersionIndexTest extends AbstractPostgreSQLIntegratio
         @Id
         private Long id;
 
+        @Column(length = 100)
         private String title;
 
         @Version
