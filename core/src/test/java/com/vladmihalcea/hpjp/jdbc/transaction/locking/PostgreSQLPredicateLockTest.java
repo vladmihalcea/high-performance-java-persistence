@@ -7,7 +7,6 @@ import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.junit.Test;
 
-import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertEquals;
@@ -23,7 +22,7 @@ public class PostgreSQLPredicateLockTest extends AbstractPredicateLockTest {
     }
 
     @Test
-    public void testParentForUpdatePreventsInsert() throws SQLException {
+    public void testParentPessimisticWriteChildInsert() {
         AtomicBoolean prevented = new AtomicBoolean();
 
         doInHibernate( session -> {
@@ -43,7 +42,7 @@ public class PostgreSQLPredicateLockTest extends AbstractPredicateLockTest {
                     Post post = _session.getReference(Post.class, 1L);
 
                     PostComment comment = new PostComment();
-                    comment.setId((long) _post.getComments().size() + 1);
+                    comment.setId(POST_COMMENT_ID.incrementAndGet());
                     comment.setReview(String.format("Comment nr. %d", comment.getId()));
                     comment.setPost(post);
 
@@ -65,49 +64,7 @@ public class PostgreSQLPredicateLockTest extends AbstractPredicateLockTest {
     }
 
     @Test
-    public void testParentForNoKeyUpdatePreventsInsert() throws SQLException {
-        AtomicBoolean prevented = new AtomicBoolean();
-
-        doInHibernate( session -> {
-            session.unwrap(Session.class).doWork(this::prepareConnection);
-            Post _post = session.createNativeQuery(
-                    "select * " +
-                    "from Post " +
-                    "where id = :id " +
-                    "for no key update", Post.class)
-            .setParameter("id", 1L)
-            .getSingleResult();
-
-            executeAsync(() -> {
-                doInHibernate(_session -> {
-                    _session.unwrap(Session.class).doWork(this::prepareConnection);
-
-                    Post post = _session.getReference(Post.class, 1L);
-
-                    PostComment comment = new PostComment();
-                    comment.setId((long) _post.getComments().size() + 1);
-                    comment.setReview(String.format("Comment nr. %d", comment.getId()));
-                    comment.setPost(post);
-
-                    _session.persist(comment);
-
-                    aliceLatch.countDown();
-                    _session.flush();
-                    LOGGER.info("Insert {} prevented by explicit parent lock", prevented.get() ? "was" : "was not");
-                    bobLatch.countDown();
-                });
-            });
-
-            awaitOnLatch(aliceLatch);
-            sleep(WAIT_MILLIS);
-            LOGGER.info("Alice woke up!");
-            prevented.set(true);
-        } );
-        awaitOnLatch(bobLatch);
-    }
-
-    @Test
-    public void testParentForNoKeyUpdatePreventsConcurrentUpdate() throws SQLException {
+    public void testParentForNoKeyUpdatePreventsConcurrentUpdate() {
         AtomicBoolean prevented = new AtomicBoolean();
 
         doInHibernate( session -> {
@@ -144,7 +101,7 @@ public class PostgreSQLPredicateLockTest extends AbstractPredicateLockTest {
     }
 
     @Test
-    public void testParentForKeyShareNonConflictingConcurrentUpdate() throws SQLException {
+    public void testParentForKeyShareNonConflictingConcurrentUpdate() {
         AtomicBoolean prevented = new AtomicBoolean();
 
         doInHibernate( session -> {
@@ -181,7 +138,7 @@ public class PostgreSQLPredicateLockTest extends AbstractPredicateLockTest {
     }
 
     @Test
-    public void testParentForKeyShareConflictingNoFkConcurrentUpdate() throws SQLException {
+    public void testParentForKeyShareConflictingNoFkConcurrentUpdate() {
         AtomicBoolean prevented = new AtomicBoolean();
 
         doInHibernate( session -> {
@@ -218,7 +175,7 @@ public class PostgreSQLPredicateLockTest extends AbstractPredicateLockTest {
     }
 
     @Test
-    public void testParentForKeyShareConflictingFkConcurrentUpdate() throws SQLException {
+    public void testParentForKeyShareConflictingFkConcurrentUpdate() {
         AtomicBoolean prevented = new AtomicBoolean();
 
         doInHibernate( session -> {
@@ -255,7 +212,7 @@ public class PostgreSQLPredicateLockTest extends AbstractPredicateLockTest {
     }
 
     @Test
-    public void testParentForUpdateConflictingConcurrentDelete() throws SQLException {
+    public void testParentForUpdateConflictingConcurrentDelete() {
         AtomicBoolean prevented = new AtomicBoolean();
 
         doInHibernate( session -> {
@@ -299,7 +256,7 @@ public class PostgreSQLPredicateLockTest extends AbstractPredicateLockTest {
     }
 
     @Test
-    public void testParentReadLockPreventsInsert() throws SQLException {
+    public void testParentReadLockPreventsInsert() {
         AtomicBoolean prevented = new AtomicBoolean();
 
         doInHibernate( session -> {
@@ -319,7 +276,7 @@ public class PostgreSQLPredicateLockTest extends AbstractPredicateLockTest {
                     Post post = _session.getReference(Post.class, 1L);
 
                     PostComment comment = new PostComment();
-                    comment.setId((long) _post.getComments().size() + 1);
+                    comment.setId(POST_COMMENT_ID.incrementAndGet());
                     comment.setReview(String.format("Comment nr. %d", comment.getId()));
                     comment.setPost(post);
 

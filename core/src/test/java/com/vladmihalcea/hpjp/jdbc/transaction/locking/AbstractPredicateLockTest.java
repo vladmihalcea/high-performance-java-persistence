@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Vlad Mihalcea
@@ -25,6 +26,8 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
     protected final CountDownLatch aliceLatch = new CountDownLatch(1);
     protected final CountDownLatch bobLatch = new CountDownLatch(1);
 
+    protected final AtomicLong POST_COMMENT_ID = new AtomicLong();
+
     @Override
     protected Class<?>[] entities() {
         return new Class[] {
@@ -34,19 +37,20 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
     }
 
     @Override
-    public void init() {
-        super.init();
-        doInHibernate(session -> {
-            Post post = new Post();
-            post.setId(1L);
-            post.setTitle("High-Performance Java Persistence");
-            session.persist(post);
+    public void afterInit() {
+        doInJPA(entityManager -> {
+            Post post = new Post()
+                .setId(1L)
+                .setTitle("High-Performance Java Persistence");
+            entityManager.persist(post);
 
             for (long i = 1; i <= 3; i++) {
-                PostComment comment = new PostComment();
-                comment.setId(i);
-                comment.setReview(String.format("Comment nr. %d", i));
-                post.addComment(comment);
+                entityManager.persist(
+                    new PostComment()
+                        .setId(POST_COMMENT_ID.incrementAndGet())
+                        .setReview(String.format("Comment nr. %d", i))
+                        .setPost(post)
+                );
             }
         });
 
@@ -215,33 +219,22 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
 
         private String title;
 
-        @OneToMany(cascade = CascadeType.ALL, mappedBy = "post",
-                orphanRemoval = true)
-        private List<PostComment> comments = new ArrayList<>();
-
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
-        }
-
-        public List<PostComment> getComments() {
-            return comments;
-        }
-
-        public void addComment(PostComment comment) {
-            comments.add(comment);
-            comment.setPost(this);
+            return this;
         }
     }
 
@@ -252,39 +245,36 @@ public abstract class AbstractPredicateLockTest extends AbstractTest {
         @Id
         private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        private Post post;
-
         private String review;
 
-        public PostComment() {}
-
-        public PostComment(String review) {
-            this.review = review;
-        }
+        @ManyToOne(fetch = FetchType.LAZY)
+        private Post post;
 
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostComment setId(Long id) {
             this.id = id;
-        }
-
-        public Post getPost() {
-            return post;
-        }
-
-        public void setPost(Post post) {
-            this.post = post;
+            return this;
         }
 
         public String getReview() {
             return review;
         }
 
-        public void setReview(String review) {
+        public PostComment setReview(String review) {
             this.review = review;
+            return this;
+        }
+
+        public Post getPost() {
+            return post;
+        }
+
+        public PostComment setPost(Post post) {
+            this.post = post;
+            return this;
         }
     }
 }
