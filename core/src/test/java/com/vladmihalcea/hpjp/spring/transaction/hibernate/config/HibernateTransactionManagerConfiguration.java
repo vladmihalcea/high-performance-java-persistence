@@ -11,7 +11,9 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
+import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
+import org.hibernate.cfg.AvailableSettings;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -99,6 +101,7 @@ public class HibernateTransactionManagerConfiguration {
             "hibernate.session_factory.statement_inspector",
             new LoggingStatementInspector("com.vladmihalcea.hpjp.hibernate.transaction")
         );
+        properties.setProperty(AvailableSettings.FLUSH_MODE, FlushMode.ALWAYS.name());
         return properties;
     }
 
