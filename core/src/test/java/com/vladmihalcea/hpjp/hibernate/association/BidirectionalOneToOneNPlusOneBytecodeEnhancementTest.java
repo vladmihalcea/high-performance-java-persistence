@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 public class BidirectionalOneToOneNPlusOneBytecodeEnhancementTest extends BidirectionalOneToOneNPlusOneTest {
 
     @Test
-    public void testNPlusOne() {
+    public void testNoNPlusOne() {
         SQLStatementCountValidator.reset();
 
         List<Post> posts = doInJPA(entityManager -> {
