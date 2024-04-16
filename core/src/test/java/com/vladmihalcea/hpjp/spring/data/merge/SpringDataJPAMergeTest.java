@@ -72,6 +72,7 @@ public class SpringDataJPAMergeTest {
             }
         }
 
+        LOGGER.info("Save posts");
         forumService.saveAll(posts);
     }
 }
