@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class IntegerDiscriminatorTest extends AbstractMySQLIntegrationTest {
+public class MySQLIntegerDiscriminatorTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
