@@ -54,19 +54,14 @@ public class CatalogMultitenancyTest extends AbstractTest {
     }
 
     private void createCatalog(String catalogName) {
-        doInJPA(entityManager -> {
-            entityManager.unwrap(Session.class).doWork(connection -> {
-                try(Statement statement = connection.createStatement()) {
-                    statement.executeUpdate(String.format("drop database if exists %s", catalogName));
-                    statement.executeUpdate(String.format("create database %s", catalogName));
-                    statement.executeUpdate(String.format("USE %s", catalogName));
-
-                    statement.executeUpdate("create table posts (id bigint not null auto_increment, created_on datetime(6), title varchar(255), user_id bigint, primary key (id)) engine=InnoDB");
-                    statement.executeUpdate("create table users (id bigint not null auto_increment, registered_on datetime(6), firstName varchar(255), lastName varchar(255), primary key (id)) engine=InnoDB");
-                    statement.executeUpdate("alter table posts add constraint fk_user_id foreign key (user_id) references users (id)");
-                }
-            });
-        });
+        executeStatement(
+            String.format("drop database if exists %s", catalogName),
+            String.format("create database %s", catalogName),
+            String.format("USE %s", catalogName),
+            "create table posts (id bigint not null auto_increment, created_on datetime(6), title varchar(255), user_id bigint, primary key (id)) engine=InnoDB",
+            "create table users (id bigint not null auto_increment, registered_on datetime(6), firstName varchar(255), lastName varchar(255), primary key (id)) engine=InnoDB",
+            "alter table posts add constraint fk_user_id foreign key (user_id) references users (id)"
+        );
 
         addTenantConnectionProvider(catalogName);
     }

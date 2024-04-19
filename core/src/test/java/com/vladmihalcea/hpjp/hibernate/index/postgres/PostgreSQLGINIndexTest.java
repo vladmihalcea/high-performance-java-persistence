@@ -2,9 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.index.postgres;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.RandomUtils;
-import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import com.vladmihalcea.hpjp.util.providers.aiven.AivenPostgreSQLDataSourceProvider;
 import org.hibernate.Session;
 import org.junit.Test;
 
@@ -30,12 +28,6 @@ public class PostgreSQLGINIndexTest extends AbstractTest {
     @Override
     protected Database database() {
         return Database.POSTGRESQL;
-    }
-
-    @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new AivenPostgreSQLDataSourceProvider()
-            .setReWriteBatchedInserts(true);
     }
 
     @Override

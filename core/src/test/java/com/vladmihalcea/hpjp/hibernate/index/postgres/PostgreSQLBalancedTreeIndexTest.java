@@ -2,9 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.index.postgres;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.RandomUtils;
-import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import com.vladmihalcea.hpjp.util.providers.aiven.AivenPostgreSQLDataSourceProvider;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
@@ -29,12 +27,6 @@ public class PostgreSQLBalancedTreeIndexTest extends AbstractTest {
     @Override
     protected Database database() {
         return Database.POSTGRESQL;
-    }
-
-    @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new AivenPostgreSQLDataSourceProvider()
-            .setReWriteBatchedInserts(true);
     }
 
     @Override

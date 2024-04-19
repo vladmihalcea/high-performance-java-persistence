@@ -62,9 +62,6 @@ public class ResourceLocalReleaseAfterStatementConfiguration {
     @Value("${jdbc.password}")
     private String jdbcPassword;
 
-    @Value("${hibernate.dialect}")
-    private String hibernateDialect;
-
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties() {
         return new PropertySourcesPlaceholderConfigurer();

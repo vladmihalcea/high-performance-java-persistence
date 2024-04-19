@@ -36,9 +36,6 @@ public abstract class AbstractJPAConfiguration {
 
     private final Database databaseType;
 
-    @Value("${hibernate.dialect}")
-    private String hibernateDialect;
-
     protected AbstractJPAConfiguration(Database databaseType) {
         this.databaseType = databaseType;
     }
@@ -96,7 +93,6 @@ public abstract class AbstractJPAConfiguration {
 
     protected Properties additionalProperties() {
         Properties properties = new Properties();
-        properties.setProperty("hibernate.dialect", hibernateDialect);
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         return properties;
     }

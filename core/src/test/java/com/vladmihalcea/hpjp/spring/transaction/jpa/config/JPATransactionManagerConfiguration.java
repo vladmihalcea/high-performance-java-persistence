@@ -72,20 +72,17 @@ public class JPATransactionManagerConfiguration {
     }
 
     @Bean(destroyMethod = "close")
-    public HikariDataSource actualDataSource() {
+    public DataSource dataSource() {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setMaximumPoolSize(64);
         hikariConfig.setAutoCommit(false);
         hikariConfig.setDataSource(dataSourceProvider().dataSource());
-        return new HikariDataSource(hikariConfig);
-    }
+        HikariDataSource hikariDataSource = new HikariDataSource(hikariConfig);
 
-    @Bean
-    public DataSource dataSource() {
         SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
         loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
         DataSource dataSource = ProxyDataSourceBuilder
-            .create(actualDataSource())
+            .create(hikariDataSource)
             .name(DATA_SOURCE_PROXY_NAME)
             .listener(loggingListener)
             .listener(new JdbcLifecycleEventListenerAdapter() {

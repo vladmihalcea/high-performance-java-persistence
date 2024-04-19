@@ -57,9 +57,6 @@ public class JTATransactionManagerConfiguration {
     @Value("${jdbc.port}")
     protected String jdbcPort;
 
-    @Value("${hibernate.dialect}")
-    protected String hibernateDialect;
-
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties() {
         return new PropertySourcesPlaceholderConfigurer();

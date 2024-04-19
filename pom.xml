@@ -520,13 +520,13 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <argLine>-Xms1024m -Xmx1024m -DObjectStoreEnvironmentBean.objectStoreDir=${project.build.directory} -Dcom.arjuna.ats.arjuna.objectstore.objectStoreDir=${project.build.directory} ${cmd.args}</argLine>
+        <argLine>-Xms1024m -Xmx1024m -DObjectStoreEnvironmentBean.objectStoreDir=target -Dcom.arjuna.ats.arjuna.objectstore.objectStoreDir=target ${cmd.args}</argLine>
 
         <slf4j.version>1.7.36</slf4j.version>
         <logback.version>1.2.11</logback.version>
         <commons-lang.version>3.12.0</commons-lang.version>
         <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
-        <hibernate.version>6.3.2.Final</hibernate.version>
+        <hibernate.version>6.4.4.Final</hibernate.version>
         <hibernate.validator.version>6.2.1.Final</hibernate.validator.version>
         <javassist.version>3.18.1-GA</javassist.version>
         <ehcache.version>3.10.0</ehcache.version>
@@ -553,13 +553,13 @@
         <flexy-pool.version>2.0.0</flexy-pool.version>
 
         <aspectj.version>1.9.19</aspectj.version>
-        <spring.version>6.0.8</spring.version>
-        <spring-data.version>3.0.7</spring-data.version>
+        <spring.version>6.1.6</spring.version>
+        <spring-data.version>3.2.5</spring-data.version>
 
-        <jackson.version>2.13.2.2</jackson.version>
+        <jackson.version>2.14.3</jackson.version>
 
         <flyway.version>6.4.4</flyway.version>
-        <hypersistence-utils.version>3.7.0</hypersistence-utils.version>
+        <hypersistence-utils.version>3.7.4</hypersistence-utils.version>
         <hypersistence-tsid.version>2.1.1</hypersistence-tsid.version>
 
         <blaze-persistence.version>1.6.10</blaze-persistence.version>

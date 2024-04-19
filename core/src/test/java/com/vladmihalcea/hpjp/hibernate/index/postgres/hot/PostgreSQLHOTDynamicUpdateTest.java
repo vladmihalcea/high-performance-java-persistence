@@ -65,6 +65,9 @@ public class PostgreSQLHOTDynamicUpdateTest extends AbstractPostgreSQLIntegratio
 
     @Test
     public void testHOT() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         for (int i = 1; i <= 50; i++) {
             final int revision = i;
             checkHeapOnlyTuples();

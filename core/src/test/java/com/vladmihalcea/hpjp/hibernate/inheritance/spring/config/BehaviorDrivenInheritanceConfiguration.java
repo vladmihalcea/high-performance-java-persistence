@@ -45,9 +45,6 @@ public class BehaviorDrivenInheritanceConfiguration {
     @Value("${jdbc.password}")
     private String jdbcPassword;
 
-    @Value("${hibernate.dialect}")
-    private String hibernateDialect;
-
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties() {
         return new PropertySourcesPlaceholderConfigurer();
@@ -106,7 +103,6 @@ public class BehaviorDrivenInheritanceConfiguration {
 
     protected Properties additionalProperties() {
         Properties properties = new Properties();
-        properties.setProperty("hibernate.dialect", hibernateDialect);
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         return properties;
     }

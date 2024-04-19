@@ -32,12 +32,6 @@ public abstract class AbstractJTATransactionManagerConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 
-    @Value("${btm.config.journal:null}")
-    private String btmJournal;
-
-    @Value("${hibernate.dialect}")
-    private String hibernateDialect;
-
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties() {
         return new PropertySourcesPlaceholderConfigurer();
@@ -110,7 +104,6 @@ public abstract class AbstractJTATransactionManagerConfiguration {
             AvailableSettings.JTA_PLATFORM,
             JBossStandAloneJtaPlatform.class
         );
-        properties.setProperty("hibernate.dialect", hibernateDialect);
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         return properties;
     }

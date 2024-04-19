@@ -1,9 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.index.postgres;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import com.vladmihalcea.hpjp.util.providers.aiven.AivenPostgreSQLDataSourceProvider;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -33,12 +31,6 @@ public class PostgreSQLBRINIndexTest extends AbstractTest {
     @Override
     protected Database database() {
         return Database.POSTGRESQL;
-    }
-
-    @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new AivenPostgreSQLDataSourceProvider()
-            .setReWriteBatchedInserts(true);
     }
 
     @Override

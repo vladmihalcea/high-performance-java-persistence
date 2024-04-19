@@ -27,7 +27,7 @@ public class MultiTenantConnectionProvider
     }
 
     @Override
-    protected ConnectionProvider selectConnectionProvider(String tenantIdentifier) {
+    protected ConnectionProvider selectConnectionProvider(Object tenantIdentifier) {
         return connectionProviderMap.get(tenantIdentifier);
     }
 }

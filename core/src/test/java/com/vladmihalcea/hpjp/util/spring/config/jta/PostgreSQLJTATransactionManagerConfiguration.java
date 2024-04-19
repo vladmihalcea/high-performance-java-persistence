@@ -32,9 +32,6 @@ public abstract class PostgreSQLJTATransactionManagerConfiguration extends Abstr
     @Value("${jdbc.port}")
     protected String jdbcPort;
 
-    @Value("${hibernate.dialect}")
-    protected String hibernateDialect;
-
     public DataSource actualDataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(dataSourceClassName);

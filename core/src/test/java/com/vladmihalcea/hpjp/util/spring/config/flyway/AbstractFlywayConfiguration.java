@@ -28,9 +28,6 @@ public abstract class AbstractFlywayConfiguration {
 
     private final Database databaseType;
 
-    @Value("${hibernate.dialect}")
-    private String hibernateDialect;
-
     protected AbstractFlywayConfiguration(Database databaseType) {
         this.databaseType = databaseType;
     }
@@ -91,7 +88,6 @@ public abstract class AbstractFlywayConfiguration {
 
     protected Properties additionalProperties() {
         Properties properties = new Properties();
-        properties.setProperty("hibernate.dialect", hibernateDialect);
         /*properties.setProperty("hibernate.hbm2ddl.auto", "validate");*/
         return properties;
     }
