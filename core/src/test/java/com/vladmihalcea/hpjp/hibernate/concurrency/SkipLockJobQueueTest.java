@@ -22,7 +22,7 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class
+            Post.class
         };
     }
 
@@ -103,14 +103,14 @@ public class SkipLockJobQueueTest extends AbstractPostgreSQLIntegrationTest {
         doInJPA(entityManager -> {
             LOGGER.debug("Alice wants to moderate {} Post(s)", postCount);
             List<Post> pendingPosts = getAndLockPostsWithSkipLocked(entityManager, PostStatus.PENDING, postCount);
-            List<Long> ids = pendingPosts.stream().map(Post::getId).collect(toList());
+            List<Long> ids = pendingPosts.stream().map(Post::getId).toList();
             assertTrue(ids.size() == 2 && ids.contains(1L) && ids.contains(2L));
 
             executeSync(() -> {
                 doInJPA(_entityManager -> {
                     LOGGER.debug("Bob wants to moderate {} Post(s)", postCount);
                     List<Post> _pendingPosts = getAndLockPostsWithSkipLocked(_entityManager, PostStatus.PENDING, postCount);
-                    List<Long> _ids = _pendingPosts.stream().map(Post::getId).collect(toList());
+                    List<Long> _ids = _pendingPosts.stream().map(Post::getId).toList();
                     assertTrue(_ids.size() == 2 && _ids.contains(3L) && _ids.contains(4L));
                 });
             });
