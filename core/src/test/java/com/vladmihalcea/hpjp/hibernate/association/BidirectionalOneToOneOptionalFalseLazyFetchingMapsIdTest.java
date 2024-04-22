@@ -1,41 +1,55 @@
 package com.vladmihalcea.hpjp.hibernate.association;
 
+import com.vladmihalcea.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import jakarta.persistence.*;
 import org.junit.Test;
 
-import jakarta.persistence.*;
 import java.util.Date;
+import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class BidirectionalOneToOneOptionalTest extends AbstractTest {
+public class BidirectionalOneToOneOptionalFalseLazyFetchingMapsIdTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
             Post.class,
-            PostDetails.class,
+            PostDetails.class
         };
     }
 
+    @Override
+    protected void afterInit() {
+        doInJPA(entityManager -> {
+            for (int i = 1; i <= 100; i++) {
+                Post post = new Post().setTitle(String.format("Post nr. %d", i));
+                post.setDetails(new PostDetails().setCreatedBy("Vlad Mihalcea"));
+
+                entityManager.persist(post);
+            }
+        });
+    }
+
     @Test
-    public void testLifecycle() {
-        doInJPA(entityManager -> {
-            Post post = new Post("First post");
-            PostDetails details = new PostDetails("John Doe");
-            post.setDetails(details);
+    public void testNPlusOne() {
+        SQLStatementCountValidator.reset();
 
-            entityManager.persist(post);
+        List<Post> posts = doInJPA(entityManager -> {
+            return entityManager.createQuery("""
+                select p
+                from Post p
+                where p.title like 'Post nr.%'
+                """, Post.class)
+            .getResultList();
         });
 
-        doInJPA(entityManager -> {
-            LOGGER.info("Fetching Post");
-            Post post = entityManager.find(Post.class, 1L);
-            assertNotNull(post);
-        });
+        assertEquals(100, posts.size());
+        SQLStatementCountValidator.assertSelectCount(1);
     }
 
     @Entity(name = "Post")
@@ -48,36 +62,37 @@ public class BidirectionalOneToOneOptionalTest extends AbstractTest {
 
         private String title;
 
-        @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, optional = true)
+        @OneToOne(
+            mappedBy = "post",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            optional = false
+        )
         private PostDetails details;
-
-        public Post() {}
-
-        public Post(String title) {
-            this.title = title;
-        }
 
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public PostDetails getDetails() {
             return details;
         }
 
-        public void setDetails(PostDetails details) {
+        public Post setDetails(PostDetails details) {
             if (details == null) {
                 if (this.details != null) {
                     this.details.setPost(null);
@@ -87,6 +102,7 @@ public class BidirectionalOneToOneOptionalTest extends AbstractTest {
                 details.setPost(this);
             }
             this.details = details;
+            return this;
         }
     }
 
@@ -98,28 +114,23 @@ public class BidirectionalOneToOneOptionalTest extends AbstractTest {
         private Long id;
 
         @Column(name = "created_on")
-        private Date createdOn;
+        private Date createdOn = new Date();
 
         @Column(name = "created_by")
         private String createdBy;
 
         @OneToOne(fetch = FetchType.LAZY)
         @MapsId
+        @JoinColumn(name = "id")
         private Post post;
-
-        public PostDetails() {}
-
-        public PostDetails(String createdBy) {
-            createdOn = new Date();
-            this.createdBy = createdBy;
-        }
 
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public PostDetails setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public Date getCreatedOn() {
@@ -130,12 +141,18 @@ public class BidirectionalOneToOneOptionalTest extends AbstractTest {
             return createdBy;
         }
 
+        public PostDetails setCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
+            return this;
+        }
+
         public Post getPost() {
             return post;
         }
 
-        public void setPost(Post post) {
+        public PostDetails setPost(Post post) {
             this.post = post;
+            return this;
         }
     }
 }
