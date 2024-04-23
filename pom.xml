@@ -520,7 +520,7 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <argLine>-Xms1024m -Xmx1024m -DObjectStoreEnvironmentBean.objectStoreDir=target -Dcom.arjuna.ats.arjuna.objectstore.objectStoreDir=target ${cmd.args}</argLine>
+        <argLine>-DObjectStoreEnvironmentBean.objectStoreDir=target -Dcom.arjuna.ats.arjuna.objectstore.objectStoreDir=target ${cmd.args}</argLine>
 
         <slf4j.version>1.7.36</slf4j.version>
         <logback.version>1.2.11</logback.version>
