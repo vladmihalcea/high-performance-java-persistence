@@ -27,10 +27,14 @@ public class BidirectionalOneToOneOptionalFalseLazyFetchingMapsIdTest extends Ab
     protected void afterInit() {
         doInJPA(entityManager -> {
             for (int i = 1; i <= 100; i++) {
-                Post post = new Post().setTitle(String.format("Post nr. %d", i));
-                post.setDetails(new PostDetails().setCreatedBy("Vlad Mihalcea"));
-
-                entityManager.persist(post);
+                entityManager.persist(
+                    new Post()
+                        .setTitle(String.format("Post nr. %d", i))
+                        .setDetails(
+                            new PostDetails()
+                                .setCreatedBy("Vlad Mihalcea")
+                        )
+                );
             }
         });
     }
