@@ -38,44 +38,42 @@ public class BidirectionalManyToManyExtraColumnsTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                Tag.class,
-                PostTag.class
+            Post.class,
+            Tag.class,
+            PostTag.class
         };
     }
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
+    protected void additionalProperties(Properties properties) {
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
         properties.put("hibernate.cache.region.factory_class", "jcache");
-        return properties;
     }
 
     @Test
     public void testLifecycle() {
-
         doInJPA(entityManager -> {
-            Tag misc = new Tag("Misc");
-            Tag jdbc = new Tag("JDBC");
-            Tag hibernate = new Tag("Hibernate");
-            Tag jooq = new Tag("jOOQ");
+            Tag misc = new Tag().setName("Misc");
+            Tag jdbc = new Tag().setName("JDBC");
+            Tag hibernate = new Tag().setName("Hibernate");
+            Tag jooq = new Tag().setName("jOOQ");
 
-            entityManager.persist( misc );
-            entityManager.persist( jdbc );
-            entityManager.persist( hibernate );
-            entityManager.persist( jooq );
+            entityManager.persist(misc);
+            entityManager.persist(jdbc);
+            entityManager.persist(hibernate);
+            entityManager.persist(jooq);
         });
 
         doInJPA(entityManager -> {
-            Session session = entityManager.unwrap( Session.class );
+            Session session = entityManager.unwrap(Session.class);
 
-            Tag misc = session.bySimpleNaturalId(Tag.class).load( "Misc" );
-            Tag jdbc = session.bySimpleNaturalId(Tag.class).load( "JDBC" );
-            Tag hibernate = session.bySimpleNaturalId(Tag.class).load( "Hibernate" );
-            Tag jooq = session.bySimpleNaturalId(Tag.class).load( "jOOQ" );
+            Tag misc = session.bySimpleNaturalId(Tag.class).load("Misc");
+            Tag jdbc = session.bySimpleNaturalId(Tag.class).load("JDBC");
+            Tag hibernate = session.bySimpleNaturalId(Tag.class).load("Hibernate");
+            Tag jooq = session.bySimpleNaturalId(Tag.class).load("jOOQ");
 
-            Post hpjp1 = new Post("High-Performance Java Persistence 1st edition");
+            Post hpjp1 = new Post()
+                .setTitle("High-Performance Java Persistence 1st edition");
             hpjp1.setId(1L);
 
             hpjp1.addTag(jdbc);
@@ -85,7 +83,8 @@ public class BidirectionalManyToManyExtraColumnsTest extends AbstractTest {
 
             entityManager.persist(hpjp1);
 
-            Post hpjp2 = new Post("High-Performance Java Persistence 2nd edition");
+            Post hpjp2 = new Post()
+                .setTitle("High-Performance Java Persistence 2nd edition");
             hpjp2.setId(2L);
 
             hpjp2.addTag(jdbc);
@@ -96,20 +95,21 @@ public class BidirectionalManyToManyExtraColumnsTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
-            Tag misc = entityManager.unwrap( Session.class )
+            Tag misc = entityManager.unwrap(Session.class)
                 .bySimpleNaturalId(Tag.class)
-                .load( "Misc" );
+                .load("Misc");
 
-            Post post = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "join fetch p.tags pt " +
-                "join fetch pt.tag " +
-                "where p.id = :postId", Post.class)
-            .setParameter( "postId", 1L )
+            Post post = entityManager.createQuery("""
+                select p
+                from Post p
+                join fetch p.tags pt
+                join fetch pt.tag
+                where p.id = :postId
+                """, Post.class)
+            .setParameter("postId", 1L)
             .getSingleResult();
 
-            post.removeTag( misc );
+            post.removeTag(misc);
         });
     }
 
@@ -125,32 +125,36 @@ public class BidirectionalManyToManyExtraColumnsTest extends AbstractTest {
         @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<PostTag> tags = new ArrayList<>();
 
-        public Post() {
-        }
-
-        public Post(String title) {
-            this.title = title;
-        }
-
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public Post setTitle(String title) {
+            this.title = title;
+            return this;
         }
 
         public List<PostTag> getTags() {
             return tags;
         }
 
-        public void addTag(Tag tag) {
+        public Post addTag(Tag tag) {
             PostTag postTag = new PostTag(this, tag);
             tags.add(postTag);
             tag.getPosts().add(postTag);
+            return this;
         }
 
-        public void removeTag(Tag tag) {
+        public Post removeTag(Tag tag) {
             for (Iterator<PostTag> iterator = tags.iterator(); iterator.hasNext(); ) {
                 PostTag postTag = iterator.next();
                 if (postTag.getPost().equals(this) &&
@@ -161,6 +165,7 @@ public class BidirectionalManyToManyExtraColumnsTest extends AbstractTest {
                     postTag.setTag(null);
                 }
             }
+            return this;
         }
 
         @Override
@@ -299,27 +304,22 @@ public class BidirectionalManyToManyExtraColumnsTest extends AbstractTest {
         )
         private List<PostTag> posts = new ArrayList<>();
 
-        public Tag() {
-        }
-
-        public Tag(String name) {
-            this.name = name;
-        }
-
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Tag setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getName() {
             return name;
         }
 
-        public void setName(String name) {
+        public Tag setName(String name) {
             this.name = name;
+            return this;
         }
 
         public List<PostTag> getPosts() {
