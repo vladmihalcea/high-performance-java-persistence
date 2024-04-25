@@ -41,7 +41,7 @@
                 </dependencies>
                 <configuration>
                     <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
-                    <url>jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence</url>
+                    <url>jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence;encrypt=true;trustServerCertificate=true</url>
                     <username>sa</username>
                     <password>adm1n</password>
                     <autocommit>true</autocommit>
@@ -92,7 +92,7 @@
                 <configuration>
                     <jdbc>
                         <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
-                        <url>jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence</url>
+                        <url>jdbc:sqlserver://localhost;instance=SQLEXPRESS;databaseName=high_performance_java_persistence;encrypt=true;trustServerCertificate=true</url>
                         <username>sa</username>
                         <password>adm1n</password>
                     </jdbc>
