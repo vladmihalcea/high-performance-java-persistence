@@ -8,8 +8,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
@@ -59,7 +58,7 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
         doInJPA(entityManager -> {
             T _entity = entityManager.getReference(clazz, entity.getId());
             assertTrue(
-                "The entity is not in the Set found after it's loaded as a proxy in a different Persistence Context.",
+                "The entity is not found in the Set after it's loaded as a proxy in a different Persistence Context.",
                 tuples.contains(_entity)
             );
         });
@@ -72,6 +71,11 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
             assertTrue(
                 "The entity is not equal with the entity proxy.",
                 entity.equals(entityProxy)
+            );
+            assertEquals(
+                "The entity hashCode is different than the entity proxy.",
+                entity.hashCode(),
+                entityProxy.hashCode()
             );
         });
 
