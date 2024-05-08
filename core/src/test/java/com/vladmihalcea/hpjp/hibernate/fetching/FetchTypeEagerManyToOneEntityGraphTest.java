@@ -1,15 +1,13 @@
 package com.vladmihalcea.hpjp.hibernate.fetching;
 
-import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import jakarta.persistence.*;
 import org.hibernate.Hibernate;
 import org.hibernate.LazyInitializationException;
+import org.hibernate.jpa.SpecHints;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -29,32 +27,70 @@ public class FetchTypeEagerManyToOneEntityGraphTest extends AbstractTest {
     @Override
     public void afterInit() {
         doInJPA(entityManager -> {
+            Post post = new Post()
+                .setId(1L)
+                .setTitle("High-Performance Java Persistence");
+
+            entityManager.persist(post);
+
             entityManager.persist(
-                new Post()
-                    .setId(1L)
-                    .setTitle("High-Performance Java Persistence")
-                    .addComment(
-                        new PostComment()
-                            .setReview("The first part is about JDBC")
-                    )
-                    .addComment(
-                        new PostComment()
-                            .setReview("The second part is about JPA")
-                    )
-                    .addComment(
-                        new PostComment()
-                            .setReview("The third part is about jOOQ")
-                    )
+                new PostComment()
+                    .setPost(post)
+                    .setReview("The first part is about JDBC")
+            );
+
+            entityManager.persist(
+                new PostComment()
+                    .setPost(post)
+                    .setReview("The second part is about JPA")
+            );
+
+            entityManager.persist(
+                new PostComment()
+                    .setPost(post)
+                    .setReview("The third part is about jOOQ")
             );
         });
     }
 
     @Test
-    public void testFetchGraphOverridesFetchTypeEager() {
+    public void testFindById() {
+        PostComment comment = doInJPA(entityManager -> {
+            return entityManager.find(PostComment.class, 1L);
+        });
+
+        assertTrue(Hibernate.isInitialized(comment.getPost()));
+        assertEquals(
+            "High-Performance Java Persistence",
+            comment.getPost().getTitle()
+        );
+    }
+
+    @Test
+    public void testQueryById() {
+        PostComment comment = doInJPA(entityManager -> {
+            return entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                where pc.id = :id
+                """, PostComment.class)
+            .setParameter("id", 1L)
+            .getSingleResult();
+        });
+
+        assertTrue(Hibernate.isInitialized(comment.getPost()));
+        assertEquals(
+            "High-Performance Java Persistence",
+            comment.getPost().getTitle()
+        );
+    }
+
+    @Test
+    public void testFindByIdFetchGraphOverridesFetchTypeEager() {
         PostComment comment = doInJPA(entityManager -> {
             return entityManager.find(PostComment.class, 1L,
-                Collections.singletonMap(
-                    "jakarta.persistence.fetchgraph",
+                Map.of(
+                    SpecHints.HINT_SPEC_FETCH_GRAPH,
                     entityManager.createEntityGraph(PostComment.class)
                 )
             );
@@ -63,7 +99,30 @@ public class FetchTypeEagerManyToOneEntityGraphTest extends AbstractTest {
         try {
             comment.getPost().getTitle();
 
-            fail("Should have thrown LazyInitializationException");
+            fail("Should throw LazyInitializationException");
+        } catch(LazyInitializationException expected) {}
+    }
+
+    @Test
+    public void testQueryByIdFetchGraphOverridesFetchTypeEager() {
+        PostComment comment = doInJPA(entityManager -> {
+            return entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                where pc.id = :id
+                """, PostComment.class)
+            .setHint(
+                SpecHints.HINT_SPEC_FETCH_GRAPH,
+                entityManager.createEntityGraph(PostComment.class)
+            )
+            .setParameter("id", 1L)
+            .getSingleResult();
+        });
+        assertFalse(Hibernate.isInitialized(comment.getPost()));
+        try {
+            comment.getPost().getTitle();
+
+            fail("Should throw LazyInitializationException");
         } catch(LazyInitializationException expected) {}
     }
 
@@ -71,8 +130,8 @@ public class FetchTypeEagerManyToOneEntityGraphTest extends AbstractTest {
     public void testLoadGraphDoesNotOverrideFetchTypeEager() {
         PostComment comment = doInJPA(entityManager -> {
             return entityManager.find(PostComment.class, 1L,
-                Collections.singletonMap(
-                    "jakarta.persistence.loadgraph",
+                Map.of(
+                    SpecHints.HINT_SPEC_LOAD_GRAPH,
                     entityManager.createEntityGraph(PostComment.class)
                 )
             );
@@ -91,14 +150,8 @@ public class FetchTypeEagerManyToOneEntityGraphTest extends AbstractTest {
         @Id
         private Long id;
 
+        @Column(length = 100)
         private String title;
-
-        @OneToMany(
-            mappedBy = "post",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-        )
-        private List<PostComment> comments = new ArrayList<>();
 
         public Long getId() {
             return id;
@@ -117,16 +170,6 @@ public class FetchTypeEagerManyToOneEntityGraphTest extends AbstractTest {
             this.title = title;
             return this;
         }
-
-        public List<PostComment> getComments() {
-            return comments;
-        }
-
-        public Post addComment(PostComment comment) {
-            comments.add(comment);
-            comment.setPost(this);
-            return this;
-        }
     }
 
     @Entity(name = "PostComment")
@@ -137,10 +180,11 @@ public class FetchTypeEagerManyToOneEntityGraphTest extends AbstractTest {
         @GeneratedValue
         private Long id;
 
+        @Column(length = 250)
+        private String review;
+
         @ManyToOne
         private Post post;
-
-        private String review;
 
         public Long getId() {
             return id;
