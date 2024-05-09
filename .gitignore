@@ -17,3 +17,4 @@ core/btm1.tlog
 core/btm2.tlog
 *.tlog
 *.log
+*.lck

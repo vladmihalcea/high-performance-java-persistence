@@ -270,6 +270,20 @@
         </dependency>
 
         <dependency>
+            <groupId>com.atomikos</groupId>
+            <artifactId>transactions-jta</artifactId>
+            <version>${atomikos.version}</version>
+            <classifier>jakarta</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>com.atomikos</groupId>
+            <artifactId>transactions-jdbc</artifactId>
+            <version>${atomikos.version}</version>
+            <classifier>jakarta</classifier>
+        </dependency>
+
+        <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
             <version>${flyway.version}</version>
@@ -543,6 +557,7 @@
         <yugabytedb.version>42.3.0</yugabytedb.version>
 
         <narayana-jta.version>5.12.6.Final</narayana-jta.version>
+        <atomikos.version>6.0.0</atomikos.version>
 
         <jaxb-api.version>2.2.7</jaxb-api.version>
         <javax.el.version>2.2.4</javax.el.version>

@@ -1,11 +1,15 @@
 package com.vladmihalcea.hpjp.util.spring.config.jta;
 
+import com.atomikos.jdbc.AtomikosDataSourceBean;
+import org.postgresql.xa.PGXADataSource;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
+import java.util.Properties;
 
 /**
  * @author Vlad Mihalcea
@@ -32,19 +36,15 @@ public abstract class PostgreSQLJTATransactionManagerConfiguration extends Abstr
     @Value("${jdbc.port}")
     protected String jdbcPort;
 
-    public DataSource actualDataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(dataSourceClassName);
-        dataSource.setUrl(
-            String.format(
-                "jdbc:postgresql://%s:%s/%s",
-                jdbcHost,
-                jdbcPort,
-                jdbcDatabase
-            )
-        );
-        dataSource.setUsername(jdbcUser);
-        dataSource.setPassword(jdbcPassword);
+    @Bean(initMethod = "init", destroyMethod = "close")
+    public AtomikosDataSourceBean actualDataSource() {
+        AtomikosDataSourceBean dataSource = new AtomikosDataSourceBean();
+        dataSource.setUniqueResourceName("PostgreSQL");
+        PGXADataSource xaDataSource = new PGXADataSource();
+        xaDataSource.setUser(jdbcUser);
+        xaDataSource.setPassword(jdbcPassword);
+        dataSource.setXaDataSource(xaDataSource);
+        dataSource.setPoolSize(5);
         return dataSource;
     }
 }

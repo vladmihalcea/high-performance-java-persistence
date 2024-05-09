@@ -35,7 +35,7 @@ import java.util.Properties;
 @ComponentScan(basePackages = "com.vladmihalcea.hpjp.spring.transaction.jta")
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-public class JTATransactionManagerConfiguration {
+public class NarayanaJTATransactionManagerConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 

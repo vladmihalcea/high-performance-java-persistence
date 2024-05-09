@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.spring.transaction.jta;
 import com.vladmihalcea.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Tag;
-import com.vladmihalcea.hpjp.spring.transaction.jta.config.JTATransactionManagerConfiguration;
+import com.vladmihalcea.hpjp.spring.transaction.jta.config.AtomikosJTATransactionManagerConfiguration;
 import com.vladmihalcea.hpjp.spring.transaction.jta.dao.TagDAO;
 import com.vladmihalcea.hpjp.spring.transaction.jta.service.ForumService;
 import org.junit.Before;
@@ -28,7 +28,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Vlad Mihalcea
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = JTATransactionManagerConfiguration.class)
+@ContextConfiguration(classes = AtomikosJTATransactionManagerConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class JTATransactionManagerTest {
 
