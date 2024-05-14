@@ -2,16 +2,13 @@ package com.vladmihalcea.hpjp.jdbc.index;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
+import com.vladmihalcea.hpjp.util.providers.queries.PostgreSQLQueries;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcType;
-import org.hibernate.annotations.Type;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import org.junit.Test;
-import org.postgresql.PGStatement;
 import org.postgresql.util.PGobject;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +69,7 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
                     }
                     statement.setLong(1, i);
                     statement.setString(2, String.format("Task %d", i));
-                    statement.setObject(3, toPgObject(status), Types.OTHER);
+                    statement.setObject(3, PostgreSQLQueries.toEnum(status, "task_status"), Types.OTHER);
                     executeStatement(statement, statementCount);
                 }
                 statement.executeBatch();
@@ -103,34 +100,6 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
         });
     }
 
-    public boolean isUseServerPrepare(Statement statement) {
-        if(statement instanceof PGStatement) {
-            PGStatement pgStatement = (PGStatement) statement;
-            return pgStatement.isUseServerPrepare();
-        } else {
-            InvocationHandler handler = Proxy.getInvocationHandler(statement);
-            try {
-                return (boolean) handler.invoke(statement, PGStatement.class.getMethod("isUseServerPrepare"), null);
-            } catch (Throwable e) {
-                throw new IllegalArgumentException(e);
-            }
-        }
-    }
-
-    public void setPrepareThreshold(Statement statement, int threshold) throws SQLException {
-        if(statement instanceof PGStatement) {
-            PGStatement pgStatement = (PGStatement) statement;
-            pgStatement.setPrepareThreshold(threshold);
-        } else {
-            InvocationHandler handler = Proxy.getInvocationHandler(statement);
-            try {
-                handler.invoke(statement, PGStatement.class.getMethod("setPrepareThreshold", int.class), new Object[]{threshold});
-            } catch (Throwable throwable) {
-                throw new IllegalArgumentException(throwable);
-            }
-        }
-    }
-
     private void executeStatement(PreparedStatement statement, AtomicInteger statementCount) throws SQLException {
         statement.addBatch();
         int count = statementCount.incrementAndGet();
@@ -156,9 +125,9 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
                 """
         )) {
 
-            assertFalse(isUseServerPrepare(statement));
-            setPrepareThreshold(statement, 1);
-            statement.setObject(1, toPgObject(status), Types.OTHER);
+            assertFalse(PostgreSQLQueries.isUseServerPrepare(statement));
+            PostgreSQLQueries.setPrepareThreshold(statement, 1);
+            statement.setObject(1, PostgreSQLQueries.toEnum(status, "task_status"), Types.OTHER);
             ResultSet resultSet = statement.executeQuery();
 
             List<String> planLines = new ArrayList<>();
@@ -170,15 +139,8 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
                 planLines.stream().collect(Collectors.joining(System.lineSeparator()))
             );
 
-            assertTrue(isUseServerPrepare(statement));
+            assertTrue(PostgreSQLQueries.isUseServerPrepare(statement));
         }
-    }
-
-    protected PGobject toPgObject(Task.Status status) throws SQLException {
-        PGobject object = new PGobject();
-        object.setType("task_status");
-        object.setValue(status.name());
-        return object;
     }
 
     @Entity(name = "Task")

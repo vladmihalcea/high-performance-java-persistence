@@ -1,17 +1,16 @@
 package com.vladmihalcea.hpjp.jdbc.caching;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import com.vladmihalcea.hpjp.util.providers.*;
-import org.junit.Test;
-import org.postgresql.PGStatement;
-
+import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-import java.sql.*;
+import org.junit.Test;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -19,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 /**
  * @author Vlad Mihalcea
@@ -123,20 +122,6 @@ public class PostgreSQLPreparedStatementCompilingTest extends AbstractTest {
         }
 
         return ids;
-    }
-
-    public void setPrepareThreshold(Statement statement, int threshold) throws SQLException {
-        if(statement instanceof PGStatement) {
-            PGStatement pgStatement = (PGStatement) statement;
-            pgStatement.setPrepareThreshold(threshold);
-        } else {
-            InvocationHandler handler = Proxy.getInvocationHandler(statement);
-            try {
-                handler.invoke(statement, PGStatement.class.getMethod("setPrepareThreshold", int.class), new Object[]{threshold});
-            } catch (Throwable throwable) {
-                throw new IllegalArgumentException(throwable);
-            }
-        }
     }
 
     private void executeStatement(PreparedStatement statement, AtomicInteger statementCount) throws SQLException {
