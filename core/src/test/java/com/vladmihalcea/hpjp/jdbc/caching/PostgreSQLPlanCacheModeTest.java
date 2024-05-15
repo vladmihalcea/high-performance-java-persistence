@@ -99,18 +99,13 @@ public class PostgreSQLPlanCacheModeTest extends AbstractTest {
             String planCacheMode = selectColumn(connection, "SHOW plan_cache_mode", String.class);
             LOGGER.info("Plan cache mode: {}", planCacheMode);
             try (PreparedStatement statement = connection.prepareStatement("""
-                    SELECT 
-                        id, 
-                        title, 
-                        status 
-                    FROM 
-                        post 
-                    WHERE 
-                        status = ?
+                    SELECT id, title, status
+                    FROM post
+                    WHERE status = ?
                     """)) {
-                postIdsForStatus(statement, PostStatus.PENDING);
-                postIdsForStatus(statement, PostStatus.SPAM);
-                postIdsForStatus(statement, PostStatus.APPROVED);
+                executeStatementWithStatus(statement, PostStatus.PENDING);
+                executeStatementWithStatus(statement, PostStatus.SPAM);
+                executeStatementWithStatus(statement, PostStatus.APPROVED);
             }
         });
     }
@@ -132,30 +127,23 @@ public class PostgreSQLPlanCacheModeTest extends AbstractTest {
                 "SET auto_explain.log_analyze=true",
                 "SET auto_explain.log_min_duration=0"
             );
-            String planCacheMode = selectColumn(connection, "SHOW plan_cache_mode", String.class);
-            LOGGER.info("Plan cache mode: {}", planCacheMode);
+            LOGGER.info(
+                "Plan cache mode: {}",
+                selectColumn(
+                    connection,
+                    "SHOW plan_cache_mode",
+                    String.class
+                )
+            );
             try (PreparedStatement statement = connection.prepareStatement("""
-                    SELECT 
-                        id, 
-                        title, 
-                        status 
-                    FROM 
-                        post 
-                    WHERE 
-                        status = ?
+                    SELECT id, title, status
+                    FROM post
+                    WHERE status = ?
                     """)) {
                 for (int i = 1; i <= 10; i++) {
-                    LOGGER.info(
-                        "Statement is {}prepared on the server",
-                        PostgreSQLQueries.isUseServerPrepare(statement) ? "" :
-                            "not "
-                    );
-                    postIdsForStatus(statement, PostStatus.APPROVED);
+                    executeStatementWithStatus(statement, PostStatus.APPROVED);
                 }
-                postIdsForStatus(
-                    statement,
-                    random.nextBoolean() ? PostStatus.PENDING : PostStatus.SPAM
-                );
+                executeStatementWithStatus(statement, PostStatus.SPAM);
             }
         });
     }
@@ -179,47 +167,42 @@ public class PostgreSQLPlanCacheModeTest extends AbstractTest {
             );
 
             try (PreparedStatement statement = connection.prepareStatement("""
-                    SELECT 
-                        id, 
-                        title, 
-                        status 
-                    FROM 
-                        post 
-                    WHERE 
-                        status = ?
+                    SELECT id, title, status
+                    FROM post
+                    WHERE status = ?
                     """)) {
-                for (int i = 1; i <= 5; i++) {
-                    LOGGER.info(
-                        "Statement is {}prepared on the server",
-                        PostgreSQLQueries.isUseServerPrepare(statement) ? "" :
-                            "not "
-                    );
-                    postIdsForStatus(statement, PostStatus.APPROVED);
+                for (int i = 1; i <= 10; i++) {
+                    executeStatementWithStatus(statement, PostStatus.APPROVED);
                 }
+                executeStatementWithStatus(statement, PostStatus.SPAM);
                 executeStatement(
                     connection,
                     "SET plan_cache_mode=force_custom_plan"
                 );
-                postIdsForStatus(
-                    statement,
-                    random.nextBoolean() ? PostStatus.PENDING : PostStatus.SPAM
-                );
+                executeStatementWithStatus(statement, PostStatus.SPAM);
             }
         });
     }
 
-    protected List<Long> postIdsForStatus(PreparedStatement statement, PostStatus status)
+    protected int executeStatementWithStatus(PreparedStatement statement, PostStatus status)
             throws SQLException {
-        List<Long> ids = new ArrayList<>();
-
-        statement.setObject(1, PostgreSQLQueries.toEnum(status, "post_status"), Types.OTHER);
+        LOGGER.info(
+            "Statement is {}prepared on the server",
+            PostgreSQLQueries.isUseServerPrepare(statement) ? "" :
+                "not "
+        );
+        int rowCount = 0;
+        statement.setObject(
+            1,
+            PostgreSQLQueries.toEnum(status, "post_status"),
+            Types.OTHER
+        );
         try(ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
-                ids.add(resultSet.getLong(1));
+                rowCount++;
             }
         }
-
-        return ids;
+        return rowCount;
     }
 
     private void addToBatch(PreparedStatement statement, AtomicInteger statementCount) throws SQLException {
