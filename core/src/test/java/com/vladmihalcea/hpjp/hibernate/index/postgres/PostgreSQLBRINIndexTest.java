@@ -74,7 +74,7 @@ public class PostgreSQLBRINIndexTest extends AbstractTest {
             CREATE INDEX IF NOT EXISTS idx_post_created_on
             ON post USING BRIN(created_on)
             """,
-            "VACUUM FULL"
+            "ANALYZE VERBOSE"
         );
     }
 

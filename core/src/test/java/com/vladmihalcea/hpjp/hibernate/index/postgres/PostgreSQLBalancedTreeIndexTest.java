@@ -63,7 +63,7 @@ public class PostgreSQLBalancedTreeIndexTest extends AbstractTest {
             ON book (published_on)
             INCLUDE (title)
             """,
-            "VACUUM FULL"
+            "ANALYZE VERBOSE"
         );
     }
 

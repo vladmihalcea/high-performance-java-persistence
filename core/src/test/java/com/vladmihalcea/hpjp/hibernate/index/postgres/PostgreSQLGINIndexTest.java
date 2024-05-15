@@ -107,7 +107,7 @@ public class PostgreSQLGINIndexTest extends AbstractTest {
             CREATE INDEX idx_book_properties_gin
             ON book USING GIN (properties)
             """,
-            "VACUUM FULL"
+            "ANALYZE VERBOSE"
         );
 
         List<String> executionPlanLines = doInJPA(entityManager -> {
@@ -140,7 +140,7 @@ public class PostgreSQLGINIndexTest extends AbstractTest {
             CREATE INDEX idx_book_properties_gin
             ON book USING GIN (properties jsonb_path_ops)
             """,
-            "VACUUM FULL"
+            "ANALYZE VERBOSE"
         );
 
         List<String> executionPlanLines = doInJPA(entityManager -> {
@@ -170,7 +170,7 @@ public class PostgreSQLGINIndexTest extends AbstractTest {
             CREATE INDEX idx_book_properties_gin
             ON book USING GIN ((properties -> 'reviews'))
             """,
-            "VACUUM FULL"
+            "ANALYZE VERBOSE"
         );
 
         List<String> executionPlanLines = doInJPA(entityManager -> {

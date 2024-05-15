@@ -44,7 +44,7 @@ public class PostgreSQLCtidDefaultUpdateTest extends AbstractPostgreSQLIntegrati
             """
             CREATE INDEX IF NOT EXISTS idx_post_created_on ON post (created_on)
             """,
-            "VACUUM FULL"
+            "ANALYZE VERBOSE"
         );
         doInJPA(entityManager -> {
             for (long id = 1; id <= 5; id++) {

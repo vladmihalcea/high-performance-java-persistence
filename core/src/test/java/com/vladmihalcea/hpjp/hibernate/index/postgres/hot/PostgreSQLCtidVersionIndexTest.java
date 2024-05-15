@@ -28,7 +28,7 @@ public class PostgreSQLCtidVersionIndexTest extends AbstractPostgreSQLIntegratio
             """
             CREATE INDEX IF NOT EXISTS idx_post_version ON post (version)
             """,
-            "VACUUM FULL"
+            "ANALYZE VERBOSE"
         );
     }
 

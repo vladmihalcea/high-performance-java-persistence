@@ -88,7 +88,7 @@ public class PostgreSQLHashIndexTest extends AbstractTest {
             CREATE INDEX IF NOT EXISTS idx_book_title_btree
             ON book (title)
             """,
-            "VACUUM FULL"
+            "ANALYZE VERBOSE"
         );
     }
 

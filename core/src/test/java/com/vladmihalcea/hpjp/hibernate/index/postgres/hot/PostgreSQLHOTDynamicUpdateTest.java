@@ -59,7 +59,7 @@ public class PostgreSQLHOTDynamicUpdateTest extends AbstractPostgreSQLIntegratio
             """
             CREATE INDEX idx_book_author_id ON book (author_id)
             """,
-            "VACUUM FULL"
+            "ANALYZE VERBOSE"
         );
     }
 
