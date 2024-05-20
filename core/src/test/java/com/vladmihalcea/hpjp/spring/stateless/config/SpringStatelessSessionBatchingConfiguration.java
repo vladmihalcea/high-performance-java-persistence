@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.spring.stateless.config;
 
+import com.vladmihalcea.hpjp.spring.stateless.hibernate.CustomMutationExecutorService;
 import com.vladmihalcea.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
@@ -55,6 +56,8 @@ import java.util.Properties;
 public class SpringStatelessSessionBatchingConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
+    public static final String EXECUTOR_KEY = "hibernate.jdbc.mutation.executor";
+    public static final String EXECUTOR_NAME = CustomMutationExecutorService.class.getName();
 
     private int maxConnections = 64;
 
@@ -166,6 +169,8 @@ public class SpringStatelessSessionBatchingConfiguration {
             AvailableSettings.ORDER_UPDATES,
             Boolean.TRUE.toString()
         );
+        //adding custom executor
+        properties.setProperty(EXECUTOR_KEY, EXECUTOR_NAME);
         return properties;
     }
 
