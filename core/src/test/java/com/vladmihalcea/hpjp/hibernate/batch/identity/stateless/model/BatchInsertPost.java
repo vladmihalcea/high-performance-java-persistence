@@ -9,7 +9,7 @@ import org.hibernate.annotations.SQLInsert;
  */
 @Entity(name = "Post")
 @Table(name = "post")
-@SQLInsert(sql = "insert into post (id, title) values (default, ?)")
+@SQLInsert(sql = "insert into post (created_by,created_on,title,updated_by,updated_on,version,id) values (?,?,?,?,?,?,default)")
 public class BatchInsertPost extends AbstractPost<Post> {
 
     @Id

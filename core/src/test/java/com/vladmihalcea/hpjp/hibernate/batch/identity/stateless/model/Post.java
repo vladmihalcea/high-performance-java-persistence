@@ -9,7 +9,6 @@ import org.hibernate.annotations.SQLInsert;
  */
 @Entity(name = "Post")
 @Table(name = "post")
-@SQLInsert(sql = "insert into post (id, title) values (default, ?)")
 public class Post extends AbstractPost<Post> {
 
     @Id

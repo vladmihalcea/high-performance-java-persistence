@@ -1,6 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.batch.identity.stateless.model;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
 
 import java.time.LocalDateTime;
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 /**
  * @author Vlad Mihalcea
  */
+@MappedSuperclass
 public abstract class AbstractPost<T extends AbstractPost> {
 
     private String title;
