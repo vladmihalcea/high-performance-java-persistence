@@ -1,6 +1,8 @@
 package com.vladmihalcea.hpjp.hibernate.association;
 
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import jakarta.persistence.*;
@@ -11,7 +13,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vlad Mihalcea
  */
-public class UnidirectionalOneToOneTest extends AbstractMySQLIntegrationTest {
+public class UnidirectionalOneToOneTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -19,6 +21,11 @@ public class UnidirectionalOneToOneTest extends AbstractMySQLIntegrationTest {
             Post.class,
             PostDetails.class,
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 
     @Test
@@ -97,7 +104,6 @@ public class UnidirectionalOneToOneTest extends AbstractMySQLIntegrationTest {
         private String createdBy;
 
         @OneToOne
-        @JoinColumn(name = "post_id", unique = true)
         private Post post;
 
         public PostDetails() {}
