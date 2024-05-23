@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 /**
  * @author Vlad Mihalcea
  */
-public class PostgreSQLQueryToFileTest extends AbstractTest {
+public class PostgreSQLCopyQueryResultSetToFileTest extends AbstractTest {
 
     public static final int BATCH_SIZE = 5000;
 
