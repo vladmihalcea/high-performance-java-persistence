@@ -7,6 +7,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
+ * To test the Docker integration.
+ *
+ * Check the available PostgreSQL service:
+ *
+ * sc queryex type=service state=all | find /i "SERVICE_NAME: postgres"
+ *
+ * net stop postgresql-x64-15
+ *
  * @author Vlad Mihalcea
  */
 public abstract class AbstractContainerDataSourceProvider implements DataSourceProvider {
