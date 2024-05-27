@@ -41,6 +41,9 @@ public class SQLServerFKParentLockRCSITest extends AbstractTest {
 
     @Override
     public void afterInit() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         doInJPA(entityManager -> {
             long postId = 1;
             long commentId = 1;
@@ -69,6 +72,9 @@ public class SQLServerFKParentLockRCSITest extends AbstractTest {
 
     @Override
     public void destroy() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         executeStatement("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT OFF");
         super.destroy();
     }
@@ -83,8 +89,11 @@ public class SQLServerFKParentLockRCSITest extends AbstractTest {
      */
     @Test
     public void test() {
-       CountDownLatch bobStart = new CountDownLatch(1);
-       CountDownLatch monitoringStart = new CountDownLatch(1);
+        if (!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
+        CountDownLatch bobStart = new CountDownLatch(1);
+        CountDownLatch monitoringStart = new CountDownLatch(1);
         try {
             doInJPA(entityManager -> {
                 LOGGER.info(

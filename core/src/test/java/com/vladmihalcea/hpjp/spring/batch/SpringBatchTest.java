@@ -4,13 +4,11 @@ import com.vladmihalcea.hpjp.spring.batch.config.SpringBatchConfiguration;
 import com.vladmihalcea.hpjp.spring.batch.domain.Post;
 import com.vladmihalcea.hpjp.spring.batch.domain.PostStatus;
 import com.vladmihalcea.hpjp.spring.batch.service.ForumService;
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -28,15 +26,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringBatchConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringBatchTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+public class SpringBatchTest extends AbstractSpringTest {
 
     public static final int POST_COUNT = 5 * 1000;
 
     @Autowired
     private ForumService forumService;
+
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            Post.class
+        };
+    }
 
     @Test
     public void testBatchWrite() {

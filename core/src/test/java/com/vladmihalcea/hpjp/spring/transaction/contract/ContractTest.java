@@ -1,47 +1,39 @@
 package com.vladmihalcea.hpjp.spring.transaction.contract;
 
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.transaction.contract.config.ContractConfiguration;
 import com.vladmihalcea.hpjp.spring.transaction.contract.domain.Annex;
 import com.vladmihalcea.hpjp.spring.transaction.contract.domain.AnnexSignature;
 import com.vladmihalcea.hpjp.spring.transaction.contract.domain.Contract;
 import com.vladmihalcea.hpjp.spring.transaction.contract.domain.ContractSignature;
 import com.vladmihalcea.hpjp.spring.transaction.contract.repository.ContractRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = ContractConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class ContractTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
+public class ContractTest extends AbstractSpringTest {
 
     @Autowired
     private ContractRepository contractRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            AnnexSignature.class,
+            Annex.class,
+            ContractSignature.class,
+            Contract.class
+        };
+    }
 
-    @Before
-    public void init() {
+    @Override
+    public void afterInit() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 Contract contract = new Contract()

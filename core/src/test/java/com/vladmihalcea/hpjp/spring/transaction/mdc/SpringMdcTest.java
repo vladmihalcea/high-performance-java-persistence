@@ -1,34 +1,31 @@
 package com.vladmihalcea.hpjp.spring.transaction.mdc;
 
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.common.domain.Post;
+import com.vladmihalcea.hpjp.spring.common.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.common.service.ForumService;
 import com.vladmihalcea.hpjp.spring.transaction.mdc.config.TransactionInfoMdcConfiguration;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TransactionInfoMdcConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringMdcTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
+public class SpringMdcTest extends AbstractSpringTest {
 
     @Autowired
     private ForumService forumService;
+
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            PostComment.class,
+            Post.class,
+        };
+    }
 
     @Test
     public void testAutoMDC() {

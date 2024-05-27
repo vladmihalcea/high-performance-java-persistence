@@ -1,23 +1,17 @@
 package com.vladmihalcea.hpjp.spring.data.unidirectional;
 
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.config.SpringDataJPAUnidirectionalConfiguration;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.domain.*;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.repository.*;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.service.ForumService;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import org.hibernate.exception.ConstraintViolationException;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -25,15 +19,8 @@ import static org.junit.Assert.fail;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringDataJPAUnidirectionalConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPAUnidirectionalBulkTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
+public class SpringDataJPAUnidirectionalBulkTest extends AbstractSpringTest {
 
     @Autowired
     private PostRepository postRepository;
@@ -62,8 +49,21 @@ public class SpringDataJPAUnidirectionalBulkTest {
     @Autowired
     private ForumService forumService;
 
-    @Before
-    public void init() {
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            UserVote.class,
+            PostComment.class,
+            PostDetails.class,
+            PostTag.class,
+            Post.class,
+            Tag.class,
+            User.class
+        };
+    }
+
+    @Override
+    public void afterInit() {
         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
             User alice = new User()
                 .setId(1L)

@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.spring.data.query.fetch;
 
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.config.SpringDataJPAJoinFetchPaginationConfiguration;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.domain.PostComment;
@@ -9,22 +10,15 @@ import com.vladmihalcea.hpjp.spring.data.query.fetch.service.ForumService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.*;
 import org.springframework.orm.jpa.EntityManagerHolder;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 import java.time.LocalDate;
@@ -34,15 +28,11 @@ import java.util.stream.LongStream;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringDataJPAJoinFetchPaginationConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPAOSIVTest {
+public class SpringDataJPAOSIVTest extends AbstractSpringTest {
 
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
+    public static final int POST_COUNT = 100;
+    public static final int COMMENT_COUNT = 10;
 
     @Autowired
     private PostRepository postRepository;
@@ -59,11 +49,16 @@ public class SpringDataJPAOSIVTest {
     @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
 
-    public static final int POST_COUNT = 100;
-    public static final int COMMENT_COUNT = 10;
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            PostComment.class,
+            Post.class
+        };
+    }
 
-    @Before
-    public void init() {
+    @Override
+    public void afterInit() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 LocalDateTime timestamp = LocalDate.now().atStartOfDay().plusHours(12);

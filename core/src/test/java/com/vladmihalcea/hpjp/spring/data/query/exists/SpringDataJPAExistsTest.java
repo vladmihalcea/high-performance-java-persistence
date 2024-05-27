@@ -1,24 +1,17 @@
 package com.vladmihalcea.hpjp.spring.data.query.exists;
 
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.query.exists.config.SpringDataJPAExistsConfiguration;
 import com.vladmihalcea.hpjp.spring.data.query.exists.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.query.exists.domain.Post_;
 import com.vladmihalcea.hpjp.spring.data.query.exists.repository.PostRepository;
-import jakarta.persistence.EntityManager;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import static org.junit.Assert.assertTrue;
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.exact;
@@ -26,18 +19,8 @@ import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatc
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringDataJPAExistsConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPAExistsTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
-
-    @Autowired
-    private EntityManager entityManager;
+public class SpringDataJPAExistsTest extends AbstractSpringTest {
 
     @Autowired
     private PostRepository postRepository;
@@ -45,8 +28,15 @@ public class SpringDataJPAExistsTest {
     /*@Autowired
     private HypersistenceOptimizer hypersistenceOptimizer;*/
 
-    @Before
-    public void init() {
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            Post.class,
+        };
+    }
+
+    @Override
+    public void afterInit() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 entityManager.persist(

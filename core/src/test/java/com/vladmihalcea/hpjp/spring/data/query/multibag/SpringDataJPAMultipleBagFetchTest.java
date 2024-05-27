@@ -1,25 +1,18 @@
 package com.vladmihalcea.hpjp.spring.data.query.multibag;
 
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.config.SpringDataJPAMultipleBagFetchConfiguration;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.domain.Tag;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.service.BrokenForumService;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.service.ForumService;
-import jakarta.persistence.EntityManager;
 import org.hibernate.LazyInitializationException;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,22 +22,12 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringDataJPAMultipleBagFetchConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPAMultipleBagFetchTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+public class SpringDataJPAMultipleBagFetchTest extends AbstractSpringTest {
 
     public static final long POST_COUNT = 50;
     public static final long POST_COMMENT_COUNT = 20;
     public static final long TAG_COUNT = 10;
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
-
-    @Autowired
-    private EntityManager entityManager;
 
     @Autowired
     private BrokenForumService brokenForumService;
@@ -52,8 +35,17 @@ public class SpringDataJPAMultipleBagFetchTest {
     @Autowired
     private ForumService forumService;
 
-    @Before
-    public void init() {
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            PostComment.class,
+            Post.class,
+            Tag.class
+        };
+    }
+
+    @Override
+    public void afterInit() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 List<Tag> tags = new ArrayList<>();

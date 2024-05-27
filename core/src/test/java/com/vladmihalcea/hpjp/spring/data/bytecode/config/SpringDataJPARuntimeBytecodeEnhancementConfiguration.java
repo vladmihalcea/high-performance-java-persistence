@@ -37,6 +37,7 @@ public class SpringDataJPARuntimeBytecodeEnhancementConfiguration extends Spring
 
     @Override
     protected void additionalProperties(Properties properties) {
+        super.additionalProperties(properties);
         properties.put("hibernate.jdbc.batch_size", "100");
         properties.put("hibernate.order_inserts", "true");
         properties.put(BytecodeSettings.ENHANCER_ENABLE_DIRTY_TRACKING, "false");

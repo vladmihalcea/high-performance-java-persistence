@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.spring.partition;
 
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.partition.config.SpringTablePartitioningConfiguration;
 import com.vladmihalcea.hpjp.spring.partition.domain.Partition;
 import com.vladmihalcea.hpjp.spring.partition.domain.Post;
@@ -8,15 +9,8 @@ import com.vladmihalcea.hpjp.spring.partition.repository.UserRepository;
 import com.vladmihalcea.hpjp.spring.partition.service.ForumService;
 import com.vladmihalcea.hpjp.spring.partition.util.UserContext;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.stream.LongStream;
@@ -26,12 +20,8 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringTablePartitioningConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringTablePartitioningTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+public class SpringTablePartitioningTest extends AbstractSpringTest {
 
     public static final int POST_COUNT = 3;
 
@@ -41,8 +31,13 @@ public class SpringTablePartitioningTest {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private TransactionTemplate transactionTemplate;
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            Post.class,
+            User.class
+        };
+    }
 
     @Test
     public void test() {

@@ -37,6 +37,9 @@ public class SQLServerDeadLockTest extends AbstractTest {
 
     @Override
     public void afterInit() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         doInJPA(entityManager -> {
             Post post = new Post();
             post.setId(1L);
@@ -53,6 +56,9 @@ public class SQLServerDeadLockTest extends AbstractTest {
 
     @Override
     public void destroy() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         executeStatement("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT OFF");
         super.destroy();
     }
@@ -68,6 +74,9 @@ public class SQLServerDeadLockTest extends AbstractTest {
      */
     @Test
     public void testDeadLock_1204() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         LOGGER.info("Check flag: 1204");
         List<ErrorLogMessage> beforeDeadLockErrorLogLines = errorLogMessages();
 
@@ -125,7 +134,9 @@ public class SQLServerDeadLockTest extends AbstractTest {
 
     @Test
     public void testDeadLock_1222() {
-
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         LOGGER.info("Check flag: 1222");
         List<ErrorLogMessage> beforeDeadLockErrorLogLines = errorLogMessages();
 

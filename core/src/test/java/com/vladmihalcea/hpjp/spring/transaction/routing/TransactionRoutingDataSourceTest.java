@@ -1,40 +1,34 @@
 package com.vladmihalcea.hpjp.spring.transaction.routing;
 
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;
+import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostComment;
+import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostDetails;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Tag;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.junit.Before;
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TransactionRoutingConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class TransactionRoutingDataSourceTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+public class TransactionRoutingDataSourceTest extends AbstractSpringTest {
 
     @Autowired
     private ForumService forumService;
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            PostComment.class,
+            PostDetails.class,
+            Post.class,
+            Tag.class,
+        };
+    }
 
-    @Autowired
-    private TransactionTemplate transactionTemplate;
-
-    @Before
-    public void init() {
+    @Override
+    public void afterInit() {
         transactionTemplate.execute(status -> {
             Tag jdbc = new Tag();
             jdbc.setName("JDBC");

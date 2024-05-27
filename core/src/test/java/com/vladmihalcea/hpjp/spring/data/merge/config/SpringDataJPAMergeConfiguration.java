@@ -30,6 +30,7 @@ public class SpringDataJPAMergeConfiguration extends SpringDataJPABaseConfigurat
 
     @Override
     protected void additionalProperties(Properties properties) {
+        super.additionalProperties(properties);
         properties.put("hibernate.jdbc.batch_size", "100");
         properties.put("hibernate.order_inserts", "true");
         properties.put("hibernate.order_updates", "true");

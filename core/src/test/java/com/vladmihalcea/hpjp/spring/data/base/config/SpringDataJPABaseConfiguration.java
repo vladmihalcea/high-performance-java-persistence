@@ -52,7 +52,7 @@ public abstract class SpringDataJPABaseConfiguration {
         return database().dataSourceProvider();
     }
 
-    @Bean(destroyMethod = "close")
+    @Bean
     public HikariDataSource actualDataSource() {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setAutoCommit(false);

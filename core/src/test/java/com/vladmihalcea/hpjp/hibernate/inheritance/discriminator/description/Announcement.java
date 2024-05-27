@@ -11,7 +11,6 @@ import jakarta.persistence.TemporalType;
  * @author Vlad Mihalcea
  */
 @Entity
-@Table(name = "announcement")
 @DiscriminatorValue("2")
 public class Announcement extends Topic {
 

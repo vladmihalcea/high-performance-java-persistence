@@ -1,22 +1,16 @@
 package com.vladmihalcea.hpjp.spring.data.query.hint;
 
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.query.hint.config.SpringDataJPAQueryHintConfiguration;
 import com.vladmihalcea.hpjp.spring.data.query.hint.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.query.hint.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.query.hint.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.query.hint.service.ForumService;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 import java.time.LocalDateTime;
@@ -28,15 +22,8 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringDataJPAQueryHintConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPAQueryHintTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
+public class SpringDataJPAQueryHintTest extends AbstractSpringTest {
 
     @Autowired
     private PostRepository postRepository;
@@ -47,8 +34,16 @@ public class SpringDataJPAQueryHintTest {
     @Autowired
     private DataSource dataSource;
 
-    @Before
-    public void init() {
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            PostComment.class,
+            Post.class
+        };
+    }
+
+    @Override
+    public void afterInit() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
 

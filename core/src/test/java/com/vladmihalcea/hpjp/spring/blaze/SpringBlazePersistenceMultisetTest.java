@@ -5,21 +5,14 @@ import com.vladmihalcea.hpjp.spring.blaze.domain.*;
 import com.vladmihalcea.hpjp.spring.blaze.domain.views.PostCommentView;
 import com.vladmihalcea.hpjp.spring.blaze.domain.views.PostWithCommentsAndTagsView;
 import com.vladmihalcea.hpjp.spring.blaze.service.ForumService;
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
-import jakarta.persistence.EntityManager;
 import org.hibernate.loader.MultipleBagFetchException;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +23,8 @@ import static org.junit.Assert.fail;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringBlazePersistenceConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringBlazePersistenceMultisetTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+public class SpringBlazePersistenceMultisetTest extends AbstractSpringTest {
 
     public static final int POST_COUNT = 50;
     public static final int POST_COMMENT_COUNT = 20;
@@ -43,16 +32,21 @@ public class SpringBlazePersistenceMultisetTest {
     public static final int VOTE_COUNT = 5;
 
     @Autowired
-    private TransactionTemplate transactionTemplate;
-
-    @Autowired
-    private EntityManager entityManager;
-
-    @Autowired
     private ForumService forumService;
 
-    @Before
-    public void init() {
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[] {
+            UserVote.class,
+            PostComment.class,
+            Post.class,
+            Tag.class,
+            User.class,
+        };
+    }
+
+    @Override
+    public void afterInit() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 User alice = new User()

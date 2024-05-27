@@ -1,26 +1,20 @@
 package com.vladmihalcea.hpjp.spring.data.query.fetch;
 
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.config.SpringDataJPAJoinFetchPaginationConfiguration;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.service.ForumService;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -37,15 +31,11 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringDataJPAJoinFetchPaginationConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPAJoinFetchPaginationTest {
+public class SpringDataJPAJoinFetchPaginationTest extends AbstractSpringTest {
 
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
+    public static final int POST_COUNT = 1_000;
+    public static final int COMMENT_COUNT = 10;
 
     @Autowired
     private PostRepository postRepository;
@@ -56,11 +46,16 @@ public class SpringDataJPAJoinFetchPaginationTest {
     @Autowired
     private DataSource dataSource;
 
-    public static final int POST_COUNT = 1_000;
-    public static final int COMMENT_COUNT = 10;
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            PostComment.class,
+            Post.class
+        };
+    }
 
-    @Before
-    public void init() {
+    @Override
+    public void afterInit() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 LocalDateTime timestamp = LocalDate.now().atStartOfDay().plusHours(12);

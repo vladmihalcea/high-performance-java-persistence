@@ -275,7 +275,6 @@ public class SingleTableMySQLTriggerTest extends AbstractTest {
     }
 
     @Entity(name = "Post")
-    @Table(name = "post")
     public static class Post extends Topic {
 
         private String content;
@@ -290,7 +289,6 @@ public class SingleTableMySQLTriggerTest extends AbstractTest {
     }
 
     @Entity(name = "Announcement")
-    @Table(name = "announcement")
     public static class Announcement extends Topic {
 
         @Temporal(TemporalType.TIMESTAMP)

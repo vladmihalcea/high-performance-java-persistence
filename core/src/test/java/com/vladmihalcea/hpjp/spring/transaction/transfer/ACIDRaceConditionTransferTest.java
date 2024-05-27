@@ -1,23 +1,15 @@
 package com.vladmihalcea.hpjp.spring.transaction.transfer;
 
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.transaction.transfer.config.ACIDRaceConditionTransferConfiguration;
 import com.vladmihalcea.hpjp.spring.transaction.transfer.domain.Account;
 import com.vladmihalcea.hpjp.spring.transaction.transfer.repository.AccountRepository;
 import com.vladmihalcea.hpjp.spring.transaction.transfer.service.TransferService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.concurrent.*;
@@ -29,15 +21,8 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = ACIDRaceConditionTransferConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class ACIDRaceConditionTransferTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
+public class ACIDRaceConditionTransferTest extends AbstractSpringTest {
 
     @Autowired
     private TransferService transferService;
@@ -45,11 +30,15 @@ public class ACIDRaceConditionTransferTest {
     @Autowired
     private AccountRepository accountRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            Account.class
+        };
+    }
 
-    @Before
-    public void init() {
+    @Override
+    public void afterInit() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 entityManager.persist(

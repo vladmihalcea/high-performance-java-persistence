@@ -1,33 +1,20 @@
 package com.vladmihalcea.hpjp.spring.data.unidirectional;
 
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.config.SpringDataJPAUnidirectionalEventListenerConfiguration;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.domain.*;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.repository.*;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringDataJPAUnidirectionalEventListenerConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPAUnidirectionalEventListenerTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
+public class SpringDataJPAUnidirectionalEventListenerTest extends AbstractSpringTest {
 
     @Autowired
     private PostRepository postRepository;
@@ -53,8 +40,21 @@ public class SpringDataJPAUnidirectionalEventListenerTest {
     @Autowired
     private PostTagRepository postTagRepository;
 
-    @Before
-    public void init() {
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            UserVote.class,
+            PostComment.class,
+            PostDetails.class,
+            PostTag.class,
+            Post.class,
+            Tag.class,
+            User.class
+        };
+    }
+
+    @Override
+    public void afterInit() {
         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
             User alice = new User()
                 .setId(1L)

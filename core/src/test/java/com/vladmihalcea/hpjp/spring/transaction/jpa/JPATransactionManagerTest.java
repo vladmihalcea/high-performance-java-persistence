@@ -2,26 +2,20 @@ package com.vladmihalcea.hpjp.spring.transaction.jpa;
 
 import com.vladmihalcea.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;
+import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostComment;
+import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostDetails;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Tag;
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.transaction.jpa.config.JPATransactionManagerConfiguration;
 import com.vladmihalcea.hpjp.spring.transaction.jpa.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.transaction.jpa.repository.TagRepository;
 import com.vladmihalcea.hpjp.spring.transaction.jpa.service.ForumService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 
@@ -31,15 +25,8 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = JPATransactionManagerConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class JPATransactionManagerTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
+public class JPATransactionManagerTest extends AbstractSpringTest {
 
     @Autowired
     private ForumService forumService;
@@ -50,14 +37,21 @@ public class JPATransactionManagerTest {
     @Autowired
     private TagRepository tagDAO;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Before
-    public void init() {
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            PostComment.class,
+            PostDetails.class,
+            Post.class,
+            Tag.class,
+        };
+    }
+
+    @Override
+    public void afterInit() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 Tag hibernate = new Tag();
@@ -74,7 +68,6 @@ public class JPATransactionManagerTest {
         } catch (TransactionException e) {
             LOGGER.error("Failure", e);
         }
-
     }
 
     @Test

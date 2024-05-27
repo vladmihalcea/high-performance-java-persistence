@@ -1,23 +1,16 @@
 package com.vladmihalcea.hpjp.spring.data.lock;
 
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.lock.config.SpringDataJPALockConfiguration;
 import com.vladmihalcea.hpjp.spring.data.lock.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.lock.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.lock.repository.PostCommentRepository;
 import com.vladmihalcea.hpjp.spring.data.lock.repository.PostRepository;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
-import jakarta.persistence.PersistenceContext;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 
@@ -27,15 +20,10 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringDataJPALockConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPALockTest {
+public class SpringDataJPALockTest extends AbstractSpringTest {
 
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
+    public static final int POST_COMMENT_COUNT = 5;
 
     @Autowired
     private PostRepository postRepository;
@@ -43,10 +31,13 @@ public class SpringDataJPALockTest {
     @Autowired
     private PostCommentRepository postCommentRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    public static final int POST_COMMENT_COUNT = 5;
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            PostComment.class,
+            Post.class,
+        };
+    }
 
     @Test
     public void test() {

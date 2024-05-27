@@ -8,7 +8,6 @@ import jakarta.persistence.Table;
  * @author Vlad Mihalcea
  */
 @Entity
-@Table(name = "post")
 @DiscriminatorValue("1")
 public class Post extends Topic {
 

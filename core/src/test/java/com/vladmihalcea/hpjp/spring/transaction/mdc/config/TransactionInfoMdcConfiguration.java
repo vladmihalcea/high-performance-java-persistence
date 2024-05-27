@@ -23,6 +23,7 @@ public class TransactionInfoMdcConfiguration extends CommonSpringConfiguration {
 
     @Override
     protected void additionalProperties(Properties properties) {
+        super.additionalProperties(properties);
         properties.put(
             AvailableSettings.AUTO_SESSION_EVENTS_LISTENER,
             TransactionInfoSessionEventListener.class.getName()

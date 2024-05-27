@@ -152,7 +152,6 @@ public class DefaultDiscriminatorTest extends AbstractMySQLIntegrationTest {
     }
 
     @Entity(name = "Post")
-    @Table(name = "post")
     public static class Post extends Topic {
 
         private String content;
@@ -167,7 +166,6 @@ public class DefaultDiscriminatorTest extends AbstractMySQLIntegrationTest {
     }
 
     @Entity(name = "Announcement")
-    @Table(name = "announcement")
     public static class Announcement extends Topic {
 
         @Temporal(TemporalType.TIMESTAMP)

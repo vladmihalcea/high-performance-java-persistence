@@ -4,21 +4,15 @@ import com.vladmihalcea.hpjp.hibernate.forum.Post;
 import com.vladmihalcea.hpjp.hibernate.forum.PostComment;
 import com.vladmihalcea.hpjp.hibernate.forum.Tag;
 import com.vladmihalcea.hpjp.hibernate.query.dto.projection.transformer.PostDTO;
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.custom.config.SpringDataJPACustomRepositoryConfiguration;
 import com.vladmihalcea.hpjp.spring.data.custom.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.custom.service.ForumService;
-import jakarta.persistence.EntityManager;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -31,24 +25,23 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringDataJPACustomRepositoryConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPACustomRepositoryTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
-
-    @Autowired
-    private EntityManager entityManager;
+public class SpringDataJPACustomRepositoryTest extends AbstractSpringTest {
 
     @Autowired
     private ForumService forumService;
 
     @Autowired
     private PostRepository postRepository;
+
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            PostComment.class,
+            Post.class,
+            Tag.class
+        };
+    }
 
     @Test
     public void test() {

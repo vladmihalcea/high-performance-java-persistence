@@ -1,37 +1,32 @@
 package com.vladmihalcea.hpjp.spring.data.assigned;
 
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.assigned.config.SpringDataJPAAssignedConfiguration;
 import com.vladmihalcea.hpjp.spring.data.assigned.domain.Book;
 import com.vladmihalcea.hpjp.spring.data.assigned.repository.BookBaseJpaRepository;
 import com.vladmihalcea.hpjp.spring.data.assigned.repository.BookRepository;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringDataJPAAssignedConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPAAssignedTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
+public class SpringDataJPAAssignedTest extends AbstractSpringTest {
 
     @Autowired
     private BookRepository bookRepository;
 
     @Autowired
     private BookBaseJpaRepository bookBaseJpaRepository;
+
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[] {
+            Book.class
+        };
+    }
 
     @Test
     public void testJpaRepositorySave() {

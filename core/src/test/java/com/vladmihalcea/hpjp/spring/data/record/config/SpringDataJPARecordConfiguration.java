@@ -31,6 +31,7 @@ public class SpringDataJPARecordConfiguration extends SpringDataJPABaseConfigura
 
     @Override
     protected void additionalProperties(Properties properties) {
+        super.additionalProperties(properties);
         properties.put(
             AvailableSettings.STATEMENT_BATCH_SIZE,
             50

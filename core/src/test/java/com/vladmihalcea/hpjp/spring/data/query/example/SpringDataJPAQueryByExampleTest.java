@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.spring.data.query.example;
 
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.query.example.config.SpringDataJPAQueryByExampleConfiguration;
 import com.vladmihalcea.hpjp.spring.data.query.example.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.query.example.domain.PostComment;
@@ -7,20 +8,12 @@ import com.vladmihalcea.hpjp.spring.data.query.example.domain.PostComment_;
 import com.vladmihalcea.hpjp.spring.data.query.example.domain.Tag;
 import com.vladmihalcea.hpjp.spring.data.query.example.repository.PostCommentRepository;
 import com.vladmihalcea.hpjp.spring.data.query.example.repository.PostRepository;
-import jakarta.persistence.EntityManager;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,22 +25,12 @@ import static org.junit.Assert.assertFalse;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringDataJPAQueryByExampleConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPAQueryByExampleTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+public class SpringDataJPAQueryByExampleTest extends AbstractSpringTest {
 
     public static final int POST_COUNT = 2;
     public static final int POST_COMMENT_COUNT = 10;
     public static final int TAG_COUNT = 10;
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
-
-    @Autowired
-    private EntityManager entityManager;
 
     @Autowired
     private PostRepository postRepository;
@@ -55,8 +38,17 @@ public class SpringDataJPAQueryByExampleTest {
     @Autowired
     private PostCommentRepository postCommentRepository;
 
-    @Before
-    public void init() {
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            PostComment.class,
+            Post.class,
+            Tag.class
+        };
+    }
+
+    @Override
+    public void afterInit() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 List<Tag> tags = new ArrayList<>();

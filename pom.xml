@@ -83,13 +83,13 @@
         <!-- Hibernate -->
 
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-testing</artifactId>
             <version>${hibernate.version}</version>
             <exclusions>
@@ -105,19 +105,19 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-c3p0</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
         
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-hikaricp</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-spatial</artifactId>
             <version>${hibernate.version}</version>
             <exclusions>
@@ -129,21 +129,21 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>${hibernate.validator.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-envers</artifactId>
             <version>${hibernate.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate.validator.version}</version>
         </dependency>
 
         <dependency>
@@ -165,7 +165,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-jcache</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
@@ -540,8 +540,8 @@
         <logback.version>1.5.6</logback.version>
         <commons-lang.version>3.14.0</commons-lang.version>
         <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
-        <hibernate.version>6.4.8.Final</hibernate.version>
-        <hibernate.validator.version>6.2.1.Final</hibernate.validator.version>
+        <hibernate.version>6.5.2.Final</hibernate.version>
+        <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
         <javassist.version>3.18.1-GA</javassist.version>
         <ehcache.version>3.10.8</ehcache.version>
         <datasource-proxy.version>1.10</datasource-proxy.version>
@@ -568,8 +568,8 @@
         <flexy-pool.version>2.0.0</flexy-pool.version>
 
         <aspectj.version>1.9.19</aspectj.version>
-        <spring.version>6.1.6</spring.version>
-        <spring-data.version>3.2.5</spring-data.version>
+        <spring.version>6.1.8</spring.version>
+        <spring-data.version>3.2.6</spring-data.version>
 
         <jackson.version>2.14.3</jackson.version>
 

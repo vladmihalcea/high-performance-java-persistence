@@ -167,7 +167,6 @@ public class MySQLIntegerDiscriminatorTest extends AbstractMySQLIntegrationTest 
     }
 
     @Entity(name = "Post")
-    @Table(name = "post")
     @DiscriminatorValue("1")
     public static class Post extends Topic {
 
@@ -183,7 +182,6 @@ public class MySQLIntegerDiscriminatorTest extends AbstractMySQLIntegrationTest 
     }
 
     @Entity(name = "Announcement")
-    @Table(name = "announcement")
     @DiscriminatorValue("2")
     public static class Announcement extends Topic {
 

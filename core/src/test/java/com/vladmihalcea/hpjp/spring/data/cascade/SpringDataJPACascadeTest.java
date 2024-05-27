@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.spring.data.cascade;
 
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.cascade.config.SpringDataJPACascadeConfiguration;
 import com.vladmihalcea.hpjp.spring.data.cascade.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.cascade.domain.PostComment;
@@ -10,20 +11,12 @@ import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostDetailsRepositor
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.TagRepository;
 import com.vladmihalcea.hpjp.spring.data.cascade.service.ForumService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.hibernate.Session;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -34,21 +27,11 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringDataJPACascadeConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPACascadeTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+public class SpringDataJPACascadeTest extends AbstractSpringTest {
 
     @Autowired
     private ForumService forumService;
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Autowired
     private TagRepository tagRepository;
@@ -61,6 +44,16 @@ public class SpringDataJPACascadeTest {
 
     @Autowired
     private PostDetailsRepository postDetailsRepository;
+
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            PostComment.class,
+            PostDetails.class,
+            Post.class,
+            Tag.class
+        };
+    }
 
     @Test
     public void testSavePostAndComments() {

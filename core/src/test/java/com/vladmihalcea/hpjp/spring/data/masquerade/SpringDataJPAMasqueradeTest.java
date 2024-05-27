@@ -1,6 +1,7 @@
 package com.vladmihalcea.hpjp.spring.data.masquerade;
 
 import com.blazebit.persistence.PagedList;
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.masquerade.config.SpringDataJPAMasqueradeConfiguration;
 import com.vladmihalcea.hpjp.spring.data.masquerade.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.masquerade.domain.PostComment;
@@ -9,20 +10,13 @@ import com.vladmihalcea.hpjp.spring.data.masquerade.dto.PostDTO;
 import com.vladmihalcea.hpjp.spring.data.masquerade.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.masquerade.service.ForumService;
 import com.vladmihalcea.hpjp.util.CryptoUtils;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,10 +27,8 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringDataJPAMasqueradeConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPAMasqueradeTest {
+public class SpringDataJPAMasqueradeTest extends AbstractSpringTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
@@ -45,19 +37,21 @@ public class SpringDataJPAMasqueradeTest {
     public static final int PAGE_SIZE = 25;
 
     @Autowired
-    private TransactionTemplate transactionTemplate;
-
-    @Autowired
     private PostRepository postRepository;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Autowired
     private ForumService forumService;
 
-    @Before
-    public void init() {
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            PostComment.class,
+            Post.class,
+        };
+    }
+
+    @Override
+    public void afterInit() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 LocalDateTime timestamp = LocalDateTime.of(

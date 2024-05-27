@@ -2,16 +2,15 @@ package com.vladmihalcea.hpjp.spring.transaction.jpa;
 
 import com.vladmihalcea.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;
+import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostComment;
+import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostDetails;
+import com.vladmihalcea.hpjp.hibernate.transaction.forum.Tag;
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.transaction.jpa.config.ResourceLocalReleaseAfterStatementConfiguration;
 import com.vladmihalcea.hpjp.spring.transaction.jpa.service.ReleaseAfterStatementForumService;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,15 +26,21 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = ResourceLocalReleaseAfterStatementConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class ResourceLocalReleaseAfterStatementTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+public class ResourceLocalReleaseAfterStatementTest extends AbstractSpringTest {
 
     @Autowired
     private ReleaseAfterStatementForumService releaseAfterStatementForumService;
+
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            PostComment.class,
+            PostDetails.class,
+            Post.class,
+            Tag.class,
+        };
+    }
 
     @Test
     public void test() {

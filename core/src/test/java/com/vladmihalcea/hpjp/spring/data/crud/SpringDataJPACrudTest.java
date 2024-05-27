@@ -1,6 +1,7 @@
 package com.vladmihalcea.hpjp.spring.data.crud;
 
 import com.vladmihalcea.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
+import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.crud.config.SpringDataJPACrudConfiguration;
 import com.vladmihalcea.hpjp.spring.data.crud.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.crud.domain.PostComment;
@@ -8,19 +9,11 @@ import com.vladmihalcea.hpjp.spring.data.crud.domain.PostStatus;
 import com.vladmihalcea.hpjp.spring.data.crud.repository.PostCommentRepository;
 import com.vladmihalcea.hpjp.spring.data.crud.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.crud.service.PostService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,15 +24,8 @@ import static org.junit.Assert.*;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringDataJPACrudConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpringDataJPACrudTest {
-
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
+public class SpringDataJPACrudTest extends AbstractSpringTest {
 
     @Autowired
     private PostRepository postRepository;
@@ -47,16 +33,19 @@ public class SpringDataJPACrudTest {
     @Autowired
     private PostCommentRepository postCommentRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @Autowired
     private PostService postService;
 
+    @Override
+    protected Class<?>[] entities() {
+        return new Class[]{
+            PostComment.class,
+            Post.class
+        };
+    }
+
     @Test
     public void testPersistAndMerge() {
-        String slug = "high-performance-java-persistence";
-
         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
             postRepository.persist(
                 new Post()
