@@ -1,15 +1,23 @@
 package com.vladmihalcea.hpjp.hibernate.fetching.multiple;
 
+import com.blazebit.persistence.Criteria;
+import com.blazebit.persistence.CriteriaBuilderFactory;
+import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
+import com.blazebit.persistence.view.*;
+import com.blazebit.persistence.view.spi.EntityViewConfiguration;
+import com.vladmihalcea.hpjp.hibernate.forum.Post_;
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.*;
 import org.hibernate.loader.MultipleBagFetchException;
 import org.junit.Test;
 
-import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import static com.blazebit.persistence.view.FetchStrategy.MULTISET;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -170,6 +178,39 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
         }
     }
 
+    @Test
+    public void testBlaze() {
+        CriteriaBuilderConfiguration config = Criteria.getDefault();
+        CriteriaBuilderFactory criteriaBuilderFactory = config.createCriteriaBuilderFactory(entityManagerFactory());
+
+        EntityViewConfiguration entityViewConfiguration = EntityViews.createDefaultConfiguration()
+            .addEntityView(PostView.class)
+            .addEntityView(PostCommentView.class)
+            .addEntityView(TagView.class)
+            .addEntityView(PostWithCommentsAndTagsView.class);
+        
+        EntityViewManager entityViewManager = entityViewConfiguration
+            .createEntityViewManager(criteriaBuilderFactory);
+
+        List<PostWithCommentsAndTagsView> posts = doInJPA(entityManager -> {
+            return entityViewManager.applySetting(
+                    EntityViewSetting.create(PostWithCommentsAndTagsView.class),
+                    criteriaBuilderFactory.create(entityManager, Post.class)
+                )
+                .where(Post_.ID)
+                .betweenExpression(":minId")
+                .andExpression(":maxId")
+                .setParameter("minId", 1L)
+                .setParameter("maxId", 50L)
+                .getResultList();
+        });
+
+        for(PostWithCommentsAndTagsView post : posts) {
+            assertEquals(POST_COMMENT_COUNT, post.getComments().size());
+            assertEquals(TAG_COUNT, post.getTags().size());
+        }
+    }
+
     @Entity(name = "Post")
     @Table(name = "post")
     public static class Post {
@@ -292,5 +333,39 @@ public class EagerFetchingMultipleBagTest extends AbstractPostgreSQLIntegrationT
             this.name = name;
             return this;
         }
+    }
+
+    @EntityView(Post.class)
+    public interface PostView {
+        @IdMapping
+        Long getId();
+    
+        String getTitle();
+    }
+
+    @EntityView(PostComment.class)
+    public interface PostCommentView {
+        @IdMapping
+        Long getId();
+
+        String getReview();
+    }
+
+    @EntityView(Tag.class)
+    public interface TagView {
+        @IdMapping
+        Long getId();
+    
+        String getName();
+    }
+
+    @EntityView(Post.class)
+    public interface PostWithCommentsAndTagsView extends PostView {
+
+        @Mapping(fetch = MULTISET)
+        List<PostCommentView> getComments();
+
+        @Mapping(fetch = MULTISET)
+        List<TagView> getTags();
     }
 }
