@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Vlad Mihalcea
  */
-public class HibernateUpsertTest extends AbstractTest {
+public class HibernateUpsertMergeTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
