@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.hibernate.type;
+package com.vladmihalcea.hpjp.hibernate.type.datetime;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;

@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.hibernate.type;
+package com.vladmihalcea.hpjp.hibernate.type.datetime;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
@@ -46,14 +46,14 @@ public class DateTimeTest extends AbstractTest {
         doInJPA(entityManager -> {
             LocalDateEvent event = new LocalDateEvent();
             event.id = 1L;
-            event.startDate = LocalDate.of(1, 1, 1);
+            event.createdOn = LocalDate.of(1, 1, 1);
             entityManager.persist(event);
         });
 
         doInJPA(entityManager -> {
             LocalDateEvent event = entityManager.find(LocalDateEvent.class, 1L);
             try {
-                assertEquals(LocalDate.of(1, 1, 1), event.startDate);
+                assertEquals(LocalDate.of(1, 1, 1), event.createdOn);
             } catch (Throwable e) {
                 LOGGER.error("Failed", e);
             }
@@ -65,14 +65,14 @@ public class DateTimeTest extends AbstractTest {
         doInJPA(entityManager -> {
             OffsetDateTimeEvent event = new OffsetDateTimeEvent();
             event.id = 1L;
-            event.startDate = OffsetDateTime.of(2017, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+            event.createdOn = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
             entityManager.persist(event);
         });
 
         doInJPA(entityManager -> {
             OffsetDateTimeEvent event = entityManager.find(OffsetDateTimeEvent.class, 1L);
             try {
-                assertEquals(OffsetDateTime.of(2017, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), event.startDate);
+                assertEquals(OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), event.createdOn);
             } catch (Throwable e) {
                 LOGGER.error("Failed", e);
             }
@@ -84,8 +84,8 @@ public class DateTimeTest extends AbstractTest {
         doInJPA(entityManager -> {
             ZonedDateTimeEvent event = new ZonedDateTimeEvent();
             event.id = 1L;
-            event.startDate = ZonedDateTime.of(
-                2017, 6, 24, 15, 45, 23, 0, ZoneOffset.systemDefault());
+            event.createdOn = ZonedDateTime.of(
+                2024, 6, 24, 15, 45, 23, 0, ZoneOffset.systemDefault());
             entityManager.persist(event);
         });
 
@@ -93,7 +93,7 @@ public class DateTimeTest extends AbstractTest {
             ZonedDateTimeEvent event = entityManager.find(ZonedDateTimeEvent.class, 1L);
             try {
                 assertEquals(ZonedDateTime.of(
-                2017, 6, 24, 15, 45, 23, 0, ZoneOffset.systemDefault()), event.startDate);
+                2024, 6, 24, 15, 45, 23, 0, ZoneOffset.systemDefault()), event.createdOn);
             } catch (Throwable e) {
                 LOGGER.error("Failed", e);
             }
@@ -160,8 +160,8 @@ public class DateTimeTest extends AbstractTest {
         private Long id;
 
         @NotNull
-        @Column(name = "START_DATE", nullable = false)
-        private LocalDate startDate;
+        @Column(name = "created_on", nullable = false)
+        private LocalDate createdOn;
     }
 
     @Entity(name = "OffsetDateTimeEvent")
@@ -171,8 +171,8 @@ public class DateTimeTest extends AbstractTest {
         private Long id;
 
         @NotNull
-        @Column(name = "START_DATE", nullable = false)
-        private OffsetDateTime startDate;
+        @Column(name = "created_on", nullable = false)
+        private OffsetDateTime createdOn;
     }
 
     @Entity(name = "ZonedDateTimeEvent")
@@ -182,8 +182,8 @@ public class DateTimeTest extends AbstractTest {
         private Long id;
 
         @NotNull
-        @Column(name = "START_DATE", nullable = false)
-        private ZonedDateTime startDate;
+        @Column(name = "created_on", nullable = false)
+        private ZonedDateTime createdOn;
     }
 
     @Entity(name = "TimestampEvent")
@@ -192,7 +192,7 @@ public class DateTimeTest extends AbstractTest {
         @Id
         private Long id;
 
-        @Column(name = "START_DATE")
+        @Column(name = "created_on")
         @Temporal(TemporalType.TIMESTAMP)
         private Date createdOn;
     }

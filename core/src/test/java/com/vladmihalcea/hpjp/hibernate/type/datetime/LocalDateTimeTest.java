@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.hibernate.type;
+package com.vladmihalcea.hpjp.hibernate.type.datetime;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import io.hypersistence.utils.hibernate.type.interval.PostgreSQLIntervalType;
