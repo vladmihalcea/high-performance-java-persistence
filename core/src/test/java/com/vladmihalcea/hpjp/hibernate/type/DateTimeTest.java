@@ -1,12 +1,13 @@
 package com.vladmihalcea.hpjp.hibernate.type;
 
-import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.cfg.AvailableSettings;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import jakarta.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.time.*;
 import java.util.Date;
@@ -18,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class DateTimeTest extends AbstractPostgreSQLIntegrationTest {
+public class DateTimeTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -31,10 +32,13 @@ public class DateTimeTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
-        properties.setProperty( AvailableSettings.JDBC_TIME_ZONE, "UTC" );
-        return properties;
+    protected Database database() {
+        return Database.POSTGRESQL;
+    }
+
+    @Override
+    protected void additionalProperties(Properties properties) {
+        properties.setProperty(AvailableSettings.JDBC_TIME_ZONE, "UTC");
     }
 
     @Test
@@ -51,7 +55,7 @@ public class DateTimeTest extends AbstractPostgreSQLIntegrationTest {
             try {
                 assertEquals(LocalDate.of(1, 1, 1), event.startDate);
             } catch (Throwable e) {
-                e.printStackTrace();
+                LOGGER.error("Failed", e);
             }
         });
     }
@@ -70,7 +74,7 @@ public class DateTimeTest extends AbstractPostgreSQLIntegrationTest {
             try {
                 assertEquals(OffsetDateTime.of(2017, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), event.startDate);
             } catch (Throwable e) {
-                e.printStackTrace();
+                LOGGER.error("Failed", e);
             }
         });
     }
@@ -91,13 +95,12 @@ public class DateTimeTest extends AbstractPostgreSQLIntegrationTest {
                 assertEquals(ZonedDateTime.of(
                 2017, 6, 24, 15, 45, 23, 0, ZoneOffset.systemDefault()), event.startDate);
             } catch (Throwable e) {
-                e.printStackTrace();
+                LOGGER.error("Failed", e);
             }
         });
     }
 
     @Test
-    @Ignore
     public void testTruncEvent() {
         doInJPA(entityManager -> {
             TimestampEvent event = new TimestampEvent();
@@ -107,19 +110,25 @@ public class DateTimeTest extends AbstractPostgreSQLIntegrationTest {
         });
 
         doInJPA(entityManager -> {
-            List<TimestampEvent> events = entityManager
-                .createQuery(
-                    "select e " +
-                    "from TimestampEvent e " +
-                    "where cast(e.createdOn as date) >= :createdOn " +
-                    "order by e.createdOn asc")
-                .setParameter("createdOn", Timestamp.from(LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT).toInstant(ZoneOffset.UTC)), TemporalType.DATE)
-                //.setParameter("createdOn", new Date(0), TemporalType.DATE)
+            List<TimestampEvent> events = entityManager.createQuery("""
+                    select e
+                    from TimestampEvent e
+                    where cast(e.createdOn as date) >= :createdOn
+                    order by e.createdOn asc
+                    """)
+                .setParameter(
+                    "createdOn",
+                    Timestamp.from(
+                        LocalDateTime.of(
+                            LocalDate.now(),
+                            LocalTime.MIDNIGHT
+                        ).toInstant(ZoneOffset.UTC)
+                    ), TemporalType.DATE
+                )
                 .getResultList();
             assertEquals(1, events.size());
         });
         doInJPA(entityManager -> {
-
             LocalDateTime dt = LocalDateTime.now();
             ZonedDateTime zdt = dt.atZone(ZoneOffset.systemDefault());
             ZoneOffset offset = zdt.getOffset();
@@ -127,7 +136,7 @@ public class DateTimeTest extends AbstractPostgreSQLIntegrationTest {
             List<TimestampEvent> events = entityManager.createQuery("""
                 select e
                 from TimestampEvent e
-                where function('trunc', e.createdOn) >= :createdOn
+                where function('date_trunc', 'hour', e.createdOn) >= :createdOn
                 order by e.createdOn asc
                 """)
                 .setParameter(
