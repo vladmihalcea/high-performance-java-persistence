@@ -1,8 +1,8 @@
 package com.vladmihalcea.hpjp.jooq.pgsql.util;
 
 import com.vladmihalcea.hpjp.jooq.AbstractJOOQIntegrationTest;
-import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.hpjp.util.providers.PostgreSQLDataSourceProvider;
+import com.vladmihalcea.util.providers.DataSourceProvider;
+import com.vladmihalcea.util.providers.PostgreSQLDataSourceProvider;
 import org.jooq.SQLDialect;
 
 /**

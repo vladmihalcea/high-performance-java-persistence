@@ -1,8 +1,9 @@
 package com.vladmihalcea.hpjp.jooq.pgsql.score;
 
-import com.vladmihalcea.hpjp.hibernate.query.recursive.PostCommentScore;
-import com.vladmihalcea.hpjp.hibernate.query.recursive.PostCommentScoreResultTransformer;
-import com.vladmihalcea.hpjp.jooq.pgsql.schema.score.routines.PostCommentScores;
+import com.vladmihalcea.hpjp.jooq.pgsql.schema.score.routines.GetPostCommentScores;
+import com.vladmihalcea.hpjp.jooq.pgsql.score.dto.PostCommentScore;
+import com.vladmihalcea.hpjp.jooq.pgsql.score.transformer.PostCommentScoreResultTransformer;
+import com.vladmihalcea.hpjp.jooq.pgsql.score.transformer.PostCommentScoreRootTransformer;
 import org.hibernate.query.NativeQuery;
 import org.junit.Test;
 
@@ -27,7 +28,7 @@ public class PostCommentScoreStoredProcedureTest extends AbstractJOOQPostgreSQLI
 
     @Override
     protected String ddlScript() {
-        return "initial_schema.sql";
+        return "clean_schema.sql";
     }
 
     @Override
@@ -139,37 +140,38 @@ public class PostCommentScoreStoredProcedureTest extends AbstractJOOQPostgreSQLI
 
     protected List<PostCommentScore> postCommentScoresCTEJoin(Long postId, int rank) {
         return doInJPA(entityManager -> {
-            List<PostCommentScore> postCommentScores = entityManager.createNativeQuery(
-                "SELECT id, parent_id, review, created_on, score " +
-                    "FROM ( " +
-                    "    SELECT " +
-                    "        id, parent_id, review, created_on, score, " +
-                    "        dense_rank() OVER (ORDER BY total_score DESC) rank " +
-                    "    FROM ( " +
-                    "       SELECT " +
-                    "           id, parent_id, review, created_on, score, " +
-                    "           SUM(score) OVER (PARTITION BY root_id) total_score " +
-                    "       FROM (" +
-                    "          WITH RECURSIVE post_comment_score(id, root_id, post_id, " +
-                    "              parent_id, review, created_on, score) AS (" +
-                    "              SELECT " +
-                    "                  id, id, post_id, parent_id, review, created_on, score" +
-                    "              FROM post_comment " +
-                    "              WHERE post_id = :postId AND parent_id IS NULL " +
-                    "              UNION ALL " +
-                    "              SELECT pc.id, pcs.root_id, pc.post_id, pc.parent_id, " +
-                    "                  pc.review, pc.created_on, pc.score " +
-                     "              FROM post_comment pc " +
-                    "              INNER JOIN post_comment_score pcs " +
-                    "              ON pc.parent_id = pcs.id " +
-                    "          ) " +
-                    "          SELECT id, parent_id, root_id, review, created_on, score " +
-                    "          FROM post_comment_score " +
-                    "       ) score_by_comment " +
-                    "    ) score_total " +
-                    "    ORDER BY total_score DESC, id ASC " +
-                    ") total_score_group " +
-                    "WHERE rank <= :rank", "PostCommentScore").unwrap(NativeQuery.class)
+            List<PostCommentScore> postCommentScores = entityManager.createNativeQuery("""
+                    SELECT id, parent_id, review, created_on, score
+                    FROM (
+                        SELECT
+                            id, parent_id, review, created_on, score,
+                            dense_rank() OVER (ORDER BY total_score DESC) rank
+                        FROM (
+                           SELECT
+                               id, parent_id, review, created_on, score,
+                               SUM(score) OVER (PARTITION BY root_id) total_score
+                           FROM (          
+                               WITH RECURSIVE post_comment_score(id, root_id, post_id,
+                                  parent_id, review, created_on, score) AS (              
+                                  SELECT
+                                      id, id, post_id, parent_id, review, created_on, score              
+                                  FROM post_comment
+                                  WHERE post_id = :postId AND parent_id IS NULL
+                                  UNION ALL
+                                  SELECT pc.id, pcs.root_id, pc.post_id, pc.parent_id,
+                                      pc.review, pc.created_on, pc.score
+                                  FROM post_comment pc
+                                  INNER JOIN post_comment_score pcs
+                                  ON pc.parent_id = pcs.id
+                              )
+                              SELECT id, parent_id, root_id, review, created_on, score
+                              FROM post_comment_score
+                           ) score_by_comment
+                        ) score_total
+                        ORDER BY total_score DESC, id ASC
+                    ) total_score_group
+                    WHERE rank <= :rank
+                    """, "PostCommentScore").unwrap(NativeQuery.class)
             .setParameter("postId", postId)
             .setParameter("rank", rank)
             .setResultTransformer(new PostCommentScoreResultTransformer())
@@ -180,7 +182,7 @@ public class PostCommentScoreStoredProcedureTest extends AbstractJOOQPostgreSQLI
 
     protected List<PostCommentScore> postCommentScoresJOOQ(Long postId, int rank) {
         return doInJOOQ(sql -> {
-            PostCommentScores postCommentScores = new PostCommentScores();
+            GetPostCommentScores postCommentScores = new GetPostCommentScores();
             postCommentScores.setPostid(postId);
             postCommentScores.setRankid(rank);
             postCommentScores.execute(sql.configuration());
@@ -232,7 +234,8 @@ public class PostCommentScoreStoredProcedureTest extends AbstractJOOQPostgreSQLI
     public static class PostComment {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
+        @SequenceGenerator(name = "hibernate_sequence", allocationSize = 1)
         private Long id;
 
         @ManyToOne

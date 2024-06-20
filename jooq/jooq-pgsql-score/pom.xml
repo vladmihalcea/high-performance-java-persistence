@@ -3,13 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>jooq</artifactId>
         <groupId>com.vladmihalcea</groupId>
+        <artifactId>high-performance-java-persistence-jooq</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jooq-pgsql-score</artifactId>
+    <artifactId>high-performance-java-persistence-jooq-pgsql-score</artifactId>
 
     <dependencies>
         <dependency>
@@ -20,10 +20,8 @@
 
         <dependency>
             <groupId>com.vladmihalcea</groupId>
-            <artifactId>jooq-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <type>test-jar</type>
-            <scope>test</scope>
+            <artifactId>high-performance-java-persistence-jooq-core</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 
@@ -45,8 +43,8 @@
                     <username>postgres</username>
                     <password>admin</password>
                     <autocommit>true</autocommit>
-                    <onError>continue</onError>
                     <settingsKey>postgres-db-test</settingsKey>
+                    <delimiterType>row</delimiterType>
                 </configuration>
                 <executions>
                     <execution>
@@ -57,13 +55,11 @@
                             <goal>execute</goal>
                         </goals>
                         <configuration>
-                            <delimiterType>row</delimiterType>
                             <orderFile>ascending</orderFile>
                             <fileset>
                                 <basedir>${basedir}/</basedir>
                                 <includes>
                                     <include>src/test/resources/pgsql/initial_schema.sql</include>
-                                    <include>src/test/resources/pgsql/stored_procedures.sql</include>
                                 </includes>
                             </fileset>
                             <autocommit>true</autocommit>
@@ -100,9 +96,8 @@
                         <password>admin</password>
                     </jdbc>
                     <generator>
-                        <name>org.jooq.util.JavaGenerator</name>
                         <database>
-                            <name>org.jooq.util.postgres.PostgresDatabase</name>
+                            <name>org.jooq.meta.postgres.PostgresDatabase</name>
                             <includes>.*</includes>
                             <excludes></excludes>
                             <inputSchema>public</inputSchema>

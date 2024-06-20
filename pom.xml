@@ -12,22 +12,10 @@
 
     <modules>
         <module>core</module>
+        <module>jooq</module>
     </modules>
 
     <profiles>
-        <profile>
-            <id>jooq</id>
-            <modules>
-                <module>core</module>
-                <module>jooq</module>
-            </modules>
-            <activation>
-                <property>
-                    <name>env.HPJP_JOOQ</name>
-                    <value>true</value>
-                </property>
-            </activation>
-        </profile>
         <profile>
             <id>hypersistence</id>
             <dependencies>
@@ -399,60 +387,6 @@
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
             <version>1.3.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.blazebit</groupId>
-            <artifactId>blaze-persistence-core-api-jakarta</artifactId>
-            <version>${blaze-persistence.version}</version>
-        </dependency>
-
-        <!-- Blaze Persistence -->
-
-        <dependency>
-            <groupId>com.blazebit</groupId>
-            <artifactId>blaze-persistence-core-impl-jakarta</artifactId>
-            <version>${blaze-persistence.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.blazebit</groupId>
-            <artifactId>blaze-persistence-jpa-criteria-api</artifactId>
-            <version>${blaze-persistence.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.blazebit</groupId>
-            <artifactId>blaze-persistence-jpa-criteria-impl</artifactId>
-            <version>${blaze-persistence.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.blazebit</groupId>
-            <artifactId>blaze-persistence-integration-hibernate-6.2</artifactId>
-            <version>${blaze-persistence.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.blazebit</groupId>
-            <artifactId>blaze-persistence-entity-view-api-jakarta</artifactId>
-            <version>${blaze-persistence.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.blazebit</groupId>
-            <artifactId>blaze-persistence-entity-view-impl-jakarta</artifactId>
-            <version>${blaze-persistence.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <!-- Table Generator -->
-
-        <dependency>
-            <groupId>net.steppschuh.markdowngenerator</groupId>
-            <artifactId>markdowngenerator</artifactId>
-            <version>1.3.1.1</version>
         </dependency>
 
         <!-- Testing -->

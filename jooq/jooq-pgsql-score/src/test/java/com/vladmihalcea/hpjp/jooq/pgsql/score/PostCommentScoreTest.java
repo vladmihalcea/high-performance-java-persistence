@@ -1,7 +1,8 @@
 package com.vladmihalcea.hpjp.jooq.pgsql.score;
 
-import com.vladmihalcea.hpjp.hibernate.query.recursive.PostCommentScore;
-import com.vladmihalcea.hpjp.hibernate.query.recursive.PostCommentScoreResultTransformer;
+import com.vladmihalcea.hpjp.jooq.pgsql.score.dto.PostCommentScore;
+import com.vladmihalcea.hpjp.jooq.pgsql.score.transformer.PostCommentScoreResultTransformer;
+import com.vladmihalcea.hpjp.jooq.pgsql.score.transformer.PostCommentScoreRootTransformer;
 import org.hibernate.query.NativeQuery;
 import org.jooq.CommonTableExpression;
 import org.jooq.DSLContext;
@@ -10,6 +11,7 @@ import org.junit.Test;
 
 import jakarta.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -32,7 +34,7 @@ public class PostCommentScoreTest extends AbstractJOOQPostgreSQLIntegrationTest 
 
     @Override
     protected String ddlScript() {
-        return "initial_schema.sql";
+        return "clean_schema.sql";
     }
 
     @Override
@@ -246,7 +248,7 @@ public class PostCommentScoreTest extends AbstractJOOQPostgreSQLIntegrationTest 
         });
     }
 
-    private CommonTableExpression<Record7<Long, Long, Long, Long, String, Timestamp, Integer>>
+    private CommonTableExpression<Record7<Long, Long, Long, Long, String, LocalDateTime, Integer>>
         withRecursiveExpression(DSLContext sql, Long postId) {
         return name(PCS).fields("id", "root_id", "post_id", "parent_id", "review", "created_on", "score")
             .as(sql.select(
@@ -311,7 +313,8 @@ public class PostCommentScoreTest extends AbstractJOOQPostgreSQLIntegrationTest 
     public static class PostComment {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
+        @SequenceGenerator(name = "hibernate_sequence", allocationSize = 1)
         private Long id;
 
         @ManyToOne

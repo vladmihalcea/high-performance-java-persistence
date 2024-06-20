@@ -1,8 +1,8 @@
 package com.vladmihalcea.hpjp.jooq.pgsql.score;
 
 import com.vladmihalcea.hpjp.jooq.AbstractJOOQIntegrationTest;
-import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.hpjp.util.providers.PostgreSQLDataSourceProvider;
+import com.vladmihalcea.util.providers.DataSourceProvider;
+import com.vladmihalcea.util.providers.PostgreSQLDataSourceProvider;
 import org.jooq.SQLDialect;
 
 /**
@@ -17,7 +17,7 @@ public abstract class AbstractJOOQPostgreSQLIntegrationTest extends AbstractJOOQ
 
     @Override
     protected SQLDialect sqlDialect() {
-        return SQLDialect.POSTGRES_9_5;
+        return SQLDialect.POSTGRES;
     }
 
     protected DataSourceProvider dataSourceProvider() {

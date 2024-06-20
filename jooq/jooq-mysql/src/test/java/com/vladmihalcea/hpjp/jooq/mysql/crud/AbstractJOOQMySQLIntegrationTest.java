@@ -1,8 +1,8 @@
 package com.vladmihalcea.hpjp.jooq.mysql.crud;
 
 import com.vladmihalcea.hpjp.jooq.AbstractJOOQIntegrationTest;
-import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.hpjp.util.providers.MySQLDataSourceProvider;
+import com.vladmihalcea.util.providers.DataSourceProvider;
+import com.vladmihalcea.util.providers.MySQLDataSourceProvider;
 import org.jooq.SQLDialect;
 
 /**
