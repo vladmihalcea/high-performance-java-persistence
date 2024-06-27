@@ -1,20 +1,17 @@
 package com.vladmihalcea.hpjp.hibernate.mapping.enums;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import com.vladmihalcea.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.hpjp.util.providers.Database;
+import io.hypersistence.utils.hibernate.type.basic.CustomOrdinalEnumConverter;
 import jakarta.persistence.*;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class EnumCustomOrdinalConverterTest extends AbstractTest {
+public class CustomOrdinalEnumConverterTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -143,7 +140,7 @@ public class EnumCustomOrdinalConverterTest extends AbstractTest {
     }
 
     @Converter(autoApply = true)
-    public static class PostStatusConverter extends CustomEnumOrdinalConverter<PostStatus> {
+    public static class PostStatusConverter extends CustomOrdinalEnumConverter<PostStatus> {
 
         public PostStatusConverter() {
             super(PostStatus.class);
@@ -155,23 +152,4 @@ public class EnumCustomOrdinalConverterTest extends AbstractTest {
         }
     }
 
-    public static abstract class CustomEnumOrdinalConverter<T> implements AttributeConverter<T, Integer> {
-
-        private Map<Integer, T> customOrdinalValueToEnumMap = new HashMap<>();
-
-        public CustomEnumOrdinalConverter(Class<T> type) {
-            T[] enumValues = ReflectionUtils.invokeStaticMethod(
-                ReflectionUtils.getMethod(type, "values")
-            );
-            for(T enumValue : enumValues) {
-                Integer customOrdinalValue = convertToDatabaseColumn(enumValue);
-                customOrdinalValueToEnumMap.put(customOrdinalValue, enumValue);
-            }
-        }
-
-        @Override
-        public T convertToEntityAttribute(Integer ordinalValue) {
-            return customOrdinalValueToEnumMap.get(ordinalValue);
-        }
-    }
 }
