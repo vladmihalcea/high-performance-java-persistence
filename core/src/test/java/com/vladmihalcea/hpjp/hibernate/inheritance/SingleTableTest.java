@@ -1,6 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.inheritance;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import jakarta.persistence.*;

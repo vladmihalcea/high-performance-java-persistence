@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Vlad Mihalcea
  */
@@ -85,6 +87,17 @@ public class TablePerClassTest extends AbstractTest {
                 """, Topic.class)
             .setParameter("board", board)
             .getResultList();
+        });
+
+        doInJPA(entityManager -> {
+            List<TopicStatistics> statistics = entityManager.createQuery("""
+                select s
+                from TopicStatistics s
+                join fetch s.topic t
+                """, TopicStatistics.class)
+            .getResultList();
+
+            assertEquals(2, statistics.size());
         });
 
         doInJPA(entityManager -> {

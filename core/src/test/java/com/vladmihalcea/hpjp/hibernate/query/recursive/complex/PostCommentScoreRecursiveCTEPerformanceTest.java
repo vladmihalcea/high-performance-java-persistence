@@ -52,8 +52,10 @@ public class PostCommentScoreRecursiveCTEPerformanceTest extends AbstractPostCom
                                   LEFT JOIN post_comment_vote pcv ON pcv.comment_id = pc.id
                                   INNER JOIN post_comment_score pcs ON pc.parent_id = pcs.id
                               )
-                              SELECT id, parent_id, root_id, review, created_on, SUM(score) score          FROM post_comment_score
-                              GROUP BY id, parent_id, root_id, review, created_on       ) score_by_comment
+                              SELECT id, parent_id, root_id, review, created_on, SUM(score) score          
+                              FROM post_comment_score
+                              GROUP BY id, parent_id, root_id, review, created_on       
+                            ) score_by_comment
                         ) score_total
                         ORDER BY total_score DESC, created_on ASC
                     ) total_score_group

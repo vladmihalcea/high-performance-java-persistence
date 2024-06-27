@@ -1,6 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.inheritance;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.providers.Database;
 import org.junit.Test;
 
 import jakarta.persistence.*;
@@ -83,6 +84,17 @@ public class JoinedTableTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
+            List<TopicStatistics> statistics = entityManager.createQuery("""
+                select s
+                from TopicStatistics s
+                join fetch s.topic t
+                """, TopicStatistics.class)
+            .getResultList();
+
+            assertEquals(2, statistics.size());
+        });
+
+        doInJPA(entityManager -> {
             Board board = topic.getBoard();
             LOGGER.info("Fetch Topic projection");
             List<String> titles = entityManager.createQuery("""
@@ -120,6 +132,8 @@ public class JoinedTableTest extends AbstractTest {
             assertTrue(board.getTopics().stream().anyMatch(t -> t instanceof Post));
             assertTrue(board.getTopics().stream().anyMatch(t -> t instanceof Announcement));
         });
+        
+        
 
         doInJPA(entityManager -> {
             Long topicId = topic.getId();

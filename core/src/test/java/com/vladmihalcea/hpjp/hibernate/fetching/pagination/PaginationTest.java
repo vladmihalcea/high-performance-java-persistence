@@ -130,13 +130,13 @@ public class PaginationTest extends AbstractTest {
                 from Post p
                 order by p.createdOn
                 """, Post.class)
-            .setFirstResult(10)
+            .setFirstResult(20)
             .setMaxResults(10)
             .getResultList();
 
             assertEquals(10, posts.size());
-            assertEquals("High-Performance Java Persistence - Chapter 11", posts.get(0).getTitle());
-            assertEquals("High-Performance Java Persistence - Chapter 20", posts.get(9).getTitle());
+            assertEquals("High-Performance Java Persistence - Chapter 21", posts.get(0).getTitle());
+            assertEquals("High-Performance Java Persistence - Chapter 30", posts.get(9).getTitle());
         });
     }
 
@@ -144,10 +144,7 @@ public class PaginationTest extends AbstractTest {
     public void testOffsetNative() {
         doInJPA(entityManager -> {
             List<Tuple> posts = entityManager.createNativeQuery("""
-                SELECT
-                   p.id AS id,
-                   p.created_on AS created_on,
-                   p.title AS title
+                SELECT p.id AS id, p.created_on AS created_on, p.title AS title
                 FROM post p
                 ORDER BY p.created_on
                 """, Tuple.class)

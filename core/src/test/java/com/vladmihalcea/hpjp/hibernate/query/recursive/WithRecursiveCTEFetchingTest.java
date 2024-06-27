@@ -1,6 +1,9 @@
 package com.vladmihalcea.hpjp.hibernate.query.recursive;
 
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
+import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.providers.Database;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.transform.ResultTransformer;
 import org.junit.Test;
@@ -15,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class WithRecursiveCTEFetchingTest extends AbstractMySQLIntegrationTest {
+public class WithRecursiveCTEFetchingTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -23,6 +26,11 @@ public class WithRecursiveCTEFetchingTest extends AbstractMySQLIntegrationTest {
             Post.class,
             PostComment.class
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.POSTGRESQL;
     }
 
     /**
@@ -38,18 +46,18 @@ public class WithRecursiveCTEFetchingTest extends AbstractMySQLIntegrationTest {
      *
      * | id | created_on          | review        | score | parent_id | post_id |
      * |----|---------------------|---------------|-------|-----------|---------|
-     * | 1  | 2019-10-13 12:23:05 | Comment 1     |   1   |           | 1       |
-     * | 2  | 2019-10-14 13:23:10 | Comment 1.1   |   2   | 1         | 1       |
-     * | 3  | 2019-10-14 15:45:15 | Comment 1.2   |   2   | 1         | 1       |
-     * | 4  | 2019-10-15 10:15:20 | Comment 1.2.1 |   1   | 3         | 1       |
-     * | 5  | 2019-10-13 15:23:25 | Comment 2     |   1   |           | 1       |
-     * | 6  | 2019-10-14 11:23:30 | Comment 2.1   |   1   | 5         | 1       |
-     * | 7  | 2019-10-14 14:45:35 | Comment 2.2   |   1   | 5         | 1       |
-     * | 8  | 2019-10-15 10:15:40 | Comment 3     |   1   |           | 1       |
-     * | 9  | 2019-10-16 11:15:45 | Comment 3.1   |  10   | 8         | 1       |
-     * | 10 | 2019-10-17 18:30:50 | Comment 3.2   |  -2   | 8         | 1       |
-     * | 11 | 2019-10-19 21:43:55 | Comment 4     |  -5   |           | 1       |
-     * | 12 | 2019-10-22 23:45:00 | Comment 5     |   0   |           | 1       |
+     * | 1  | 2024-10-13 12:23:05 | Comment 1     |   1   |           | 1       |
+     * | 2  | 2024-10-14 13:23:10 | Comment 1.1   |   2   | 1         | 1       |
+     * | 3  | 2024-10-14 15:45:15 | Comment 1.2   |   2   | 1         | 1       |
+     * | 4  | 2024-10-15 10:15:20 | Comment 1.2.1 |   1   | 3         | 1       |
+     * | 5  | 2024-10-13 15:23:25 | Comment 2     |   1   |           | 1       |
+     * | 6  | 2024-10-14 11:23:30 | Comment 2.1   |   1   | 5         | 1       |
+     * | 7  | 2024-10-14 14:45:35 | Comment 2.2   |   1   | 5         | 1       |
+     * | 8  | 2024-10-15 10:15:40 | Comment 3     |   1   |           | 1       |
+     * | 9  | 2024-10-16 11:15:45 | Comment 3.1   |  10   | 8         | 1       |
+     * | 10 | 2024-10-17 18:30:50 | Comment 3.2   |  -2   | 8         | 1       |
+     * | 11 | 2024-10-19 21:43:55 | Comment 4     |  -5   |           | 1       |
+     * | 12 | 2024-10-22 23:45:00 | Comment 5     |   0   |           | 1       |
      */
     @Override
     public void afterInit() {
@@ -61,80 +69,80 @@ public class WithRecursiveCTEFetchingTest extends AbstractMySQLIntegrationTest {
 
             PostComment comment1 = new PostComment()
                 .setPost(post)
-                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2019, 10, 13, 12, 23, 5)))
+                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2024, 10, 13, 12, 23, 5)))
                 .setScore(1)
                 .setReview("Comment 1");
 
             PostComment comment1_1 = new PostComment()
                 .setPost(post)
-                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2019, 10, 14, 13, 23, 10)))
+                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2024, 10, 14, 13, 23, 10)))
                 .setScore(2)
                 .setReview("Comment 1.1")
                 .setParent(comment1);
 
             PostComment comment1_2 = new PostComment()
                 .setPost(post)
-                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2019, 10, 14, 15, 45, 15)))
+                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2024, 10, 14, 15, 45, 15)))
                 .setScore(2)
                 .setParent(comment1)
                 .setReview("Comment 1.2");
 
             PostComment comment1_2_1 = new PostComment()
                 .setPost(post)
-                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2019, 10, 15, 10, 15, 20)))
+                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2024, 10, 15, 10, 15, 20)))
                 .setScore(1)
                 .setReview("Comment 1.2.1")
                 .setParent(comment1_2);
 
             PostComment comment2 = new PostComment()
                 .setPost(post)
-                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2019, 10, 13, 15, 23, 25)))
+                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2024, 10, 13, 15, 23, 25)))
                 .setScore(1)
                 .setReview("Comment 2");
 
             PostComment comment2_1 = new PostComment()
                 .setPost(post)
-                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2019, 10, 14, 11, 23, 30)))
+                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2024, 10, 14, 11, 23, 30)))
                 .setScore(1)
                 .setReview("Comment 2.1")
                 .setParent(comment2);
 
             PostComment comment2_2 = new PostComment()
                 .setPost(post)
-                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2019, 10, 14, 14, 45, 35)))
+                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2024, 10, 14, 14, 45, 35)))
                 .setScore(1)
                 .setReview("Comment 2.2")
                 .setParent(comment2);
 
             PostComment comment3 = new PostComment()
                 .setPost(post)
-                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2019, 10, 15, 10, 15, 40)))
+                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2024, 10, 15, 10, 15, 40)))
                 .setScore(1)
                 .setReview("Comment 3");
 
             PostComment comment3_1 = new PostComment()
                 .setPost(post)
-                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2019, 10, 16, 11, 15, 45)))
+                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2024, 10, 16, 11, 15, 45)))
                 .setScore(10)
                 .setReview("Comment 3.1")
                 .setParent(comment3);
 
             PostComment comment3_2 = new PostComment()
                 .setPost(post)
-                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2019, 10, 17, 18, 30, 50)))
+                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2024, 10, 17, 18, 30, 50)))
                 .setScore(-2)
                 .setReview("Comment 3.2")
                 .setParent(comment3);
 
             PostComment comment4 = new PostComment()
                 .setPost(post)
-                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2019, 10, 19, 21, 43, 55)))
+                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2024, 10, 19, 21, 43, 55)))
                 .setReview("Comment 4")
                 .setScore(-5);
 
             PostComment comment5 = new PostComment()
                 .setPost(post)
-                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2019, 10, 22, 23, 45, 0)))
+                .setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2024, 10, 22, 23, 45, 0)))
                 .setReview("Comment 5");
 
             entityManager.persist(post);
@@ -194,66 +202,68 @@ public class WithRecursiveCTEFetchingTest extends AbstractMySQLIntegrationTest {
      *
      * | id | parent_id | review        | created_on          | score | total_score |
      * |----|-----------|---------------|---------------------|-------|-------------|
-     * | 8  |           | Comment 3     | 2019-10-15 10:15:40 |  1    | 9           |
-     * | 9  | 8         | Comment 3.1   | 2019-10-16 11:15:45 | 10    | 9           |
-     * | 10 | 8         | Comment 3.2   | 2019-10-17 18:30:50 | -2    | 9           |
-     * | 1  |           | Comment 1     | 2019-10-13 12:23:05 |  1    | 6           |
-     * | 2  | 1         | Comment 1.1   | 2019-10-14 13:23:10 |  2    | 6           |
-     * | 3  | 1         | Comment 1.2   | 2019-10-14 15:45:15 |  2    | 6           |
-     * | 4  | 3         | Comment 1.2.1 | 2019-10-15 10:15:20 |  1    | 6           |
-     * | 5  |           | Comment 2     | 2019-10-13 15:23:25 |  1    | 3           |
-     * | 6  | 5         | Comment 2.1   | 2019-10-14 11:23:30 |  1    | 3           |
-     * | 7  | 5         | Comment 2.2   | 2019-10-14 14:45:35 |  1    | 3           |
+     * | 8  |           | Comment 3     | 2024-10-15 10:15:40 |  1    | 9           |
+     * | 9  | 8         | Comment 3.1   | 2024-10-16 11:15:45 | 10    | 9           |
+     * | 10 | 8         | Comment 3.2   | 2024-10-17 18:30:50 | -2    | 9           |
+     * | 1  |           | Comment 1     | 2024-10-13 12:23:05 |  1    | 6           |
+     * | 2  | 1         | Comment 1.1   | 2024-10-14 13:23:10 |  2    | 6           |
+     * | 3  | 1         | Comment 1.2   | 2024-10-14 15:45:15 |  2    | 6           |
+     * | 4  | 3         | Comment 1.2.1 | 2024-10-15 10:15:20 |  1    | 6           |
+     * | 5  |           | Comment 2     | 2024-10-13 15:23:25 |  1    | 3           |
+     * | 6  | 5         | Comment 2.1   | 2024-10-14 11:23:30 |  1    | 3           |
+     * | 7  | 5         | Comment 2.2   | 2024-10-14 14:45:35 |  1    | 3           |
      */
     @Test
     public void testFetchAndSortUsingRecursiveCTEAndDerivedTables() {
         int ranking = 3;
 
         doInJPA(entityManager -> {
-            entityManager.createNativeQuery("""
-                UPDATE performance_schema.setup_instruments
-                SET enabled = 'YES', timed = 'YES'
-                """)
-            .executeUpdate();
+            if (database() == Database.MYSQL) {
+                entityManager.createNativeQuery("""
+                    UPDATE performance_schema.setup_instruments
+                    SET enabled = 'YES', timed = 'YES'
+                    """)
+                .executeUpdate();
 
-            entityManager.createNativeQuery("""
-                UPDATE performance_schema.setup_consumers
-                SET enabled = 'YES'
-                """)
-            .executeUpdate();
+                entityManager.createNativeQuery("""
+                    UPDATE performance_schema.setup_consumers
+                    SET enabled = 'YES'
+                    """)
+                .executeUpdate();
+            }
 
-            List<PostCommentScore> postCommentRoots = entityManager
-            .createNativeQuery(
-                "SELECT id, parent_id, review, created_on, score, total_score " +
-                "FROM ( " +
-                "    SELECT " +
-                "        id, parent_id, review, created_on, score, total_score, " +
-                "        dense_rank() OVER (ORDER BY total_score DESC) AS ranking " +
-                "    FROM ( " +
-                "       SELECT " +
-                "           id, parent_id, review, created_on, score, " +
-                "           SUM(score) OVER (PARTITION BY root_id) AS total_score " +
-                "       FROM ( " +
-                "          WITH RECURSIVE post_comment_score( " +
-                "              id, root_id, post_id, parent_id, review, created_on, score)  " +
-                "          AS ( " +
-                "              SELECT " +
-                "                  id, id, post_id, parent_id, review, created_on, score " +
-                "              FROM post_comment " +
-                "              WHERE post_id = :postId AND parent_id IS NULL " +
-                "              UNION ALL " +
-                "              SELECT pc.id, pcs.root_id, pc.post_id, pc.parent_id, " +
-                "                  pc.review, pc.created_on, pc.score " +
-                "              FROM post_comment pc " +
-                "              INNER JOIN post_comment_score pcs ON pc.parent_id = pcs.id " +
-                "          ) " +
-                "          SELECT id, parent_id, root_id, review, created_on, score " +
-                "          FROM post_comment_score " +
-                "       ) total_score_comment " +
-                "    ) total_score_ranking " +
-                ") total_score_filtering " +
-                "WHERE ranking <= :ranking " +
-                "ORDER BY total_score DESC, id ASC", "PostCommentScore")
+            List<PostCommentScore> postCommentRoots = entityManager.createNativeQuery("""
+                SELECT id, parent_id, review, created_on, score, total_score
+                FROM (
+                    SELECT
+                        id, parent_id, review, created_on, score, total_score,
+                        dense_rank() OVER (ORDER BY total_score DESC) AS ranking
+                    FROM (
+                       SELECT
+                           id, parent_id, review, created_on, score,
+                           SUM(score) OVER (PARTITION BY root_id) AS total_score
+                       FROM (
+                          WITH RECURSIVE post_comment_score(
+                              id, root_id, post_id, parent_id, review, created_on, score)
+                          AS (
+                              SELECT
+                                  id, id, post_id, parent_id, review, created_on, score
+                              FROM post_comment
+                              WHERE post_id = :postId AND parent_id IS NULL
+                              UNION ALL
+                              SELECT pc.id, pcs.root_id, pc.post_id, pc.parent_id,
+                                  pc.review, pc.created_on, pc.score
+                              FROM post_comment pc
+                              INNER JOIN post_comment_score pcs ON pc.parent_id = pcs.id
+                          )
+                          SELECT id, parent_id, root_id, review, created_on, score
+                          FROM post_comment_score
+                       ) total_score_comment
+                    ) total_score_ranking
+                ) total_score_filtering
+                WHERE ranking <= :ranking
+                ORDER BY total_score DESC, id ASC
+                """, "PostCommentScore")
             .unwrap(NativeQuery.class)
             .setParameter("postId", 1L)
             .setParameter("ranking", ranking)
