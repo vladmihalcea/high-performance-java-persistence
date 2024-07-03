@@ -1,6 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.identifier.batch;
 
 import com.vladmihalcea.hpjp.util.providers.Database;
+import io.hypersistence.utils.hibernate.id.BatchSequence;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.junit.Test;
@@ -60,19 +61,9 @@ public class BatchSequenceIdentifierTest extends AbstractBatchIdentifierTest {
     public static class Post {
 
         @Id
-        @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "post_sequence"
-        )
-        //Uncomment to see the default JPA sequence logic
-        /*@SequenceGenerator(name = "post_sequence", allocationSize = 1)*/
-        @GenericGenerator(
+        @BatchSequence(
             name = "post_sequence",
-            strategy = "io.hypersistence.utils.hibernate.id.BatchSequenceGenerator",
-            parameters = {
-                @Parameter(name = "sequence", value = "post_sequence"),
-                @Parameter(name = "fetch_size", value = "5")
-            }
+            fetchSize = 5
         )
         private Long id;
 
