@@ -1,8 +1,10 @@
 package com.vladmihalcea.hpjp.hibernate.mapping.softdelete;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import jakarta.persistence.*;
 import org.hibernate.Session;
+import org.hibernate.StaleStateException;
 import org.hibernate.annotations.Loader;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.SQLDelete;
@@ -233,11 +235,42 @@ public class SoftDeleteVersionTest extends AbstractTest {
 		});
 	}
 
+	@Test
+	public void testConcurrentUpdate() {
+		Post post_ = new Post().setTitle("High-Performance Java Persistence");
+		doInJPA(entityManager -> {
+			entityManager.persist(post_);
+		});
+
+		try {
+			doInJPA(entityManager -> {
+				Post post = entityManager.find(Post.class, post_.id);
+
+				executeSync(() -> {
+					doInJPA(_entityManager -> {
+						_entityManager.remove(_entityManager.find(Post.class, post_.id));
+					});
+				});
+
+				post.setTitle("High-Performance Java Persistence, 2nd edition");
+			});
+		} catch (Exception e) {
+			assertTrue(StaleStateException.class.isAssignableFrom(ExceptionUtil.rootCause(e).getClass()));
+		}
+
+		doInJPA(entityManager -> {
+			Post post = entityManager.find(Post.class, 1L);
+			assertNull(post);
+		});
+	}
+
 	@Entity(name = "Post")
 	@Table(name = "post")
 	@SQLDelete(sql = """
 		UPDATE post
-		SET deleted = true
+		SET 
+			deleted = true,
+			version = version + 1
 		WHERE
 			id = ? AND
 			version = ?
@@ -349,7 +382,9 @@ public class SoftDeleteVersionTest extends AbstractTest {
 	@Table(name = "post_details")
 	@SQLDelete(sql = """
 		UPDATE post_details
-		SET deleted = true
+		SET 
+			deleted = true,
+			version = version + 1
 		WHERE
 			id = ? AND
 			version = ?
@@ -424,7 +459,9 @@ public class SoftDeleteVersionTest extends AbstractTest {
 	@Table(name = "post_comment")
 	@SQLDelete(sql = """
 		UPDATE post_comment
-		SET deleted = true
+		SET 
+			deleted = true,
+			version = version + 1
 		WHERE
 			id = ? AND
 			version = ?
@@ -484,7 +521,9 @@ public class SoftDeleteVersionTest extends AbstractTest {
 	@Table(name = "tag")
 	@SQLDelete(sql = """
 		UPDATE tag
-		SET deleted = true
+		SET 
+			deleted = true,
+			version = version + 1
 		WHERE
 			id = ? AND
 			version = ?
