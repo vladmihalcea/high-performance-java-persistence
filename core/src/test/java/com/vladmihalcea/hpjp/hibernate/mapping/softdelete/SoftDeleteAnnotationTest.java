@@ -3,10 +3,10 @@ package com.vladmihalcea.hpjp.hibernate.mapping.softdelete;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import jakarta.persistence.*;
 import org.hibernate.Session;
-import org.hibernate.annotations.Loader;
 import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.SoftDelete;
 import org.junit.Test;
 
 import java.sql.Timestamp;
@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 /**
  * @author Vlad Mihalcea
  */
-public class SoftDeleteTest extends AbstractTest {
+public class SoftDeleteAnnotationTest extends AbstractTest {
 
 	@Override
 	protected Class<?>[] entities() {
@@ -72,12 +72,14 @@ public class SoftDeleteTest extends AbstractTest {
 			assertEquals(3, post.getTags().size());
 		});
 
-		Tag miscTag = doInJPA(entityManager -> {
-			return entityManager.unwrap(Session.class).bySimpleNaturalId(Tag.class).getReference("Misc");
-		});
+		Tag _miscTag = doInJPA(entityManager -> {
+			Tag miscTag = entityManager.unwrap(Session.class)
+				.bySimpleNaturalId(Tag.class)
+				.getReference("Misc");
 
-		doInJPA(entityManager -> {
 			entityManager.remove(miscTag);
+
+			return miscTag;
 		});
 
 		doInJPA(entityManager -> {
@@ -87,7 +89,19 @@ public class SoftDeleteTest extends AbstractTest {
 
 		doInJPA(entityManager -> {
 			//That would not work without @Loader(namedQuery = "findTagById")
-			assertNull(entityManager.find(Tag.class, miscTag.getId()));
+			assertNull(entityManager.find(Tag.class, _miscTag.getId()));
+		});
+
+		doInJPA(entityManager -> {
+			Boolean exists = entityManager.createQuery("""
+				select count(t) = 1
+				from Tag t
+				where t.name = :name
+				""", Boolean.class)
+			.setParameter("name", "Misc")
+			.getSingleResult();
+
+			assertFalse(exists);
 		});
 
 		doInJPA(entityManager -> {
@@ -104,32 +118,20 @@ public class SoftDeleteTest extends AbstractTest {
 				.setId(1L)
 				.setTitle("High-Performance Java Persistence");
 
-			PostDetails postDetails = new PostDetails()
-				.setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2023, 7, 20, 12, 0, 0)));
-			post.addDetails(postDetails);
+			post.addDetails(
+				new PostDetails()
+					.setCreatedOn(
+						Timestamp.valueOf(LocalDateTime.of(2023, 7, 20, 12, 0, 0))
+					)
+			);
 
 			entityManager.persist(post);
-
-			post.addTag(entityManager.unwrap(Session.class).bySimpleNaturalId(Tag.class).getReference("Java"));
-			post.addTag(entityManager.unwrap(Session.class).bySimpleNaturalId(Tag.class).getReference("Hibernate"));
-			post.addTag(entityManager.unwrap(Session.class).bySimpleNaturalId(Tag.class).getReference("Misc"));
-
-			post.addComment(
-				new PostComment()
-					.setId(1L)
-					.setReview("Great!")
-			);
-
-			post.addComment(
-				new PostComment()
-					.setId(2L)
-					.setReview("To read")
-			);
 		});
 
 		doInJPA(entityManager -> {
 			Post post = entityManager.find(Post.class, 1L);
 			assertNotNull(post.getDetails());
+
 			post.removeDetails();
 		});
 
@@ -146,37 +148,29 @@ public class SoftDeleteTest extends AbstractTest {
 	@Test
 	public void testRemovePostComment() {
 		doInJPA(entityManager -> {
-			Post post = new Post()
-				.setId(1L)
-				.setTitle("High-Performance Java Persistence");
-
-			PostDetails postDetails = new PostDetails()
-				.setCreatedOn(Timestamp.valueOf(LocalDateTime.of(2023, 7, 20, 12, 0, 0)));
-			post.addDetails(postDetails);
-
-			entityManager.persist(post);
-
-			post.addTag(entityManager.unwrap(Session.class).bySimpleNaturalId(Tag.class).getReference("Java"));
-			post.addTag(entityManager.unwrap(Session.class).bySimpleNaturalId(Tag.class).getReference("Hibernate"));
-			post.addTag(entityManager.unwrap(Session.class).bySimpleNaturalId(Tag.class).getReference("Misc"));
-
-			post.addComment(
-				new PostComment()
+			entityManager.persist(
+				new Post()
 					.setId(1L)
-					.setReview("Great!")
-			);
-
-			post.addComment(
-				new PostComment()
-					.setId(2L)
-					.setReview("To read")
+					.setTitle("High-Performance Java Persistence")
+					.addComment(
+						new PostComment()
+							.setId(1L)
+							.setReview("Great!")
+					)
+					.addComment(
+						new PostComment()
+							.setId(2L)
+							.setReview("To read")
+					)
 			);
 		});
 
 		doInJPA(entityManager -> {
 			Post post = entityManager.find(Post.class, 1L);
 			assertEquals(2, post.getComments().size());
+
 			assertNotNull(entityManager.find(PostComment.class, 2L));
+
 			post.removeComment(post.getComments().get(1));
 		});
 
@@ -184,6 +178,54 @@ public class SoftDeleteTest extends AbstractTest {
 			Post post = entityManager.find(Post.class, 1L);
 			assertEquals(1, post.getComments().size());
 			assertNull(entityManager.find(PostComment.class, 2L));
+		});
+	}
+
+	@Test
+	public void testRemovePost() {
+		doInJPA(entityManager -> {
+			Session session = entityManager.unwrap(Session.class);
+
+			entityManager.persist(
+				new Post()
+					.setId(1L)
+					.setTitle("High-Performance Java Persistence")
+					.addDetails(
+						new PostDetails()
+							.setCreatedOn(
+								Timestamp.valueOf(
+									LocalDateTime.of(2023, 7, 20, 12, 0, 0)
+								)
+							)
+					)
+					.addTag(session.bySimpleNaturalId(Tag.class).getReference("Java"))
+					.addTag(session.bySimpleNaturalId(Tag.class).getReference("Hibernate"))
+					.addTag(session.bySimpleNaturalId(Tag.class).getReference("Misc"))
+					.addComment(
+						new PostComment()
+							.setId(1L)
+							.setReview("Great!")
+					)
+					.addComment(
+						new PostComment()
+							.setId(2L)
+							.setReview("To read")
+					)
+			);
+		});
+
+		doInJPA(entityManager -> {
+			Post post = entityManager.createQuery("""
+       			select p
+       			from Post p
+       			join fetch p.comments
+       			join fetch p.details
+       			where p.id = :id
+   				""", Post.class)
+			.setParameter("id", 1L)
+			.getSingleResult();
+
+			entityManager.remove(post);
 		});
 	}
 
@@ -219,21 +261,8 @@ public class SoftDeleteTest extends AbstractTest {
 
 	@Entity(name = "Post")
 	@Table(name = "post")
-	@SQLDelete(sql = """
-		UPDATE post
-		SET deleted = true
-		WHERE id = ?1
-		""")
-	@Loader(namedQuery = "findPostById")
-	@NamedQuery(name = "findPostById", query = """
-		select p
-		from Post p
-		where
-			p.id = ?1 and
-			p.deleted = false
-		""")
-	@Where(clause = "deleted = false")
-	public static class Post extends SoftDeletable {
+	@SoftDelete
+	public static class Post {
 
 		@Id
 		private Long id;
@@ -261,6 +290,7 @@ public class SoftDeleteTest extends AbstractTest {
 			joinColumns = @JoinColumn(name = "post_id"),
 			inverseJoinColumns = @JoinColumn(name = "tag_id")
 		)
+		@SoftDelete
 		private List<Tag> tags = new ArrayList<>();
 
 		public Long getId() {
@@ -325,21 +355,8 @@ public class SoftDeleteTest extends AbstractTest {
 
 	@Entity(name = "PostDetails")
 	@Table(name = "post_details")
-	@SQLDelete(sql = """
-		UPDATE post_details
-		SET deleted = true
-		WHERE id = ?
-		""")
-	@Loader(namedQuery = "findPostDetailsById")
-	@NamedQuery(name = "findPostDetailsById", query = """
-		select pd
-		from PostDetails pd
-		where
-			pd.id = ?1 and
-			pd.deleted = false
-		""")
-	@Where(clause = "deleted = false")
-	public static class PostDetails extends SoftDeletable {
+	@SoftDelete
+	public static class PostDetails {
 
 		@Id
 		private Long id;
@@ -398,26 +415,14 @@ public class SoftDeleteTest extends AbstractTest {
 
 	@Entity(name = "PostComment")
 	@Table(name = "post_comment")
-	@SQLDelete(sql = """
-		UPDATE post_comment
-		SET deleted = true
-		WHERE id = ?
-		""")
-	@Loader(namedQuery = "findPostCommentById")
-	@NamedQuery(name = "findPostCommentById", query = """
-		select pc
-		from PostComment pc
-		where
-			pc.id = ?1 and
-			pc.deleted = false
-		""")
-	@Where(clause = "deleted = false")
-	public static class PostComment extends SoftDeletable {
+	@SoftDelete
+	public static class PostComment {
 
 		@Id
 		private Long id;
 
 		@ManyToOne(fetch = FetchType.LAZY)
+		@NotFound(action = NotFoundAction.EXCEPTION)
 		private Post post;
 
 		private String review;
@@ -452,21 +457,8 @@ public class SoftDeleteTest extends AbstractTest {
 
 	@Entity(name = "Tag")
 	@Table(name = "tag")
-	@SQLDelete(sql = """
-		UPDATE tag
-		SET deleted = true
-		WHERE id = ?
-		""")
-	@Loader(namedQuery = "findTagById")
-	@NamedQuery(name = "findTagById", query = """
-		select t
-		from Tag t
-		where
-			t.id = ?1 and
-			t.deleted = false
-		""")
-	@Where(clause = "deleted = false")
-	public static class Tag extends SoftDeletable {
+	@SoftDelete
+	public static class Tag {
 
 		@Id
 		@GeneratedValue
@@ -491,16 +483,6 @@ public class SoftDeleteTest extends AbstractTest {
 		public Tag setName(String name) {
 			this.name = name;
 			return this;
-		}
-	}
-
-	@MappedSuperclass
-	public static abstract class SoftDeletable {
-
-		private boolean deleted;
-
-		public boolean isDeleted() {
-			return deleted;
 		}
 	}
 }
