@@ -1,14 +1,17 @@
 package com.vladmihalcea.hpjp.hibernate.concurrency;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.providers.Database;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.annotations.Immutable;
+import org.hibernate.cfg.AvailableSettings;
 import org.junit.Before;
 import org.junit.Test;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertEquals;
@@ -40,6 +43,11 @@ public class LockModePessimisticForceIncrementTest extends AbstractTest {
             entityManager.persist(repository);
             entityManager.flush();
         });
+    }
+
+    @Override
+    protected void additionalProperties(Properties properties) {
+        properties.setProperty(AvailableSettings.GLOBALLY_QUOTED_IDENTIFIERS, "true");
     }
 
     @Test
