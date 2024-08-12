@@ -16,6 +16,7 @@ import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static org.junit.Assert.assertTrue;
 
@@ -98,7 +99,7 @@ public class SpringDataJPAMultipleBagFetchTest extends AbstractSpringTest {
                 LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
             }
         } catch (LazyInitializationException expected) {
-            assertTrue(expected.getMessage().contains("could not initialize proxy"));
+            assertTrue(expected.getMessage().toLowerCase(Locale.ROOT).contains("could not initialize proxy"));
         }
     }
 }
