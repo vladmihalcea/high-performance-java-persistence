@@ -28,12 +28,25 @@ public class MinValueVersionTest extends AbstractTest {
             Post post = new Post();
             post.setId(1L);
             post.setTitle("High-Performance Java Persistence");
-            post.setVersion(Short.MAX_VALUE);
             entityManager.persist(post);
+            entityManager.flush();
 
+            int updateCount = entityManager.createNativeQuery("""
+                UPDATE post 
+                SET version = :version 
+                WHERE id = :id
+                """)
+            .setParameter("version", Short.MAX_VALUE)
+            .setParameter("id", post.getId())
+            .executeUpdate();
+
+            assertEquals(1, updateCount);
+        });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
             assertEquals(Short.MAX_VALUE, post.getVersion());
 
-            entityManager.flush();
             post.setTitle("High-Performance Hibernate");
         });
 

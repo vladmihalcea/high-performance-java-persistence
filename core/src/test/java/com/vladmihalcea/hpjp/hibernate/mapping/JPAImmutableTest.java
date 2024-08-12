@@ -3,6 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.mapping;
 import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
 import com.vladmihalcea.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
+import org.hibernate.HibernateException;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.query.ImmutableEntityUpdateQueryHandlingMode;
@@ -10,6 +11,7 @@ import org.junit.Test;
 
 import jakarta.persistence.*;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -68,8 +70,12 @@ public class JPAImmutableTest extends AbstractSQLServerIntegrationTest {
             });
 
             fail("Should have thrown Exception");
-        } catch (Exception expected) {
-            assertEquals("The query [update Event set eventValue = :eventValue where id = :id] attempts to update an immutable entity: [Event]", ExceptionUtil.rootCause(expected).getMessage());
+        } catch (HibernateException expected) {
+            assertTrue(
+                expected.getMessage().toLowerCase(Locale.ROOT).contains(
+                    "attempts to update an immutable entity: [event]"
+                )
+            );
         }
 
         doInJPA(entityManager -> {

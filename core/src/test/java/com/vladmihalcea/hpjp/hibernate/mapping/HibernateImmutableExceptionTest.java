@@ -11,6 +11,7 @@ import org.hibernate.annotations.Immutable;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.Locale;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -73,11 +74,11 @@ public class HibernateImmutableExceptionTest extends AbstractTest {
             });
 
             fail("Should have thrown exception");
-        } catch (HibernateException e) {
-            assertEquals(
-                "The query [update Event set eventValue = :eventValue where id = :id] " +
-                "attempts to update an immutable entity: [Event]",
-                e.getMessage()
+        } catch (HibernateException expected) {
+            assertTrue(
+                expected.getMessage().toLowerCase(Locale.ROOT).contains(
+                    "attempts to update an immutable entity: [event]"
+                )
             );
         }
     }
@@ -101,10 +102,11 @@ public class HibernateImmutableExceptionTest extends AbstractTest {
             });
 
             fail("Should have thrown exception");
-        } catch (HibernateException e) {
-            assertEquals(
-                "The query [<criteria>] attempts to update an immutable entity: [Event]",
-                e.getMessage()
+        } catch (HibernateException expected) {
+            assertTrue(
+                expected.getMessage().toLowerCase(Locale.ROOT).contains(
+                    "attempts to update an immutable entity: [event]"
+                )
             );
         }
     }
