@@ -59,6 +59,14 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Jakarta Data -->
+
+        <dependency>
+            <groupId>jakarta.data</groupId>
+            <artifactId>jakarta.data-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <!-- Table Generator -->
 
         <dependency>
@@ -85,6 +93,21 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <annotationProcessorPath>
+                            <groupId>org.hibernate.orm</groupId>
+                            <artifactId>hibernate-jpamodelgen</artifactId>
+                            <version>${hibernate.version}</version>
+                        </annotationProcessorPath>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
 
             <plugin>

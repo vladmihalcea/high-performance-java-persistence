@@ -48,6 +48,20 @@ public final class ReflectionUtils {
     /**
      * Instantiate a new {@link Object} of the provided type.
      *
+     * @param className The fully-qualified Java class name of the {@link Object} to instantiate
+     * @param args The arguments that need to be passed to the constructor
+     * @param argsTypes The argument types that need to be passed to the constructor
+     * @param <T>       class type
+     * @return new Java {@link Object} of the provided type
+     */
+    public static <T> T newInstance(String className, Object[] args, Class[] argsTypes) {
+        Class clazz = getClass(className);
+        return newInstance(clazz, args, argsTypes);
+    }
+
+    /**
+     * Instantiate a new {@link Object} of the provided type.
+     *
      * @param clazz The Java {@link Class} of the {@link Object} to instantiate
      * @param <T>   class type
      * @return new Java {@link Object} of the provided type
