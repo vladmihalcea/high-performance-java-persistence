@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.spring.data.bytecode;
 
+import com.vladmihalcea.hpjp.hibernate.forum.Attachment;
 import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.bytecode.config.SpringDataJPARuntimeBytecodeEnhancementConfiguration;
 import com.vladmihalcea.hpjp.spring.data.bytecode.repository.AttachmentRepository;
@@ -21,7 +22,7 @@ public class SpringDataJPARuntimeBytecodeEnhancementTest extends AbstractSpringT
     @Override
     protected Class<?>[] entities() {
         return new Class[] {
-            AttachmentLazyLoading.class
+            Attachment.class
         };
     }
 
