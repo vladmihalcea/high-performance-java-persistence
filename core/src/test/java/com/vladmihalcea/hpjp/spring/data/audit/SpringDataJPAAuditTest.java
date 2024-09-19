@@ -36,7 +36,7 @@ public class SpringDataJPAAuditTest extends AbstractSpringTest {
     }
 
     @Test
-    public void testCrud() {
+    public void test() {
         Post post = new Post()
             .setTitle("High-Performance Java Persistence 1st edition")
             .setSlug("high-performance-java-persistence")
@@ -62,9 +62,9 @@ public class SpringDataJPAAuditTest extends AbstractSpringTest {
             .orElseThrow();
 
         LOGGER.info(
-            "At the latest revision [{}], the Post entity state was: [{}]",
-            latestRevision.getRevisionNumber().orElseThrow(),
-            latestRevision.getEntity()
+            "The latest Post entity operation was [{}] at revision [{}]",
+            latestRevision.getMetadata().getRevisionType(),
+            latestRevision.getRevisionNumber().orElseThrow()
         );
 
         for(Revision<Long, Post> revision : postRepository.findRevisions(post.getId())) {
@@ -74,10 +74,11 @@ public class SpringDataJPAAuditTest extends AbstractSpringTest {
                 revision.getEntity()
             );
         }
+
+        testPagination();
     }
 
-    @Test
-    public void testPagination() {
+    private void testPagination() {
         Post post = new Post()
             .setTitle("Hypersistence Optimizer, version 1.0.0")
             .setSlug("hypersistence-optimizer")
@@ -115,9 +116,11 @@ public class SpringDataJPAAuditTest extends AbstractSpringTest {
     private void logPage(Page<Revision<Long, Post>> revisionPage) {
         for(Revision<Long, Post> revision : revisionPage) {
             LOGGER.info(
-                "At revision [{}], the Post entity state was: [{}]",
-                revision.getRevisionNumber().orElseThrow(),
-                revision.getEntity()
+                String.format(
+                    "At revision [%02d], the Post entity state was: [%s]",
+                    revision.getRevisionNumber().orElseThrow(),
+                    revision.getEntity()
+                )
             );
         }
     }
