@@ -42,7 +42,7 @@ public class ForumService {
                 Comparator.comparing(PostCommentDTO::getTotalScore).reversed()
             )
             .limit(ranking)
-            .collect(Collectors.toList());
+            .toList();
 
         return postCommentRoots;
     }
