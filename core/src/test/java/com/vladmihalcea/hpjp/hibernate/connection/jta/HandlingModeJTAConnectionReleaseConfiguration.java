@@ -1,12 +1,11 @@
 package com.vladmihalcea.hpjp.hibernate.connection.jta;
 
-import java.util.Properties;
-
-import org.hibernate.cfg.AvailableSettings;
-
 import com.vladmihalcea.hpjp.hibernate.statistics.TransactionStatisticsFactory;
 import com.vladmihalcea.hpjp.util.spring.config.jta.PostgreSQLJTATransactionManagerConfiguration;
+import org.hibernate.cfg.AvailableSettings;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Properties;
 
 @Configuration
 public class HandlingModeJTAConnectionReleaseConfiguration extends PostgreSQLJTATransactionManagerConfiguration {

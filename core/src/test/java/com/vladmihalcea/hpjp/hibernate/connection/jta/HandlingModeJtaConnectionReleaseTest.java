@@ -1,24 +1,21 @@
 package com.vladmihalcea.hpjp.hibernate.connection.jta;
 
-import java.util.concurrent.TimeUnit;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-
 import org.hibernate.Session;
-
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertNotNull;
 

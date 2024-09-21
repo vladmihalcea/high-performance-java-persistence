@@ -3,12 +3,12 @@ package com.vladmihalcea.hpjp.hibernate.connection;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import org.hibernate.Session;
-import org.junit.Test;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.Session;
+import org.junit.Test;
+
 import java.net.SocketTimeoutException;
 import java.sql.Connection;
 import java.util.concurrent.Executor;

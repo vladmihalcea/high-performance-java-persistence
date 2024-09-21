@@ -1,10 +1,10 @@
 package com.vladmihalcea.hpjp.hibernate.connection;
 
-import java.util.Properties;
-
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 
-public class JPADriverConnectionProviderTest extends DriverConnectionProviderTest {
+import java.util.Properties;
+
+public class JPADriverConnectionProviderTest extends DriverManagerConnectionProviderTest {
 
     protected void appendDriverProperties(Properties properties) {
         DataSourceProvider dataSourceProvider = dataSourceProvider();

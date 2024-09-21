@@ -1,37 +1,17 @@
 package com.vladmihalcea.hpjp.hibernate.connection;
 
-import com.vladmihalcea.hpjp.util.AbstractTest;
-import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
-
+import org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.junit.Test;
 
-import javax.sql.DataSource;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider.Post;
 import static com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider.PostComment;
 
-public class DriverConnectionProviderTest extends AbstractTest {
-
-    private BlogEntityProvider entityProvider = new BlogEntityProvider();
-
-    @Override
-    protected Class<?>[] entities() {
-        return entityProvider.entities();
-    }
-
-    protected DataSource newDataSource() {
-        return null;
-    }
-
-    protected Properties properties() {
-        Properties properties = super.properties();
-        properties.put("hibernate.hbm2ddl.auto", "create-drop");
-        appendDriverProperties(properties);
-        return properties;
-    }
+public class DriverManagerConnectionProviderTest extends AbstractConnectionProviderTest {
 
     protected void appendDriverProperties(Properties properties) {
         DataSourceProvider dataSourceProvider = dataSourceProvider();
@@ -39,6 +19,11 @@ public class DriverConnectionProviderTest extends AbstractTest {
         properties.put("hibernate.connection.url", dataSourceProvider.url());
         properties.put("hibernate.connection.username", dataSourceProvider.username());
         properties.put("hibernate.connection.password", dataSourceProvider.password());
+    }
+
+    @Override
+    public Class<? extends ConnectionProvider> expectedConnectionProviderClass() {
+        return DriverManagerConnectionProviderImpl.class;
     }
 
     @Test

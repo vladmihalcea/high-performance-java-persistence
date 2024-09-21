@@ -1,5 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.connection.jta;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.hibernate.Session;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -13,8 +15,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertNotNull;

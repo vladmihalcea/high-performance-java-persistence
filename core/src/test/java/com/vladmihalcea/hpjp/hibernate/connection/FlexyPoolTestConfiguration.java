@@ -1,9 +1,9 @@
 package com.vladmihalcea.hpjp.hibernate.connection;
 
-import com.vladmihalcea.hpjp.hibernate.connection.jta.FlexyPoolEntities;
-import com.vladmihalcea.hpjp.util.spring.config.jpa.HikariCPPostgreSQLJPAConfiguration;
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
 import com.vladmihalcea.flexypool.adaptor.HikariCPPoolAdapter;
+import com.vladmihalcea.hpjp.hibernate.connection.jta.FlexyPoolEntities;
+import com.vladmihalcea.hpjp.util.spring.config.jpa.HikariCPPostgreSQLJPAConfiguration;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Configuration;
 

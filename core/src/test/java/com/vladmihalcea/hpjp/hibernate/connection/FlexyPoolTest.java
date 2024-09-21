@@ -1,6 +1,8 @@
 package com.vladmihalcea.hpjp.hibernate.connection;
 
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,8 +16,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;

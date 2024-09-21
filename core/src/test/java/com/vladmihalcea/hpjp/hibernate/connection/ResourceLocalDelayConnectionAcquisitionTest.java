@@ -1,17 +1,17 @@
 package com.vladmihalcea.hpjp.hibernate.connection;
 
-import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
 import com.vladmihalcea.flexypool.adaptor.DataSourcePoolAdapter;
+import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import jakarta.persistence.*;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import jakarta.persistence.*;
 import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;

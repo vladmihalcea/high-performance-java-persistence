@@ -7,8 +7,6 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.assertSame;
-
 public class HikariConnectionThreadBoundTest extends AbstractTest {
 
     @Test
@@ -20,7 +18,6 @@ public class HikariConnectionThreadBoundTest extends AbstractTest {
                 }
             });
         });
-
     }
 
     @Override

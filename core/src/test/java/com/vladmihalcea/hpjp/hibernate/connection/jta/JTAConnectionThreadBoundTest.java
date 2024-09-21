@@ -1,5 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.connection.jta;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.hibernate.Session;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,12 +14,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import java.sql.Connection;
-
-import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = JTAConnectionReleaseConfiguration.class)
