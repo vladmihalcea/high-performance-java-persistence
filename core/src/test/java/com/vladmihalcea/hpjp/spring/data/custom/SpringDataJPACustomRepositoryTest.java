@@ -44,7 +44,7 @@ public class SpringDataJPACustomRepositoryTest extends AbstractSpringTest {
     }
 
     @Test
-    public void test() {
+    public void testResultTransfromer() {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 entityManager.persist(
@@ -97,12 +97,49 @@ public class SpringDataJPACustomRepositoryTest extends AbstractSpringTest {
         assertEquals(2L, post2DTO.getId().longValue());
         assertEquals(1, post2DTO.getComments().size());
         assertEquals(3L, post2DTO.getComments().get(0).getId().longValue());
+    }
+
+    @Test
+    public void testSaveAntiPattern() {
+        try {
+            transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+                entityManager.persist(
+                    new Post()
+                        .setId(1L)
+                        .setTitle("High-Performance Java Persistence")
+                        .addComment(
+                            new PostComment()
+                                .setId(1L)
+                                .setReview("Best book on JPA and Hibernate!")
+                        )
+                        .addComment(
+                            new PostComment()
+                                .setId(2L)
+                                .setReview("A must-read for every Java developer!")
+                        )
+                );
+
+                entityManager.persist(
+                    new Post()
+                        .setId(2L)
+                        .setTitle("Hypersistence Optimizer")
+                        .addComment(
+                            new PostComment()
+                                .setId(3L)
+                                .setReview("It's like pair programming with Vlad!")
+                        )
+                );
+                return null;
+            });
+        } catch (TransactionException e) {
+            LOGGER.error("Failure", e);
+        }
 
         forumService.saveAntiPattern(1L, "Hack!");
     }
 
     @Test
-    public void testMultiplePosts() {
+    public void testFindAllAntiPattern() {
         int POST_SIZE = 50;
 
         List<Tag> tags = List.of(
