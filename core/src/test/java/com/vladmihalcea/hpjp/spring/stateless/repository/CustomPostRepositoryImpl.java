@@ -44,6 +44,7 @@ public class CustomPostRepositoryImpl implements CustomPostRepository<Post> {
             .openStatelessSession();
         try {
             statelessSession.setJdbcBatchSize(batchProcessingSize);
+            statelessSession.beginTransaction();
 
             return StreamSupport.stream(entities.spliterator(), false)
                 .peek(entity -> {
