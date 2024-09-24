@@ -2,6 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.fetching.multiple;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.*;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class MultiLevelCollectionFetchingTest extends AbstractPostgreSQLIntegrationTest {
+public class CriteriaAPIFetchingTest extends AbstractPostgreSQLIntegrationTest {
 
     public static final int POST_COUNT = 50;
     public static final int POST_COMMENT_COUNT = 20;
@@ -27,6 +28,7 @@ public class MultiLevelCollectionFetchingTest extends AbstractPostgreSQLIntegrat
             PostComment.class,
             Tag.class,
             User.class,
+            Company.class,
             UserVote.class
         };
     }
@@ -83,7 +85,6 @@ public class MultiLevelCollectionFetchingTest extends AbstractPostgreSQLIntegrat
                             new UserVote()
                                 .setId(++voteId)
                                 .setScore(Math.random() > 0.5 ? 1 : -1)
-                                .setUser(Math.random() > 0.5 ? alice : bob)
                         );
                     }
 
@@ -101,49 +102,59 @@ public class MultiLevelCollectionFetchingTest extends AbstractPostgreSQLIntegrat
     }
 
     @Test
-    public void testTwoJoinFetchQueries() {
-        List<Post> posts = doInJPA(entityManager -> {
-            List<Post> _posts = entityManager.createQuery("""
-                select p
-                from Post p
-                left join fetch p.comments
-                where p.id between :minId and :maxId
-                """, Post.class)
-            .setParameter("minId", 1L)
-            .setParameter("maxId", 50L)
-            .getResultList();
+    public void testInnerJoin() {
+        doInJPA(entityManager -> {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 
-            entityManager.createQuery("""
-                select p
-                from Post p
-                left join fetch p.tags t
-                where p in :posts
-                """, Post.class)
-            .setParameter("posts", _posts)
-            .getResultList();
+            CriteriaQuery<UserVote> query = builder.createQuery(UserVote.class);
+            Root<UserVote> userVoteRoot = query.from(UserVote.class);
 
-            entityManager.createQuery("""
-                select pc
-                from PostComment pc
-                left join fetch pc.votes v
-                join pc.post p
-                where p in :posts
-                """, PostComment.class)
-            .setParameter("posts", _posts)
-            .getResultList();
+            Fetch<UserVote, PostComment> postCommentJoin = userVoteRoot.fetch("comment");
+            Fetch<PostComment, Post> postJoin = postCommentJoin.fetch("post");
+            Fetch<UserVote, User> userJoin = userVoteRoot.fetch("user");
+            Fetch<User, Company> companyJoin = userJoin.fetch("company");
 
-            return _posts;
+            query.where(
+                builder.like(
+                    ((Join) postJoin).get("title"),
+                    "Post nr%"
+                )
+            );
+
+            List<UserVote> userVotes = entityManager
+                .createQuery(query)
+                .getResultList();
+
+            assertEquals(0, userVotes.size());
         });
+    }
 
-        assertEquals(POST_COUNT, posts.size());
+    @Test
+    public void testLeftJoin() {
+        doInJPA(entityManager -> {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 
-        for (Post post : posts) {
-            assertEquals(POST_COMMENT_COUNT, post.getComments().size());
-            for(PostComment comment : post.getComments()) {
-                assertEquals(VOTE_COUNT, comment.getVotes().size());
-            }
-            assertEquals(TAG_COUNT, post.getTags().size());
-        }
+            CriteriaQuery<UserVote> query = builder.createQuery(UserVote.class);
+            Root<UserVote> userVoteRoot = query.from(UserVote.class);
+
+            Fetch<UserVote, PostComment> postCommentJoin = userVoteRoot.fetch("comment", JoinType.LEFT);
+            Fetch<PostComment, Post> postJoin = postCommentJoin.fetch("post", JoinType.LEFT);
+            Fetch<UserVote, User> userJoin = userVoteRoot.fetch("user", JoinType.LEFT);
+            Fetch<User, Company> companyJoin = userJoin.fetch("company", JoinType.LEFT);
+
+            query.where(
+                builder.like(
+                    ((Join) postJoin).get("title"),
+                    "Post nr%"
+                )
+            );
+
+            List<UserVote> userVotes = entityManager
+                .createQuery(query)
+                .getResultList();
+
+            assertEquals(POST_COUNT * POST_COMMENT_COUNT * VOTE_COUNT, userVotes.size());
+        });
     }
 
     @Entity(name = "Post")
@@ -292,6 +303,9 @@ public class MultiLevelCollectionFetchingTest extends AbstractPostgreSQLIntegrat
 
         private String name;
 
+        @ManyToOne(fetch = FetchType.LAZY)
+        private Company company;
+
         public Long getId() {
             return id;
         }
@@ -306,6 +320,34 @@ public class MultiLevelCollectionFetchingTest extends AbstractPostgreSQLIntegrat
         }
 
         public User setName(String name) {
+            this.name = name;
+            return this;
+        }
+    }
+
+    @Entity(name = "Company")
+    @Table(name = "company")
+    public static class Company {
+
+        @Id
+        private Long id;
+
+        private String name;
+
+        public Long getId() {
+            return id;
+        }
+
+        public Company setId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Company setName(String name) {
             this.name = name;
             return this;
         }
