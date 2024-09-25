@@ -2,7 +2,9 @@ package com.vladmihalcea.hpjp.hibernate.cache;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.CacheLayout;
 import org.hibernate.annotations.QueryHints;
+import org.hibernate.cfg.AvailableSettings;
 import org.junit.Test;
 
 import jakarta.persistence.*;
@@ -33,6 +35,7 @@ public class EntityNullResultCacheTest extends AbstractTest {
         properties.put("hibernate.cache.region.factory_class", "jcache");
         properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
         properties.put("hibernate.cache.use_query_cache", Boolean.TRUE.toString());
+        properties.put(AvailableSettings.QUERY_CACHE_LAYOUT, CacheLayout.SHALLOW);
         return properties;
     }
 

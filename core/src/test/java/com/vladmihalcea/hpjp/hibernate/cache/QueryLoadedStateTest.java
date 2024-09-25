@@ -3,6 +3,8 @@ package com.vladmihalcea.hpjp.hibernate.cache;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.CacheLayout;
+import org.hibernate.cfg.AvailableSettings;
 import org.junit.Test;
 
 import jakarta.persistence.Entity;
@@ -29,6 +31,7 @@ public class QueryLoadedStateTest extends AbstractTest {
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
         properties.put("hibernate.cache.region.factory_class", "jcache");
         properties.put("hibernate.cache.use_query_cache", Boolean.TRUE.toString());
+        properties.put(AvailableSettings.QUERY_CACHE_LAYOUT, CacheLayout.SHALLOW);
     }
 
     public void afterInit() {

@@ -3,6 +3,8 @@ package com.vladmihalcea.hpjp.hibernate.cache.query;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
+import org.hibernate.annotations.CacheLayout;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.AvailableHints;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
@@ -40,6 +42,7 @@ public class QueryCacheDTOTest extends AbstractTest {
         properties.put("hibernate.cache.use_second_level_cache", Boolean.TRUE.toString());
         properties.put("hibernate.cache.region.factory_class", "jcache");
         properties.put("hibernate.cache.use_query_cache", Boolean.TRUE.toString());
+        properties.put(AvailableSettings.QUERY_CACHE_LAYOUT, CacheLayout.SHALLOW);
         properties.put(
             "hibernate.integrator_provider",
             ClassImportIntegratorIntegratorProvider.class

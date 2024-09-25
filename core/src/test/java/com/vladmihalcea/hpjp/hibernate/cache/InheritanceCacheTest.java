@@ -2,6 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.cache;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.annotations.*;
+import org.hibernate.cfg.AvailableSettings;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,6 +30,7 @@ public class InheritanceCacheTest extends AbstractTest {
         properties.put("hibernate.cache.region.factory_class", "jcache");
         properties.put("hibernate.generate_statistics", Boolean.TRUE.toString());
         properties.put("hibernate.cache.use_query_cache", Boolean.TRUE.toString());
+        properties.put(AvailableSettings.QUERY_CACHE_LAYOUT, CacheLayout.SHALLOW);
         return properties;
     }
 
