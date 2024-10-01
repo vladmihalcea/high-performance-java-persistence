@@ -1,6 +1,8 @@
 package com.vladmihalcea.hpjp.hibernate.connection;
 
+import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.hpjp.util.providers.SQLServerDataSourceProvider;
 import org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.junit.Test;
@@ -13,12 +15,23 @@ import static com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider.Pos
 
 public class DriverManagerConnectionProviderTest extends AbstractConnectionProviderTest {
 
+    @Override
+    protected DataSourceProvider dataSourceProvider() {
+        return new SQLServerDataSourceProvider();
+    }
+
+
     protected void appendDriverProperties(Properties properties) {
         DataSourceProvider dataSourceProvider = dataSourceProvider();
-        properties.put("hibernate.connection.driver_class", "org.hsqldb.jdbc.JDBCDriver");
-        properties.put("hibernate.connection.url", dataSourceProvider.url());
-        properties.put("hibernate.connection.username", dataSourceProvider.username());
-        properties.put("hibernate.connection.password", dataSourceProvider.password());
+
+        String url = dataSourceProvider.url();
+        String username = dataSourceProvider.username();
+        String password = dataSourceProvider.password();
+
+        properties.put("hibernate.connection.driver_class", SQLServerDriver.class.getName());
+        properties.put("hibernate.connection.url", url);
+        properties.put("hibernate.connection.username", username);
+        properties.put("hibernate.connection.password", password);
     }
 
     @Override
