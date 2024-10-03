@@ -171,7 +171,7 @@ public final class ReflectionUtils {
             @SuppressWarnings("unchecked")
             T returnValue = (T) field.get(target);
             return returnValue;
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             return null;
         }
     }

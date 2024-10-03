@@ -1,15 +1,22 @@
-package com.vladmihalcea.hpjp.spring.transaction.jta.config;
+package com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config;
 
+import com.arjuna.ats.internal.jta.recovery.arjunacore.XARecoveryModule;
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
 import com.arjuna.ats.internal.jta.transaction.arjunacore.UserTransactionImple;
+import com.atomikos.jdbc.AtomikosDataSourceBean;
 import com.vladmihalcea.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.hpjp.hibernate.logging.LoggingStatementInspector;
 import com.vladmihalcea.hpjp.util.DataSourceProxyType;
+import com.vladmihalcea.hpjp.util.logging.InlineQueryLogEntryCreator;
+import dev.snowdrop.boot.narayana.core.jdbc.GenericXADataSourceWrapper;
 import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
+import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
+import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.engine.transaction.jta.platform.internal.JBossStandAloneJtaPlatform;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
+import org.postgresql.xa.PGXADataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -32,7 +39,7 @@ import java.util.Properties;
  */
 @Configuration
 @PropertySource({"/META-INF/jta-postgresql.properties"})
-@ComponentScan(basePackages = "com.vladmihalcea.hpjp.spring.transaction.jta")
+@ComponentScan(basePackages = "com.vladmihalcea.hpjp.spring.transaction.jta.narayana")
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
 public class NarayanaJTATransactionManagerConfiguration {
@@ -62,20 +69,38 @@ public class NarayanaJTATransactionManagerConfiguration {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
+    @DependsOn("actualDataSource")
     public DataSource dataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(dataSourceClassName);
-        dataSource.setUrl(
-            String.format(
-                "jdbc:postgresql://%s:%s/%s",
-                jdbcHost,
-                jdbcPort,
-                jdbcDatabase
-            )
-        );
-        dataSource.setUsername(jdbcUser);
-        dataSource.setPassword(jdbcPassword);
-        return dataSource;
+        SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
+        loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
+        return ProxyDataSourceBuilder
+            .create(actualDataSource())
+            .name(DATA_SOURCE_PROXY_NAME)
+            .listener(loggingListener)
+            .build();
+    }
+
+    @Bean
+    public DataSource actualDataSource() {
+        try {
+            PGXADataSource dataSource = new PGXADataSource();
+            dataSource.setUrl(
+                String.format(
+                    "jdbc:postgresql://%s:%s/%s",
+                    jdbcHost,
+                    jdbcPort,
+                    jdbcDatabase
+                )
+            );
+            dataSource.setUser(jdbcUser);
+            dataSource.setPassword(jdbcPassword);
+
+            XARecoveryModule xaRecoveryModule = new XARecoveryModule();
+            GenericXADataSourceWrapper wrapper = new GenericXADataSourceWrapper(xaRecoveryModule);
+            return wrapper.wrapDataSource(dataSource);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Bean

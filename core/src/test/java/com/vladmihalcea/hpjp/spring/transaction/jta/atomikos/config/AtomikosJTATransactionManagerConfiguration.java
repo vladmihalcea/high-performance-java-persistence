@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.spring.transaction.jta.config;
+package com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.config;
 
 import com.atomikos.icatch.jta.UserTransactionManager;
 import com.atomikos.jdbc.AtomikosDataSourceBean;
@@ -36,7 +36,7 @@ import java.util.Properties;
  */
 @Configuration
 @PropertySource({"/META-INF/jta-postgresql.properties"})
-@ComponentScan(basePackages = "com.vladmihalcea.hpjp.spring.transaction.jta")
+@ComponentScan(basePackages = "com.vladmihalcea.hpjp.spring.transaction.jta.atomikos")
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
 public class AtomikosJTATransactionManagerConfiguration {

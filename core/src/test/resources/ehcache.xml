@@ -1,29 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="ehcache.xsd"
-         updateCheck="true" monitoring="autodetect"
-         dynamicConfig="true">
+<config
+        xmlns='http://www.ehcache.org/v3'
+        xmlns:tx='http://www.ehcache.org/v3/tx'>
 
-    <defaultCache
-            maxElementsInMemory="100000"
-            eternal="true">
-        <persistence strategy="none"/>
-    </defaultCache>
+    <service>
+        <tx:jta-tm
+                transaction-manager-lookup-class="org.ehcache.transactions.xa.txmgr.narayana.NarayanaTransactionManagerLookup"/>
+    </service>
 
-    <!--<cache name="org.hibernate.cache.spi.TimestampsRegion"
-           maxEntriesLocalHeap="10000"
-           eternal="true"
-           copyOnRead="true"
-           copyOnWrite="true">
-        <persistence strategy="none"/>
+    <persistence directory="${java.io.tmpdir}/ehcache/" />
+
+    <cache alias="com.vladmihalcea.hpjp.hibernate.cache.transactional.assigned.TransactionalEntities$Post">
+        <key-type>java.lang.Object</key-type>
+        <value-type>java.lang.Object</value-type>
+        <resources>
+            <heap unit="entries">10000</heap>
+            <offheap unit="MB">1</offheap>
+            <disk unit="MB" persistent="true">10</disk>
+        </resources>
+        <tx:xa-store unique-XAResource-id="xaCache"/>
     </cache>
 
-    <cache name="org.hibernate.cache.spi.QueryResultsRegion"
-           maxEntriesLocalHeap="10000"
-           eternal="true"
-           copyOnRead="true"
-           copyOnWrite="true">
-        <persistence strategy="none"/>
-    </cache>-->
-
-</ehcache>
+</config>

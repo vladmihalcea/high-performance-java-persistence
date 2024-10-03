@@ -2,6 +2,9 @@ package com.vladmihalcea.hpjp.hibernate.cache.transactional.assigned;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.transaction.JPATransactionVoidFunction;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceContext;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -13,13 +16,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.PersistenceContext;
-
+import static com.vladmihalcea.hpjp.hibernate.cache.transactional.assigned.TransactionalEntities.Post;
+import static com.vladmihalcea.hpjp.hibernate.cache.transactional.assigned.TransactionalEntities.PostComment;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static com.vladmihalcea.hpjp.hibernate.cache.transactional.assigned.TransactionalEntities.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TransactionalCacheConcurrencyStrategyTestConfiguration.class)
@@ -84,14 +84,18 @@ public class TransactionalCacheConcurrencyStrategyTest extends AbstractTest {
         });
     }
 
-    @Override
-    public void destroy() {
-
-    }
-
     @Test
     public void testPostEntityLoad() {
         LOGGER.info("Load Post entity and comments collection");
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            printEntityCacheRegionStatistics(Post.class);
+            assertEquals(2, post.getComments().size());
+            printCacheRegionStatistics(Post.class.getName() + ".comments");
+        });
+
+        LOGGER.info("Load Post entity for the 2nd time and comments collection");
 
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
@@ -185,9 +189,12 @@ public class TransactionalCacheConcurrencyStrategyTest extends AbstractTest {
         } catch (Exception expected) {
             LOGGER.info("Expected", expected);
         }
-        printCacheRegionStatistics(Post.class.getName());
-        printCacheRegionStatistics(Post.class.getName() + ".comments");
-        printCacheRegionStatistics(PostComment.class.getName());
+
+        doInJPA(entityManager -> {
+            printCacheRegionStatistics(Post.class.getName());
+            printCacheRegionStatistics(Post.class.getName() + ".comments");
+            printCacheRegionStatistics(PostComment.class.getName());
+        });
     }
 
     @Test
@@ -212,20 +219,20 @@ public class TransactionalCacheConcurrencyStrategyTest extends AbstractTest {
             assertEquals(2, post.getComments().size());
         });
 
-        printCacheRegionStatistics(Post.class.getName());
-        printCacheRegionStatistics(Post.class.getName() + ".comments");
-        printCacheRegionStatistics(PostComment.class.getName());
-
         doInJPA(entityManager -> {
+            printCacheRegionStatistics(Post.class.getName());
+            printCacheRegionStatistics(Post.class.getName() + ".comments");
+            printCacheRegionStatistics(PostComment.class.getName());
+
             Post post = entityManager.find(Post.class, 1L);
             entityManager.remove(post);
         });
 
-        printCacheRegionStatistics(Post.class.getName());
-        printCacheRegionStatistics(Post.class.getName() + ".comments");
-        printCacheRegionStatistics(PostComment.class.getName());
-
         doInJPA(entityManager -> {
+            printCacheRegionStatistics(Post.class.getName());
+            printCacheRegionStatistics(Post.class.getName() + ".comments");
+            printCacheRegionStatistics(PostComment.class.getName());
+
             Post post = entityManager.find(Post.class, 1L);
             assertNull(post);
         });

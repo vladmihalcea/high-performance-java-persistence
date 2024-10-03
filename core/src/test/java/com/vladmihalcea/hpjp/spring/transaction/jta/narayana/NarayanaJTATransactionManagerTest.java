@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.spring.transaction.jta;
+package com.vladmihalcea.hpjp.spring.transaction.jta.narayana;
 
 import com.vladmihalcea.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;
@@ -6,9 +6,9 @@ import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostComment;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostDetails;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Tag;
 import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
-import com.vladmihalcea.hpjp.spring.transaction.jta.config.AtomikosJTATransactionManagerConfiguration;
-import com.vladmihalcea.hpjp.spring.transaction.jta.dao.TagDAO;
-import com.vladmihalcea.hpjp.spring.transaction.jta.service.ForumService;
+import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config.NarayanaJTATransactionManagerConfiguration;
+import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.dao.TagDAO;
+import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.service.ForumService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -23,8 +23,8 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vlad Mihalcea
  */
-@ContextConfiguration(classes = AtomikosJTATransactionManagerConfiguration.class)
-public class JTATransactionManagerTest extends AbstractSpringTest {
+@ContextConfiguration(classes = NarayanaJTATransactionManagerConfiguration.class)
+public class NarayanaJTATransactionManagerTest extends AbstractSpringTest {
 
     @Autowired
     private ForumService forumService;

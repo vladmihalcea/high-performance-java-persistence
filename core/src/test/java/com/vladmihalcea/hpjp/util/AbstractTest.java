@@ -14,6 +14,9 @@ import jakarta.persistence.spi.PersistenceUnitInfo;
 import net.steppschuh.markdowngenerator.table.Table;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.ehcache.core.spi.store.tiering.CachingTier;
+import org.ehcache.impl.internal.store.tiering.TieredStore;
+import org.ehcache.transactions.xa.internal.XAStore;
 import org.hibernate.*;
 import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.MetadataSources;
@@ -1065,7 +1068,17 @@ public abstract class AbstractTest {
                 boolean firstEntry = true;
 
                 Object onHeapStore = ReflectionUtils.getFieldValue(cache, "store");
-                Object onHeapStoreMap = ReflectionUtils.getFieldValue(onHeapStore, "map");
+                if(onHeapStore instanceof XAStore) {
+                    onHeapStore = ReflectionUtils.getFieldValue(onHeapStore, "underlyingStore");
+                }
+                if(onHeapStore instanceof TieredStore) {
+                    onHeapStore = ReflectionUtils.getFieldValue(onHeapStore, "realCachingTier");
+                    onHeapStore = ReflectionUtils.getFieldValue(onHeapStore, "higher");
+                }
+                Object onHeapStoreMap = ReflectionUtils.getFieldValueOrNull(onHeapStore, "map");
+                if (onHeapStoreMap == null) {
+                    return;
+                }
                 Iterable keySet = ReflectionUtils.invokeMethod(onHeapStoreMap, "keySet");
                 for (Object key : keySet) {
                     Object cacheValue = storageAccess.getFromCache(key, null);
@@ -1078,7 +1091,11 @@ public abstract class AbstractTest {
                     }
                     cacheEntriesBuilder.append("\t");
 
-                    if (cacheValue instanceof QueryResultsCacheImpl.CacheItem) {
+                    if (cacheValue instanceof Map) {
+                        Map mapValue = (Map) cacheValue;
+
+                        cacheEntriesBuilder.append(mapValue);
+                    } else if (cacheValue instanceof QueryResultsCacheImpl.CacheItem) {
                         QueryResultsCacheImpl.CacheItem queryValue = (QueryResultsCacheImpl.CacheItem) cacheValue;
 
                         cacheEntriesBuilder.append(
