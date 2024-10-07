@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import jakarta.persistence.*;
 
-public class NativeIdentifierMySQLTest extends AbstractMySQLIntegrationTest {
+public class MySQLNativeIdentifierTest extends AbstractMySQLIntegrationTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -23,13 +23,13 @@ public class NativeIdentifierMySQLTest extends AbstractMySQLIntegrationTest {
     @Test
     public void test() {
         doInJPA(entityManager -> {
-            for ( int i = 1; i <= 3; i++ ) {
+            for (int i = 1; i <= 3; i++) {
                 entityManager.persist(
-                        new Post(
-                                String.format(
-                                        "High-Performance Java Persistence, Part %d", i
-                                )
+                    new Post(
+                        String.format(
+                            "High-Performance Java Persistence, Part %d", i
                         )
+                    )
                 );
             }
         });
