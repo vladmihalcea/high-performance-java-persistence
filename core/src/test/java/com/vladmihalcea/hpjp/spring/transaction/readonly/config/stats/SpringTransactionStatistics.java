@@ -45,6 +45,10 @@ public class SpringTransactionStatistics extends StatisticsImpl {
         super.endTransaction(success);
     }
 
+    public static void resetConnectionStart(){
+        startNanos.get().set(System.nanoTime());
+    }
+
     public static SpringTransactionStatisticsReport report() {
         return reportHolder.get();
     }

@@ -3,11 +3,8 @@ package com.vladmihalcea.hpjp.spring.transaction.readonly.config;
 import com.vladmihalcea.hpjp.spring.data.base.config.SpringDataJPABaseConfiguration;
 import com.vladmihalcea.hpjp.spring.transaction.readonly.config.stats.SpringTransactionStatisticsFactory;
 import com.vladmihalcea.hpjp.spring.transaction.readonly.domain.Product;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.StatisticsSettings;
-import org.hibernate.resource.jdbc.spi.PhysicalConnectionHandlingMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -61,8 +58,9 @@ public class SpringDataJPAReadOnlyLazyConfiguration extends SpringDataJPABaseCon
     }
 
     @Bean
-    public DataSource actualDataSource() {
-        DataSource dataSource = super.actualDataSource();
-        return new LazyConnectionDataSourceProxy(dataSource);
+    @Override
+    public DataSource dataSource(){
+        var proxyListenedDataSource = super.dataSource();
+        return new LazyConnectionDataSourceProxy(proxyListenedDataSource);
     }
 }

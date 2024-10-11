@@ -1,6 +1,7 @@
 package com.vladmihalcea.hpjp.spring.data.base.config;
 
 import com.vladmihalcea.hpjp.hibernate.forum.dto.PostDTO;
+import com.vladmihalcea.hpjp.spring.transaction.readonly.config.stats.SpringTransactionStatistics;
 import com.vladmihalcea.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
@@ -11,6 +12,8 @@ import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import jakarta.persistence.EntityManagerFactory;
 import net.ttddyy.dsproxy.listener.ChainListener;
 import net.ttddyy.dsproxy.listener.DataSourceQueryCountListener;
+import net.ttddyy.dsproxy.listener.MethodExecutionContext;
+import net.ttddyy.dsproxy.listener.lifecycle.JdbcLifecycleEventListenerAdapter;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.cfg.AvailableSettings;
@@ -67,10 +70,17 @@ public abstract class SpringDataJPABaseConfiguration {
         loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
         listener.addListener(loggingListener);
         listener.addListener(new DataSourceQueryCountListener());
+
         return ProxyDataSourceBuilder
             .create(actualDataSource())
             .name(DATA_SOURCE_PROXY_NAME)
             .listener(listener)
+                .listener(new JdbcLifecycleEventListenerAdapter(){
+                    @Override
+                    public void beforeGetConnection(MethodExecutionContext executionContext) {
+                        SpringTransactionStatistics.resetConnectionStart();
+                    }
+                })
             .build();
     }
 
