@@ -34,16 +34,16 @@ public class PostgreSQLStatementCacheTest extends AbstractPostgreSQLIntegrationT
     public void afterInit() {
         doInJDBC(connection -> {
             try (PreparedStatement taskStatement = connection.prepareStatement(INSERT_TASK)) {
-                int postCount = getTaskCount();
+                int taskCount = getTaskCount();
 
                 int index;
 
-                for (int i = 0; i < postCount; i++) {
+                for (int i = 0; i < taskCount; i++) {
                     index = 0;
                     TaskEntityProvider.StatusType statusType;
-                    if (i > postCount * 0.99) {
+                    if (i > taskCount * 0.99) {
                         statusType = TaskEntityProvider.StatusType.FAILED;
-                    } else if (i > postCount * 0.95) {
+                    } else if (i > taskCount * 0.95) {
                         statusType = TaskEntityProvider.StatusType.TO_D0;
                     } else {
                         statusType = TaskEntityProvider.StatusType.DONE;
