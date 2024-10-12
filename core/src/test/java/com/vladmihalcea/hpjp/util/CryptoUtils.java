@@ -62,10 +62,14 @@ public final class CryptoUtils {
             Cipher cipher = getCipher();
             cipher.init(Cipher.DECRYPT_MODE, getEncryptionKey());
             String decryptedValue = new String(cipher.doFinal(Base64.getDecoder().decode(message)));
-            return ReflectionUtils.invokeStaticMethod(
-                ReflectionUtils.getMethodOrNull(clazz, "valueOf", String.class),
-                decryptedValue
-            );
+            if (String.class.equals(clazz)) {
+                return (T) decryptedValue;
+            } else {
+                return ReflectionUtils.invokeStaticMethod(
+                    ReflectionUtils.getMethodOrNull(clazz, "valueOf", String.class),
+                    decryptedValue
+                );
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
