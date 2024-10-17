@@ -4,10 +4,9 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
-import com.vladmihalcea.flexypool.adaptor.DataSourcePoolAdapter;
 import com.vladmihalcea.flexypool.adaptor.HikariCPPoolAdapter;
-import com.vladmihalcea.flexypool.config.Configuration;
-import com.vladmihalcea.flexypool.strategy.IncrementPoolOnTimeoutConnectionAcquiringStrategy;
+import com.vladmihalcea.flexypool.config.FlexyPoolConfiguration;
+import com.vladmihalcea.flexypool.strategy.IncrementPoolOnTimeoutConnectionAcquisitionStrategy;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -73,7 +72,7 @@ public class FlexyPoolAutoSizingTest extends AbstractTest {
         hikariConfig.setMaximumPoolSize(1);
         HikariDataSource connectionPoolDataSource = new HikariDataSource(hikariConfig);
 
-        Configuration<HikariDataSource> flexyPoolConfiguration = new Configuration
+        FlexyPoolConfiguration<HikariDataSource> flexyPoolConfiguration = new FlexyPoolConfiguration
             .Builder<>(
                 getClass().getSimpleName(),
                 connectionPoolDataSource,
@@ -84,7 +83,7 @@ public class FlexyPoolAutoSizingTest extends AbstractTest {
 
         FlexyPoolDataSource<HikariDataSource> flexyPoolDataSource = new FlexyPoolDataSource<>(
             flexyPoolConfiguration,
-            new IncrementPoolOnTimeoutConnectionAcquiringStrategy.Factory<>(10, 200)
+            new IncrementPoolOnTimeoutConnectionAcquisitionStrategy.Factory<>(10, 200)
         );
 
         return flexyPoolDataSource;

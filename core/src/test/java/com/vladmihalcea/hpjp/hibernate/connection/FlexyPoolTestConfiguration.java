@@ -2,6 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.connection;
 
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
 import com.vladmihalcea.flexypool.adaptor.HikariCPPoolAdapter;
+import com.vladmihalcea.flexypool.config.FlexyPoolConfiguration;
 import com.vladmihalcea.hpjp.hibernate.connection.jta.FlexyPoolEntities;
 import com.vladmihalcea.hpjp.util.spring.config.jpa.HikariCPPostgreSQLJPAConfiguration;
 import com.zaxxer.hikari.HikariDataSource;
@@ -21,8 +22,8 @@ public class FlexyPoolTestConfiguration extends HikariCPPostgreSQLJPAConfigurati
     public DataSource actualDataSource() {
         final HikariDataSource dataSource = (HikariDataSource) super.actualDataSource();
 
-        com.vladmihalcea.flexypool.config.Configuration<HikariDataSource> configuration =
-            new com.vladmihalcea.flexypool.config.Configuration.Builder<>(
+        FlexyPoolConfiguration<HikariDataSource> configuration =
+            new FlexyPoolConfiguration.Builder<>(
                 "flexy-pool-test",
                 dataSource,
                 HikariCPPoolAdapter.FACTORY

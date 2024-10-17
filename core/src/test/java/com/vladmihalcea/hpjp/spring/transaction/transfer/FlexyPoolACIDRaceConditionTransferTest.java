@@ -1,13 +1,11 @@
 package com.vladmihalcea.hpjp.spring.transaction.transfer;
 
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
-import com.vladmihalcea.flexypool.config.Configuration;
 import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.transaction.transfer.config.FlexyPoolACIDRaceConditionTransferConfiguration;
 import com.vladmihalcea.hpjp.spring.transaction.transfer.domain.Account;
 import com.vladmihalcea.hpjp.spring.transaction.transfer.repository.AccountRepository;
 import com.vladmihalcea.hpjp.spring.transaction.transfer.service.TransferService;
-import com.vladmihalcea.hpjp.util.ReflectionUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import net.ttddyy.dsproxy.support.ProxyDataSource;
 import org.junit.Test;
@@ -34,7 +32,7 @@ public class FlexyPoolACIDRaceConditionTransferTest extends AbstractSpringTest {
     private AccountRepository accountRepository;
 
     @Autowired
-    private DataSource actualDataSource;
+    private ProxyDataSource dataSource;
 
     @Override
     protected Class<?>[] entities() {
@@ -97,10 +95,8 @@ public class FlexyPoolACIDRaceConditionTransferTest extends AbstractSpringTest {
         startLatch.countDown();
         endLatch.await();
 
-        HikariDataSource hikariDataSource = ReflectionUtils.getFieldValue(
-            ((ProxyDataSource) actualDataSource).getDataSource(),
-            "targetDataSource"
-        );
+        FlexyPoolDataSource<HikariDataSource> flexyPoolDataSource = (FlexyPoolDataSource<HikariDataSource>) dataSource.getDataSource();
+        HikariDataSource hikariDataSource = flexyPoolDataSource.getTargetDataSource();
 
         LOGGER.info(
             "For {} threads, the pool size has grown to {} connections",

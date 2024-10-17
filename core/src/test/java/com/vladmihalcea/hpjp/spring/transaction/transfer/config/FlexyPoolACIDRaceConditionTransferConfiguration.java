@@ -2,14 +2,12 @@ package com.vladmihalcea.hpjp.spring.transaction.transfer.config;
 
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
 import com.vladmihalcea.flexypool.adaptor.HikariCPPoolAdapter;
-import com.vladmihalcea.flexypool.config.Configuration;
-import com.vladmihalcea.flexypool.strategy.IncrementPoolOnTimeoutConnectionAcquiringStrategy;
+import com.vladmihalcea.flexypool.config.FlexyPoolConfiguration;
+import com.vladmihalcea.flexypool.strategy.IncrementPoolOnTimeoutConnectionAcquisitionStrategy;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.springframework.context.annotation.Bean;
 
 import javax.sql.DataSource;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -25,7 +23,7 @@ public class FlexyPoolACIDRaceConditionTransferConfiguration extends ACIDRaceCon
         hikariConfig.setDataSource(dataSourceProvider().dataSource());
         HikariDataSource hikariDataSource = new HikariDataSource(hikariConfig);
 
-        Configuration<HikariDataSource> flexyPoolConfiguration = new Configuration.Builder<>(
+        FlexyPoolConfiguration<HikariDataSource> flexyPoolConfiguration = new FlexyPoolConfiguration.Builder<>(
             getClass().getSimpleName(),
             hikariDataSource,
             HikariCPPoolAdapter.FACTORY
@@ -34,7 +32,7 @@ public class FlexyPoolACIDRaceConditionTransferConfiguration extends ACIDRaceCon
 
         FlexyPoolDataSource<HikariDataSource> flexyPoolDataSource = new FlexyPoolDataSource<>(
             flexyPoolConfiguration,
-            new IncrementPoolOnTimeoutConnectionAcquiringStrategy.Factory<>(5, 15)
+            new IncrementPoolOnTimeoutConnectionAcquisitionStrategy.Factory<>(5, 15)
         );
 
         return flexyPoolDataSource;

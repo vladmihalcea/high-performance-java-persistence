@@ -2,6 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.connection;
 
 import com.vladmihalcea.flexypool.FlexyPoolDataSource;
 import com.vladmihalcea.flexypool.adaptor.DataSourcePoolAdapter;
+import com.vladmihalcea.flexypool.config.FlexyPoolConfiguration;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -68,7 +69,7 @@ public class ResourceLocalDelayConnectionAcquisitionTest extends AbstractTest {
     protected DataSource newDataSource() {
         DataSource dataSource = super.newDataSource();
 
-        com.vladmihalcea.flexypool.config.Configuration<DataSource> configuration = new com.vladmihalcea.flexypool.config.Configuration.Builder<>(
+        FlexyPoolConfiguration<DataSource> configuration = new FlexyPoolConfiguration.Builder<>(
             getClass().getSimpleName(), dataSource, DataSourcePoolAdapter.FACTORY)
             .setMetricLogReporterMillis(TimeUnit.SECONDS.toMillis(15))
             .build();
