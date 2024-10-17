@@ -60,9 +60,8 @@ public class SpringDataJPAReadOnlyLazyConfiguration extends SpringDataJPABaseCon
         );
     }
 
-    @Bean
-    public DataSource actualDataSource() {
-        DataSource dataSource = super.actualDataSource();
-        return new LazyConnectionDataSourceProxy(dataSource);
+    @Override
+    public DataSource dataSource(){
+        return new LazyConnectionDataSourceProxy(super.dataSource());
     }
 }
