@@ -8,6 +8,7 @@ import com.vladmihalcea.hpjp.spring.data.bidirectional.domain.PostDetails;
 import com.vladmihalcea.hpjp.spring.data.bidirectional.domain.Tag;
 import com.vladmihalcea.hpjp.spring.data.bidirectional.repository.PostCommentRepository;
 import com.vladmihalcea.hpjp.spring.data.bidirectional.repository.PostRepository;
+import com.vladmihalcea.hpjp.spring.data.bidirectional.service.ForumService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -18,6 +19,9 @@ import org.springframework.transaction.support.TransactionCallback;
  */
 @ContextConfiguration(classes = SpringDataJPABidirectionalConfiguration.class)
 public class SpringDataJPABidirectionalTest extends AbstractSpringTest {
+
+    @Autowired
+    private ForumService forumService;
 
     @Autowired
     private PostRepository postRepository;
@@ -92,6 +96,24 @@ public class SpringDataJPABidirectionalTest extends AbstractSpringTest {
 
             return null;
         });
+    }
+
+    @Test
+    public void testSaveAndRemoveChildEntityWithoutParentFetching() {
+        LOGGER.info("Add PostComment to Post");
+        PostComment comment = forumService.addPostComment("Best book on JPA and Hibernate!", 1L);
+
+        LOGGER.info("Remove PostComment from Post");
+        forumService.removePostComment(comment.getId());
+    }
+
+    @Test
+    public void testSaveAndRemoveChildEntityAntiPattern() {
+        LOGGER.info("Add PostComment to Post");
+        PostComment comment = forumService.addPostCommentAntiPattern("Best book on JPA and Hibernate!", 1L);
+
+        LOGGER.info("Remove PostComment from Post");
+        forumService.removePostCommentAntiPattern(comment.getId());
     }
 }
 

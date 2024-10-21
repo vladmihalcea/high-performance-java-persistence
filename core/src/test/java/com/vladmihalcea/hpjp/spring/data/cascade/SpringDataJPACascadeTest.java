@@ -10,7 +10,6 @@ import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostCommentRepositor
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostDetailsRepository;
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.TagRepository;
-import com.vladmihalcea.hpjp.spring.data.cascade.service.ForumService;
 import org.hibernate.Session;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -29,9 +28,6 @@ import static org.junit.Assert.assertEquals;
  */
 @ContextConfiguration(classes = SpringDataJPACascadeConfiguration.class)
 public class SpringDataJPACascadeTest extends AbstractSpringTest {
-
-    @Autowired
-    private ForumService forumService;
 
     @Autowired
     private TagRepository tagRepository;
@@ -77,18 +73,6 @@ public class SpringDataJPACascadeTest extends AbstractSpringTest {
 
             return null;
         });
-    }
-
-    @Test
-    public void testSaveAndRemoveChildEntityWithoutCascading() {
-        postRepository.persist(
-            new Post()
-                .setId(1L)
-                .setTitle("High-Performance Java Persistence")
-        );
-
-        PostComment comment = forumService.addPostComment("Best book on JPA and Hibernate!", 1L);
-        forumService.removePostComment(comment.getId());
     }
 
     @Test
