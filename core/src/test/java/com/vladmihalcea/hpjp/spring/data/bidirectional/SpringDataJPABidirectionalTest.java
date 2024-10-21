@@ -84,5 +84,14 @@ public class SpringDataJPABidirectionalTest extends AbstractSpringTest {
             return null;
         });
     }
+
+    @Test
+    public void testDelete() {
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            postRepository.deleteById(1L);
+
+            return null;
+        });
+    }
 }
 
