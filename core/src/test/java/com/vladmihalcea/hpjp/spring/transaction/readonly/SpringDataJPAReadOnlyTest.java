@@ -59,14 +59,14 @@ public class SpringDataJPAReadOnlyTest extends AbstractSpringTest {
 
     @Test
     public void testReadOnly() {
-        Product ebook = productService.findById(1L, FxCurrency.EUR);
+        Product ebook = productService.getAsCurrency(1L, FxCurrency.EUR);
         assertEquals(FxCurrency.EUR, ebook.getCurrency());
         LOGGER.info("The book price is {} {}", ebook.getPrice(), ebook.getCurrency());
     }
 
     @Test
     public void testReadWrite() {
-        Product ebook = productService.findByIdReadWrite(1L, FxCurrency.EUR);
+        Product ebook = productService.convertToCurrency(1L, FxCurrency.EUR);
         assertEquals(FxCurrency.EUR, ebook.getCurrency());
         LOGGER.info("The book price is {} {}", ebook.getPrice(), ebook.getCurrency());
     }

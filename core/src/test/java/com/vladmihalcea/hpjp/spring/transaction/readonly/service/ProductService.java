@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Vlad Mihalcea
@@ -35,9 +36,10 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public Product findById(Long id, FxCurrency currency) {
+    @Transactional(readOnly = true)
+    public Product getAsCurrency(Long productId, FxCurrency currency) {
         FxRate fxRate = getFxRate();
-        Product product = productRepository.findById(id).orElseThrow();
+        Product product = productRepository.findById(productId).orElseThrow();
         FxCurrency productCurrency = product.getCurrency();
         if (!productCurrency.equals(currency)) {
             product.convertTo(currency, fxRate);
@@ -46,8 +48,8 @@ public class ProductService {
     }
 
     @Transactional
-    public Product findByIdReadWrite(Long id, FxCurrency currency) {
-        return findById(id, currency);
+    public Product convertToCurrency(Long productId, FxCurrency currency) {
+        return getAsCurrency(productId, currency);
     }
 
     private FxRate getFxRate() {
@@ -61,7 +63,10 @@ public class ProductService {
                 )
             );
         }
-        SpringTransactionStatistics.report().fxRateTime(System.nanoTime() - startNanos);
+        LOGGER.debug(
+            "FxRate loading took: [{}] ms",
+            TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos)
+        );
         return fxRate;
     }
 }
