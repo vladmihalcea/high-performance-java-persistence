@@ -7,6 +7,8 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
+ *  PostgreSQLDataSourceProvider - This is the DB configuration for PostgreSQL
+ *
  * @author Vlad Mihalcea
  */
 public class PostgreSQLDataSourceProvider extends AbstractContainerDataSourceProvider {
