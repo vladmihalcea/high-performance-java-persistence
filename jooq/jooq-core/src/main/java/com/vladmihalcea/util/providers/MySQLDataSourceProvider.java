@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 /**
+ * MySQLDataSourceProvider - Database connection properties for MySQL
+ *
  * @author Vlad Mihalcea
  */
 public class MySQLDataSourceProvider extends AbstractContainerDataSourceProvider {

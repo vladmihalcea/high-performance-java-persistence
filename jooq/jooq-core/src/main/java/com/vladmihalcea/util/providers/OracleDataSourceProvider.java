@@ -7,6 +7,8 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
+ * OracleDataSourceProvider - Database connection properties for Oracle
+ *
  * @author Vlad Mihalcea
  */
 public class OracleDataSourceProvider extends AbstractContainerDataSourceProvider {
