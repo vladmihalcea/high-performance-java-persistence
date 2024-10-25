@@ -7,6 +7,8 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
+ * SQLServerDataSourceProvider - Database connection properties for SQL Server
+ *
  * @author Vlad Mihalcea
  */
 public class SQLServerDataSourceProvider extends AbstractContainerDataSourceProvider {
