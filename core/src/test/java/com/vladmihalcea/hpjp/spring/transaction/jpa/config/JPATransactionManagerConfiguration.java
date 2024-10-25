@@ -122,7 +122,7 @@ public class JPATransactionManagerConfiguration {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactoryBean.setPersistenceUnitName(getClass().getSimpleName());
-        entityManagerFactoryBean.setPersistenceProvider(new HibernatePersistenceProvider());
+        
         entityManagerFactoryBean.setDataSource(dataSource());
         entityManagerFactoryBean.setPackagesToScan(packagesToScan());
 

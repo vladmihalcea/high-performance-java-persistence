@@ -107,7 +107,6 @@ public class NarayanaJTATransactionManagerConfiguration {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         localContainerEntityManagerFactoryBean.setPersistenceUnitName(getClass().getSimpleName());
-        localContainerEntityManagerFactoryBean.setPersistenceProvider(new HibernatePersistenceProvider());
         localContainerEntityManagerFactoryBean.setJtaDataSource(dataSource());
         localContainerEntityManagerFactoryBean.setPackagesToScan(packagesToScan());
 

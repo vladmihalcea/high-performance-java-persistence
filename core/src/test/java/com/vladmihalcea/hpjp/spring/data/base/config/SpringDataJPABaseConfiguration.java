@@ -75,8 +75,7 @@ public abstract class SpringDataJPABaseConfiguration {
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(
-        @Autowired DataSource dataSource
-    ) {
+            @Autowired DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactoryBean.setPersistenceUnitName(getClass().getSimpleName());
         entityManagerFactoryBean.setPackagesToScan(packagesToScan());

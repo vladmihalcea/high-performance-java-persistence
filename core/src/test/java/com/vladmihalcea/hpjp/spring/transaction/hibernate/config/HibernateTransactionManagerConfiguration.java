@@ -14,12 +14,14 @@ import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AvailableSettings;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -49,8 +51,7 @@ public class HibernateTransactionManagerConfiguration {
         return database().dataSourceProvider();
     }
 
-    @Bean(destroyMethod = "close")
-    public HikariDataSource actualDataSource() {
+    public DataSource poolingDataSource() {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setMaximumPoolSize(64);
         hikariConfig.setAutoCommit(false);
@@ -63,7 +64,7 @@ public class HibernateTransactionManagerConfiguration {
         SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
         loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
         DataSource dataSource = ProxyDataSourceBuilder
-            .create(actualDataSource())
+            .create(poolingDataSource())
             .name(DATA_SOURCE_PROXY_NAME)
             .listener(loggingListener)
             .build();
@@ -71,9 +72,9 @@ public class HibernateTransactionManagerConfiguration {
     }
 
     @Bean
-    public LocalSessionFactoryBean sessionFactory() {
+    public LocalSessionFactoryBean sessionFactory(@Autowired DataSource dataSource) {
         LocalSessionFactoryBean sessionFactoryBean = new LocalSessionFactoryBean();
-        sessionFactoryBean.setDataSource(dataSource());
+        sessionFactoryBean.setDataSource(dataSource);
         sessionFactoryBean.setPackagesToScan(packagesToScan());
         sessionFactoryBean.setHibernateProperties(additionalProperties());
         sessionFactoryBean.setHibernateIntegrators(new ClassImportIntegrator(Arrays.asList(PostDTO.class)));

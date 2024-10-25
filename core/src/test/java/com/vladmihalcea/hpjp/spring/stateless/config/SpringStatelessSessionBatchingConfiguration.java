@@ -15,6 +15,7 @@ import org.hibernate.StatelessSessionBuilder;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.tool.schema.Action;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -73,8 +74,7 @@ public class SpringStatelessSessionBatchingConfiguration {
         return database().dataSourceProvider();
     }
 
-    @Bean(destroyMethod = "close")
-    public HikariDataSource actualDataSource() {
+    public DataSource poolingDataSource() {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setMaximumPoolSize(maxConnections);
         hikariConfig.setAutoCommit(false);
@@ -87,7 +87,7 @@ public class SpringStatelessSessionBatchingConfiguration {
         SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
         loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
         DataSource dataSource = ProxyDataSourceBuilder
-                .create(actualDataSource())
+                .create(poolingDataSource())
                 .name(DATA_SOURCE_PROXY_NAME)
                 .listener(loggingListener)
                 .build();
@@ -113,11 +113,12 @@ public class SpringStatelessSessionBatchingConfiguration {
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(
+            @Autowired DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactoryBean.setPersistenceUnitName(getClass().getSimpleName());
-        entityManagerFactoryBean.setPersistenceProvider(new HibernatePersistenceProvider());
-        entityManagerFactoryBean.setDataSource(dataSource());
+        
+        entityManagerFactoryBean.setDataSource(dataSource);
         entityManagerFactoryBean.setPackagesToScan(packagesToScan());
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
