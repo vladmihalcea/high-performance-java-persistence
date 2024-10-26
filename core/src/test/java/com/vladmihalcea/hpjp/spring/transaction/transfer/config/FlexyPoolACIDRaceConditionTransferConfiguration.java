@@ -23,16 +23,13 @@ public class FlexyPoolACIDRaceConditionTransferConfiguration extends ACIDRaceCon
         hikariConfig.setDataSource(dataSourceProvider().dataSource());
         HikariDataSource hikariDataSource = new HikariDataSource(hikariConfig);
 
-        FlexyPoolConfiguration<HikariDataSource> flexyPoolConfiguration = new FlexyPoolConfiguration.Builder<>(
-            getClass().getSimpleName(),
-            hikariDataSource,
-            HikariCPPoolAdapter.FACTORY
-        )
-        .build();
-
         FlexyPoolDataSource<HikariDataSource> flexyPoolDataSource = new FlexyPoolDataSource<>(
-            flexyPoolConfiguration,
-            new IncrementPoolOnTimeoutConnectionAcquisitionStrategy.Factory<>(5, 15)
+            new FlexyPoolConfiguration.Builder<>(
+                getClass().getSimpleName(),
+                hikariDataSource,
+                HikariCPPoolAdapter.FACTORY)
+            .build(),
+            new IncrementPoolOnTimeoutConnectionAcquisitionStrategy.Factory<>(5, 1)
         );
 
         return flexyPoolDataSource;

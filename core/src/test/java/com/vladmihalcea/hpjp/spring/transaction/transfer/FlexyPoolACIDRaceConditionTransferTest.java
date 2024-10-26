@@ -67,13 +67,12 @@ public class FlexyPoolACIDRaceConditionTransferTest extends AbstractSpringTest {
 
     }
 
-    //Maximum connection count is limited to 64 due to Hikari maximum pool size
-    private int threadCount = 32;
-
     @Test
     public void testParallelExecution() throws InterruptedException {
         assertEquals(10L, accountRepository.getBalance("Alice-123"));
         assertEquals(0L, accountRepository.getBalance("Bob-456"));
+
+        int threadCount = 64;
 
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch endLatch = new CountDownLatch(threadCount);
