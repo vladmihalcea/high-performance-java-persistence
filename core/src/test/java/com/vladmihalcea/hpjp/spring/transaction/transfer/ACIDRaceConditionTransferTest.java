@@ -11,8 +11,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -125,15 +127,18 @@ public class ACIDRaceConditionTransferTest extends AbstractSpringTest {
         assertEquals(0L, accountRepository.getBalance("Bob-456"));
 
         LOGGER.info("Starting threads");
-        List<Future<Boolean>> futures = executorService.invokeAll(
-            IntStream
-                .range(0, threadCount)
-                .mapToObj(
-                    i -> (Callable<Boolean>) () ->
-                        transferService.transfer("Alice-123", "Bob-456", 5L))
-                .collect(Collectors.toList())
-        );
-        for (Future<Boolean> future : futures) {
+
+        Collection<Callable<Void>> callables = IntStream
+            .range(0, threadCount)
+            .mapToObj( i -> (Callable<Void>) () -> {
+                    transferService.transfer("Alice-123", "Bob-456", 5L);
+                    return null;
+                }
+            )
+            .collect(Collectors.toList());
+
+        List<Future<Void>> futures = executorService.invokeAll(callables);
+        for (Future<Void> future : futures) {
             try {
                 future.get();
             } catch (InterruptedException| ExecutionException e) {

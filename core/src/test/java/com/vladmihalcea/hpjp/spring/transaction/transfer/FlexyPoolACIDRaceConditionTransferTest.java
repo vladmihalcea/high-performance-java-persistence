@@ -16,6 +16,7 @@ import org.springframework.transaction.support.TransactionCallback;
 
 import javax.sql.DataSource;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
@@ -72,6 +73,7 @@ public class FlexyPoolACIDRaceConditionTransferTest extends AbstractSpringTest {
         assertEquals(10L, accountRepository.getBalance("Alice-123"));
         assertEquals(0L, accountRepository.getBalance("Bob-456"));
 
+        long startNanos = System.nanoTime();
         int threadCount = 64;
 
         CountDownLatch startLatch = new CountDownLatch(1);
@@ -98,9 +100,10 @@ public class FlexyPoolACIDRaceConditionTransferTest extends AbstractSpringTest {
         HikariDataSource hikariDataSource = flexyPoolDataSource.getTargetDataSource();
 
         LOGGER.info(
-            "For {} threads, the pool size has grown to {} connections",
+            "The {} transfers were executed on {} database connections in {} ms",
             threadCount,
-            hikariDataSource.getMaximumPoolSize()
+            hikariDataSource.getMaximumPoolSize(),
+            TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos)
         );
 
         LOGGER.info("Alice's balance: {}", accountRepository.getBalance("Alice-123"));

@@ -16,7 +16,7 @@ public class TransferService {
     @Autowired
     private AccountRepository accountRepository;
 
-    //@Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void transfer(String sourceAccount, String destinationAccount, long amount) {
         if(accountRepository.getBalance(sourceAccount) >= amount) {
             accountRepository.addToBalance(sourceAccount, (-1) * amount);
