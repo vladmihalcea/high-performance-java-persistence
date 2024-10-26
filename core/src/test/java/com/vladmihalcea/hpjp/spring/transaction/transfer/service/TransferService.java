@@ -1,8 +1,11 @@
 package com.vladmihalcea.hpjp.spring.transaction.transfer.service;
 
+import com.vladmihalcea.hpjp.spring.transaction.transfer.domain.Account;
 import com.vladmihalcea.hpjp.spring.transaction.transfer.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Vlad Mihalcea
@@ -13,27 +16,16 @@ public class TransferService {
     @Autowired
     private AccountRepository accountRepository;
 
-    //@Transactional
-    public boolean transfer(
-            String sourceAccount,
-            String destinationAccount,
-            long amount) {
-        boolean status = true;
-
+    //@Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void transfer(String sourceAccount, String destinationAccount, long amount) {
         if(accountRepository.getBalance(sourceAccount) >= amount) {
-            status &= accountRepository.addToBalance(sourceAccount, (-1) * amount) > 0;
-            status &= accountRepository.addToBalance(destinationAccount, amount) > 0;
+            accountRepository.addToBalance(sourceAccount, (-1) * amount);
+            accountRepository.addToBalance(destinationAccount, amount);
         }
-
-        return status;
     }
 
-    //Using optimistic locking to fix the problem
-    /*@Override
     @Transactional
-    public boolean transfer(String fromIban, String toIban, long cents) {
-        boolean status = true;
-
+    public void transferOptimisticLocking(String fromIban, String toIban, long cents) {
         Account fromAccount = accountRepository.findById(fromIban).orElse(null);
         Account toAccount = accountRepository.findById(toIban).orElse(null);
         long fromBalance = fromAccount.getBalance();
@@ -43,7 +35,5 @@ public class TransferService {
             fromAccount.setBalance(fromAccount.getBalance() - cents);
             toAccount.setBalance(toAccount.getBalance() + cents);
         }
-
-        return status;
-    }*/
+    }
 }
