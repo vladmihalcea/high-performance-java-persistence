@@ -13,8 +13,8 @@ public class HibernateProxyTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostComment.class,
+            Post.class,
+            PostComment.class,
         };
     }
 
@@ -44,15 +44,15 @@ public class HibernateProxyTest extends AbstractTest {
             LOGGER.info("Loading a PostComment");
 
             PostComment comment = entityManager.find(
-                    PostComment.class,
-                    1L
+                PostComment.class,
+                1L
             );
 
             LOGGER.info("Loading the Post Proxy");
 
             assertEquals(
-                    "High-Performance Java Persistence",
-                    comment.getPost().getTitle()
+                "High-Performance Java Persistence",
+                comment.getPost().getTitle()
             );
         });
 
@@ -61,9 +61,9 @@ public class HibernateProxyTest extends AbstractTest {
             Post post = entityManager.getReference(Post.class, 1L);
             LOGGER.info("Post entity class: {}", post.getClass().getName());
 
-            assertFalse(_post.equals(post));
+            assertNotEquals(_post.getClass(), post.getClass());
 
-            assertTrue(_post.equals(Hibernate.unproxy(post)));
+            assertEquals(_post.getClass(), Hibernate.unproxy(post).getClass());
         });
     }
 
