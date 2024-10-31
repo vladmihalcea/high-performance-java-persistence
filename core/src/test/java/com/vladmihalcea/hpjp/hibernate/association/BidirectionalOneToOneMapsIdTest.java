@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.hibernate.association;
 
+import com.vladmihalcea.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.junit.Test;
 
@@ -7,6 +8,7 @@ import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -28,17 +30,23 @@ public class BidirectionalOneToOneMapsIdTest extends AbstractTest {
             Post post = new Post("First post");
             PostDetails details = new PostDetails("John Doe");
             post.setDetails(details);
+
             entityManager.persist(post);
         });
+
+        SQLStatementCountValidator.reset();
 
         doInJPA(entityManager -> {
             LOGGER.info("Fetching Post");
             Post post = entityManager.find(Post.class, 1L);
 
             assertNotNull(post);
-
             post.setDetails(null);
         });
+
+        //The association is mandatory so it can't be deleted
+        SQLStatementCountValidator.assertSelectCount(2);
+        SQLStatementCountValidator.assertDeleteCount(0);
     }
 
     @Test
