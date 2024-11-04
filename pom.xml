@@ -520,7 +520,7 @@
 
         <dropwizard.metrics.version>3.1.0</dropwizard.metrics.version>
         <hikari.version>5.0.1</hikari.version>
-        <flexy-pool.version>3.0.2-SNAPSHOT</flexy-pool.version>
+        <flexy-pool.version>3.0.2</flexy-pool.version>
 
         <aspectj.version>1.9.19</aspectj.version>
         <spring.version>6.1.8</spring.version>
