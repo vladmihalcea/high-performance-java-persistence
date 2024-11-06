@@ -4,6 +4,7 @@ import com.vladmihalcea.hpjp.util.providers.queries.PostgreSQLQueries;
 import com.vladmihalcea.hpjp.util.providers.queries.Queries;
 import com.yugabyte.ysql.YBClusterAwareDataSource;
 import org.hibernate.dialect.PostgreSQLDialect;
+import org.postgresql.Driver;
 
 import javax.sql.DataSource;
 
@@ -40,6 +41,11 @@ public class YugabyteDBClusterDataSourceProvider extends YugabyteDBDataSourcePro
     @Override
     public Class<? extends DataSource> dataSourceClassName() {
         return YBClusterAwareDataSource.class;
+    }
+
+    @Override
+    public Class driverClassName() {
+        return Driver.class;
     }
 
     @Override

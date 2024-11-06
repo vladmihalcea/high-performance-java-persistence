@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.util.providers;
 
+import com.mysql.cj.jdbc.Driver;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import com.vladmihalcea.hpjp.util.providers.queries.MySQLQueries;
 import com.vladmihalcea.hpjp.util.providers.queries.Queries;
@@ -145,6 +146,11 @@ public class MySQLDataSourceProvider extends AbstractContainerDataSourceProvider
     @Override
     public Class<? extends DataSource> dataSourceClassName() {
         return MysqlDataSource.class;
+    }
+
+    @Override
+    public Class driverClassName() {
+        return Driver.class;
     }
 
     @Override

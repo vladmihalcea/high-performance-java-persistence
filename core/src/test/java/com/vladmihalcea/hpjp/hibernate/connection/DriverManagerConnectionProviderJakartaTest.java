@@ -15,7 +15,7 @@ public class DriverManagerConnectionProviderJakartaTest extends DriverManagerCon
 
         properties.put(
             "jakarta.persistence.jdbc.driver",
-            org.postgresql.Driver.class.getName()
+            dataSourceProvider.driverClassName().getName()
         );
         properties.put("jakarta.persistence.jdbc.url", url);
         properties.put("jakarta.persistence.jdbc.user", username);

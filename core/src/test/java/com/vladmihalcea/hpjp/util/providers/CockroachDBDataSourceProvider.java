@@ -4,6 +4,7 @@ import com.vladmihalcea.hpjp.util.providers.queries.PostgreSQLQueries;
 import com.vladmihalcea.hpjp.util.providers.queries.Queries;
 import com.zaxxer.hikari.util.DriverDataSource;
 import org.hibernate.dialect.CockroachDialect;
+import org.postgresql.Driver;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
@@ -52,6 +53,11 @@ public class CockroachDBDataSourceProvider extends AbstractContainerDataSourcePr
     @Override
     public Class<? extends DataSource> dataSourceClassName() {
         return PGSimpleDataSource.class;
+    }
+
+    @Override
+    public Class driverClassName() {
+        return Driver.class;
     }
 
     @Override

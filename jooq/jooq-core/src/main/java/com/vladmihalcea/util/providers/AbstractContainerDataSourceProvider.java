@@ -12,7 +12,7 @@ public abstract class AbstractContainerDataSourceProvider implements DataSourceP
     @Override
     public DataSource dataSource() {
         DataSource dataSource = newDataSource();
-        try(Connection connection = dataSource.getConnection()) {
+        try (Connection connection = dataSource.getConnection()) {
             return dataSource;
         } catch (SQLException e) {
             throw new IllegalStateException(e);

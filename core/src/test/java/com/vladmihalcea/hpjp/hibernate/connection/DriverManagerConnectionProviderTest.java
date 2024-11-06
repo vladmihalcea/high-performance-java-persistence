@@ -1,6 +1,5 @@
 package com.vladmihalcea.hpjp.hibernate.connection;
 
-import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.SQLServerDataSourceProvider;
 import org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl;
@@ -20,7 +19,6 @@ public class DriverManagerConnectionProviderTest extends AbstractConnectionProvi
         return new SQLServerDataSourceProvider();
     }
 
-
     protected void appendDriverProperties(Properties properties) {
         DataSourceProvider dataSourceProvider = dataSourceProvider();
 
@@ -28,7 +26,7 @@ public class DriverManagerConnectionProviderTest extends AbstractConnectionProvi
         String username = dataSourceProvider.username();
         String password = dataSourceProvider.password();
 
-        properties.put("hibernate.connection.driver_class", SQLServerDriver.class.getName());
+        properties.put("hibernate.connection.driver_class", dataSourceProvider.driverClassName().getName());
         properties.put("hibernate.connection.url", url);
         properties.put("hibernate.connection.username", username);
         properties.put("hibernate.connection.password", password);

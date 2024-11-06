@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.util.providers;
 
+import org.mariadb.jdbc.Driver;
 import com.vladmihalcea.hpjp.util.providers.queries.MySQLQueries;
 import com.vladmihalcea.hpjp.util.providers.queries.Queries;
 import com.zaxxer.hikari.util.DriverDataSource;
@@ -119,6 +120,11 @@ public class MariaDBDataSourceProvider extends AbstractContainerDataSourceProvid
     @Override
     public Class<? extends DataSource> dataSourceClassName() {
         return MariaDbDataSource.class;
+    }
+
+    @Override
+    public Class driverClassName() {
+        return Driver.class;
     }
 
     @Override

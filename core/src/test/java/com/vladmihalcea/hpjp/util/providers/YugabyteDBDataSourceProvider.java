@@ -4,6 +4,7 @@ import com.vladmihalcea.hpjp.util.providers.queries.PostgreSQLQueries;
 import com.vladmihalcea.hpjp.util.providers.queries.Queries;
 import com.zaxxer.hikari.util.DriverDataSource;
 import org.hibernate.dialect.PostgreSQLDialect;
+import org.postgresql.Driver;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
@@ -46,6 +47,11 @@ public class YugabyteDBDataSourceProvider extends AbstractContainerDataSourcePro
     @Override
     public Class<? extends DataSource> dataSourceClassName() {
         return PGSimpleDataSource.class;
+    }
+
+    @Override
+    public Class driverClassName() {
+        return Driver.class;
     }
 
     @Override

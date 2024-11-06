@@ -7,78 +7,78 @@ import org.hibernate.dialect.Dialect;
  * @author Vlad Mihalcea
  */
 public enum Database {
-	//Mandatory databases
-	POSTGRESQL {
-		@Override
-		public Class<? extends DataSourceProvider> dataSourceProviderClass() {
-			return PostgreSQLDataSourceProvider.class;
-		}
-	},
-	ORACLE {
-		@Override
-		public Class<? extends DataSourceProvider> dataSourceProviderClass() {
-			return OracleDataSourceProvider.class;
-		}
+    //Mandatory databases
+    POSTGRESQL {
+        @Override
+        public Class<? extends DataSourceProvider> dataSourceProviderClass() {
+            return PostgreSQLDataSourceProvider.class;
+        }
+    },
+    ORACLE {
+        @Override
+        public Class<? extends DataSourceProvider> dataSourceProviderClass() {
+            return OracleDataSourceProvider.class;
+        }
 
-		@Override
-		protected boolean supportsDatabaseName() {
-			return false;
-		}
-	},
-	MYSQL {
-		@Override
-		public Class<? extends DataSourceProvider> dataSourceProviderClass() {
-			return MySQLDataSourceProvider.class;
-		}
-	},
-	SQLSERVER {
-		@Override
-		public Class<? extends DataSourceProvider> dataSourceProviderClass() {
-			return SQLServerDataSourceProvider.class;
-		}
+        @Override
+        protected boolean supportsDatabaseName() {
+            return false;
+        }
+    },
+    MYSQL {
+        @Override
+        public Class<? extends DataSourceProvider> dataSourceProviderClass() {
+            return MySQLDataSourceProvider.class;
+        }
+    },
+    SQLSERVER {
+        @Override
+        public Class<? extends DataSourceProvider> dataSourceProviderClass() {
+            return SQLServerDataSourceProvider.class;
+        }
 
-		@Override
-		protected boolean supportsDatabaseName() {
-			return false;
-		}
+        @Override
+        protected boolean supportsDatabaseName() {
+            return false;
+        }
 
-		@Override
-		protected boolean supportsCredentials() {
-			return false;
-		}
-	},
-	;
+        @Override
+        protected boolean supportsCredentials() {
+            return false;
+        }
+    },
+    ;
 
-	public DataSourceProvider dataSourceProvider() {
-		return ReflectionUtils.newInstance(dataSourceProviderClass().getName());
-	}
-	
-	public abstract Class<? extends DataSourceProvider> dataSourceProviderClass();
+    public DataSourceProvider dataSourceProvider() {
+        return ReflectionUtils.newInstance(dataSourceProviderClass().getName());
+    }
 
-	protected boolean supportsDatabaseName() {
-		return true;
-	}
+    public abstract Class<? extends DataSourceProvider> dataSourceProviderClass();
 
-	protected String databaseName() {
-		return "high-performance-java-persistence";
-	}
+    protected boolean supportsDatabaseName() {
+        return true;
+    }
 
-	protected boolean supportsCredentials() {
-		return true;
-	}
+    protected String databaseName() {
+        return "high-performance-java-persistence";
+    }
 
-	public static Database of(Dialect dialect) {
-		Class<? extends Dialect> dialectClass = dialect.getClass();
-		for(Database database : values()) {
-			if(database.dataSourceProvider().hibernateDialectClass().isAssignableFrom(dialectClass)) {
-				return database;
-			}
-		}
-		throw new UnsupportedOperationException(
-			String.format(
-				"The provided Dialect [%s] is not supported!",
-				dialectClass
-			)
-		);
-	}
+    protected boolean supportsCredentials() {
+        return true;
+    }
+
+    public static Database of(Dialect dialect) {
+        Class<? extends Dialect> dialectClass = dialect.getClass();
+        for (Database database : values()) {
+            if (database.dataSourceProvider().hibernateDialectClass().isAssignableFrom(dialectClass)) {
+                return database;
+            }
+        }
+        throw new UnsupportedOperationException(
+            String.format(
+                "The provided Dialect [%s] is not supported!",
+                dialectClass
+            )
+        );
+    }
 }

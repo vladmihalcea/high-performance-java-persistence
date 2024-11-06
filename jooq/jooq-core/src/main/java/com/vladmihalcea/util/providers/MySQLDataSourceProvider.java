@@ -1,5 +1,6 @@
 package com.vladmihalcea.util.providers;
 
+import com.mysql.cj.jdbc.Driver;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.hibernate.dialect.MySQLDialect;
 
@@ -175,4 +176,5 @@ public class MySQLDataSourceProvider extends AbstractContainerDataSourceProvider
                ", rewriteBatchedStatements=" + rewriteBatchedStatements +
                '}';
     }
+
 }

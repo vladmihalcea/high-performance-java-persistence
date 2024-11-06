@@ -1,6 +1,7 @@
 package com.vladmihalcea.util.providers;
 
 import org.hibernate.dialect.PostgreSQLDialect;
+import org.postgresql.Driver;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;

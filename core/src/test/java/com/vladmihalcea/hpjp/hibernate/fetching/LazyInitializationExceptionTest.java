@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import jakarta.persistence.*;
 import java.util.List;
+import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -77,7 +78,7 @@ public class LazyInitializationExceptionTest extends AbstractPostgreSQLIntegrati
                 LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
             }
         } catch (LazyInitializationException expected) {
-            assertTrue(expected.getMessage().contains("could not initialize proxy"));
+            assertTrue(expected.getMessage().toLowerCase(Locale.ROOT).contains("could not initialize proxy"));
         }
     }
 
@@ -99,7 +100,11 @@ public class LazyInitializationExceptionTest extends AbstractPostgreSQLIntegrati
                 LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
             }
         } catch (LazyInitializationException expected) {
-            assertTrue(expected.getMessage().contains("could not initialize proxy"));
+            assertTrue(
+                expected.getMessage().toLowerCase(Locale.ROOT).contains(
+                    "could not initialize proxy"
+                )
+            );
         }
     }
 

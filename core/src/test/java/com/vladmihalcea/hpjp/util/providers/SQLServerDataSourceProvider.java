@@ -1,6 +1,7 @@
 package com.vladmihalcea.hpjp.util.providers;
 
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
+import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 import com.vladmihalcea.hpjp.util.providers.queries.Queries;
 import com.vladmihalcea.hpjp.util.providers.queries.SQLServerQueries;
 import org.hibernate.dialect.SQLServerDialect;
@@ -71,6 +72,11 @@ public class SQLServerDataSourceProvider extends AbstractContainerDataSourceProv
 	}
 
 	@Override
+	public Class driverClassName() {
+		return SQLServerDriver.class;
+	}
+
+	@Override
 	public Properties dataSourceProperties() {
 		Properties properties = new Properties();
 		properties.setProperty( "URL", url() );
@@ -92,9 +98,22 @@ public class SQLServerDataSourceProvider extends AbstractContainerDataSourceProv
 		return Database.SQLSERVER;
 	}
 
-
 	@Override
 	public Queries queries() {
 		return SQLServerQueries.INSTANCE;
+	}
+
+	protected boolean appendCredentialsToUrl() {
+		return false;
+	}
+
+	@Override
+	public String url() {
+		String url = super.url();
+		if(appendCredentialsToUrl()) {
+			url += ";user=" + username();
+			url += ";password=" + password();
+		}
+		return url;
 	}
 }

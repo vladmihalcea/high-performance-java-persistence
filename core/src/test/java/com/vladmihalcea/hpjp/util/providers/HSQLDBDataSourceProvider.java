@@ -4,6 +4,7 @@ import com.vladmihalcea.hpjp.util.providers.queries.HSQLDBServerQueries;
 import com.vladmihalcea.hpjp.util.providers.queries.Queries;
 import org.hibernate.dialect.HSQLDialect;
 import org.hsqldb.jdbc.JDBCDataSource;
+import org.hsqldb.jdbc.JDBCDriver;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -30,6 +31,11 @@ public class HSQLDBDataSourceProvider implements DataSourceProvider {
     @Override
     public Class<? extends DataSource> dataSourceClassName() {
         return JDBCDataSource.class;
+    }
+
+    @Override
+    public Class driverClassName() {
+        return JDBCDriver.class;
     }
 
     @Override

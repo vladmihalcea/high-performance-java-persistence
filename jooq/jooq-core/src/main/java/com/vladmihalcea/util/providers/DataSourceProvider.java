@@ -11,23 +11,23 @@ import java.util.Properties;
  */
 public interface DataSourceProvider {
 
-	String hibernateDialect();
+    String hibernateDialect();
 
-	DataSource dataSource();
+    DataSource dataSource();
 
-	Class<? extends DataSource> dataSourceClassName();
+    Class<? extends DataSource> dataSourceClassName();
 
-	Properties dataSourceProperties();
+    Properties dataSourceProperties();
 
-	String url();
+    String url();
 
-	String username();
+    String username();
 
-	String password();
+    String password();
 
-	Database database();
+    Database database();
 
-	default Class<? extends Dialect> hibernateDialectClass() {
-		return ReflectionUtils.getClass(hibernateDialect());
-	}
+    default Class<? extends Dialect> hibernateDialectClass() {
+        return ReflectionUtils.getClass(hibernateDialect());
+    }
 }

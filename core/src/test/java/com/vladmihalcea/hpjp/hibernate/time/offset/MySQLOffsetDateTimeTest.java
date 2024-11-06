@@ -77,8 +77,7 @@ public class MySQLOffsetDateTimeTest extends AbstractTest {
         @Column(name = "published_on")
         @TimeZoneStorage(TimeZoneStorageType.COLUMN)
         @TimeZoneColumn(
-            name = "published_on_offset",
-            columnDefinition = "smallint"
+            name = "published_on_offset"
         )
         private OffsetDateTime publishedOn;
 

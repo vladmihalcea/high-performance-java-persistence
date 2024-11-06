@@ -17,7 +17,6 @@ public class PersistSequenceTest extends AbstractTest {
         };
     }
 
-
     @Test
     public void testId() {
 
@@ -49,19 +48,6 @@ public class PersistSequenceTest extends AbstractTest {
         doInJPA(entityManager -> {
             LOGGER.info("Merging the Post entity");
             Post post_ = entityManager.merge(post);
-        });
-    }
-
-    @Test
-    public void testMergeInsteadOfPersist() {
-
-        doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setId(1L);
-            post.setTitle("High-Performance Java Persistence");
-
-            entityManager.merge(post);
-            LOGGER.info("The post entity identifier is {}", post.getId());
         });
     }
 

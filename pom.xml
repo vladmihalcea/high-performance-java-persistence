@@ -532,7 +532,7 @@
         <hypersistence-utils.version>3.8.1</hypersistence-utils.version>
         <hypersistence-tsid.version>2.1.2</hypersistence-tsid.version>
 
-        <blaze-persistence.version>1.6.10</blaze-persistence.version>
+        <blaze-persistence.version>1.6.13</blaze-persistence.version>
 
         <hypersistence-optimizer.version>2.8.1</hypersistence-optimizer.version>
 

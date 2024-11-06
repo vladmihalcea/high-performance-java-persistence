@@ -3,6 +3,7 @@ package com.vladmihalcea.hpjp.util.providers;
 import com.vladmihalcea.hpjp.util.providers.queries.OracleQueries;
 import com.vladmihalcea.hpjp.util.providers.queries.Queries;
 import oracle.jdbc.pool.OracleDataSource;
+import org.postgresql.Driver;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import javax.sql.DataSource;
@@ -45,6 +46,11 @@ public class OracleDataSourceProvider extends AbstractContainerDataSourceProvide
 	@Override
 	public Class<? extends DataSource> dataSourceClassName() {
 		return OracleDataSource.class;
+	}
+
+	@Override
+	public Class driverClassName() {
+		return Driver.class;
 	}
 
 	@Override

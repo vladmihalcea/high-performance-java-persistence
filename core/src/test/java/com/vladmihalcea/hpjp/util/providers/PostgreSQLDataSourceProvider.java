@@ -3,6 +3,7 @@ package com.vladmihalcea.hpjp.util.providers;
 import com.vladmihalcea.hpjp.util.providers.queries.PostgreSQLQueries;
 import com.vladmihalcea.hpjp.util.providers.queries.Queries;
 import org.hibernate.dialect.PostgreSQLDialect;
+import org.postgresql.Driver;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;
@@ -49,6 +50,11 @@ public class PostgreSQLDataSourceProvider extends AbstractContainerDataSourcePro
     @Override
     public Class<? extends DataSource> dataSourceClassName() {
         return PGSimpleDataSource.class;
+    }
+
+    @Override
+    public Class driverClassName() {
+        return Driver.class;
     }
 
     @Override

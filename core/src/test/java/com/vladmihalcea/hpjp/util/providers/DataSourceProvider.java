@@ -12,7 +12,7 @@ import javax.sql.DataSource;
  */
 public interface DataSourceProvider {
 
-	enum IdentifierStrategy {
+    enum IdentifierStrategy {
 		IDENTITY,
 		SEQUENCE
 	}
@@ -20,6 +20,8 @@ public interface DataSourceProvider {
 	String hibernateDialect();
 
 	DataSource dataSource();
+
+	Class driverClassName();
 
 	Class<? extends DataSource> dataSourceClassName();
 

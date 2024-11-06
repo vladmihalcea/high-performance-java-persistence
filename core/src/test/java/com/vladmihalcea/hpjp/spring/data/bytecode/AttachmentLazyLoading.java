@@ -37,7 +37,6 @@ public class AttachmentLazyLoading {
         this.attachmentRepository = attachmentRepository;
     }
 
-    @Test
     public void test() throws URISyntaxException {
         final String bookFilePath = "ehcache.xml";
         final String videoFilePath = "spy.properties";

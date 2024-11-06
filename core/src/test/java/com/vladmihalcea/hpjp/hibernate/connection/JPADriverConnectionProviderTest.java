@@ -8,7 +8,7 @@ public class JPADriverConnectionProviderTest extends DriverManagerConnectionProv
 
     protected void appendDriverProperties(Properties properties) {
         DataSourceProvider dataSourceProvider = dataSourceProvider();
-        properties.put("jakarta.persistence.jdbc.driver", "org.postgresql.Driver");
+        properties.put("jakarta.persistence.jdbc.driver", dataSourceProvider.driverClassName().getName());
         properties.put("jakarta.persistence.jdbc.url", dataSourceProvider.url());
         properties.put("jakarta.persistence.jdbc.user", dataSourceProvider.username());
         properties.put("jakarta.persistence.jdbc.password", dataSourceProvider.password());

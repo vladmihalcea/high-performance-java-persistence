@@ -26,6 +26,7 @@ public class AssignedIdentityGeneratorTest extends AbstractTest {
 
         doInJPA(entityManager -> {
             entityManager.persist(new Post());
+            entityManager.flush();
             entityManager.merge(new Post().setId(-1L));
             entityManager.persist(new Post());
             entityManager.merge(new Post().setId(21L));
@@ -39,7 +40,7 @@ public class AssignedIdentityGeneratorTest extends AbstractTest {
         @Id
         @GenericGenerator(
             name = "assigned-identity",
-            strategy = "com.vladmihalcea.hpjp.hibernate.identifier.AssignedIdentityGenerator"
+            type = AssignedIdentityGenerator.class
         )
         @GeneratedValue(generator = "assigned-identity", strategy = GenerationType.IDENTITY)
         private Long id;

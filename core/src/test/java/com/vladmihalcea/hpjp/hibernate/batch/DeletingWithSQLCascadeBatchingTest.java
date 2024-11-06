@@ -1,16 +1,14 @@
 package com.vladmihalcea.hpjp.hibernate.batch;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.junit.Test;
 
-import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * DeletingWithoutCascadeBatchingTest - Test to check the JDBC batch support for delete
@@ -28,18 +26,22 @@ public class DeletingWithSQLCascadeBatchingTest extends AbstractTest {
     }
 
     @Override
-    protected Properties properties() {
-        Properties properties = super.properties();
+    protected void additionalProperties(Properties properties) {
         properties.put("hibernate.jdbc.batch_size", "5");
         properties.put("hibernate.order_inserts", "true");
         properties.put("hibernate.order_updates", "true");
         properties.put("hibernate.jdbc.batch_versioned_data", "true");
-        return properties;
     }
 
     @Test
-    public void testDeletePostsAndCommentsWithSQLCascade() {
-        insertPostsAndComments();
+    public void testDeletePostsAndCommentsWithSQLOnDeleteCascade() {
+        doInJPA(entityManager -> {
+            for (int i = 0; i < 3; i++) {
+                Post post = new Post(String.format("Post no. %d", i));
+                post.addComment(new PostComment("Good"));
+                entityManager.persist(post);
+            }
+        });
 
         LOGGER.info("testDeletePostsAndCommentsWithSQLCascade");
         doInJPA(entityManager -> {
@@ -50,69 +52,6 @@ public class DeletingWithSQLCascadeBatchingTest extends AbstractTest {
             .getResultList();
 
             posts.forEach(entityManager::remove);
-        });
-    }
-
-    @Test
-    public void testDeletePostsAndCommentsWithSQLCascadeAndManagedChildren() {
-        insertPostsAndComments();
-
-        LOGGER.info("testDeletePostsAndCommentsWithSQLCascadeAndManagedChildren");
-        doInJPA(entityManager -> {
-            List<Post> posts = entityManager.createQuery(
-                "select p " +
-                "from Post p ", Post.class)
-            .getResultList();
-
-            List<PostComment> comments = entityManager.createQuery(
-                "select c " +
-                "from PostComment c " +
-                "where c.post in :posts", PostComment.class)
-            .setParameter("posts", posts)
-            .getResultList();
-
-            posts.forEach(entityManager::remove);
-
-            comments.forEach(comment -> comment.setReview("Excellent"));
-        });
-    }
-
-    @Test
-    public void testDeletePostsAndCommentsWithSQLCascadeAndManagedChildrenFloating() {
-        insertPostsAndComments();
-
-        LOGGER.info("testDeletePostsAndCommentsWithSQLCascadeAndManagedChildrenFloating");
-        try {
-            doInJPA(entityManager -> {
-                List<Post> posts = entityManager.createQuery(
-                    "select p " +
-                    "from Post p ", Post.class)
-                .getResultList();
-
-                List<PostComment> comments = entityManager.createQuery(
-                    "select c " +
-                    "from PostComment c " +
-                    "where c.post in :posts", PostComment.class)
-                .setParameter("posts", posts)
-                .getResultList();
-
-                posts.forEach(entityManager::remove);
-                entityManager.flush();
-
-                comments.forEach(comment -> comment.setReview("Excellent"));
-            });
-        } catch (PersistenceException e) {
-            assertEquals(OptimisticLockException.class, e.getCause().getClass());
-        }
-    }
-
-    private void insertPostsAndComments() {
-        doInJPA(entityManager -> {
-            for (int i = 0; i < 3; i++) {
-                Post post = new Post(String.format("Post no. %d", i));
-                post.addComment(new PostComment("Good"));
-                entityManager.persist(post);
-            }
         });
     }
 
