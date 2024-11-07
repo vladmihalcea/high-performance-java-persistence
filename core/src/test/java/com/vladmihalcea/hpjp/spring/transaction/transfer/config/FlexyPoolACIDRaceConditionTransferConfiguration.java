@@ -17,7 +17,7 @@ public class FlexyPoolACIDRaceConditionTransferConfiguration extends ACIDRaceCon
 
     @Override
     protected DataSource actualDataSource() {
-        System.setProperty("com.zaxxer.hikari.timeoutMs.floor", "100");
+        System.setProperty("com.zaxxer.hikari.timeoutMs.floor", "5");
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setDataSource(dataSourceProvider().dataSource());
         hikariConfig.setAutoCommit(false);
@@ -41,4 +41,23 @@ public class FlexyPoolACIDRaceConditionTransferConfiguration extends ACIDRaceCon
 
         return dataSource;
     }
+
+    /*@Override
+    protected DataSource actualDataSource() {
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setDataSource(dataSourceProvider().dataSource());
+        hikariConfig.setAutoCommit(false);
+        hikariConfig.setMaximumPoolSize(3);
+        HikariDataSource poolingDataSource = new HikariDataSource(hikariConfig);
+
+        FlexyPoolDataSource<HikariDataSource> dataSource = new FlexyPoolDataSource<>(
+            new FlexyPoolConfiguration.Builder<>(
+                getClass().getSimpleName(),
+                poolingDataSource,
+                HikariCPPoolAdapter.FACTORY)
+            .build()
+        );
+
+        return dataSource;
+    }*/
 }
