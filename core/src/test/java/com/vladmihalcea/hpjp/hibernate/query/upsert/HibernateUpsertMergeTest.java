@@ -52,6 +52,27 @@ public class HibernateUpsertMergeTest extends AbstractTest {
     }
 
     @Test
+    public void testBatching() {
+        doInStatelessSession(session -> {
+            session.setJdbcBatchSize(50);
+
+            session.upsert(
+                new Book()
+                    .setId(1L)
+                    .setTitle("High-Performance Hibernate")
+                    .setIsbn("978-9730228236")
+            );
+
+            session.upsert(
+                new Book()
+                    .setId(1L)
+                    .setTitle("High-Performance Hibernate 2nd edition")
+                    .setIsbn("978-9730228236")
+            );
+        });
+    }
+
+    @Test
     public void testTimeoutOnSecondTransaction() {
         CountDownLatch aliceLatch = new CountDownLatch(1);
 
