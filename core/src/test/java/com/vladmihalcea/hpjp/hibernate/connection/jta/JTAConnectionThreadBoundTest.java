@@ -18,7 +18,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = JTAConnectionReleaseConfiguration.class)
+@ContextConfiguration(classes = AtomikosJTAConnectionReleaseConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class JTAConnectionThreadBoundTest {
 

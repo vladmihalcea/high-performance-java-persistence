@@ -3,7 +3,6 @@ package com.vladmihalcea.hpjp.hibernate.connection.jta;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.hibernate.Session;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -20,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = JTAConnectionReleaseConfiguration.class)
+@ContextConfiguration(classes = AtomikosJTAConnectionReleaseConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class JTAConnectionReleaseTest {
 
@@ -32,13 +31,12 @@ public class JTAConnectionReleaseTest {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
-    private int[] batches = {10, 50, 100, 500, 1000, 5000, 10000};
+    private int[] batches = {10, 50, 100, 500, 1000, 5000};
 
     @Test
-    @Ignore
     public void test() {
         //Warming up
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
                 assertNotNull(entityManager.createNativeQuery("select now()").getSingleResult());
                 return null;
@@ -52,7 +50,11 @@ public class JTAConnectionReleaseTest {
                 }
                 return null;
             });
-            LOGGER.info("Transaction took {} millis", TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos));
+            LOGGER.info(
+                "Transaction took {} millis for {} statements",
+                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos),
+                batch
+            );
         }
         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
             entityManager.unwrap(Session.class).getSessionFactory().getStatistics().logSummary();
