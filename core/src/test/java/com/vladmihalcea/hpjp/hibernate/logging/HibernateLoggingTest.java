@@ -24,7 +24,8 @@ public class HibernateLoggingTest extends AbstractTest {
 
     @Override
     protected void additionalProperties(Properties properties) {
-        properties.put( "hibernate.jdbc.batch_size", "5" );
+        properties.put("hibernate.jdbc.batch_size", "5");
+        //properties.put("hibernate.format_sql", "true");
     }
 
     @Override
@@ -35,28 +36,28 @@ public class HibernateLoggingTest extends AbstractTest {
     @Test
     public void test() {
         doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setId( 1L );
-            post.setTitle( "Post it!" );
-
-            entityManager.persist(post);
+            entityManager.persist(
+                new Post()
+                    .setId(1L)
+                    .setTitle("High-Performance Java Persistence")
+            );
         });
     }
 
     @Test
     public void testBatch() {
         doInJPA(entityManager -> {
-            for ( long id = 1; id <= 5; id++ ) {
-                Post post = new Post();
-                post.setId( id );
-                post.setTitle(
-                    String.format(
-                        "High-Performance Java Persistence, part %d",
-                        id
-                    )
+            for (long id = 1; id <= 5; id++) {
+                entityManager.persist(
+                    new Post()
+                        .setId(id)
+                        .setTitle(
+                            String.format(
+                                "High-Performance Java Persistence, part %d",
+                                id
+                            )
+                        )
                 );
-
-                entityManager.persist(post);
             }
         });
     }
@@ -70,23 +71,22 @@ public class HibernateLoggingTest extends AbstractTest {
 
         private String title;
 
-        @Version
-        private short version;
-
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public Post setId(Long id) {
             this.id = id;
+            return this;
         }
 
         public String getTitle() {
             return title;
         }
 
-        public void setTitle(String title) {
+        public Post setTitle(String title) {
             this.title = title;
+            return this;
         }
     }
 }
