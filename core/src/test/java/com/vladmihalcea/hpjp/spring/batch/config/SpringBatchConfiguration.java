@@ -79,12 +79,11 @@ public class SpringBatchConfiguration {
     public DataSource dataSource() {
         SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
         loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
-        DataSource dataSource = ProxyDataSourceBuilder
-                .create(poolingDataSource())
-                .name(DATA_SOURCE_PROXY_NAME)
-                .listener(loggingListener)
-                .build();
-        return dataSource;
+        return ProxyDataSourceBuilder
+            .create(poolingDataSource())
+            .name(DATA_SOURCE_PROXY_NAME)
+            .listener(loggingListener)
+            .build();
     }
 
     @Bean

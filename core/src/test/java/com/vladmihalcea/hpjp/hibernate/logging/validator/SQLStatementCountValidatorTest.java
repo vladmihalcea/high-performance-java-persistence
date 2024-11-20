@@ -2,6 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.logging.validator;
 
 import com.vladmihalcea.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import net.ttddyy.dsproxy.QueryCountHolder;
 import org.junit.Test;
 
 import jakarta.persistence.*;
@@ -28,7 +29,7 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
         doInJPA(entityManager -> {
             Post post1 = new Post()
                 .setId(1L)
-                .setTitle("Post one");
+                .setTitle("High-Performance Java Persistence");
 
             entityManager.persist(post1);
 
@@ -69,6 +70,31 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
             assertEquals(2, comments.size());
 
             SQLStatementCountValidator.assertSelectCount(1);
+        });
+    }
+
+    @Test
+    public void testNPlusOneWithQueryCountHolder() {
+        doInJPA(entityManager -> {
+            LOGGER.info("Detect N+1");
+            QueryCountHolder.clear();
+
+            List<PostComment> comments = entityManager.createQuery("""
+                select pc
+                from PostComment pc
+                """, PostComment.class)
+            .getResultList();
+
+            for(PostComment comment : comments) {
+                LOGGER.info(
+                    "Comment: {} for post: {}",
+                    comment.getReview(),
+                    comment.getPost().getTitle()
+                );
+            }
+
+            assertEquals(1, QueryCountHolder.getGrandTotal().getSelect());
+            assertEquals(2, comments.size());
         });
     }
 

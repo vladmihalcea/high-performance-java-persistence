@@ -356,10 +356,10 @@ public abstract class AbstractTest {
     }
 
     protected DataSource newDataSource() {
-        DataSource dataSource =
-            proxyDataSource()
-                ? dataSourceProxyType().dataSource(dataSourceProvider().dataSource())
-                : dataSourceProvider().dataSource();
+        DataSource dataSource = dataSourceProvider().dataSource();
+        if(proxyDataSource()) {
+            dataSource = dataSourceProxy(dataSource);
+        }
         if (connectionPooling()) {
             HikariDataSource poolingDataSource = connectionPoolDataSource(dataSource);
             closeables.add(poolingDataSource::close);
@@ -367,6 +367,10 @@ public abstract class AbstractTest {
         } else {
             return dataSource;
         }
+    }
+
+    protected DataSource dataSourceProxy(DataSource dataSource) {
+        return dataSourceProxyType().dataSource(dataSource);
     }
 
     protected boolean proxyDataSource() {

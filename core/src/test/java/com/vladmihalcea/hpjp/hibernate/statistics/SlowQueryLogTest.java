@@ -1,7 +1,15 @@
 package com.vladmihalcea.hpjp.hibernate.statistics;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.DataSourceProxyType;
+import com.vladmihalcea.hpjp.util.logging.InlineQueryLogEntryCreator;
 import com.vladmihalcea.hpjp.util.providers.Database;
+import net.ttddyy.dsproxy.listener.ChainListener;
+import net.ttddyy.dsproxy.listener.DataSourceQueryCountListener;
+import net.ttddyy.dsproxy.listener.SlowQueryListener;
+import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
+import net.ttddyy.dsproxy.listener.logging.SLF4JSlowQueryListener;
+import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.junit.Test;
 
@@ -12,9 +20,12 @@ import jakarta.persistence.Table;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+
+import javax.sql.DataSource;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
 import static org.junit.Assert.assertEquals;
@@ -75,17 +86,16 @@ public class SlowQueryLogTest extends AbstractTest {
         LOGGER.info("Check slow JPQL query");
 
         doInJPA(entityManager -> {
-            List<Post> posts = entityManager
-                .createQuery("""
-                    select p
-                    from Post p
-                    where lower(title) like :titlePattern
-                    order by p.createdOn desc
+            List<Post> posts = entityManager.createQuery("""
+                select p
+                from Post p
+                where lower(title) like :titlePattern
+                order by p.createdOn desc
                 """, Post.class)
-                .setParameter("titlePattern", "%Java%book%review%".toLowerCase())
-                .setFirstResult(1000)
-                .setMaxResults(100)
-                .getResultList();
+            .setParameter("titlePattern", "%Java%book%review%".toLowerCase())
+            .setFirstResult(1000)
+            .setMaxResults(100)
+            .getResultList();
 
             assertEquals(100, posts.size());
         });
@@ -139,6 +149,23 @@ public class SlowQueryLogTest extends AbstractTest {
 
             assertEquals(100, posts.size());
         });
+    }
+
+    protected DataSource dataSourceProxy(DataSource dataSource) {
+        ChainListener listener = new ChainListener();
+        SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
+        loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
+        SLF4JSlowQueryListener slowQueryListener = new SLF4JSlowQueryListener();
+        slowQueryListener.setThreshold(25);
+        slowQueryListener.setThresholdTimeUnit(TimeUnit.MILLISECONDS);
+        listener.addListener(loggingListener);
+        listener.addListener(slowQueryListener);
+
+        return ProxyDataSourceBuilder
+            .create(dataSource)
+            .name(DataSourceProxyType.DATA_SOURCE_PROXY.name())
+            .listener(listener)
+            .build();
     }
 
     @Entity(name = "Post")
