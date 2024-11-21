@@ -135,7 +135,7 @@ public class ACIDRaceConditionTransferTest extends AbstractSpringTest {
                     return null;
                 }
             )
-            .collect(Collectors.toList());
+            .toList();
 
         List<Future<Void>> futures = executorService.invokeAll(callables);
         for (Future<Void> future : futures) {
