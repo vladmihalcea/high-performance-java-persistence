@@ -42,20 +42,34 @@ public class IdEqualityTest
         }
         int collectionSize = 25_000;
 
-        long createCollectionStartNanos = System.nanoTime();
+        long createListStartNanos = System.nanoTime();
         List<Post> postList = new ArrayList<>(collectionSize);
-        Set<Post> postSet = new HashSet<>();
 
         for (int i = 0; i < collectionSize; i++) {
             Post post = new Post().setId((long) i);
             postList.add(i, post);
+        }
+
+        long createListEndNanos = System.nanoTime();
+        LOGGER.info(
+            "Creating a List with [{}] elements took : [{}] μs",
+            collectionSize,
+            TimeUnit.NANOSECONDS.toMicros(createListEndNanos - createListStartNanos)
+        );
+
+        long createSetStartNanos = System.nanoTime();
+        Set<Post> postSet = new HashSet<>();
+
+        for (int i = 0; i < collectionSize; i++) {
+            Post post = new Post().setId((long) i);
             postSet.add(post);
         }
-        
-        long createCollectionEndNanos = System.nanoTime();
+
+        long createSetEndNanos = System.nanoTime();
         LOGGER.info(
-            "Creating collections took : [{}] seconds",
-            TimeUnit.NANOSECONDS.toSeconds(createCollectionEndNanos - createCollectionStartNanos)
+            "Creating a Set with [{}] elements took : [{}] μs",
+            collectionSize,
+            TimeUnit.NANOSECONDS.toMicros(createSetEndNanos - createSetStartNanos)
         );
 
         Random random = new Random();
