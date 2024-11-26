@@ -78,7 +78,7 @@ public class SlowQueryLogTest extends AbstractTest {
         properties.put("hibernate.order_inserts", "true");
         properties.put("hibernate.order_updates", "true");
 
-        properties.put("hibernate.session.events.log.LOG_QUERIES_SLOWER_THAN_MS", "25");
+        properties.put("hibernate.log_slow_query", "25");
     }
 
     @Test
