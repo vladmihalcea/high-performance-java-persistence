@@ -419,6 +419,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>${junit-vintage.engine.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
@@ -494,7 +501,7 @@
         <logback.version>1.5.6</logback.version>
         <commons-lang.version>3.17.0</commons-lang.version>
         <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
-        <hibernate.version>6.5.2.Final</hibernate.version>
+        <hibernate.version>6.6.3.Final</hibernate.version>
         <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
         <javassist.version>3.18.1-GA</javassist.version>
         <ehcache.version>3.10.8</ehcache.version>
@@ -537,6 +544,7 @@
         <hypersistence-optimizer.version>2.8.1</hypersistence-optimizer.version>
 
         <junit.version>4.13.2</junit.version>
+        <junit-vintage.engine.version>5.10.3</junit-vintage.engine.version>
 
         <antlr.version>4.13.1</antlr.version>
     </properties>
