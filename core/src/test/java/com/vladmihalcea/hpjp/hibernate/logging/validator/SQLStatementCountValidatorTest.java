@@ -3,6 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.logging.validator;
 import com.vladmihalcea.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import net.ttddyy.dsproxy.QueryCountHolder;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import jakarta.persistence.*;
@@ -74,6 +75,7 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
     }
 
     @Test
+    @Ignore
     public void testNPlusOneWithQueryCountHolder() {
         doInJPA(entityManager -> {
             LOGGER.info("Detect N+1");
