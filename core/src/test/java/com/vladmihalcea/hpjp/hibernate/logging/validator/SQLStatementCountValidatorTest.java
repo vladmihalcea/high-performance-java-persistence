@@ -43,7 +43,7 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
 
             Post post2 = new Post()
                 .setId(2L)
-                .setTitle("Post two");
+                .setTitle("Hypersistence Optimizer");
 
             entityManager.persist(post2);
 
@@ -78,7 +78,6 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
     @Ignore
     public void testNPlusOneWithQueryCountHolder() {
         doInJPA(entityManager -> {
-            LOGGER.info("Detect N+1");
             QueryCountHolder.clear();
 
             List<PostComment> comments = entityManager.createQuery("""
@@ -87,9 +86,11 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
                 """, PostComment.class)
             .getResultList();
 
+            LOGGER.info("Detect N+1");
+
             for(PostComment comment : comments) {
                 LOGGER.info(
-                    "Comment: {} for post: {}",
+                    "Comment: [{}] for post: [{}]",
                     comment.getReview(),
                     comment.getPost().getTitle()
                 );
@@ -107,8 +108,8 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
             SQLStatementCountValidator.reset();
 
             List<PostComment> postComments = entityManager.createQuery("""
-                select pc 
-                from PostComment pc 
+                select pc
+                from PostComment pc
                 join fetch pc.post
                 """, PostComment.class)
             .getResultList();
