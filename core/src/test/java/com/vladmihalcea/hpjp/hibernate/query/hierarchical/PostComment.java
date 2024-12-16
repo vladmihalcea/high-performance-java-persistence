@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.hibernate.query.hierarchical;
 
+import com.vladmihalcea.hpjp.spring.data.recursive.domain.PostCommentDTO;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,5 +54,12 @@ public class PostComment {
     public void addChild(PostComment child) {
         children.add(child);
         child.parent = this;
+    }
+
+    public PostComment getRoot() {
+        if(parent != null) {
+            return parent.getRoot();
+        }
+        return this;
     }
 }
