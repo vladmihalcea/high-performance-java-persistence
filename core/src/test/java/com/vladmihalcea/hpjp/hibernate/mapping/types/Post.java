@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 /**
  * @author Vlad Mihalcea
  */
-@Entity(name = "Post")
+@Entity
 @Table(name = "post")
 public class Post {
 
