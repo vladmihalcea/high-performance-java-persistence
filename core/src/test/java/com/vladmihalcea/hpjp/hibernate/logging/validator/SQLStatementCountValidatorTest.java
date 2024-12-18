@@ -107,15 +107,19 @@ public class SQLStatementCountValidatorTest extends AbstractTest {
             LOGGER.info("Join fetch to prevent N+1");
             SQLStatementCountValidator.reset();
 
-            List<PostComment> postComments = entityManager.createQuery("""
+            List<PostComment> comments = entityManager.createQuery("""
                 select pc
                 from PostComment pc
                 join fetch pc.post
                 """, PostComment.class)
             .getResultList();
 
-            for (PostComment postComment : postComments) {
-                assertNotNull(postComment.getPost());
+            for(PostComment comment : comments) {
+                LOGGER.info(
+                    "Comment: [{}] for post: [{}]",
+                    comment.getReview(),
+                    comment.getPost().getTitle()
+                );
             }
 
             SQLStatementCountValidator.assertSelectCount(1);
