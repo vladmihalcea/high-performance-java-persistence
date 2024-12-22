@@ -39,6 +39,12 @@ public class TsidTest {
     }
 
     @Test
+    public void testNodeCount() {
+        TSID.Factory tsidFactory = TsidUtils.getTsidFactory(27, 11);
+        tsidFactory.generate();
+    }
+
+    @Test
     public void testConcurrency() throws InterruptedException {
         int threadCount = 16;
         int iterationCount = 100_000;

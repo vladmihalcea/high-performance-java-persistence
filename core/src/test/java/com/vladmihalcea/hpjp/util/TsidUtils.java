@@ -39,7 +39,7 @@ public class TsidUtils {
     }
 
     public static TSID.Factory getTsidFactory(int nodeCount) {
-        int nodeBits = (int) (Math.log(nodeCount) / Math.log(2));
+        int nodeBits = ((int) (Math.log(nodeCount) / Math.log(2))) + 1;
 
         return TSID.Factory.builder()
             .withRandomFunction(TSID.Factory.THREAD_LOCAL_RANDOM_FUNCTION)
@@ -48,7 +48,7 @@ public class TsidUtils {
     }
 
     public static TSID.Factory getTsidFactory(int nodeCount, int nodeId) {
-        int nodeBits = (int) (Math.log(nodeCount) / Math.log(2));
+        int nodeBits = ((int) (Math.log(nodeCount) / Math.log(2))) + 1;
 
         return TSID.Factory.builder()
             .withRandomFunction(TSID.Factory.THREAD_LOCAL_RANDOM_FUNCTION)
