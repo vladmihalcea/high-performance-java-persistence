@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author Vlad Mihalcea
  */
-public class PostgreSQLCountryShortIdTest extends AbstractTest {
+public class PostgreSQLCountryIntIdTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -92,17 +92,17 @@ public class PostgreSQLCountryShortIdTest extends AbstractTest {
 
         @Id
         @GeneratedValue(strategy = GenerationType.SEQUENCE)
-        @Column(columnDefinition = "smallint")
-        private Short id;
+        @Column(columnDefinition = "int")
+        private Integer id;
 
         @Column(columnDefinition = "varchar(100)")
         private String name;
 
-        public Short getId() {
+        public Integer getId() {
             return id;
         }
 
-        public Country setId(Short id) {
+        public Country setId(Integer id) {
             this.id = id;
             return this;
         }

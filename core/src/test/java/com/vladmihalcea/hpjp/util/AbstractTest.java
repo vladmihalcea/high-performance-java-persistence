@@ -880,7 +880,16 @@ public abstract class AbstractTest {
     protected void executeStatement(String sql) {
         try (Connection connection = dataSource().getConnection();
              Statement statement = connection.createStatement()) {
-            statement.executeUpdate(sql);
+            statement.executeLargeUpdate(sql);
+        } catch (SQLException e) {
+            LOGGER.error("Statement failed", e);
+        }
+    }
+
+    protected void executeQuery(String sql) {
+        try (Connection connection = dataSource().getConnection();
+             Statement statement = connection.createStatement()) {
+            statement.executeQuery(sql);
         } catch (SQLException e) {
             LOGGER.error("Statement failed", e);
         }
