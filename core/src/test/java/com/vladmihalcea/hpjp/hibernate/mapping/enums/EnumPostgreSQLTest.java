@@ -25,7 +25,7 @@ public class EnumPostgreSQLTest extends AbstractPostgreSQLIntegrationTest {
     public void test() {
         doInJPA(entityManager -> {
             Post post = new Post();
-            post.setId(1L);
+            post.setId(1);
             post.setTitle("High-Performance Java Persistence");
             post.setStatus(PostStatus.PENDING);
             entityManager.persist(post);
@@ -48,7 +48,7 @@ public class EnumPostgreSQLTest extends AbstractPostgreSQLIntegrationTest {
     public static class Post {
 
         @Id
-        private Long id;
+        private Integer id;
 
         private String title;
 
@@ -56,11 +56,11 @@ public class EnumPostgreSQLTest extends AbstractPostgreSQLIntegrationTest {
         @JdbcType(PostgreSQLEnumJdbcType.class)
         private PostStatus status;
 
-        public Long getId() {
+        public Integer getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        public void setId(Integer id) {
             this.id = id;
         }
 
