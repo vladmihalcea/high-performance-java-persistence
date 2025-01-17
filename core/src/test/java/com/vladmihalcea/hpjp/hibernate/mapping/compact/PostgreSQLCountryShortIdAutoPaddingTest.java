@@ -4,6 +4,7 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
 import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.tool.schema.Action;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -12,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author Vlad Mihalcea
  */
-public class PostgreSQLCountryIntIdTest extends AbstractTest {
+public class PostgreSQLCountryShortIdAutoPaddingTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -29,18 +30,21 @@ public class PostgreSQLCountryIntIdTest extends AbstractTest {
 
     @Override
     protected void additionalProperties(Properties properties) {
+        properties.put(AvailableSettings.HBM2DDL_AUTO, Action.NONE.getExternalHbm2ddlName());
         properties.put(AvailableSettings.STATEMENT_BATCH_SIZE, "100");
         properties.put(AvailableSettings.ORDER_INSERTS, Boolean.TRUE);
     }
 
-    @Test
-    public void test() {
-        doInJPA(entityManager -> {
-            entityManager.persist(
-                new Country()
-                    .setName("Romania")
-            );
-        });
+    @Override
+    protected void beforeInit() {
+        executeStatement("alter table if exists customer drop constraint if exists FK_customer_country_id");
+        executeStatement("drop table if exists customer cascade");
+        executeStatement("drop table if exists country cascade");
+        executeStatement("drop sequence if exists country_SEQ");
+        executeStatement("create sequence country_SEQ start with 1 increment by 50");
+        executeStatement("create table country (id smallint not null, name varchar(100), primary key (id))");
+        executeStatement("create table customer (country_id smallint, id integer not null, first_name varchar(100), last_name varchar(100), primary key (id))");
+        executeStatement("alter table if exists customer add constraint FK_customer_country_id foreign key (country_id) references country");
     }
 
     @Test
@@ -48,10 +52,10 @@ public class PostgreSQLCountryIntIdTest extends AbstractTest {
         if(!ENABLE_LONG_RUNNING_TESTS) {
             return;
         }
-        int customersPerCountry = 100;
+        int customersPerCountry = 25_000;
         doInJPA(entityManager -> {
             AtomicInteger customerId = new AtomicInteger();
-            for (short i = 1; i != 0; i++) {
+            for (short i = 1; i <= 200; i++) {
                 Country country = new Country()
                     .setName(String.format("Country no. %d", i));
                 entityManager.persist(country);
@@ -80,7 +84,7 @@ public class PostgreSQLCountryIntIdTest extends AbstractTest {
             LOGGER.info(
                 "Total customer index size: {}",
                 entityManager
-                    .createNativeQuery("select pg_size_pretty(pg_indexes_size('customer'))")
+                    .createNativeQuery("select pg_size_pretty(pg_table_size('idx_customer_country_id'))")
                     .getSingleResult()
             );
         });
@@ -92,17 +96,17 @@ public class PostgreSQLCountryIntIdTest extends AbstractTest {
 
         @Id
         @GeneratedValue(strategy = GenerationType.SEQUENCE)
-        @Column(columnDefinition = "int")
-        private Integer id;
+        @Column(columnDefinition = "smallint")
+        private Short id;
 
         @Column(columnDefinition = "varchar(100)")
         private String name;
 
-        public Integer getId() {
+        public Short getId() {
             return id;
         }
 
-        public Country setId(Integer id) {
+        public Country setId(Short id) {
             this.id = id;
             return this;
         }

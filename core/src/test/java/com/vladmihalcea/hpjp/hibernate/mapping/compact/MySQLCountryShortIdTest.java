@@ -56,10 +56,10 @@ public class MySQLCountryShortIdTest extends AbstractTest {
         if(!ENABLE_LONG_RUNNING_TESTS) {
             return;
         }
-        int customersPerCountry = 16 * 1024;
+        int customersPerCountry = 25_000;
         doInJPA(entityManager -> {
             AtomicInteger customerId = new AtomicInteger();
-            for (short i = 1; i <= 255; i++) {
+            for (short i = 1; i <= 200; i++) {
                 Country country = new Country()
                     .setId(i)
                     .setName(String.format("Country no. %d", i));

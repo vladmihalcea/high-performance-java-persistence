@@ -1,11 +1,10 @@
 package com.vladmihalcea.hpjp.hibernate.mapping.compact;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import com.vladmihalcea.hpjp.util.providers.MySQLDataSourceProvider;
 import jakarta.persistence.*;
 import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.tool.schema.Action;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -14,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author Vlad Mihalcea
  */
-public class MySQLCountryByteIdTest extends AbstractTest {
+public class PostgreSQLCountryIntIdNoPaddingTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -26,29 +25,26 @@ public class MySQLCountryByteIdTest extends AbstractTest {
 
     @Override
     protected Database database() {
-        return Database.MYSQL;
+        return Database.POSTGRESQL;
     }
 
     @Override
     protected void additionalProperties(Properties properties) {
-        properties.put(AvailableSettings.STATEMENT_BATCH_SIZE, "1000");
+        properties.put(AvailableSettings.HBM2DDL_AUTO, Action.NONE.getExternalHbm2ddlName());
+        properties.put(AvailableSettings.STATEMENT_BATCH_SIZE, "100");
         properties.put(AvailableSettings.ORDER_INSERTS, Boolean.TRUE);
     }
 
     @Override
-    protected DataSourceProvider dataSourceProvider() {
-        return new MySQLDataSourceProvider().setRewriteBatchedStatements(true);
-    }
-
-    @Test
-    public void test() {
-        doInJPA(entityManager -> {
-            entityManager.persist(
-                new Country()
-                    .setId((short) 1)
-                    .setName("Romania")
-            );
-        });
+    protected void beforeInit() {
+        executeStatement("alter table if exists customer drop constraint if exists FK_customer_country_id");
+        executeStatement("drop table if exists customer cascade");
+        executeStatement("drop table if exists country cascade");
+        executeStatement("drop sequence if exists country_SEQ");
+        executeStatement("create sequence country_SEQ start with 1 increment by 50");
+        executeStatement("create table country (name varchar(100), id int not null, primary key (id))");
+        executeStatement("create table customer (id integer not null, first_name varchar(100), last_name varchar(100), country_id int, primary key (id))");
+        executeStatement("alter table if exists customer add constraint FK_customer_country_id foreign key (country_id) references country");
     }
 
     @Test
@@ -61,7 +57,6 @@ public class MySQLCountryByteIdTest extends AbstractTest {
             AtomicInteger customerId = new AtomicInteger();
             for (short i = 1; i <= 200; i++) {
                 Country country = new Country()
-                    .setId(i)
                     .setName(String.format("Country no. %d", i));
                 entityManager.persist(country);
                 for (int j = 1; j <= customersPerCountry; j++) {
@@ -76,33 +71,26 @@ public class MySQLCountryByteIdTest extends AbstractTest {
             }
         });
 
-        executeStatement("CREATE INDEX idx_customer_country_id ON customer (country_id)");
-        executeQuery("ANALYZE TABLE customer");
+        executeStatement("CREATE INDEX IF NOT EXISTS idx_customer_country_id ON customer (country_id)");
+        executeStatement("VACUUM FULL ANALYZE");
 
         doInJPA(entityManager -> {
             LOGGER.info(
-                "Total customer table size: {} MB",
+                "Total customer table size: {}",
                 entityManager
-                    .createNativeQuery("""
-                        select
-                            ROUND(((DATA_LENGTH + INDEX_LENGTH) / 1024 / 1024), 2)
-                        from information_schema.TABLES
-                        where TABLE_SCHEMA = 'high_performance_java_persistence' AND TABLE_NAME = 'customer'
-                        """)
+                    .createNativeQuery("select pg_size_pretty(pg_table_size('customer'))")
                     .getSingleResult()
             );
-        });
-
-        doInJPA(entityManager -> {
             LOGGER.info(
-                "Total customer index size: {} MB",
+                "Total customer index size: {}",
                 entityManager
-                    .createNativeQuery("""
-                        select
-                            ROUND((INDEX_LENGTH / 1024 / 1024), 2)
-                        from information_schema.TABLES
-                        where TABLE_SCHEMA = 'high_performance_java_persistence' AND TABLE_NAME = 'customer'
-                        """)
+                    .createNativeQuery("select pg_size_pretty(pg_table_size('idx_customer_country_id'))")
+                    .getSingleResult()
+            );
+            LOGGER.info(
+                "Total customer index size in bytes: {}",
+                entityManager
+                    .createNativeQuery("select pg_table_size('idx_customer_country_id')")
                     .getSingleResult()
             );
         });
@@ -113,17 +101,18 @@ public class MySQLCountryByteIdTest extends AbstractTest {
     public static class Country {
 
         @Id
-        @Column(columnDefinition = "tinyint unsigned")
-        private Short id;
+        @GeneratedValue(strategy = GenerationType.SEQUENCE)
+        @Column(columnDefinition = "int")
+        private Integer id;
 
         @Column(columnDefinition = "varchar(100)")
         private String name;
 
-        public Short getId() {
+        public Integer getId() {
             return id;
         }
 
-        public Country setId(Short id) {
+        public Country setId(Integer id) {
             this.id = id;
             return this;
         }
