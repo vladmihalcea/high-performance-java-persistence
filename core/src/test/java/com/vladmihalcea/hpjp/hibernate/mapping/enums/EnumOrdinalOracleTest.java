@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 /**
  * @author Vlad Mihalcea
  */
-public class EnumOrdinalTest extends AbstractTest {
+public class EnumOrdinalOracleTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -22,7 +22,13 @@ public class EnumOrdinalTest extends AbstractTest {
 
     @Override
     protected Database database() {
-        return Database.POSTGRESQL;
+        return Database.ORACLE;
+    }
+
+    @Override
+    protected void afterInit() {
+        executeStatement("ALTER TABLE post DROP COLUMN status");
+        executeStatement("ALTER TABLE post ADD status NUMBER(3)");
     }
 
     @Test
@@ -35,28 +41,24 @@ public class EnumOrdinalTest extends AbstractTest {
             );
         });
 
-        try {
-            doInJPA(entityManager -> {
-                int postId = 50;
+        doInJPA(entityManager -> {
+            int postId = 50;
 
+            for (int i = 0; i < 200; i++) {
                 int rowCount = entityManager.createNativeQuery("""
                     INSERT INTO post (status, title, id)
                     VALUES (:status, :title, :id)
                     """)
-                .setParameter("status", 99)
-                .setParameter("title", "Illegal Enum value")
-                .setParameter("id", postId)
-                .executeUpdate();
+                    .setParameter("status", i)
+                    .setParameter("title", "Illegal Enum value")
+                    .setParameter("id", postId++)
+                    .executeUpdate();
 
                 assertEquals(1, rowCount);
+            }
+        });
 
-                Post post = entityManager.find(Post.class, postId);
-
-                fail("Should not map the Enum value of 100!");
-            });
-        } catch (ConstraintViolationException e) {
-            assertTrue(e.getMessage().contains("violates check constraint \"post_status_check\""));
-        }
+        LOGGER.info("");
     }
 
     public enum PostStatus {
