@@ -18,7 +18,7 @@ public class MySQLYearMonthIntegerTest extends AbstractMySQLIntegrationTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Book.class
+            Book.class
         };
     }
 
