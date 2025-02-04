@@ -1,30 +1,16 @@
 package com.vladmihalcea.hpjp.hibernate.type.attributeconverter;
 
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
-import io.hypersistence.utils.hibernate.type.DescriptorImmutableType;
 import io.hypersistence.utils.hibernate.type.basic.Iso8601MonthType;
 import io.hypersistence.utils.hibernate.type.basic.YearType;
-import io.hypersistence.utils.hibernate.type.basic.internal.Iso8601MonthMonthTypeDescriptor;
-import io.hypersistence.utils.hibernate.type.util.Configuration;
 import jakarta.persistence.*;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
-import org.hibernate.type.descriptor.WrapperOptions;
-import org.hibernate.type.descriptor.java.AbstractClassJavaType;
-import org.hibernate.type.descriptor.java.YearJavaType;
-import org.hibernate.type.descriptor.jdbc.IntegerJdbcType;
-import org.hibernate.type.descriptor.jdbc.JdbcType;
-import org.hibernate.type.descriptor.jdbc.JdbcTypeIndicators;
-import org.hibernate.type.descriptor.jdbc.TinyIntJdbcType;
 import org.junit.Test;
 
-import java.sql.Types;
 import java.time.Month;
 import java.time.Year;
-import java.time.YearMonth;
-import java.util.Objects;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
