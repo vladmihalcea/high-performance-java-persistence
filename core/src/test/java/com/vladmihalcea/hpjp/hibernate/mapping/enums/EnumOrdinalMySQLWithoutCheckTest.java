@@ -92,7 +92,7 @@ public class EnumOrdinalMySQLWithoutCheckTest extends AbstractTest {
         @Column(length = 100)
         private String title;
 
-        @Enumerated(EnumType.ORDINAL)
+        @Enumerated
         @Column(columnDefinition = "tinyint unsigned")
         private PostStatus status;
 
