@@ -7,6 +7,7 @@ import org.hibernate.JDBCException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
@@ -19,7 +20,7 @@ import static org.junit.Assert.*;
 /**
  * @author Vlad Mihalcea
  */
-public class EnumOrdinalMySQLWithCheckTest extends AbstractTest {
+public class EnumStringPostgreSQLWithCheckTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -35,47 +36,15 @@ public class EnumOrdinalMySQLWithCheckTest extends AbstractTest {
 
     @Override
     protected Database database() {
-        return Database.MYSQL;
+        return Database.POSTGRESQL;
     }
 
     @Override
     protected void beforeInit() {
-        executeStatement("DROP TABLE IF EXISTS post");
-        executeStatement("CREATE TABLE post (id integer not null auto_increment, title varchar(100), status tinyint unsigned, PRIMARY KEY (id)) engine=InnoDB");
-    }
-
-    @Test
-    public void testEnumName() {
-        String enumName = PostStatus.APPROVED.name();
-        PostStatus enumValue = PostStatus.valueOf(enumName);
-
-        assertSame(PostStatus.APPROVED, enumValue);
-    }
-
-    @Test
-    public void testEnumOrdinal() {
-        int enumOrdinal = PostStatus.APPROVED.ordinal();
-        PostStatus enumValue = PostStatus.values()[enumOrdinal];
-
-        assertSame(PostStatus.APPROVED, enumValue);
-    }
-
-    @Test
-    public void test() {
-        Integer postId = doInJPA(entityManager -> {
-            Post post = new Post()
-                .setTitle("Tuning Spring applications with Hypersistence Optimizer")
-                .setStatus(PostStatus.PENDING);
-
-            entityManager.persist(post);
-
-            return post.getId();
-        });
-
-        doInJPA(entityManager -> {
-            Post post = entityManager.find(Post.class, postId);
-            post.setStatus(PostStatus.REQUIRES_MODERATOR_INTERVENTION);
-        });
+        executeStatement("drop table if exists post cascade");
+        executeStatement("drop sequence if exists post_SEQ");
+        executeStatement("create sequence post_SEQ start with 1 increment by 50");
+        executeStatement("create table post (id integer not null, title varchar(100), status varchar(31), primary key (id))");
     }
 
     @Test
@@ -83,23 +52,24 @@ public class EnumOrdinalMySQLWithCheckTest extends AbstractTest {
         executeStatement("""
             ALTER TABLE post
             ADD CONSTRAINT CHK_status_enum_value
-            CHECK (status between 0 and 3)
+            CHECK (status in ('PENDING','APPROVED','SPAM','REQUIRES_MODERATOR_INTERVENTION'))
             """);
 
         try {
             doInJPA(entityManager -> {
                 entityManager.createNativeQuery("""
-                    INSERT INTO post (title, status)
-                    VALUES (:title, :status)
+                    INSERT INTO post (id, title, status)
+                    VALUES (:id, :title, :status)
                     """)
-                .setParameter("title", "Illegal Enum value")
-                .setParameter("status", 99)
-                .executeUpdate();
+                    .setParameter("id", 100)
+                    .setParameter("title", "Illegal Enum value")
+                    .setParameter("status", "UNSUPPORTED")
+                    .executeUpdate();
 
-                fail("Should not store the ordinal value of 99!");
+                fail("Should not store the string value of UNSUPPORTED!");
             });
-        } catch (JDBCException e) {
-            assertTrue(e.getMessage().contains("Check constraint 'post_status_enum' is violated"));
+        } catch (ConstraintViolationException e) {
+            assertTrue(e.getMessage().contains("new row for relation \"post\" violates check constraint \"chk_status_enum_value\""));
         }
     }
 
@@ -111,7 +81,7 @@ public class EnumOrdinalMySQLWithCheckTest extends AbstractTest {
         executeStatement("""
             ALTER TABLE post
             ADD CONSTRAINT CHK_status_enum_value
-            CHECK (status between 0 and 3)
+            CHECK (status in ('PENDING','APPROVED','SPAM','REQUIRES_MODERATOR_INTERVENTION'))
             """);
 
         int postCount = 1_000_000;
@@ -121,14 +91,15 @@ public class EnumOrdinalMySQLWithCheckTest extends AbstractTest {
         doInJPA(entityManager -> {
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try(PreparedStatement preparedStatement = connection.prepareStatement("""
-                    INSERT INTO post (title, status)
-                    VALUES (?, ?)
+                    INSERT INTO post (id, title, status)
+                    VALUES (?, ?, ?)
                     """)) {
 
                     boolean flushed = false;
                     for (int i = 1; i < postCount; i++) {
-                        preparedStatement.setString(1, String.format("Post nr %d", i));
-                        preparedStatement.setInt(2, random.nextInt(postStatuses.length));
+                        preparedStatement.setInt(1, i);
+                        preparedStatement.setString(2, String.format("Post nr %d", i));
+                        preparedStatement.setString(3, postStatuses[random.nextInt(postStatuses.length)].name());
 
                         flushed = false;
                         preparedStatement.addBatch();
@@ -151,7 +122,7 @@ public class EnumOrdinalMySQLWithCheckTest extends AbstractTest {
             """
             ALTER TABLE post
             ADD CONSTRAINT CHK_status_enum_value
-            CHECK (status between 0 and 4)
+            CHECK (status in ('PENDING','APPROVED','SPAM','REQUIRES_MODERATOR_INTERVENTION', 'PROMOTED'))
             """
         );
         LOGGER.info("Add CHECK constraint took [{}] ms", TimeUnit.NANOSECONDS.toMillis(
@@ -173,14 +144,13 @@ public class EnumOrdinalMySQLWithCheckTest extends AbstractTest {
     public static class Post {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @GeneratedValue
         private Integer id;
 
-        @Column(length = 100)
         private String title;
 
-        @Enumerated
-        @Column(columnDefinition = "tinyint unsigned")
+        @Enumerated(EnumType.STRING)
+        @Column(length = 31)
         private PostStatus status;
 
         public Integer getId() {

@@ -3,8 +3,8 @@ package com.vladmihalcea.hpjp.hibernate.mapping.enums;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -83,6 +83,24 @@ public class EnumStringPostgreSQLWithoutCheckTest extends AbstractTest {
         }
     }
 
+    @Test
+    public void testUpdate() {
+        Integer postId = doInJPA(entityManager -> {
+            Post post = new Post()
+                .setTitle("Tuning Spring applications with Hypersistence Optimizer")
+                .setStatus(PostStatus.PENDING);
+
+            entityManager.persist(post);
+
+            return post.getId();
+        });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, postId);
+            post.setStatus(PostStatus.REQUIRES_MODERATOR_INTERVENTION);
+        });
+    }
+
     public enum PostStatus {
         PENDING,
         APPROVED,
@@ -92,6 +110,7 @@ public class EnumStringPostgreSQLWithoutCheckTest extends AbstractTest {
 
     @Entity(name = "Post")
     @Table(name = "post")
+    @DynamicUpdate
     public static class Post {
 
         @Id
