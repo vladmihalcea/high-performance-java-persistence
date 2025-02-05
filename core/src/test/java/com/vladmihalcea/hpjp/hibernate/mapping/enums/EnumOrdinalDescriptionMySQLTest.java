@@ -3,61 +3,47 @@ package com.vladmihalcea.hpjp.hibernate.mapping.enums;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
+
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
  */
-public class EnumOrdinalDescriptionTest extends AbstractTest {
+public class EnumOrdinalDescriptionMySQLTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-            Post.class,
-            PostStatusInfo.class
+            Post.class
         };
     }
 
     @Override
+    protected void additionalProperties(Properties properties) {
+        properties.setProperty(AvailableSettings.HBM2DDL_AUTO, "none");
+    }
+
+    @Override
     protected Database database() {
-        return Database.POSTGRESQL;
+        return Database.MYSQL;
     }
 
     @Override
     public void beforeInit() {
-        executeStatement("DROP TYPE IF EXISTS post_status_info CASCADE");
-    }
-
-    @Override
-    protected void afterInit() {
-        doInJPA(entityManager -> {
-            PostStatusInfo pending = new PostStatusInfo();
-            pending.setId(PostStatus.PENDING.ordinal());
-            pending.setName(PostStatus.PENDING.name());
-            pending.setDescription("Post waiting to be approved by the admin");
-            entityManager.persist(pending);
-
-            PostStatusInfo approved = new PostStatusInfo();
-            approved.setId(PostStatus.APPROVED.ordinal());
-            approved.setName(PostStatus.APPROVED.name());
-            approved.setDescription("Post approved by the admin");
-            entityManager.persist(approved);
-
-            PostStatusInfo spam = new PostStatusInfo();
-            spam.setId(PostStatus.SPAM.ordinal());
-            spam.setName(PostStatus.SPAM.name());
-            spam.setDescription("Post rejected as spam");
-            entityManager.persist(spam);
-
-            PostStatusInfo moderated = new PostStatusInfo();
-            moderated.setId(PostStatus.REQUIRES_MODERATOR_INTERVENTION.ordinal());
-            moderated.setName(PostStatus.REQUIRES_MODERATOR_INTERVENTION.name());
-            moderated.setDescription("Post requires moderator intervention");
-            entityManager.persist(moderated);
-        });
+        executeStatement("drop table if exists post");
+        executeStatement("drop table if exists post_status_info");
+        executeStatement("create table post (id integer not null auto_increment, title varchar(100), status tinyint, primary key (id))");
+        executeStatement("create table post_status_info (id tinyint not null, name varchar(50), description varchar(255), primary key (id))");
+        executeStatement("alter table post add constraint status_id foreign key (status) references post_status_info (id)");
+        executeStatement("insert into post_status_info (id, name, description) values (0, 'PENDING', 'Post waiting to be approved')");
+        executeStatement("insert into post_status_info (id, name, description) values (1, 'APPROVED', 'Post approved')");
+        executeStatement("insert into post_status_info (id, name, description) values (2, 'SPAM', 'Post rejected as spam')");
+        executeStatement("insert into post_status_info (id, name, description) values (3, 'REQUIRES_MODERATOR_INTERVENTION', 'Post requires moderator intervention')");
     }
 
     @Test
@@ -75,15 +61,12 @@ public class EnumOrdinalDescriptionTest extends AbstractTest {
             Post post = entityManager.find(Post.class, _post.getId());
 
             assertEquals(PostStatus.PENDING, post.getStatus());
-            assertEquals("PENDING", post.getStatusInfo().getName());
+            assertEquals("PENDING", post.getStatus().name());
 
             Tuple tuple = (Tuple) entityManager.createNativeQuery("""
                 SELECT
-                    p.id,
-                    p.title,
-                    p.status,
-                    psi.name,
-                    psi.description
+                    p.id, p.title, p.status,
+                    psi.name, psi.description
                 FROM post p
                 INNER JOIN post_status_info psi ON p.status = psi.id
                 WHERE p.id = :postId
@@ -92,7 +75,7 @@ public class EnumOrdinalDescriptionTest extends AbstractTest {
             .getSingleResult();
 
             assertEquals("PENDING", tuple.get("name"));
-            assertEquals("Post waiting to be approved by the admin", tuple.get("description"));
+            assertEquals("Posts waiting to be approved by the admin", tuple.get("description"));
         });
     }
 
@@ -121,7 +104,7 @@ public class EnumOrdinalDescriptionTest extends AbstractTest {
 
                 fail("Should not allow us to insert an Enum value of 100!");
             } catch (ConstraintViolationException e) {
-                assertEquals("post_status_check", e.getConstraintName());
+                assertTrue(e.getMessage().contains("a foreign key constraint fails"));
             }
         });
     }
@@ -138,25 +121,14 @@ public class EnumOrdinalDescriptionTest extends AbstractTest {
     public static class Post {
 
         @Id
-        @GeneratedValue
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Integer id;
 
         private String title;
 
         @Enumerated(EnumType.ORDINAL)
-        @Column(columnDefinition = "NUMERIC(2)")
+        @Column(columnDefinition = "tinyint")
         private PostStatus status;
-
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(
-            name = "status",
-            insertable = false,
-            updatable = false,
-            foreignKey = @ForeignKey(
-                name = "status_id"
-            )
-        )
-        private PostStatusInfo statusInfo;
 
         public Integer getId() {
             return id;
@@ -183,48 +155,6 @@ public class EnumOrdinalDescriptionTest extends AbstractTest {
         public Post setStatus(PostStatus status) {
             this.status = status;
             return this;
-        }
-
-        public PostStatusInfo getStatusInfo() {
-            return statusInfo;
-        }
-    }
-
-    @Entity(name = "PostStatusInfo")
-    @Table(name = "post_status_info")
-    public static class PostStatusInfo {
-
-        @Id
-        @Column(columnDefinition = "NUMERIC(2)")
-        private Integer id;
-
-        @Column(length = 50)
-        private String name;
-
-        private String description;
-
-        public Integer getId() {
-            return id;
-        }
-
-        public void setId(Integer id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
         }
     }
 }
