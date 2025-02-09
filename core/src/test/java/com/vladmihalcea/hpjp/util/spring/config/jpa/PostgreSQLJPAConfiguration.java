@@ -47,9 +47,4 @@ public class PostgreSQLJPAConfiguration extends AbstractJPAConfiguration {
         dataSource.setPortNumber(Integer.valueOf(jdbcPort));
         return dataSource;
     }
-
-    @Override
-    protected String databaseType() {
-        return "postgresql";
-    }
 }

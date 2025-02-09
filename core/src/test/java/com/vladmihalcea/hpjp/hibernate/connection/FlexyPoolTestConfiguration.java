@@ -4,14 +4,14 @@ import com.vladmihalcea.flexypool.FlexyPoolDataSource;
 import com.vladmihalcea.flexypool.adaptor.HikariCPPoolAdapter;
 import com.vladmihalcea.flexypool.config.FlexyPoolConfiguration;
 import com.vladmihalcea.hpjp.hibernate.connection.jta.FlexyPoolEntities;
-import com.vladmihalcea.hpjp.util.spring.config.jpa.HikariCPPostgreSQLJPAConfiguration;
+import com.vladmihalcea.hpjp.util.spring.config.jpa.HikariCPJPAConfiguration;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 
 @Configuration
-public class FlexyPoolTestConfiguration extends HikariCPPostgreSQLJPAConfiguration {
+public class FlexyPoolTestConfiguration extends HikariCPJPAConfiguration {
 
     @Override
     protected Class configurationClass() {

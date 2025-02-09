@@ -21,6 +21,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.Locale;
 import java.util.Properties;
 
 /**
@@ -108,5 +109,7 @@ public abstract class AbstractJPAConfiguration {
     }
 
     @Bean
-    protected abstract String databaseType();
+    protected String databaseType() {
+        return databaseType.name().toLowerCase(Locale.ROOT);
+    }
 }

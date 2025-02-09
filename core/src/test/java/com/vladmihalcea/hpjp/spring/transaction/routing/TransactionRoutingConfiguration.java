@@ -124,11 +124,6 @@ public class TransactionRoutingConfiguration extends AbstractJPAConfiguration {
         };
     }
 
-    @Override
-    protected String databaseType() {
-        return Database.POSTGRESQL.name().toLowerCase();
-    }
-
     protected HikariConfig hikariConfig(DataSource dataSource) {
         HikariConfig hikariConfig = new HikariConfig();
         int cpuCores = Runtime.getRuntime().availableProcessors();

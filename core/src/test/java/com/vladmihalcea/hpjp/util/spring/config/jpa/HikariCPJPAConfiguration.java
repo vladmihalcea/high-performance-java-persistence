@@ -14,11 +14,10 @@ import javax.sql.DataSource;
  * @author Vlad Mihalcea
  */
 @Configuration
-@PropertySource({"/META-INF/jdbc-postgresql.properties"})
-public class HikariCPPostgreSQLJPAConfiguration extends AbstractJPAConfiguration {
+public class HikariCPJPAConfiguration extends AbstractJPAConfiguration {
 
-    protected HikariCPPostgreSQLJPAConfiguration() {
-        super(Database.POSTGRESQL);
+    protected HikariCPJPAConfiguration() {
+        super(Database.MYSQL);
     }
 
     @Bean
@@ -33,10 +32,5 @@ public class HikariCPPostgreSQLJPAConfiguration extends AbstractJPAConfiguration
         hikariConfig.setAutoCommit(false);
         hikariConfig.setDataSource(dataSourceProvider().dataSource());
         return new HikariDataSource(hikariConfig);
-    }
-
-    @Override
-    protected String databaseType() {
-        return "postgresql";
     }
 }

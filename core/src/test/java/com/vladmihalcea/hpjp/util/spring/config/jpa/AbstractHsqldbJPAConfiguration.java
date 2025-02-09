@@ -48,9 +48,4 @@ public class AbstractHsqldbJPAConfiguration extends AbstractJPAConfiguration {
         properties.setProperty("connectionTimeout", String.valueOf(5000));
         return new HikariDataSource(new HikariConfig(properties));
     }
-
-    @Override
-    protected String databaseType() {
-        return "hsqldb";
-    }
 }
