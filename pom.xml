@@ -207,8 +207,8 @@
         </dependency>
 
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
             <version>${mysql.version}</version>
             <scope>test</scope>
         </dependency>
@@ -512,7 +512,7 @@
         <hsqldb.version>2.7.2</hsqldb.version>
         <postgresql.version>42.7.3</postgresql.version>
         <oracle.version>23.4.0.24.05</oracle.version>
-        <mysql.version>8.0.33</mysql.version>
+        <mysql.version>9.2.0</mysql.version>
         <mariadb.version>3.3.3</mariadb.version>
         <mssql.version>12.6.1.jre11</mssql.version>
         <yugabytedb.version>42.3.0</yugabytedb.version>
