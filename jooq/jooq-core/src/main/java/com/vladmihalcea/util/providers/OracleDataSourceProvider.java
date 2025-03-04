@@ -1,6 +1,5 @@
 package com.vladmihalcea.util.providers;
 
-import oracle.jdbc.driver.OracleDriver;
 import oracle.jdbc.pool.OracleDataSource;
 import org.hibernate.dialect.OracleDialect;
 

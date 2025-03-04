@@ -153,6 +153,73 @@ public class DateTimeTest extends AbstractTest {
         });
     }
 
+    @Test
+    public void testLocalDateTime() {
+        LocalDateTime timestamp = LocalDateTime.of(2031, 12, 10, 7, 30, 45);
+        LOGGER.info("LocalDateTime: {}", timestamp);
+    }
+
+    @Test
+    public void testOffsetDateTime() {
+        OffsetDateTime timestamp = OffsetDateTime.of(
+            2031, 12, 10, 7, 30, 45, 0,
+            ZoneOffset.of("+09:00")
+        );
+        LOGGER.info("OffsetDateTime: {}", timestamp);
+
+        LocalDateTime localDateTime = LocalDateTime.of(2031, 12, 10, 7, 30, 45);
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(
+            localDateTime,
+            ZoneOffset.of("+09:00")
+        );
+        LOGGER.info("OffsetDateTime: {}", offsetDateTime);
+        assertEquals(timestamp, offsetDateTime);
+
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(
+            2031, 12, 10, 7, 30, 45, 0,
+            ZoneId.of("Asia/Tokyo")
+        );
+        assertEquals(timestamp.toInstant(), zonedDateTime.toInstant());
+        LOGGER.info("ZonedDateTime: {}", zonedDateTime);
+        LOGGER.info("Instant millis: {}", zonedDateTime.toInstant().toEpochMilli());
+    }
+
+    @Test
+    public void testOffsetDateTimeFromLocalDateTime() {
+        OffsetDateTime timestamp = OffsetDateTime.of(
+            2031, 12, 10, 7, 30, 45, 0,
+            ZoneOffset.of("+09:00")
+        );
+        LOGGER.info("OffsetDateTime: {}", timestamp);
+    }
+
+    @Test
+    public void testZonedDateTime() {
+        ZonedDateTime timestamp = ZonedDateTime.of(
+            2031, 12, 10, 7, 30, 45, 0,
+            ZoneId.of("Europe/London")
+        );
+        LOGGER.info("ZonedDateTime: {}", timestamp);
+    }
+
+    @Test
+    public void testZonedDateTimeWithDST() {
+        ZonedDateTime timestamp = ZonedDateTime.of(
+            2032, 6, 10, 7, 30, 45, 0,
+            ZoneId.of("Europe/London")
+        );
+        LOGGER.info("ZonedDateTime: {}", timestamp);
+    }
+
+    @Test
+    public void testInstant() {
+        Instant timestamp = ZonedDateTime.of(
+            2032, 6, 10, 7, 30, 45, 0,
+            ZoneId.of("Europe/London")
+        ).toInstant();
+        LOGGER.info("Instant: {}", timestamp);
+    }
+
     @Entity(name = "LocalDateEvent")
     public static class LocalDateEvent {
 
