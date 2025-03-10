@@ -106,7 +106,6 @@ public class PostgreSQLIntervalDurationTest extends AbstractPostgreSQLIntegratio
         });
     }
 
-
     @Entity(name = "Book")
     @Table(name = "book")
     public static class Book {
