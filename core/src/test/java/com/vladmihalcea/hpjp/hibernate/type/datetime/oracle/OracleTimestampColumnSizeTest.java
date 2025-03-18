@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.hibernate.type.datetime;
+package com.vladmihalcea.hpjp.hibernate.type.datetime.oracle;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
@@ -6,14 +6,15 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.junit.Test;
 
-import java.time.*;
-
-import static org.junit.Assert.assertEquals;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 /**
  * @author Vlad Mihalcea
  */
-public class TimestampWithTimeZoneVsLocalTest extends AbstractTest {
+public class OracleTimestampColumnSizeTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -37,51 +38,6 @@ public class TimestampWithTimeZoneVsLocalTest extends AbstractTest {
 
         doInJPA(entityManager -> {
             entityManager.persist(_event);
-        });
-
-        doInJPA(entityManager -> {
-            Event event = entityManager.find(Event.class, 1);
-
-            assertEquals(
-                OffsetDateTime.of(2031, 12, 10, 7, 30, 45, 0, ZoneOffset.of("+09:00")),
-                event.getCreatedOn()
-            );
-        });
-
-        doInJPA(entityManager -> {
-            int updateCount = entityManager.createNativeQuery("""
-                UPDATE event
-                SET updated_on = TIMESTAMP '2031-12-10 07:30:45.987654321 Europe/Paris'
-                WHERE id = 1
-                """)
-            .executeUpdate();
-
-            assertEquals(1, updateCount);
-
-            Event event = entityManager.find(Event.class, 1);
-
-            assertEquals(
-                ZonedDateTime.of(2031, 12, 10, 7, 30, 45, 987654321, ZoneId.of("Europe/Paris")).toOffsetDateTime(),
-                event.getUpdatedOn().toOffsetDateTime()
-            );
-        });
-
-        doInJPA(entityManager -> {
-            int updateCount = entityManager.createNativeQuery("""
-                UPDATE event
-                SET updated_on = TIMESTAMP '2031-12-10 07:30:45.987654321 +02:00'
-                WHERE id = 1
-                """)
-            .executeUpdate();
-
-            assertEquals(1, updateCount);
-
-            Event event = entityManager.find(Event.class, 1);
-
-            assertEquals(
-                OffsetDateTime.of(2031, 12, 10, 7, 30, 45, 987654321, ZoneOffset.of("+02:00")),
-                event.getUpdatedOn().toOffsetDateTime()
-            );
         });
 
         doInJPA(entityManager -> {

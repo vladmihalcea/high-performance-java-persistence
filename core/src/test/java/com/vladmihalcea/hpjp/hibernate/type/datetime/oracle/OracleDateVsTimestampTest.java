@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.hibernate.type.datetime;
+package com.vladmihalcea.hpjp.hibernate.type.datetime.oracle;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
