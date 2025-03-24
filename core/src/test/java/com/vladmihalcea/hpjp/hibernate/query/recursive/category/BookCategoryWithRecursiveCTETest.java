@@ -167,6 +167,47 @@ public class BookCategoryWithRecursiveCTETest extends AbstractTest {
         assertEquals("Java", hpjpCategory.getParent().getParent().getParent().getName());
     }
 
+    @Test
+    public void testFetchAllParents() {
+        List<CategoryDTO> categoryWithParents = doInJPA(entityManager -> {
+            return entityManager.createNativeQuery("""
+                SELECT
+                    c.id AS "c.id", 
+                    c.name AS "c.name", 
+                    c.parent_id AS "c.parent_id"
+                FROM (
+                    WITH RECURSIVE book_category_hierarchy AS (
+                        SELECT
+                            category.id AS id,
+                            category.name AS name,
+                            category.parent_id AS parent_id
+                        FROM category
+                        WHERE category.name = :categoryName
+                        UNION ALL
+                        SELECT
+                            category.id AS id,
+                            category.name AS name,
+                            category.parent_id AS parent_id
+                        FROM category category
+                        JOIN book_category_hierarchy bch ON bch.parent_id = category.id
+                    )
+                    SELECT *
+                    FROM book_category_hierarchy
+                ) c
+                """, CategoryDTO.class)
+                .setParameter("categoryName", "Hibernate 6")
+                .getResultList();
+            }
+        );
+
+        int index = 0;
+        assertEquals(4, categoryWithParents.size());
+        assertEquals("Hibernate 6", categoryWithParents.get(index++).getName());
+        assertEquals("Hibernate", categoryWithParents.get(index++).getName());
+        assertEquals("JPA", categoryWithParents.get(index++).getName());
+        assertEquals("Java", categoryWithParents.get(index).getName());
+    }
+
     public static class BookDTOTupleTransformer implements TupleTransformer<BookDTO> {
 
         private BookDTO book;
