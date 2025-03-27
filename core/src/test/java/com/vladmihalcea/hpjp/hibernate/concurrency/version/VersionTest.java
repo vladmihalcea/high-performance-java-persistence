@@ -9,6 +9,8 @@ import org.junit.Test;
 
 import jakarta.persistence.*;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -87,6 +89,27 @@ public class VersionTest extends AbstractTest {
             product.setVersion(100);
         });
     }
+
+    @Test
+    public void testChangeVersionAfterDetach() {
+        AtomicBoolean lostUpdatePrevented = new AtomicBoolean();
+        doInJPA(entityManager -> {
+            Product product = entityManager.find(Product.class, 1L);
+            entityManager.detach(product);
+
+            product.setQuantity(12);
+            product.setVersion(0);
+
+            try {
+                entityManager.merge(product);
+            } catch (Exception expected) {
+                assertTrue(expected instanceof OptimisticLockException);
+                lostUpdatePrevented.set(true);
+            }
+        });
+        assertTrue(lostUpdatePrevented.get());
+    }
+
 
     @Test
     public void testMerge() {
