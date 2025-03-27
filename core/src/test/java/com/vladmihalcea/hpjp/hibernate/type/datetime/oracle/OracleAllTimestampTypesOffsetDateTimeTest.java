@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class OracleTimestampWithTimeOffsetDateTimeTest extends AbstractTest {
+public class OracleAllTimestampTypesOffsetDateTimeTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {

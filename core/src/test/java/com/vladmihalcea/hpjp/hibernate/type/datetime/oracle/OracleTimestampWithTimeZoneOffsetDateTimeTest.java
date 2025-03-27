@@ -15,16 +15,14 @@ import org.junit.Test;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-public class OracleOffsetDateTimeTest extends AbstractTest {
+public class OracleTimestampWithTimeZoneOffsetDateTimeTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {

@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vlad Mihalcea
  */
-public class OracleZonedDateTimeTest extends AbstractTest {
+public class OracleTimestampWithTimeZoneZonedDateTimeTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
