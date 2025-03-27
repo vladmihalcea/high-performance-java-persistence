@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.hypersistence.utils.hibernate.type.json.internal.JacksonUtil;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
+import org.hibernate.Session;
 import org.hibernate.StaleStateException;
 import org.junit.Test;
 
@@ -91,9 +92,10 @@ public class VersionTest extends AbstractTest {
     }
 
     @Test
-    public void testChangeVersionAfterDetach() {
+    public void testChangeVersionAfterDetachUsingMerge() {
         AtomicBoolean lostUpdatePrevented = new AtomicBoolean();
         doInJPA(entityManager -> {
+            LOGGER.info("Test optimistic locking for detached entity when using merge");
             Product product = entityManager.find(Product.class, 1L);
             entityManager.detach(product);
 
@@ -102,6 +104,28 @@ public class VersionTest extends AbstractTest {
 
             try {
                 entityManager.merge(product);
+            } catch (Exception expected) {
+                assertTrue(expected instanceof OptimisticLockException);
+                lostUpdatePrevented.set(true);
+            }
+        });
+        assertTrue(lostUpdatePrevented.get());
+    }
+
+    @Test
+    public void testChangeVersionAfterDetachUsingUpdate() {
+        AtomicBoolean lostUpdatePrevented = new AtomicBoolean();
+        doInJPA(entityManager -> {
+            LOGGER.info("Test optimistic locking for detached entity when using update");
+            Product product = entityManager.find(Product.class, 1L);
+            entityManager.detach(product);
+
+            product.setQuantity(12);
+            product.setVersion(0);
+
+            entityManager.unwrap(Session.class).update(product);
+            try {
+                entityManager.flush();
             } catch (Exception expected) {
                 assertTrue(expected instanceof OptimisticLockException);
                 lostUpdatePrevented.set(true);
