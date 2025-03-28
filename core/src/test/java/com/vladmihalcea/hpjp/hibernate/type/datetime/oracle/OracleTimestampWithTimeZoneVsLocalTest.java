@@ -142,14 +142,30 @@ public class OracleTimestampWithTimeZoneVsLocalTest extends AbstractTest {
             .executeUpdate();
 
             assertEquals(1, updateCount);
+        });
 
+        doInJPA(entityManager -> {
+            entityManager.unwrap(Session.class).doWork(connection -> {
+                try(Statement statement = connection.createStatement()) {
+                    ResultSet resultSet = statement.executeQuery("""
+                        SELECT last_accessed_on 
+                        FROM event
+                        WHERE id = 1
+                        """);
+
+                    LOGGER.info("{}{}", System.lineSeparator(), resultSetToString(resultSet));
+                }
+            });
+        });
+
+        doInJPA(entityManager -> {
             Event event = entityManager.find(Event.class, 1);
 
-            /*assertEquals(
-                ZonedDateTime.of(2031, 12, 10, 7, 30, 45, 987654321, ZoneId.of("Europe/Paris"))
+            assertEquals(
+                ZonedDateTime.of(2031, 12, 10, 7, 30, 45, 9876543, ZoneId.of("Europe/Paris"))
                     .withZoneSameInstant(ZoneId.systemDefault()).toOffsetDateTime(),
-                event.getUpdatedOn().toOffsetDateTime()
-            );*/
+                event.getLastAccessedOn()
+            );
         });
     }
 
