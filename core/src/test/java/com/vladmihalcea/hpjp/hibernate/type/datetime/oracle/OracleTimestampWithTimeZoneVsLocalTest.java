@@ -148,6 +148,33 @@ public class OracleTimestampWithTimeZoneVsLocalTest extends AbstractTest {
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try(Statement statement = connection.createStatement()) {
                     ResultSet resultSet = statement.executeQuery("""
+                        SELECT
+                            TZ_OFFSET('Europe/Paris') as Paris_Zone_Offset,
+                            TZ_OFFSET(SESSIONTIMEZONE) as Our_Zone_Offset
+                        FROM dual
+                        """);
+
+                    LOGGER.info("{}{}", System.lineSeparator(), resultSetToString(resultSet));
+                }
+
+                try(Statement statement = connection.createStatement()) {
+                    ResultSet resultSet = statement.executeQuery("""
+                        SELECT last_accessed_on 
+                        FROM event
+                        WHERE id = 1
+                        """);
+
+                    LOGGER.info("{}{}", System.lineSeparator(), resultSetToString(resultSet));
+                }
+            });
+        });
+
+        doInJPA(entityManager -> {
+            entityManager.unwrap(Session.class).doWork(connection -> {
+                executeStatement(connection, "ALTER SESSION SET time_zone='Europe/Paris'");
+
+                try(Statement statement = connection.createStatement()) {
+                    ResultSet resultSet = statement.executeQuery("""
                         SELECT last_accessed_on 
                         FROM event
                         WHERE id = 1
