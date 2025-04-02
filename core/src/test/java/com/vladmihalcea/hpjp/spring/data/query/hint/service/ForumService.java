@@ -38,6 +38,7 @@ public class ForumService {
 
             EntityEntry entityEntry = persistenceContext.getEntry(post);
             assertNull(entityEntry.getLoadedState());
+            post.setTitle("Changed!");
         }
         return posts;
     }

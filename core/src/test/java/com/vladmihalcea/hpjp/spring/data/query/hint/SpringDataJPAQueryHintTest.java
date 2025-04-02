@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.spring.data.query.hint;
 
+import com.vladmihalcea.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.query.hint.config.SpringDataJPAQueryHintConfiguration;
 import com.vladmihalcea.hpjp.spring.data.query.hint.domain.Post;
@@ -89,9 +90,12 @@ public class SpringDataJPAQueryHintTest extends AbstractSpringTest {
 
     @Test
     public void testFindTopNWithCommentsByTitle() {
+        SQLStatementCountValidator.reset();
         List<Post> posts = forumService.findAllByIdWithComments(List.of(1L, 2L, 3L));
 
         assertEquals(3, posts.size());
+        SQLStatementCountValidator.assertSelectCount(1);
+        SQLStatementCountValidator.assertUpdateCount(0);
     }
 }
 
