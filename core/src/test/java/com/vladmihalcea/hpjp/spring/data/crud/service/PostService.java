@@ -92,7 +92,6 @@ public class PostService {
             .setReview(review)
             .setPost(post);
 
-
         postCommentRepository.save(comment);
 
         return comment;

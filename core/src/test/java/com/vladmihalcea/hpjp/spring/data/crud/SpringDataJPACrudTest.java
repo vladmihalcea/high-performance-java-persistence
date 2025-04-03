@@ -6,9 +6,12 @@ import com.vladmihalcea.hpjp.spring.data.crud.config.SpringDataJPACrudConfigurat
 import com.vladmihalcea.hpjp.spring.data.crud.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.crud.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.crud.domain.PostStatus;
+import com.vladmihalcea.hpjp.spring.data.crud.repository.DefaultPostRepository;
 import com.vladmihalcea.hpjp.spring.data.crud.repository.PostCommentRepository;
 import com.vladmihalcea.hpjp.spring.data.crud.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.crud.service.PostService;
+import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,6 +32,9 @@ public class SpringDataJPACrudTest extends AbstractSpringTest {
 
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private DefaultPostRepository defaultPostRepository;
 
     @Autowired
     private PostCommentRepository postCommentRepository;
@@ -196,6 +202,62 @@ public class SpringDataJPACrudTest extends AbstractSpringTest {
             );
             return null;
         });
+    }
+
+    @Test
+    public void testDeleteProxy() {
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            defaultPostRepository.save(
+                new Post()
+                    .setId(1L)
+                    .setTitle("Check out my website")
+                    .setSlug("spam")
+                    .setStatus(PostStatus.REQUIRES_MODERATOR_INTERVENTION)
+            );
+            return null;
+        });
+
+        LOGGER.info("Delete Post");
+
+        SQLStatementCountValidator.reset();
+
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            Post post = defaultPostRepository.getReferenceById(1L);
+            defaultPostRepository.delete(post);
+            return null;
+        });
+        SQLStatementCountValidator.assertSelectCount(1);
+        SQLStatementCountValidator.assertDeleteCount(1);
+    }
+
+    @Test
+    public void testDeleteWithoutSelect() {
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            defaultPostRepository.save(
+                new Post()
+                    .setId(1L)
+                    .setTitle("Check out my website")
+                    .setSlug("spam")
+                    .setStatus(PostStatus.REQUIRES_MODERATOR_INTERVENTION)
+            );
+            return null;
+        });
+
+        LOGGER.info("Delete Post");
+
+        SQLStatementCountValidator.reset();
+
+        transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
+            try(StatelessSession session = entityManager.getEntityManagerFactory().unwrap(SessionFactory.class)
+                .withStatelessOptions()
+                .openStatelessSession()) {
+                Post post = new Post().setId(1L);
+                session.delete(post);
+            }
+            return null;
+        });
+        SQLStatementCountValidator.assertSelectCount(0);
+        SQLStatementCountValidator.assertDeleteCount(1);
     }
 }
 
