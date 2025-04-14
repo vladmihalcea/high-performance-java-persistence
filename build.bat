@@ -1,11 +1,11 @@
 @echo off
 
 pushd core
-call mvn clean test-compile
+call mvn -D skipTests clean install
 popd
 
 pushd jooq
-call mvn clean
+call mvn -D skipTests clean install
 call mvn test-compile
 popd
 

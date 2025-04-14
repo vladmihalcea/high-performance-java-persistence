@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-mvn clean test-compile
+call mvn -D skipTests clean install
