@@ -92,6 +92,8 @@ public class IdEqualityTest
         @GeneratedValue
         private Long id;
 
+        private boolean idWasNull; // allows avoiding a constant hashCode which could lead to a terrible performance
+
         private String title;
 
         public Post() {
@@ -111,7 +113,9 @@ public class IdEqualityTest
 
         @Override
         public int hashCode() {
-            return getClass().hashCode();
+            Long id = getId();
+            if (id == null) idWasNull = true;
+            return idWasNull ? 0 : id.hashCode();
         }
 
         public Long getId() {
