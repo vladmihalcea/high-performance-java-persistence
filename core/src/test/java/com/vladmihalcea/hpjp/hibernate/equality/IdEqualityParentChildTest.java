@@ -5,17 +5,18 @@ import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea
  */
-public class IdWasNullEqualityTest
-        extends AbstractEqualityCheckTest<IdWasNullEqualityTest.Post> {
+public class IdEqualityParentChildTest
+        extends AbstractEqualityCheckTest<IdEqualityParentChildTest.Post> {
 
     @Override
     protected Class<?>[] entities() {
@@ -147,9 +148,7 @@ public class IdWasNullEqualityTest
 
         @Override
         public int hashCode() {
-            Long id = getId();
-            if (id == null) idWasNull = true;
-            return idWasNull ? 0 : id.hashCode();
+            return getClass().hashCode();
         }
 
         public Long getId() {
@@ -212,9 +211,7 @@ public class IdWasNullEqualityTest
 
         @Override
         public int hashCode() {
-            Long id = getId();
-            if (id == null) idWasNull = true;
-            return idWasNull ? 0 : id.hashCode();
+            return getClass().hashCode();
         }
 
         public Long getId() {
