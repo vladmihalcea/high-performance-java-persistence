@@ -2,6 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.mapping.softdelete;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import jakarta.persistence.*;
+import org.hibernate.LazyInitializationException;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NotFound;
@@ -257,6 +258,27 @@ public class SoftDeleteAnnotationTest extends AbstractTest {
 			Post post = entityManager.find(Post.class, 1L);
 			assertEquals(1, post.getComments().size());
 		});
+	}
+
+	public void testEagerLoading() {
+		doInJPA(entityManager -> {
+			Post post = new Post()
+				.setId(1L)
+				.setTitle("High-Performance Java Persistence");
+			entityManager.persist(post);
+
+			post.addComment(
+				new PostComment()
+					.setId(1L)
+					.setReview("Great!")
+			);
+		});
+
+		PostComment comment = doInJPA(entityManager -> {
+			return entityManager.find(PostComment.class, 1L);
+		});
+
+		LOGGER.info("Post [{}] was loaded eagrly: ", comment.getPost().getTitle());
 	}
 
 	@Entity(name = "Post")
