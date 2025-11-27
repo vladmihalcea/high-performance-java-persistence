@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.jooq.pgsql.pagination;
 import com.vladmihalcea.hpjp.jooq.pgsql.util.AbstractJOOQPostgreSQLIntegrationTest;
 import org.jooq.Record3;
 import org.jooq.SelectSeekStep2;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;

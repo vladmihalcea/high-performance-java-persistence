@@ -7,7 +7,7 @@ import com.vladmihalcea.hpjp.spring.data.query.hint.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.query.hint.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.query.hint.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.query.hint.service.ForumService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.TransactionException;
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

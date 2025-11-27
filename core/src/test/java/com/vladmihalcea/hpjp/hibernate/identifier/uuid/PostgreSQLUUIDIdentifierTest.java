@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.identifier.uuid;
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.annotations.*;
 import org.hibernate.annotations.Parameter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;

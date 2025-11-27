@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.batch;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.Session;
 import org.jboss.logging.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;

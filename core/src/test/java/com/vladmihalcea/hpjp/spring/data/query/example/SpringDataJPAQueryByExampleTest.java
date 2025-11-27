@@ -8,7 +8,7 @@ import com.vladmihalcea.hpjp.spring.data.query.example.domain.PostComment_;
 import com.vladmihalcea.hpjp.spring.data.query.example.domain.Tag;
 import com.vladmihalcea.hpjp.spring.data.query.example.repository.PostCommentRepository;
 import com.vladmihalcea.hpjp.spring.data.query.example.repository.PostRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.test.context.ContextConfiguration;
@@ -19,8 +19,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Vlad Mihalcea

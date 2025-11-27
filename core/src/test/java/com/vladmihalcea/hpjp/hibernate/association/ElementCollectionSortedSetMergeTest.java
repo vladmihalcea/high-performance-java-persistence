@@ -3,14 +3,14 @@ package com.vladmihalcea.hpjp.hibernate.association;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import jakarta.persistence.*;
 import org.hibernate.annotations.SortComparator;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -47,29 +47,19 @@ public class ElementCollectionSortedSetMergeTest extends AbstractTest {
     }
 
     @Test
-    @Ignore("Test is failing!")
+    @Disabled
     public void testMerge() {
         PostDTO postDTO = getPostDTO();
 
+        Post detecahedPost = doInJPA(entityManager -> {
+            return entityManager.find(Post.class, 1L);
+        });
+
+        BeanUtils.copyProperties(postDTO, detecahedPost);
+
+        // update post
         doInJPA(entityManager -> {
-
-            //second find and copy from dto
-            Post post = entityManager.find(Post.class, 1L);
-            BeanUtils.copyProperties(postDTO, post);
-
-            // find posts by category
-            List<Post> posts = entityManager.createQuery("""
-                select p
-                from Post p
-                join p.categories c
-                where c.id = :categoryId
-                """, Post.class)
-                .setParameter("categoryId", post.categories.iterator().next().id)
-                .getResultList();
-
-            // update post
-            post = entityManager.find(Post.class, 1L);
-            BeanUtils.copyProperties(postDTO, post);
+            entityManager.merge(detecahedPost);
         });
 
         doInJPA(entityManager -> {
@@ -127,7 +117,7 @@ public class ElementCollectionSortedSetMergeTest extends AbstractTest {
         )
         private Set<Tag> tags = new HashSet<>();
 
-        @ManyToMany(fetch = FetchType.EAGER)
+        @OneToMany(fetch = FetchType.EAGER)
         @JoinTable(
             name = "post_categories",
             joinColumns = @JoinColumn(name = "category_id"),

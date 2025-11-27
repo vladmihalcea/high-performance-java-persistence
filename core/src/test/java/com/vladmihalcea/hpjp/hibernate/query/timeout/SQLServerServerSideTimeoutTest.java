@@ -1,11 +1,10 @@
 package com.vladmihalcea.hpjp.hibernate.query.timeout;
 
 import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
-import org.hibernate.jpa.AvailableHints;
-import org.hibernate.jpa.QueryHints;
-import org.junit.Test;
-
 import jakarta.persistence.*;
+import org.hibernate.jpa.AvailableHints;
+import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.Properties;
 

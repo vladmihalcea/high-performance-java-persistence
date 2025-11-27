@@ -1,7 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.inheritance.discriminator.description;
 
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Tuple;
@@ -10,8 +10,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea

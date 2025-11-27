@@ -11,15 +11,15 @@ import org.hibernate.sql.ast.SqlAstTranslator;
 import org.hibernate.sql.ast.spi.SqlAppender;
 import org.hibernate.sql.ast.tree.SqlAstNode;
 import org.hibernate.sql.ast.tree.expression.Expression;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -88,7 +88,7 @@ public class DateTruncUtcFunctionTest extends AbstractPostgreSQLIntegrationTest 
     }
 
     @Test
-    @Ignore("Doesn't work on Hibernate 6.2. Workaround needed.")
+    @Disabled("Doesn't work on Hibernate 6.2. Workaround needed.")
     public void test() {
         doInJPA(entityManager -> {
             Tuple tuple = entityManager

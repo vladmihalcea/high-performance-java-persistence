@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.batch.failure;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.Session;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

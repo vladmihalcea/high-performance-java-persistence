@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.identifier.uuid;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.annotations.GenericGenerator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.UUID;

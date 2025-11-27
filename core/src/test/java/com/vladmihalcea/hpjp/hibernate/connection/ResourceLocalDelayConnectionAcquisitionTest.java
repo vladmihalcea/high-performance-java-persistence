@@ -7,8 +7,8 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.*;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -86,7 +86,7 @@ public class ResourceLocalDelayConnectionAcquisitionTest extends AbstractTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testConnectionLeaseTime() {
         long warmUpThreshold = System.nanoTime() + warmUpDuration;
         LOGGER.info("Warming up");

@@ -3,11 +3,11 @@ package com.vladmihalcea.hpjp.hibernate.query.escape;
 import java.util.List;
 import jakarta.persistence.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

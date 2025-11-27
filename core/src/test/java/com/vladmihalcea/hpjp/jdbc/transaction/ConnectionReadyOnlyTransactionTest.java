@@ -1,9 +1,8 @@
 package com.vladmihalcea.hpjp.jdbc.transaction;
 
-import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
-import com.vladmihalcea.hpjp.util.providers.Database;
+import com.vladmihalcea.hpjp.util.DatabaseIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,14 +13,10 @@ import java.sql.SQLException;
  *
  * @author Vlad Mihalcea
  */
-public class ConnectionReadyOnlyTransactionTest extends DatabaseProviderIntegrationTest {
+public class ConnectionReadyOnlyTransactionTest extends DatabaseIntegrationTest {
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
-
-    public ConnectionReadyOnlyTransactionTest(Database database) {
-        super(database);
-    }
 
     @Override
     protected Class<?>[] entities() {

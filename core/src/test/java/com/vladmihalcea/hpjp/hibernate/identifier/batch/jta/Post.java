@@ -1,7 +1,5 @@
 package com.vladmihalcea.hpjp.hibernate.identifier.batch.jta;
 
-import org.hibernate.annotations.GenericGenerator;
-
 import jakarta.persistence.*;
 
 /**
@@ -12,9 +10,7 @@ import jakarta.persistence.*;
 public class Post {
 
     @Id
-    @GenericGenerator(name = "table", strategy = "enhanced-table", parameters = {
-        @org.hibernate.annotations.Parameter(name = "table_name", value = "sequence_table")
-    })
-    @GeneratedValue(generator = "table", strategy = GenerationType.TABLE)
+    @GeneratedValue(generator = "post_id_table", strategy = GenerationType.TABLE)
+    @TableGenerator(name = "post_id_table", allocationSize = 10)
     private Long id;
 }

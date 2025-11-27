@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.testing.util.ExceptionUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 import java.util.List;
@@ -55,12 +55,11 @@ public class SQLServerDeadLockTest extends AbstractTest {
     }
 
     @Override
-    public void destroy() {
+    public void afterDestroy() {
         if(!ENABLE_LONG_RUNNING_TESTS) {
             return;
         }
         executeStatement("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT OFF");
-        super.destroy();
     }
 
     /**

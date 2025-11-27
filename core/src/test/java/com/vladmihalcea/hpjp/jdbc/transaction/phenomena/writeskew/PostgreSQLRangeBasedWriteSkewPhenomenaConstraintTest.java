@@ -2,22 +2,18 @@ package com.vladmihalcea.hpjp.jdbc.transaction.phenomena.writeskew;
 
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.PreparedStatement;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
 public class PostgreSQLRangeBasedWriteSkewPhenomenaConstraintTest extends AbstractDepartmentEmployeePhenomenaTest {
-
-    public PostgreSQLRangeBasedWriteSkewPhenomenaConstraintTest(String isolationLevelName, int isolationLevel) {
-        super(isolationLevelName, isolationLevel);
-    }
 
     @Override
     protected Database database() {

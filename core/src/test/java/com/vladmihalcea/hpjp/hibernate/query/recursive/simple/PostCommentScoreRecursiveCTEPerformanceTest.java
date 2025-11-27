@@ -12,10 +12,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class PostCommentScoreRecursiveCTEPerformanceTest extends AbstractPostCommentScorePerformanceTest {
 
-    public PostCommentScoreRecursiveCTEPerformanceTest(int postCount, int commentCount) {
-        super(postCount, commentCount);
-    }
-
     @Override
     protected List<PostCommentScore> postCommentScores(Long postId, int rank) {
         return doInJPA(entityManager -> {

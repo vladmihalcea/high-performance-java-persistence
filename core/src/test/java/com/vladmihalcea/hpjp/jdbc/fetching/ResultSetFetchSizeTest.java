@@ -1,50 +1,52 @@
 package com.vladmihalcea.hpjp.jdbc.fetching;
 
-import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
-import com.vladmihalcea.hpjp.util.providers.*;
+import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * ResultSetFetchSizeTest - Test result set fetch size
  *
  * @author Vlad Mihalcea
  */
-public class ResultSetFetchSizeTest extends DatabaseProviderIntegrationTest {
+@ParameterizedClass
+@MethodSource("parameters")
+public class ResultSetFetchSizeTest extends AbstractTest {
 
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
-    private final Integer fetchSize;
+    @Parameter(0)
+    private Database database;
 
-    public ResultSetFetchSizeTest(Database database, Integer fetchSize) {
-        super(database);
-        this.fetchSize = fetchSize;
-    }
+    @Parameter(1)
+    private Integer fetchSize;
 
-    @Parameterized.Parameters
-    public static Collection<Object[]> parameters() {
-        List<Object[]> providers = new ArrayList<>();
+    public static Stream<Arguments> parameters() {
+        List<Arguments> arguments = new ArrayList<>();
         for (int i = 0; i < databases.length; i++) {
             for (int j = 0; j < fetchSizes.length; j++) {
                 Integer fetchSize = fetchSizes[j];
-                providers.add(new Object[] {databases[i], fetchSize});
+                arguments.add(Arguments.of(databases[i], fetchSize));
             }
         }
-        return providers;
+        return arguments.stream();
     }
 
     private static Integer[] fetchSizes = new Integer[] {
@@ -65,8 +67,7 @@ public class ResultSetFetchSizeTest extends DatabaseProviderIntegrationTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJDBC(connection -> {
             try (
                     PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);

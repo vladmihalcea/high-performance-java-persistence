@@ -1,7 +1,6 @@
 package com.vladmihalcea.hpjp.jdbc.index.providers;
 
 import com.vladmihalcea.hpjp.util.EntityProvider;
-
 import jakarta.persistence.*;
 
 import java.util.concurrent.ThreadLocalRandom;

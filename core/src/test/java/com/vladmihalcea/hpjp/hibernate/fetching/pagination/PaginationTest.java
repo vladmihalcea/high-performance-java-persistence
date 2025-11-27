@@ -7,8 +7,8 @@ import jakarta.persistence.Tuple;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.AvailableHints;
 import org.hibernate.query.NativeQuery;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -437,7 +437,7 @@ public class PaginationTest extends AbstractTest {
     }
 
     @Test
-    @Ignore("Still not working on Hibernate 6.3")
+    @Disabled("Still not working on Hibernate 6.3")
     public void testFetchAndPaginateUsingDenseRankJPQLWithCTE() {
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createQuery("""

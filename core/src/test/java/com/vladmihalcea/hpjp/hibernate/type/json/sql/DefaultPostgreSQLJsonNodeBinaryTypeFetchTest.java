@@ -2,11 +2,11 @@ package com.vladmihalcea.hpjp.hibernate.type.json.sql;
 
 import com.vladmihalcea.hpjp.hibernate.type.json.PostgreSQLJsonNodeBinaryTypeTest;
 import io.hypersistence.utils.hibernate.type.json.internal.JacksonUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

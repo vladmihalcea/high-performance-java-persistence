@@ -4,14 +4,14 @@ import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
 import jakarta.persistence.criteria.*;
 import org.hibernate.query.Query;
 import org.hibernate.transform.Transformers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

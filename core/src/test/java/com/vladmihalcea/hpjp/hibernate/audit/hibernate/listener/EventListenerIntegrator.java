@@ -1,6 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.audit.hibernate.listener;
 
 import org.hibernate.boot.Metadata;
+import org.hibernate.boot.spi.BootstrapContext;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
@@ -15,13 +16,8 @@ public class EventListenerIntegrator implements Integrator {
     public static final EventListenerIntegrator INSTANCE = new EventListenerIntegrator();
 
     @Override
-    public void integrate(
-        Metadata metadata,
-        SessionFactoryImplementor sessionFactory,
-        SessionFactoryServiceRegistry serviceRegistry) {
-
-        final EventListenerRegistry eventListenerRegistry =
-            serviceRegistry.getService(EventListenerRegistry.class);
+    public void integrate(Metadata metadata, BootstrapContext bootstrapContext, SessionFactoryImplementor sessionFactory) {
+        final EventListenerRegistry eventListenerRegistry = sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
 
         eventListenerRegistry.appendListeners(
             EventType.POST_LOAD,

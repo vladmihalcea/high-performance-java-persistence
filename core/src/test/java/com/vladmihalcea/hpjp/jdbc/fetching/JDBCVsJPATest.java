@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.hibernate.forum.PostComment;
 import com.vladmihalcea.hpjp.hibernate.forum.PostDetails;
 import com.vladmihalcea.hpjp.hibernate.forum.Tag;
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,8 +13,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Vlad Mihalcea

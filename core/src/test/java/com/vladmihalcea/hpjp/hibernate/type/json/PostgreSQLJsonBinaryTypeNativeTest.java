@@ -1,13 +1,16 @@
 package com.vladmihalcea.hpjp.hibernate.type.json;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
+import io.hypersistence.utils.hibernate.type.json.internal.JacksonUtil;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.Type;
-import org.junit.Test;
+import org.hibernate.query.Query;
+import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -15,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea
@@ -97,21 +100,14 @@ public class PostgreSQLJsonBinaryTypeNativeTest extends AbstractPostgreSQLIntegr
                     isbn = :isbn AND
                     jsonb_array_length(reviews) = 0             
                 """)
-                .setParameter("isbn", "978-9730228236")
-                .unwrap(org.hibernate.query.Query.class)
-                .setParameter(
-                    "reviews",
-                    Arrays.asList(
-                        new BookReview()
-                            .setReview("Excellent book to understand Java Persistence")
-                            .setRating(5),
-                        new BookReview()
-                            .setReview("The best JPA ORM book out there")
-                            .setRating(5)
-                    ),
-                    new JsonBinaryType(BookProperties.class)
-                )
-                .executeUpdate();
+            .setParameter("isbn", "978-9730228236")
+            .unwrap(Query.class)
+            .setParameter(
+                "reviews",
+                JacksonUtil.fromString("[{\"review\": \"Excellent book to understand Java Persistence\", \"rating\": 5}, {\"review\": \"The best JPA ORM book out there\", \"rating\": 4}]", JsonNode.class),
+                new JsonBinaryType(JsonNode.class)
+            )
+            .executeUpdate();
 
             entityManager.refresh(book);
 

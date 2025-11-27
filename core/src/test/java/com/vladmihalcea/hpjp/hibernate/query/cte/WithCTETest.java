@@ -3,12 +3,12 @@ package com.vladmihalcea.hpjp.hibernate.query.cte;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -211,7 +211,7 @@ public class WithCTETest extends AbstractTest {
     }
 
     @Test
-    @Ignore("Still not working on Hibernate 6.3")
+    @Disabled("Still not working on Hibernate 6.3")
     public void testWithCTEJPQL() {
         List<Tuple> tuples = doInJPA(entityManager -> {
             return entityManager.createQuery("""

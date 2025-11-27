@@ -4,14 +4,14 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import io.hypersistence.utils.hibernate.type.basic.NullableCharacterType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Vlad Mihalcea
@@ -26,8 +26,7 @@ public class CharacterTypeTest extends AbstractTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJDBC(connection -> {
             try (
                 Statement statement = connection.createStatement();

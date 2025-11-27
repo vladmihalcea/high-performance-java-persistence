@@ -2,10 +2,15 @@ package com.vladmihalcea.hpjp.jdbc.batch.generatedkeys.identity;
 
 import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
 import org.hibernate.exception.GenericJDBCException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * GeneratedKeysBatchPreparedStatementTest - Base class for testing JDBC PreparedStatement generated keys
@@ -19,9 +24,11 @@ public class SQLServerGeneratedKeysBatchPreparedStatementTest extends AbstractSQ
         return new Class[]{};
     }
 
-    @Test(expected = GenericJDBCException.class)
+    @Test
     public void testBatch() {
-        doInJDBC(this::batchInsert);
+        assertThrows(GenericJDBCException.class, ()->{
+            doInJDBC(this::batchInsert);
+        });
     }
 
     protected int getPostCount() {
@@ -35,20 +42,15 @@ public class SQLServerGeneratedKeysBatchPreparedStatementTest extends AbstractSQ
     protected void batchInsert(Connection connection) throws SQLException {
         LOGGER.info("Identity generated keys for SQL Server");
 
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate("drop table post");
-        } catch (Exception ignore) {
-        }
-
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(
-                "create table post (" +
-                "    id bigint identity not null, " +
-                "    title varchar(255), " +
-                "    version int not null, " +
-                "    primary key (id))"
-            );
-        }
+        executeStatement(connection, true, "drop table post");
+        executeStatement(connection, true, """
+            create table post (
+                id bigint identity not null,
+                title varchar(255),
+                version int not null,
+                primary key (id)
+            )
+            """);
 
         AtomicInteger postStatementCount = new AtomicInteger();
 

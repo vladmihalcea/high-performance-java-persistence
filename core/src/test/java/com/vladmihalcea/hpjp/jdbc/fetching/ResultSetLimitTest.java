@@ -11,15 +11,15 @@ import com.vladmihalcea.hpjp.util.providers.OracleDataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
 import org.hibernate.dialect.pagination.LimitHandler;
 import org.hibernate.query.spi.Limit;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * ResultSetLimitTest - Test limiting result set vs fetching and discarding rows
@@ -51,10 +51,6 @@ public class ResultSetLimitTest extends DatabaseProviderIntegrationTest {
     private Timer noLimitTimer = metricRegistry.timer("noLimitTimer");
     private Timer limitTimer = metricRegistry.timer("limitTimer");
     private Timer maxSizeTimer = metricRegistry.timer("maxSizeTimer");
-
-    public ResultSetLimitTest(Database database) {
-        super(database);
-    }
 
     @Override
     protected Class<?>[] entities() {

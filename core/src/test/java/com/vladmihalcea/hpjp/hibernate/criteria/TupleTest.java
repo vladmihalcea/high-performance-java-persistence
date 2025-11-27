@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.criteria;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -12,8 +12,6 @@ import jakarta.persistence.criteria.Root;
 import java.util.List;
 
 /**
- * EntityGraphMapperTest - Test mapping to entity
- *
  * @author Vlad Mihalcea
  */
 public class TupleTest extends AbstractTest {
@@ -26,8 +24,7 @@ public class TupleTest extends AbstractTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             entityManager.persist(new BlogEntityProvider.Post(1L));
             entityManager.persist(new BlogEntityProvider.Post(2L));

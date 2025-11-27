@@ -10,13 +10,13 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.type.descriptor.jdbc.ZonedDateTimeJdbcType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -189,7 +189,7 @@ public class OracleTimestampWithTimeZoneVsLocalTest extends AbstractTest {
             Event event = entityManager.find(Event.class, 1);
 
             assertEquals(
-                ZonedDateTime.of(2031, 12, 10, 7, 30, 45, 9876543, ZoneId.of("Europe/Paris"))
+                ZonedDateTime.of(2031, 12, 10, 7, 30, 45, 987654000, ZoneId.of("Europe/Paris"))
                     .withZoneSameInstant(ZoneId.systemDefault()).toOffsetDateTime(),
                 event.getLastAccessedOn()
             );

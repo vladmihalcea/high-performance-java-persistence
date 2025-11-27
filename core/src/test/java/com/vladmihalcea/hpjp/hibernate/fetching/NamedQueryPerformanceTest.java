@@ -13,10 +13,6 @@ public class NamedQueryPerformanceTest extends PlanCacheSizePerformanceTest {
     public static final String QUERY_NAME_1 = "findPostCommentSummary";
     public static final String QUERY_NAME_2 = "findPostComments";
 
-    public NamedQueryPerformanceTest(int planCacheMaxSize) {
-        super(planCacheMaxSize);
-    }
-
     @Override
     public void afterInit() {
         doInJPA(entityManager -> {

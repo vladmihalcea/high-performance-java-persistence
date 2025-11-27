@@ -3,14 +3,14 @@ package com.vladmihalcea.hpjp.hibernate.flushing.order;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.jpa.AvailableHints;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -46,7 +46,7 @@ public class FlushOrderBidirectionalOneToManyMergeTest extends AbstractTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testPostMergeFlushOrderFail() {
         Post post = fetchPostWithComments(1L);
 

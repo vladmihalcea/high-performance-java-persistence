@@ -4,7 +4,7 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import org.hibernate.annotations.DynamicUpdate;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,8 +13,8 @@ import jakarta.persistence.Table;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -93,24 +93,23 @@ public class PostgreSQLRowLevelLockingTest extends AbstractTest {
             entityManager.flush();
 
             executeSync(() -> {
-                doInJPA(_entityManager -> {
-                    executeStatement(_entityManager, "SET lock_timeout TO '1s'");
+                try {
+                    doInJPA(_entityManager -> {
+                        executeStatement(_entityManager, "SET lock_timeout TO '1s'");
 
-                    Book _post = _entityManager.find(Book.class, 1L);
-                    _post.setTitle("High-Performance Java Persistence, 2nd edition");
+                        Book _post = _entityManager.find(Book.class, 1L);
+                        _post.setTitle("High-Performance Java Persistence, 2nd edition");
 
-                    LOGGER.info("Bob updates the book record");
-                    try {
-                        _entityManager.flush();
-                    } catch (Exception expected) {
-                        assertTrue(
-                            ExceptionUtil.rootCause(expected)
-                                .getMessage()
-                                .contains("canceling statement due to lock timeout")
-                        );
-                        LOGGER.error("Lock acquisition failure: ", expected);
-                    }
-                });
+                        LOGGER.info("Bob updates the book record");
+                    });
+                } catch (Exception expected) {
+                    assertTrue(
+                        ExceptionUtil.rootCause(expected)
+                            .getMessage()
+                            .contains("canceling statement due to lock timeout")
+                    );
+                    LOGGER.error("Lock acquisition failure: ", expected);
+                }
             });
         });
     }

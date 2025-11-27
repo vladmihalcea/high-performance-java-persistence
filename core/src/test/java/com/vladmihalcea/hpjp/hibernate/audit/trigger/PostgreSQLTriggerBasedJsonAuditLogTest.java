@@ -10,11 +10,11 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.usertype.UserType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -213,13 +213,12 @@ public class PostgreSQLTriggerBasedJsonAuditLogTest extends AbstractTest {
 
     private void setCurrentLoggedUser(EntityManager entityManager) {
         Session session = entityManager.unwrap(Session.class);
-        Dialect dialect = session.getSessionFactory().unwrap(SessionFactoryImplementor.class).getJdbcServices().getDialect();
-        String loggedUser = dialect.inlineLiteral(LoggedUser.get());
+        String loggedUser = LoggedUser.get();
 
         session.doWork(connection -> update(
             connection,
             String.format(
-                "SET LOCAL var.logged_user = %s", loggedUser
+                "SET LOCAL var.logged_user = '%s'", loggedUser
             )
         ));
     }

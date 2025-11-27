@@ -4,26 +4,24 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import jakarta.persistence.*;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Immutable;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
-import jakarta.persistence.*;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Date;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
 public class LoadedStateBenchmarkTest extends AbstractTest {
 
     private MetricRegistry metricRegistry = new MetricRegistry();
@@ -34,23 +32,6 @@ public class LoadedStateBenchmarkTest extends AbstractTest {
             .forRegistry(metricRegistry)
             .outputTo(LOGGER)
             .build();
-
-    private int insertCount;
-
-    public LoadedStateBenchmarkTest(int insertCount) {
-        this.insertCount = insertCount;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Object[]> dataProvider() {
-        List<Object[]> providers = new ArrayList<>();
-        providers.add(new Object[]{100});
-        providers.add(new Object[]{500});
-        providers.add(new Object[]{1000});
-        providers.add(new Object[]{5000});
-        providers.add(new Object[]{10000});
-        return providers;
-    }
 
     @Override
     protected Class<?>[] entities() {
@@ -71,28 +52,23 @@ public class LoadedStateBenchmarkTest extends AbstractTest {
         return properties;
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void addData(int insertCount) {
         doInJPA(entityManager -> {
             for (long i = 0; i < insertCount; i++) {
                 Post post = new Post();
                 post.setId(i);
                 post.setTitle("High-Performance Java Persistence");
                 entityManager.persist(post);
-/*
-                PostDetails details = new PostDetails();
-                details.setCreatedBy("Vlad Mihalcea");
-                details.setCreatedOn(new Date());
-                details.setPost(post);
-                entityManager.persist(details);*/
             }
         });
     }
 
-    @Test
-    @Ignore
-    public void testReadOnlyFetchPerformance() {
+    @ParameterizedTest
+    @ValueSource(ints = {100, 500, 1_000, 5_000, 10_000})
+    @Disabled
+    public void testReadOnlyFetchPerformance(int insertCount) {
+        addData(insertCount);
+
         //warming-up
         doInJPA(entityManager -> {
             for (long i = 0; i < 10000; i++) {

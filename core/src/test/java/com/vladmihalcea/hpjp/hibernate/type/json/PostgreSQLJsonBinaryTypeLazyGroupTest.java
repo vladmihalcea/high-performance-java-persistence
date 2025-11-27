@@ -5,11 +5,11 @@ import com.vladmihalcea.hpjp.hibernate.type.json.model.Location;
 import com.vladmihalcea.hpjp.hibernate.type.json.model.Participant;
 import com.vladmihalcea.hpjp.hibernate.type.json.model.Ticket;
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

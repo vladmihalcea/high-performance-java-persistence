@@ -2,12 +2,11 @@ package com.vladmihalcea.hpjp.jdbc.caching;
 
 import com.vladmihalcea.hpjp.util.AbstractOracleIntegrationTest;
 import com.vladmihalcea.hpjp.util.ReflectionUtils;
-import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.OracleDataSourceProvider;
-
-import org.junit.Ignore;
-import org.junit.Test;
+import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
@@ -15,7 +14,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * OracleImplicitStatementCacheTest - Test Oracle implicit Statement cache
@@ -94,13 +93,13 @@ public class OracleImplicitStatementCacheTest extends AbstractOracleIntegrationT
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testStatementCaching() {
         selectWhenCaching(true);
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testStatementWithoutCaching() {
         selectWhenCaching(false);
     }

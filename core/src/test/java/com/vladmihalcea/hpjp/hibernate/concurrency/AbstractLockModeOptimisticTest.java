@@ -4,6 +4,7 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.junit.Before;
 
 import jakarta.persistence.*;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * AbstractLockModeOptimisticTest - Base Test to check LockMode.OPTIMISTIC
@@ -20,9 +21,7 @@ public abstract class AbstractLockModeOptimisticTest extends AbstractTest {
         };
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Post post = new Post();
             post.setId(1L);

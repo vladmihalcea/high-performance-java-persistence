@@ -1,15 +1,15 @@
 package com.vladmihalcea.hpjp.hibernate.fetching;
 
-import com.vladmihalcea.hpjp.hibernate.forum.PostComment_;
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import jakarta.persistence.*;
 import org.hibernate.LazyInitializationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Vlad Mihalcea
@@ -130,7 +130,7 @@ public class LazyFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInteg
         });
     }
 
-    @Test(expected = LazyInitializationException.class)
+    @Test
     public void testSessionIsClosed() {
         doInJPA(entityManager -> {
             Post post = new Post();
@@ -144,7 +144,7 @@ public class LazyFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInteg
             entityManager.persist(comment);
         });
 
-        PostComment comment = null;
+        final PostComment comment;
 
         EntityManager entityManager = null;
         EntityTransaction transaction = null;
@@ -166,7 +166,9 @@ public class LazyFetchingManyToOneFindEntityTest extends AbstractPostgreSQLInteg
             }
         }
 
-        LOGGER.info("The post title is '{}'", comment.getPost().getTitle());
+        assertThrows(LazyInitializationException.class, ()->
+            LOGGER.info("The post title is '{}'", comment.getPost().getTitle())
+        );
     }
 
     @Entity(name = "Post")

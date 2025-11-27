@@ -1,20 +1,24 @@
 package com.vladmihalcea.hpjp.hibernate.mapping.generated;
 
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
-import org.hibernate.Session;
-import org.hibernate.annotations.GenerationTime;
-import org.hibernate.annotations.GeneratorType;
-import org.hibernate.tuple.ValueGenerator;
-import org.junit.Test;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-
 import jakarta.persistence.Table;
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
+import org.hibernate.annotations.ValueGenerationType;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.generator.*;
+import org.junit.jupiter.api.Test;
+
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Member;
+import java.util.EnumSet;
+
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
 
 /**
  * @author Vlad Mihalcea
@@ -24,7 +28,7 @@ public class LoggedUserTest extends AbstractMySQLIntegrationTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Sensor.class
+            Sensor.class
         };
     }
 
@@ -94,17 +98,11 @@ public class LoggedUserTest extends AbstractMySQLIntegrationTest {
         private String value;
 
         @Column(name = "created_by")
-        @GeneratorType(
-                type = LoggedUserGenerator.class,
-                when = GenerationTime.INSERT
-        )
+        @CurrentLoggedUser
         private String createdBy;
 
         @Column(name = "updated_by")
-        @GeneratorType(
-                type = LoggedUserGenerator.class,
-                when = GenerationTime.ALWAYS
-        )
+        @CurrentLoggedUser
         private String updatedBy;
 
         public String getName() {
@@ -149,40 +147,29 @@ public class LoggedUserTest extends AbstractMySQLIntegrationTest {
         }
     }
 
-    public static class LoggedUserGenerator
-            implements ValueGenerator<String> {
+    public static class LoggedUserGenerator implements AnnotationBasedGenerator, BeforeExecutionGenerator {
+
+        public LoggedUserGenerator() {
+        }
 
         @Override
-        public String generateValue(
-                Session session, Object owner) {
+        public void initialize(Annotation annotation, Member member, GeneratorCreationContext generatorCreationContext) {
+
+        }
+
+        @Override
+        public Object generate(SharedSessionContractImplementor sharedSessionContractImplementor, Object o, Object o1, EventType eventType) {
             return LoggedUser.get();
         }
-    }
-
-    public static class LoggedUserFilter implements Filter {
 
         @Override
-        public void init(FilterConfig filterConfig) throws ServletException {
-        }
-
-        @Override
-        public void doFilter(ServletRequest request, ServletResponse response,
-                             FilterChain filterChain)
-                throws IOException, ServletException {
-
-            try {
-                HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-                LoggedUser.logIn(httpServletRequest.getRemoteUser());
-
-                filterChain.doFilter(request, response);
-            }
-            finally {
-                LoggedUser.logOut();
-            }
-        }
-
-        @Override
-        public void destroy() {
+        public EnumSet<EventType> getEventTypes() {
+            return EventTypeSets.INSERT_AND_UPDATE;
         }
     }
+
+    @ValueGenerationType(generatedBy = LoggedUserGenerator.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({FIELD, METHOD})
+    public @interface CurrentLoggedUser { }
 }

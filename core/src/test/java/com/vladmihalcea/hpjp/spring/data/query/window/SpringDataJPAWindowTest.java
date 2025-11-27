@@ -7,7 +7,7 @@ import com.vladmihalcea.hpjp.spring.data.query.window.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.query.window.domain.PostComment_;
 import com.vladmihalcea.hpjp.spring.data.query.window.repository.PostCommentRepository;
 import com.vladmihalcea.hpjp.spring.data.query.window.repository.PostRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.ScrollPosition;

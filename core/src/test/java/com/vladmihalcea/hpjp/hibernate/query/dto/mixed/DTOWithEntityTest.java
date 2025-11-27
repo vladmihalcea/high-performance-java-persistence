@@ -3,11 +3,11 @@ package com.vladmihalcea.hpjp.hibernate.query.dto.mixed;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import io.hypersistence.utils.hibernate.query.ListResultTransformer;
 import org.hibernate.query.Query;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

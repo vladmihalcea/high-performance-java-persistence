@@ -1,7 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.*;
@@ -22,10 +22,8 @@ public class CriteriaAPIMemberOfTest extends AbstractTest {
         };
     }
 
-
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             CalendarEvent event = new CalendarEvent();
             event.mailingCodes.add(1);
@@ -65,7 +63,6 @@ public class CriteriaAPIMemberOfTest extends AbstractTest {
     }
 
     @Entity(name = "CalendarEvent")
-    @Table
     public static class CalendarEvent implements Serializable {
 
         @Id

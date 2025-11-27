@@ -3,13 +3,13 @@ package com.vladmihalcea.hpjp.hibernate.identifier;
 import com.vladmihalcea.hpjp.util.AbstractCockroachDBIntegrationTest;
 import jakarta.persistence.*;
 import org.hibernate.Session;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EntityIdentifierTimestampCockroachDBTest extends AbstractCockroachDBIntegrationTest {
 

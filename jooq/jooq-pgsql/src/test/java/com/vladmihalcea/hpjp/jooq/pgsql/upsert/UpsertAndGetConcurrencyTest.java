@@ -4,7 +4,7 @@ import com.vladmihalcea.hpjp.jooq.pgsql.schema.crud.tables.records.PostDetailsRe
 import com.vladmihalcea.hpjp.jooq.pgsql.schema.crud.tables.records.PostRecord;
 import com.vladmihalcea.hpjp.jooq.pgsql.util.AbstractJOOQPostgreSQLIntegrationTest;
 import com.vladmihalcea.util.exception.ExceptionUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.CountDownLatch;

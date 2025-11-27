@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.jooq.pgsql.upsert;
 import com.vladmihalcea.hpjp.jooq.pgsql.schema.crud.tables.records.PostDetailsRecord;
 import com.vladmihalcea.hpjp.jooq.pgsql.util.AbstractJOOQPostgreSQLIntegrationTest;
 import org.jooq.DSLContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 

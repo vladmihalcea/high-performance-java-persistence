@@ -5,47 +5,44 @@ import com.vladmihalcea.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.OracleDataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * BatchStatementTest - Test batching with Statements
  *
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@MethodSource("parameters")
 public class OracleDefaultExecuteBatchPreparedStatementTest extends AbstractOracleIntegrationTest {
 
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 
     public static final String INSERT_POST_COMMENT = "insert into post_comment (post_id, review, version, id) values (?, ?, ?, ?)";
 
-    private final int defaultExecuteBatch;
-
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
-    public OracleDefaultExecuteBatchPreparedStatementTest(int defaultExecuteBatch) {
-        this.defaultExecuteBatch = defaultExecuteBatch;
-    }
+    @Parameter
+    private int defaultExecuteBatch;
 
-    @Parameterized.Parameters
-    public static Collection<Integer[]> defaultExecuteBatches() {
-        List<Integer[]> providers = new ArrayList<>();
-        providers.add(new Integer[]{1});
-        providers.add(new Integer[]{50});
-        return providers;
+    public static Stream<Arguments> parameters() {
+        return Stream.of(
+            Arguments.of(1),
+            Arguments.of(50)
+        );
     }
 
     @Override

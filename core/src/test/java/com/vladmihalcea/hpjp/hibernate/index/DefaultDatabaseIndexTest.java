@@ -2,17 +2,23 @@ package com.vladmihalcea.hpjp.hibernate.index;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
 import jakarta.persistence.*;
-import java.util.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@MethodSource("parameters")
 public class DefaultDatabaseIndexTest extends AbstractTest {
 
     @Override
@@ -23,20 +29,16 @@ public class DefaultDatabaseIndexTest extends AbstractTest {
         };
     }
 
-    private final Database database;
+    @Parameter
+    private Database database;
 
-    public DefaultDatabaseIndexTest(Database database) {
-        this.database = database;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Database[]> rdbmsDataSourceProvider() {
-        List<Database[]> databases = new ArrayList<>();
-        databases.add(new Database[] {Database.ORACLE});
-        databases.add(new Database[] {Database.SQLSERVER});
-        databases.add(new Database[] {Database.POSTGRESQL});
-        databases.add(new Database[] {Database.MYSQL});
-        return databases;
+    public static Stream<Arguments> parameters() {
+        return Stream.of(
+            Arguments.of(Database.ORACLE),
+            Arguments.of(Database.SQLSERVER),
+            Arguments.of(Database.POSTGRESQL),
+            Arguments.of(Database.MYSQL)
+        );
     }
 
     @Override

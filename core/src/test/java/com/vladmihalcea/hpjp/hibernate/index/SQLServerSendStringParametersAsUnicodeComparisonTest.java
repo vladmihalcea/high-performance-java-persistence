@@ -2,10 +2,15 @@ package com.vladmihalcea.hpjp.hibernate.index;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
+import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.SQLServerDataSourceProvider;
 import org.hibernate.Session;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.runners.Parameterized;
 
 import jakarta.persistence.*;
@@ -13,25 +18,25 @@ import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
+
+import org.junit.runner.RunWith;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@MethodSource("parameters")
 public class SQLServerSendStringParametersAsUnicodeComparisonTest extends AbstractTest {
 
-    private final boolean sendStringParametersAsUnicode;
+    @Parameter
+    private boolean sendStringParametersAsUnicode;
 
-    public SQLServerSendStringParametersAsUnicodeComparisonTest(boolean sendStringParametersAsUnicode) {
-        this.sendStringParametersAsUnicode = sendStringParametersAsUnicode;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Boolean[]> parameters() {
-        return Arrays.asList(new Boolean[][] {
-            { true },
-            { false }
-        });
+    public static Stream<Arguments> parameters() {
+        return Stream.of(
+            Arguments.of(true),
+            Arguments.of(false)
+        );
     }
 
     @Override

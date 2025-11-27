@@ -1,7 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.identifier;
 
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.Properties;

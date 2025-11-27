@@ -3,29 +3,30 @@ package com.vladmihalcea.hpjp.jdbc.transaction.phenomena;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * PhenomenaTest - Test to validate what phenomena does a certain isolation level prevents
  *
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@MethodSource("parameters")
 public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
@@ -34,18 +35,14 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
 
     public static final String INSERT_POST_DETAILS = "insert into post_details (id, created_by, version) values (?, ?, ?)";
 
-    protected final String isolationLevelName;
-
-    protected final int isolationLevel;
+    @Parameter(0)
+    protected String isolationLevelName;
+    @Parameter(1)
+    protected int isolationLevel;
 
     private final CountDownLatch bobLatch = new CountDownLatch(1);
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
-
-    protected AbstractPhenomenaTest(String isolationLevelName, int isolationLevel) {
-        this.isolationLevelName = isolationLevelName;
-        this.isolationLevel = isolationLevel;
-    }
 
     public String getIsolationLevelName() {
         return isolationLevelName;
@@ -60,14 +57,13 @@ public abstract class AbstractPhenomenaTest extends AbstractTest {
         return entityProvider.entities();
     }
 
-    @Parameterized.Parameters
-    public static Collection<Object[]> isolationLevels() {
-        List<Object[]> levels = new ArrayList<>();
-        levels.add(new Object[]{"Read Uncommitted", Connection.TRANSACTION_READ_UNCOMMITTED});
-        levels.add(new Object[]{"Read Committed", Connection.TRANSACTION_READ_COMMITTED});
-        levels.add(new Object[]{"Repeatable Read", Connection.TRANSACTION_REPEATABLE_READ});
-        levels.add(new Object[]{"Serializable", Connection.TRANSACTION_SERIALIZABLE});
-        return levels;
+    public static Stream<Arguments> parameters() {
+        return Stream.of(
+            Arguments.of("Read Uncommitted", Connection.TRANSACTION_READ_UNCOMMITTED),
+            Arguments.of("Read Committed", Connection.TRANSACTION_READ_COMMITTED),
+            Arguments.of("Repeatable Read", Connection.TRANSACTION_REPEATABLE_READ),
+            Arguments.of("Serializable", Connection.TRANSACTION_SERIALIZABLE)
+        );
     }
 
     @Override

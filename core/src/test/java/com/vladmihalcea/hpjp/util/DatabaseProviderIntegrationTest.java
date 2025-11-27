@@ -1,39 +1,35 @@
 package com.vladmihalcea.hpjp.util;
 
+import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import org.assertj.core.util.Arrays;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@MethodSource("parameters")
 public abstract class DatabaseProviderIntegrationTest extends AbstractTest {
 
-    private final Database database;
+    @Parameter
+    protected DataSourceProvider databaseSourceProvider;
 
-    public DatabaseProviderIntegrationTest(Database database) {
-        this.database = database;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Database[]> databases() {
-        List<Database[]> databases = new ArrayList<>();
-        databases.add(Arrays.array(Database.ORACLE));
-        databases.add(Arrays.array(Database.SQLSERVER));
-        databases.add(Arrays.array(Database.POSTGRESQL));
-        databases.add(Arrays.array(Database.MYSQL));
-        //databases.add(Arrays.array(Database.YUGABYTEDB));
-        return databases;
+    public static Stream<Arguments> parameters() {
+        return Stream.of(
+            Arguments.of(Database.ORACLE.dataSourceProvider()),
+            Arguments.of(Database.SQLSERVER.dataSourceProvider()),
+            Arguments.of(Database.POSTGRESQL.dataSourceProvider()),
+            Arguments.of(Database.MYSQL.dataSourceProvider())
+        );
     }
 
     @Override
     protected Database database() {
-        return database;
+        return databaseSourceProvider.database();
     }
 }

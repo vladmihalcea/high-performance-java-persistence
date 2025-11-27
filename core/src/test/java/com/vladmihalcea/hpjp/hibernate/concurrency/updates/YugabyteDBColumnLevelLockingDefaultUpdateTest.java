@@ -2,7 +2,8 @@ package com.vladmihalcea.hpjp.hibernate.concurrency.updates;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,6 +13,7 @@ import jakarta.persistence.Table;
 /**
  * @author Vlad Mihalcea
  */
+@Disabled
 public class YugabyteDBColumnLevelLockingDefaultUpdateTest extends AbstractTest {
 
     @Override

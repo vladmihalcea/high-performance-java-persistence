@@ -15,8 +15,7 @@ public abstract class AbstractTreeTest extends AbstractTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             PostComment root1 = new PostComment("High-Performance Java Persistence", Status.APPROVED);
             PostComment child1 = new PostComment("Is it about JDBC?", Status.APPROVED);

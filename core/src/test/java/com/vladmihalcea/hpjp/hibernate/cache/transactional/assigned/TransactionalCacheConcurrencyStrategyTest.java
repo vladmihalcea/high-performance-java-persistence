@@ -5,23 +5,24 @@ import com.vladmihalcea.hpjp.util.transaction.JPATransactionVoidFunction;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceContext;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import static com.vladmihalcea.hpjp.hibernate.cache.transactional.assigned.TransactionalEntities.Post;
 import static com.vladmihalcea.hpjp.hibernate.cache.transactional.assigned.TransactionalEntities.PostComment;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TransactionalCacheConcurrencyStrategyTestConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class TransactionalCacheConcurrencyStrategyTest extends AbstractTest {
@@ -52,6 +53,7 @@ public class TransactionalCacheConcurrencyStrategyTest extends AbstractTest {
         return entityManager.getEntityManagerFactory();
     }
 
+    @BeforeEach
     public void init() {
         doInJPA(entityManager -> {
             entityManager.createQuery("delete from PostComment").executeUpdate();

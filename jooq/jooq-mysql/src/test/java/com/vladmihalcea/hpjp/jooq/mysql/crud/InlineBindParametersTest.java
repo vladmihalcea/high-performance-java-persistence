@@ -4,7 +4,7 @@ import org.jooq.DSLContext;
 import org.jooq.conf.Settings;
 import org.jooq.conf.StatementType;
 import org.jooq.impl.DSL;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 

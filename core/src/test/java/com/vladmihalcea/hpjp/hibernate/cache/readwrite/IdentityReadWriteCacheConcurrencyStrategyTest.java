@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.cache.readwrite;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;

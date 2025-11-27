@@ -11,7 +11,7 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
 import org.hibernate.jpa.boot.spi.TypeContributorList;
 import org.hibernate.query.NativeQuery;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.Properties;
 
 import static org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.TYPE_CONTRIBUTORS;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

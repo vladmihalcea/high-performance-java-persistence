@@ -12,7 +12,7 @@ import com.vladmihalcea.hpjp.spring.data.crud.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.crud.service.PostService;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea

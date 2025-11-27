@@ -1,7 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.query.recursive.complex;
 
 import com.vladmihalcea.hpjp.hibernate.query.recursive.PostCommentScore;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -9,12 +9,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Vlad Mihalcea
  */
-@Ignore
+@Disabled
 public class PostCommentScoreFetchAllPerformanceTest extends AbstractPostCommentScorePerformanceTest {
-
-    public PostCommentScoreFetchAllPerformanceTest(int postCount, int commentCount) {
-        super(postCount, commentCount);
-    }
 
     @Override
     protected List<PostCommentScore> postCommentScores(Long postId, int rank) {

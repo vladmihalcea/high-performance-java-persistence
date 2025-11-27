@@ -2,7 +2,8 @@ package com.vladmihalcea.hpjp.hibernate.identifier.batch;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
-import org.junit.Test;
+import org.hibernate.id.enhanced.SequenceStyleGenerator;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 
@@ -31,10 +32,12 @@ public class SequenceAllocationSizeIdentifierTest extends AbstractBatchIdentifie
     public static class Post {
 
         @Id
-        @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="pooledLo_seq")
-        @GenericGenerator(name="pooledLo_seq", strategy="enhanced-sequence",
+        @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="pooled_seq")
+        @GenericGenerator(
+            name="pooled_seq",
+            type= SequenceStyleGenerator.class,
             parameters={
-                @Parameter(name="sequence_name", value="pooledLo_sequence"),
+                @Parameter(name="sequence_name", value="pooled_sequence"),
                 @Parameter(name="initial_value", value="1"),
                 @Parameter(name="increment_size",value="2"),
                 @Parameter(name="optimizer", value="pooled")

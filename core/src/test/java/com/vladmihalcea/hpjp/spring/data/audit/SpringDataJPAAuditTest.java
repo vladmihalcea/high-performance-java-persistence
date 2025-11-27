@@ -7,7 +7,7 @@ import com.vladmihalcea.hpjp.spring.data.audit.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.audit.domain.PostStatus;
 import com.vladmihalcea.hpjp.spring.data.audit.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.audit.service.PostService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

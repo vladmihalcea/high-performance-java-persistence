@@ -2,8 +2,8 @@ package com.vladmihalcea.hpjp.hibernate.identifier.batch;
 
 import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
@@ -29,7 +29,7 @@ public class MariaDBIdentifierTest extends AbstractBatchIdentifierTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testSequenceIdentifierGenerator() {
         doInJPA(entityManager -> {
             for (int i = 0; i < 3; i++) {

@@ -11,7 +11,7 @@ import jakarta.persistence.Transient;
 
 import com.vladmihalcea.hpjp.util.providers.Database;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 

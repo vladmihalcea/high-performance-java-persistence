@@ -1,7 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.bootstrap;
 
 import com.vladmihalcea.hpjp.util.transaction.JPATransactionVoidFunction;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 

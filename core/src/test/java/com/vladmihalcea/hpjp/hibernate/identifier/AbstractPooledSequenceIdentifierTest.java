@@ -8,7 +8,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class AbstractPooledSequenceIdentifierTest extends AbstractTest {
 

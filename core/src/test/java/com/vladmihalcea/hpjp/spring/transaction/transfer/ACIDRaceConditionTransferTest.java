@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.spring.transaction.transfer.config.ACIDRaceConditio
 import com.vladmihalcea.hpjp.spring.transaction.transfer.domain.Account;
 import com.vladmihalcea.hpjp.spring.transaction.transfer.repository.AccountRepository;
 import com.vladmihalcea.hpjp.spring.transaction.transfer.service.TransferService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.TransactionException;
@@ -18,7 +18,7 @@ import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

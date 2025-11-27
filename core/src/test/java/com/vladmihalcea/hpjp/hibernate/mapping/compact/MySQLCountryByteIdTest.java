@@ -6,7 +6,7 @@ import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.MySQLDataSourceProvider;
 import jakarta.persistence.*;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;

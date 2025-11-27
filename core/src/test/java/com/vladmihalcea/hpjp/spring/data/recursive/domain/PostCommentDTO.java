@@ -1,5 +1,7 @@
 package com.vladmihalcea.hpjp.spring.data.recursive.domain;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -25,6 +27,14 @@ public class PostCommentDTO {
         this.parentId = parentId != null ? parentId.longValue() : null;
         this.review = review;
         this.createdOn = createdOn;
+        this.score = score.longValue();
+    }
+
+    public PostCommentDTO(Long id, Long parentId, String review, LocalDateTime createdOn, Integer score) {
+        this.id = id.longValue();
+        this.parentId = parentId != null ? parentId.longValue() : null;
+        this.review = review;
+        this.createdOn = Date.from(createdOn.toInstant(ZoneOffset.UTC));
         this.score = score.longValue();
     }
 

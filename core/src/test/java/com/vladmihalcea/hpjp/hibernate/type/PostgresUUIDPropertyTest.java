@@ -2,11 +2,11 @@ package com.vladmihalcea.hpjp.hibernate.type;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import jakarta.persistence.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
@@ -21,19 +21,13 @@ public class PostgresUUIDPropertyTest extends AbstractPostgreSQLIntegrationTest 
     }
 
     @Override
-    public void init() {
+    public void beforeInit() {
         executeStatement("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"");
-        super.init();
     }
 
     @Override
-    public void destroy() {
-        doInJPA(entityManager -> {
-            entityManager.createNativeQuery(
-                "DROP EXTENSION \"uuid-ossp\" CASCADE"
-            ).executeUpdate();
-        });
-        super.destroy();
+    public void afterDestroy() {
+        executeStatement("DROP EXTENSION \"uuid-ossp\" CASCADE");
     }
 
     @Test

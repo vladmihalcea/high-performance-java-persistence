@@ -10,7 +10,7 @@ import com.vladmihalcea.hpjp.spring.data.projection.dto.PostCommentRecord;
 import com.vladmihalcea.hpjp.spring.data.projection.dto.PostCommentSummary;
 import com.vladmihalcea.hpjp.spring.data.projection.repository.PostRepository;
 import jakarta.persistence.Tuple;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.TransactionException;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea

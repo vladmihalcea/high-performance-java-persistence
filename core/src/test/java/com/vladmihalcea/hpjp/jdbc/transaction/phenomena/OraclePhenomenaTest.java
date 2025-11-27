@@ -16,10 +16,6 @@ import java.util.List;
  */
 public class OraclePhenomenaTest extends AbstractPhenomenaTest {
 
-    public OraclePhenomenaTest(String isolationLevelName, int isolationLevel) {
-        super(isolationLevelName, isolationLevel);
-    }
-
     @Parameterized.Parameters
     public static Collection<Object[]> isolationLevels() {
         List<Object[]> levels = new ArrayList<>();

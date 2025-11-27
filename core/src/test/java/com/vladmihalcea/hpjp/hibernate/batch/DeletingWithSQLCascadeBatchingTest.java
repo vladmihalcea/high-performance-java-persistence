@@ -4,7 +4,7 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,7 +114,7 @@ public class DeletingWithSQLCascadeBatchingTest extends AbstractTest {
         private Long id;
 
         @ManyToOne
-        @org.hibernate.annotations.ForeignKey(name = "fk_post_comment_post")
+        @JoinColumn(foreignKey = @ForeignKey(name = "fk_post_comment_post"))
         private Post post;
 
         private String review;

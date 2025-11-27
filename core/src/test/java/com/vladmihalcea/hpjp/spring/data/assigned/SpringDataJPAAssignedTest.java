@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.spring.data.assigned.config.SpringDataJPAAssignedCo
 import com.vladmihalcea.hpjp.spring.data.assigned.domain.Book;
 import com.vladmihalcea.hpjp.spring.data.assigned.repository.BookBaseJpaRepository;
 import com.vladmihalcea.hpjp.spring.data.assigned.repository.BookRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 

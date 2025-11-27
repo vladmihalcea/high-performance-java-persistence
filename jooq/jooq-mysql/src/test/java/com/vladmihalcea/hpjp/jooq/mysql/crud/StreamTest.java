@@ -1,7 +1,7 @@
 package com.vladmihalcea.hpjp.jooq.mysql.crud;
 
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.vladmihalcea.hpjp.jooq.mysql.schema.crud.Tables.POST;
 import static com.vladmihalcea.hpjp.jooq.mysql.schema.crud.Tables.POST_COMMENT_DETAILS;

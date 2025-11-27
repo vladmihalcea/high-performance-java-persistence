@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.query.recursive.complex;
 import com.vladmihalcea.hpjp.hibernate.query.recursive.PostCommentScore;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.transform.ResultTransformer;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,12 +14,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Vlad Mihalcea
  */
-@Ignore
+@Disabled
 public class PostCommentScoreRecursiveCTEPerformanceTest extends AbstractPostCommentScorePerformanceTest {
-
-    public PostCommentScoreRecursiveCTEPerformanceTest(int postCount, int commentCount) {
-        super(postCount, commentCount);
-    }
 
     @Override
     protected List<PostCommentScore> postCommentScores(Long postId, int rank) {

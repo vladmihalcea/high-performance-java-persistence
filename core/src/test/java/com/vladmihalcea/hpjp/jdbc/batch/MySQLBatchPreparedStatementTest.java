@@ -4,47 +4,43 @@ import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.MySQLDataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * MySqlBatchStatementTest - Test MySQl JDBC Statement batching with and w/o rewriteBatchedStatements
  *
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@MethodSource("parameters")
 public class MySQLBatchPreparedStatementTest extends AbstractMySQLIntegrationTest {
 
     private final BlogEntityProvider entityProvider = new BlogEntityProvider();
 
+    @Parameter(0)
     private boolean cachePrepStmts;
-
+    @Parameter(1)
     private boolean useServerPrepStmts;
 
-    public MySQLBatchPreparedStatementTest(boolean cachePrepStmts, boolean useServerPrepStmts) {
-        this.cachePrepStmts = cachePrepStmts;
-        this.useServerPrepStmts = useServerPrepStmts;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Boolean[]> rdbmsDataSourceProvider() {
-        List<Boolean[]> providers = new ArrayList<>();
-        providers.add(new Boolean[]{Boolean.FALSE, Boolean.FALSE});
-        providers.add(new Boolean[]{Boolean.FALSE, Boolean.TRUE});
-        providers.add(new Boolean[]{Boolean.TRUE, Boolean.FALSE});
-        providers.add(new Boolean[]{Boolean.TRUE, Boolean.TRUE});
-        return providers;
+    public static Stream<Arguments> parameters() {
+        return Stream.of(
+            Arguments.of(Boolean.FALSE, Boolean.FALSE),
+            Arguments.of(Boolean.FALSE, Boolean.TRUE),
+            Arguments.of(Boolean.TRUE, Boolean.FALSE),
+            Arguments.of(Boolean.TRUE, Boolean.TRUE)
+        );
     }
 
     @Override

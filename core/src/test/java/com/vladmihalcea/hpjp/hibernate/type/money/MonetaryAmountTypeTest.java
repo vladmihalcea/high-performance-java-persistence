@@ -6,7 +6,7 @@ import io.hypersistence.utils.hibernate.type.money.MonetaryAmountType;
 import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.CompositeType;
 import org.javamoney.moneta.Money;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.money.MonetaryAmount;
 import jakarta.persistence.*;
@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

@@ -9,7 +9,7 @@ import org.hibernate.procedure.ProcedureCall;
 import org.hibernate.result.Output;
 import org.hibernate.result.ResultSetOutput;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.CallableStatement;
 import java.sql.SQLException;
@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 import static com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider.Post;
 import static com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider.PostComment;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea

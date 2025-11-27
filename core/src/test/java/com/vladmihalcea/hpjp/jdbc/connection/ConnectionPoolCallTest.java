@@ -4,11 +4,10 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
-import com.vladmihalcea.hpjp.util.providers.Database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Vlad Mihalcea
  */
-@Ignore
+@Disabled
 public class ConnectionPoolCallTest extends DatabaseProviderIntegrationTest {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -36,10 +35,6 @@ public class ConnectionPoolCallTest extends DatabaseProviderIntegrationTest {
 
     private int warmingUpCount = 100;
     private int connectionAcquisitionCount = 1000;
-
-    public ConnectionPoolCallTest(Database database) {
-        super(database);
-    }
 
     @Override
     protected Class<?>[] entities() {

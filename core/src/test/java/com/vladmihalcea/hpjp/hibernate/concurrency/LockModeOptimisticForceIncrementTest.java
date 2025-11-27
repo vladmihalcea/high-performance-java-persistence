@@ -3,14 +3,15 @@ package com.vladmihalcea.hpjp.hibernate.concurrency;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.annotations.Immutable;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 
 /**
@@ -28,9 +29,7 @@ public class LockModeOptimisticForceIncrementTest extends AbstractTest {
         };
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
         Repository repository = new Repository("Hibernate-Master-Class");
         entityManager.persist(repository);

@@ -7,7 +7,8 @@ import org.hibernate.Session;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 
@@ -27,9 +28,7 @@ public class CascadeLockManyToOneTest extends AbstractTest {
         };
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Post post = new Post();
             post.setTitle("Hibernate Master Class");
@@ -47,15 +46,15 @@ public class CascadeLockManyToOneTest extends AbstractTest {
         LOGGER.info("Test lock cascade for detached entity with scope");
 
         //Load the Post entity, which will become detached
-        PostComment comment = doInJPA(entityManager -> (PostComment) entityManager.find(PostComment.class, 1L));
+        PostComment comment = doInJPA(
+            entityManager ->
+                (PostComment) entityManager.find(PostComment.class, 1L)
+        );
 
         doInJPA(entityManager -> {
             LOGGER.info("Reattach and lock entity with associations not initialized");
-            entityManager.unwrap(Session.class)
-                    .buildLockRequest(
-                            new LockOptions(LockMode.PESSIMISTIC_WRITE))
-                    .setScope(true)
-                    .lock(comment);
+            PostComment _comment = entityManager.merge(comment);
+            entityManager.lock(_comment, LockModeType.PESSIMISTIC_WRITE);
 
             LOGGER.info("Check entities are reattached");
         });

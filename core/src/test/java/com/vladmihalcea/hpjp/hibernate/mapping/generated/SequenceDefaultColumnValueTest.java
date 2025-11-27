@@ -1,14 +1,14 @@
 package com.vladmihalcea.hpjp.hibernate.mapping.generated;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -22,7 +22,8 @@ public class SequenceDefaultColumnValueTest extends AbstractPostgreSQLIntegratio
         };
     }
 
-    public void init() {
+    @Override
+    public void beforeInit() {
         executeStatement("DROP SEQUENCE sensor_seq");
         executeStatement("""
             CREATE SEQUENCE
@@ -30,7 +31,6 @@ public class SequenceDefaultColumnValueTest extends AbstractPostgreSQLIntegratio
             START 100
             """
         );
-        super.init();
     }
 
     @Test

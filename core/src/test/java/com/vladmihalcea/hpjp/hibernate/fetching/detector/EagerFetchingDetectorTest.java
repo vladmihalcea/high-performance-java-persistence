@@ -7,8 +7,8 @@ import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.StatisticsSettings;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.stat.internal.StatisticsInitiator;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea
@@ -83,7 +83,7 @@ public class EagerFetchingDetectorTest extends AbstractTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testFindPostComment() {
         doInJPA(entityManager -> {
             AssociationFetch.Context context = AssociationFetch.Context.get(entityManager);
@@ -102,7 +102,7 @@ public class EagerFetchingDetectorTest extends AbstractTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testFindPostCommentDetails() {
         doInJPA(entityManager -> {
             AssociationFetch.Context context = AssociationFetch.Context.get(entityManager);
@@ -126,7 +126,7 @@ public class EagerFetchingDetectorTest extends AbstractTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testJPQLPostCommentDetails() {
         doInJPA(entityManager -> {
             AssociationFetch.Context context = AssociationFetch.Context.get(entityManager);
@@ -155,7 +155,7 @@ public class EagerFetchingDetectorTest extends AbstractTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testJPQLPostCommentDetailsJoinFetchEagerAssociations() {
         doInJPA(entityManager -> {
             AssociationFetch.Context context = AssociationFetch.Context.get(entityManager);

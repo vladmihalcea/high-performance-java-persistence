@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.hibernate.forum.PostComment;
 import com.vladmihalcea.hpjp.hibernate.forum.PostDetails;
 import com.vladmihalcea.hpjp.hibernate.forum.Tag;
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Vlad Mihalcea

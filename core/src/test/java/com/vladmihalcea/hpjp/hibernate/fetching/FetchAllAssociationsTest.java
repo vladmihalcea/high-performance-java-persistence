@@ -20,12 +20,12 @@ import jakarta.persistence.Table;
 
 import org.hibernate.Hibernate;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Vlad Mihalcea
@@ -35,17 +35,16 @@ public class FetchAllAssociationsTest extends AbstractPostgreSQLIntegrationTest 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostDetails.class,
-                PostComment.class,
-                Tag.class
+            Post.class,
+            PostDetails.class,
+            PostComment.class,
+            Tag.class
         };
     }
 
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         int commentsSize = 2;
         doInJPA(entityManager -> {
             Tag java = new Tag();
