@@ -172,6 +172,22 @@ public class CascadeTest extends AbstractTest {
         });
     }
 
+    @Test
+    public void testAssociateTransientChildToManagedChild() {
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, postId);
+
+            PostComment comment = new PostComment();
+            comment.setReview("New comment");
+
+            post.addComment(comment);
+
+            entityManager.merge(post);
+
+            LOGGER.info("After flush");
+        });
+    }
+
     @Entity(name = "Post")
     @Table(name = "post")
     public static class Post {
