@@ -36,9 +36,9 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
     private DataSource nonJtaDataSource;
 
     public PersistenceUnitInfoImpl(
-            String persistenceUnitName,
-            List<String> managedClassNames,
-            Properties properties) {
+        String persistenceUnitName,
+        List<String> managedClassNames,
+        Properties properties) {
         this.persistenceUnitName = persistenceUnitName;
         this.managedClassNames = managedClassNames;
         this.properties = properties;
@@ -140,5 +140,15 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
     @Override
     public ClassLoader getNewTempClassLoader() {
         return null;
+    }
+
+    @Override
+    public String getScopeAnnotationName() {
+        return null;
+    }
+
+    @Override
+    public List<String> getQualifierAnnotationNames() {
+        return List.of();
     }
 }

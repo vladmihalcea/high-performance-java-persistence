@@ -32,7 +32,7 @@ public class HiloPooledDefaultSwitchTest {
                 fail("Should have thrown MappingException");
             } catch (Exception e) {
                 assertEquals(
-                    "The increment size of the [post_sequence] sequence is set to [3] in the entity mapping while the associated database sequence increment size is [1].",
+                    "The increment size of the [post_sequence] sequence is set to [3] in the entity mapping but the mapped database sequence increment size is [1]",
                     ExceptionUtil.rootCause(e).getMessage()
                 );
             }
