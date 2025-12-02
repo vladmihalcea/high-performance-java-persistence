@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.connection;
 
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
-import org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl;
+import org.hibernate.engine.jdbc.connections.internal.DataSourceConnectionProvider;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * @author Vlad Mihalcea
  */
-public class DataSourceProxyConnectionProvider extends DatasourceConnectionProviderImpl {
+public class DataSourceProxyConnectionProvider extends DataSourceConnectionProvider {
 
     @Override
     public void configure(Map configValues) {

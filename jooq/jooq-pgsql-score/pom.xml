@@ -25,6 +25,10 @@
         </dependency>
     </dependencies>
 
+    <properties>
+        <postgresql.version>42.7.3</postgresql.version>
+    </properties>
+
     <build>
         <plugins>
             <plugin>

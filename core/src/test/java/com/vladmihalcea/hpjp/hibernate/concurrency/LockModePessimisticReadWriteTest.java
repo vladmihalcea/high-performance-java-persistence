@@ -121,7 +121,8 @@ public class LockModePessimisticReadWriteTest extends AbstractTest {
         });
         doInJPA(entityManager -> {
             LOGGER.info("Lock and reattach");
-            entityManager.unwrap(Session.class).lock(post, LockMode.PESSIMISTIC_WRITE);
+            Post mergedPost = entityManager.merge(post);
+            entityManager.unwrap(Session.class).lock(mergedPost, LockMode.PESSIMISTIC_WRITE);
             post.setTitle("High-Performance Hibernate");
         });
     }

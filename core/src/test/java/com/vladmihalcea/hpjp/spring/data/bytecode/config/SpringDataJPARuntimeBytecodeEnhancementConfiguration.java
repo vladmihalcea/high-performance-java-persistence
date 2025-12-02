@@ -32,7 +32,7 @@ public class SpringDataJPARuntimeBytecodeEnhancementConfiguration extends Spring
     }
 
     public Database database() {
-        return Database.MYSQL;
+        return Database.POSTGRESQL;
     }
 
     @Override
@@ -40,6 +40,5 @@ public class SpringDataJPARuntimeBytecodeEnhancementConfiguration extends Spring
         super.additionalProperties(properties);
         properties.put("hibernate.jdbc.batch_size", "100");
         properties.put("hibernate.order_inserts", "true");
-        properties.put(BytecodeSettings.ENHANCER_ENABLE_DIRTY_TRACKING, "false");
     }
 }
