@@ -7,7 +7,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Environment;
-import org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl;
+import org.hibernate.engine.jdbc.connections.internal.DataSourceConnectionProvider;
 import org.junit.jupiter.api.Test;
 import org.postgresql.ds.PGSimpleDataSource;
 
@@ -94,7 +94,7 @@ public class SchemaMultitenancyTest extends AbstractTest {
     }
     
     private void addTenantConnectionProvider(String tenantId, DataSource tenantDataSource, Map<String, Object> properties) {
-        DatasourceConnectionProviderImpl connectionProvider = new DatasourceConnectionProviderImpl();
+        DataSourceConnectionProvider connectionProvider = new DataSourceConnectionProvider();
         connectionProvider.setDataSource(tenantDataSource);
         connectionProvider.configure(properties);
         MultiTenantConnectionProvider.INSTANCE.getConnectionProviderMap().put(

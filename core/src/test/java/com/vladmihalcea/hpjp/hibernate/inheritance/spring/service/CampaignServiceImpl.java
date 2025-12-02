@@ -3,11 +3,11 @@ package com.vladmihalcea.hpjp.hibernate.inheritance.spring.service;
 import com.vladmihalcea.hpjp.hibernate.inheritance.spring.dao.SubscriberDAO;
 import com.vladmihalcea.hpjp.hibernate.inheritance.spring.model.Subscriber;
 import com.vladmihalcea.hpjp.hibernate.inheritance.spring.service.sender.CampaignSender;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
