@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.connection;
 
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.SQLServerDataSourceProvider;
-import org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl;
+import org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProvider;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +34,7 @@ public class DriverManagerConnectionProviderTest extends AbstractConnectionProvi
 
     @Override
     public Class<? extends ConnectionProvider> expectedConnectionProviderClass() {
-        return DriverManagerConnectionProviderImpl.class;
+        return DriverManagerConnectionProvider.class;
     }
 
     @Test

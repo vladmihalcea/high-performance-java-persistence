@@ -27,7 +27,13 @@ import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.boot.spi.MetadataImplementor;
+import org.hibernate.cache.internal.EnabledCaching;
+import org.hibernate.cache.internal.QueryResultsCacheImpl;
 import org.hibernate.cache.jcache.internal.JCacheAccessImpl;
+import org.hibernate.cache.spi.CacheImplementor;
+import org.hibernate.cache.spi.QueryResultsCache;
+import org.hibernate.cache.spi.QueryResultsRegion;
+import org.hibernate.cache.spi.Region;
 import org.hibernate.cache.spi.entry.CollectionCacheEntry;
 import org.hibernate.cache.spi.entry.StandardCacheEntryImpl;
 import org.hibernate.cache.spi.support.*;
@@ -1133,18 +1139,12 @@ public abstract class AbstractTest {
     private void printCacheRegionStatisticsEntries(String regionName) {
         SessionFactory sessionFactory = sessionFactory();
         Statistics statistics = sessionFactory.getStatistics();
-        if (sessionFactory.getSessionFactoryOptions().isQueryCacheEnabled()) {
-            ReflectionUtils.invokeMethod(statistics, "getQueryRegionStats", "default-query-results-region");
-        }
 
-        CacheRegionStatistics cacheRegionStatistics = "default-query-results-region".equals(regionName) ?
-            statistics.getQueryRegionStatistics(regionName) :
-            statistics.getDomainDataRegionStatistics(regionName);
+        CacheRegionStatistics cacheRegionStatistics = statistics.getCacheRegionStatistics(regionName);
 
         if (cacheRegionStatistics != null) {
-            AbstractRegion region = ReflectionUtils.getFieldValue(cacheRegionStatistics, "region");
-
-            StorageAccess storageAccess = getStorageAccess(region);
+            CacheImplementor cacheImplementor = ReflectionUtils.getFieldValue(statistics, "cache");
+            StorageAccess storageAccess = getStorageAccess(cacheImplementor, regionName);
             org.ehcache.core.Ehcache cache = getEhcache(storageAccess);
 
             if (cache != null) {
@@ -1244,16 +1244,20 @@ public abstract class AbstractTest {
         return ReflectionUtils.getFieldValue(cacheHolder, "ehCache");
     }
 
-
-    private StorageAccess getStorageAccess(AbstractRegion region) {
-        if (region instanceof DirectAccessRegionTemplate) {
-            DirectAccessRegionTemplate directAccessRegionTemplate = (DirectAccessRegionTemplate) region;
-            return directAccessRegionTemplate.getStorageAccess();
-        } else if (region instanceof DomainDataRegionTemplate) {
-            DomainDataRegionTemplate domainDataRegionTemplate = (DomainDataRegionTemplate) region;
-            return domainDataRegionTemplate.getCacheStorageAccess();
+    private StorageAccess getStorageAccess(CacheImplementor cacheImplementor, String regionName) {
+        Region cacheRegion = null;
+        Region region = cacheImplementor.getRegion(regionName);
+        if(region instanceof DomainDataRegionImpl) {
+            cacheRegion = region;
         }
-        throw new IllegalArgumentException("Unsupported region: " + region);
+        if (regionName.equals("default-query-results-region")) {
+            QueryResultsCache queryResultsCache = cacheImplementor.getDefaultQueryResultsCache();
+            cacheRegion = queryResultsCache.getRegion();
+        }
+        if (cacheRegion != null) {
+            return ReflectionUtils.getFieldValue(cacheRegion, "storageAccess");
+        }
+        throw new IllegalArgumentException("Unsupported region: " + regionName);
     }
 
     public static String stringValue(Object value) {
