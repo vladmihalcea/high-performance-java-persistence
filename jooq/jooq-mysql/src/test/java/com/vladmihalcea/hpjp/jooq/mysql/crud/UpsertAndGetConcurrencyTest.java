@@ -4,11 +4,13 @@ import com.vladmihalcea.hpjp.jooq.mysql.schema.crud.tables.records.PostDetailsRe
 import com.vladmihalcea.hpjp.jooq.mysql.schema.crud.tables.records.PostRecord;
 import com.vladmihalcea.util.exception.ExceptionUtil;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.vladmihalcea.hpjp.jooq.mysql.schema.crud.Tables.POST;
@@ -29,7 +31,8 @@ public class UpsertAndGetConcurrencyTest extends AbstractJOOQMySQLIntegrationTes
 
     private final CountDownLatch aliceLatch = new CountDownLatch(1);
 
-    @Test(timeout = 3000)
+    @Test
+    @Timeout(value = 3, unit = TimeUnit.SECONDS)
     public void testUpsert() {
         doInJOOQ(sql -> {
             sql.delete(POST_DETAILS).execute();

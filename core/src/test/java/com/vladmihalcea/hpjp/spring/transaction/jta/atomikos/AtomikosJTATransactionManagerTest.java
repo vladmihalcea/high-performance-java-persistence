@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @author Vlad Mihalcea
  */
 @ContextConfiguration(classes = AtomikosJTATransactionManagerConfiguration.class)
-public class AromikosJTATransactionManagerTest extends AbstractSpringTest {
+public class AtomikosJTATransactionManagerTest extends AbstractSpringTest {
 
     @Autowired
     private ForumService forumService;
