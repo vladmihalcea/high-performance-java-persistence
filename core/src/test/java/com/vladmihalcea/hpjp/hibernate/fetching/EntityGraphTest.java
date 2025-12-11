@@ -1,18 +1,18 @@
 package com.vladmihalcea.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import jakarta.persistence.*;
+import org.hibernate.jpa.SpecHints;
 import org.hibernate.testing.bytecode.enhancement.extension.BytecodeEnhanced;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static com.vladmihalcea.hpjp.hibernate.fetching.EntityGraphTest_.*;
 import static org.junit.jupiter.api.Assertions.*;
-import org.junit.runner.RunWith;
 
 /**
  * @author Vlad Mihalcea
@@ -76,8 +76,8 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
 
             return entityManager.find(PostComment.class, 1L,
                 Collections.singletonMap(
-                    "jakarta.persistence.fetchgraph",
-                    entityManager.getEntityGraph("PostComment.post")
+                    SpecHints.HINT_SPEC_FETCH_GRAPH,
+                    entityManager.getEntityGraph(PostComment_.GRAPH_POST_COMMENT_POST)
                 )
             );
         });
@@ -89,13 +89,13 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
     public void testFindUsingNestedEntityGraph() {
         PostCommentDetails commentDetails = doInJPA(entityManager -> {
             EntityGraph<PostCommentDetails> commentDetailsGraph = entityManager.createEntityGraph(PostCommentDetails.class);
-            commentDetailsGraph.addAttributeNodes("comment");
-            Subgraph<PostComment> commentSubgraph = commentDetailsGraph.addSubgraph("comment");
-            commentSubgraph.addAttributeNodes("post");
+            commentDetailsGraph.addAttributeNodes(PostCommentDetails_.COMMENT);
+            Subgraph<PostComment> commentSubgraph = commentDetailsGraph.addSubgraph(PostCommentDetails_.COMMENT);
+            commentSubgraph.addAttributeNodes(PostComment_.POST);
 
             return entityManager.find(PostCommentDetails.class, 1L,
                 Collections.singletonMap(
-                    "jakarta.persistence.loadgraph",
+                    SpecHints.HINT_SPEC_LOAD_GRAPH,
                     commentDetailsGraph
                 )
             );
@@ -110,8 +110,8 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
         PostComment comment = doInJPA(entityManager -> {
             return entityManager.find(PostComment.class, 1L,
                 Collections.singletonMap(
-                    "jakarta.persistence.loadgraph",
-                    entityManager.getEntityGraph("PostComment.post")
+                    SpecHints.HINT_SPEC_LOAD_GRAPH,
+                    entityManager.getEntityGraph(PostComment_.GRAPH_POST_COMMENT_POST)
                 )
             );
         });
@@ -123,8 +123,8 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
         Post post = doInJPA(entityManager -> {
             return entityManager.find(Post.class, 1L,
                 Collections.singletonMap(
-                    "jakarta.persistence.fetchgraph",
-                    entityManager.getEntityGraph("Post.all")
+                    SpecHints.HINT_SPEC_FETCH_GRAPH,
+                    entityManager.getEntityGraph(Post_.GRAPH_POST_ALL)
                 )
             );
         });
@@ -138,18 +138,21 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
     @Entity(name = "Post")
     @Table(name = "post")
     @NamedEntityGraph(
-        name = "Post.details",
-        attributeNodes = @NamedAttributeNode("details")
+        name = Post_.GRAPH_POST_DETAILS,
+        attributeNodes = @NamedAttributeNode(Post_.DETAILS)
     )
     @NamedEntityGraph(
-        name = "Post.all",
+        name = Post_.GRAPH_POST_ALL,
         attributeNodes = {
-            @NamedAttributeNode("details"),
-            @NamedAttributeNode(value = "comments", subgraph = "Post.comment.details"),
+            @NamedAttributeNode(Post_.DETAILS),
+            @NamedAttributeNode(
+                value = Post_.COMMENTS, 
+                subgraph = PostComment_.DETAILS
+            ),
         },
         subgraphs = @NamedSubgraph(
-            name = "Post.comment.details",
-            attributeNodes = @NamedAttributeNode("details")
+            name = PostComment_.DETAILS,
+            attributeNodes = @NamedAttributeNode(PostComment_.DETAILS)
         )
     )
     public static class Post {
@@ -277,8 +280,8 @@ public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
     @Entity(name = "PostComment")
     @Table(name = "post_comment")
     @NamedEntityGraph(
-        name = "PostComment.post",
-        attributeNodes = @NamedAttributeNode("post")
+        name = PostComment_.GRAPH_POST_COMMENT_POST,
+        attributeNodes = @NamedAttributeNode(PostComment_.POST)
     )
     public static class PostComment {
 
