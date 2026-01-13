@@ -1,8 +1,8 @@
 package com.vladmihalcea.hpjp.hibernate.equality;
 
 import com.vladmihalcea.hpjp.hibernate.identifier.Identifiable;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,7 +23,7 @@ public class DefaultEqualityTest
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testEquality() {
         Post post = new Post();
         post.setTitle("High-PerformanceJava Persistence");

@@ -2,15 +2,15 @@ package com.vladmihalcea.hpjp.hibernate.type.attributeconverter;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.MonthDay;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Vlad Mihalcea

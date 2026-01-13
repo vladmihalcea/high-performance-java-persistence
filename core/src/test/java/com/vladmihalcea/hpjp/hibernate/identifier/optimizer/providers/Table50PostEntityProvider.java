@@ -3,6 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.identifier.optimizer.providers;
 import org.hibernate.annotations.GenericGenerator;
 
 import jakarta.persistence.*;
+import org.hibernate.id.enhanced.TableGenerator;
 
 /**
  * @author Vlad Mihalcea
@@ -23,7 +24,7 @@ public class Table50PostEntityProvider extends PostEntityProvider<Table50PostEnt
     public static class Post {
 
         @Id
-        @GenericGenerator(name = "table", strategy = "enhanced-table", parameters = {
+        @GenericGenerator(name = "table", type= TableGenerator.class, parameters = {
                 @org.hibernate.annotations.Parameter(name = "table_name", value = "sequence_table"),
                 @org.hibernate.annotations.Parameter(name = "increment_size", value = "50"),
                 @org.hibernate.annotations.Parameter(name = "optimizer", value = "pooled"),

@@ -10,7 +10,7 @@ import com.vladmihalcea.hpjp.spring.data.query.method.domain.PostCommentDTO;
 import com.vladmihalcea.hpjp.spring.data.query.method.domain.Tag;
 import com.vladmihalcea.hpjp.spring.data.query.method.repository.PostCommentRepository;
 import com.vladmihalcea.hpjp.spring.data.query.method.repository.PostRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.TransactionException;
@@ -20,8 +20,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea

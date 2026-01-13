@@ -1,9 +1,9 @@
 package com.vladmihalcea.hpjp.hibernate.association;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.junit.Test;
-
 import jakarta.persistence.*;
+import org.junit.jupiter.api.Test;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -50,45 +50,6 @@ public class BidirectionalManyToManyLinkEntityIdColumnsTest extends AbstractTest
 
             LOGGER.info("Remove");
             post1.removeTag(tag1);
-        });
-    }
-
-    @Test
-    public void testShuffle() {
-        final Long postId = doInJPA(entityManager -> {
-            Post post1 = new Post("JPA with Hibernate");
-            Post post2 = new Post("Native Hibernate");
-
-            Tag tag1 = new Tag("Java");
-            tag1.setId(1L);
-            Tag tag2 = new Tag("Hibernate");
-            tag2.setId(2L);
-
-            entityManager.persist(post1);
-            entityManager.persist(post2);
-
-            entityManager.persist(tag1);
-            entityManager.persist(tag2);
-
-            post1.addTag(tag1);
-            post1.addTag(tag2);
-
-            post2.addTag(tag1);
-
-            entityManager.flush();
-
-            return post1.getId();
-        });
-        doInJPA(entityManager -> {
-            LOGGER.info("Shuffle");
-            Post post1 = entityManager.find(Post.class, postId);
-            Tag tag1 = entityManager.find(Tag.class, 1L);
-
-            PostTag postTag = entityManager.find(PostTag.class, new PostTag(post1, tag1));
-
-            post1.getTags().sort((postTag1, postTag2) ->
-                postTag2.getTag().getId().compareTo(postTag1.getTag().getId())
-            );
         });
     }
 

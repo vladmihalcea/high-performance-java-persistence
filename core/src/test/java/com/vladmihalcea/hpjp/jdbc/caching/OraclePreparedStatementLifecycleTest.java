@@ -1,18 +1,18 @@
 package com.vladmihalcea.hpjp.jdbc.caching;
 
 import com.vladmihalcea.hpjp.util.AbstractOracleIntegrationTest;
-import org.junit.Test;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Tuple;
+import org.junit.jupiter.api.Test;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Vlad Mihalcea

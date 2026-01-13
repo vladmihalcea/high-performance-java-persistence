@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.jdbc.transaction.phenomena.writeskew;
 
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runners.Parameterized;
 
 import java.sql.Connection;
@@ -18,10 +18,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Vlad Mihalcea
  */
 public class PostgreSQLRangeBasedWriteSkewReadCommittedTest extends AbstractDepartmentEmployeePhenomenaTest {
-
-    public PostgreSQLRangeBasedWriteSkewReadCommittedTest(String isolationLevelName, int isolationLevel) {
-        super(isolationLevelName, isolationLevel);
-    }
 
     @Override
     protected Database database() {

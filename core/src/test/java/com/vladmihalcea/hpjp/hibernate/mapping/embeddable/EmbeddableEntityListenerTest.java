@@ -1,7 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.mapping.embeddable;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

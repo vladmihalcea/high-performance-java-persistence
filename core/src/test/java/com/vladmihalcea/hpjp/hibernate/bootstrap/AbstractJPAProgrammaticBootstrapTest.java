@@ -4,16 +4,17 @@ import com.vladmihalcea.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.hpjp.util.PersistenceUnitInfoImpl;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.Database;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.spi.PersistenceUnitInfo;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.spi.PersistenceUnitInfo;
 import javax.sql.DataSource;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ public abstract class AbstractJPAProgrammaticBootstrapTest {
         return emf;
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         PersistenceUnitInfo persistenceUnitInfo = persistenceUnitInfo(getClass().getSimpleName());
 
@@ -48,7 +49,7 @@ public abstract class AbstractJPAProgrammaticBootstrapTest {
         );
     }
 
-    @After
+    @AfterEach
     public void destroy() {
         emf.close();
     }

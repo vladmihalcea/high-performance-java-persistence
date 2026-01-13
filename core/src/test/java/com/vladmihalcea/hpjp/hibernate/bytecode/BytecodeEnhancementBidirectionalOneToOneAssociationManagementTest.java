@@ -1,12 +1,10 @@
 package com.vladmihalcea.hpjp.hibernate.bytecode;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.hibernate.annotations.LazyToOne;
-import org.hibernate.annotations.LazyToOneOption;
-import org.hibernate.testing.bytecode.enhancement.BytecodeEnhancerRunner;
+import org.hibernate.testing.bytecode.enhancement.extension.BytecodeEnhanced;
 import org.hibernate.testing.bytecode.enhancement.EnhancementOptions;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,12 +12,13 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 import static junit.framework.TestCase.fail;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.runner.RunWith;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(BytecodeEnhancerRunner.class)
+@BytecodeEnhanced
 @EnhancementOptions(
     biDirectionalAssociationManagement = true
 )
@@ -99,7 +98,6 @@ public class BytecodeEnhancementBidirectionalOneToOneAssociationManagementTest e
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL
         )
-        @LazyToOne(LazyToOneOption.NO_PROXY)
         private PostDetails details;
 
         public Long getId() {

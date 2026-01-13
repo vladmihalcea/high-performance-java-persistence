@@ -5,9 +5,9 @@ import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.*;
 import org.hibernate.annotations.DynamicUpdate;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

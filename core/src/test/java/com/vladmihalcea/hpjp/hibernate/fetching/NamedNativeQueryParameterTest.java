@@ -2,14 +2,14 @@ package com.vladmihalcea.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.Session;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea

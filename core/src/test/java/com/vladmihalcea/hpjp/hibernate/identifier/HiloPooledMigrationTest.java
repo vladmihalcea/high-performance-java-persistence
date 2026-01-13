@@ -1,15 +1,15 @@
 package com.vladmihalcea.hpjp.hibernate.identifier;
 
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class HiloPooledMigrationTest {
 

@@ -1,18 +1,22 @@
 package com.vladmihalcea.hpjp.hibernate.cache.nonstrictreadwrite;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.*;
+import jakarta.persistence.*;
+import org.hibernate.Interceptor;
+import org.hibernate.LockMode;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import jakarta.persistence.*;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
@@ -33,7 +37,7 @@ public class NonStrictReadWriteCacheConcurrencyStrategyWithConcurrentUpdateTest 
 
     private final CountDownLatch endLatch = new CountDownLatch(1);
 
-    private class BobTransaction extends EmptyInterceptor {
+    private class BobTransaction implements Interceptor {
         @Override
         public void beforeTransactionCompletion(Transaction tx) {
             if(applyInterceptor.get()) {
@@ -68,9 +72,7 @@ public class NonStrictReadWriteCacheConcurrencyStrategyWithConcurrentUpdateTest 
         return properties;
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Repository repository = new Repository("Hibernate-Master-Class");
             entityManager.persist(repository);
@@ -105,7 +107,7 @@ public class NonStrictReadWriteCacheConcurrencyStrategyWithConcurrentUpdateTest 
         doInJPA(entityManager -> {
             LOGGER.info("Load Repository");
             Repository repository = entityManager.find(Repository.class, 1L);
-            entityManager.unwrap(Session.class).buildLockRequest(new LockOptions().setLockMode(LockMode.OPTIMISTIC)).lock(repository);
+            entityManager.unwrap(Session.class).lock(repository, LockMode.OPTIMISTIC);
         });
         doInJPA(entityManager -> {
             LOGGER.info("Load Repository again");

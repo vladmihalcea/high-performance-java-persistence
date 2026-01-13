@@ -3,14 +3,14 @@ package com.vladmihalcea.hpjp.hibernate.cache;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

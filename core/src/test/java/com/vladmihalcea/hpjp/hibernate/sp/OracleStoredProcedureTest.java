@@ -15,7 +15,8 @@ import org.hibernate.result.Output;
 import org.hibernate.result.ResultSetOutput;
 import org.hibernate.type.StandardBasicTypes;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
@@ -28,7 +29,7 @@ import java.util.List;
 
 import static com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider.Post;
 import static com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider.PostComment;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -44,9 +45,7 @@ public class OracleStoredProcedureTest extends AbstractOracleIntegrationTest {
         return entities.toArray(new Class[]{});
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJDBC(connection -> {
             try(Statement statement = connection.createStatement()) {
                 statement.executeUpdate(

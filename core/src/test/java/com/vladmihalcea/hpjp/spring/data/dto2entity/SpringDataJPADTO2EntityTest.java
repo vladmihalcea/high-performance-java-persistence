@@ -14,7 +14,7 @@ import com.vladmihalcea.hpjp.spring.data.dto2entity.repository.PostCommentReposi
 import com.vladmihalcea.hpjp.spring.data.dto2entity.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.dto2entity.service.ForumFacadeService;
 import com.vladmihalcea.hpjp.spring.data.dto2entity.service.ForumService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 

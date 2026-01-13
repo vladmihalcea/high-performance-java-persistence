@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.query.time;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import jakarta.persistence.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -10,7 +10,7 @@ import java.time.Year;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

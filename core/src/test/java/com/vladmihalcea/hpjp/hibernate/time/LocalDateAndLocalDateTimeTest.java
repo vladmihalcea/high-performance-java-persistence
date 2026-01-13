@@ -2,14 +2,14 @@ package com.vladmihalcea.hpjp.hibernate.time;
 
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

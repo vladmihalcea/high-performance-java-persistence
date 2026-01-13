@@ -2,15 +2,15 @@ package com.vladmihalcea.hpjp.hibernate.concurrency.deadlock;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.testing.util.ExceptionUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Vlad Mihalcea

@@ -7,14 +7,14 @@ import com.vladmihalcea.hpjp.spring.data.unidirectional.repository.*;
 import com.vladmihalcea.hpjp.spring.data.unidirectional.service.ForumService;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import org.hibernate.exception.ConstraintViolationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.support.TransactionCallback;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Vlad Mihalcea

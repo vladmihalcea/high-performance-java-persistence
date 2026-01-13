@@ -5,14 +5,14 @@ import com.vladmihalcea.hpjp.hibernate.inheritance.spring.model.EmailSubscriber;
 import com.vladmihalcea.hpjp.hibernate.inheritance.spring.model.SmsSubscriber;
 import com.vladmihalcea.hpjp.hibernate.inheritance.spring.model.Subscriber;
 import com.vladmihalcea.hpjp.hibernate.inheritance.spring.service.CampaignService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = BehaviorDrivenInheritanceConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class BehaviorDrivenInheritanceTest {

@@ -1,17 +1,21 @@
 package com.vladmihalcea.hpjp.hibernate.identifier.batch;
 
-import org.hibernate.annotations.GenericGenerator;
-import org.junit.Test;
-
+import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
+import org.junit.jupiter.api.Test;
 
 public class TableAllocationSizeIdentifierTest extends AbstractBatchIdentifierTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[] {
-                Post.class,
+            Post.class,
         };
+    }
+
+    @Override
+    protected Database database() {
+        return Database.MYSQL;
     }
 
     @Test
@@ -31,10 +35,8 @@ public class TableAllocationSizeIdentifierTest extends AbstractBatchIdentifierTe
     public static class Post {
 
         @Id
-        @GenericGenerator(name = "table", strategy = "enhanced-table", parameters = {
-            @org.hibernate.annotations.Parameter(name = "table_name", value = "sequence_table")
-        })
-        @GeneratedValue(generator = "table", strategy=GenerationType.TABLE)
+        @TableGenerator(schema = "sequence_table", name = "table_generator")
+        @GeneratedValue(generator = "table_generator", strategy=GenerationType.TABLE)
         private Long id;
     }
 

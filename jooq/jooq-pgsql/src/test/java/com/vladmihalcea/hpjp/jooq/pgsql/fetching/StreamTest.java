@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.jooq.pgsql.fetching;
 import com.vladmihalcea.hpjp.jooq.pgsql.schema.crud.tables.records.PostCommentDetailsRecord;
 import com.vladmihalcea.hpjp.jooq.pgsql.util.AbstractJOOQPostgreSQLIntegrationTest;
 import org.hibernate.Session;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.stream.Stream;

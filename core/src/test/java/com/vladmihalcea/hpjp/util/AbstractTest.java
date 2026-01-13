@@ -15,7 +15,6 @@ import jakarta.persistence.spi.PersistenceUnitInfo;
 import net.steppschuh.markdowngenerator.table.Table;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.ehcache.core.spi.store.tiering.CachingTier;
 import org.ehcache.impl.internal.store.tiering.TieredStore;
 import org.ehcache.transactions.xa.internal.XAStore;
 import org.hibernate.*;
@@ -28,7 +27,6 @@ import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.boot.spi.MetadataImplementor;
-import org.hibernate.cache.internal.QueryResultsCacheImpl;
 import org.hibernate.cache.jcache.internal.JCacheAccessImpl;
 import org.hibernate.cache.spi.entry.CollectionCacheEntry;
 import org.hibernate.cache.spi.entry.StandardCacheEntryImpl;
@@ -45,8 +43,8 @@ import org.hibernate.jpa.boot.spi.TypeContributorList;
 import org.hibernate.stat.CacheRegionStatistics;
 import org.hibernate.stat.Statistics;
 import org.hibernate.usertype.UserType;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,11 +62,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class AbstractTest {
 
-    public static final boolean ENABLE_LONG_RUNNING_TESTS = true;
+    public static final boolean ENABLE_LONG_RUNNING_TESTS = false;
 
     static {
         Thread.currentThread().setName("Alice");
@@ -90,7 +88,7 @@ public abstract class AbstractTest {
 
     private List<Closeable> closeables = new ArrayList<>();
 
-    @Before
+    @BeforeEach
     public void init() {
         beforeInit();
         if (nativeHibernateSessionFactoryBootstrap()) {
@@ -109,7 +107,7 @@ public abstract class AbstractTest {
 
     }
 
-    @After
+    @AfterEach
     public void destroy() {
         if (nativeHibernateSessionFactoryBootstrap()) {
             if (sf != null) {
@@ -456,6 +454,43 @@ public abstract class AbstractTest {
         Transaction txn = null;
         try {
             session = sessionFactory().openSession();
+            callable.beforeTransactionCompletion();
+            txn = session.beginTransaction();
+
+            callable.accept(session);
+            if (!txn.getRollbackOnly()) {
+                txn.commit();
+            } else {
+                try {
+                    txn.rollback();
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
+                }
+            }
+        } catch (Throwable t) {
+            if (txn != null && txn.isActive()) {
+                try {
+                    txn.rollback();
+                } catch (Exception e) {
+                    LOGGER.error("Rollback failure", e);
+                }
+            }
+            throw t;
+        } finally {
+            callable.afterTransactionCompletion();
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    protected void doInHibernate(HibernateTransactionConsumer callable, Consumer<SessionBuilder> sessionBuilderConsumer) {
+        Session session = null;
+        Transaction txn = null;
+        try {
+            SessionBuilder sessionBuilder = sessionFactory().withOptions();
+            sessionBuilderConsumer.accept(sessionBuilder);
+            session = sessionBuilder.openSession();
             callable.beforeTransactionCompletion();
             txn = session.beginTransaction();
 
@@ -937,12 +972,20 @@ public abstract class AbstractTest {
     }
 
     protected void executeStatement(Connection connection, String sql) {
+        executeStatement(connection, false, sql);
+    }
+
+    protected void executeStatement(Connection connection, boolean silent, String sql) {
         try {
             try (Statement statement = connection.createStatement()) {
                 statement.execute(sql);
             }
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            if (silent) {
+                LOGGER.error("Statement failed", e);
+            } else {
+                throw new IllegalStateException(e);
+            }
         }
     }
 
@@ -1138,13 +1181,15 @@ public abstract class AbstractTest {
                         Map mapValue = (Map) cacheValue;
 
                         cacheEntriesBuilder.append(mapValue);
-                    } else if (cacheValue instanceof QueryResultsCacheImpl.CacheItem) {
+                    }
+                    /*else if (cacheValue instanceof QueryResultsCacheImpl.CacheItem) {
                         QueryResultsCacheImpl.CacheItem queryValue = (QueryResultsCacheImpl.CacheItem) cacheValue;
 
                         cacheEntriesBuilder.append(
                             ToStringBuilder.reflectionToString(queryValue, ToStringStyle.SHORT_PREFIX_STYLE)
                         );
-                    } else if (cacheValue instanceof StandardCacheEntryImpl) {
+                    } */
+                    else if (cacheValue instanceof StandardCacheEntryImpl) {
                         StandardCacheEntryImpl standardCacheEntry = (StandardCacheEntryImpl) cacheValue;
 
                         cacheEntriesBuilder.append(

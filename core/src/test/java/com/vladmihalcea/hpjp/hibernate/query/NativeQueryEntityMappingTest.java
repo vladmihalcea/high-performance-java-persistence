@@ -3,14 +3,14 @@ package com.vladmihalcea.hpjp.hibernate.query;
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import jakarta.persistence.*;
 import org.hibernate.query.NativeQuery;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

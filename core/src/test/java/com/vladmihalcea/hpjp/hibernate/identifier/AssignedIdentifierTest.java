@@ -2,11 +2,11 @@ package com.vladmihalcea.hpjp.hibernate.identifier;
 
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AssignedIdentifierTest extends AbstractMySQLIntegrationTest {
 

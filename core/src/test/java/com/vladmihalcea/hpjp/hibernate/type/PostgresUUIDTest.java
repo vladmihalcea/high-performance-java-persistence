@@ -1,15 +1,14 @@
 package com.vladmihalcea.hpjp.hibernate.type;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
-import org.junit.Test;
-
 import jakarta.persistence.*;
+import org.hibernate.annotations.Generated;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-import static org.junit.Assert.assertNotNull;
+import static org.hibernate.generator.EventType.INSERT;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
@@ -24,19 +23,13 @@ public class PostgresUUIDTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Override
-    public void init() {
+    public void beforeInit() {
         executeStatement("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"");
-        super.init();
     }
 
     @Override
-    public void destroy() {
-        doInJPA(entityManager -> {
-            entityManager.createNativeQuery(
-                "DROP EXTENSION \"uuid-ossp\" CASCADE"
-            ).executeUpdate();
-        });
-        super.destroy();
+    public void afterDestroy() {
+        executeStatement("DROP EXTENSION \"uuid-ossp\" CASCADE");
     }
 
     @Test
@@ -58,7 +51,7 @@ public class PostgresUUIDTest extends AbstractPostgreSQLIntegrationTest {
         @GeneratedValue
         private Long id;
 
-        @Generated(GenerationTime.INSERT)
+        @Generated(event = {INSERT})
         @Column(columnDefinition = "UUID NOT NULL DEFAULT uuid_generate_v4()", insertable = false)
         private UUID uuid;
 

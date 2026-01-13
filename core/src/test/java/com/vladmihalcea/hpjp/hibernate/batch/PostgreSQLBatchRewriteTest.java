@@ -4,7 +4,7 @@ import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.PostgreSQLDataSourceProvider;
 import jakarta.persistence.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;

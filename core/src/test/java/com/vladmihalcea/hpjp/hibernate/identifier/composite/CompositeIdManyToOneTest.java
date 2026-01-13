@@ -1,15 +1,15 @@
 package com.vladmihalcea.hpjp.hibernate.identifier.composite;
 
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CompositeIdManyToOneTest extends AbstractMySQLIntegrationTest {
 

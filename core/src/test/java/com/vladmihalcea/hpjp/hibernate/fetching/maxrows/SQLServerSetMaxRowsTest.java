@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.fetching.maxrows;
 import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
 import org.hibernate.Session;
 import org.hibernate.annotations.CreationTimestamp;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

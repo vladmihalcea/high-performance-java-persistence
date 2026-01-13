@@ -4,7 +4,7 @@ import com.vladmihalcea.hpjp.util.providers.Database;
 import io.hypersistence.utils.hibernate.id.BatchSequence;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.Properties;

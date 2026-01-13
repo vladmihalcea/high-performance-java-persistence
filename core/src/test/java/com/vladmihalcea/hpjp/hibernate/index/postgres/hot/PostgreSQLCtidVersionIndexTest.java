@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.index.postgres.hot;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import jakarta.persistence.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

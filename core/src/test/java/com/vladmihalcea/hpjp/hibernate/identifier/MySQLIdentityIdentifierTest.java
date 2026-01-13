@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.identifier;
 
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
 import jakarta.persistence.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MySQLIdentityIdentifierTest extends AbstractMySQLIntegrationTest {
 

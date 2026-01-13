@@ -12,14 +12,14 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.type.descriptor.jdbc.ZonedDateTimeJdbcType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

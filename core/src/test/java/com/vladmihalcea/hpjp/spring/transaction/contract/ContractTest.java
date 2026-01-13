@@ -7,7 +7,7 @@ import com.vladmihalcea.hpjp.spring.transaction.contract.domain.AnnexSignature;
 import com.vladmihalcea.hpjp.spring.transaction.contract.domain.Contract;
 import com.vladmihalcea.hpjp.spring.transaction.contract.domain.ContractSignature;
 import com.vladmihalcea.hpjp.spring.transaction.contract.repository.ContractRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.TransactionException;

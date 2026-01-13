@@ -4,8 +4,8 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 /**
  * AbstractEntityOptimisticLockingCollectionTest - Abstract Test to check optimistic locking collection versioning

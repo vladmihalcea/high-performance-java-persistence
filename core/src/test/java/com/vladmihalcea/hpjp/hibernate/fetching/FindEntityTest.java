@@ -2,12 +2,12 @@ package com.vladmihalcea.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Vlad Mihalcea
@@ -40,15 +40,6 @@ public class FindEntityTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
-    public void testGet() {
-        doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            Post post = session.get(Post.class, 1L);
-            assertNotNull(post);
-        });
-    }
-
-    @Test
     public void testFindWithQuery() {
         doInJPA(entityManager -> {
             Long postId =  1L;
@@ -70,20 +61,10 @@ public class FindEntityTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
-    public void testByIdGetReference() {
-        doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            Post post = session.byId(Post.class).getReference(1L);
-            LOGGER.info("Loaded post entity");
-            LOGGER.info("The post title is '{}'", post.getTitle());
-        });
-    }
-
-    @Test
     public void testLoad() {
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap(Session.class);
-            Post post = session.load(Post.class, 1L);
+            Post post = session.getReference(Post.class, 1L);
             LOGGER.info("Loaded post entity");
             LOGGER.info("The post title is '{}'", post.getTitle());
         });

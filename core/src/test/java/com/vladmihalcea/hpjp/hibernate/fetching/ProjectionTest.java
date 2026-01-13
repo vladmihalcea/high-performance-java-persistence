@@ -4,14 +4,14 @@ import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import org.hibernate.jpa.AvailableHints;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.*;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Vlad Mihalcea

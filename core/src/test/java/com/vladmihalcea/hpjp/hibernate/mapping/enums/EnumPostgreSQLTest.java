@@ -1,18 +1,19 @@
 package com.vladmihalcea.hpjp.hibernate.mapping.enums;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import com.vladmihalcea.hpjp.util.providers.Database;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcType;
-import org.hibernate.annotations.Type;
 import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
-import org.junit.Test;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

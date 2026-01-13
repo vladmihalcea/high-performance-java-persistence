@@ -4,7 +4,7 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

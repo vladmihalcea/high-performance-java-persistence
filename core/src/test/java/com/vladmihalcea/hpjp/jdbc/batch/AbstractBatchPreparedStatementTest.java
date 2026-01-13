@@ -1,9 +1,8 @@
 package com.vladmihalcea.hpjp.jdbc.batch;
 
 import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
-import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,10 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class AbstractBatchPreparedStatementTest extends DatabaseProviderIntegrationTest {
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
-
-    public AbstractBatchPreparedStatementTest(Database database) {
-        super(database);
-    }
 
     @Override
     protected Class<?>[] entities() {

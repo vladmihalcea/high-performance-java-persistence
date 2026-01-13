@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.jooq.pgsql.score.dto.PostCommentScore;
 import com.vladmihalcea.hpjp.jooq.pgsql.score.transformer.PostCommentScoreResultTransformer;
 import com.vladmihalcea.hpjp.jooq.pgsql.score.transformer.PostCommentScoreRootTransformer;
 import org.hibernate.query.NativeQuery;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.Date;

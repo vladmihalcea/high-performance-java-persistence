@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import org.hibernate.HibernateException;
 import org.hibernate.annotations.JavaType;
 import org.hibernate.type.descriptor.java.InetAddressJavaType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea

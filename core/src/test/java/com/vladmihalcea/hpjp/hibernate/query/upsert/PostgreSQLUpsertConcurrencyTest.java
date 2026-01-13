@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.concurrent.CountDownLatch;
@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea

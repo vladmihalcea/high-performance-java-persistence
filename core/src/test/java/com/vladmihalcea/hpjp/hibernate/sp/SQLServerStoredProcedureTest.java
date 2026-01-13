@@ -6,7 +6,8 @@ import jakarta.persistence.ParameterMode;
 import jakarta.persistence.StoredProcedureQuery;
 import org.hibernate.Session;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.sql.CallableStatement;
 import java.sql.SQLException;
@@ -17,7 +18,7 @@ import java.util.regex.Pattern;
 
 import static com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider.Post;
 import static com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider.PostComment;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea
@@ -31,9 +32,7 @@ public class SQLServerStoredProcedureTest extends AbstractSQLServerIntegrationTe
         return entityProvider.entities();
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJDBC(connection -> {
             try(Statement statement = connection.createStatement()) {
                 try {

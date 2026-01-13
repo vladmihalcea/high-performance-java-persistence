@@ -1,16 +1,14 @@
 package com.vladmihalcea.hpjp.hibernate.cascade;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.hibernate.Session;
-import org.junit.Test;
-
 import jakarta.persistence.*;
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -147,12 +145,6 @@ public class CascadeTest extends AbstractTest {
             new PostComment()
                 .setReview("A great reference book")
         );
-
-        doInJPA(entityManager -> {
-            entityManager
-                .unwrap(Session.class)
-                .update(post);
-        });
     }
 
     @Test

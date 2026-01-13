@@ -1,7 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.association;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 
 import jakarta.persistence.*;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

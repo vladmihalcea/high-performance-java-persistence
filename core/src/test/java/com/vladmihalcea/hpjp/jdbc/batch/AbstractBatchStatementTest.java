@@ -1,16 +1,15 @@
 package com.vladmihalcea.hpjp.jdbc.batch;
 
 import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
-import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * AbstractBatchStatementTest - Base class for testing JDBC Statement batching
@@ -24,10 +23,6 @@ public abstract class AbstractBatchStatementTest extends DatabaseProviderIntegra
     public static final String INSERT_POST_COMMENT = "insert into post_comment (post_id, review, version, id) values (%1$d, 'Post comment %2$d', 0, %2$d)";
 
     private final BlogEntityProvider entityProvider = new BlogEntityProvider();
-
-    public AbstractBatchStatementTest(Database database) {
-        super(database);
-    }
 
     @Override
     protected Class<?>[] entities() {

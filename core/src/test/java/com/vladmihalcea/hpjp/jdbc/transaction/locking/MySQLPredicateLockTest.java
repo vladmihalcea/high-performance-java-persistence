@@ -6,7 +6,7 @@ import com.vladmihalcea.hpjp.util.providers.MySQLDataSourceProvider;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Vlad Mihalcea

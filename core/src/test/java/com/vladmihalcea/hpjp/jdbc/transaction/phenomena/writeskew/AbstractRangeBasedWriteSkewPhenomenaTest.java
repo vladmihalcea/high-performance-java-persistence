@@ -1,26 +1,23 @@
 package com.vladmihalcea.hpjp.jdbc.transaction.phenomena.writeskew;
 
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.sql.PreparedStatement;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@MethodSource("parameters")
 public abstract class AbstractRangeBasedWriteSkewPhenomenaTest extends AbstractDepartmentEmployeePhenomenaTest {
-
-    protected AbstractRangeBasedWriteSkewPhenomenaTest(String isolationLevelName, int isolationLevel) {
-        super(isolationLevelName, isolationLevel);
-    }
 
     @Test
     public void testWriteSkewAggregateWriteSkewAggregate() {

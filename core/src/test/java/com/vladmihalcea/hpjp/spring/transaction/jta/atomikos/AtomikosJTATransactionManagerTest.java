@@ -9,7 +9,7 @@ import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.config.AtomikosJTATransactionManagerSQLServerConfiguration;
 import com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.dao.TagDAO;
 import com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.service.ForumService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.TransactionException;
@@ -17,8 +17,8 @@ import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Vlad Mihalcea

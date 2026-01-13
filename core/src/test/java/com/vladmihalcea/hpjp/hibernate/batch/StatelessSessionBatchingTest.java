@@ -7,7 +7,7 @@ import jakarta.persistence.criteria.Root;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaDelete;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;

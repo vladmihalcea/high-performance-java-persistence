@@ -5,7 +5,7 @@ import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import io.hypersistence.utils.hibernate.query.ListResultTransformer;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.hibernate.query.Query;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

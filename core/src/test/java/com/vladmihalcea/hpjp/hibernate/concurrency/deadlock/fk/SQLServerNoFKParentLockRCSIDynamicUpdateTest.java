@@ -5,14 +5,14 @@ import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.sql.Connection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Vlad Mihalcea

@@ -1,12 +1,12 @@
 package com.vladmihalcea.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.*;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Vlad Mihalcea

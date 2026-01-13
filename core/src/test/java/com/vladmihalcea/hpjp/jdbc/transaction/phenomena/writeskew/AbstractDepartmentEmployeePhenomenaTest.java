@@ -2,38 +2,36 @@ package com.vladmihalcea.hpjp.jdbc.transaction.phenomena.writeskew;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import jakarta.persistence.*;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@MethodSource("parameters")
 public abstract class AbstractDepartmentEmployeePhenomenaTest extends AbstractTest {
 
     public static final String INSERT_DEPARTMENT = "insert into department (name, budget, id) values (?, ?, ?)";
 
     public static final String INSERT_EMPLOYEE = "insert into employee (department_id, name, salary, id) values (?, ?, ?, ?)";
 
-
-    protected final String isolationLevelName;
-
-    protected final int isolationLevel;
-
-    protected AbstractDepartmentEmployeePhenomenaTest(String isolationLevelName, int isolationLevel) {
-        this.isolationLevelName = isolationLevelName;
-        this.isolationLevel = isolationLevel;
-    }
+    @Parameter(0)
+    protected String isolationLevelName;
+    @Parameter(1)
+    protected int isolationLevel;
 
     @Override
     protected Class<?>[] entities() {
@@ -43,13 +41,12 @@ public abstract class AbstractDepartmentEmployeePhenomenaTest extends AbstractTe
         return classes.toArray(new Class<?>[]{});
     }
 
-    @Parameterized.Parameters
-    public static Collection<Object[]> isolationLevels() {
-        List<Object[]> levels = new ArrayList<>();
-        levels.add(new Object[]{"Read Committed", Connection.TRANSACTION_READ_COMMITTED});
-        levels.add(new Object[]{"Repeatable Read", Connection.TRANSACTION_REPEATABLE_READ});
-        levels.add(new Object[]{"Serializable", Connection.TRANSACTION_SERIALIZABLE});
-        return levels;
+    public static Stream<Arguments> parameters() {
+        return Stream.of(
+            Arguments.of("Read Committed", Connection.TRANSACTION_READ_COMMITTED),
+            Arguments.of("Repeatable Read", Connection.TRANSACTION_REPEATABLE_READ),
+            Arguments.of("Serializable", Connection.TRANSACTION_SERIALIZABLE)
+        );
     }
 
     protected String sumEmployeeSalarySql() {

@@ -9,7 +9,7 @@ import com.vladmihalcea.hpjp.spring.data.bidirectional.domain.Tag;
 import com.vladmihalcea.hpjp.spring.data.bidirectional.repository.PostCommentRepository;
 import com.vladmihalcea.hpjp.spring.data.bidirectional.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.bidirectional.service.ForumService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.support.TransactionCallback;

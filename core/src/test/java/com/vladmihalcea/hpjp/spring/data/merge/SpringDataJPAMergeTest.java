@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.spring.data.merge.config.SpringDataJPAMergeConfigur
 import com.vladmihalcea.hpjp.spring.data.merge.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.merge.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.merge.service.ForumService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.support.TransactionCallback;

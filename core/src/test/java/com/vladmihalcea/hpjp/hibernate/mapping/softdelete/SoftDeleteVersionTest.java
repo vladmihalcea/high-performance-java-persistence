@@ -5,19 +5,17 @@ import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.StaleStateException;
-import org.hibernate.annotations.Loader;
+import org.hibernate.annotations.HQLSelect;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-import org.junit.Test;
+import org.hibernate.annotations.SQLRestriction;
+import org.junit.jupiter.api.Test;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea
@@ -80,7 +78,7 @@ public class SoftDeleteVersionTest extends AbstractTest {
 		});
 
 		doInJPA(entityManager -> {
-			//That would not work without @Loader(namedQuery = "findTagById")
+			//That would not work without @HQLSelect(query = "findTagById")
 			assertNull(entityManager.find(Tag.class, miscTag.getId()));
 
 			assertEquals(
@@ -104,7 +102,7 @@ public class SoftDeleteVersionTest extends AbstractTest {
    				from Tag t
    				""", Tag.class)
 				.getResultList();
-			//That would not work without @Where(clause = "deleted = false")
+			//That would not work without @SQLRestriction("deleted = false")
 			assertEquals(3, tags.size());
 		});
 	}
@@ -275,15 +273,15 @@ public class SoftDeleteVersionTest extends AbstractTest {
 			id = ? AND
 			version = ?
 		""")
-	@Loader(namedQuery = "findPostById")
-	@NamedQuery(name = "findPostById", query = """
+	@HQLSelect(query = """
 		select p
 		from Post p
 		where
 			p.id = ?1 and
 			p.deleted = false
-		""")
-	@Where(clause = "deleted = false")
+		"""
+	)
+	@SQLRestriction("deleted = false")
 	public static class Post extends SoftDeletable {
 
 		@Id
@@ -389,15 +387,14 @@ public class SoftDeleteVersionTest extends AbstractTest {
 			id = ? AND
 			version = ?
 		""")
-	@Loader(namedQuery = "findPostDetailsById")
-	@NamedQuery(name = "findPostDetailsById", query = """
+	@HQLSelect(query = """
 		select pd
 		from PostDetails pd
 		where
 			pd.id = ?1 and
 			pd.deleted = false
 		""")
-	@Where(clause = "deleted = false")
+	@SQLRestriction("deleted = false")
 	public static class PostDetails extends SoftDeletable {
 
 		@Id
@@ -466,15 +463,14 @@ public class SoftDeleteVersionTest extends AbstractTest {
 			id = ? AND
 			version = ?
 		""")
-	@Loader(namedQuery = "findPostCommentById")
-	@NamedQuery(name = "findPostCommentById", query = """
+	@HQLSelect(query = """
 		select pc
 		from PostComment pc
 		where
 			pc.id = ?1 and
 			pc.deleted = false
 		""")
-	@Where(clause = "deleted = false")
+	@SQLRestriction("deleted = false")
 	public static class PostComment extends SoftDeletable {
 
 		@Id
@@ -528,15 +524,14 @@ public class SoftDeleteVersionTest extends AbstractTest {
 			id = ? AND
 			version = ?
 		""")
-	@Loader(namedQuery = "findTagById")
-	@NamedQuery(name = "findTagById", query = """
+	@HQLSelect(query = """
 		select t
 		from Tag t
 		where
 			t.id = ?1 and
 			t.deleted = false
 		""")
-	@Where(clause = "deleted = false")
+	@SQLRestriction("deleted = false")
 	public static class Tag extends SoftDeletable {
 
 		@Id

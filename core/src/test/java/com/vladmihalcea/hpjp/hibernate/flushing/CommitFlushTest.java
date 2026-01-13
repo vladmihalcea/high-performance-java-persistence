@@ -3,12 +3,12 @@ package com.vladmihalcea.hpjp.hibernate.flushing;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
 import org.jboss.logging.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.FlushModeType;
 
 import static com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider.Post;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea

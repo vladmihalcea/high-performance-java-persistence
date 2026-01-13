@@ -1,8 +1,8 @@
 package com.vladmihalcea.hpjp.jdbc.batch.generatedkeys.identity;
 
 import com.vladmihalcea.hpjp.util.AbstractOracleIntegrationTest;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.sql.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,7 +18,7 @@ public class OracleGeneratedKeysBatchPreparedStatementTest extends AbstractOracl
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testBatch() throws SQLException {
         doInJDBC(this::batchInsert);
     }

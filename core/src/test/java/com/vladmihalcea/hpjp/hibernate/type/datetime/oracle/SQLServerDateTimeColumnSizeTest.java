@@ -4,7 +4,7 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;

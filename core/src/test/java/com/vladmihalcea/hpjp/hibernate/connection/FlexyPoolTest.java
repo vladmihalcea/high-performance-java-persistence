@@ -5,14 +5,16 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -25,7 +27,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static com.vladmihalcea.hpjp.hibernate.connection.jta.FlexyPoolEntities.Post;
 import static com.vladmihalcea.hpjp.util.AbstractTest.ENABLE_LONG_RUNNING_TESTS;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = FlexyPoolTestConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class FlexyPoolTest {
@@ -47,13 +49,13 @@ public class FlexyPoolTest {
 
     private ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
-    @Before
+    @BeforeEach
     public void init() {
         FlexyPoolDataSource flexyPoolDataSource = (FlexyPoolDataSource) dataSource;
         flexyPoolDataSource.start();
     }
 
-    @After
+    @AfterEach
     public void destroy() {
         executorService.shutdownNow();
         FlexyPoolDataSource flexyPoolDataSource = (FlexyPoolDataSource) dataSource;

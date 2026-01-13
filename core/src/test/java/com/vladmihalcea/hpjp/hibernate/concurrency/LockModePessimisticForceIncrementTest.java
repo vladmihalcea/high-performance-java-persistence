@@ -6,7 +6,8 @@ import org.hibernate.StaleObjectStateException;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.cfg.AvailableSettings;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
@@ -14,8 +15,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * LockModePessimisticForceIncrementTest - Test to check LockMode.PESSIMISTIC_FORCE_INCREMENT
@@ -35,9 +36,7 @@ public class LockModePessimisticForceIncrementTest extends AbstractTest {
         };
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Repository repository = new Repository("Hibernate-Master-Class");
             entityManager.persist(repository);

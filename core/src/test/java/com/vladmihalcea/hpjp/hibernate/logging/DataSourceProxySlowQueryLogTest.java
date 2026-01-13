@@ -10,7 +10,7 @@ import net.ttddyy.dsproxy.listener.ChainListener;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.listener.logging.SLF4JSlowQueryListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 import java.util.Collection;
@@ -20,7 +20,7 @@ import java.util.concurrent.*;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

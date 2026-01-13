@@ -2,8 +2,12 @@ package com.vladmihalcea.hpjp.hibernate.transaction.identifier;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.runners.Parameterized;
 
 import jakarta.persistence.Entity;
@@ -12,18 +16,16 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.stream.Stream;
+
+import org.junit.runner.RunWith;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@MethodSource("parameters")
 public class TransactionIdTest extends AbstractTest {
-
-    private Database database;
-
-    public TransactionIdTest(Database database) {
-        this.database = database;
-    }
 
     @Override
     protected Database database() {
@@ -33,18 +35,19 @@ public class TransactionIdTest extends AbstractTest {
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class
+            Post.class
         };
     }
 
-    @Parameterized.Parameters
-    public static Collection<Object[]> databases() {
-        return Arrays.asList(
-                new Object[]{Database.HSQLDB},
-                new Object[]{Database.ORACLE},
-                new Object[]{Database.SQLSERVER},
-                new Object[]{Database.POSTGRESQL},
-                new Object[]{Database.MYSQL}
+    @Parameter
+    private Database database;
+
+    public static Stream<Arguments> parameters() {
+        return Stream.of(
+            Arguments.of(Database.ORACLE),
+            Arguments.of(Database.SQLSERVER),
+            Arguments.of(Database.POSTGRESQL),
+            Arguments.of(Database.MYSQL)
         );
     }
 

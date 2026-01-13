@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.Session;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 
@@ -38,7 +38,7 @@ public class HibernateDeleteEntityTest extends AbstractTest {
             Post post = new Post();
             post.setId(1L);
 
-            entityManager.unwrap(Session.class).delete(post);
+            entityManager.remove(post);
         });
     }
 

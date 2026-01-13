@@ -2,21 +2,18 @@ package com.vladmihalcea.hpjp.hibernate.mapping;
 
 import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
 import com.vladmihalcea.hpjp.util.ReflectionUtils;
-import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
+import jakarta.persistence.*;
 import org.hibernate.HibernateException;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.query.ImmutableEntityUpdateQueryHandlingMode;
-import org.junit.Test;
+import org.hibernate.query.spi.ImmutableEntityUpdateQueryHandlingMode;
+import org.junit.jupiter.api.Test;
 
-import jakarta.persistence.*;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea

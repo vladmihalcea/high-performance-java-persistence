@@ -5,8 +5,8 @@ import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.entity.SequenceBatchEntityProvider;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public abstract class AbstractSequenceCallTest extends AbstractTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testBatch() {
         doInJDBC(this::callSequence);
     }

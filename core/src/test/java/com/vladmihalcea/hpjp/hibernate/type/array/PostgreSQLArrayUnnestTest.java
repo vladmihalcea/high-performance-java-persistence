@@ -4,7 +4,7 @@ import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import io.hypersistence.utils.hibernate.type.array.IntArrayType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Vlad Mihalcea

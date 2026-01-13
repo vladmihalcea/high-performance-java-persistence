@@ -1,11 +1,11 @@
 package com.vladmihalcea.hpjp.hibernate.association;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
@@ -82,7 +82,6 @@ public class LazyToOneFalseTest extends AbstractTest {
         private String review;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        //@LazyToOne(LazyToOneOption.FALSE)
         @JoinColumn(name = "post_id")
         private Post post;
 

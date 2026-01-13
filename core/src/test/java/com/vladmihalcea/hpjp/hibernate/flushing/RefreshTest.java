@@ -1,17 +1,16 @@
 package com.vladmihalcea.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
-import org.junit.Test;
-
 import jakarta.persistence.*;
+import org.hibernate.annotations.Generated;
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.hibernate.generator.EventType.INSERT;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Vlad Mihalcea
@@ -26,8 +25,7 @@ public class RefreshTest extends AbstractTest {
         };
     }
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Post post = new Post();
             post.setId(1L);
@@ -39,7 +37,7 @@ public class RefreshTest extends AbstractTest {
         });
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void testChildEntity() {
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
@@ -59,7 +57,7 @@ public class RefreshTest extends AbstractTest {
             comment.setReview("Great!");
             post.addComment(comment);
 
-            entityManager.refresh(post);
+            assertThrows(IllegalArgumentException.class, ()-> entityManager.refresh(post));
         });
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
@@ -70,7 +68,7 @@ public class RefreshTest extends AbstractTest {
             comment.setReview("Great!");
             post.addComment(comment);
 
-            entityManager.refresh(post);
+            assertThrows(IllegalArgumentException.class, ()-> entityManager.refresh(post));
         });
     }
 
@@ -93,7 +91,7 @@ public class RefreshTest extends AbstractTest {
         private String title;
 
         @Column(name = "created_on", columnDefinition = "timestamp default current_timestamp")
-        @Generated(GenerationTime.INSERT)
+        @Generated(event = {INSERT})
         private String createdOn;
 
         @Version

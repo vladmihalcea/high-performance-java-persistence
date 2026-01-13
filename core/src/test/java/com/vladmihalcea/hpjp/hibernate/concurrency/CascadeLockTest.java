@@ -3,17 +3,16 @@ package com.vladmihalcea.hpjp.hibernate.concurrency;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import jakarta.persistence.*;
 import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * CascadeLockTest - Test to check CascadeType.LOCK
@@ -49,11 +48,7 @@ public class CascadeLockTest extends AbstractTest {
         LOGGER.info("Test lock cascade for managed entity");
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
-            entityManager.unwrap(Session.class)
-                .buildLockRequest(
-                    new LockOptions(LockMode.PESSIMISTIC_WRITE))
-                .setScope(true)
-                .lock(post);
+            entityManager.unwrap(Session.class).lock(post, LockMode.PESSIMISTIC_WRITE);
         });
     }
 
@@ -100,7 +95,7 @@ public class CascadeLockTest extends AbstractTest {
                 """
             ).setParameter("id", 1L)
                 .getSingleResult();
-            session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).setScope(true).lock(post);
+            session.lock(post, LockMode.PESSIMISTIC_WRITE);
         });
     }
 
@@ -128,151 +123,6 @@ public class CascadeLockTest extends AbstractTest {
         for (PostComment comment : post.getComments()) {
             assertEquals(expected, (entityManager.contains(comment)));
         }
-    }
-
-    @Test
-    public void testCascadeLockOnDetachedEntityWithoutScope() {
-        LOGGER.info("Test lock cascade for detached entity without scope");
-
-        //Load the Post entity, which will become detached
-        Post post = doInJPA(entityManager ->
-            (Post) entityManager.createQuery("""
-                select p
-                from Post p
-                join fetch p.details
-                join fetch p.comments
-                where p.id = :id
-                """
-            ).setParameter("id", 1L)
-                .getSingleResult());
-
-        //Change the detached entity state
-        post.setTitle("Hibernate Training");
-        doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            //The Post entity graph is detached
-            containsPost(entityManager, post, false);
-
-            //The Lock request associates the entity graph and locks the requested entity
-            session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(post);
-
-            //Hibernate doesn't know if the entity is dirty
-            assertEquals("Hibernate Training", post.getTitle());
-
-            //The Post entity graph is attached
-            containsPost(entityManager, post, true);
-        });
-        doInJPA(entityManager -> {
-            //The detached Post entity changes have been lost
-            Post _post = (Post) entityManager.find(Post.class, 1L);
-            assertEquals("Hibernate Master Class", _post.getTitle());
-        });
-    }
-
-    @Test
-    public void testCascadeLockOnDetachedEntityWithScope() {
-        LOGGER.info("Test lock cascade for detached entity with scope");
-
-        //Load the Post entity, which will become detached
-        Post post = doInJPA(entityManager -> {
-            return entityManager.createQuery("""
-                select p
-                from Post p
-                join fetch p.details
-                join fetch p.comments
-                where p.id = :id
-                """, Post.class)
-                .setParameter("id", 1L)
-                .getSingleResult();
-        });
-
-        doInJPA(entityManager -> {
-            LOGGER.info("Reattach and lock");
-            entityManager.unwrap(Session.class)
-                .buildLockRequest(
-                    new LockOptions(LockMode.PESSIMISTIC_WRITE))
-                .setScope(true)
-                .lock(post);
-
-            //The Post entity graph is attached
-            containsPost(entityManager, post, true);
-        });
-        doInJPA(entityManager -> {
-            //The detached Post entity changes have been lost
-            Post _post = (Post) entityManager.find(Post.class, 1L);
-            assertEquals("Hibernate Master Class", _post.getTitle());
-        });
-    }
-
-    @Test
-    public void testCascadeLockOnDetachedEntityUninitializedWithScope() {
-        LOGGER.info("Test lock cascade for detached entity with scope");
-
-        //Load the Post entity, which will become detached
-        Post post = doInJPA(entityManager -> (Post) entityManager.find(Post.class, 1L));
-
-        doInJPA(entityManager -> {
-            LOGGER.info("Reattach and lock entity with associations not initialized");
-            entityManager.unwrap(Session.class)
-                .buildLockRequest(
-                    new LockOptions(LockMode.PESSIMISTIC_WRITE))
-                .setScope(true)
-                .lock(post);
-
-            LOGGER.info("Check entities are reattached");
-            //The Post entity graph is attached
-            containsPost(entityManager, post, true);
-        });
-    }
-
-    @Test
-    public void testCascadeLockOnDetachedChildEntityUninitializedWithScope() {
-        LOGGER.info("Test lock cascade for detached entity with scope");
-
-        //Load the Post entity, which will become detached
-        PostComment postComment = doInJPA(entityManager -> (PostComment) entityManager.find(PostComment.class, 2L));
-
-        doInJPA(entityManager -> {
-            LOGGER.info("Reattach and lock entity with associations not initialized");
-            entityManager.unwrap(Session.class)
-                .buildLockRequest(
-                    new LockOptions(LockMode.PESSIMISTIC_WRITE))
-                .lock(postComment);
-        });
-    }
-
-    @Test
-    public void testUpdateOnDetachedEntity() {
-        LOGGER.info("Test update for detached entity");
-        //Load the Post entity, which will become detached
-        Post post = doInJPA(entityManager -> (Post) entityManager.createQuery("""
-            select p
-            from Post p
-            join fetch p.details
-            join fetch p.comments
-            where p.id = :id
-            """, Post.class)
-            .setParameter("id", 1L)
-            .getSingleResult());
-
-        //Change the detached entity state
-        post.setTitle("Hibernate Training");
-
-        doInJPA(entityManager -> {
-            Session session = entityManager.unwrap(Session.class);
-            //The Post entity graph is detached
-            containsPost(entityManager, post, false);
-
-            //The update will trigger an entity state flush and attach the entity graph
-            session.update(post);
-
-            //The Post entity graph is attached
-            containsPost(entityManager, post, true);
-        });
-        doInJPA(entityManager -> {
-            Post _post = (Post) entityManager.find(Post.class, 1L);
-            assertEquals("Hibernate Training", _post.getTitle());
-        });
     }
 
     @Entity(name = "Post")

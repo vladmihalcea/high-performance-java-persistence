@@ -3,7 +3,8 @@ package com.vladmihalcea.hpjp.hibernate.cache.readonly;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.Properties;
@@ -31,9 +32,7 @@ public class SequenceReadOnlyCacheConcurrencyStrategyTest extends AbstractTest {
         return properties;
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Post post = new Post();
             post.setTitle("High-Performance Java Persistence");

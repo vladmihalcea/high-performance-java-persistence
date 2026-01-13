@@ -6,14 +6,14 @@ import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.exception.ConstraintViolationException;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Vlad Mihalcea
@@ -112,7 +112,7 @@ public class PostgreSQLHashIndexTest extends AbstractTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testDuplicate() {
         try {
             doInJPA(entityManager -> {

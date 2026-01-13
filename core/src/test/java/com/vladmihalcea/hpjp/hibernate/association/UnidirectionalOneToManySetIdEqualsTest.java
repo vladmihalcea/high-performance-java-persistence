@@ -10,7 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 

@@ -4,7 +4,7 @@ import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import jakarta.persistence.*;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;

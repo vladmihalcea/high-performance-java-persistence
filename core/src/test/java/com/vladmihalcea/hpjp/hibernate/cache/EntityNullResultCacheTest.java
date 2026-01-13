@@ -3,9 +3,9 @@ package com.vladmihalcea.hpjp.hibernate.cache;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.CacheLayout;
-import org.hibernate.annotations.QueryHints;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.Test;
+import org.hibernate.jpa.HibernateHints;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -13,9 +13,9 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Vlad Mihalcea
@@ -103,7 +103,7 @@ public class EntityNullResultCacheTest extends AbstractTest {
                     "from Book b " +
                     "where b.isbn = :isbn", Book.class)
                 .setParameter("isbn", "978-9730456472")
-                .setHint(QueryHints.CACHEABLE, true)
+                .setHint(HibernateHints.HINT_CACHEABLE, true)
                 .getSingleResult();
             } catch (NoResultException expected) {
             }
@@ -118,7 +118,7 @@ public class EntityNullResultCacheTest extends AbstractTest {
                             "from Book b " +
                             "where b.isbn = :isbn", Book.class)
                         .setParameter("isbn", "978-9730456472")
-                        .setHint(QueryHints.CACHEABLE, true)
+                        .setHint(HibernateHints.HINT_CACHEABLE, true)
                         .getSingleResult();
                     } catch (NoResultException expected) {
                     }
@@ -158,7 +158,7 @@ public class EntityNullResultCacheTest extends AbstractTest {
 
             return entityManager
                     .createQuery(criteria)
-                    .setHint(QueryHints.CACHEABLE, true)
+                    .setHint(HibernateHints.HINT_CACHEABLE, true)
                     .getSingleResult();
         });
     }

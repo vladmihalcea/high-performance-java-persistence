@@ -2,8 +2,8 @@ package com.vladmihalcea.hpjp.hibernate.sp;
 
 import com.vladmihalcea.hpjp.util.AbstractOracleIntegrationTest;
 import jakarta.persistence.*;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -130,7 +130,7 @@ public class OracleDeleteStoredProcedureTest extends AbstractOracleIntegrationTe
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testBulkDelete() {
         doInJPA(entityManager -> {
             long startNanos = System.nanoTime();

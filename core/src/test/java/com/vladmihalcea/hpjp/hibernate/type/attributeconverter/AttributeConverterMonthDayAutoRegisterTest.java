@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.type.attributeconverter;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.spi.MetadataBuilderContributor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -11,7 +11,7 @@ import java.time.Month;
 import java.time.MonthDay;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

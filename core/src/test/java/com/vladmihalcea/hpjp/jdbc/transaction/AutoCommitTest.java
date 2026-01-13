@@ -3,14 +3,14 @@ package com.vladmihalcea.hpjp.jdbc.transaction;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.exception.DataAccessException;
 import com.vladmihalcea.hpjp.util.providers.entity.BankEntityProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Vlad Mihalcea
@@ -27,8 +27,7 @@ public class AutoCommitTest extends AbstractTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJDBC(connection -> {
             try (
                     PreparedStatement accountStatement = connection.prepareStatement(INSERT_ACCOUNT);

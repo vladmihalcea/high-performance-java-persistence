@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.jdbc.batch.generatedkeys.sequence;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.entity.SequenceBatchEntityProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.*;
 import java.util.concurrent.TimeUnit;

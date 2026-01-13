@@ -14,11 +14,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
+
+import org.junit.runner.RunWith;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@MethodSource("parameters")
 public class SQLServerSendStringParametersAsUnicodeComparisonTest extends AbstractTest {
 
     private SQLServerDataSourceProvider dataSourceProvider;

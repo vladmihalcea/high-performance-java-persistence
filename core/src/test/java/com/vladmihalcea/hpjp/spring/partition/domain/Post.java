@@ -23,7 +23,18 @@ public class Post extends PartitionAware<Post> {
     private LocalDateTime createdOn;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumns({
+        @JoinColumn(
+            name = "user_id",
+            referencedColumnName = "id",
+            insertable = false, updatable = false
+        ),
+        @JoinColumn(
+            name = "partition_key",
+            referencedColumnName = "partition_key",
+            insertable = false, updatable = false
+        )
+    })
     private User user;
 
     public Long getId() {

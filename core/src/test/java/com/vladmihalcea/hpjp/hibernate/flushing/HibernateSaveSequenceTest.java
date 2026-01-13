@@ -1,7 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.flushing;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 
@@ -17,16 +17,14 @@ public class HibernateSaveSequenceTest extends AbstractTest {
         };
     }
 
-
     @Test
     public void testId() {
-
         doInHibernate(session -> {
             Post post = new Post();
             post.setTitle("High-Performance Java Persistence");
 
-            Long identifier = (Long) session.save(post);
-            LOGGER.info("The post entity identifier is {}", identifier);
+            session.persist(post);
+            LOGGER.info("The post entity identifier is {}", post.id);
 
             LOGGER.info("Flush Persistence Context");
             session.flush();

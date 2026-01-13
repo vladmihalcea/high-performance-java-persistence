@@ -7,14 +7,14 @@ import org.hibernate.JDBCException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.PreparedStatement;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea
@@ -99,7 +99,7 @@ public class EnumOrdinalMySQLWithCheckTest extends AbstractTest {
                 fail("Should not store the ordinal value of 99!");
             });
         } catch (JDBCException e) {
-            assertTrue(e.getMessage().contains("Check constraint 'post_status_enum' is violated"));
+            assertTrue(e.getMessage().contains("CHK_status_enum_value"));
         }
     }
 

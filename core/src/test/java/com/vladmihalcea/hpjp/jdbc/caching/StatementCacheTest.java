@@ -4,37 +4,42 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
-import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.*;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
 import jakarta.persistence.EntityManager;
 import oracle.jdbc.pool.OracleDataSource;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Stream;
+
 import java.util.function.Consumer;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Vlad Mihalcea
  */
-public class StatementCacheTest extends DataSourceProviderIntegrationTest {
+@ParameterizedClass
+@MethodSource("parameters")
+public class StatementCacheTest extends AbstractTest {
 
     public static class CachingOracleDataSourceProvider extends OracleDataSourceProvider {
         private final int cacheSize;
@@ -129,68 +134,27 @@ public class StatementCacheTest extends DataSourceProviderIntegrationTest {
 
     private Timer queryExecutionTimer = metricRegistry.timer("queryExecutionTimer");
 
-    private ThreadLocalRandom random = ThreadLocalRandom.current();
-
-    public StatementCacheTest(DataSourceProvider databaseSourceProvider) {
-        super(databaseSourceProvider);
-    }
-
-    @Parameterized.Parameters
-    public static Collection<DataSourceProvider[]> rdbmsDataSourceProvider() {
-        List<DataSourceProvider[]> providers = new ArrayList<>();
-        /*providers.add(new DataSourceProvider[]{
-                new CachingOracleDataSourceProvider(1)
-        });
-        providers.add(new DataSourceProvider[]{
-                new CachingOracleDataSourceProvider(0)
-        });
-        providers.add(new DataSourceProvider[]{
-                new CachingSQLServerDataSourceProvider(1)
-        });
-        providers.add(new DataSourceProvider[]{
-                new CachingSQLServerDataSourceProvider(0)
-        });
-        providers.add(new DataSourceProvider[]{
-                new CachingPostgreSQLDataSourceProvider(1)
-        });
-        providers.add(new DataSourceProvider[]{
-                new CachingPostgreSQLDataSourceProvider(0)
-        });*/
-        /*providers.add(new DataSourceProvider[]{
-            new CachingSQLServerDataSourceProvider(1000)
-        });*/
-        providers.add(new DataSourceProvider[]{
-            new CachingSQLServerDataSourceProvider(0)
-        });
-
-        /*providers.add(new DataSourceProvider[]{
-            new MySQLDataSourceProvider()
+    public static Stream<Arguments> parameters() {
+        return Stream.of(
+            Arguments.of(new MySQLDataSourceProvider()
                 .setUseServerPrepStmts(false)
-                .setCachePrepStmts(false)
-        });
-
-        providers.add(new DataSourceProvider[]{
-            new MySQLDataSourceProvider()
+                .setCachePrepStmts(false)),
+            Arguments.of(new MySQLDataSourceProvider()
                 .setUseServerPrepStmts(true)
-                .setCachePrepStmts(false)
-        });
-
-        providers.add(new DataSourceProvider[]{
-            new MySQLDataSourceProvider()
+                .setCachePrepStmts(false)),
+            Arguments.of(new MySQLDataSourceProvider()
                 .setUseServerPrepStmts(false)
                 .setCachePrepStmts(true)
-                .setPrepStmtCacheSqlLimit(2048)
-        });
-
-        providers.add(new DataSourceProvider[]{
-            new MySQLDataSourceProvider()
+                .setPrepStmtCacheSqlLimit(2048)),
+            Arguments.of(new MySQLDataSourceProvider()
                 .setUseServerPrepStmts(true)
                 .setCachePrepStmts(true)
-                .setPrepStmtCacheSqlLimit(2048)
-        });*/
-
-        return providers;
+                .setPrepStmtCacheSqlLimit(2048))
+        );
     }
+
+    @Parameter
+    private DataSourceProvider dataSourceProvider;
 
     @Override
     protected Class<?>[] entities() {

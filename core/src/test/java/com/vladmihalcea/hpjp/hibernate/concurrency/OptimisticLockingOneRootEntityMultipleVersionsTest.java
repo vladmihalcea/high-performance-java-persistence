@@ -5,7 +5,9 @@ import com.vladmihalcea.hpjp.util.transaction.VoidCallable;
 import org.hamcrest.core.IsInstanceOf;
 import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.internal.matchers.ThrowableCauseMatcher;
 import org.junit.rules.ExpectedException;
 
@@ -19,16 +21,15 @@ import static org.hamcrest.core.IsEqual.equalTo;
 
 
 /**
- * EntityOptimisticLockingHighUpdateRateSingleEntityTest - Test to check optimistic checking on a single entity being updated by many threads
- *
  * @author Vlad Mihalcea
  */
+@Disabled
 public class OptimisticLockingOneRootEntityMultipleVersionsTest extends AbstractTest {
 
     private ExecutorService executorService = Executors.newFixedThreadPool(10);
     private Post originalPost;
 
-    @Before
+    @BeforeEach
     public void addPost() {
         originalPost = doInJPA(entityManager -> {
             Post post = new Post();

@@ -1,13 +1,12 @@
 package com.vladmihalcea.hpjp.hibernate.type;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.NaturalId;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import jakarta.persistence.*;
-
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
@@ -22,14 +21,12 @@ public class PostgresSelectGeneratorTest extends AbstractPostgreSQLIntegrationTe
     }
 
     @Override
-    public void init() {
+    public void beforeInit() {
         executeStatement("CREATE SEQUENCE event_sequence START 1");
-        super.init();
     }
 
     @Override
-    public void destroy() {
-        super.destroy();
+    public void afterDestroy() {
         executeStatement("DROP SEQUENCE event_sequence");
     }
 

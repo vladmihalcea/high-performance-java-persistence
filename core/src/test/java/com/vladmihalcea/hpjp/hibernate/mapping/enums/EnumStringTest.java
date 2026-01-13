@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.mapping.enums;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Vlad Mihalcea

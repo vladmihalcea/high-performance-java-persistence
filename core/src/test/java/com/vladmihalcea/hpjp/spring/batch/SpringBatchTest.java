@@ -5,12 +5,12 @@ import com.vladmihalcea.hpjp.spring.batch.domain.Post;
 import com.vladmihalcea.hpjp.spring.batch.domain.PostStatus;
 import com.vladmihalcea.hpjp.spring.batch.service.ForumService;
 import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = SpringBatchConfiguration.class)
 public class SpringBatchTest extends AbstractSpringTest {
 
@@ -71,7 +71,7 @@ public class SpringBatchTest extends AbstractSpringTest {
     private ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
     @Test
-    @Ignore
+    @Disabled
     public void testRead() throws InterruptedException {
         int POST_COUNT = 1000;
 

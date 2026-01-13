@@ -4,23 +4,27 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.vladmihalcea.hpjp.hibernate.query.recursive.PostCommentScore;
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@MethodSource("parameters")
 public abstract class AbstractPostCommentScorePerformanceTest extends AbstractPostgreSQLIntegrationTest {
 
     protected MetricRegistry metricRegistry = new MetricRegistry();
@@ -41,32 +45,24 @@ public abstract class AbstractPostCommentScorePerformanceTest extends AbstractPo
         };
     }
 
+    @Parameter(0)
     private int postCount;
+    @Parameter(1)
     private int commentCount;
 
-    public AbstractPostCommentScorePerformanceTest(int postCount, int commentCount) {
-        this.postCount = postCount;
-        this.commentCount = commentCount;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Integer[]> parameters() {
-        List<Integer[]> postCountSizes = new ArrayList<>();
-        int postCount = 2;
-        postCountSizes.add(new Integer[] {postCount, 16});
-        postCountSizes.add(new Integer[] {postCount, 4});
-        postCountSizes.add(new Integer[] {postCount, 8});
-        postCountSizes.add(new Integer[] {postCount, 16});
-        postCountSizes.add(new Integer[] {postCount, 24});
-        postCountSizes.add(new Integer[] {postCount, 32});
-        postCountSizes.add(new Integer[] {postCount, 48});
-        postCountSizes.add(new Integer[] {postCount, 64});
-        return postCountSizes;
+    public static Stream<Arguments> parameters() {
+        int postCount = 10;
+        return Stream.of(
+            Arguments.of(postCount, 4),
+            Arguments.of(postCount, 8),
+            Arguments.of(postCount, 16),
+            Arguments.of(postCount, 32),
+            Arguments.of(postCount, 64)
+        );
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         for (long i = 0; i < postCount; i++) {
             insertPost(i);
         }
@@ -127,12 +123,11 @@ public abstract class AbstractPostCommentScorePerformanceTest extends AbstractPo
         properties.put("hibernate.jdbc.batch_size", "50");
         properties.put("hibernate.order_inserts", "true");
         properties.put("hibernate.order_updates", "true");
-        properties.put("hibernate.jdbc.batch_versioned_data", "true");
         return properties;
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void test() {
         int rank = 3;
         int iterations = 25;

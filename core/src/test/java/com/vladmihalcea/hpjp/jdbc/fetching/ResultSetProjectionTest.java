@@ -6,8 +6,7 @@ import com.codahale.metrics.Timer;
 import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,7 +14,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * ResultSetColumnSizeTest - Test result set column size
@@ -64,10 +63,6 @@ public class ResultSetProjectionTest extends DatabaseProviderIntegrationTest {
             .build();
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
-
-    public ResultSetProjectionTest(Database database) {
-        super(database);
-    }
 
     @Override
     protected Class<?>[] entities() {

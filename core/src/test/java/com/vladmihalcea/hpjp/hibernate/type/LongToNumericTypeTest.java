@@ -15,7 +15,7 @@ import jakarta.persistence.Table;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
 import com.vladmihalcea.hpjp.util.PersistenceUnitInfoImpl;

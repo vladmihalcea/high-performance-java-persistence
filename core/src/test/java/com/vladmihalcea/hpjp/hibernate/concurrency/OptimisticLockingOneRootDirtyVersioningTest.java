@@ -6,7 +6,7 @@ import org.hibernate.StaleObjectStateException;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.OptimisticLockType;
 import org.hibernate.annotations.OptimisticLocking;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -139,37 +139,6 @@ public class OptimisticLockingOneRootDirtyVersioningTest extends AbstractTest {
         doInJPA(entityManager -> {
             detachedPost.setTitle("JPA");
             entityManager.merge(detachedPost);
-        });
-    }
-
-    @Test
-    public void testVersionlessOptimisticLockingWhenReattaching() {
-
-        doInJPA(entityManager -> {
-            Post post = new Post();
-            post.setId(1L);
-            post.setTitle("JDBC");
-            entityManager.persist(post);
-            return post;
-        });
-
-        Post detachedPost = doInJPA(entityManager -> {
-            LOGGER.info("Alice loads the Post entity");
-            return entityManager.find(Post.class, 1L);
-        });
-
-        executeSync(() -> {
-            doInJPA(entityManager -> {
-                LOGGER.info("Bob loads the Post entity and modifies it");
-                Post post = entityManager.find(Post.class, 1L);
-                post.setTitle("Hibernate");
-            });
-        });
-
-        doInJPA(entityManager -> {
-            LOGGER.info("Alice updates the Post entity");
-            detachedPost.setTitle("JPA");
-            entityManager.unwrap(Session.class).update(detachedPost);
         });
     }
     

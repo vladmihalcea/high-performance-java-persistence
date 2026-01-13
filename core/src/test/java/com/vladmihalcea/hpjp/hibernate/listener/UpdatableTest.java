@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.listener;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import jakarta.persistence.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Date;

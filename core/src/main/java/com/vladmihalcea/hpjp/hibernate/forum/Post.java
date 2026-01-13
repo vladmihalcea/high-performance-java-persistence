@@ -1,8 +1,5 @@
 package com.vladmihalcea.hpjp.hibernate.forum;
 
-import org.hibernate.annotations.LazyToOne;
-import org.hibernate.annotations.LazyToOneOption;
-
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +28,6 @@ public class Post {
         cascade = CascadeType.ALL,
         fetch = FetchType.LAZY
     )
-    @LazyToOne(LazyToOneOption.NO_PROXY)
     private PostDetails details;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})

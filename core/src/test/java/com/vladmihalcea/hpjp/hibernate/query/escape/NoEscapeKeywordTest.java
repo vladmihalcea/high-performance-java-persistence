@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.query.escape;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManagerFactory;
@@ -11,8 +11,8 @@ import jakarta.persistence.Id;
 
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Vlad Mihalcea

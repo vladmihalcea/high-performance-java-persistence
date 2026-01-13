@@ -4,14 +4,14 @@ import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea

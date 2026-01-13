@@ -4,17 +4,16 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
-import org.hibernate.jpa.AvailableHints;
-import org.hibernate.query.Query;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.jpa.AvailableHints;
+import org.hibernate.query.Query;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,12 +23,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
 public class MySQLScrollableResultsStreamingTest extends AbstractMySQLIntegrationTest {
 
     private MetricRegistry metricRegistry = new MetricRegistry();
@@ -41,12 +39,6 @@ public class MySQLScrollableResultsStreamingTest extends AbstractMySQLIntegratio
             .outputTo(LOGGER)
             .build();
 
-    private final int resultSetSize;
-
-    public MySQLScrollableResultsStreamingTest(Integer resultSetSize) {
-        this.resultSetSize = resultSetSize;
-    }
-
     @Override
     protected Class<?>[] entities() {
         return new Class[]{
@@ -54,31 +46,7 @@ public class MySQLScrollableResultsStreamingTest extends AbstractMySQLIntegratio
         };
     }
 
-    @Parameterized.Parameters
-    public static Collection<Integer[]> parameters() {
-        List<Integer[]> providers = new ArrayList<>();
-        providers.add(new Integer[]{1});
-        providers.add(new Integer[]{2});
-        providers.add(new Integer[]{5});
-        providers.add(new Integer[]{10});
-        providers.add(new Integer[]{25});
-        providers.add(new Integer[]{50});
-        providers.add(new Integer[]{75});
-        providers.add(new Integer[]{100});
-        providers.add(new Integer[]{250});
-        providers.add(new Integer[]{500});
-        providers.add(new Integer[]{750});
-        providers.add(new Integer[]{1000});
-        providers.add(new Integer[]{1500});
-        providers.add(new Integer[]{2000});
-        providers.add(new Integer[]{2500});
-        providers.add(new Integer[]{5000});
-        return providers;
-    }
-
-    @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             LongStream.range(0, 5000).forEach(i -> {
                 Post post = new Post(i);
@@ -101,28 +69,29 @@ public class MySQLScrollableResultsStreamingTest extends AbstractMySQLIntegratio
         return properties;
     }
 
-    @Test
-    @Ignore
-    public void testStream() {
+    @Disabled
+    @ParameterizedTest
+    @ValueSource(ints = {1,2,5,10,25,50,75,100,250,500,750,1000,1500,2000,2500,5000})
+    public void testStream(int resultSetSize) {
         //warming up
         LOGGER.info("Warming up");
         doInJPA(entityManager -> {
             for (int i = 0; i < 25_000; i++) {
-                stream(entityManager);
+                stream(entityManager, resultSetSize);
             }
         });
         int iterations = 10_000;
         doInJPA(entityManager -> {
             for (int i = 0; i < iterations; i++) {
                 long startNanos = System.nanoTime();
-                stream(entityManager);
+                stream(entityManager, resultSetSize);
                 timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
             }
         });
         logReporter.report();
     }
 
-    private void stream(EntityManager entityManager) {
+    private void stream(EntityManager entityManager, int resultSetSize) {
         final AtomicLong sum = new AtomicLong();
         try(Stream<Post> postStream = entityManager
                 .createQuery("select p from Post p", Post.class)

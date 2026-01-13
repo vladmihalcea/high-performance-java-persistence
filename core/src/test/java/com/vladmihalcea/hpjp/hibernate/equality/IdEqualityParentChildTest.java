@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.equality;
 import com.vladmihalcea.hpjp.hibernate.identifier.Identifiable;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Properties;

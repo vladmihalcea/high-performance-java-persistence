@@ -4,16 +4,15 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.hibernate.EmptyInterceptor;
+import jakarta.persistence.*;
 import org.hibernate.Interceptor;
 import org.hibernate.type.Type;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.ValueSource;
 
-import jakarta.persistence.*;
-import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -21,7 +20,8 @@ import java.util.stream.Collectors;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@ValueSource(ints = {5, 10, 20, 50, 100})
 public class DefaultDirtyCheckingPerformanceTest extends AbstractTest {
 
     private MetricRegistry metricRegistry = new MetricRegistry();
@@ -33,25 +33,11 @@ public class DefaultDirtyCheckingPerformanceTest extends AbstractTest {
         .outputTo(LOGGER)
         .build();
 
+    @Parameter
     private int entityCount = 1;
     private int iterationCount = 1000;
     private List<Long> postIds = new ArrayList<>();
     private boolean enableMetrics = false;
-
-    public DefaultDirtyCheckingPerformanceTest(int entityCount) {
-        this.entityCount = entityCount;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Integer[]> rdbmsDataSourceProvider() {
-        List<Integer[]> counts = new ArrayList<>();
-        counts.add(new Integer[] {5});
-        counts.add(new Integer[] {10});
-        counts.add(new Integer[] {20});
-        counts.add(new Integer[] {50});
-        counts.add(new Integer[] {100});
-        return counts;
-    }
 
     @Override
     protected Class<?>[] entities() {
@@ -65,7 +51,7 @@ public class DefaultDirtyCheckingPerformanceTest extends AbstractTest {
 
     @Override
     protected Interceptor interceptor() {
-        return new EmptyInterceptor() {
+        return new Interceptor() {
             private Long startNanos;
 
             @Override
@@ -74,7 +60,7 @@ public class DefaultDirtyCheckingPerformanceTest extends AbstractTest {
             }
 
             @Override
-            public boolean onFlushDirty(Object entity, Serializable id, Object[] currentState, Object[] previousState, String[] propertyNames, Type[] types) {
+            public boolean onFlushDirty(Object entity, Object id, Object[] currentState, Object[] previousState, String[] propertyNames, Type[] types) {
                 if (enableMetrics) {
                     timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
                 }
@@ -93,8 +79,7 @@ public class DefaultDirtyCheckingPerformanceTest extends AbstractTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             for (int i = 0; i < entityCount; i++) {
                 Post post = new Post("JPA with Hibernate");
@@ -138,7 +123,7 @@ public class DefaultDirtyCheckingPerformanceTest extends AbstractTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testDirtyChecking() {
         doInJPA(entityManager -> {
             List<Post> posts = posts(entityManager);
@@ -165,13 +150,14 @@ public class DefaultDirtyCheckingPerformanceTest extends AbstractTest {
     }
 
     private List<Post> posts(EntityManager entityManager) {
-        return entityManager.createQuery(
-            "select pc " +
-            "from PostComment pc " +
-            "join fetch pc.post p " +
-            "join fetch p.tags " +
-            "join fetch p.details " +
-            "where p.id in :ids", PostComment.class)
+        return entityManager.createQuery("""
+            select pc
+            from PostComment pc
+            join fetch pc.post p
+            join fetch p.tags
+            join fetch p.details
+            where p.id in :ids
+            """, PostComment.class)
         .setParameter("ids", postIds)
         .getResultList()
         .stream()

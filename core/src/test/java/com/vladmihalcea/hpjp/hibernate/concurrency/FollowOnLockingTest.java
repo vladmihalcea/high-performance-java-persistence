@@ -3,14 +3,12 @@ package com.vladmihalcea.hpjp.hibernate.concurrency;
 import com.vladmihalcea.hpjp.util.AbstractOracleIntegrationTest;
 import jakarta.persistence.*;
 import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.hibernate.Timeouts;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -24,9 +22,7 @@ public class FollowOnLockingTest extends AbstractOracleIntegrationTest {
         };
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             for (long i = 0; i < 5; i++) {
                 Post post = new Post();
@@ -43,17 +39,17 @@ public class FollowOnLockingTest extends AbstractOracleIntegrationTest {
     public void testPessimisticWrite() {
         LOGGER.info("Test lock contention");
         doInJPA(entityManager -> {
-            List<Post> pendingPosts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.status = :status",
-                Post.class)
+            List<Post> pendingPosts = entityManager.createQuery("""
+                select p
+                from Post p
+                where p.status = :status
+                """, Post.class)
             .setParameter("status", PostStatus.PENDING)
             .setMaxResults(5)
-            //.setLockMode(LockModeType.PESSIMISTIC_WRITE)
             .unwrap(org.hibernate.query.Query.class)
-            .setLockOptions(new LockOptions(LockMode.PESSIMISTIC_WRITE).setTimeOut(LockOptions.SKIP_LOCKED))
-            .list();
+            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+            .setTimeout(Timeouts.SKIP_LOCKED)
+            .getResultList();
 
             assertEquals(5, pendingPosts.size());
         });
@@ -63,16 +59,16 @@ public class FollowOnLockingTest extends AbstractOracleIntegrationTest {
     public void testUpgradeSkipLocked() {
         LOGGER.info("Test lock contention");
         doInJPA(entityManager -> {
-            List<Post> pendingPosts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.status = :status",
-                Post.class)
+            List<Post> pendingPosts = entityManager.createQuery("""
+                select p
+                from Post p
+                where p.status = :status
+                """, Post.class)
             .setParameter("status", PostStatus.PENDING)
             .setFirstResult(2)
             .unwrap(org.hibernate.query.Query.class)
-            .setLockOptions(new LockOptions(LockMode.UPGRADE_SKIPLOCKED))
-            .list();
+            .setHibernateLockMode(LockMode.UPGRADE_SKIPLOCKED)
+            .getResultList();
 
             assertEquals(3, pendingPosts.size());
         });
@@ -82,40 +78,40 @@ public class FollowOnLockingTest extends AbstractOracleIntegrationTest {
     public void testUpgradeSkipLockedOrderBy() {
         LOGGER.info("Test lock contention");
         doInJPA(entityManager -> {
-            List<Post> pendingPosts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.status = :status " +
-                "order by p.id ",
-                Post.class)
+            List<Post> pendingPosts = entityManager.createQuery("""
+                select p
+                from Post p
+                where p.status = :status
+                order by p.id
+                """, Post.class)
             .setParameter("status", PostStatus.PENDING)
             .setFirstResult(2)
             .unwrap(org.hibernate.query.Query.class)
-            .setLockOptions(new LockOptions(LockMode.UPGRADE_SKIPLOCKED))
-            .list();
+            .setHibernateLockMode(LockMode.UPGRADE_SKIPLOCKED)
+            .getResultList();
 
             assertEquals(3, pendingPosts.size());
         });
     }
 
     @Test
-    @Ignore
     public void testUpgradeSkipLockedOrderByMaxResult() {
         LOGGER.info("Test lock contention");
         doInJPA(entityManager -> {
-            List<Post> pendingPosts = entityManager.createQuery(
-                "select p " +
-                "from Post p " +
-                "where p.status = :status " +
-                "order by p.id ",
-                Post.class)
+            List<Post> pendingPosts = entityManager.createQuery("""
+                select p
+                from Post p
+                where p.status = :status
+                order by p.id
+                """, Post.class)
             .setParameter("status", PostStatus.PENDING)
             .setMaxResults(5)
+            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
             .unwrap(org.hibernate.query.Query.class)
-            .setLockOptions(new LockOptions(LockMode.UPGRADE_SKIPLOCKED))
-            .list();
+            .setTimeout(Timeouts.SKIP_LOCKED)
+            .getResultList();
 
-            assertEquals(3, pendingPosts.size());
+            assertEquals(5, pendingPosts.size());
         });
     }
 

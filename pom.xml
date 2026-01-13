@@ -292,7 +292,7 @@
 
         <dependency>
             <groupId>io.hypersistence</groupId>
-            <artifactId>hypersistence-utils-hibernate-63</artifactId>
+            <artifactId>hypersistence-utils-hibernate-71</artifactId>
             <version>${hypersistence-utils.version}</version>
             <exclusions>
                 <exclusion>
@@ -405,16 +405,16 @@
         <!-- Testing -->
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <version>${junit-vintage.engine.version}</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -493,8 +493,8 @@
         <slf4j.version>2.0.13</slf4j.version>
         <logback.version>1.5.6</logback.version>
         <commons-lang.version>3.17.0</commons-lang.version>
-        <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
-        <hibernate.version>6.6.33.Final</hibernate.version>
+        <jakarta.persistence.version>3.2.0</jakarta.persistence.version>
+        <hibernate.version>7.1.10.Final</hibernate.version>
         <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
         <javassist.version>3.18.1-GA</javassist.version>
         <ehcache.version>3.10.8</ehcache.version>
@@ -522,21 +522,20 @@
         <flexy-pool.version>3.1.0</flexy-pool.version>
 
         <aspectj.version>1.9.19</aspectj.version>
-        <spring.version>6.2.11</spring.version>
-        <spring-data.version>3.5.4</spring-data.version>
+        <spring.version>6.2.13</spring.version>
+        <spring-data.version>3.5.6</spring-data.version>
 
         <jackson.version>2.14.3</jackson.version>
 
         <flyway.version>6.4.4</flyway.version>
-        <hypersistence-utils.version>3.9.2</hypersistence-utils.version>
+        <hypersistence-utils.version>3.13.1</hypersistence-utils.version>
         <hypersistence-tsid.version>2.1.4</hypersistence-tsid.version>
 
-        <blaze-persistence.version>1.6.13</blaze-persistence.version>
+        <blaze-persistence.version>1.6.17</blaze-persistence.version>
 
         <hypersistence-optimizer.version>2.8.1</hypersistence-optimizer.version>
 
-        <junit.version>4.13.2</junit.version>
-        <junit-vintage.engine.version>5.10.3</junit-vintage.engine.version>
+        <junit.version>5.13.4</junit.version>
 
         <antlr.version>4.13.1</antlr.version>
     </properties>

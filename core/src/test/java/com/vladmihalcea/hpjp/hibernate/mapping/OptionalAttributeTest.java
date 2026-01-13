@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.mapping;
 
 import com.vladmihalcea.hpjp.hibernate.forum.MediaType;
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.io.Serializable;

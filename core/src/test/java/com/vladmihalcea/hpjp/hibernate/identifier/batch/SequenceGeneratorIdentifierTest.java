@@ -1,7 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.identifier.batch;
 
 import com.vladmihalcea.hpjp.util.providers.Database;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 
