@@ -41,7 +41,7 @@
 
         <dependency>
             <groupId>com.blazebit</groupId>
-            <artifactId>blaze-persistence-integration-hibernate-6.2</artifactId>
+            <artifactId>blaze-persistence-integration-hibernate-7.1</artifactId>
             <version>${blaze-persistence.version}</version>
         </dependency>
 
@@ -88,13 +88,12 @@
             </plugin>
 
             <plugin>
-                <groupId>org.hibernate.orm.tooling</groupId>
-                <artifactId>hibernate-enhance-maven-plugin</artifactId>
+                <groupId>org.hibernate.orm</groupId>
+                <artifactId>hibernate-maven-plugin</artifactId>
                 <version>${hibernate.version}</version>
                 <executions>
                     <execution>
                         <configuration>
-                            <failOnError>true</failOnError>
                             <enableLazyInitialization>false</enableLazyInitialization>
                             <enableDirtyTracking>false</enableDirtyTracking>
                             <enableAssociationManagement>false</enableAssociationManagement>

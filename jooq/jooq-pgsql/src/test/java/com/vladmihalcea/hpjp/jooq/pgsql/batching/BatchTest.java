@@ -4,7 +4,7 @@ import com.vladmihalcea.hpjp.jooq.pgsql.util.AbstractJOOQPostgreSQLIntegrationTe
 import org.jooq.BatchBindStep;
 import org.jooq.Record;
 import org.jooq.Result;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.vladmihalcea.hpjp.jooq.pgsql.schema.crud.Tables.POST;
 import static org.junit.Assert.assertEquals;

@@ -5,13 +5,13 @@ import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
@@ -38,7 +38,7 @@ public class FlushOrderTest extends AbstractTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testOperationOrder() {
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);

@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.util.providers;
 
 import org.hibernate.dialect.DatabaseVersion;
 import org.hibernate.dialect.OracleDialect;
-import org.hibernate.dialect.pagination.LegacyOracleLimitHandler;
+import org.hibernate.community.dialect.pagination.LegacyOracleLimitHandler;
 import org.hibernate.dialect.pagination.LimitHandler;
 import org.hibernate.engine.jdbc.dialect.spi.DialectResolutionInfo;
 import org.hibernate.tool.schema.extract.internal.SequenceInformationExtractorNoOpImpl;

@@ -1,7 +1,5 @@
 package com.vladmihalcea.hpjp.jdbc.batch;
 
-import com.vladmihalcea.hpjp.util.providers.Database;
-
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -11,10 +9,6 @@ import java.sql.Statement;
  * @author Vlad Mihalcea
  */
 public class BatchStatementTest extends AbstractBatchStatementTest {
-
-    public BatchStatementTest(Database database) {
-        super(database);
-    }
 
     @Override
     protected void onStatement(Statement statement, String dml) throws SQLException {

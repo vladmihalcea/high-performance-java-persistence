@@ -1,24 +1,22 @@
 package com.vladmihalcea.hpjp.hibernate.bytecode;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.hibernate.annotations.LazyToOne;
-import org.hibernate.annotations.LazyToOneOption;
-import org.hibernate.testing.bytecode.enhancement.BytecodeEnhancerRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import jakarta.persistence.*;
+import org.hibernate.testing.bytecode.enhancement.extension.BytecodeEnhanced;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.persistence.*;
 import java.util.Date;
 
 import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(BytecodeEnhancerRunner.class)
+@BytecodeEnhanced
 public class BytecodeEnhancedOneToOneTest extends AbstractTest {
 
     //Needed as otherwise we get a No unique field [LOGGER] error
@@ -73,7 +71,6 @@ public class BytecodeEnhancedOneToOneTest extends AbstractTest {
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL
         )
-        @LazyToOne(LazyToOneOption.NO_PROXY)
         private PostDetails details;
 
         public Long getId() {

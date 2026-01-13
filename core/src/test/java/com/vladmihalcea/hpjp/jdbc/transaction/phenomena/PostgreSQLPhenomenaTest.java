@@ -10,10 +10,6 @@ import com.vladmihalcea.hpjp.util.providers.PostgreSQLDataSourceProvider;
  */
 public class PostgreSQLPhenomenaTest extends AbstractPhenomenaTest {
 
-    public PostgreSQLPhenomenaTest(String isolationLevelName, int isolationLevel) {
-        super(isolationLevelName, isolationLevel);
-    }
-
     @Override
     protected DataSourceProvider dataSourceProvider() {
         return new PostgreSQLDataSourceProvider();

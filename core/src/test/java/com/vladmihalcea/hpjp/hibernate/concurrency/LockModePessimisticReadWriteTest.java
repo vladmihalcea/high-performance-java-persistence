@@ -3,20 +3,17 @@ package com.vladmihalcea.hpjp.hibernate.concurrency;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
-import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
-import org.hibernate.Session;
-import org.hibernate.StaleObjectStateException;
+import org.hibernate.*;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 
 /**
@@ -124,10 +121,7 @@ public class LockModePessimisticReadWriteTest extends AbstractTest {
         });
         doInJPA(entityManager -> {
             LOGGER.info("Lock and reattach");
-            entityManager.unwrap(Session.class)
-            .buildLockRequest(
-                new LockOptions(LockMode.PESSIMISTIC_WRITE))
-            .lock(post);
+            entityManager.unwrap(Session.class).lock(post, LockMode.PESSIMISTIC_WRITE);
             post.setTitle("High-Performance Hibernate");
         });
     }
@@ -137,11 +131,11 @@ public class LockModePessimisticReadWriteTest extends AbstractTest {
         LOGGER.info("Test PESSIMISTIC_READ doesn't block PESSIMISTIC_READ");
         testPessimisticLocking(
                 (session, post) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(post);
+                    session.lock(post, LockMode.PESSIMISTIC_WRITE);;
                     LOGGER.info("PESSIMISTIC_READ acquired");
                 },
                 (session, post) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(post);
+                    session.lock(post, LockMode.PESSIMISTIC_WRITE);
                     LOGGER.info("PESSIMISTIC_READ acquired");
                 }
         );
@@ -152,7 +146,7 @@ public class LockModePessimisticReadWriteTest extends AbstractTest {
         LOGGER.info("Test PESSIMISTIC_READ blocks UPDATE");
         testPessimisticLocking(
                 (session, post) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(post);
+                    session.lock(post, LockMode.PESSIMISTIC_WRITE);
                     LOGGER.info("PESSIMISTIC_READ acquired");
                 },
                 (session, post) -> {
@@ -168,11 +162,12 @@ public class LockModePessimisticReadWriteTest extends AbstractTest {
         LOGGER.info("Test PESSIMISTIC_READ blocks PESSIMISTIC_WRITE, NO WAIT fails fast");
         testPessimisticLocking(
                 (session, post) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(post);
+                    session.lock(post, LockMode.PESSIMISTIC_WRITE);
                     LOGGER.info("PESSIMISTIC_READ acquired");
                 },
                 (session, post) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).setTimeOut(Session.LockRequest.PESSIMISTIC_NO_WAIT).lock(post);
+                    session.lock(post, new LockOptions(LockMode.PESSIMISTIC_WRITE, Timeouts.NO_WAIT));
+
                     LOGGER.info("PESSIMISTIC_WRITE acquired");
                 }
         );
@@ -183,11 +178,11 @@ public class LockModePessimisticReadWriteTest extends AbstractTest {
         LOGGER.info("Test PESSIMISTIC_WRITE blocks PESSIMISTIC_READ");
         testPessimisticLocking(
                 (session, post) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(post);
+                    session.lock(post, LockMode.PESSIMISTIC_WRITE);
                     LOGGER.info("PESSIMISTIC_WRITE acquired");
                 },
                 (session, post) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_READ)).lock(post);
+                    session.lock(post, LockMode.PESSIMISTIC_WRITE);
                     LOGGER.info("PESSIMISTIC_READ acquired");
                 }
         );
@@ -198,12 +193,10 @@ public class LockModePessimisticReadWriteTest extends AbstractTest {
         LOGGER.info("Test PESSIMISTIC_WRITE blocks PESSIMISTIC_WRITE");
         testPessimisticLocking(
                 (session, post) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(post);
-                    LOGGER.info("PESSIMISTIC_WRITE acquired");
+                    session.lock(post, LockMode.PESSIMISTIC_WRITE);                    LOGGER.info("PESSIMISTIC_WRITE acquired");
                 },
                 (session, post) -> {
-                    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE)).lock(post);
-                    LOGGER.info("PESSIMISTIC_WRITE acquired");
+                    session.lock(post, LockMode.PESSIMISTIC_WRITE);                    LOGGER.info("PESSIMISTIC_WRITE acquired");
                 }
         );
     }
@@ -249,11 +242,7 @@ public class LockModePessimisticReadWriteTest extends AbstractTest {
         doInJPA(entityManager -> {
             Post post = entityManager.getReference(Post.class, 1L);
 
-            entityManager.unwrap(Session.class)
-            .buildLockRequest(
-                new LockOptions(LockMode.PESSIMISTIC_WRITE)
-                .setTimeOut((int) TimeUnit.SECONDS.toMillis(3)))
-            .lock(post);
+            entityManager.unwrap(Session.class).lock(post, new LockOptions(LockMode.PESSIMISTIC_WRITE, Timeout.seconds(3)));
         });
     }
 

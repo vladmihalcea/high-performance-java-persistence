@@ -4,8 +4,8 @@ import com.vladmihalcea.hpjp.hibernate.batch.BatchingOptimisticLockingTest;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Arrays;

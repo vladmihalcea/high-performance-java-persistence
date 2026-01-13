@@ -10,7 +10,7 @@ import com.vladmihalcea.hpjp.hibernate.fetching.pagination.Post_;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.EntityManagerFactory;
 import java.sql.Timestamp;

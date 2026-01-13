@@ -2,35 +2,32 @@ package com.vladmihalcea.hpjp.jdbc.transaction.phenomena.writeskew;
 
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.OracleDataSourceProvider;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
+@ParameterizedClass
+@MethodSource("parameters")
 public class OracleRangeBasedWriteSkewPhenomenaTest extends AbstractRangeBasedWriteSkewPhenomenaTest {
 
-    public OracleRangeBasedWriteSkewPhenomenaTest(String isolationLevelName, int isolationLevel) {
-        super(isolationLevelName, isolationLevel);
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Object[]> isolationLevels() {
-        List<Object[]> levels = new ArrayList<>();
-        levels.add(new Object[]{"Read Committed", Connection.TRANSACTION_READ_COMMITTED});
-        levels.add(new Object[]{"Serializable", Connection.TRANSACTION_SERIALIZABLE});
-        return levels;
+    public static Stream<Arguments> parameters() {
+        return Stream.of(
+            Arguments.of("Read Committed", Connection.TRANSACTION_READ_COMMITTED),
+            Arguments.of("Serializable", Connection.TRANSACTION_SERIALIZABLE)
+        );
     }
 
     @Override
@@ -39,8 +36,8 @@ public class OracleRangeBasedWriteSkewPhenomenaTest extends AbstractRangeBasedWr
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
+        super.afterInit();
         doInJDBC(aliceConnection -> {
             executeStatement(aliceConnection, "alter table employee initrans 100");
         });

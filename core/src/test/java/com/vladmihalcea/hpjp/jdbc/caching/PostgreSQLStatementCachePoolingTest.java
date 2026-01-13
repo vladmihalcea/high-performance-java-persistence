@@ -6,7 +6,7 @@ import com.zaxxer.hikari.HikariConfig;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.postgresql.core.CachedQuery;
 import org.postgresql.jdbc.PgStatement;
 

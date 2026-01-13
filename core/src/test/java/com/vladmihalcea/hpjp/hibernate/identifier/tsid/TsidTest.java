@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.identifier.tsid;
 
 import com.vladmihalcea.hpjp.util.TsidUtils;
 import io.hypersistence.tsid.TSID;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +13,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.IntSupplier;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TsidTest {
 

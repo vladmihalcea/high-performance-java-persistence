@@ -1,7 +1,7 @@
 package com.vladmihalcea.hpjp.jooq.pgsql.crud;
 
 import com.vladmihalcea.hpjp.jooq.pgsql.util.AbstractJOOQPostgreSQLIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.vladmihalcea.hpjp.jooq.pgsql.schema.crud.Tables.POST;
 import static org.jooq.impl.DSL.field;

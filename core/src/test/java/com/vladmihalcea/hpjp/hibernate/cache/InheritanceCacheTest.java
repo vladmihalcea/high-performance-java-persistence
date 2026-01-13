@@ -1,13 +1,13 @@
 package com.vladmihalcea.hpjp.hibernate.cache;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.hibernate.annotations.*;
-import org.hibernate.cfg.AvailableSettings;
-import org.junit.Before;
-import org.junit.Test;
-
 import jakarta.persistence.*;
-import jakarta.persistence.Entity;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.CacheLayout;
+import org.hibernate.cfg.AvailableSettings;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.util.Date;
 import java.util.Properties;
 
@@ -34,9 +34,7 @@ public class InheritanceCacheTest extends AbstractTest {
         return properties;
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Post post1 = new Post();
             post1.setId(1L);

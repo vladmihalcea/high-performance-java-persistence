@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.tool.schema.Action;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;

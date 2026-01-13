@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.spring.common.domain.Post;
 import com.vladmihalcea.hpjp.spring.common.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.common.service.ForumService;
 import com.vladmihalcea.hpjp.spring.transaction.mdc.config.TransactionInfoMdcConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;

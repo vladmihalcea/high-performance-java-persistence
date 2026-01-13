@@ -1,8 +1,8 @@
 package com.vladmihalcea.hpjp.hibernate.query;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.sql.Timestamp;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -52,7 +52,7 @@ public class PostgreSQLCastTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testCastOperator() {
         doInJPA(entityManager -> {
             List<Post> posts = entityManager.createNativeQuery(

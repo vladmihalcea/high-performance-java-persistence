@@ -7,7 +7,7 @@ import com.vladmihalcea.hpjp.spring.data.query.specification.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.query.specification.domain.Tag;
 import com.vladmihalcea.hpjp.spring.data.query.specification.repository.PostCommentRepository;
 import com.vladmihalcea.hpjp.spring.data.query.specification.repository.PostRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.TransactionException;
@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.vladmihalcea.hpjp.spring.data.query.specification.repository.PostCommentRepository.Specs.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
 /**

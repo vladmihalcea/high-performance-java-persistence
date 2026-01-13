@@ -22,7 +22,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import java.util.HashMap;

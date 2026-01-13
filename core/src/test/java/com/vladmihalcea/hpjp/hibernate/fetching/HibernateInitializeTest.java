@@ -1,32 +1,25 @@
 package com.vladmihalcea.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import jakarta.persistence.*;
 import org.hibernate.Hibernate;
-import org.hibernate.Session;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HibernateInitializeTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
         return new Class<?>[]{
-                Post.class,
-                PostComment.class,
+            Post.class,
+            PostComment.class,
         };
     }
 
@@ -203,10 +196,9 @@ public class HibernateInitializeTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
+            Post _post = entityManager.merge(post);
 
-            entityManager.unwrap(Session.class).update(post);
-
-            List<PostComment> comments = post.getComments();
+            List<PostComment> comments = _post.getComments();
 
             LOGGER.info("Collection class: {}", comments.getClass().getName());
 

@@ -4,14 +4,15 @@ import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
 import jakarta.persistence.EntityManager;
 import org.hibernate.Session;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -23,7 +24,7 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
         return new Class[]{};
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         if(!ENABLE_LONG_RUNNING_TESTS) {
             return;

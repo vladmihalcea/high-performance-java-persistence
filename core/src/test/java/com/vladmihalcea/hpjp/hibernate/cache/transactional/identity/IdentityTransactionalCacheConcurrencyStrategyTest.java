@@ -2,8 +2,9 @@ package com.vladmihalcea.hpjp.hibernate.cache.transactional.identity;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +12,7 @@ import com.vladmihalcea.hpjp.util.transaction.JPATransactionVoidFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -21,10 +22,10 @@ import jakarta.persistence.PersistenceContext;
 
 import static com.vladmihalcea.hpjp.hibernate.cache.transactional.identity.IdentityTransactionalEntities.Post;
 import static com.vladmihalcea.hpjp.hibernate.cache.transactional.identity.IdentityTransactionalEntities.PostComment;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = IdentityTransactionalCacheConcurrencyStrategyTestConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractTest {
@@ -49,7 +50,7 @@ public class IdentityTransactionalCacheConcurrencyStrategyTest extends AbstractT
     private  PostComment comment1;
     private  PostComment comment2;
 
-    @Before
+    @BeforeEach
     public void init() {
         doInJPA(entityManager -> {
             entityManager.createQuery("delete from PostComment").executeUpdate();

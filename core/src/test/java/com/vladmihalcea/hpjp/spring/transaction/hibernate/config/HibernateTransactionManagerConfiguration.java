@@ -102,7 +102,6 @@ public class HibernateTransactionManagerConfiguration {
             "hibernate.session_factory.statement_inspector",
             new LoggingStatementInspector("com.vladmihalcea.hpjp.hibernate.transaction")
         );
-        properties.setProperty(AvailableSettings.FLUSH_MODE, FlushMode.ALWAYS.name());
         return properties;
     }
 

@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
 

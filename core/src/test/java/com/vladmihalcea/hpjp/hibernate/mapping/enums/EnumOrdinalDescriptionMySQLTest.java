@@ -5,11 +5,11 @@ import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.exception.ConstraintViolationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea
@@ -75,7 +75,7 @@ public class EnumOrdinalDescriptionMySQLTest extends AbstractTest {
             .getSingleResult();
 
             assertEquals("PENDING", tuple.get("name"));
-            assertEquals("Posts waiting to be approved by the admin", tuple.get("description"));
+            assertEquals("Post waiting to be approved", tuple.get("description"));
         });
     }
 

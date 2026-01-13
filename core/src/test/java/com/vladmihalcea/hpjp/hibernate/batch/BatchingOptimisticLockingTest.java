@@ -3,14 +3,14 @@ package com.vladmihalcea.hpjp.hibernate.batch;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -37,7 +37,7 @@ public class BatchingOptimisticLockingTest extends AbstractTest {
     }
 
     @Test
-    public void testOptimsticLOcking() {
+    public void testOptimsticLocking() {
         doInJPA(entityManager -> {
             for (int i = 1; i <= 3; i++) {
                 entityManager.persist(
@@ -72,14 +72,11 @@ public class BatchingOptimisticLockingTest extends AbstractTest {
                 );
             });
         } catch (Exception e) {
-            assertTrue(
-                ExceptionUtil.rootCause(e).getMessage()
-                    .startsWith(
-                        "Batch update returned unexpected row count from update [0]; " +
-                        "actual row count: 0; " +
-                        "expected: 1; " +
-                        "statement executed:"
-                    )
+            assertTrue(ExceptionUtil.rootCause(e).getMessage()
+                .startsWith(
+                    "Batch update returned unexpected row count from update 0 " +
+                    "(expected row count 1 but was 0)"
+                )
             );
         }
     }

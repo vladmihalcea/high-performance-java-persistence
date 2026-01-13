@@ -6,14 +6,14 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import org.hibernate.Session;
 import org.hibernate.StaleStateException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -111,29 +111,6 @@ public class VersionTest extends AbstractTest {
         });
         assertTrue(lostUpdatePrevented.get());
     }
-
-    @Test
-    public void testChangeVersionAfterDetachUsingUpdate() {
-        AtomicBoolean lostUpdatePrevented = new AtomicBoolean();
-        doInJPA(entityManager -> {
-            LOGGER.info("Test optimistic locking for detached entity when using update");
-            Product product = entityManager.find(Product.class, 1L);
-            entityManager.detach(product);
-
-            product.setQuantity(12);
-            product.setVersion(0);
-
-            entityManager.unwrap(Session.class).update(product);
-            try {
-                entityManager.flush();
-            } catch (Exception expected) {
-                assertTrue(expected instanceof OptimisticLockException);
-                lostUpdatePrevented.set(true);
-            }
-        });
-        assertTrue(lostUpdatePrevented.get());
-    }
-
 
     @Test
     public void testMerge() {

@@ -11,29 +11,34 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.MySQLDataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.PostgreSQLDataSourceProvider;
-
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.*;
+import java.util.stream.Stream;
 
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@MethodSource("parameters")
 public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
 
-    private final DataSourceProvider dataSourceProvider;
-    private final PostEntityProvider entityProvider;
-    private final int threadCount;
+    @Parameter(0)
+    private DataSourceProvider dataSourceProvider;
+    @Parameter(1)
+    private PostEntityProvider entityProvider;
+    @Parameter(2)
+    private int threadCount;
 
     private int insertCount = 100;
     private int executionCount = 50;
 
-    private final ExecutorService executorService;
+    private ExecutorService executorService;
 
     private MetricRegistry metricRegistry = new MetricRegistry();
 
@@ -44,45 +49,36 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
             .outputTo(LOGGER)
             .build();
 
-
-    public ConcurrentBatchIdentifierTest(DataSourceProvider dataSourceProvider, PostEntityProvider entityProvider, int threadCount) {
-        this.dataSourceProvider = dataSourceProvider;
-        this.entityProvider = entityProvider;
-        this.threadCount = threadCount;
-        executorService = Executors.newFixedThreadPool(threadCount);
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Object[]> dataProvider() {
+    public static Stream<Arguments> parameters() {
         MySQLDataSourceProvider mySQLDataSourceProvider = new MySQLDataSourceProvider();
         PostgreSQLDataSourceProvider postgreSQLDataSourceProvider = new PostgreSQLDataSourceProvider();
         IdentityPostEntityProvider identityPostEntityProvider = new IdentityPostEntityProvider();
         SequencePostEntityProvider sequencePostEntityProvider = new SequencePostEntityProvider();
         TablePostEntityProvider tablePostEntityProvider = new TablePostEntityProvider();
 
-        List<Object[]> providers = new ArrayList<>();
-        providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 1});
-        providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 2});
-        providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 4});
-        providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 8});
-        providers.add(new Object[]{mySQLDataSourceProvider, tablePostEntityProvider, 16});
-        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 1});
-        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 2});
-        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 4});
-        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 8});
-        providers.add(new Object[]{mySQLDataSourceProvider, identityPostEntityProvider, 16});
+        return Stream.of(
+            Arguments.of(mySQLDataSourceProvider, tablePostEntityProvider, 1),
+            Arguments.of(mySQLDataSourceProvider, tablePostEntityProvider, 2),
+            Arguments.of(mySQLDataSourceProvider, tablePostEntityProvider, 4),
+            Arguments.of(mySQLDataSourceProvider, tablePostEntityProvider, 8),
+            Arguments.of(mySQLDataSourceProvider, tablePostEntityProvider, 16),
+            Arguments.of(mySQLDataSourceProvider, identityPostEntityProvider, 1),
+            Arguments.of(mySQLDataSourceProvider, identityPostEntityProvider, 2),
+            Arguments.of(mySQLDataSourceProvider, identityPostEntityProvider, 4),
+            Arguments.of(mySQLDataSourceProvider, identityPostEntityProvider, 8),
+            Arguments.of(mySQLDataSourceProvider, identityPostEntityProvider, 16),
 
-        providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 1});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 2});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 4});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 8});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, tablePostEntityProvider, 16});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 1});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 2});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 4});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 8});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequencePostEntityProvider, 16});
-        return providers;
+            Arguments.of(postgreSQLDataSourceProvider, tablePostEntityProvider, 1),
+            Arguments.of(postgreSQLDataSourceProvider, tablePostEntityProvider, 2),
+            Arguments.of(postgreSQLDataSourceProvider, tablePostEntityProvider, 4),
+            Arguments.of(postgreSQLDataSourceProvider, tablePostEntityProvider, 8),
+            Arguments.of(postgreSQLDataSourceProvider, tablePostEntityProvider, 16),
+            Arguments.of(postgreSQLDataSourceProvider, sequencePostEntityProvider, 1),
+            Arguments.of(postgreSQLDataSourceProvider, sequencePostEntityProvider, 2),
+            Arguments.of(postgreSQLDataSourceProvider, sequencePostEntityProvider, 4),
+            Arguments.of(postgreSQLDataSourceProvider, sequencePostEntityProvider, 8),
+            Arguments.of(postgreSQLDataSourceProvider, sequencePostEntityProvider, 16)
+        );
     }
 
     @Override
@@ -91,7 +87,7 @@ public class ConcurrentBatchIdentifierTest<T> extends AbstractTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testIdentifierGenerator() throws InterruptedException, ExecutionException {
         LOGGER.debug("testIdentifierGenerator, database: {}, entityProvider: {}, threadCount: {}", dataSourceProvider.database(), entityProvider.getClass().getSimpleName(), threadCount);
         //warming-up

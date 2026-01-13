@@ -2,11 +2,11 @@ package com.vladmihalcea.hpjp.hibernate.association;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import org.hibernate.annotations.NaturalId;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import jakarta.persistence.*;
+import org.hibernate.annotations.NaturalId;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -80,7 +80,7 @@ public class BidirectionalManyToManyListTest extends AbstractTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testRemoveTag() {
         final Long tagId = doInJPA(entityManager -> {
             Post post1 = new Post("JPA with Hibernate");

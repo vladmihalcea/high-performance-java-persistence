@@ -7,7 +7,7 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.SoftDelete;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea
@@ -88,7 +88,7 @@ public class SoftDeleteVersionAnnotationTest extends AbstractTest {
 		});
 
 		doInJPA(entityManager -> {
-			//That would not work without @Loader(namedQuery = "findTagById")
+			//That would not work without @HQLSelect(query = "findTagById")
 			assertNull(entityManager.find(Tag.class, _miscTag.getId()));
 		});
 
@@ -106,7 +106,7 @@ public class SoftDeleteVersionAnnotationTest extends AbstractTest {
 
 		doInJPA(entityManager -> {
 			List<Tag> tags = entityManager.createQuery("select t from Tag t", Tag.class).getResultList();
-			//That would not work without @Where(clause = "deleted = false")
+			//That would not work without @SQLRestriction("deleted = false")
 			assertEquals(3, tags.size());
 		});
 	}

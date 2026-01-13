@@ -17,10 +17,6 @@ public class PostCommentScoreFetchProjectionPerformanceStreamTest extends Abstra
 
     protected com.codahale.metrics.Timer inMemoryProcessingTimer = metricRegistry.timer("In-memory processing timer");
 
-    public PostCommentScoreFetchProjectionPerformanceStreamTest(int postCount, int commentCount) {
-        super(postCount, commentCount);
-    }
-
     @Override
     protected List<PostCommentScore> postCommentScores(Long postId, int rank) {
         long startNanos = System.nanoTime();

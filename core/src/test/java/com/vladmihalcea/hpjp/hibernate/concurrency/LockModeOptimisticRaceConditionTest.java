@@ -1,11 +1,12 @@
 package com.vladmihalcea.hpjp.hibernate.concurrency;
 
-import org.hibernate.*;
-import org.hibernate.dialect.lock.OptimisticEntityLockException;
-import org.junit.Test;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
+import org.hibernate.Interceptor;
+import org.hibernate.Transaction;
+import org.hibernate.dialect.lock.OptimisticEntityLockException;
+import org.junit.jupiter.api.Test;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -21,7 +22,7 @@ public class LockModeOptimisticRaceConditionTest extends AbstractLockModeOptimis
 
     @Override
     protected Interceptor interceptor() {
-        return new EmptyInterceptor() {
+        return new Interceptor() {
             @Override
             public void beforeTransactionCompletion(Transaction tx) {
                 if(ready.get()) {

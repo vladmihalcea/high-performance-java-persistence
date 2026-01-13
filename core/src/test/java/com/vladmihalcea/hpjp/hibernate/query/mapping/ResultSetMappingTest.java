@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.query.mapping;
 import com.vladmihalcea.hpjp.hibernate.identifier.Identifiable;
 import com.vladmihalcea.hpjp.util.AbstractOracleIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.sql.Timestamp;
@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea

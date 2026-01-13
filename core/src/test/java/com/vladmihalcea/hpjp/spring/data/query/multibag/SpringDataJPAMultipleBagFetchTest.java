@@ -8,7 +8,7 @@ import com.vladmihalcea.hpjp.spring.data.query.multibag.domain.Tag;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.service.BrokenForumService;
 import com.vladmihalcea.hpjp.spring.data.query.multibag.service.ForumService;
 import org.hibernate.LazyInitializationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.TransactionException;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea

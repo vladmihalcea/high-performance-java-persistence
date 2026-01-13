@@ -5,7 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 

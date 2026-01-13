@@ -8,14 +8,14 @@ import com.vladmihalcea.hpjp.spring.partition.domain.User;
 import com.vladmihalcea.hpjp.spring.partition.repository.UserRepository;
 import com.vladmihalcea.hpjp.spring.partition.service.ForumService;
 import com.vladmihalcea.hpjp.spring.partition.util.UserContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.List;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea

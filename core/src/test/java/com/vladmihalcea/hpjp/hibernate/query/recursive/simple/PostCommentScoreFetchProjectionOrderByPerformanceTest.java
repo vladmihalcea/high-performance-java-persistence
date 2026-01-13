@@ -12,10 +12,6 @@ public class PostCommentScoreFetchProjectionOrderByPerformanceTest extends Abstr
 
     protected com.codahale.metrics.Timer inMemoryProcessingTimer = metricRegistry.timer("In-memory processing timer");
 
-    public PostCommentScoreFetchProjectionOrderByPerformanceTest(int postCount, int commentCount) {
-        super(postCount, commentCount);
-    }
-
     @Override
     protected List<PostCommentScore> postCommentScores(Long postId, int rank) {
         return doInJPA(entityManager -> {

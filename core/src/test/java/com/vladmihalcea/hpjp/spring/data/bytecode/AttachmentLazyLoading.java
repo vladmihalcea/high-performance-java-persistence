@@ -6,7 +6,7 @@ import com.vladmihalcea.hpjp.spring.data.bytecode.repository.AttachmentRepositor
 import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import io.hypersistence.utils.common.ReflectionUtils;
 import org.hibernate.LazyInitializationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -17,7 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static org.aspectj.bridge.MessageUtil.fail;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea

@@ -1,9 +1,9 @@
 package com.vladmihalcea.hpjp.hibernate.mapping;
 
-import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
+import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.ReflectionUtils;
 import org.hibernate.annotations.Immutable;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -11,12 +11,12 @@ import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Root;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea
  */
-public class HibernateImmutableWarningTest extends AbstractSQLServerIntegrationTest {
+public class HibernateImmutableUpdateTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -58,45 +58,57 @@ public class HibernateImmutableWarningTest extends AbstractSQLServerIntegrationT
 
     @Test
     public void testJPQL() {
-        doInJPA(entityManager -> {
-            entityManager.createQuery(
-                "update Event " +
-                "set eventValue = :eventValue " +
-                "where id = :id")
-            .setParameter("eventValue", "10")
-            .setParameter("id", 1L)
-            .executeUpdate();
-        });
+        try {
+            doInJPA(entityManager -> {
+                entityManager.createQuery(
+                    "update Event " +
+                    "set eventValue = :eventValue " +
+                    "where id = :id")
+                .setParameter("eventValue", "10")
+                .setParameter("id", 1L)
+                .executeUpdate();
+            });
+
+            fail();
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("The query attempts to update an immutable entity"));
+        }
 
         doInJPA(entityManager -> {
             Event event = entityManager.find(Event.class, 1L);
 
-            assertEquals("10", event.getEventValue());
+            assertEquals("25", event.getEventValue());
         });
     }
 
     @Test
     public void testCriteriaAPI() {
 
-        doInJPA(entityManager -> {
-            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-            CriteriaUpdate<Event> update = builder.createCriteriaUpdate(Event.class);
+        try {
+            doInJPA(entityManager -> {
+                CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+                CriteriaUpdate<Event> update = builder.createCriteriaUpdate(Event.class);
 
-            Root<Event> root = update.from(Event.class);
+                Root<Event> root = update.from(Event.class);
 
-            update
-            .set(root.get("eventValue"), "100")
-            .where(
-                builder.equal(root.get("id"), 1L)
-            );
+                update
+                .set(root.get("eventValue"), "100")
+                .where(
+                    builder.equal(root.get("id"), 1L)
+                );
 
-            entityManager.createQuery(update).executeUpdate();
-        });
+                entityManager.createQuery(update).executeUpdate();
+            });
+
+            fail();
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("The query attempts to update an immutable entity"));
+        }
 
         doInJPA(entityManager -> {
             Event event = entityManager.find(Event.class, 1L);
 
-            assertEquals("100", event.getEventValue());
+            assertEquals("25", event.getEventValue());
         });
     }
 

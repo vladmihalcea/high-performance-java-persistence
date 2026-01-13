@@ -8,11 +8,11 @@ import com.vladmihalcea.hpjp.hibernate.transaction.forum.Tag;
 import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.transaction.jpa.config.ResourceLocalReleaseAfterStatementConfiguration;
 import com.vladmihalcea.hpjp.spring.transaction.jpa.service.ReleaseAfterStatementForumService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * This test case demonstrates what happens when you enable the AFTER_STATEMENT

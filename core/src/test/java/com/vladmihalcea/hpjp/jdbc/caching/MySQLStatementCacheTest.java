@@ -4,29 +4,32 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
-import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
-import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.MySQLDataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider.Post;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider.PostComment;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider.PostDetails;
-import org.hibernate.annotations.QueryHints;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
-
 import jakarta.persistence.EntityManager;
+import org.hibernate.jpa.HibernateHints;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
 import java.sql.*;
 import java.util.Date;
-import java.util.*;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * @author Vlad Mihalcea
  */
+@ParameterizedClass
+@MethodSource("parameters")
 public class MySQLStatementCacheTest extends DatabaseProviderIntegrationTest {
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
@@ -46,41 +49,23 @@ public class MySQLStatementCacheTest extends DatabaseProviderIntegrationTest {
 
     private Timer query2Timer = metricRegistry.timer("query2Timer");
 
-    public MySQLStatementCacheTest(Database database) {
-        super(database);
-    }
-
-    @Parameterized.Parameters
-    public static Collection<DataSourceProvider[]> rdbmsDataSourceProvider() {
-        List<DataSourceProvider[]> providers = new ArrayList<>();
-
-        providers.add(new DataSourceProvider[]{
-            new MySQLDataSourceProvider()
+    public static Stream<Arguments> parameters() {
+        return Stream.of(
+            Arguments.of(new MySQLDataSourceProvider()
                 .setUseServerPrepStmts(false)
-                .setCachePrepStmts(false)
-        });
-
-        providers.add(new DataSourceProvider[]{
-            new MySQLDataSourceProvider()
+                .setCachePrepStmts(false)),
+            Arguments.of(new MySQLDataSourceProvider()
                 .setUseServerPrepStmts(true)
-                .setCachePrepStmts(false)
-        });
-
-        providers.add(new DataSourceProvider[]{
-            new MySQLDataSourceProvider()
+                .setCachePrepStmts(false)),
+            Arguments.of(new MySQLDataSourceProvider()
                 .setUseServerPrepStmts(false)
                 .setCachePrepStmts(true)
-                .setPrepStmtCacheSqlLimit(2048)
-        });
-
-        providers.add(new DataSourceProvider[]{
-            new MySQLDataSourceProvider()
+                .setPrepStmtCacheSqlLimit(2048)),
+            Arguments.of(new MySQLDataSourceProvider()
                 .setUseServerPrepStmts(true)
                 .setCachePrepStmts(true)
-                .setPrepStmtCacheSqlLimit(2048)
-        });
-
-        return providers;
+                .setPrepStmtCacheSqlLimit(2048))
+        );
     }
 
     @Override
@@ -153,7 +138,7 @@ public class MySQLStatementCacheTest extends DatabaseProviderIntegrationTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testStatementCachingJPA() {
         long ttlMillis = System.currentTimeMillis() + getRunMillis();
         AtomicInteger transactionCount = new AtomicInteger();
@@ -195,7 +180,7 @@ public class MySQLStatementCacheTest extends DatabaseProviderIntegrationTest {
                         """)
                     .setParameter("id", randomId())
                     .setMaxResults(5)
-                    .setHint(QueryHints.FETCH_SIZE, Integer.MIN_VALUE)
+                    .setHint(HibernateHints.HINT_FETCH_SIZE, Integer.MIN_VALUE)
                     .getResultStream()
                     .close()
                 );
@@ -212,7 +197,7 @@ public class MySQLStatementCacheTest extends DatabaseProviderIntegrationTest {
                         """)
                     .setParameter("postId", randomId())
                     .setMaxResults(5)
-                    .setHint(QueryHints.FETCH_SIZE, Integer.MIN_VALUE)
+                    .setHint(HibernateHints.HINT_FETCH_SIZE, Integer.MIN_VALUE)
                     .getResultStream()
                     .close()
                 );
@@ -242,7 +227,7 @@ public class MySQLStatementCacheTest extends DatabaseProviderIntegrationTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testStatementCachingJDBC() {
         for (long i = 1; i <= getRunCount(); i++) {
             doInJDBC(connection -> {

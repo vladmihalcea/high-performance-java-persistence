@@ -7,7 +7,7 @@ import org.hibernate.query.NativeQuery;
 import org.jooq.CommonTableExpression;
 import org.jooq.DSLContext;
 import org.jooq.Record7;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.sql.Timestamp;

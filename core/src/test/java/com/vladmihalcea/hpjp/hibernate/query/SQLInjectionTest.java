@@ -3,8 +3,8 @@ package com.vladmihalcea.hpjp.hibernate.query;
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.Session;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Vlad Mihalcea
@@ -57,7 +57,7 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testStatementUpdateDropTable() {
         doInJPA(entityManager -> {
             PostComment comment = entityManager.find(PostComment.class, 1L);
@@ -84,7 +84,7 @@ public class SQLInjectionTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testPreparedStatementUpdateDropTable() {
         doInJPA(entityManager -> {
             PostComment comment = entityManager.find(PostComment.class, 1L);

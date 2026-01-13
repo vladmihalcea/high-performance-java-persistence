@@ -4,19 +4,18 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaDelete;
-import jakarta.persistence.criteria.Root;
-import org.junit.Before;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public abstract class AbstractSpringTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -27,7 +26,7 @@ public abstract class AbstractSpringTest {
     @PersistenceContext
     protected EntityManager entityManager;
 
-    @Before
+    @BeforeEach
     public void init() {
         transactionTemplate.execute(transactionStatus -> {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();

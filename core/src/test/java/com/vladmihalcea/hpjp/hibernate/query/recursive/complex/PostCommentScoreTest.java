@@ -1,23 +1,25 @@
 package com.vladmihalcea.hpjp.hibernate.query.recursive.complex;
 
-import com.vladmihalcea.hpjp.hibernate.query.recursive.PostCommentScore;
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import jakarta.persistence.*;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.transform.ResultTransformer;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import jakarta.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
  */
-@Ignore
+@Disabled
 public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override
@@ -31,8 +33,7 @@ public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             User user1 = new User();
             user1.setUsername("JohnDoe");
@@ -201,102 +202,103 @@ public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
 
     private List<PostCommentScore> postCommentScoresCTEJoin(Long postId, int rank) {
         return doInJPA(entityManager -> {
-            List<PostCommentScore> postCommentScores = entityManager.createNativeQuery(
-                "SELECT id, parent_id, root_id, review, created_on, score " +
-                "FROM ( " +
-                "    SELECT " +
-                "        id, parent_id, root_id, review, created_on, score, " +
-                "        dense_rank() OVER (ORDER BY total_score DESC) rank " +
-                "    FROM ( " +
-                "       SELECT " +
-                "           id, parent_id, root_id, review, created_on, score, " +
-                "           SUM(score) OVER (PARTITION BY root_id) total_score " +
-                "       FROM (" +
-                "          WITH RECURSIVE post_comment_score(id, root_id, post_id, " +
-                "              parent_id, review, created_on, user_id, score) AS (" +
-                "              SELECT id, id, post_id, parent_id, review, created_on, user_id, " +
-                "                  CASE WHEN up IS NULL THEN 0 WHEN up = true THEN 1 " +
-                "                      ELSE - 1 END score " +
-                "              FROM post_comment " +
-                "              LEFT JOIN post_comment_vote ON comment_id = id " +
-                "              WHERE post_id = :postId AND parent_id IS NULL " +
-                "              UNION ALL " +
-                "              select pc.id, pcs.root_id, pc.post_id, pc.parent_id, " +
-                "                  pc.review, pc.created_on, pcv.user_id, CASE WHEN pcv.up IS NULL THEN 0 " +
-                "                  WHEN pcv.up = true THEN 1 ELSE - 1 END score " +
-                "              FROM post_comment pc " +
-                "              LEFT JOIN post_comment_vote pcv ON pcv.comment_id = pc.id " +
-                "              INNER JOIN post_comment_score pcs ON pc.parent_id = pcs.id " +
-                "              WHERE pc.parent_id = pcs.id " +
-                "          ) " +
-                "          SELECT id, parent_id, root_id, review, created_on, SUM(score) score" +
-                "          FROM post_comment_score " +
-                "          GROUP BY id, parent_id, root_id, review, created_on" +
-                "       ) score_by_comment " +
-                "    ) score_total " +
-                "    ORDER BY total_score DESC, created_on ASC " +
-                ") total_score_group " +
-                "WHERE rank <= :rank", "PostCommentScore")
+            List<PostCommentScore> postCommentScores = entityManager.createNativeQuery("""                      
+                    SELECT id, parent_id, root_id, review, created_on, score
+                        FROM (
+                        	SELECT
+                        		id, parent_id, root_id, review, created_on, score,
+                        		dense_rank() OVER (ORDER BY total_score DESC) rank
+                        	FROM (
+                        	   SELECT
+                        		   id, parent_id, root_id, review, created_on, score,
+                        		   SUM(score) OVER (PARTITION BY root_id) total_score
+                        	   FROM (
+                        			WITH RECURSIVE post_comment_score(id, root_id, post_id, parent_id, review, created_on) AS (
+                                          SELECT id, id, post_id, parent_id, review, created_on
+                                          FROM post_comment
+                                          WHERE post_id = :postId AND parent_id IS NULL
+                                          UNION ALL
+                                          SELECT pc.id, pcs.root_id, pc.post_id, pc.parent_id, pc.review, pc.created_on
+                                          FROM post_comment pc
+                                          INNER JOIN post_comment_score pcs ON pc.parent_id = pcs.id
+                                          WHERE pc.parent_id = pcs.id
+                                      )
+                                      SELECT id, parent_id, root_id, review, created_on,
+                                             SUM(CASE WHEN up IS NULL THEN 0 WHEN up = true THEN 1 ELSE - 1 END) score
+                                      FROM post_comment_score pcs
+                                      LEFT JOIN post_comment_vote pcv ON pcv.comment_id = pcs.id
+                                      GROUP BY id, parent_id, root_id, review, created_on
+                        		) score_by_comment
+                        	) score_total
+                        	ORDER BY total_score DESC, created_on ASC
+                        ) total_score_group
+                        WHERE rank <= :rank
+                        ORDER BY id
+                        """, "PostCommentScore")
             .unwrap(NativeQuery.class)
             .setParameter("postId", postId).setParameter("rank", rank)
             .setResultTransformer(new PostCommentScoreResultTransformer())
-            .list();
+            .getResultList();
             return postCommentScores;
         });
     }
 
     private List<PostCommentScore> postCommentScoresCTESelect(Long postId, int rank) {
         return doInJPA(entityManager -> {
-            List<PostCommentScore> postCommentScores = entityManager.createNativeQuery(
-                "SELECT id, parent_id, root_id, review, created_on, score " +
-                "FROM ( " +
-                "    SELECT " +
-                "        id, parent_id, root_id, review, created_on, score, " +
-                "        dense_rank() OVER (ORDER BY total_score DESC) rank " +
-                "    FROM ( " +
-                "       SELECT " +
-                "           id, parent_id, root_id, review, created_on, score, " +
-                "           SUM(score) OVER (PARTITION BY root_id) total_score " +
-                "       FROM (" +
-                "          WITH RECURSIVE post_comment_score(id, root_id, post_id, " +
-                "              parent_id, review, created_on, score) AS (" +
-                "              SELECT id, id, post_id, parent_id, review, created_on, " +
-                "                COALESCE (( SELECT SUM (CASE WHEN up = true THEN 1 ELSE - 1 END ) FROM post_comment_vote WHERE comment_id = id ), 0)  score " +
-                "              FROM post_comment " +
-                "              WHERE post_id = :postId AND parent_id IS NULL " +
-                "              UNION ALL " +
-                "              SELECT pc.id, pcs.root_id, pc.post_id, pc.parent_id, " +
-                "                  pc.review, pc.created_on, " +
-                "                  COALESCE(( SELECT SUM (CASE WHEN up = true THEN 1 ELSE - 1 END ) FROM post_comment_vote WHERE comment_id = pc.id ), 0)  score " +
-                "              FROM post_comment pc " +
-                "              INNER JOIN post_comment_score pcs ON pc.parent_id = pcs.id " +
-                "              WHERE pc.parent_id = pcs.id " +
-                "          ) " +
-                "          SELECT id, parent_id, root_id, review, created_on, score" +
-                "          FROM post_comment_score" +
-                "       ) score_by_comment " +
-                "    ) score_total " +
-                "    ORDER BY total_score DESC, created_on ASC " +
-                ") total_score_group  " +
-                "WHERE rank <= :rank", "PostCommentScore")
+            List<PostCommentScore> postCommentScores = entityManager.createNativeQuery("""                       
+                    SELECT id, parent_id, root_id, review, created_on, score
+                        FROM (
+                        	SELECT
+                        		id, parent_id, root_id, review, created_on, score,
+                        		dense_rank() OVER (ORDER BY total_score DESC) rank
+                        	FROM (
+                        		SELECT
+                        		   id, parent_id, root_id, review, created_on, score,
+                        		   SUM(score) OVER (PARTITION BY root_id) total_score
+                        		FROM (
+                        			WITH RECURSIVE post_comment_score(id, root_id, post_id,
+                        					parent_id, review, created_on, score) AS (
+                        				SELECT id, id, post_id, parent_id, review, created_on,
+                        					COALESCE (( SELECT SUM (CASE WHEN up = true THEN 1 ELSE - 1 END ) FROM post_comment_vote WHERE comment_id = id ), 0)  score
+                        				FROM post_comment
+                        				WHERE post_id = :postId AND parent_id IS NULL
+                        				UNION ALL
+                        				SELECT pc.id, pcs.root_id, pc.post_id, pc.parent_id,
+                        				  pc.review, pc.created_on,
+                        				  COALESCE(( SELECT SUM (CASE WHEN up = true THEN 1 ELSE - 1 END ) FROM post_comment_vote WHERE comment_id = pc.id ), 0)  score
+                        				FROM post_comment pc
+                        				INNER JOIN post_comment_score pcs ON pc.parent_id = pcs.id
+                        				WHERE pc.parent_id = pcs.id
+                        		  )
+                        		  SELECT id, parent_id, root_id, review, created_on, score
+                        		  FROM post_comment_score
+                        		) score_by_comment
+                        	) score_total
+                        	ORDER BY total_score DESC, created_on ASC
+                        ) total_score_groups
+                        WHERE rank <= :rank
+                        ORDER BY id
+                        """, "PostCommentScore")
             .unwrap(NativeQuery.class)
             .setParameter("postId", postId).setParameter("rank", rank)
             .setResultTransformer(new PostCommentScoreResultTransformer())
-            .list();
+            .getResultList();
             return postCommentScores;
         });
     }
 
     protected List<PostCommentScore> postCommentScoresInMemory(Long postId, int rank) {
         return doInJPA(entityManager -> {
-            List<PostCommentScore> postCommentScores = entityManager.createQuery(
-                "select new com.vladmihalcea.book.hpjp.hibernate.query.recursive.PostCommentScore(" +
-                "   pc.id, pc.parent.id, 0, pc.review, pc.createdOn, sum( case when pcv.up is null then 0 when pcv.up = true then 1 else -1 end ) " +
-                ") " +
-                "from PostComment pc " +
-                "left join PostCommentVote pcv on pc.id = pcv.comment " +
-                "where pc.post.id = :postId " +
-                "group by pc.id, pc.parent.id, pc.review, pc.createdOn ")
+            List<PostCommentScore> postCommentScores = entityManager.createQuery("""
+                    select new com.vladmihalcea.hpjp.hibernate.query.recursive.complex.PostCommentScoreTest$PostCommentScore(
+                       pc.id, pc.parent.id, 0, pc.review, pc.createdOn, sum( case when pcv.up is null then 0 when pcv.up = true then 1 else -1 end )
+                    )
+                    from PostComment pc
+                    left join PostCommentVote pcv on pc.id = pcv.comment.id
+                    where pc.post.id = :postId
+                    group by pc.id, pc.parent.id, pc.review, pc.createdOn
+                    order by pc.id
+                    """)
             .setParameter("postId", postId)
             .getResultList();
 
@@ -589,6 +591,110 @@ public class PostCommentScoreTest extends AbstractPostgreSQLIntegrationTest {
                     "user=" + user +
                     ", comment=" + comment +
                     '}';
+        }
+    }
+
+    public static class PostCommentScore {
+
+        private Long id;
+        private Long parentId;
+        private Long rootId;
+        private String review;
+        private LocalDateTime createdOn;
+        private long score;
+
+        private List<PostCommentScore> children = new ArrayList<>();
+
+        public PostCommentScore(Long id, Long parentId, Long rootId, String review, LocalDateTime createdOn, Long score) {
+            this.id = id.longValue();
+            this.parentId = parentId != null ? parentId.longValue() : null;
+            this.rootId = rootId != null ? rootId.longValue() : null;
+            this.review = review;
+            this.createdOn = createdOn;
+            this.score = score;
+        }
+
+        public PostCommentScore(Long id, Long parentId, Integer rootId, String review, Timestamp createdOn, Long score) {
+            this.id = id.longValue();
+            this.parentId = parentId != null ? parentId.longValue() : null;
+            this.rootId = rootId != null ? rootId.longValue() : null;
+            this.review = review;
+            this.createdOn = createdOn.toLocalDateTime();
+            this.score = score;
+        }
+
+        public PostCommentScore() {
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public Long getParentId() {
+            return parentId;
+        }
+
+        public void setParentId(Long parentId) {
+            this.parentId = parentId;
+        }
+
+        public Long getRootId() {
+            return rootId;
+        }
+
+        public void setRootId(Long rootId) {
+            this.rootId = rootId;
+        }
+
+        public String getReview() {
+            return review;
+        }
+
+        public void setReview(String review) {
+            this.review = review;
+        }
+
+        public LocalDateTime getCreatedOn() {
+            return createdOn;
+        }
+
+        public void setCreatedOn(LocalDateTime createdOn) {
+            this.createdOn = createdOn;
+        }
+
+        public void setCreatedOn(Date createdOn) {
+            this.createdOn = LocalDateTime.ofInstant(
+                createdOn.toInstant(), ZoneId.systemDefault());
+        }
+
+        public long getScore() {
+            return score;
+        }
+
+        public void setScore(int score) {
+            this.score = score;
+        }
+
+        public long getTotalScore() {
+            long total = getScore();
+            for(PostCommentScore child : children) {
+                total += child.getTotalScore();
+            }
+            return total;
+        }
+
+        public List<PostCommentScore> getChildren() {
+            List<PostCommentScore> copy = new ArrayList<>(children);
+            copy.sort(Comparator.comparing(PostCommentScore::getCreatedOn));
+            return copy;
+        }
+
+        public void addChild(PostCommentScore child) {
+            children.add(child);
         }
     }
 }

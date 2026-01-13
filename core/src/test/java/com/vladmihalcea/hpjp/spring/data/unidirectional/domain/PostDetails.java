@@ -45,7 +45,6 @@ public class PostDetails extends VersionedEntity {
 
     public PostDetails setPost(Post post) {
         this.post = post;
-        this.id = post.getId();
         if (getVersion() == null) {
             setVersion(post.getVersion());
         }

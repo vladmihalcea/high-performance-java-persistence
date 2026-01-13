@@ -4,13 +4,13 @@ import com.vladmihalcea.hpjp.util.AbstractOracleIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.OraclePreparedStatement;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * OracleImplicitStatementCacheTest - Test Oracle implicit Statement cache
@@ -77,7 +77,7 @@ public class OracleExplicitStatementCacheTest extends AbstractOracleIntegrationT
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testStatementCaching() {
         doInJDBC(connection -> {
             for (int i = 0; i < 5; i++) {

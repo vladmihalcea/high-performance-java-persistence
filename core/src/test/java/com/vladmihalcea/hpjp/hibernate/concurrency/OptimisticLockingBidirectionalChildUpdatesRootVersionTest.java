@@ -18,6 +18,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.boot.Metadata;
+import org.hibernate.boot.spi.BootstrapContext;
 import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.engine.spi.SessionImplementor;
@@ -28,7 +29,7 @@ import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.service.spi.SessionFactoryServiceRegistry;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,13 +46,8 @@ public class OptimisticLockingBidirectionalChildUpdatesRootVersionTest extends A
         public static final RootAwareEventListenerIntegrator INSTANCE = new RootAwareEventListenerIntegrator();
 
         @Override
-        public void integrate(
-                Metadata metadata,
-                SessionFactoryImplementor sessionFactory,
-                SessionFactoryServiceRegistry serviceRegistry) {
-
-            final EventListenerRegistry eventListenerRegistry =
-                    serviceRegistry.getService( EventListenerRegistry.class );
+        public void integrate(Metadata metadata, BootstrapContext bootstrapContext, SessionFactoryImplementor sessionFactory) {
+            final EventListenerRegistry eventListenerRegistry = sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
 
             eventListenerRegistry.appendListeners( EventType.PERSIST, RootAwareInsertEventListener.INSTANCE);
             eventListenerRegistry.appendListeners( EventType.FLUSH_ENTITY, RootAwareUpdateAndDeleteEventListener.INSTANCE);

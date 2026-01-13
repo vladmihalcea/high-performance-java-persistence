@@ -1,7 +1,7 @@
 package com.vladmihalcea.hpjp.jooq.mysql.crud;
 
 import org.jooq.DSLContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;

@@ -4,14 +4,14 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import jakarta.persistence.*;
 import org.hibernate.query.Query;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -194,7 +194,7 @@ public class WindowFunctionRunningTotalTest extends AbstractTest {
             assertEquals(2560L, longValue(tuple1.get("amount")));
             assertEquals(2560L, longValue(tuple1.get("balance")));
             assertEquals(1L, longValue(tuple1.get("account_id")));
-            assertEquals(Timestamp.valueOf(LocalDateTime.of(2019, 10, 13, 12, 23, 0)), tuple1.get("created_on"));
+            assertEquals(LocalDateTime.of(2019, 10, 13, 12, 23), tuple1.get("created_on"));
 
             Tuple tuple2 = tuples.get(1);
             assertEquals(2L, longValue(tuple2.get("nr")));
@@ -202,7 +202,7 @@ public class WindowFunctionRunningTotalTest extends AbstractTest {
             assertEquals(-200L, longValue(tuple2.get("amount")));
             assertEquals(2360L, longValue(tuple2.get("balance")));
             assertEquals(1L, longValue(tuple2.get("account_id")));
-            assertEquals(Timestamp.valueOf(LocalDateTime.of(2019, 10, 14, 13, 23, 0)), tuple2.get("created_on"));
+            assertEquals(LocalDateTime.of(2019, 10, 14, 13, 23), tuple2.get("created_on"));
 
             Tuple tuple3 = tuples.get(2);
             assertEquals(3L, longValue(tuple3.get("nr")));
@@ -210,7 +210,7 @@ public class WindowFunctionRunningTotalTest extends AbstractTest {
             assertEquals(500L, longValue(tuple3.get("amount")));
             assertEquals(2860L, longValue(tuple3.get("balance")));
             assertEquals(1L, longValue(tuple3.get("account_id")));
-            assertEquals(Timestamp.valueOf(LocalDateTime.of(2019, 10, 14, 15, 45, 0)), tuple3.get("created_on"));
+            assertEquals(LocalDateTime.of(2019, 10, 14, 15, 45), tuple3.get("created_on"));
 
             Tuple tuple4 = tuples.get(3);
             assertEquals(4L, longValue(tuple4.get("nr")));
@@ -218,7 +218,7 @@ public class WindowFunctionRunningTotalTest extends AbstractTest {
             assertEquals(-1850L, longValue(tuple4.get("amount")));
             assertEquals(1010L, longValue(tuple4.get("balance")));
             assertEquals(1L, longValue(tuple4.get("account_id")));
-            assertEquals(Timestamp.valueOf(LocalDateTime.of(2019, 10, 15, 10, 15, 0)), tuple4.get("created_on"));
+            assertEquals(LocalDateTime.of(2019, 10, 15, 10, 15), tuple4.get("created_on"));
 
             Tuple tuple5 = tuples.get(4);
             assertEquals(1L, longValue(tuple5.get("nr")));
@@ -226,7 +226,7 @@ public class WindowFunctionRunningTotalTest extends AbstractTest {
             assertEquals(2560L, longValue(tuple5.get("amount")));
             assertEquals(2560L, longValue(tuple5.get("balance")));
             assertEquals(2L, longValue(tuple5.get("account_id")));
-            assertEquals(Timestamp.valueOf(LocalDateTime.of(2019, 10, 13, 15, 23, 0)), tuple5.get("created_on"));
+            assertEquals(LocalDateTime.of(2019, 10, 13, 15, 23), tuple5.get("created_on"));
 
             Tuple tuple6 = tuples.get(5);
             assertEquals(2L, longValue(tuple6.get("nr")));
@@ -234,7 +234,7 @@ public class WindowFunctionRunningTotalTest extends AbstractTest {
             assertEquals(300L, longValue(tuple6.get("amount")));
             assertEquals(2860L, longValue(tuple6.get("balance")));
             assertEquals(2L, longValue(tuple6.get("account_id")));
-            assertEquals(Timestamp.valueOf(LocalDateTime.of(2019, 10, 14, 11, 23, 0)), tuple6.get("created_on"));
+            assertEquals(LocalDateTime.of(2019, 10, 14, 11, 23), tuple6.get("created_on"));
 
             Tuple tuple7 = tuples.get(6);
             assertEquals(3L, longValue(tuple7.get("nr")));
@@ -242,7 +242,7 @@ public class WindowFunctionRunningTotalTest extends AbstractTest {
             assertEquals(-500L, longValue(tuple7.get("amount")));
             assertEquals(2360L, longValue(tuple7.get("balance")));
             assertEquals(2L, longValue(tuple7.get("account_id")));
-            assertEquals(Timestamp.valueOf(LocalDateTime.of(2019, 10, 14, 14, 45, 0)), tuple7.get("created_on"));
+            assertEquals(LocalDateTime.of(2019, 10, 14, 14, 45), tuple7.get("created_on"));
 
             Tuple tuple8 = tuples.get(7);
             assertEquals(4L, longValue(tuple8.get("nr")));
@@ -250,7 +250,7 @@ public class WindowFunctionRunningTotalTest extends AbstractTest {
             assertEquals(-150L, longValue(tuple8.get("amount")));
             assertEquals(2210L, longValue(tuple8.get("balance")));
             assertEquals(2L, longValue(tuple8.get("account_id")));
-            assertEquals(Timestamp.valueOf(LocalDateTime.of(2019, 10, 15, 10, 15, 0)), tuple8.get("created_on"));
+            assertEquals(LocalDateTime.of(2019, 10, 15, 10, 15), tuple8.get("created_on"));
         });
     }
 

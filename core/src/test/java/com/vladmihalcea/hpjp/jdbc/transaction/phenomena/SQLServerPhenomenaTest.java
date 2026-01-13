@@ -19,10 +19,6 @@ import java.util.List;
  */
 public class SQLServerPhenomenaTest extends AbstractPhenomenaTest {
 
-    public SQLServerPhenomenaTest(String isolationLevelName, int isolationLevel) {
-        super(isolationLevelName, isolationLevel);
-    }
-
     @Override
     protected DataSourceProvider dataSourceProvider() {
         return new SQLServerDataSourceProvider();

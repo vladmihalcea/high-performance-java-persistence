@@ -6,7 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 

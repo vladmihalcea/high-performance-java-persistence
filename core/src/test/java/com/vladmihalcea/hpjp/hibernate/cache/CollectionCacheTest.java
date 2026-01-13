@@ -1,20 +1,20 @@
 package com.vladmihalcea.hpjp.hibernate.cache;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import jakarta.persistence.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.query.NativeQuery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import jakarta.persistence.*;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
@@ -40,9 +40,7 @@ public class CollectionCacheTest extends AbstractTest {
         return properties;
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Repository repository = new Repository("Hibernate-Master-Class");
             repository.id = 1L;

@@ -11,15 +11,15 @@ import com.vladmihalcea.hpjp.util.exception.ExceptionUtil;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.*;
 import org.hibernate.loader.MultipleBagFetchException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import static com.blazebit.persistence.view.FetchStrategy.MULTISET;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea

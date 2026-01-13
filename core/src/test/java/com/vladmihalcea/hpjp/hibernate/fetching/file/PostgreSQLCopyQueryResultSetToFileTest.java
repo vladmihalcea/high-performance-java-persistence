@@ -6,7 +6,7 @@ import com.vladmihalcea.hpjp.util.providers.PostgreSQLDataSourceProvider;
 import jakarta.persistence.*;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.AvailableHints;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
@@ -19,7 +19,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea

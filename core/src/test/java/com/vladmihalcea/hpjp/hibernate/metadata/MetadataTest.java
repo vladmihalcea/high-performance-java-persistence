@@ -9,7 +9,7 @@ import org.hibernate.mapping.Column;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.Property;
 import org.hibernate.mapping.Table;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Vlad Mihalcea

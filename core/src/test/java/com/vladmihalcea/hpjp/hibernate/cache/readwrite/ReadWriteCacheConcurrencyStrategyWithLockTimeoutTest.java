@@ -1,19 +1,18 @@
 package com.vladmihalcea.hpjp.hibernate.cache.readwrite;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
+import jakarta.persistence.*;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.EmptyInterceptor;
 import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.cache.internal.DefaultCacheKeysFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.persister.entity.EntityPersister;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import jakarta.persistence.*;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.Properties;
@@ -38,7 +37,7 @@ public class ReadWriteCacheConcurrencyStrategyWithLockTimeoutTest extends Abstra
 
     @Override
     protected Interceptor interceptor() {
-        return new EmptyInterceptor() {
+        return new Interceptor() {
             @Override
             public void beforeTransactionCompletion(Transaction tx) {
                 if(applyInterceptor.get()) {
@@ -57,9 +56,7 @@ public class ReadWriteCacheConcurrencyStrategyWithLockTimeoutTest extends Abstra
         return properties;
     }
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             Repository repository = new Repository("Hibernate-Master-Class");
             entityManager.persist(repository);
@@ -67,7 +64,7 @@ public class ReadWriteCacheConcurrencyStrategyWithLockTimeoutTest extends Abstra
     }
 
     @Test
-    @Ignore("Check the timeout property in latest EhCache version")
+    @Disabled("Check the timeout property in latest EhCache version")
     public void testRepositoryEntityUpdate() {
         try {
             doInJPA(entityManager -> {

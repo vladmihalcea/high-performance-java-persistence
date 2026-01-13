@@ -1,29 +1,26 @@
 package com.vladmihalcea.hpjp.jdbc.fetching;
 
-import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
+import com.vladmihalcea.hpjp.util.DatabaseIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-import org.assertj.core.util.Arrays;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.provider.Arguments;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * SQLServerResultSetLimitTest - Test limiting result set vs fetching and discarding rows
  *
  * @author Vlad Mihalcea
  */
-public class SQLServerResultSetLimitTest extends DatabaseProviderIntegrationTest {
+public class SQLServerResultSetLimitTest extends DatabaseIntegrationTest {
     public static final String INSERT_POST = "insert into post (title, version, id) values (?, ?, ?)";
 
     public static final String INSERT_POST_COMMENT = "insert into post_comment (post_id, review, version, id) values (?, ?, ?, ?)";
@@ -39,15 +36,10 @@ public class SQLServerResultSetLimitTest extends DatabaseProviderIntegrationTest
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
-    public SQLServerResultSetLimitTest(Database database) {
-        super(database);
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Database[]> databases() {
-        List<Database[]> databases = new ArrayList<>();
-        databases.add(Arrays.array(Database.SQLSERVER));
-        return databases;
+    public static Stream<Arguments> parameters() {
+        return Stream.of(
+            Arguments.of(Database.SQLSERVER)
+        );
     }
 
     @Override
@@ -56,8 +48,7 @@ public class SQLServerResultSetLimitTest extends DatabaseProviderIntegrationTest
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJDBC(connection -> {
             try (
                     PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);

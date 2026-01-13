@@ -3,8 +3,8 @@ package com.vladmihalcea.hpjp.jooq.mysql.crud;
 import org.jooq.BatchBindStep;
 import org.jooq.Record;
 import org.jooq.Result;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -58,7 +58,7 @@ public class BatchTest extends AbstractJOOQMySQLIntegrationTest {
         });
     }
 
-    @Test @Ignore("values(Collection) is not INSERT INTO ... VALUES ( (..) (..) (..) )")
+    @Test @Disabled("values(Collection) is not INSERT INTO ... VALUES ( (..) (..) (..) )")
     public void testBatchingWithCollection() {
         doInJOOQ(sql -> {
             sql.delete(POST).execute();

@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.jooq.mysql.crud;
 import com.vladmihalcea.hpjp.jooq.mysql.schema.crud.tables.records.PostDetailsRecord;
 import com.vladmihalcea.hpjp.jooq.mysql.schema.crud.tables.records.PostRecord;
 import com.vladmihalcea.util.exception.ExceptionUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;

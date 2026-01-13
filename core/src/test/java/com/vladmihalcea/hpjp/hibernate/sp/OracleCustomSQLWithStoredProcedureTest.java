@@ -1,19 +1,21 @@
 package com.vladmihalcea.hpjp.hibernate.sp;
 
 import com.vladmihalcea.hpjp.util.AbstractOracleIntegrationTest;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import org.hibernate.Session;
-import org.hibernate.annotations.Loader;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLInsert;
+import org.hibernate.annotations.SQLSelect;
 import org.jboss.logging.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Statement;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Vlad Mihalcea
@@ -29,8 +31,7 @@ public class OracleCustomSQLWithStoredProcedureTest extends AbstractOracleIntegr
 		};
 	}
 
-	public void init() {
-		super.init();
+	public void afterInit() {
 		doInJPA(entityManager -> {
 			Session session = entityManager.unwrap( Session.class );
 			session.doWork( connection -> {
@@ -81,16 +82,9 @@ public class OracleCustomSQLWithStoredProcedureTest extends AbstractOracleIntegr
 		sql =   "{ call sp_delete_person( ? ) } ",
 		callable = true
 	)
-	@Loader(namedQuery = "find_valid_person")
-	@NamedNativeQueries({
-		@NamedNativeQuery(
-			name = "find_valid_person",
-			query = "SELECT id, name " +
-					"FROM person " +
-					"WHERE id = ? and valid = 1",
-			resultClass = Person.class
-		)
-	})
+	@SQLSelect(sql = "SELECT id, name " +
+					 "FROM person " +
+					 "WHERE id = ? and valid = 1")
 	public static class Person {
 
 		@Id

@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.spring.blaze.config.SpringBlazePersistenceConfigura
 import com.vladmihalcea.hpjp.spring.blaze.domain.*;
 import com.vladmihalcea.hpjp.spring.blaze.service.ForumService;
 import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.TransactionException;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

@@ -1,7 +1,7 @@
 package com.vladmihalcea.hpjp.jdbc.transaction.locking.advisory;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,8 +19,8 @@ import java.util.concurrent.Executors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.APPEND;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Vlad Mihalcea
@@ -37,35 +37,31 @@ public class PostgreSQLReadWriteAdvisoryLocksTest extends AbstractPostgreSQLInte
 
 	public static final int documentId = 123;
 
-	private static final Path doc = Paths.get( TEMP_FOLDER, String.format( "document_%d.log", documentId ) );
+	private static final Path doc = Paths.get(TEMP_FOLDER, String.format("document_%d.log", documentId));
 
 	@Override
 	protected Class<?>[] entities() {
-		return new Class<?>[] {
+		return new Class<?>[]{
 		};
 	}
 
 	@Override
-	public void init() {
-		super.init();
+	public void beforeInit() {
 		try {
-			Files.deleteIfExists( doc );
-			Files.createFile( doc );
-		}
-		catch (IOException e) {
-			fail( e.getMessage() );
+			Files.deleteIfExists(doc);
+			Files.createFile(doc);
+		} catch (IOException e) {
+			fail(e.getMessage());
 		}
 	}
 
 	@Override
-	public void destroy() {
+	public void afterDestroy() {
 		try {
-			Files.deleteIfExists( doc );
+			Files.deleteIfExists(doc);
+		} catch (IOException e) {
+			fail(e.getMessage());
 		}
-		catch (IOException e) {
-			fail( e.getMessage() );
-		}
-		super.destroy();
 	}
 
 	@Test

@@ -2,13 +2,13 @@ package com.vladmihalcea.hpjp.jdbc.caching;
 
 import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.entity.TaskEntityProvider;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * SQLServerImplicitStatementCacheTest - Test SQL Server implicit Statement cache
@@ -58,7 +58,7 @@ public class SQLServerImplicitStatementCacheTest extends AbstractSQLServerIntegr
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testStatementCaching() {
         doInJDBC(connection -> {
             try (PreparedStatement statement = connection.prepareStatement(

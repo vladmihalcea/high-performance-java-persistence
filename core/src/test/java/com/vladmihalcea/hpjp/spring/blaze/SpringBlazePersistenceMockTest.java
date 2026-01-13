@@ -4,13 +4,13 @@ import com.blazebit.persistence.PagedList;
 import com.vladmihalcea.hpjp.spring.blaze.domain.Post;
 import com.vladmihalcea.hpjp.spring.blaze.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.blaze.service.ForumService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;

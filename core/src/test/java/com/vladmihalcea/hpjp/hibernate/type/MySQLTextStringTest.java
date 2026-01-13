@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.type;
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.type.descriptor.jdbc.LongVarcharJdbcType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.Arrays;

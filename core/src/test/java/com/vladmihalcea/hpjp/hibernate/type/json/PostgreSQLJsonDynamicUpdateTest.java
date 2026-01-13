@@ -7,7 +7,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Vlad Mihalcea

@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.jooq.mysql.crud;
 
 import java.sql.Statement;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.jooq.DSLContext;
 import org.jooq.conf.Settings;

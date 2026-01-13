@@ -4,7 +4,7 @@ import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.data.update.config.SpringDataJPAUpdateConfiguration;
 import com.vladmihalcea.hpjp.spring.data.update.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.update.repository.PostRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.support.TransactionCallback;

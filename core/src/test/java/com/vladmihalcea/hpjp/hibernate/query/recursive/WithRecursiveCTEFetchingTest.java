@@ -6,14 +6,15 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.transform.ResultTransformer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -403,17 +404,17 @@ public class WithRecursiveCTEFetchingTest extends AbstractTest {
         private Long id;
         private Long parentId;
         private String review;
-        private Date createdOn;
-        private long score;
+        private LocalDateTime createdOn;
+        private int score;
 
         private List<PostCommentScore> children = new ArrayList<>();
 
-        public PostCommentScore(Number id, Number parentId, String review, Date createdOn, Number score) {
+        public PostCommentScore(Long id, Long parentId, String review, LocalDateTime createdOn, Integer score) {
             this.id = id.longValue();
             this.parentId = parentId != null ? parentId.longValue() : null;
             this.review = review;
             this.createdOn = createdOn;
-            this.score = score.longValue();
+            this.score = score;
         }
 
         public PostCommentScore() {
@@ -443,25 +444,30 @@ public class WithRecursiveCTEFetchingTest extends AbstractTest {
             this.review = review;
         }
 
-        public Date getCreatedOn() {
+        public LocalDateTime getCreatedOn() {
             return createdOn;
         }
 
-        public void setCreatedOn(Date createdOn) {
+        public void setCreatedOn(LocalDateTime createdOn) {
             this.createdOn = createdOn;
         }
 
-        public long getScore() {
+        public void setCreatedOn(Date createdOn) {
+            this.createdOn = LocalDateTime.ofInstant(
+                createdOn.toInstant(), ZoneId.systemDefault());
+        }
+
+        public int getScore() {
             return score;
         }
 
-        public void setScore(long score) {
+        public void setScore(int score) {
             this.score = score;
         }
 
         public long getTotalScore() {
             long total = getScore();
-            for (PostCommentScore child : children) {
+            for(PostCommentScore child : children) {
                 total += child.getTotalScore();
             }
             return total;

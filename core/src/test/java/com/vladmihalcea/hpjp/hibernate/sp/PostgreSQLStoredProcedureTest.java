@@ -11,7 +11,7 @@ import org.hibernate.procedure.ProcedureOutputs;
 import org.hibernate.result.Output;
 import org.hibernate.result.ResultSetOutput;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.*;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider.Post;
 import static com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider.PostComment;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea

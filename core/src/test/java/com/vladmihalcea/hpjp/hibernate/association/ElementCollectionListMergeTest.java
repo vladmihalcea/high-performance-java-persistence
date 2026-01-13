@@ -1,15 +1,15 @@
 package com.vladmihalcea.hpjp.hibernate.association;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -46,7 +46,7 @@ public class ElementCollectionListMergeTest extends AbstractTest {
     }
 
     @Test
-    @Ignore("Test is failing!")
+    @Disabled("Test is failing!")
     public void testMerge() {
 
         PostDTO postDTO = getPostDTO();

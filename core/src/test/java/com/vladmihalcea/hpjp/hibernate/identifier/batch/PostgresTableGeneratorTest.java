@@ -3,7 +3,7 @@ package com.vladmihalcea.hpjp.hibernate.identifier.batch;
 import com.vladmihalcea.hpjp.hibernate.identifier.Identifiable;
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import org.hibernate.annotations.GenericGenerator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 

@@ -8,16 +8,15 @@ import com.vladmihalcea.hpjp.hibernate.forum.PostComment;
 import com.vladmihalcea.hpjp.hibernate.forum.PostDetails;
 import com.vladmihalcea.hpjp.hibernate.forum.Tag;
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.hibernate.EmptyInterceptor;
+import jakarta.persistence.EntityManager;
 import org.hibernate.Interceptor;
 import org.hibernate.type.Type;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.ValueSource;
 
-import jakarta.persistence.EntityManager;
-import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -25,7 +24,8 @@ import java.util.stream.Collectors;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@ValueSource(ints = {5, 10, 20, 50, 100})
 public class BytecodeEnhancementDirtyCheckingPerformanceTest extends AbstractTest {
 
     private MetricRegistry metricRegistry = new MetricRegistry();
@@ -33,29 +33,15 @@ public class BytecodeEnhancementDirtyCheckingPerformanceTest extends AbstractTes
     private Timer timer = metricRegistry.timer(getClass().getSimpleName());
 
     private Slf4jReporter logReporter = Slf4jReporter
-            .forRegistry(metricRegistry)
-            .outputTo(LOGGER)
-            .build();
+        .forRegistry(metricRegistry)
+        .outputTo(LOGGER)
+        .build();
 
+    @Parameter
     private int entityCount = 1;
     private int iterationCount = 1000;
     private List<Long> postIds = new ArrayList<>();
     private boolean enableMetrics = false;
-
-    public BytecodeEnhancementDirtyCheckingPerformanceTest(int entityCount) {
-        this.entityCount = entityCount;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Integer[]> rdbmsDataSourceProvider() {
-        List<Integer[]> counts = new ArrayList<>();
-        counts.add(new Integer[] {5});
-        counts.add(new Integer[] {10});
-        counts.add(new Integer[] {20});
-        counts.add(new Integer[] {50});
-        counts.add(new Integer[] {100});
-        return counts;
-    }
 
     @Override
     protected Class<?>[] entities() {
@@ -69,7 +55,7 @@ public class BytecodeEnhancementDirtyCheckingPerformanceTest extends AbstractTes
 
     @Override
     protected Interceptor interceptor() {
-        return new EmptyInterceptor() {
+        return new Interceptor() {
             private Long startNanos;
 
             @Override
@@ -78,7 +64,7 @@ public class BytecodeEnhancementDirtyCheckingPerformanceTest extends AbstractTes
             }
 
             @Override
-            public boolean onFlushDirty(Object entity, Serializable id, Object[] currentState, Object[] previousState, String[] propertyNames, Type[] types) {
+            public boolean onFlushDirty(Object entity, Object id, Object[] currentState, Object[] previousState, String[] propertyNames, Type[] types) {
                 if (enableMetrics) {
                     timer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
                 }
@@ -97,8 +83,7 @@ public class BytecodeEnhancementDirtyCheckingPerformanceTest extends AbstractTes
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJPA(entityManager -> {
             for (int i = 0; i < entityCount; i++) {
                 Post post = new Post()
@@ -143,7 +128,7 @@ public class BytecodeEnhancementDirtyCheckingPerformanceTest extends AbstractTes
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testDirtyChecking() {
         doInJPA(entityManager -> {
             List<Post> posts = posts(entityManager);
@@ -170,19 +155,20 @@ public class BytecodeEnhancementDirtyCheckingPerformanceTest extends AbstractTes
     }
 
     private List<Post> posts(EntityManager entityManager) {
-        return entityManager.createQuery(
-                "select pc " +
-                        "from PostComment pc " +
-                        "join fetch pc.post p " +
-                        "join fetch p.tags " +
-                        "join fetch p.details " +
-                        "where p.id in :ids", PostComment.class)
-                .setParameter("ids", postIds)
-                .getResultList()
-                .stream()
-                .map(PostComment::getPost)
-                .distinct()
-                .collect(Collectors.toList());
+        return entityManager.createQuery("""
+            select pc
+            from PostComment pc
+            join fetch pc.post p
+            join fetch p.tags
+            join fetch p.details
+            where p.id in :ids
+            """, PostComment.class)
+        .setParameter("ids", postIds)
+        .getResultList()
+        .stream()
+        .map(PostComment::getPost)
+        .distinct()
+        .collect(Collectors.toList());
     }
 
     private void modifyEntities(Post post, int i) {
@@ -194,5 +180,4 @@ public class BytecodeEnhancementDirtyCheckingPerformanceTest extends AbstractTes
         post.getDetails().setCreatedOn(new Date(i));
         post.getComments().get(0).setReview(value);
     }
-
 }

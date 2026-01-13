@@ -1,15 +1,14 @@
 package com.vladmihalcea.hpjp.hibernate.mapping;
 
 import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
-import org.junit.Test;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -75,7 +74,7 @@ public class GeneratedTest extends AbstractSQLServerIntegrationTest {
 
 		private String middleName5;
 
-		@Generated( value = GenerationTime.ALWAYS )
+		@Generated(event = {EventType.INSERT, EventType.UPDATE})
 		@Column(columnDefinition =
 			"AS CONCAT(" +
 			"	COALESCE(firstName, ''), " +

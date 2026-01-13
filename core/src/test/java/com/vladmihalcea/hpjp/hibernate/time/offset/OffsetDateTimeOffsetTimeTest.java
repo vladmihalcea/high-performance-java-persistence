@@ -2,8 +2,8 @@ package com.vladmihalcea.hpjp.hibernate.time.offset;
 
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
 import org.hibernate.cfg.AvailableSettings;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +16,7 @@ import java.time.OffsetTime;
 import java.time.ZoneOffset;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -36,7 +36,7 @@ public class OffsetDateTimeOffsetTimeTest extends AbstractMySQLIntegrationTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void test() {
         ZoneOffset offset = OffsetDateTime.now().getOffset();
         OffsetTime offsetTime = OffsetTime.of(7, 30, 0, 0, offset);

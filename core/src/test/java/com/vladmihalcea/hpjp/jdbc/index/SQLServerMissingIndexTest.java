@@ -3,13 +3,11 @@ package com.vladmihalcea.hpjp.jdbc.index;
 import com.vladmihalcea.hpjp.jdbc.index.providers.IndexEntityProvider;
 import com.vladmihalcea.hpjp.jdbc.index.providers.IndexEntityProvider.Task;
 import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertFalse;
 
 /**
  * @author Vlad Mihalcea

@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.util.providers.Database;
 import java.sql.BatchUpdateException;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * @author Vlad Mihalcea

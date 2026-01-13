@@ -1,7 +1,7 @@
 package com.vladmihalcea.hpjp.hibernate.time;
 
 import com.vladmihalcea.hpjp.util.AbstractMySQLIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.sql.Date;
@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

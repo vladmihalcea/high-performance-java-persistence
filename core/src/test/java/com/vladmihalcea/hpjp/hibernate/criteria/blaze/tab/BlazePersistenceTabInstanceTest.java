@@ -6,14 +6,15 @@ import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
 import com.vladmihalcea.hpjp.hibernate.criteria.blaze.tab.cte.TabKeyVer;
 import com.vladmihalcea.hpjp.util.AbstractOracleIntegrationTest;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.EntityManagerFactory;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -41,7 +42,7 @@ public class BlazePersistenceTabInstanceTest extends AbstractOracleIntegrationTe
         return entityManagerFactory;
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         super.init();
         executeStatement("DROP table tab_instance");

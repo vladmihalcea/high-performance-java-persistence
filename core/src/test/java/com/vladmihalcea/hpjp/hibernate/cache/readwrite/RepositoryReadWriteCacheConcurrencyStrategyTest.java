@@ -1,20 +1,20 @@
 package com.vladmihalcea.hpjp.hibernate.cache.readwrite;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
+import jakarta.persistence.*;
 import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Immutable;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
@@ -42,9 +42,7 @@ public class RepositoryReadWriteCacheConcurrencyStrategyTest extends AbstractTes
 
     private Repository repositoryReference;
 
-    @Before
-    public void init() {
-        super.init();
+    public void afterInit() {
         repositoryReference = doInJPA(entityManager -> {
             LOGGER.info("Read-write entities are write-through on persisting");
             Repository repository = new Repository("Hibernate-Master-Class");
@@ -98,7 +96,7 @@ public class RepositoryReadWriteCacheConcurrencyStrategyTest extends AbstractTes
         doInJPA(entityManager -> {
             LOGGER.info("Load Repository");
             Repository repository = entityManager.find(Repository.class, 1L);
-            entityManager.unwrap(Session.class).buildLockRequest(new LockOptions().setLockMode(LockMode.OPTIMISTIC)).lock(repository);
+            entityManager.unwrap(Session.class).lock(repository, LockMode.OPTIMISTIC);
         });
         doInJPA(entityManager -> {
             LOGGER.info("Load Repository again");

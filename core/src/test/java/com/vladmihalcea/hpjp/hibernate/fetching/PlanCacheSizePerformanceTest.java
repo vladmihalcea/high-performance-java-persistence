@@ -5,16 +5,18 @@ import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.UniformReservoir;
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.hibernate.jpa.AvailableHints;
-import org.hibernate.query.*;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
 import jakarta.persistence.*;
-import jakarta.persistence.Query;
-import java.util.*;
+import org.hibernate.jpa.AvailableHints;
+import org.hibernate.query.NativeQuery;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.LongStream;
@@ -22,7 +24,8 @@ import java.util.stream.LongStream;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@ValueSource(ints = {1, 100})
 public class PlanCacheSizePerformanceTest extends AbstractTest {
 
     private MetricRegistry metricRegistry = new MetricRegistry();
@@ -35,19 +38,8 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
             .convertDurationsTo(TimeUnit.MICROSECONDS)
             .build();
 
-    private final int planCacheMaxSize;
-
-    public PlanCacheSizePerformanceTest(int planCacheMaxSize) {
-        this.planCacheMaxSize = planCacheMaxSize;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Integer[]> rdbmsDataSourceProvider() {
-        List<Integer[]> planCacheMaxSizes = new ArrayList<>();
-        planCacheMaxSizes.add(new Integer[] {1});
-        planCacheMaxSizes.add(new Integer[] {100});
-        return planCacheMaxSizes;
-    }
+    @Parameter
+    private int planCacheMaxSize;
 
     @Override
     protected void additionalProperties(Properties properties) {
@@ -72,9 +64,8 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
 
 
     @Override
-    public void init() {
+    public void afterInit() {
         metricRegistry.register(getClass().getSimpleName(), timer);
-        super.init();
         int commentsSize = 5;
         doInJPA(entityManager -> {
             LongStream.range(0, 50).forEach(i -> {
@@ -95,13 +86,13 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testEntityQueries() {
         compileQueries(this::getEntityQuery1, this::getEntityQuery2);
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testNativeQueries() {
         compileQueries(this::getNativeQuery1, this::getNativeQuery2);
     }
@@ -137,42 +128,45 @@ public class PlanCacheSizePerformanceTest extends AbstractTest {
     }
 
     protected Query getEntityQuery1(EntityManager entityManager) {
-        return entityManager.createQuery(
-            "select new " +
-            "   com.vladmihalcea.book.hpjp.hibernate.fetching.PostCommentSummary( " +
-            "       p.id, p.title, c.review ) " +
-            "from PostComment c " +
-            "join c.post p")
+        return entityManager.createQuery("""
+            select new com.vladmihalcea.hpjp.hibernate.fetching.PostCommentSummary(
+                   p.id, p.title, c.review)
+            from PostComment c
+            join c.post p
+            """)
         .setFirstResult(10)
         .setMaxResults(20)
         .setHint(AvailableHints.HINT_FETCH_SIZE, 20);
     }
 
     protected Query getEntityQuery2(EntityManager entityManager) {
-        return entityManager.createQuery(
-            "select c " +
-            "from PostComment c " +
-            "join fetch c.post p " +
-            "where p.title like :title"
+        return entityManager.createQuery("""
+            select c
+            from PostComment c
+            join fetch c.post p
+            where p.title like :title
+            """
         );
     }
 
     protected Query getNativeQuery1(EntityManager entityManager) {
-        return entityManager.createNativeQuery(
-            "select p.id, p.title, c.review * " +
-            "from post_comment c " +
-            "join post p on p.id = c.post_id ")
+        return entityManager.createNativeQuery("""
+            select p.id, p.title, c.review *
+            from post_comment c
+            join post p on p.id = c.post_id
+            """)
         .setFirstResult(10)
         .setMaxResults(20)
         .setHint(AvailableHints.HINT_FETCH_SIZE, 20);
     }
 
     protected Query getNativeQuery2(EntityManager entityManager) {
-        return entityManager.createNativeQuery(
-            "select c.*, p.* " +
-            "from post_comment c " +
-            "join post p on p.id = c.post_id " +
-            "where p.title like :title")
+        return entityManager.createNativeQuery("""
+            select c.*, p.*
+            from post_comment c
+            join post p on p.id = c.post_id
+            where p.title like :title
+            """)
         .unwrap(NativeQuery.class)
         .addEntity(PostComment.class)
         .addEntity(Post.class);

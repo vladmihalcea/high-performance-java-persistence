@@ -1,9 +1,9 @@
 package com.vladmihalcea.hpjp.hibernate.fetching;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
-import org.hibernate.testing.bytecode.enhancement.BytecodeEnhancerRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.hibernate.testing.bytecode.enhancement.extension.BytecodeEnhanced;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
@@ -11,12 +11,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.runner.RunWith;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(BytecodeEnhancerRunner.class)
+@BytecodeEnhanced
 public class EntityGraphTest extends AbstractPostgreSQLIntegrationTest {
 
     @Override

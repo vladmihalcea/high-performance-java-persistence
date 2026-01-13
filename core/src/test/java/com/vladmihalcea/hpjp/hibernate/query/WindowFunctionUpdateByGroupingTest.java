@@ -10,11 +10,11 @@ import jakarta.persistence.Table;
 
 import org.hibernate.Session;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -29,8 +29,7 @@ public class WindowFunctionUpdateByGroupingTest extends AbstractPostgreSQLIntegr
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
 
         doInJPA(entityManager -> {
             Session session = entityManager.unwrap( Session.class );

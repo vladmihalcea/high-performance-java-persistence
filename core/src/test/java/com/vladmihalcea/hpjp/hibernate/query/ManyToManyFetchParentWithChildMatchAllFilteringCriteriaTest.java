@@ -1,14 +1,14 @@
 package com.vladmihalcea.hpjp.hibernate.query;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -85,18 +85,18 @@ public class ManyToManyFetchParentWithChildMatchAllFilteringCriteriaTest extends
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testJPQLBroken() {
         doInJPA(entityManager -> {
-            List<Cluster> clusters = entityManager.createQuery(
-                "select distinct c " +
-                "from ClusterTag ct " +
-                "join ct.cluster c " +
-                "join ct.tag t " +
-                "where " +
-                "    (t.name = :tagName1 and t.value = :tagValue1) or " +
-                "    (t.name = :tagName2 and t.value = :tagValue2) "
-                , Cluster.class)
+            List<Cluster> clusters = entityManager.createQuery("""
+                select distinct c
+                from ClusterTag ct
+                join ct.cluster c
+                join ct.tag t
+                where
+                    (t.name = :tagName1 and t.value = :tagValue1) or
+                    (t.name = :tagName2 and t.value = :tagValue2)
+                """, Cluster.class)
             .setParameter("tagName1", "Spark")
             .setParameter("tagValue1", "2.2")
             .setParameter("tagName2", "Hadoop")
@@ -110,19 +110,20 @@ public class ManyToManyFetchParentWithChildMatchAllFilteringCriteriaTest extends
     @Test
     public void testNativeQueryJoin() {
         doInJPA(entityManager -> {
-            List<Cluster> clusters = entityManager.createNativeQuery(
-                "SELECT * " +
-                "FROM cluster c " +
-                "JOIN (" +
-                "   SELECT ct.cluster_id AS c_id " +
-                "   FROM cluster_tag ct " +
-                "   JOIN tag t ON ct.tag_id = t.id " +
-                "   WHERE " +
-                "       (t.tag_name = :tagName1 AND t.tag_value = :tagValue1) OR " +
-                "       (t.tag_name = :tagName2 AND t.tag_value = :tagValue2) " +
-                "   GROUP BY ct.cluster_id " +
-                "   HAVING COUNT(*) = 2" +
-                ") ct1 on c.id = ct1.c_id ", Cluster.class)
+            List<Cluster> clusters = entityManager.createNativeQuery("""
+                SELECT *
+                FROM cluster c
+                JOIN (   
+                    SELECT ct.cluster_id AS c_id
+                    FROM cluster_tag ct
+                    JOIN tag t ON ct.tag_id = t.id
+                    WHERE
+                       (t.tag_name = :tagName1 AND t.tag_value = :tagValue1) OR
+                       (t.tag_name = :tagName2 AND t.tag_value = :tagValue2)
+                    GROUP BY ct.cluster_id
+                    HAVING COUNT(*) = 2
+                ) ct1 on c.id = ct1.c_id
+                """, Cluster.class)
             .setParameter("tagName1", "Spark")
             .setParameter("tagValue1", "2.2")
             .setParameter("tagName2", "Hadoop")
@@ -136,21 +137,20 @@ public class ManyToManyFetchParentWithChildMatchAllFilteringCriteriaTest extends
     @Test
     public void testNativeQueryExists() {
         doInJPA(entityManager -> {
-            List<Cluster> clusters = entityManager.createNativeQuery(
-                "SELECT * " +
-                "FROM cluster c " +
-                "WHERE EXISTS (" +
-                "   SELECT ct.cluster_id as c_id " +
-                "   FROM cluster_tag ct " +
-                "   JOIN tag t ON ct.tag_id = t.id " +
-                "   WHERE " +
-                "       c.id = ct.cluster_id AND ( " +
-                "           (t.tag_name = :tagName1 AND t.tag_value = :tagValue1) OR " +
-                "           (t.tag_name = :tagName2 AND t.tag_value = :tagValue2) " +
-                "       )" +
-                "   GROUP BY ct.cluster_id " +
-                "   HAVING COUNT(*) = 2 " +
-                ") ", Cluster.class)
+            List<Cluster> clusters = entityManager.createNativeQuery("""
+                SELECT *
+                FROM cluster c
+                WHERE EXISTS (   SELECT ct.cluster_id as c_id
+                   FROM cluster_tag ct
+                   JOIN tag t ON ct.tag_id = t.id
+                   WHERE
+                       c.id = ct.cluster_id AND (
+                           (t.tag_name = :tagName1 AND t.tag_value = :tagValue1) OR
+                           (t.tag_name = :tagName2 AND t.tag_value = :tagValue2)
+                       )   GROUP BY ct.cluster_id
+                   HAVING COUNT(*) = 2
+                )
+                """, Cluster.class)
             .setParameter("tagName1", "Spark")
             .setParameter("tagValue1", "2.2")
             .setParameter("tagName2", "Hadoop")
@@ -164,22 +164,20 @@ public class ManyToManyFetchParentWithChildMatchAllFilteringCriteriaTest extends
     @Test
     public void testJPQLExists() {
         doInJPA(entityManager -> {
-            List<Cluster> clusters = entityManager.createQuery(
-                "select c " +
-                "from Cluster c " +
-                "where exists (" +
-                "    select ctc.id " +
-                "    from ClusterTag ct " +
-                "    join ct.cluster ctc " +
-                "    join ct.tag ctt " +
-                "    where " +
-                "        c.id = ctc.id and ( " +
-                "            (ctt.name = :tagName1 and ctt.value = :tagValue1) or " +
-                "            (ctt.name = :tagName2 and ctt.value = :tagValue2) " +
-                "        )" +
-                "    group by ctc.id " +
-                "    having count(*) = 2" +
-                ") ", Cluster.class)
+            List<Cluster> clusters = entityManager.createQuery("""
+                select c
+                from Cluster c
+                where exists (    select ctc.id
+                    from ClusterTag ct
+                    join ct.cluster ctc
+                    join ct.tag ctt
+                    where
+                        c.id = ctc.id and (
+                            (ctt.name = :tagName1 and ctt.value = :tagValue1) or
+                            (ctt.name = :tagName2 and ctt.value = :tagValue2)
+                        )    group by ctc.id
+                    having count(*) = 2)
+                """, Cluster.class)
             .setParameter("tagName1", "Spark")
             .setParameter("tagValue1", "2.2")
             .setParameter("tagName2", "Hadoop")
@@ -193,21 +191,19 @@ public class ManyToManyFetchParentWithChildMatchAllFilteringCriteriaTest extends
     @Test
     public void testJPQLExistsImplicitJoin() {
         doInJPA(entityManager -> {
-            List<Cluster> clusters = entityManager.createQuery(
-                "select c " +
-                "from Cluster c " +
-                "where exists (" +
-                "    select ct.cluster.id " +
-                "    from ClusterTag ct " +
-                "    join ct.tag ctt " +
-                "    where " +
-                "        c.id = ct.cluster.id and ( " +
-                "            (ctt.name = :tagName1 and ctt.value = :tagValue1) or " +
-                "            (ctt.name = :tagName2 and ctt.value = :tagValue2) " +
-                "        )" +
-                "    group by ct.cluster.id " +
-                "    having count(*) = 2" +
-                ") ", Cluster.class)
+            List<Cluster> clusters = entityManager.createQuery("""
+                select c
+                from Cluster c
+                where exists (    select ct.cluster.id
+                    from ClusterTag ct
+                    join ct.tag ctt
+                    where
+                        c.id = ct.cluster.id and (
+                            (ctt.name = :tagName1 and ctt.value = :tagValue1) or
+                            (ctt.name = :tagName2 and ctt.value = :tagValue2)
+                        )    group by ct.cluster.id
+                    having count(*) = 2)
+                """, Cluster.class)
             .setParameter("tagName1", "Spark")
             .setParameter("tagValue1", "2.2")
             .setParameter("tagName2", "Hadoop")

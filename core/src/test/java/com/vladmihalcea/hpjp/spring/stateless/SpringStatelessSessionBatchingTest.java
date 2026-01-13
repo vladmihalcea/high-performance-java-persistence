@@ -4,7 +4,7 @@ import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.stateless.config.SpringStatelessSessionBatchingConfiguration;
 import com.vladmihalcea.hpjp.spring.stateless.domain.Post;
 import com.vladmihalcea.hpjp.spring.stateless.service.ForumService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 

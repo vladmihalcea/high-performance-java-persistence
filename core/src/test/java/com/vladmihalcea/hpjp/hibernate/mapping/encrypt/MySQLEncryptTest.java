@@ -7,11 +7,11 @@ import org.hibernate.Session;
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -67,18 +67,13 @@ public class MySQLEncryptTest extends AbstractTest {
 
 	private void setEncryptionKey(EntityManager entityManager) {
 		Session session = entityManager.unwrap(Session.class);
-		Dialect dialect = session.getSessionFactory().unwrap(SessionFactoryImplementor.class).getJdbcServices().getDialect();
-		String encryptionKey = ReflectionUtils.invokeMethod(
-			dialect,
-			"inlineLiteral",
-			"encryptionKey"
-		);
+		String encryptionKey = "encryptionKey";
 
 		session.doWork(connection -> {
 			update(
 				connection,
 				String.format(
-					"SET @encryption_key = %s", encryptionKey
+					"SET @encryption_key = '%s'", encryptionKey
 				)
 			);
 		});

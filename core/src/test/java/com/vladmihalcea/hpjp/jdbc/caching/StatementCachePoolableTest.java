@@ -1,31 +1,34 @@
 package com.vladmihalcea.hpjp.jdbc.caching;
 
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
-import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
+import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.ReflectionUtils;
 import com.vladmihalcea.hpjp.util.providers.*;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * StatementCacheTest - Test Statement cache
  *
  * @author Vlad Mihalcea
  */
-public class StatementCachePoolableTest extends DataSourceProviderIntegrationTest {
+@ParameterizedClass
+@MethodSource("parameters")
+public class StatementCachePoolableTest extends AbstractTest {
 
     public static class CachingOracleDataSourceProvider extends OracleDataSourceProvider {
         private final int cacheSize;
@@ -109,29 +112,30 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
 
     private BlogEntityProvider entityProvider = new BlogEntityProvider();
 
-    public StatementCachePoolableTest(DataSourceProvider dataSourceProvider) {
-        super(dataSourceProvider);
-    }
+    @Parameter
+    private DataSourceProvider dataSourceProvider;
 
-    @Parameterized.Parameters
-    public static Collection<DataSourceProvider[]> rdbmsDataSourceProvider() {
-        List<DataSourceProvider[]> providers = new ArrayList<>();
-        providers.add(new DataSourceProvider[]{
-            new CachingOracleDataSourceProvider(1)
-        });
-        providers.add(new DataSourceProvider[]{
-            new CachingSQLServerDataSourceProvider(1)
-        });
-        providers.add(new DataSourceProvider[]{
-            new CachingPostgreSQLDataSourceProvider(1)
-        });
+    public static Stream<Arguments> parameters() {
         MySQLDataSourceProvider mySQLCachingDataSourceProvider = new MySQLDataSourceProvider();
         mySQLCachingDataSourceProvider.setUseServerPrepStmts(true);
         mySQLCachingDataSourceProvider.setCachePrepStmts(true);
-        providers.add(new DataSourceProvider[]{
-            mySQLCachingDataSourceProvider
-        });
-        return providers;
+
+        return Stream.of(
+            Arguments.of(new CachingOracleDataSourceProvider(1)),
+            Arguments.of(new CachingSQLServerDataSourceProvider(1)),
+            Arguments.of(new CachingPostgreSQLDataSourceProvider(1)),
+            Arguments.of(mySQLCachingDataSourceProvider)
+        );
+    }
+
+    @Override
+    protected DataSourceProvider dataSourceProvider() {
+        return dataSourceProvider;
+    }
+
+    @Override
+    protected Database database() {
+        return dataSourceProvider.database();
     }
 
     @Override
@@ -140,8 +144,7 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void afterInit() {
         doInJDBC(connection -> {
             try (
                 PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);

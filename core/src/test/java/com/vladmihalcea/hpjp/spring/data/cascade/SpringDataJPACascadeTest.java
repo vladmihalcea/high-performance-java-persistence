@@ -11,8 +11,8 @@ import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostDetailsRepositor
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.cascade.repository.TagRepository;
 import org.hibernate.Session;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.support.TransactionCallback;
@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -290,7 +290,7 @@ public class SpringDataJPACascadeTest extends AbstractSpringTest {
     }
 
     @Test
-    @Ignore("""
+    @Disabled("""
         Requires the comments collection to use
         @OneToMany(mappedBy = \"post\", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
         """)

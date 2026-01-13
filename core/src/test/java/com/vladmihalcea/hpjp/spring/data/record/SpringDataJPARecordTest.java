@@ -8,7 +8,7 @@ import com.vladmihalcea.hpjp.spring.data.record.domain.PostCommentRecord;
 import com.vladmihalcea.hpjp.spring.data.record.domain.PostRecord;
 import com.vladmihalcea.hpjp.spring.data.record.service.ForumService;
 import io.hypersistence.utils.hibernate.type.json.internal.JacksonUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 

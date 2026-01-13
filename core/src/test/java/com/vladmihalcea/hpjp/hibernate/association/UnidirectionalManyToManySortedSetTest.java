@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.util.providers.Database;
 import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.SortNatural;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.*;

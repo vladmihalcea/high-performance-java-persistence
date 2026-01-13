@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.spring.data.query.exists.config.SpringDataJPAExists
 import com.vladmihalcea.hpjp.spring.data.query.exists.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.query.exists.domain.Post_;
 import com.vladmihalcea.hpjp.spring.data.query.exists.repository.PostRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -13,7 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.exact;
 
 /**

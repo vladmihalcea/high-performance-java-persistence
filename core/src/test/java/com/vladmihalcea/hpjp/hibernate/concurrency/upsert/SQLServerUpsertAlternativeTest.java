@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.concurrency.upsert;
 
 import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
 import org.hibernate.annotations.NaturalId;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

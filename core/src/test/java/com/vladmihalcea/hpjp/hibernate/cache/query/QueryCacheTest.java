@@ -7,15 +7,16 @@ import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.AvailableHints;
 import org.hibernate.query.NativeQuery;
 import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea
@@ -53,7 +54,7 @@ public class QueryCacheTest extends AbstractTest {
         });
     }
 
-    @After
+    @AfterEach
     public void destroy() {
         entityManagerFactory().getCache().evictAll();
         super.destroy();

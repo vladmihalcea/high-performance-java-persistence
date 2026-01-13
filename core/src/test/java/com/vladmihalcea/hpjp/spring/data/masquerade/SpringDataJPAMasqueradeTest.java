@@ -10,7 +10,7 @@ import com.vladmihalcea.hpjp.spring.data.masquerade.dto.PostDTO;
 import com.vladmihalcea.hpjp.spring.data.masquerade.repository.PostRepository;
 import com.vladmihalcea.hpjp.spring.data.masquerade.service.ForumService;
 import com.vladmihalcea.hpjp.util.CryptoUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

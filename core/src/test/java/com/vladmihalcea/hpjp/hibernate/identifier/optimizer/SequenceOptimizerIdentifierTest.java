@@ -8,24 +8,26 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.OracleDataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.PostgreSQLDataSourceProvider;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@MethodSource("parameters")
 public class SequenceOptimizerIdentifierTest extends AbstractTest {
 
-    private final DataSourceProvider dataSourceProvider;
-    private final PostEntityProvider entityProvider;
+    @Parameter(0)
+    private DataSourceProvider dataSourceProvider;
+    @Parameter(1)
+    private PostEntityProvider entityProvider;
 
     private int insertCount = 50;
     private int executionCount = 50;
@@ -39,14 +41,7 @@ public class SequenceOptimizerIdentifierTest extends AbstractTest {
             .outputTo(LOGGER)
             .build();
 
-
-    public SequenceOptimizerIdentifierTest(DataSourceProvider dataSourceProvider, PostEntityProvider entityProvider) {
-        this.dataSourceProvider = dataSourceProvider;
-        this.entityProvider = entityProvider;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Object[]> dataProvider() {
+    public static Stream<Arguments> parameters() {
         OracleDataSourceProvider oracleDataSourceProvider = new OracleDataSourceProvider();
         PostgreSQLDataSourceProvider postgreSQLDataSourceProvider = new PostgreSQLDataSourceProvider();
 
@@ -60,16 +55,16 @@ public class SequenceOptimizerIdentifierTest extends AbstractTest {
         Table10PostEntityProvider table10PostEntityProvider = new Table10PostEntityProvider();
         Table50PostEntityProvider table50PostEntityProvider = new Table50PostEntityProvider();
 
-        List<Object[]> providers = new ArrayList<>();
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequence1PostEntityProvider});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequence5PostEntityProvider});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequence10PostEntityProvider});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, sequence50PostEntityProvider});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, table1PostEntityProvider});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, table5PostEntityProvider});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, table10PostEntityProvider});
-        providers.add(new Object[]{postgreSQLDataSourceProvider, table50PostEntityProvider});
-        return providers;
+        return Stream.of(
+            Arguments.of(postgreSQLDataSourceProvider, sequence1PostEntityProvider),
+            Arguments.of(postgreSQLDataSourceProvider, sequence5PostEntityProvider),
+            Arguments.of(postgreSQLDataSourceProvider, sequence10PostEntityProvider),
+            Arguments.of(postgreSQLDataSourceProvider, sequence50PostEntityProvider),
+            Arguments.of(postgreSQLDataSourceProvider, table1PostEntityProvider),
+            Arguments.of(postgreSQLDataSourceProvider, table5PostEntityProvider),
+            Arguments.of(postgreSQLDataSourceProvider, table10PostEntityProvider),
+            Arguments.of(postgreSQLDataSourceProvider, table50PostEntityProvider)
+        );
     }
 
     @Override
@@ -78,7 +73,7 @@ public class SequenceOptimizerIdentifierTest extends AbstractTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testIdentifierGenerator() throws InterruptedException, ExecutionException {
         LOGGER.debug("testIdentifierGenerator, database: {}, entityProvider: {}", dataSourceProvider.database(), entityProvider.getClass().getSimpleName());
         //warming-up

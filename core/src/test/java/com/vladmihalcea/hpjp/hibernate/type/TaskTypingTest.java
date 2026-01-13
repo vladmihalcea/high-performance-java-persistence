@@ -2,7 +2,7 @@ package com.vladmihalcea.hpjp.hibernate.type;
 
 import com.vladmihalcea.hpjp.util.AbstractPostgreSQLIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.entity.TaskEntityProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * EntityGraphMapperTest - Test mapping to entity

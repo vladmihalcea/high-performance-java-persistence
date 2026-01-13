@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.spring.transaction.readonly.config.SpringDataJPARea
 import com.vladmihalcea.hpjp.spring.transaction.readonly.domain.Product;
 import com.vladmihalcea.hpjp.spring.transaction.readonly.service.ProductService;
 import com.vladmihalcea.hpjp.spring.transaction.readonly.service.fxrate.FxCurrency;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.TransactionException;
@@ -13,7 +13,7 @@ import org.springframework.transaction.support.TransactionCallback;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

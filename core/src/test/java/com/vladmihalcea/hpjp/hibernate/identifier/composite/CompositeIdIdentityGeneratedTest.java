@@ -14,11 +14,11 @@ import jakarta.persistence.Version;
 import org.hibernate.Session;
 import org.hibernate.annotations.SQLInsert;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CompositeIdIdentityGeneratedTest extends AbstractSQLServerIntegrationTest {
 

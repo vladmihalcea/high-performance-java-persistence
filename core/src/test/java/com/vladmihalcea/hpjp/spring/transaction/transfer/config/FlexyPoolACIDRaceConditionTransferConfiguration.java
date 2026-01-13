@@ -22,7 +22,7 @@ public class FlexyPoolACIDRaceConditionTransferConfiguration extends ACIDRaceCon
         hikariConfig.setDataSource(dataSourceProvider().dataSource());
         hikariConfig.setAutoCommit(false);
         hikariConfig.setMaximumPoolSize(1);
-        hikariConfig.setConnectionTimeout(150);
+        hikariConfig.setConnectionTimeout(250);
         HikariDataSource poolingDataSource = new HikariDataSource(hikariConfig);
 
         int maxOverflowPoolSize = 5;

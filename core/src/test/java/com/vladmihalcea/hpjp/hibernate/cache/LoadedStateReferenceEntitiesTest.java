@@ -9,15 +9,10 @@ import java.util.Properties;
  */
 public class LoadedStateReferenceEntitiesTest extends LoadedStateBenchmarkTest {
 
-    public LoadedStateReferenceEntitiesTest(int insertCount) {
-        super(insertCount);
-    }
-
     @Override
     protected Properties properties() {
         Properties properties = super.properties();
         properties.put("hibernate.cache.use_reference_entries", Boolean.TRUE.toString());
         return properties;
     }
-
 }

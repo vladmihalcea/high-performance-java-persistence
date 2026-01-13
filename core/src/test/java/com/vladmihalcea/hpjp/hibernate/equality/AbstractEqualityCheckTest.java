@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea
@@ -24,8 +24,8 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
             entityManager.persist(entity);
             entityManager.flush();
             assertTrue(
-                "The entity is not found in the Set after it's persisted.",
-                tuples.contains(entity)
+                tuples.contains(entity),
+                "The entity is not found in the Set after it's persisted."
             );
         });
 
@@ -34,32 +34,32 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
         doInJPA(entityManager -> {
             T _entity = entityManager.merge(entity);
             assertTrue(
-                "The entity is not found in the Set after it's merged.",
-                tuples.contains(_entity)
+                tuples.contains(_entity),
+                "The entity is not found in the Set after it's merged."
             );
         });
 
-        doInJPA(entityManager -> {
-            entityManager.unwrap(Session.class).update(entity);
+        doInStatelessSession(session -> {
+            session.update(entity);
             assertTrue(
-                "The entity is not found in the Set after it's reattached.",
-                tuples.contains(entity)
+                tuples.contains(entity),
+                "The entity is not found in the Set after it's reattached."
             );
         });
 
         doInJPA(entityManager -> {
             T _entity = entityManager.find(clazz, entity.getId());
             assertTrue(
-                "The entity is not found in the Set after it's loaded in a different Persistence Context.",
-                tuples.contains(_entity)
+                tuples.contains(_entity),
+                "The entity is not found in the Set after it's loaded in a different Persistence Context."
             );
         });
 
         doInJPA(entityManager -> {
             T _entity = entityManager.getReference(clazz, entity.getId());
             assertTrue(
-                "The entity is not found in the Set after it's loaded as a proxy in a different Persistence Context.",
-                tuples.contains(_entity)
+                tuples.contains(_entity),
+                "The entity is not found in the Set after it's loaded as a proxy in a different Persistence Context."
             );
         });
 
@@ -69,13 +69,13 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
                 entity.getId()
             );
             assertTrue(
-                "The entity is not equal with the entity proxy.",
-                entity.equals(entityProxy)
+                entity.equals(entityProxy),
+                "The entity is not equal with the entity proxy."
             );
             assertEquals(
-                "The entity hashCode is different than the entity proxy.",
                 entity.hashCode(),
-                entityProxy.hashCode()
+                entityProxy.hashCode(),
+                "The entity hashCode is different than the entity proxy."
             );
         });
 
@@ -89,8 +89,8 @@ public abstract class AbstractEqualityCheckTest<T extends Identifiable<? extends
         });
 
         assertTrue(
-            "The entity is not found in the Set even after it's deleted.",
-            tuples.contains(deletedEntity)
+            tuples.contains(deletedEntity),
+            "The entity is not found in the Set even after it's deleted."
         );
     }
 }
