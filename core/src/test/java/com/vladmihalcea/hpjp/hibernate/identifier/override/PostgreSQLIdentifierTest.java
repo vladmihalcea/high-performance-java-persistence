@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.hibernate.identifier.global;
+package com.vladmihalcea.hpjp.hibernate.identifier.override;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import java.util.Properties;
 
-public class MySQLIdentifierTest extends AbstractTest {
+public class PostgreSQLIdentifierTest extends AbstractTest {
 
     @Override
     protected Class<?>[] entities() {
@@ -17,7 +17,7 @@ public class MySQLIdentifierTest extends AbstractTest {
 
     @Override
     protected Database database() {
-        return Database.MYSQL;
+        return Database.POSTGRESQL;
     }
 
     @Override
@@ -25,13 +25,6 @@ public class MySQLIdentifierTest extends AbstractTest {
         properties.put("hibernate.jdbc.batch_size", "5");
         properties.put("hibernate.order_inserts", "true");
         properties.put("hibernate.order_updates", "true");
-    }
-
-    @Override
-    protected String[] resources() {
-        return new String[] {
-            "mappings/identifier/global/mysql-orm.xml"
-        };
     }
 
     @Test
