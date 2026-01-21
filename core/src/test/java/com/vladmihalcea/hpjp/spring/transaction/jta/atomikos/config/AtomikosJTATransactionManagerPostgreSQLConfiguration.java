@@ -12,7 +12,6 @@ import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.engine.transaction.jta.platform.internal.AtomikosJtaPlatform;
-import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.postgresql.xa.PGXADataSource;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,10 +35,13 @@ import java.util.Properties;
  */
 @Configuration
 @PropertySource({"/META-INF/jta-postgresql.properties"})
-@ComponentScan(basePackages = "com.vladmihalcea.hpjp.spring.transaction.jta.atomikos")
+@ComponentScan(basePackages = {
+    "com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.dao",
+    "com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.service",
+})
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-public class AtomikosJTATransactionManagerConfiguration {
+public class AtomikosJTATransactionManagerPostgreSQLConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 

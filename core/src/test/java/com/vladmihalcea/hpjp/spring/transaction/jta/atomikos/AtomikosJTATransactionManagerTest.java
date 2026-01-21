@@ -6,7 +6,7 @@ import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostComment;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostDetails;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Tag;
 import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
-import com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.config.AtomikosJTATransactionManagerConfiguration;
+import com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.config.AtomikosJTATransactionManagerSQLServerConfiguration;
 import com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.dao.TagDAO;
 import com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.service.ForumService;
 import org.junit.Test;
@@ -23,8 +23,8 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vlad Mihalcea
  */
-@ContextConfiguration(classes = AtomikosJTATransactionManagerConfiguration.class)
-public class AromikosJTATransactionManagerTest extends AbstractSpringTest {
+@ContextConfiguration(classes = AtomikosJTATransactionManagerSQLServerConfiguration.class)
+public class AtomikosJTATransactionManagerTest extends AbstractSpringTest {
 
     @Autowired
     private ForumService forumService;

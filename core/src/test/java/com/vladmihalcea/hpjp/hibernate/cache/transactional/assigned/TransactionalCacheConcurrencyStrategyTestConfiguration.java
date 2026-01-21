@@ -1,6 +1,6 @@
 package com.vladmihalcea.hpjp.hibernate.cache.transactional.assigned;
 
-import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config.NarayanaJTATransactionManagerConfiguration;
+import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config.NarayanaJTATransactionManagerSQLServerConfiguration;
 import org.ehcache.jsr107.EhcacheCachingProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +11,7 @@ import java.net.URISyntaxException;
 import java.util.Properties;
 
 @Configuration
-public class TransactionalCacheConcurrencyStrategyTestConfiguration extends NarayanaJTATransactionManagerConfiguration {
+public class TransactionalCacheConcurrencyStrategyTestConfiguration extends NarayanaJTATransactionManagerSQLServerConfiguration {
 
     @Override
     protected Properties additionalProperties() {

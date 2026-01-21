@@ -1,6 +1,6 @@
 package com.vladmihalcea.hpjp.hibernate.connection.jta;
 
-import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config.NarayanaJTATransactionManagerConfiguration;
+import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config.NarayanaJTATransactionManagerSQLServerConfiguration;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.resource.jdbc.spi.PhysicalConnectionHandlingMode;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Properties;
 
 @Configuration
-public class NarayanaJTAConnectionReleaseConfiguration extends NarayanaJTATransactionManagerConfiguration {
+public class NarayanaJTAConnectionReleaseConfiguration extends NarayanaJTATransactionManagerSQLServerConfiguration {
 
     protected String[] packagesToScan() {
         return new String[]{

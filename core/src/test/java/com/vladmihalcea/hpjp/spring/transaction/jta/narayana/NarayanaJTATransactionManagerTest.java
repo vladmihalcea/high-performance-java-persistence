@@ -6,7 +6,8 @@ import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostComment;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostDetails;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Tag;
 import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
-import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config.NarayanaJTATransactionManagerConfiguration;
+import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config.NarayanaJTATransactionManagerPostgreSQLConfiguration;
+import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config.NarayanaJTATransactionManagerSQLServerConfiguration;
 import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.dao.TagDAO;
 import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.service.ForumService;
 import org.junit.Test;
@@ -23,7 +24,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Vlad Mihalcea
  */
-@ContextConfiguration(classes = NarayanaJTATransactionManagerConfiguration.class)
+@ContextConfiguration(classes = NarayanaJTATransactionManagerSQLServerConfiguration.class)
 public class NarayanaJTATransactionManagerTest extends AbstractSpringTest {
 
     @Autowired

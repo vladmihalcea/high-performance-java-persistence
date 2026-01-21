@@ -1,26 +1,23 @@
-package com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config;
+package com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.config;
 
-import com.arjuna.ats.internal.jta.recovery.arjunacore.XARecoveryModule;
-import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
-import com.arjuna.ats.internal.jta.transaction.arjunacore.UserTransactionImple;
+import com.atomikos.icatch.jta.UserTransactionManager;
 import com.atomikos.jdbc.AtomikosDataSourceBean;
+import com.microsoft.sqlserver.jdbc.SQLServerXADataSource;
 import com.vladmihalcea.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.hpjp.hibernate.logging.LoggingStatementInspector;
 import com.vladmihalcea.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.hpjp.util.logging.InlineQueryLogEntryCreator;
-import dev.snowdrop.boot.narayana.core.jdbc.GenericXADataSourceWrapper;
 import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
+import jakarta.transaction.SystemException;
 import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.engine.transaction.jta.platform.internal.JBossStandAloneJtaPlatform;
-import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.hibernate.engine.transaction.jta.platform.internal.AtomikosJtaPlatform;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.postgresql.xa.PGXADataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -38,16 +35,19 @@ import java.util.Properties;
  * @author Vlad Mihalcea
  */
 @Configuration
-@PropertySource({"/META-INF/jta-postgresql.properties"})
-@ComponentScan(basePackages = "com.vladmihalcea.hpjp.spring.transaction.jta.narayana")
+@PropertySource({"/META-INF/jta-sqlserver.properties"})
+@ComponentScan(basePackages = {
+    "com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.dao",
+    "com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.service",
+})
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-public class NarayanaJTATransactionManagerConfiguration {
+public class AtomikosJTATransactionManagerSQLServerConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 
-    @Value("${jdbc.dataSourceClassName}")
-    protected String dataSourceClassName;
+    @Value("${hibernate.dialect}")
+    protected String hibernateDialect;
 
     @Value("${jdbc.username}")
     protected String jdbcUser;
@@ -55,14 +55,8 @@ public class NarayanaJTATransactionManagerConfiguration {
     @Value("${jdbc.password}")
     protected String jdbcPassword;
 
-    @Value("${jdbc.database}")
-    protected String jdbcDatabase;
-
-    @Value("${jdbc.host}")
-    protected String jdbcHost;
-
-    @Value("${jdbc.port}")
-    protected String jdbcPort;
+    @Value("${jdbc.url}")
+    protected String jdbcURL;
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties() {
@@ -80,27 +74,17 @@ public class NarayanaJTATransactionManagerConfiguration {
             .build();
     }
 
-    @Bean
-    public DataSource actualDataSource() {
-        try {
-            PGXADataSource dataSource = new PGXADataSource();
-            dataSource.setUrl(
-                String.format(
-                    "jdbc:postgresql://%s:%s/%s",
-                    jdbcHost,
-                    jdbcPort,
-                    jdbcDatabase
-                )
-            );
-            dataSource.setUser(jdbcUser);
-            dataSource.setPassword(jdbcPassword);
-
-            XARecoveryModule xaRecoveryModule = new XARecoveryModule();
-            GenericXADataSourceWrapper wrapper = new GenericXADataSourceWrapper(xaRecoveryModule);
-            return wrapper.wrapDataSource(dataSource);
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
+    @Bean(initMethod = "init", destroyMethod = "close")
+    public AtomikosDataSourceBean actualDataSource() {
+        AtomikosDataSourceBean dataSource = new AtomikosDataSourceBean();
+        dataSource.setUniqueResourceName("SQLServer");
+        SQLServerXADataSource xaDataSource = new SQLServerXADataSource();
+        xaDataSource.setURL(jdbcURL);
+        xaDataSource.setUser(jdbcUser);
+        xaDataSource.setPassword(jdbcPassword);
+        dataSource.setXaDataSource(xaDataSource);
+        dataSource.setPoolSize(5);
+        return dataSource;
     }
 
     @Bean
@@ -116,29 +100,25 @@ public class NarayanaJTATransactionManagerConfiguration {
         return localContainerEntityManagerFactoryBean;
     }
 
-    @Bean
-    public UserTransactionImple jtaUserTransaction() {
-        UserTransactionImple userTransactionManager = new UserTransactionImple();
+    @Bean(initMethod = "init", destroyMethod = "close")
+    public UserTransactionManager userTransactionManager() throws SystemException {
+        UserTransactionManager userTransactionManager = new UserTransactionManager();
+        userTransactionManager.setTransactionTimeout(300);
+        userTransactionManager.setForceShutdown(true);
         return userTransactionManager;
     }
 
     @Bean
-    public TransactionManagerImple jtaTransactionManager() {
-        TransactionManagerImple transactionManager = new TransactionManagerImple();
-        return transactionManager;
-    }
-
-    @Bean
-    public JtaTransactionManager transactionManager() {
+    public JtaTransactionManager transactionManager() throws SystemException {
         JtaTransactionManager jtaTransactionManager = new JtaTransactionManager();
-        jtaTransactionManager.setTransactionManager(jtaTransactionManager());
-        jtaTransactionManager.setUserTransaction(jtaUserTransaction());
+        jtaTransactionManager.setTransactionManager(userTransactionManager());
+        jtaTransactionManager.setUserTransaction(userTransactionManager());
         jtaTransactionManager.setAllowCustomIsolationLevels(true);
         return jtaTransactionManager;
     }
 
     @Bean
-    public TransactionTemplate transactionTemplate() {
+    public TransactionTemplate transactionTemplate() throws SystemException {
         return new TransactionTemplate(transactionManager());
     }
 
@@ -146,7 +126,7 @@ public class NarayanaJTATransactionManagerConfiguration {
         Properties properties = new Properties();
         properties.put(
             AvailableSettings.JTA_PLATFORM,
-            JBossStandAloneJtaPlatform.class
+            AtomikosJtaPlatform.class
         );
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         properties.put(
@@ -159,6 +139,8 @@ public class NarayanaJTATransactionManagerConfiguration {
                 new ClassImportIntegrator(Arrays.asList(PostDTO.class))
             )
         );
+        properties.put(AvailableSettings.DIALECT, hibernateDialect);
+
         return properties;
     }
 
