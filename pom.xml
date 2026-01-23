@@ -514,7 +514,7 @@
         <oracle.version>23.4.0.24.05</oracle.version>
         <mysql.version>9.2.0</mysql.version>
         <mariadb.version>3.3.3</mariadb.version>
-        <mssql.version>12.6.1.jre11</mssql.version>
+        <mssql.version>12.6.5.jre11</mssql.version>
         <yugabytedb.version>42.3.0</yugabytedb.version>
 
         <narayana-jta.version>5.12.6.Final</narayana-jta.version>
