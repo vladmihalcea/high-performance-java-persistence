@@ -576,6 +576,7 @@
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <argLine>${argLine}</argLine>
+                    <!--<argLine>-Xmx128m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="C:\Users\mihal\AppData\Local\Temp\heapdump.hprof"</argLine>-->
                 </configuration>
             </plugin>
         </plugins>
