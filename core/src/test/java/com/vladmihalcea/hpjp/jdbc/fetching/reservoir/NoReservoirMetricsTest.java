@@ -1,26 +1,15 @@
-package com.vladmihalcea.hpjp.jdbc.fetching;
+package com.vladmihalcea.hpjp.jdbc.fetching.reservoir;
 
+import com.codahale.metrics.Snapshot;
 import com.codahale.metrics.UniformSnapshot;
-import com.vladmihalcea.hpjp.hibernate.forum.Post;
-import com.vladmihalcea.hpjp.hibernate.forum.PostComment;
-import com.vladmihalcea.hpjp.hibernate.forum.PostDetails;
-import com.vladmihalcea.hpjp.hibernate.forum.Tag;
-import com.vladmihalcea.hpjp.util.AbstractTest;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -28,17 +17,19 @@ import static org.junit.Assert.fail;
 /**
  * @author Vlad Mihalcea
  */
-public class MetricsTest {
+public class NoReservoirMetricsTest {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Test
+    @Ignore
     public void testFullSample() {
         int iterations = 100_000_000;
         execute(iterations);
     }
 
     @Test
+    @Ignore
     public void testSmallSample() {
         List<Long> queryExecutionTimes = execute(10);
         LOGGER.info("Response times: {}", queryExecutionTimes);
@@ -73,9 +64,9 @@ public class MetricsTest {
     }
 
     private void printMetrics(List<Long> values) {
-        UniformSnapshot snapshot = new UniformSnapshot(values);
+        Snapshot snapshot = new UniformSnapshot(values);
         LOGGER.info("""
-            Collection size={}, min={}, max={}, mean={}, stddev={}
+            Collection size={}, min={}, max={}, mean={}, stddev={},
             median={}, p75={}, p95={}, p98={}, time unit=μs
             """,
             snapshot.size(), snapshot.getMin(), snapshot.getMax(),
