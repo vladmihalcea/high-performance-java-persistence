@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.hibernate.identifier.override.identity2sequence;
+package com.vladmihalcea.hpjp.hibernate.identifier.override.identity2sequence.postgresql;
 
 import io.hypersistence.utils.hibernate.id.BatchSequence;
 import jakarta.persistence.GeneratedValue;
