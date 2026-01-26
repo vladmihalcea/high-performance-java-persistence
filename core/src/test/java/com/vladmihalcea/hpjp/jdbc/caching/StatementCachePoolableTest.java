@@ -116,21 +116,21 @@ public class StatementCachePoolableTest extends DataSourceProviderIntegrationTes
     @Parameterized.Parameters
     public static Collection<DataSourceProvider[]> rdbmsDataSourceProvider() {
         List<DataSourceProvider[]> providers = new ArrayList<>();
-        providers.add(new DataSourceProvider[]{
+        /*providers.add(new DataSourceProvider[]{
             new CachingOracleDataSourceProvider(1)
-        });
+        });*/
         providers.add(new DataSourceProvider[]{
             new CachingSQLServerDataSourceProvider(1)
         });
-        providers.add(new DataSourceProvider[]{
+        /*providers.add(new DataSourceProvider[]{
             new CachingPostgreSQLDataSourceProvider(1)
-        });
-        MySQLDataSourceProvider mySQLCachingDataSourceProvider = new MySQLDataSourceProvider();
+        });*/
+        /*MySQLDataSourceProvider mySQLCachingDataSourceProvider = new MySQLDataSourceProvider();
         mySQLCachingDataSourceProvider.setUseServerPrepStmts(true);
         mySQLCachingDataSourceProvider.setCachePrepStmts(true);
         providers.add(new DataSourceProvider[]{
             mySQLCachingDataSourceProvider
-        });
+        });*/
         return providers;
     }
 

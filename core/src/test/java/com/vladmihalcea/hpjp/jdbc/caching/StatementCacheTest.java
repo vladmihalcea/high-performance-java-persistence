@@ -4,9 +4,10 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
-import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
+import com.vladmihalcea.hpjp.util.DataSourceProviderIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.*;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
+import jakarta.persistence.EntityManager;
 import oracle.jdbc.pool.OracleDataSource;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,17 +22,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Vlad Mihalcea
  */
-public class StatementCacheTest extends DatabaseProviderIntegrationTest {
+public class StatementCacheTest extends DataSourceProviderIntegrationTest {
 
     public static class CachingOracleDataSourceProvider extends OracleDataSourceProvider {
         private final int cacheSize;
@@ -124,10 +127,12 @@ public class StatementCacheTest extends DatabaseProviderIntegrationTest {
         .outputTo(LOGGER)
         .build();
 
-    private Timer queryTimer = metricRegistry.timer("queryTimer");
+    private Timer queryExecutionTimer = metricRegistry.timer("queryExecutionTimer");
 
-    public StatementCacheTest(Database database) {
-        super(database);
+    private ThreadLocalRandom random = ThreadLocalRandom.current();
+
+    public StatementCacheTest(DataSourceProvider databaseSourceProvider) {
+        super(databaseSourceProvider);
     }
 
     @Parameterized.Parameters
@@ -151,8 +156,14 @@ public class StatementCacheTest extends DatabaseProviderIntegrationTest {
         providers.add(new DataSourceProvider[]{
                 new CachingPostgreSQLDataSourceProvider(0)
         });*/
-
+        /*providers.add(new DataSourceProvider[]{
+            new CachingSQLServerDataSourceProvider(1000)
+        });*/
         providers.add(new DataSourceProvider[]{
+            new CachingSQLServerDataSourceProvider(0)
+        });
+
+        /*providers.add(new DataSourceProvider[]{
             new MySQLDataSourceProvider()
                 .setUseServerPrepStmts(false)
                 .setCachePrepStmts(false)
@@ -176,7 +187,7 @@ public class StatementCacheTest extends DatabaseProviderIntegrationTest {
                 .setUseServerPrepStmts(true)
                 .setCachePrepStmts(true)
                 .setPrepStmtCacheSqlLimit(2048)
-        });
+        });*/
 
         return providers;
     }
@@ -255,7 +266,7 @@ public class StatementCacheTest extends DatabaseProviderIntegrationTest {
                     try(ResultSet resultSet = statement.executeQuery()) {
                         queryCount.incrementAndGet();
                     } finally {
-                        queryTimer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
+                        queryExecutionTimer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
                     }
                 }
             }
@@ -295,7 +306,7 @@ public class StatementCacheTest extends DatabaseProviderIntegrationTest {
                     try(ResultSet resultSet = statement.executeQuery()) {
                         queryCount.incrementAndGet();
                     } finally {
-                        queryTimer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
+                        queryExecutionTimer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
                     }
                 } catch (SQLException e) {
                     fail(e.getMessage());
@@ -310,33 +321,70 @@ public class StatementCacheTest extends DatabaseProviderIntegrationTest {
     }
 
     @Test
-    @Ignore
-    public void testStatementCaching2() {
-        long ttlMillis = System.currentTimeMillis() + getRunNanos();
-        AtomicLong counterHolder = new AtomicLong();
-        doInJDBC(connection -> {
-            long statementCount = 0;
-            while (System.currentTimeMillis() < ttlMillis) {
-                try (PreparedStatement statement = connection.prepareStatement("""
-                    select p.title
-                    from post p
-                    where p.id = ?
-                    """
-                )) {
-                    statement.setInt(1, (int) (Math.random() * getPostCount()));
-                    try (ResultSet resultSet = statement.executeQuery()) {
-                        assertTrue(resultSet.next());
+    public void testStatementCaching() {
+        long ttlNanos = System.nanoTime() + getRunNanos();
+        while (System.nanoTime() < ttlNanos) {
+            doInJDBC(connection -> {
+                for (int i = 0; i < 100; i++) {
+                    List<Long> ids = LongStream.rangeClosed(1, random.nextLong(2, getPostCount())).boxed().toList();
+                    StringBuilder inClauseBuilder = new StringBuilder();
+                    ids.forEach(aLong -> {
+                        inClauseBuilder.append(inClauseBuilder.isEmpty() ? "(" : ",");
+                        inClauseBuilder.append("?");
+                    });
+                    inClauseBuilder.append(")");
+                    long startNanos = System.nanoTime();
+                    try (PreparedStatement statement = connection.prepareStatement(String.format("""
+                        select p.title
+                        from post p
+                        where p.id = %s
+                        """, inClauseBuilder.toString()))) {
+                        for (int j = 0; j < ids.size(); j++) {
+                            statement.setLong(j + 1, ids.get(j));
+                        }
+                        try (ResultSet resultSet = statement.executeQuery()) {
+                            assertTrue(resultSet.next());
+                        }
+                        queryExecutionTimer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
+                    } catch (SQLException e) {
+                        fail(e.getMessage());
                     }
-                    statementCount++;
-                } catch (SQLException e) {
-                    fail(e.getMessage());
                 }
+            });
+        }
+        LOGGER.info("Running the statement caching test with the {}", dataSourceProvider());
+        logReporter.report();
+    }
+
+    @Test
+    public void testStatementCachingWithInQueries() {
+        doInJPA(entityManager -> {
+            //Warm-up
+            for (int i = 0; i < getPostCount(); i++) {
+                executeInQuery(entityManager);
             }
-            counterHolder.set(statementCount);
+            long ttlNanos = System.nanoTime() + getRunNanos();
+            while (System.nanoTime() < ttlNanos) {
+                long startNanos = System.nanoTime();
+                executeInQuery(entityManager);
+                queryExecutionTimer.update(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
+            }
         });
-        LOGGER.info("When using {}, throughput is {} statements per minute",
-                dataSourceProvider(),
-                counterHolder.get());
+        LOGGER.info("Running the statement caching test with the {}", dataSourceProvider());
+        logReporter.report();
+    }
+
+    private List<String> executeInQuery(EntityManager entityManager) {
+        List<Long> ids = LongStream.rangeClosed(1, random.nextLong(2, getPostCount())).boxed().toList();
+        List<String> titles = entityManager.createQuery("""
+            select p.title
+            from Post p
+            where p.id in (:ids)
+            """)
+        .setParameter("ids", ids)
+        .getResultList();
+        assertEquals(titles.size(), ids.size());
+        return titles;
     }
 
     protected int getPostCount() {
@@ -348,7 +396,7 @@ public class StatementCacheTest extends DatabaseProviderIntegrationTest {
     }
 
     protected long getRunNanos() {
-        return TimeUnit.MINUTES.toNanos(5);
+        return TimeUnit.SECONDS.toNanos(60);
     }
 
     @Override

@@ -23,8 +23,8 @@ public abstract class DataSourceProviderIntegrationTest extends AbstractTest {
     }
 
     @Parameterized.Parameters
-    public static Collection<Database[]> databases() {
-        List<Database[]> databases = new ArrayList<>();
+    public static Collection<DataSourceProviderIntegrationTest[]> databSourceProviders() {
+        List<DataSourceProviderIntegrationTest[]> databases = new ArrayList<>();
         return databases;
     }
 
