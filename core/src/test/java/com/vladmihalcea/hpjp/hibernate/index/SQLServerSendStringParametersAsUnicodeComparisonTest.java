@@ -12,6 +12,7 @@ import jakarta.persistence.*;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -19,6 +20,8 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 @RunWith(Parameterized.class)
 public class SQLServerSendStringParametersAsUnicodeComparisonTest extends AbstractTest {
+
+    private SQLServerDataSourceProvider dataSourceProvider;
 
     private final boolean sendStringParametersAsUnicode;
 
@@ -43,8 +46,10 @@ public class SQLServerSendStringParametersAsUnicodeComparisonTest extends Abstra
 
     @Override
     protected DataSourceProvider dataSourceProvider() {
-        SQLServerDataSourceProvider dataSourceProvider = new SQLServerDataSourceProvider();
-        dataSourceProvider.setSendStringParametersAsUnicode(sendStringParametersAsUnicode);
+        if (dataSourceProvider == null) {
+            dataSourceProvider = new SQLServerDataSourceProvider();
+            dataSourceProvider.setSendStringParametersAsUnicode(sendStringParametersAsUnicode);
+        }
         return dataSourceProvider;
     }
 
@@ -89,6 +94,32 @@ public class SQLServerSendStringParametersAsUnicodeComparisonTest extends Abstra
         });
     }
 
+    @Test
+    public void testJpa() {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+
+        doInJPA(entityManager -> {
+            LOGGER.info("Test with sendStringParametersAsUnicode=" + sendStringParametersAsUnicode);
+
+            findByTitleJPA(
+                entityManager, String.format(
+                    "High-Performance Java Persistence, part %d",
+                    random.nextLong(POST_COUNT)
+                )
+            );
+
+            List<Tuple> executionPlans = entityManager.createNativeQuery("""
+                SELECT pln.query_plan AS [QueryPlan], dest.text AS [Query], dest.*
+                FROM sys.dm_exec_query_stats AS deqs
+                CROSS APPLY sys.dm_exec_sql_text(deqs.sql_handle) AS dest
+                CROSS APPLY sys.dm_exec_query_plan(deqs.plan_handle) AS pln
+                ORDER BY deqs.last_execution_time DESC
+                """, Tuple.class)
+            .getResultList();
+            LOGGER.info("Execution plan: {}", executionPlans.get(0).get("QueryPlan"));
+        });
+    }
+
     private void findByTitle(EntityManager entityManager, String title) {
         LOGGER.info("Find post by title: {}", title);
 
@@ -110,6 +141,18 @@ public class SQLServerSendStringParametersAsUnicodeComparisonTest extends Abstra
                 }
             }
         });
+    }
+
+    private void findByTitleJPA(EntityManager entityManager, String title) {
+        LOGGER.info("Find post by title: {}", title);
+
+        List<Long> ids = entityManager.createQuery("""
+            select p.id
+            from Post p
+            where p.title = :title
+            """, Long.class)
+        .setParameter("title", title)
+        .getResultList();
     }
 
     @Entity(name = "Post")
