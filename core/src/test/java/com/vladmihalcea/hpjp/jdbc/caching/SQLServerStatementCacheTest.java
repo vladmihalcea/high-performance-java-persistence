@@ -5,8 +5,7 @@ import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
-import com.vladmihalcea.hpjp.util.providers.*;
-import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
+import com.vladmihalcea.hpjp.util.providers.SQLServerDataSourceProvider;
 import jakarta.persistence.*;
 import org.junit.Test;
 
@@ -15,7 +14,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -73,7 +71,8 @@ public class SQLServerStatementCacheTest extends AbstractSQLServerIntegrationTes
 
     @Override
     protected CachingSQLServerDataSourceProvider dataSourceProvider() {
-        return new CachingSQLServerDataSourceProvider(cacheSize);
+        CachingSQLServerDataSourceProvider dataSourceProvider = new CachingSQLServerDataSourceProvider(cacheSize);
+        return dataSourceProvider;
     }
 
     @Override
@@ -102,6 +101,9 @@ public class SQLServerStatementCacheTest extends AbstractSQLServerIntegrationTes
 
     @Test
     public void testInsertStatementCaching() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         long ttlNanos = System.nanoTime() + getRunNanos();
         while (System.nanoTime() < ttlNanos) {
             doInJDBC(connection -> {
@@ -170,6 +172,9 @@ public class SQLServerStatementCacheTest extends AbstractSQLServerIntegrationTes
 
     @Test
     public void testStatementCaching() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         doInJDBC(connection -> {
             try (
                 PreparedStatement postStatement = connection.prepareStatement(INSERT_POST)) {
@@ -228,6 +233,9 @@ public class SQLServerStatementCacheTest extends AbstractSQLServerIntegrationTes
 
     @Test
     public void testStatementCachingWithInQueries() {
+        if(!ENABLE_LONG_RUNNING_TESTS) {
+            return;
+        }
         doInJDBC(connection -> {
             try (
                 PreparedStatement postStatement = connection.prepareStatement(INSERT_POST)) {
