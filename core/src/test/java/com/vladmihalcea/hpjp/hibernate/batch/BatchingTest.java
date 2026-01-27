@@ -145,6 +145,36 @@ public class BatchingTest extends AbstractTest {
         });
     }
 
+    @Test
+    public void testBulkDeletePostsAndComments() {
+        insertPostsAndComments();
+
+        LOGGER.info("testBulkDeletePostsAndComments");
+        doInJPA(entityManager -> {
+            int deleteCount = entityManager.createNativeQuery("""
+                delete from post_comment
+                where post_id in (
+                    select p.id
+                    from post p
+                    order by p.id desc
+                    limit 5
+                )
+                """)
+                .executeUpdate();
+            LOGGER.info("Deleted {} comments", deleteCount);
+            deleteCount = entityManager.createNativeQuery("""
+                delete from post p where p.id in (
+                    select p.id
+                    from post p
+                    order by p.id desc
+                    limit 5
+                )
+                """)
+                .executeUpdate();
+            LOGGER.info("Deleted {} posts", deleteCount);
+        });
+    }
+
     private void insertPosts() {
         doInJPA(entityManager -> {
             for (long i = 1; i <= 3; i++) {
