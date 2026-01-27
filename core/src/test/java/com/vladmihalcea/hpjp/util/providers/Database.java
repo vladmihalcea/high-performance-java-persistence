@@ -113,13 +113,6 @@ public enum Database {
 			return "high_performance_java_persistence";
 		}
 	},
-	//These databases require manual setup
-	YUGABYTEDB_CLUSTER {
-		@Override
-		public Class<? extends DataSourceProvider> dataSourceProviderClass() {
-			return YugabyteDBClusterDataSourceProvider.class;
-		}
-	},
 	;
 
 	private JdbcDatabaseContainer container;
