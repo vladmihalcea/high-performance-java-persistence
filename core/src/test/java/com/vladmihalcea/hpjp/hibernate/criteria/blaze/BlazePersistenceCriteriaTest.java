@@ -101,29 +101,29 @@ public class BlazePersistenceCriteriaTest extends AbstractTest {
     public void testLateralJoinBlaze() {
         doInJPA(entityManager -> {
             List<Tuple> tuples = entityManager.createNativeQuery("""
+                SELECT
+                  p.id AS "p.id",
+                  p.title AS "p.title",
+                  pc3.latest_comment_id AS "pc.id",
+                  pc3.latest_comment_review AS "pc.review"
+                FROM
+                  post p,
+                  LATERAL (
                     SELECT
-                      p.id AS "p.id",
-                      p.title AS "p.title",
-                      pc3.latest_comment_id AS "pc.id",
-                      pc3.latest_comment_review AS "pc.review"
-                    FROM
-                      post p,
-                      LATERAL (
-                      	SELECT
-                      	  pc2.post_comment_id AS latest_comment_id,
-                      	  pc2.post_comment_review AS latest_comment_review
-                      	FROM (
-                      	  SELECT
-                      	  	pc1.id AS post_comment_id,
-                      	  	pc1.review AS post_comment_review,
-                      	  	pc1.post_id AS post_comment_post_id,
-                      	  	MAX(pc1.id) OVER (PARTITION BY pc1.post_id) AS max_post_comment_id
-                      	  FROM post_comment pc1
-                      	) pc2
-                        WHERE 
-                          pc2.post_comment_id = pc2.max_post_comment_id AND 
-                          pc2.post_comment_post_id = p.id
-                    ) pc3
+                      pc2.post_comment_id AS latest_comment_id,
+                      pc2.post_comment_review AS latest_comment_review
+                    FROM (
+                      SELECT
+                        pc1.id AS post_comment_id,
+                        pc1.review AS post_comment_review,
+                        pc1.post_id AS post_comment_post_id,
+                        MAX(pc1.id) OVER (PARTITION BY pc1.post_id) AS max_post_comment_id
+                      FROM post_comment pc1
+                    ) pc2
+                    WHERE 
+                      pc2.post_comment_id = pc2.max_post_comment_id AND 
+                      pc2.post_comment_post_id = p.id
+                ) pc3
 			    """, Tuple.class)
                 .unwrap(NativeQuery.class)
                 .setResultTransformer(new ListResultTransformer() {
@@ -150,16 +150,16 @@ public class BlazePersistenceCriteriaTest extends AbstractTest {
         doInJPA(entityManager -> {
             List<Tuple> tuples = entityManager.createNativeQuery("""
                 SELECT
-                   p.id AS post_id,
-                   p.title AS post_title,
-                   pc2.review AS comment_review
+                  p.id AS post_id,
+                  p.title AS post_title,
+                  pc2.review AS comment_review
                 FROM (
-                   SELECT
-                      pc1.id AS id,
-                      pc1.review AS review,
-                      pc1.post_id AS post_id,
-                      MAX(pc1.id) OVER (PARTITION BY pc1.post_id) AS max_id
-                   FROM post_comment pc1
+                  SELECT
+                    pc1.id AS id,
+                    pc1.review AS review,
+                    pc1.post_id AS post_id,
+                    MAX(pc1.id) OVER (PARTITION BY pc1.post_id) AS max_id
+                  FROM post_comment pc1
                 ) pc2
                 JOIN post p ON p.id = pc2.post_id
                 WHERE 
@@ -202,19 +202,18 @@ public class BlazePersistenceCriteriaTest extends AbstractTest {
     @Test
     public void testGroupBy() {
         doInJPA(entityManager -> {
-            List<Tuple> tuples = entityManager
-                .createNativeQuery("""
-                 select
-                     p.title as post_title,
-                     count(pc.id) as comment_count
-                 from post p
-                 left join post_comment pc on pc.post_id = p.id
-                 join post_details pd on p.id = pd.id
-                 where pd.created_by = :createdBy
-                 group by p.title
+            List<Tuple> tuples = entityManager.createNativeQuery("""
+                select
+                  p.title as post_title,
+                  count(pc.id) as comment_count
+                from post p
+                left join post_comment pc on pc.post_id = p.id
+                join post_details pd on p.id = pd.id
+                where pd.created_by = :createdBy
+                group by p.title
 			    """, Tuple.class)
-                .setParameter("createdBy", "Vlad Mihalcea")
-                .getResultList();
+            .setParameter("createdBy", "Vlad Mihalcea")
+            .getResultList();
 
             assertEquals(1, tuples.size());
         });
@@ -239,25 +238,24 @@ public class BlazePersistenceCriteriaTest extends AbstractTest {
     @Test
     public void testJoinGroupBy() {
         doInJPA(entityManager -> {
-            List<Tuple> tuples = entityManager
-                .createNativeQuery("""
-                 select 
-                    p1.title,
-                    p_c.comment_count
-                 from post p1
-                 join (
-                    select
-                         p.title as post_title,
-                         count(pc.id) as comment_count
-                     from post p
-                     left join post_comment pc on pc.post_id = p.id
-                     join post_details pd on p.id = pd.id
-                     where pd.created_by = :createdBy
-                     group by p.title
+            List<Tuple> tuples = entityManager.createNativeQuery("""
+                select 
+                  p1.title,
+                  p_c.comment_count
+                from post p1
+                join (
+                   select
+                     p.title as post_title,
+                     count(pc.id) as comment_count
+                   from post p
+                   left join post_comment pc on pc.post_id = p.id
+                   join post_details pd on p.id = pd.id
+                   where pd.created_by = :createdBy
+                   group by p.title
                  ) p_c on p1.title = p_c.post_title
 			    """, Tuple.class)
-                .setParameter("createdBy", "Vlad Mihalcea")
-                .getResultList();
+            .setParameter("createdBy", "Vlad Mihalcea")
+            .getResultList();
 
             assertEquals(1, tuples.size());
         });

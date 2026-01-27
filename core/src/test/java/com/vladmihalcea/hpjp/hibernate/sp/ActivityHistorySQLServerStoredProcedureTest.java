@@ -227,16 +227,16 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                 @DeletedRowCount INT OUTPUT
             )
             AS
-            BEGIN                         
+            BEGIN
                 DROP TABLE IF EXISTS #ROOT_PROC_INST_ID_TABLE;
                 CREATE TABLE #ROOT_PROC_INST_ID_TABLE (PROC_INST_ID_ NVARCHAR(64));
-                
+
                 DROP TABLE IF EXISTS #PROC_INST_ID_TABLE;
                 CREATE TABLE #PROC_INST_ID_TABLE (PROC_INST_ID_ NVARCHAR(64));
 
                 DROP TABLE IF EXISTS #TASK_INST_ID_TABLE;
                 CREATE TABLE #TASK_INST_ID_TABLE (ID_ NVARCHAR(64));
-                                                               
+
                 INSERT INTO #ROOT_PROC_INST_ID_TABLE
                 SELECT TOP (@BatchSize) PROC_INST_ID_
                 FROM ACT_HI_PROCINST
@@ -244,17 +244,17 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     END_TIME_ <= @BeforeStartTimestamp
                     AND END_TIME_ IS NOT NULL
                     AND SUPER_PROCESS_INSTANCE_ID_ IS NULL;
-                    
+
                 SET @DeletedRowCount=0;
                 DECLARE @DeletedBatchRowCount INT;
-                                
+
                 WHILE (SELECT COUNT(*) FROM #ROOT_PROC_INST_ID_TABLE) > 0
                 BEGIN
                     TRUNCATE TABLE #PROC_INST_ID_TABLE;
                     TRUNCATE TABLE #TASK_INST_ID_TABLE;
-                    
+
                     SET @DeletedBatchRowCount=0;
-                                    
+
                     WITH ACT_HI_PROCINST_HIERARCHY(PROC_INST_ID_)
                     AS (
                         SELECT PROC_INST_ID_
@@ -267,42 +267,42 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                     INSERT INTO #PROC_INST_ID_TABLE
                     SELECT PROC_INST_ID_
                     FROM ACT_HI_PROCINST_HIERARCHY;
-                    
+
                     BEGIN TRY
                         BEGIN TRANSACTION;
-                        
+
                         DELETE FROM ACT_GE_BYTEARRAY
                         WHERE ID_ IN (
                             SELECT BYTEARRAY_ID_ FROM ACT_HI_DETAIL
                             WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE)
                         );
-                        
+
                         SET @DeletedBatchRowCount+=@@ROWCOUNT;
                         
                         DELETE FROM ACT_HI_DETAIL
                         WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                                   
+
                         SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                        
+
                         DELETE FROM ACT_GE_BYTEARRAY
                         WHERE ID_ IN (
                             SELECT BYTEARRAY_ID_ FROM ACT_HI_VARINST
                             WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE)
                         );
-                        
+
                         SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                        
+
                         DELETE FROM ACT_HI_VARINST
                         WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                                                                      
+
                         SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                        
+
                         DELETE FROM ACT_HI_ACTINST
                         WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                                   
+
                         SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                        
-                        -- Delete ACT_HI_TASKINST rows recursive along with their associated: 
+
+                        -- Delete ACT_HI_TASKINST rows recursive along with their associated:
                         -- ACT_HI_DETAIL, ACT_HI_VARINST, ACT_HI_COMMENT, ACT_HI_ATTACHMENT, ACT_HI_IDENTITYLINK
                         BEGIN
                             WITH ACT_HI_TASKINST_HIERARCHY(ID_)
@@ -318,78 +318,78 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                             INSERT INTO #TASK_INST_ID_TABLE
                             SELECT ID_
                             FROM ACT_HI_TASKINST_HIERARCHY;
-                            
+
                             DELETE FROM ACT_GE_BYTEARRAY
                             WHERE ID_ IN (
                                 SELECT BYTEARRAY_ID_ FROM ACT_HI_DETAIL
                                 WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE)
                             );
-                                       
+
                             SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                            
+
                             DELETE FROM ACT_HI_DETAIL
                             WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
-                                       
+
                             SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                            
+
                             DELETE FROM ACT_GE_BYTEARRAY
                             WHERE ID_ IN (
                                 SELECT BYTEARRAY_ID_ FROM ACT_HI_VARINST
                                 WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE)
                             );
-                                       
+
                             SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                            
+
                             DELETE FROM ACT_HI_VARINST
                             WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
-                                       
+
                             SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                            
+
                             DELETE FROM ACT_HI_COMMENT
                             WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
-                                       
+
                             SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                            
+
                             DELETE FROM ACT_GE_BYTEARRAY
                             WHERE ID_ IN (
                                 SELECT CONTENT_ID_ FROM ACT_HI_ATTACHMENT
                                 WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE)
                             );
-                                       
+
                             SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                            
+
                             DELETE FROM ACT_HI_ATTACHMENT
                             WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
-                                       
+
                             SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                            
+
                             DELETE FROM ACT_HI_IDENTITYLINK
                             WHERE TASK_ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
-                                       
+
                             SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                            
+
                             DELETE FROM ACT_HI_TASKINST
                             WHERE ID_ IN (SELECT ID_ FROM #TASK_INST_ID_TABLE);
-                                       
+
                             SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                            
+
                         END;
-                               
+
                         DELETE FROM ACT_HI_IDENTITYLINK
                         WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                                   
+
                         SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                                   
+
                         DELETE FROM ACT_HI_COMMENT
                         WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                                   
+
                         SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                                   
+
                         DELETE FROM ACT_HI_PROCINST
                         WHERE PROC_INST_ID_ IN (SELECT PROC_INST_ID_ FROM #PROC_INST_ID_TABLE);
-                                   
+
                         SET @DeletedBatchRowCount+=@@ROWCOUNT;
-                                                                   
+
                         COMMIT TRANSACTION;
                         SET @DeletedRowCount+=@DeletedBatchRowCount;
                     END TRY
@@ -407,12 +407,12 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                                 BEGIN
                                     PRINT
                                         N'Exception was caught, but the transaction can be committed.'
-                                    COMMIT TRANSACTION;   
+                                    COMMIT TRANSACTION;
                                 END;
                     END CATCH;
-                               
+
                     TRUNCATE TABLE #ROOT_PROC_INST_ID_TABLE;
-                    
+
                     INSERT INTO #ROOT_PROC_INST_ID_TABLE
                     SELECT TOP (@BatchSize) PROC_INST_ID_
                     FROM ACT_HI_PROCINST
@@ -421,8 +421,8 @@ public class ActivityHistorySQLServerStoredProcedureTest extends AbstractSQLServ
                         AND END_TIME_ IS NOT NULL
                         AND SUPER_PROCESS_INSTANCE_ID_ IS NULL;
                 END
-                
-                DROP TABLE IF EXISTS #ROOT_PROC_INST_ID_TABLE;                
+
+                DROP TABLE IF EXISTS #ROOT_PROC_INST_ID_TABLE;
                 DROP TABLE IF EXISTS #PROC_INST_ID_TABLE;
                 DROP TABLE IF EXISTS #TASK_INST_ID_TABLE;
             END
