@@ -829,6 +829,14 @@ public abstract class AbstractTest {
         }
     }
 
+    protected <T> T selectColumn(String sql, Class<T> clazz) {
+        try(Connection connection = dataSource().getConnection()) {
+            return selectColumn(connection, sql, clazz);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     protected <T> T selectColumn(Connection connection, String sql, Class<T> clazz) {
         return selectColumn(connection, sql, clazz, null);
     }
