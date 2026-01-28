@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.spring.stateless.domain;
+package com.vladmihalcea.hpjp.spring.stateless.mysql.domain;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -26,7 +26,7 @@ public class BatchInsertPost extends AbstractPost<BatchInsertPost> {
     @GeneratedValue(generator = "noop_generator")
     @GenericGenerator(
         name = "noop_generator",
-        strategy = "com.vladmihalcea.hpjp.spring.stateless.domain.NoOpGenerator"
+        strategy = "com.vladmihalcea.hpjp.spring.stateless.mysql.domain.NoOpGenerator"
     )
     private Long id;
 

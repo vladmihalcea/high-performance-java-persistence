@@ -1,7 +1,7 @@
-package com.vladmihalcea.hpjp.spring.stateless.service;
+package com.vladmihalcea.hpjp.spring.stateless.mysql.service;
 
-import com.vladmihalcea.hpjp.spring.stateless.domain.Post;
-import com.vladmihalcea.hpjp.spring.stateless.repository.PostRepository;
+import com.vladmihalcea.hpjp.spring.stateless.mysql.domain.Post;
+import com.vladmihalcea.hpjp.spring.stateless.mysql.repository.PostRepository;
 import com.vladmihalcea.hpjp.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

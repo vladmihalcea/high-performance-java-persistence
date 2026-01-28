@@ -1,6 +1,6 @@
-package com.vladmihalcea.hpjp.spring.stateless.repository;
+package com.vladmihalcea.hpjp.spring.stateless.mysql.repository;
 
-import com.vladmihalcea.hpjp.spring.stateless.domain.Post;
+import com.vladmihalcea.hpjp.spring.stateless.mysql.domain.Post;
 import io.hypersistence.utils.spring.repository.BaseJpaRepository;
 import org.springframework.stereotype.Repository;
 

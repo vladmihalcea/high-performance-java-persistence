@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.spring.stateless.domain;
+package com.vladmihalcea.hpjp.spring.stateless.mysql.domain;
 
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;

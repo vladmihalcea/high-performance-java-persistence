@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.spring.stateless.domain;
+package com.vladmihalcea.hpjp.spring.stateless.mysql.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;

@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.spring.stateless.repository;
+package com.vladmihalcea.hpjp.spring.stateless.sqlserver.repository;
 
 import java.util.List;
 

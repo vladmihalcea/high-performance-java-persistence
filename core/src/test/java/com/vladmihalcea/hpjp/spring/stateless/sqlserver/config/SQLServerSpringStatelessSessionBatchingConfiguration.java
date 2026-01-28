@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.spring.stateless.config;
+package com.vladmihalcea.hpjp.spring.stateless.sqlserver.config;
 
 import com.vladmihalcea.hpjp.util.DataSourceProxyType;
 import com.vladmihalcea.hpjp.util.logging.InlineQueryLogEntryCreator;
@@ -13,7 +13,6 @@ import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSessionBuilder;
 import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.tool.schema.Action;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -44,16 +43,16 @@ import java.util.Properties;
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
 @EnableJpaRepositories(
-    value = "com.vladmihalcea.hpjp.spring.stateless.repository",
+    value = "com.vladmihalcea.hpjp.spring.stateless.sqlserver.repository",
     repositoryBaseClass = BaseJpaRepositoryImpl.class
 )
 @ComponentScan(
     value = {
-        "com.vladmihalcea.hpjp.spring.stateless.service",
+        "com.vladmihalcea.hpjp.spring.stateless.sqlserver.service",
         "io.hypersistence.utils.spring.aop"
     }
 )
-public class SpringStatelessSessionBatchingConfiguration {
+public class SQLServerSpringStatelessSessionBatchingConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
 
@@ -66,7 +65,7 @@ public class SpringStatelessSessionBatchingConfiguration {
 
     @Bean
     public Database database() {
-        return Database.MYSQL;
+        return Database.SQLSERVER;
     }
 
     @Bean
@@ -75,10 +74,29 @@ public class SpringStatelessSessionBatchingConfiguration {
     }
 
     public DataSource poolingDataSource() {
+        DataSource actualDataSource = dataSourceProvider().dataSource();
+        try(Connection connection = actualDataSource.getConnection();
+            Statement statement = connection.createStatement()) {
+            statement.executeLargeUpdate("drop table if exists Posts");
+            statement.executeLargeUpdate("""
+                create table Posts (
+                    id bigint IDENTITY(1,1) not null,
+                    created_by varchar(255),
+                    created_on datetime2(6),
+                    title varchar(255),
+                    updated_by varchar(255),
+                    updated_on datetime2(6),
+                    version smallint,
+                    primary key (id)
+                )
+                """);
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setMaximumPoolSize(maxConnections);
         hikariConfig.setAutoCommit(false);
-        hikariConfig.setDataSource(dataSourceProvider().dataSource());
+        hikariConfig.setDataSource(actualDataSource);
         return new HikariDataSource(hikariConfig);
     }
 
@@ -91,24 +109,6 @@ public class SpringStatelessSessionBatchingConfiguration {
                 .name(DATA_SOURCE_PROXY_NAME)
                 .listener(loggingListener)
                 .build();
-        try(Connection connection = dataSource.getConnection();
-            Statement statement = connection.createStatement()) {
-            statement.executeUpdate("drop table if exists post");
-            statement.executeUpdate("""
-                create table post (
-                    id bigint not null auto_increment, 
-                    created_by varchar(255), 
-                    created_on datetime(6), 
-                    title varchar(255), 
-                    updated_by varchar(255), 
-                    updated_on datetime(6), 
-                    version smallint, 
-                    primary key (id)
-                )
-                """);
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
         return dataSource;
     }
 
@@ -117,7 +117,7 @@ public class SpringStatelessSessionBatchingConfiguration {
             @Autowired DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactoryBean.setPersistenceUnitName(getClass().getSimpleName());
-        
+
         entityManagerFactoryBean.setDataSource(dataSource);
         entityManagerFactoryBean.setPackagesToScan(packagesToScan());
 
@@ -172,7 +172,7 @@ public class SpringStatelessSessionBatchingConfiguration {
 
     protected String[] packagesToScan() {
         return new String[]{
-            "com.vladmihalcea.hpjp.spring.stateless.domain"
+            "com.vladmihalcea.hpjp.spring.stateless.sqlserver.domain"
         };
     }
 }

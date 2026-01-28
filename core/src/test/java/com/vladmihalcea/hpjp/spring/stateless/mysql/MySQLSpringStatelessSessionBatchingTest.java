@@ -1,9 +1,9 @@
-package com.vladmihalcea.hpjp.spring.stateless;
+package com.vladmihalcea.hpjp.spring.stateless.mysql;
 
 import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
-import com.vladmihalcea.hpjp.spring.stateless.config.SpringStatelessSessionBatchingConfiguration;
-import com.vladmihalcea.hpjp.spring.stateless.domain.Post;
-import com.vladmihalcea.hpjp.spring.stateless.service.ForumService;
+import com.vladmihalcea.hpjp.spring.stateless.mysql.config.MySQLSpringStatelessSessionBatchingConfiguration;
+import com.vladmihalcea.hpjp.spring.stateless.mysql.domain.Post;
+import com.vladmihalcea.hpjp.spring.stateless.mysql.service.ForumService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -14,8 +14,8 @@ import java.util.stream.LongStream;
 /**
  * @author Vlad Mihalcea
  */
-@ContextConfiguration(classes = SpringStatelessSessionBatchingConfiguration.class)
-public class SpringStatelessSessionBatchingTest extends AbstractSpringTest {
+@ContextConfiguration(classes = MySQLSpringStatelessSessionBatchingConfiguration.class)
+public class MySQLSpringStatelessSessionBatchingTest extends AbstractSpringTest {
 
     public static final int POST_COUNT = 15;
 

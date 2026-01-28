@@ -1,7 +1,7 @@
-package com.vladmihalcea.hpjp.spring.stateless.repository;
+package com.vladmihalcea.hpjp.spring.stateless.sqlserver.repository;
 
-import com.vladmihalcea.hpjp.spring.stateless.domain.BatchInsertPost;
-import com.vladmihalcea.hpjp.spring.stateless.domain.Post;
+import com.vladmihalcea.hpjp.spring.stateless.sqlserver.domain.BatchInsertPost;
+import com.vladmihalcea.hpjp.spring.stateless.sqlserver.domain.Post;
 import jakarta.persistence.EntityManager;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -36,11 +36,6 @@ public class CustomPostRepositoryImpl implements CustomPostRepository<Post> {
     @Override
     public <S extends Post> List<S> persistAll(Iterable<S> entities) {
         final StatelessSession statelessSession = statelessSessionBuilder
-            .connection(
-                entityManager
-                    .unwrap(Session.class)
-                    .doReturningWork(connection -> connection)
-            )
             .openStatelessSession();
         try {
             statelessSession.setJdbcBatchSize(batchProcessingSize);
