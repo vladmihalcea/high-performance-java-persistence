@@ -1,15 +1,19 @@
 package com.vladmihalcea.hpjp.hibernate.statistics;
 
-
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.stat.internal.StatisticsImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Vlad Mihalcea
  */
 public class TransactionStatistics extends StatisticsImpl {
+
+    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     private static final ThreadLocal<AtomicLong> startNanos = ThreadLocal.withInitial(AtomicLong::new);
 
@@ -39,5 +43,15 @@ public class TransactionStatistics extends StatisticsImpl {
             connectionCounter.remove();
         }
         super.endTransaction(success);
+    }
+
+    @Override
+    public void queryCompiled(String hql, long microseconds) {
+        super.queryCompiled(hql, microseconds);
+        LOGGER.debug(
+            "The [{}] query was compiled in [{}] ms",
+            hql,
+            TimeUnit.MICROSECONDS.toMillis(microseconds)
+        );
     }
 }
