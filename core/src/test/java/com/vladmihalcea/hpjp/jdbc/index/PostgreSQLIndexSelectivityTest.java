@@ -12,6 +12,7 @@ import org.postgresql.util.PGobject;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -153,47 +154,65 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
             for (int i = 0; i < 100; i++) {
                 selectByStatus(connection, Task.Status.DONE);
             }
+            List<Map<String, Object>> preparedStatements = selectColumnMap(
+                connection,
+                "select * from pg_prepared_statements"
+            );
+            assertEquals(1, preparedStatements.size());
+            Map<String, Object> columnValues = preparedStatements.get(0);
+
+            LOGGER.info("""
+                SQL query: [
+                {}
+                ]
+                was prepared at: [{}] {}, and got
+                [{}] custom plan calls and
+                [{}] generic plan calls
+                """,
+                columnValues.get("statement"),
+                columnValues.get("prepare_time"),
+                (Boolean) columnValues.get("from_sql") ? "with explicit PREPARE call" : "due to prepareThreshold",
+                columnValues.get("custom_plans"),
+                columnValues.get("generic_plans")
+            );
+
             selectByStatus(connection, Task.Status.TO_DO);
         });
     }
 
     /**
-     * 2026-01-27 14:46:56.795 EET [2088] LOG:  duration: 71.803 ms  plan:
+     * 2026-02-07 14:20:25.929 EET [31172] LOG:  duration: 50.605 ms  plan:
      * 	Query Text: SELECT *
      * 	FROM task
      * 	WHERE status = $1
      *
-     * 	Seq Scan on task  (cost=0.00..1887.00 rows=33333 width=22) (actual time=0.028..16.695 rows=95000 loops=1)
+     * 	Seq Scan on task  (cost=0.00..1887.00 rows=33333 width=22) (actual time=0.029..11.631 rows=95000 loops=1)
      * 	  Filter: (status = $1)
      * 	  Rows Removed by Filter: 5000
-     * 2026-01-27 14:46:56.795 EET [2088] LOG:  execute S_1: SELECT *
-     * 	FROM task
-     * 	WHERE status = $1
+     * 2026-02-07 14:20:25.929 EET [31172] LOG:  execute <unnamed>: SHOW plan_cache_mode
      *
-     * 2026-01-27 14:46:56.795 EET [2088] DETAIL:  parameters: $1 = 'DONE'
-     * 2026-01-27 14:46:56.876 EET [2088] LOG:  duration: 73.520 ms  plan:
-     * 	Query Text: SELECT *
-     * 	FROM task
-     * 	WHERE status = $1
+     * Default plan cache mode: auto
      *
-     * 	Seq Scan on task  (cost=0.00..1887.00 rows=33333 width=22) (actual time=0.082..17.294 rows=95000 loops=1)
-     * 	  Filter: (status = $1)
-     * 	  Rows Removed by Filter: 5000
-     * 2026-01-27 14:46:56.876 EET [2088] LOG:  execute <unnamed>: SELECT *
+     * 2026-02-07 14:20:25.932 EET [31172] LOG:  execute <unnamed>: SET plan_cache_mode=force_custom_plan
+     * 2026-02-07 14:20:25.933 EET [31172] LOG:  execute <unnamed>: SHOW plan_cache_mode
+     *
+     * Custom plan cache mode: force_custom_plan
+     *
+     * 2026-02-07 14:20:25.935 EET [31172] LOG:  execute <unnamed>: SELECT *
      * 	FROM task
      * 	WHERE status = 'TO_DO'
      *
-     * 2026-01-27 14:46:56.879 EET [2088] LOG:  duration: 0.597 ms  plan:
+     * 2026-02-07 14:20:25.938 EET [31172] LOG:  duration: 0.907 ms  plan:
      * 	Query Text: SELECT *
      * 	FROM task
      * 	WHERE status = 'TO_DO'
      *
-     * 	Index Scan using idx_task_status on task  (cost=0.28..300.05 rows=1017 width=22) (actual time=0.029..0.152 rows=1000 loops=1)
+     * 	Index Scan using idx_task_status on task  (cost=0.28..287.95 rows=987 width=22) (actual time=0.184..0.327 rows=1000 loops=1)
      * 	  Index Cond: (status = 'TO_DO'::task_status)
-     * 2026-01-27 14:46:56.879 EET [2088] LOG:  execute S_2: COMMIT
+     * 2026-02-07 14:20:25.938 EET [31172] LOG:  execute S_2: COMMIT
      */
     @Test
-    public void testPostgreSQLPrepareThresholdLiteralOverride() {
+    public void testPostgreSQLPrepareThresholdOverrideWithLiteral() {
         executeStatement("CREATE INDEX IF NOT EXISTS idx_task_status ON task (status)");
         executeStatement("VACUUM ANALYZE");
 
@@ -204,6 +223,42 @@ public class PostgreSQLIndexSelectivityTest extends AbstractPostgreSQLIntegratio
             for (int i = 0; i < 100; i++) {
                 selectByStatus(connection, Task.Status.DONE);
             }
+            selectByStatusLiteral(connection, Task.Status.TO_DO);
+        });
+    }
+
+    @Test
+    public void testPostgreSQLPrepareThresholdOverrideWithForceCustomPlan () {
+        executeStatement("CREATE INDEX IF NOT EXISTS idx_task_status ON task (status)");
+        executeStatement("VACUUM ANALYZE");
+
+        doInJDBC(connection -> {
+            executeStatement(connection, """
+                SET auto_explain.log_min_duration TO 0;
+                """);
+            for (int i = 0; i < 100; i++) {
+                selectByStatus(connection, Task.Status.DONE);
+            }
+            LOGGER.info(
+                "Default plan cache mode: {}",
+                selectColumn(
+                    connection,
+                    "SHOW plan_cache_mode",
+                    String.class
+                )
+            );
+            executeStatement(
+                connection,
+                "SET plan_cache_mode=force_custom_plan"
+            );
+            LOGGER.info(
+                "Custom plan cache mode: {}",
+                selectColumn(
+                    connection,
+                    "SHOW plan_cache_mode",
+                    String.class
+                )
+            );
             selectByStatusLiteral(connection, Task.Status.TO_DO);
         });
     }
