@@ -10,6 +10,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.Tuple;
 import jakarta.persistence.spi.PersistenceUnitInfo;
 import net.steppschuh.markdowngenerator.table.Table;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -866,6 +867,27 @@ public abstract class AbstractTest {
                 ResultSet resultSet = statement.executeQuery(sql);
                 while (resultSet.next()) {
                     result.add(clazz.cast(resultSet.getObject(1)));
+                }
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+        return result;
+    }
+
+    protected List<Map<String, Object>> selectColumnMap(Connection connection, String sql) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        try {
+            try (Statement statement = connection.createStatement()) {
+                statement.setQueryTimeout(1);
+                ResultSet resultSet = statement.executeQuery(sql);
+                ResultSetMetaData metaData = resultSet.getMetaData();
+                while (resultSet.next()) {
+                    Map<String, Object> columnValues = new LinkedHashMap<>();
+                    for(int i = 1; i <= metaData.getColumnCount(); i++) {
+                        columnValues.put(metaData.getColumnName(i), resultSet.getObject(i));
+                    }
+                    result.add(columnValues);
                 }
             }
         } catch (SQLException e) {
