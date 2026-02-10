@@ -1,18 +1,19 @@
 package com.vladmihalcea.hpjp.spring.data.query.fetch;
 
 import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
-import com.vladmihalcea.hpjp.spring.data.query.fetch.config.SpringDataJPAJoinFetchPaginationConfiguration;
+import com.vladmihalcea.hpjp.spring.data.query.fetch.config.SpringDataJPAOSIVConfiguration;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.domain.Post;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.domain.PostComment;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.domain.Post_;
 import com.vladmihalcea.hpjp.spring.data.query.fetch.repository.PostRepository;
-import com.vladmihalcea.hpjp.spring.data.query.fetch.service.ForumService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
+import org.hibernate.ConnectionReleaseMode;
+import org.hibernate.internal.AbstractSharedSessionContract;
+import org.hibernate.resource.jdbc.spi.PhysicalConnectionHandlingMode;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.*;
 import org.springframework.orm.jpa.EntityManagerHolder;
 import org.springframework.test.context.ContextConfiguration;
@@ -20,15 +21,16 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.stream.LongStream;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Vlad Mihalcea
  */
-@ContextConfiguration(classes = SpringDataJPAJoinFetchPaginationConfiguration.class)
+@ContextConfiguration(classes = SpringDataJPAOSIVConfiguration.class)
 public class SpringDataJPAOSIVTest extends AbstractSpringTest {
 
     public static final int POST_COUNT = 100;
@@ -36,15 +38,6 @@ public class SpringDataJPAOSIVTest extends AbstractSpringTest {
 
     @Autowired
     private PostRepository postRepository;
-
-    @Autowired
-    private ForumService forumService;
-
-    @Autowired
-    private DataSource dataSource;
-
-    @Autowired
-    private CacheManager cacheManager;
 
     @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
@@ -122,6 +115,8 @@ public class SpringDataJPAOSIVTest extends AbstractSpringTest {
             for(Post post : posts) {
                 LOGGER.info("Post has {} comments", post.getComments().size());
             }
+            PhysicalConnectionHandlingMode connectionHandlingMode = entityManager.unwrap(AbstractSharedSessionContract.class).getJdbcSessionContext().getPhysicalConnectionHandlingMode();
+            assertEquals(connectionHandlingMode.getReleaseMode(), ConnectionReleaseMode.ON_CLOSE);
         } finally {
             TransactionSynchronizationManager.unbindResource(entityManagerFactory);
         }
