@@ -1,8 +1,8 @@
 package com.vladmihalcea.hpjp.jdbc.fetching.reservoir;
 
 import com.codahale.metrics.*;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ public class UniformMetricsTest {
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Test
-    @Ignore
+    @Disabled
     public void testFullSample() {
         int iterations = 100_000_000;
         Reservoir reservoir = execute(iterations);
@@ -27,7 +27,7 @@ public class UniformMetricsTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testRecentChanges() {
         Reservoir reservoir = new UniformReservoir();
         for(int i = 1; i <= 1028; i++) {

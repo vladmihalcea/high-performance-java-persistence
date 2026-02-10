@@ -5,7 +5,7 @@ import com.vladmihalcea.hpjp.util.AbstractTest;
 import org.hibernate.testing.bytecode.enhancement.extension.BytecodeEnhanced;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
+
 
 /**
  * @author Vlad Mihalcea

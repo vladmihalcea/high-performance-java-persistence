@@ -7,7 +7,7 @@ import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.SQLServerDataSourceProvider;
 import jakarta.persistence.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;

@@ -1,19 +1,17 @@
 package com.vladmihalcea.hpjp.hibernate.bytecode;
 
 import com.vladmihalcea.hpjp.util.AbstractTest;
-import org.hibernate.testing.bytecode.enhancement.extension.BytecodeEnhanced;
+import jakarta.persistence.*;
 import org.hibernate.testing.bytecode.enhancement.EnhancementOptions;
+import org.hibernate.testing.bytecode.enhancement.extension.BytecodeEnhanced;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.persistence.*;
 import java.util.Date;
 
-import static junit.framework.TestCase.fail;
 import static org.junit.jupiter.api.Assertions.*;
-import org.junit.runner.RunWith;
+
 
 /**
  * @author Vlad Mihalcea

@@ -4,14 +4,13 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Timer;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
-import com.vladmihalcea.hpjp.util.AbstractTest;
+import com.vladmihalcea.hpjp.util.DatabaseProviderIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.*;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
 import jakarta.persistence.EntityManager;
 import oracle.jdbc.pool.OracleDataSource;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -21,25 +20,22 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import java.util.function.Consumer;
-import java.util.stream.LongStream;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Vlad Mihalcea
  */
 @ParameterizedClass
 @MethodSource("parameters")
-public class StatementCacheTest extends AbstractTest {
+public class StatementCacheTest extends DatabaseProviderIntegrationTest {
 
     public static class CachingOracleDataSourceProvider extends OracleDataSourceProvider {
         private final int cacheSize;
@@ -67,8 +63,8 @@ public class StatementCacheTest extends AbstractTest {
         @Override
         public String toString() {
             return "CachingOracleDataSourceProvider{" +
-                    "cacheSize=" + cacheSize +
-                    '}';
+                   "cacheSize=" + cacheSize +
+                   '}';
         }
     }
 
@@ -92,8 +88,8 @@ public class StatementCacheTest extends AbstractTest {
         @Override
         public String toString() {
             return "CachingSQLServerDataSourceProvider{" +
-                    "cacheSize=" + cacheSize +
-                    '}';
+                   "cacheSize=" + cacheSize +
+                   '}';
         }
     }
 
@@ -114,8 +110,8 @@ public class StatementCacheTest extends AbstractTest {
         @Override
         public String toString() {
             return "CachingPostgreSQLDataSourceProvider{" +
-                    "cacheSize=" + cacheSize +
-                    '}';
+                   "cacheSize=" + cacheSize +
+                   '}';
         }
     }
 
@@ -133,6 +129,8 @@ public class StatementCacheTest extends AbstractTest {
         .build();
 
     private Timer queryExecutionTimer = metricRegistry.timer("queryExecutionTimer");
+
+    private ThreadLocalRandom random = ThreadLocalRandom.current();
 
     public static Stream<Arguments> parameters() {
         return Stream.of(
@@ -153,9 +151,6 @@ public class StatementCacheTest extends AbstractTest {
         );
     }
 
-    @Parameter
-    private DataSourceProvider dataSourceProvider;
-
     @Override
     protected Class<?>[] entities() {
         return entityProvider.entities();
@@ -170,8 +165,8 @@ public class StatementCacheTest extends AbstractTest {
     public void afterInit() {
         doInJDBC(connection -> {
             try (
-                    PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
-                    PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
+                PreparedStatement postStatement = connection.prepareStatement(INSERT_POST);
+                PreparedStatement postCommentStatement = connection.prepareStatement(INSERT_POST_COMMENT);
             ) {
                 int postCount = getPostCount();
                 int postCommentCount = getPostCommentCount();
@@ -203,7 +198,7 @@ public class StatementCacheTest extends AbstractTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testMySQLStatementCaching() {
         if(dataSourceProvider().database() != Database.MYSQL) {
             return;
@@ -236,14 +231,14 @@ public class StatementCacheTest extends AbstractTest {
             }
         });
         LOGGER.info("When using {}, throughput is {} statements",
-                dataSourceProvider(),
-                queryCount.get()
+            dataSourceProvider(),
+            queryCount.get()
         );
         logReporter.report();
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testPostgreSQLStatementCaching() {
         if(dataSourceProvider().database() != Database.POSTGRESQL) {
             return;
@@ -285,6 +280,7 @@ public class StatementCacheTest extends AbstractTest {
     }
 
     @Test
+    @Disabled
     public void testStatementCaching() {
         long ttlNanos = System.nanoTime() + getRunNanos();
         while (System.nanoTime() < ttlNanos) {
@@ -345,8 +341,8 @@ public class StatementCacheTest extends AbstractTest {
             from Post p
             where p.id in (:ids)
             """)
-        .setParameter("ids", ids)
-        .getResultList();
+            .setParameter("ids", ids)
+            .getResultList();
         assertEquals(titles.size(), ids.size());
         return titles;
     }

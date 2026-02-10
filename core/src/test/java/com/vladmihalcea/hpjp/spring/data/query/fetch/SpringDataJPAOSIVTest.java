@@ -10,9 +10,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
 import org.hibernate.ConnectionReleaseMode;
-import org.hibernate.internal.AbstractSharedSessionContract;
+import org.hibernate.resource.jdbc.spi.JdbcSessionOwner;
 import org.hibernate.resource.jdbc.spi.PhysicalConnectionHandlingMode;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.orm.jpa.EntityManagerHolder;
 import org.springframework.test.context.ContextConfiguration;
@@ -114,7 +115,7 @@ public class SpringDataJPAOSIVTest extends AbstractSpringTest {
             for(Post post : posts) {
                 LOGGER.info("Post has {} comments", post.getComments().size());
             }
-            PhysicalConnectionHandlingMode connectionHandlingMode = entityManager.unwrap(AbstractSharedSessionContract.class).getJdbcSessionContext().getPhysicalConnectionHandlingMode();
+            PhysicalConnectionHandlingMode connectionHandlingMode = entityManager.unwrap(JdbcSessionOwner.class).getJdbcSessionContext().getPhysicalConnectionHandlingMode();
             assertEquals(connectionHandlingMode.getReleaseMode(), ConnectionReleaseMode.ON_CLOSE);
         } finally {
             TransactionSynchronizationManager.unbindResource(entityManagerFactory);

@@ -3,20 +3,18 @@ package com.vladmihalcea.hpjp.hibernate.index;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.SQLServerDataSourceProvider;
-import org.hibernate.Session;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
 import jakarta.persistence.*;
+import org.hibernate.Session;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
 import java.sql.PreparedStatement;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
-
-import org.junit.runner.RunWith;
 
 /**
  * @author Vlad Mihalcea
@@ -27,23 +25,19 @@ public class SQLServerSendStringParametersAsUnicodeComparisonTest extends Abstra
 
     private SQLServerDataSourceProvider dataSourceProvider;
 
-    private final boolean sendStringParametersAsUnicode;
+    @Parameter
+    private boolean sendStringParametersAsUnicode;
 
-    public SQLServerSendStringParametersAsUnicodeComparisonTest(boolean sendStringParametersAsUnicode) {
-        this.sendStringParametersAsUnicode = sendStringParametersAsUnicode;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Boolean[]> parameters() {
-        return Arrays.asList(new Boolean[][] {
-            { true },
-            { false }
-        });
+    public static Stream<Arguments> parameters() {
+        return Stream.of(
+            Arguments.of(true),
+            Arguments.of(false)
+        );
     }
 
     @Override
     protected Class<?>[] entities() {
-        return new Class<?>[] {
+        return new Class<?>[]{
             Post.class
         };
     }
@@ -71,7 +65,7 @@ public class SQLServerSendStringParametersAsUnicodeComparisonTest extends Abstra
                         )
                 );
 
-                if(i % 100 == 0) {
+                if (i % 100 == 0) {
                     entityManager.flush();
                 }
             }
@@ -113,13 +107,13 @@ public class SQLServerSendStringParametersAsUnicodeComparisonTest extends Abstra
             );
 
             List<Tuple> executionPlans = entityManager.createNativeQuery("""
-                SELECT pln.query_plan AS [QueryPlan], dest.text AS [Query], dest.*
-                FROM sys.dm_exec_query_stats AS deqs
-                CROSS APPLY sys.dm_exec_sql_text(deqs.sql_handle) AS dest
-                CROSS APPLY sys.dm_exec_query_plan(deqs.plan_handle) AS pln
-                ORDER BY deqs.last_execution_time DESC
-                """, Tuple.class)
-            .getResultList();
+                    SELECT pln.query_plan AS [QueryPlan], dest.text AS [Query], dest.*
+                    FROM sys.dm_exec_query_stats AS deqs
+                    CROSS APPLY sys.dm_exec_sql_text(deqs.sql_handle) AS dest
+                    CROSS APPLY sys.dm_exec_query_plan(deqs.plan_handle) AS pln
+                    ORDER BY deqs.last_execution_time DESC
+                    """, Tuple.class)
+                .getResultList();
             LOGGER.info("Execution plan: {}", executionPlans.get(0).get("QueryPlan"));
         });
     }
@@ -151,12 +145,12 @@ public class SQLServerSendStringParametersAsUnicodeComparisonTest extends Abstra
         LOGGER.info("Find post by title: {}", title);
 
         List<Long> ids = entityManager.createQuery("""
-            select p.id
-            from Post p
-            where p.title = :title
-            """, Long.class)
-        .setParameter("title", title)
-        .getResultList();
+                select p.id
+                from Post p
+                where p.title = :title
+                """, Long.class)
+            .setParameter("title", title)
+            .getResultList();
     }
 
     @Entity(name = "Post")

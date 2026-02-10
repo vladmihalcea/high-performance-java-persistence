@@ -6,7 +6,7 @@ import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import jakarta.persistence.*;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.Collections;

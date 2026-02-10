@@ -239,13 +239,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.yugabyte</groupId>
-            <artifactId>jdbc-yugabytedb</artifactId>
-            <version>${yugabytedb.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
             <version>${dropwizard.metrics.version}</version>
@@ -556,11 +549,11 @@
         <hypersistence-utils.version>3.13.1</hypersistence-utils.version>
         <hypersistence-tsid.version>2.1.4</hypersistence-tsid.version>
 
-        <blaze-persistence.version>1.6.17</blaze-persistence.version>
+        <blaze-persistence.version>1.6.18</blaze-persistence.version>
 
         <hypersistence-optimizer.version>2.8.1</hypersistence-optimizer.version>
 
-        <junit.version>5.13.4</junit.version>
+        <junit.version>6.0.2</junit.version>
 
         <antlr.version>4.13.1</antlr.version>
     </properties>

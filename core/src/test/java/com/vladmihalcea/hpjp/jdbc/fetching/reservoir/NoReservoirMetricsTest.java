@@ -2,8 +2,8 @@ package com.vladmihalcea.hpjp.jdbc.fetching.reservoir;
 
 import com.codahale.metrics.Snapshot;
 import com.codahale.metrics.UniformSnapshot;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,14 +22,14 @@ public class NoReservoirMetricsTest {
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Test
-    @Ignore
+    @Disabled
     public void testFullSample() {
         int iterations = 100_000_000;
         execute(iterations);
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testSmallSample() {
         List<Long> queryExecutionTimes = execute(10);
         LOGGER.info("Response times: {}", queryExecutionTimes);

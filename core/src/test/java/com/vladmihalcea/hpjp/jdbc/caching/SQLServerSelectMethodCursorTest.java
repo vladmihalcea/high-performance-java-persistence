@@ -7,18 +7,19 @@ import com.vladmihalcea.hpjp.util.providers.SQLServerDataSourceProvider;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -26,23 +27,20 @@ import static org.junit.Assert.fail;
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@MethodSource("parameters")
 public class SQLServerSelectMethodCursorTest extends AbstractTest {
 
     public static final String SELECT_POST = "SELECT id, title FROM post";
 
+    @Parameter
     private String selectMethod;
 
-    public SQLServerSelectMethodCursorTest(String selectMethod) {
-        this.selectMethod = selectMethod;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<String[]> rdbmsDataSourceProvider() {
-        List<String[]> providers = new ArrayList<>();
-        providers.add(new String[]{"direct"});
-        providers.add(new String[]{"cursor"});
-        return providers;
+    public static Stream<Arguments> parameters() {
+        return Stream.of(
+            Arguments.of("direct"),
+            Arguments.of("cursor")
+        );
     }
 
     @Override

@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import org.hibernate.cfg.BatchSettings;
 import org.hibernate.cfg.SchemaToolingSettings;
 import org.hibernate.tool.schema.Action;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 

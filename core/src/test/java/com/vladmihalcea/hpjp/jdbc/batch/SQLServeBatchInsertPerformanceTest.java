@@ -7,8 +7,12 @@ import com.vladmihalcea.hpjp.util.AbstractSQLServerIntegrationTest;
 import com.vladmihalcea.hpjp.util.providers.DataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.SQLServerDataSourceProvider;
 import com.vladmihalcea.hpjp.util.providers.entity.BlogEntityProvider;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
 import org.junit.runners.Parameterized;
 
 import java.sql.PreparedStatement;
@@ -18,13 +22,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.fail;
 
 /**
  * @author Vlad Mihalcea
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass
+@MethodSource("parameters")
 public class SQLServeBatchInsertPerformanceTest extends AbstractSQLServerIntegrationTest {
 
     private final BlogEntityProvider entityProvider = new BlogEntityProvider();
@@ -38,18 +44,14 @@ public class SQLServeBatchInsertPerformanceTest extends AbstractSQLServerIntegra
 
     private Timer timer = metricRegistry.timer("batchInsertTimer");
 
+    @Parameter
     private boolean useJdbcBatchInsert;
-
-    public SQLServeBatchInsertPerformanceTest(boolean useJdbcBatchInsert) {
-        this.useJdbcBatchInsert = useJdbcBatchInsert;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Boolean[]> rdbmsDataSourceProvider() {
-        List<Boolean[]> providers = new ArrayList<>();
-        providers.add(new Boolean[]{Boolean.FALSE});
-        providers.add(new Boolean[]{Boolean.TRUE});
-        return providers;
+    
+    public static Stream<Arguments> parameters() {
+        return Stream.of(
+            Arguments.of(Boolean.FALSE),
+            Arguments.of(Boolean.TRUE)
+        );
     }
 
     @Override
