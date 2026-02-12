@@ -47,7 +47,7 @@ public class SQLServerIndexSelectivityTest extends AbstractTest {
             executeStatement("drop table Tasks");
             executeStatement("drop sequence Tasks_SEQ");
             executeStatement("create sequence Tasks_SEQ start with 1 increment by 50");
-            executeStatement("create table Tasks (Id bigint not null, Name varchar(50), Status varchar(255) check ((Status in ('DONE','TO_DO','FAILED'))), primary key (Id))");
+            executeStatement("create table Tasks (Id bigint not null, Name varchar(50), Status varchar(25) check ((Status in ('DONE','TO_DO','FAILED'))), primary key (Id))");
         }
     }
 
