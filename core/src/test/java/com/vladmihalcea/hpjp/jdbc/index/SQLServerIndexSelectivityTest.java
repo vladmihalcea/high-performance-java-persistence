@@ -43,7 +43,6 @@ public class SQLServerIndexSelectivityTest extends AbstractTest {
         Integer taskCount = selectColumn("select count(*) from Tasks", Integer.class);
         initialize = (taskCount == null || taskCount != getTaskCount());
         if(initialize) {
-
             executeStatement("drop table Tasks");
             executeStatement("drop sequence Tasks_SEQ");
             executeStatement("create sequence Tasks_SEQ start with 1 increment by 50");
