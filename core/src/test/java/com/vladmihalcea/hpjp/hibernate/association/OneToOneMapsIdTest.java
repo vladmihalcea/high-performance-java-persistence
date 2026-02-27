@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.hibernate.association;
 
+import com.vladmihalcea.hpjp.hibernate.logging.validator.sql.SQLStatementCountValidator;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
@@ -46,8 +47,8 @@ public class OneToOneMapsIdTest extends AbstractTest {
         );
     }
 
-    @Test
-    public void testLifecycle() {
+    @Override
+    protected void afterInit() {
         doInJPA(entityManager -> {
             entityManager.persist(
                 new Post()
@@ -55,7 +56,10 @@ public class OneToOneMapsIdTest extends AbstractTest {
                     .setTitle("First post")
             );
         });
+    }
 
+    @Test
+    public void testLifecycle() {
         doInJPA(entityManager -> {
             PostWithDetailsRecord postWithDetailsRecord = entityManager.createQuery("""
                 select new PostWithDetailsRecord(p, pd)
@@ -67,10 +71,31 @@ public class OneToOneMapsIdTest extends AbstractTest {
             .setParameter("postId", 1L)
             .getSingleResult();
 
-            assertEquals(postWithDetailsRecord.post.title, "First post");
-            assertNull(postWithDetailsRecord.details);
+            assertEquals("First post", postWithDetailsRecord.post().getTitle());
+            assertNull(postWithDetailsRecord.details());
         });
 
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            PostDetails details = new PostDetails().setCreatedBy("John Doe");
+            details.setPost(post);
+            entityManager.persist(details);
+        });
+
+        doInJPA(entityManager -> {
+            Post post = entityManager.find(Post.class, 1L);
+            PostDetails details = entityManager.find(PostDetails.class, post.getId());
+            assertNotNull(details);
+
+            details.setPost(null);
+            SQLStatementCountValidator.reset();
+            entityManager.flush();
+            SQLStatementCountValidator.assertUpdateCount(0);
+        });
+    }
+
+    @Test
+    public void testFetchingBothEntitiesUsingRecord() {
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
             PostDetails details = new PostDetails().setCreatedBy("John Doe");
@@ -85,21 +110,24 @@ public class OneToOneMapsIdTest extends AbstractTest {
                 left join PostDetails pd on pd.id = p.id
                 where p.id = :postId
                 """,
-                PostWithDetailsRecord.class)
-            .setParameter("postId", 1L)
-            .getSingleResult();
+                    PostWithDetailsRecord.class)
+                .setParameter("postId", 1L)
+                .getSingleResult();
 
-            assertEquals(postWithDetailsRecord.post.title, "First post");
-            assertEquals(postWithDetailsRecord.details.createdBy, "John Doe");
+            assertEquals("First post", postWithDetailsRecord.post().getTitle());
+            assertEquals("John Doe", postWithDetailsRecord.details().getCreatedBy());
+
+            //Check if the entities fetched via the PostWithDetailsRecord are managed
+            Post post = postWithDetailsRecord.post();
+            post.setTitle(post.getTitle() + " is awesome!");
+            SQLStatementCountValidator.reset();
+            entityManager.flush();
+            SQLStatementCountValidator.assertUpdateCount(1);
         });
-
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
-            PostDetails details = entityManager.find(PostDetails.class, post.getId());
-            assertNotNull(details);
 
-            entityManager.flush();
-            details.setPost(null);
+            assertEquals("First post is awesome!", post.getTitle());
         });
     }
 
