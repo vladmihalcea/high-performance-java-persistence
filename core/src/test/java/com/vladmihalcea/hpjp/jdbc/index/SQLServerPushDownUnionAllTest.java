@@ -621,7 +621,105 @@ public class SQLServerPushDownUnionAllTest extends AbstractTest {
                     and ((UpdatedOn IS NOT NULL and UpdatedOn < ?) or (UpdatedOn IS NULL and CreatedOn < ?))
                     group by CategoryId
                 ) t
-                
+                """,
+                (preparedStatement -> {
+                    try {
+                        int i = 1;
+                        preparedStatement.setTimestamp(i++, Timestamp.valueOf(startTimestamp.plusDays(1)));
+                        preparedStatement.setTimestamp(i++, Timestamp.valueOf(startTimestamp.plusDays(1)));
+                        preparedStatement.setTimestamp(i++, Timestamp.valueOf(startTimestamp.plusDays(7)));
+                        preparedStatement.setTimestamp(i++, Timestamp.valueOf(startTimestamp.plusDays(7)));
+                        preparedStatement.setTimestamp(i++, Timestamp.valueOf(startTimestamp));
+                        preparedStatement.setTimestamp(i++, Timestamp.valueOf(startTimestamp));
+                        preparedStatement.setTimestamp(i++, Timestamp.valueOf(startTimestamp.plusDays(7)));
+                        preparedStatement.setTimestamp(i++, Timestamp.valueOf(startTimestamp.plusDays(7)));
+                        preparedStatement.setTimestamp(i++, Timestamp.valueOf(startTimestamp));
+                        preparedStatement.setTimestamp(i++, Timestamp.valueOf(startTimestamp));
+                        preparedStatement.setTimestamp(i++, Timestamp.valueOf(startTimestamp.plusDays(7)));
+                        preparedStatement.setTimestamp(i++, Timestamp.valueOf(startTimestamp.plusDays(7)));
+                    } catch (SQLException e) {
+                        fail(e.getMessage());
+                    }
+                }));
+        });
+    }
+
+    @Test
+    public void testTwoTimestampColumnIndexesSelectingNUll() {
+        executeStatement("DROP INDEX IF EXISTS TASKS_CREATED_ON ON Tasks");
+        executeStatement("DROP INDEX IF EXISTS TASKS_UPDATED_ON ON Tasks");
+        executeStatement("""
+            CREATE NONCLUSTERED INDEX TASKS_CREATED_ON
+            ON Tasks (CreatedOn)
+            INCLUDE (CategoryId)
+            """);
+        executeStatement("""
+            CREATE NONCLUSTERED INDEX TASKS_UPDATED_ON
+            ON Tasks (UpdatedOn)
+            INCLUDE (CategoryId)
+            WHERE UpdatedOn IS NOT NULL
+            """);
+
+        executeStatement("DROP INDEX IF EXISTS APPLICATION_TASKS_CREATED_ON ON ApplicationTasks");
+        executeStatement("DROP INDEX IF EXISTS APPLICATION_TASKS_UPDATED_ON ON ApplicationTasks");
+        executeStatement("""
+            CREATE NONCLUSTERED INDEX APPLICATION_TASKS_CREATED_ON
+            ON ApplicationTasks (CreatedOn)
+            INCLUDE (CategoryId)
+            """);
+        executeStatement("""
+            CREATE NONCLUSTERED INDEX APPLICATION_TASKS_UPDATED_ON
+            ON ApplicationTasks (UpdatedOn)
+            INCLUDE (CategoryId)
+            WHERE UpdatedOn IS NOT NULL
+            """);
+
+        executeStatement("DROP INDEX IF EXISTS SYSTEM_TASKS_CREATED_ON ON SystemTasks");
+        executeStatement("DROP INDEX IF EXISTS SYSTEM_TASKS_UPDATED_ON ON SystemTasks");
+        executeStatement("""
+            CREATE NONCLUSTERED INDEX SYSTEM_TASKS_CREATED_ON
+            ON SystemTasks (CreatedOn)
+            INCLUDE (CategoryId)
+            """);
+        executeStatement("""
+            CREATE NONCLUSTERED INDEX SYSTEM_TASKS_UPDATED_ON
+            ON SystemTasks (UpdatedOn)
+            INCLUDE (CategoryId)
+            WHERE UpdatedOn IS NOT NULL
+            """);
+
+        executeStatement("UPDATE STATISTICS Tasks WITH FULLSCAN");
+        doInJPA(entityManager -> {
+            printExecutionPlan("""
+                select CategoryId
+                from (
+                    select
+                        CategoryId
+                    from
+                        Tasks
+                    where
+                        ((UpdatedOn IS NOT NULL and UpdatedOn >= ?) or (UpdatedOn IS NULL and CreatedOn >= ?))
+                    and ((UpdatedOn IS NOT NULL and UpdatedOn < ?) or (UpdatedOn IS NULL and CreatedOn < ?))
+                    group by CategoryId
+                    union
+                    select
+                        Null
+                    from
+                        ApplicationTasks
+                    where
+                        ((UpdatedOn IS NOT NULL and UpdatedOn >= ?) or (UpdatedOn IS NULL and CreatedOn >= ?))
+                    and ((UpdatedOn IS NOT NULL and UpdatedOn < ?) or (UpdatedOn IS NULL and CreatedOn < ?))
+                    group by CategoryId
+                    union
+                    select
+                        Null
+                    from
+                        SystemTasks
+                    where
+                        ((UpdatedOn IS NOT NULL and UpdatedOn >= ?) or (UpdatedOn IS NULL and CreatedOn >= ?))
+                    and ((UpdatedOn IS NOT NULL and UpdatedOn < ?) or (UpdatedOn IS NULL and CreatedOn < ?))
+                    group by CategoryId
+                ) t            
                 """,
                 (preparedStatement -> {
                     try {
