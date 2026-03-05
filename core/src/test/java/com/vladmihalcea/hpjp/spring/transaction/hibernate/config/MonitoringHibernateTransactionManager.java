@@ -5,7 +5,7 @@ import org.hibernate.BaseSessionEventListener;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
+import org.springframework.orm.jpa.hibernate.HibernateTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 
 import java.util.concurrent.atomic.LongAdder;
