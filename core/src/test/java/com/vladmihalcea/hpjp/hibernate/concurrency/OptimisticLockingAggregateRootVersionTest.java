@@ -208,7 +208,7 @@ public class OptimisticLockingAggregateRootVersionTest extends AbstractTest {
         });
 
         doInJPA(entityManager -> {
-            PostComment postComment = entityManager.getReference(PostComment.class, 3L);
+            PostComment postComment = entityManager.find(PostComment.class, 3L);
             entityManager.remove(postComment);
         });
 

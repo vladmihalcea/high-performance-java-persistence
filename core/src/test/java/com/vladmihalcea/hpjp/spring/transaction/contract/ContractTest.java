@@ -128,7 +128,7 @@ public class ContractTest extends AbstractSpringTest {
         });
 
         transactionTemplate.execute((TransactionCallback<Void>) transactionStatus -> {
-            Annex annex = entityManager.getReference(Annex.class, 3L);
+            Annex annex = entityManager.find(Annex.class, 3L);
             entityManager.remove(annex);
             
             return null;
