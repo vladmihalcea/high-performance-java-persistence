@@ -494,6 +494,22 @@
             <version>${antlr.version}</version>
         </dependency>
 
+        <!-- Camunda BPM -->
+
+        <dependency>
+            <groupId>org.camunda.bpm</groupId>
+            <artifactId>camunda-engine</artifactId>
+            <version>${camunda.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.camunda.bpm</groupId>
+            <artifactId>camunda-engine-spring-6</artifactId>
+            <version>${camunda.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <properties>
@@ -556,6 +572,8 @@
         <junit.version>6.0.2</junit.version>
 
         <antlr.version>4.13.1</antlr.version>
+
+        <camunda.version>7.22.0</camunda.version>
     </properties>
 
     <repositories>
