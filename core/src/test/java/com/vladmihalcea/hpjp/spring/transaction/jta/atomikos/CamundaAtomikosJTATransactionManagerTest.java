@@ -8,7 +8,6 @@ import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.config.CamundaAtomikosJTATransactionManagerSQLServerConfiguration;
 import com.vladmihalcea.hpjp.spring.transaction.jta.dao.TagDAO;
 import com.vladmihalcea.hpjp.spring.transaction.jta.service.ForumService;
-import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config.CamundaNarayanaJTATransactionManagerSQLServerConfiguration;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;

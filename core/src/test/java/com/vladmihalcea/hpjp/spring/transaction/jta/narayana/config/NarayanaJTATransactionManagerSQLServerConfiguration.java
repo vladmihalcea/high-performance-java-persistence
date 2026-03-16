@@ -15,7 +15,6 @@ import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.engine.transaction.jta.platform.internal.JBossStandAloneJtaPlatform;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
-import org.postgresql.xa.PGXADataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -144,7 +143,7 @@ public class NarayanaJTATransactionManagerSQLServerConfiguration {
             AvailableSettings.JTA_PLATFORM,
             JBossStandAloneJtaPlatform.class
         );
-        properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+        properties.setProperty("hibernate.hbm2ddl.auto", "update");
         properties.put(
             "hibernate.session_factory.statement_inspector",
             new LoggingStatementInspector("com.vladmihalcea.hpjp.hibernate.transaction")

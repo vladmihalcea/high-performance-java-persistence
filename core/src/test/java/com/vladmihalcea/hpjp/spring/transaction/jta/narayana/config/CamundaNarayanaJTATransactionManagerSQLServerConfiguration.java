@@ -1,9 +1,15 @@
 package com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config;
 
+import com.arjuna.ats.internal.jta.recovery.arjunacore.XARecoveryModule;
+import com.vladmihalcea.hpjp.util.logging.InlineQueryLogEntryCreator;
+import dev.snowdrop.boot.narayana.core.jdbc.GenericXADataSourceWrapper;
 import jakarta.transaction.SystemException;
+import net.ttddyy.dsproxy.listener.logging.SLF4JQueryLoggingListener;
+import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.spring.ProcessEngineFactoryBean;
 import org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration;
+import org.postgresql.xa.PGXADataSource;
 import org.springframework.context.annotation.*;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -38,15 +44,44 @@ public class CamundaNarayanaJTATransactionManagerSQLServerConfiguration extends 
 
     // Camunda Process Engine Configuration
 
+    @DependsOn("actualCamundaDataSource")
+    public DataSource camundaDataSource() {
+        SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
+        loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
+        return ProxyDataSourceBuilder
+            .create(actualCamundaDataSource())
+            .name(DATA_SOURCE_PROXY_NAME)
+            .listener(loggingListener)
+            .build();
+    }
+
+    @Bean
+    public DataSource actualCamundaDataSource() {
+        try {
+            PGXADataSource dataSource = new PGXADataSource();
+            dataSource.setUrl(
+                "jdbc:postgresql://localhost:5432/high_performance_java_persistence"
+            );
+            dataSource.setUser("postgres");
+            dataSource.setPassword("admin");
+
+            XARecoveryModule xaRecoveryModule = new XARecoveryModule();
+            GenericXADataSourceWrapper wrapper = new GenericXADataSourceWrapper(xaRecoveryModule);
+            return wrapper.wrapDataSource(dataSource);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     @Bean
     public SpringProcessEngineConfiguration processEngineConfiguration() throws SystemException {
-        dropCamundaTables(actualDataSource());
+        dropCamundaTables(actualCamundaDataSource());
 
         SpringProcessEngineConfiguration config = new SpringProcessEngineConfiguration();
-        config.setDataSource(actualDataSource());
+        config.setDataSource(camundaDataSource());
         config.setTransactionManager(transactionManager());
         config.setTransactionsExternallyManaged(true);
-        config.setDatabaseSchemaUpdate("create-drop");
+        config.setDatabaseSchemaUpdate("true");
         config.setJobExecutorActivate(false);
         config.setHistory("audit");
         config.setDeploymentResources(
