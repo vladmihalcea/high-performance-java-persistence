@@ -1,14 +1,13 @@
-package com.vladmihalcea.hpjp.spring.transaction.jta.atomikos;
+package com.vladmihalcea.hpjp.spring.transaction.jta.narayana;
 
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostComment;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostDetails;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Tag;
 import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
-import com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.config.CamundaAtomikosJTATransactionManagerSQLServerConfiguration;
+import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config.CamundaNarayanaJTATransactionManagerSQLServerConfiguration;
 import com.vladmihalcea.hpjp.spring.transaction.jta.dao.TagDAO;
 import com.vladmihalcea.hpjp.spring.transaction.jta.service.ForumService;
-import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config.CamundaNarayanaJTATransactionManagerSQLServerConfiguration;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
@@ -26,17 +25,17 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Integration test demonstrating Camunda BPM with Atomikos JTA transactions
+ * Integration test demonstrating Camunda BPM with Narayana JTA transactions
  * and SQL Server.
  * <p>
  * The test starts a Camunda process that creates a forum Post via JPA
- * within a JTA transaction managed by Atomikos, then verifies that both
+ * within a JTA transaction managed by Narayana, then verifies that both
  * the Camunda process instance and the JPA entity were committed atomically.
  *
  * @author Vlad Mihalcea
  */
-@ContextConfiguration(classes = CamundaAtomikosJTATransactionManagerSQLServerConfiguration.class)
-public class CamundaAtomikosJTATransactionManagerTest extends AbstractSpringTest {
+@ContextConfiguration(classes = CamundaNarayanaJTATransactionManagerSQLServerConfiguration.class)
+public class CamundaNarayanaJTATransactionManagerTest extends AbstractSpringTest {
 
     @Autowired
     private ForumService forumService;

@@ -12,6 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 /**
  * @author Vlad Mihalcea
  */
@@ -25,6 +30,9 @@ public abstract class AbstractSpringTest {
 
     @PersistenceContext
     protected EntityManager entityManager;
+
+    @Autowired
+    protected DataSource dataSource;
 
     @BeforeEach
     public void init() {

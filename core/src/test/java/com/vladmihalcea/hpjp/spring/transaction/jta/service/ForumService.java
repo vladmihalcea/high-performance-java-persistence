@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.service;
+package com.vladmihalcea.hpjp.spring.transaction.jta.service;
 
 import com.vladmihalcea.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;

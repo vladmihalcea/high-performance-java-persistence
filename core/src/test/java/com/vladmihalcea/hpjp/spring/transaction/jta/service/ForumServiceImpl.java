@@ -1,9 +1,9 @@
-package com.vladmihalcea.hpjp.spring.transaction.jta.narayana.service;
+package com.vladmihalcea.hpjp.spring.transaction.jta.service;
 
 import com.vladmihalcea.hpjp.hibernate.forum.dto.PostDTO;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;
-import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.dao.PostDAO;
-import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.dao.TagDAO;
+import com.vladmihalcea.hpjp.spring.transaction.jta.dao.PostDAO;
+import com.vladmihalcea.hpjp.spring.transaction.jta.dao.TagDAO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.hibernate.engine.spi.EntityEntry;

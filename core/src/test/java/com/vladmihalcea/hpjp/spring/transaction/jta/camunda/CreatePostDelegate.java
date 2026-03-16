@@ -1,7 +1,7 @@
-package com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.camunda;
+package com.vladmihalcea.hpjp.spring.transaction.jta.camunda;
 
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;
-import com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.service.ForumService;
+import com.vladmihalcea.hpjp.spring.transaction.jta.service.ForumService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;

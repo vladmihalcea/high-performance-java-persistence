@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.dao;
+package com.vladmihalcea.hpjp.spring.transaction.jta.dao;
 
 import java.io.Serializable;
 

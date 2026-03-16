@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.spring.transaction.jta.narayana.dao;
+package com.vladmihalcea.hpjp.spring.transaction.jta.dao;
 
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;
 import jakarta.persistence.EntityManager;

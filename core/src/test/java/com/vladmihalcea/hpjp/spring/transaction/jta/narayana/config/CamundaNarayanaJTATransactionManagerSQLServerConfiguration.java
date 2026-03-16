@@ -1,4 +1,4 @@
-package com.vladmihalcea.hpjp.spring.transaction.jta.atomikos.config;
+package com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config;
 
 import jakarta.transaction.SystemException;
 import org.camunda.bpm.engine.*;
@@ -18,10 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Spring configuration for Camunda BPM with Atomikos JTA and SQL Server.
+ * Spring configuration for Camunda BPM with Narayana JTA and SQL Server.
  * <p>
  * This demonstrates how to integrate Camunda Process Engine with JTA transactions
- * managed by Atomikos, using SQL Server as the database via XA DataSource.
+ * managed by Narayana, using SQL Server as the database via XA DataSource.
  *
  * @author Vlad Mihalcea
  */
@@ -34,7 +34,7 @@ import java.util.List;
 })
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
-public class CamundaAtomikosJTATransactionManagerSQLServerConfiguration extends AtomikosJTATransactionManagerSQLServerConfiguration {
+public class CamundaNarayanaJTATransactionManagerSQLServerConfiguration extends NarayanaJTATransactionManagerSQLServerConfiguration {
 
     // Camunda Process Engine Configuration
 
@@ -55,6 +55,16 @@ public class CamundaAtomikosJTATransactionManagerSQLServerConfiguration extends 
             }
         );
         return config;
+    }
+
+    @Override
+    protected void initDatabase(DataSource dataSource) {
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement()) {
+            statement.executeLargeUpdate("ALTER DATABASE [high_performance_java_persistence] SET READ_COMMITTED_SNAPSHOT OFF");
+        } catch (SQLException e) {
+            LOGGER.error("Statement failed", e);
+        }
     }
 
     private void dropCamundaTables(DataSource dataSource) {
@@ -128,4 +138,3 @@ public class CamundaAtomikosJTATransactionManagerSQLServerConfiguration extends 
         return processEngine.getHistoryService();
     }
 }
-

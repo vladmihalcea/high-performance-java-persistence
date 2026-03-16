@@ -37,8 +37,8 @@ import java.util.Properties;
 @Configuration
 @PropertySource({"/META-INF/jta-postgresql.properties"})
 @ComponentScan(basePackages = {
-    "com.vladmihalcea.hpjp.spring.transaction.jta.narayana.dao",
-    "com.vladmihalcea.hpjp.spring.transaction.jta.narayana.service",
+    "com.vladmihalcea.hpjp.spring.transaction.jta.dao",
+    "com.vladmihalcea.hpjp.spring.transaction.jta.service",
 })
 @EnableTransactionManagement
 @EnableAspectJAutoProxy

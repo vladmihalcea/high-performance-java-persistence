@@ -16,6 +16,8 @@ import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.engine.transaction.jta.platform.internal.JBossStandAloneJtaPlatform;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.postgresql.xa.PGXADataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -38,14 +40,16 @@ import java.util.Properties;
 @Configuration
 @PropertySource({"/META-INF/jta-sqlserver.properties"})
 @ComponentScan(basePackages = {
-    "com.vladmihalcea.hpjp.spring.transaction.jta.narayana.dao",
-    "com.vladmihalcea.hpjp.spring.transaction.jta.narayana.service",
+    "com.vladmihalcea.hpjp.spring.transaction.jta.dao",
+    "com.vladmihalcea.hpjp.spring.transaction.jta.service",
 })
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
 public class NarayanaJTATransactionManagerSQLServerConfiguration {
 
     public static final String DATA_SOURCE_PROXY_NAME = DataSourceProxyType.DATA_SOURCE_PROXY.name();
+
+    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Value("${hibernate.dialect}")
     protected String hibernateDialect;
@@ -85,10 +89,14 @@ public class NarayanaJTATransactionManagerSQLServerConfiguration {
 
             XARecoveryModule xaRecoveryModule = new XARecoveryModule();
             GenericXADataSourceWrapper wrapper = new GenericXADataSourceWrapper(xaRecoveryModule);
+            initDatabase(dataSource);
             return wrapper.wrapDataSource(dataSource);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    protected void initDatabase(DataSource dataSource) {
     }
 
     @Bean
