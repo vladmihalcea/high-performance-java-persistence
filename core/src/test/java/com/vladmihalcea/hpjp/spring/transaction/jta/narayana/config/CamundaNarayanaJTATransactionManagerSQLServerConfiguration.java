@@ -44,7 +44,7 @@ public class CamundaNarayanaJTATransactionManagerSQLServerConfiguration extends 
 
     // Camunda Process Engine Configuration
 
-    @DependsOn("actualCamundaDataSource")
+    @Bean
     public DataSource camundaDataSource() {
         SLF4JQueryLoggingListener loggingListener = new SLF4JQueryLoggingListener();
         loggingListener.setQueryLogEntryCreator(new InlineQueryLogEntryCreator());
@@ -55,8 +55,7 @@ public class CamundaNarayanaJTATransactionManagerSQLServerConfiguration extends 
             .build();
     }
 
-    @Bean
-    public DataSource actualCamundaDataSource() {
+    private DataSource actualCamundaDataSource() {
         try {
             PGXADataSource dataSource = new PGXADataSource();
             dataSource.setUrl(
@@ -75,7 +74,7 @@ public class CamundaNarayanaJTATransactionManagerSQLServerConfiguration extends 
 
     @Bean
     public SpringProcessEngineConfiguration processEngineConfiguration() throws SystemException {
-        dropCamundaTables(actualCamundaDataSource());
+        dropCamundaTables(camundaDataSource());
 
         SpringProcessEngineConfiguration config = new SpringProcessEngineConfiguration();
         config.setDataSource(camundaDataSource());

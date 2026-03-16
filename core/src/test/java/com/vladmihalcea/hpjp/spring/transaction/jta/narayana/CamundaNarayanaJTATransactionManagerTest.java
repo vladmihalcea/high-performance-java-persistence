@@ -14,10 +14,15 @@ import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +53,10 @@ public class CamundaNarayanaJTATransactionManagerTest extends AbstractSpringTest
 
     @Autowired
     private HistoryService historyService;
+
+    @Autowired
+    @Qualifier("camundaDataSource")
+    private DataSource camundaDataSource;
 
     @Override
     protected Class<?>[] entities() {
@@ -138,6 +147,20 @@ public class CamundaNarayanaJTATransactionManagerTest extends AbstractSpringTest
             Map<String, Object> variables = new HashMap<>();
             variables.put("title", "High-Performance Java Persistence");
             variables.put("tags", new String[]{"hibernate", "jpa"});
+            LOGGER.info("Execute an SQL query in PostgreSQL to see what connection we are using");
+            try(Connection connection = camundaDataSource.getConnection()) {
+                ResultSet resultSet = connection.createStatement().executeQuery("SELECT now() AS current_time");
+                while (resultSet.next()) {
+                    String timestamp = resultSet.getString(1);
+                    LOGGER.info("Current time from Camunda's DataSource connection: {}", timestamp);
+                }
+            } catch (SQLException e) {
+                fail(e.getMessage());
+            }
+            assertNotNull(
+                historyService.findHistoryCleanupJobs(),
+                "The process instance should have completed"
+            );
 
             LOGGER.info("Starting Camunda process");
             ProcessInstance processInstance = runtimeService
