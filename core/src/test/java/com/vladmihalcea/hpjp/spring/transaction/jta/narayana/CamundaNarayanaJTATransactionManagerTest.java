@@ -139,6 +139,7 @@ public class CamundaNarayanaJTATransactionManagerTest extends AbstractSpringTest
             variables.put("title", "High-Performance Java Persistence");
             variables.put("tags", new String[]{"hibernate", "jpa"});
 
+            LOGGER.info("Starting Camunda process");
             ProcessInstance processInstance = runtimeService
                 .startProcessInstanceByKey("forumPostProcess", variables);
 

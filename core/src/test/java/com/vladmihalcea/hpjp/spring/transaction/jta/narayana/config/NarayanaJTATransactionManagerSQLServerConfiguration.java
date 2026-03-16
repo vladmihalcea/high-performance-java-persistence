@@ -155,6 +155,7 @@ public class NarayanaJTATransactionManagerSQLServerConfiguration {
             )
         );
         properties.put(AvailableSettings.DIALECT, hibernateDialect);
+        properties.put(AvailableSettings.CONNECTION_HANDLING, "DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION");
 
         return properties;
     }
