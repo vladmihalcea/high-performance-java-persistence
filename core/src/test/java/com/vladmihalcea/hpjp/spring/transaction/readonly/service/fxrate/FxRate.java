@@ -2,12 +2,13 @@ package com.vladmihalcea.hpjp.spring.transaction.readonly.service.fxrate;
 
 import com.vladmihalcea.hpjp.util.ReflectionUtils;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 
-public class FxRate {
+public class FxRate implements Serializable {
 
     private LocalDate date;
 

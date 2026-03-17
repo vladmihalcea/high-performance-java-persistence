@@ -50,6 +50,7 @@ public class ForumServiceImpl implements ForumService {
     @Transactional
     public Post findById(Long id) {
         Post post = postDAO.findById(id);
+        PostDTO postDTO = postDAO.getPostDTOById(id);
 
         org.hibernate.engine.spi.PersistenceContext persistenceContext = getHibernatePersistenceContext();
 

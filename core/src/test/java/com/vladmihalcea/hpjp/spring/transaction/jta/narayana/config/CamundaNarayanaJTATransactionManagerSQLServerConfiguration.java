@@ -85,10 +85,14 @@ public class CamundaNarayanaJTATransactionManagerSQLServerConfiguration extends 
         config.setHistory("audit");
         config.setDeploymentResources(
             new Resource[]{
-                new ClassPathResource("bpmn/forum-post-process.bpmn")
+                bpmnResource()
             }
         );
         return config;
+    }
+
+    protected ClassPathResource bpmnResource() {
+        return new ClassPathResource("bpmn/forum-post-process.bpmn");
     }
 
     @Override
@@ -170,5 +174,10 @@ public class CamundaNarayanaJTATransactionManagerSQLServerConfiguration extends 
     @Bean
     public HistoryService historyService(ProcessEngine processEngine) {
         return processEngine.getHistoryService();
+    }
+
+    @Bean
+    public ManagementService managementService(ProcessEngine processEngine) {
+        return processEngine.getManagementService();
     }
 }
