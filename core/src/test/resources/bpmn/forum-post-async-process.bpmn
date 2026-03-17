@@ -7,29 +7,24 @@
     <process id="forumPostProcessAsync" name="Forum Post Process" isExecutable="true"
              camunda:historyTimeToLive="180">
 
-        <startEvent id="startEvent" name="Start"/>
-
-        <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="createPostTask"/>
-
         <serviceTask id="createPostTask"
                      name="Create Post"
                      camunda:delegateExpression="${createPostDelegate}"/>
 
-        <sequenceFlow id="flow2" sourceRef="createPostTask" targetRef="callWebServiceTask"/>
+        <serviceTask id="verifyPostTask"
+                     name="Verify Post"
+                     camunda:delegateExpression="${verifyPostDelegate}"
+                     camunda:asyncBefore="true"/>
 
         <serviceTask id="callWebServiceTask"
                      name="Call Web Service"
-                     camunda:delegateExpression="${callWebServiceDelegate}"
-                     camunda:asyncBefore="true"/>
+                     camunda:delegateExpression="${callWebServiceDelegate}"/>
 
-        <sequenceFlow id="flow3" sourceRef="callWebServiceTask" targetRef="verifyPostTask"/>
-
-        <serviceTask id="verifyPostTask"
-                     name="Verify Post"
-                     camunda:delegateExpression="${verifyPostDelegate}"/>
-
+        <startEvent id="startEvent" name="Start"/>
+        <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="createPostTask"/>
+        <sequenceFlow id="flow2" sourceRef="createPostTask" targetRef="verifyPostTask"/>
+        <sequenceFlow id="flow3" sourceRef="verifyPostTask" targetRef="callWebServiceTask"/>
         <sequenceFlow id="flow4" sourceRef="verifyPostTask" targetRef="endEvent"/>
-
         <endEvent id="endEvent" name="End"/>
 
     </process>

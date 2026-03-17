@@ -7,7 +7,6 @@ import com.vladmihalcea.hpjp.hibernate.transaction.forum.Tag;
 import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.transaction.jta.dao.TagDAO;
 import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config.CamundaAsyncContinuationNarayanaJTATransactionManagerSQLServerConfiguration;
-import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config.CamundaNarayanaJTATransactionManagerSQLServerConfiguration;
 import com.vladmihalcea.hpjp.spring.transaction.jta.service.ForumService;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ManagementService;
@@ -29,6 +28,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -93,6 +94,8 @@ public class CamundaAsyncContinuationNarayanaJTATransactionManagerTest extends A
         }
     }
 
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
     @Test
     public void testXATransaction() {
         // Verify that the Post was persisted via JPA within the JTA transaction
@@ -156,6 +159,87 @@ public class CamundaAsyncContinuationNarayanaJTATransactionManagerTest extends A
         for (Job job : jobs) {
             LOGGER.info("Executing async job: {}", job.getId());
             managementService.executeJob(job.getId());
+        }
+
+        // The process should have completed (no user tasks)
+        HistoricProcessInstance historicProcessInstance = historyService
+            .createHistoricProcessInstanceQuery()
+            .processInstanceId(_processInstance.getId())
+            .singleResult();
+
+        assertNotNull(historicProcessInstance);
+        assertNotNull(
+            historicProcessInstance.getEndTime(),
+            "The process instance should have completed"
+        );
+    }
+
+    @Test
+    public void testAsyncStartRightAway() {
+        AtomicReference<Future> asyncExecution = new AtomicReference<>();
+            // Verify that the Post was persisted via JPA within the JTA transaction
+        ProcessInstance _processInstance = transactionTemplate.execute(transactionStatus -> {
+            // Start the Camunda process with variables
+            Map<String, Object> variables = new HashMap<>();
+            variables.put("title", "High-Performance Java Persistence");
+            variables.put("tags", new String[]{"hibernate", "jpa"});
+            LOGGER.info("Execute an SQL query in PostgreSQL to see what connection we are using");
+            try(Connection connection = camundaDataSource.getConnection()) {
+                ResultSet resultSet = connection.createStatement().executeQuery("SELECT now() AS current_time");
+                while (resultSet.next()) {
+                    String timestamp = resultSet.getString(1);
+                    LOGGER.info("Current time from Camunda's DataSource connection: {}", timestamp);
+                }
+            } catch (SQLException e) {
+                fail(e.getMessage());
+            }
+            assertNotNull(
+                historyService.findHistoryCleanupJobs(),
+                "The process instance should have completed"
+            );
+
+            LOGGER.info("Starting Camunda process");
+            ProcessInstance processInstance = runtimeService
+                .startProcessInstanceByKey("forumPostProcessAsync", variables);
+
+            asyncExecution.set(executorService.submit(() -> {
+                transactionTemplate.execute(_transactionStatus -> {
+                    // Execute the pending async job(s) so that callWebServiceDelegate
+                    // and verifyPostDelegate are invoked
+                    List<Job> jobs;
+
+                    do {
+                        jobs = managementService.createJobQuery()
+                            .processInstanceId(processInstance.getId())
+                            .list();
+
+                        LOGGER.info("Found {} async jobs for process instance {}", jobs.size(), processInstance.getId());
+                    } while (jobs.isEmpty());
+
+                    for (Job job : jobs) {
+                        try {
+                            long millis = 10;
+                            LOGGER.info("Sleep for {} milliseconds before executing async job: {}", millis, job.getId());
+                            Thread.sleep(millis);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        LOGGER.info("Executing async job: {}", job.getId());
+                        managementService.executeJob(job.getId());
+                    }
+
+                    return null;
+                });
+            }));
+
+            assertNotNull(processInstance);
+            return processInstance;
+        });
+
+        try {
+            asyncExecution.get().get(10, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RuntimeException(e);
         }
 
         // The process should have completed (no user tasks)

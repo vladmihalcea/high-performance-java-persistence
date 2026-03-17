@@ -35,6 +35,9 @@
     <!--<logger name="org.hibernate.SQL" level="debug"/>
     <logger name="org.hibernate.orm.jdbc.bind" level="trace"/>-->
 
+    <logger name="com.microsoft.sqlserver.jdbc.internals.XA" level="trace"/>
+    <logger name="com.arjuna" level="trace"/>
+
     <logger name="org.hibernate.SQL_SLOW" level="info"/>
 
     <logger name="com.zaxxer.hikari" level="info"/>
