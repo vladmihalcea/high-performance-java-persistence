@@ -1,5 +1,6 @@
 package com.vladmihalcea.hpjp.spring.transaction.jta.narayana;
 
+import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.Post;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostComment;
 import com.vladmihalcea.hpjp.hibernate.transaction.forum.PostDetails;
@@ -8,12 +9,17 @@ import com.vladmihalcea.hpjp.spring.common.AbstractSpringTest;
 import com.vladmihalcea.hpjp.spring.transaction.jta.dao.TagDAO;
 import com.vladmihalcea.hpjp.spring.transaction.jta.narayana.config.CamundaAsyncContinuationNarayanaJTATransactionManagerSQLServerConfiguration;
 import com.vladmihalcea.hpjp.spring.transaction.jta.service.ForumService;
+import jakarta.transaction.RollbackException;
+import jakarta.transaction.Synchronization;
+import jakarta.transaction.SystemException;
+import jakarta.transaction.Transaction;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ManagementService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.runtime.Job;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.hibernate.internal.util.collections.BoundedConcurrentHashMap;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,6 +28,7 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 
 import javax.sql.DataSource;
+import javax.transaction.Status;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -64,6 +71,9 @@ public class CamundaAsyncContinuationNarayanaJTATransactionManagerTest extends A
     @Autowired
     @Qualifier("camundaDataSource")
     private DataSource camundaDataSource;
+
+    @Autowired
+    private TransactionManagerImple narayanaTransactionManager;
 
     @Override
     protected Class<?>[] entities() {
@@ -215,6 +225,150 @@ public class CamundaAsyncContinuationNarayanaJTATransactionManagerTest extends A
 
                         LOGGER.info("Found {} async jobs for process instance {}", jobs.size(), processInstance.getId());
                     } while (jobs.isEmpty());
+
+                    for (Job job : jobs) {
+                        try {
+                            long millis = 10;
+                            LOGGER.info("Sleep for {} milliseconds before executing async job: {}", millis, job.getId());
+                            Thread.sleep(millis);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        LOGGER.info("Executing async job: {}", job.getId());
+                        managementService.executeJob(job.getId());
+                    }
+
+                    return null;
+                });
+            }));
+
+            assertNotNull(processInstance);
+            return processInstance;
+        });
+
+        try {
+            asyncExecution.get().get(10, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RuntimeException(e);
+        }
+
+        // The process should have completed (no user tasks)
+        HistoricProcessInstance historicProcessInstance = historyService
+            .createHistoricProcessInstanceQuery()
+            .processInstanceId(_processInstance.getId())
+            .singleResult();
+
+        assertNotNull(historicProcessInstance);
+        assertNotNull(
+            historicProcessInstance.getEndTime(),
+            "The process instance should have completed"
+        );
+    }
+
+    private static class ProcessInstanceTransactionCache {
+
+        private static BoundedConcurrentHashMap<String, Integer> CACHE = new BoundedConcurrentHashMap<>(
+            100,
+            50,
+            BoundedConcurrentHashMap.Eviction.LRU
+        );
+
+        public static void register(String processInstanceId) {
+            CACHE.put(processInstanceId, Status.STATUS_ACTIVE);
+        }
+
+        public static void updateTransactionStatus(String processInstanceId, int transactionStatus) {
+            if(CACHE.containsKey(processInstanceId)) {
+                CACHE.put(processInstanceId, transactionStatus);
+            } else {
+                throw new IllegalStateException("Process instance not registered in cache: " + processInstanceId);
+            }
+        }
+
+        public static Integer getTransactionStatus(String processInstanceId) {
+            return CACHE.get(processInstanceId);
+        }
+
+        public static boolean isCompleted(String processInstanceId) {
+            Integer transactionStatus = getTransactionStatus(processInstanceId);
+            return transactionStatus == null || transactionStatus == Status.STATUS_COMMITTED || transactionStatus == Status.STATUS_ROLLEDBACK;
+        }
+    }
+
+
+
+
+    @Test
+    public void testAsyncStartRightAwayWithSynchronization() {
+        AtomicReference<Future> asyncExecution = new AtomicReference<>();
+        // Verify that the Post was persisted via JPA within the JTA transaction
+        ProcessInstance _processInstance = transactionTemplate.execute(transactionStatus -> {
+            // Start the Camunda process with variables
+            Map<String, Object> variables = new HashMap<>();
+            variables.put("title", "High-Performance Java Persistence");
+            variables.put("tags", new String[]{"hibernate", "jpa"});
+            LOGGER.info("Execute an SQL query in PostgreSQL to see what connection we are using");
+            try(Connection connection = camundaDataSource.getConnection()) {
+                ResultSet resultSet = connection.createStatement().executeQuery("SELECT now() AS current_time");
+                while (resultSet.next()) {
+                    String timestamp = resultSet.getString(1);
+                    LOGGER.info("Current time from Camunda's DataSource connection: {}", timestamp);
+                }
+            } catch (SQLException e) {
+                fail(e.getMessage());
+            }
+            assertNotNull(
+                historyService.findHistoryCleanupJobs(),
+                "The process instance should have completed"
+            );
+
+            LOGGER.info("Starting Camunda process");
+            ProcessInstance processInstance = runtimeService
+                .startProcessInstanceByKey("forumPostProcessAsync", variables);
+           ProcessInstanceTransactionCache.register(processInstance.getId());
+
+            try {
+                Transaction jtaTransaction = narayanaTransactionManager.getTransaction();
+                jtaTransaction.registerSynchronization(new Synchronization() {
+                    @Override
+                    public void beforeCompletion() {
+
+                    }
+
+                    @Override
+                    public void afterCompletion(int transactionStatus) {
+                        ProcessInstanceTransactionCache.updateTransactionStatus(processInstance.getId(), transactionStatus);
+                        if (transactionStatus == javax.transaction.Status.STATUS_COMMITTED) {
+                            LOGGER.info("Transaction committed, async job will be executed");
+                        } else {
+                            LOGGER.warn("Transaction not committed, async job will not be executed");
+                        }
+                    }
+                });
+            } catch (RollbackException | SystemException e) {
+                throw new RuntimeException(e);
+            }
+
+            asyncExecution.set(executorService.submit(() -> {
+                transactionTemplate.execute(_transactionStatus -> {
+                    while (!ProcessInstanceTransactionCache.isCompleted(processInstance.getId())) {
+                        LOGGER.info("Waiting for transaction to complete for process instance {}. Current transaction status: {}",
+                            processInstance.getId(),
+                            ProcessInstanceTransactionCache.getTransactionStatus(processInstance.getId())
+                        );
+
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                    // Execute the pending async job(s) so that callWebServiceDelegate
+                    // and verifyPostDelegate are invoked
+                    List<Job> jobs = managementService.createJobQuery()
+                        .processInstanceId(processInstance.getId())
+                        .list();
 
                     for (Job job : jobs) {
                         try {
