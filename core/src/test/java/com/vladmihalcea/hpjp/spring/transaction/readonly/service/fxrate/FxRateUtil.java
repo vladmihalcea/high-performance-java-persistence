@@ -7,11 +7,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.LocalDate;
 
 public class FxRateUtil {
 
-    public static final String FX_RATE_XML_URL = "https://www.bnr.ro/nbrfxrates.xml";
+    public static final String FX_RATE_XML_URL = "https://curs.bnr.ro/nbrfxrates.xml";
 
     public static class Names {
         public static final String CUBE = "Cube";
@@ -39,7 +40,10 @@ public class FxRateUtil {
                 BigDecimal fxRateValue = new BigDecimal(rateNode.getTextContent());
                 Node multiplierAttribute = attributes.getNamedItem(Names.MULTIPLIER);
                 if (multiplierAttribute != null) {
-                    fxRateValue = new BigDecimal(multiplierAttribute.getNodeValue());
+                    fxRateValue = fxRateValue.divide(
+                        new BigDecimal(multiplierAttribute.getNodeValue()),
+                        MathContext.DECIMAL64
+                    );
                 }
                 fxRate.setRate(currency, fxRateValue);
             }
