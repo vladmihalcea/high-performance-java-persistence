@@ -43,11 +43,6 @@ import java.util.List;
 @EnableAspectJAutoProxy
 public class CamundaAsyncContinuationNarayanaJTATransactionManagerSQLServerConfiguration extends CamundaNarayanaJTATransactionManagerSQLServerConfiguration {
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-
     protected ClassPathResource bpmnResource() {
         return new ClassPathResource("bpmn/forum-post-async-process.bpmn");
     }
