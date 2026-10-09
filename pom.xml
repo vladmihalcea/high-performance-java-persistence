@@ -562,7 +562,7 @@
         <jackson.version>2.14.3</jackson.version>
 
         <flyway.version>6.4.4</flyway.version>
-        <hypersistence-utils.version>3.13.1</hypersistence-utils.version>
+        <hypersistence-utils.version>3.16.0</hypersistence-utils.version>
         <hypersistence-tsid.version>2.1.4</hypersistence-tsid.version>
 
         <blaze-persistence.version>1.6.18</blaze-persistence.version>
