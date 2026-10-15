@@ -10,7 +10,6 @@ import java.util.List;
 
 import static org.hibernate.generator.EventType.INSERT;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Vlad Mihalcea
@@ -57,7 +56,10 @@ public class RefreshTest extends AbstractTest {
             comment.setReview("Great!");
             post.addComment(comment);
 
-            assertThrows(IllegalArgumentException.class, ()-> entityManager.refresh(post));
+            //Since Hibernate 7.4, refresh no longer cascades to the transient child,
+            //but reloads the collection from the database, discarding the transient child
+            entityManager.refresh(post);
+            assertTrue(post.getComments().isEmpty());
         });
         doInJPA(entityManager -> {
             Post post = entityManager.find(Post.class, 1L);
@@ -68,7 +70,10 @@ public class RefreshTest extends AbstractTest {
             comment.setReview("Great!");
             post.addComment(comment);
 
-            assertThrows(IllegalArgumentException.class, ()-> entityManager.refresh(post));
+            //Since Hibernate 7.4, refresh no longer cascades to the transient child,
+            //but reloads the collection from the database, discarding the transient child
+            entityManager.refresh(post);
+            assertTrue(post.getComments().isEmpty());
         });
     }
 

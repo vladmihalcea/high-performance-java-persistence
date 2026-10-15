@@ -12,6 +12,10 @@ import org.junit.jupiter.api.Test;
 import java.util.Properties;
 
 /**
+ * The no-op identifier generator trips a Hibernate internal assertion,
+ * so, to run this test, add the following VM option to the IntelliJ IDEA run configuration:
+ * <pre>-da:org.hibernate.persister.entity.mutation.InsertCoordinatorStandard</pre>
+ *
  * @author Vlad Mihalcea
  */
 public class MySQLIdentityStatelessSessionTest extends AbstractTest {

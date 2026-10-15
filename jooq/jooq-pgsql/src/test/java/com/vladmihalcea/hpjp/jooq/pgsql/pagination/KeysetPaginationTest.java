@@ -10,7 +10,7 @@ import java.util.List;
 
 import static com.vladmihalcea.hpjp.jooq.pgsql.schema.crud.Tables.POST;
 import static com.vladmihalcea.hpjp.jooq.pgsql.schema.crud.Tables.POST_DETAILS;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

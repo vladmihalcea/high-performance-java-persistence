@@ -29,8 +29,8 @@ import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.hibernate.jpa.boot.spi.TypeContributorList;
 import org.hibernate.usertype.UserType;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +66,7 @@ public abstract class AbstractTest {
 
     private List<Closeable> closeables = new ArrayList<>();
 
-    @Before
+    @BeforeEach
     public void init() {
         beforeInit();
         if (nativeHibernateSessionFactoryBootstrap()) {
@@ -85,7 +85,7 @@ public abstract class AbstractTest {
 
     }
 
-    @After
+    @AfterEach
     public void destroy() {
         if (nativeHibernateSessionFactoryBootstrap()) {
             if (sf != null) {

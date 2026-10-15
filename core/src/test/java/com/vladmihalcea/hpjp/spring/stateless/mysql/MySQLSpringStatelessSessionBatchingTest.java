@@ -12,6 +12,10 @@ import java.util.List;
 import java.util.stream.LongStream;
 
 /**
+ * The no-op identifier generator trips a Hibernate internal assertion,
+ * so, to run this test, add the following VM option to the IntelliJ IDEA run configuration:
+ * <pre>-da:org.hibernate.persister.entity.mutation.InsertCoordinatorStandard</pre>
+ *
  * @author Vlad Mihalcea
  */
 @ContextConfiguration(classes = MySQLSpringStatelessSessionBatchingConfiguration.class)

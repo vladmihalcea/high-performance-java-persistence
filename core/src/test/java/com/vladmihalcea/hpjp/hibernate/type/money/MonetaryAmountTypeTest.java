@@ -3,7 +3,6 @@ package com.vladmihalcea.hpjp.hibernate.type.money;
 import com.vladmihalcea.hpjp.util.AbstractTest;
 import com.vladmihalcea.hpjp.util.providers.Database;
 import io.hypersistence.utils.hibernate.type.money.MonetaryAmountType;
-import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.CompositeType;
 import org.javamoney.moneta.Money;
 import org.junit.jupiter.api.Test;
@@ -155,10 +154,8 @@ public class MonetaryAmountTypeTest extends AbstractTest {
         @Enumerated
         private PricingType type;
 
-        @Columns(columns = {
-            @Column(name = "price_amount"),
-            @Column(name = "price_currency")
-        })
+        @AttributeOverride(name = "amount", column = @Column(name = "price_amount"))
+        @AttributeOverride(name = "currency", column = @Column(name = "price_currency"))
         @CompositeType(MonetaryAmountType.class)
         private MonetaryAmount price;
 

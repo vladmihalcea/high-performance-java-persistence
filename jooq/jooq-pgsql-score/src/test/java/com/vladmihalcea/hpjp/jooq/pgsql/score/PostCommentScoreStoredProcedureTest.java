@@ -5,13 +5,14 @@ import com.vladmihalcea.hpjp.jooq.pgsql.score.dto.PostCommentScore;
 import com.vladmihalcea.hpjp.jooq.pgsql.score.transformer.PostCommentScoreResultTransformer;
 import com.vladmihalcea.hpjp.jooq.pgsql.score.transformer.PostCommentScoreRootTransformer;
 import org.hibernate.query.NativeQuery;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -32,6 +33,7 @@ public class PostCommentScoreStoredProcedureTest extends AbstractJOOQPostgreSQLI
     }
 
     @Override
+    @BeforeEach
     public void init() {
         super.init();
         initData();
@@ -226,7 +228,7 @@ public class PostCommentScoreStoredProcedureTest extends AbstractJOOQPostgreSQLI
                             @ColumnResult(name = "id"),
                             @ColumnResult(name = "parent_id"),
                             @ColumnResult(name = "review"),
-                            @ColumnResult(name = "created_on"),
+                            @ColumnResult(name = "created_on", type = Date.class),
                             @ColumnResult(name = "score")
                     }
             )

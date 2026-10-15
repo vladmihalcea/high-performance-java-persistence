@@ -1,6 +1,6 @@
 package com.vladmihalcea.hpjp.jooq.mysql.crud;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.vladmihalcea.hpjp.jooq.mysql.schema.crud.Tables.POST;
@@ -16,7 +16,7 @@ public class StreamTest extends AbstractJOOQMySQLIntegrationTest {
         return "clean_schema.sql";
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         super.init();
 

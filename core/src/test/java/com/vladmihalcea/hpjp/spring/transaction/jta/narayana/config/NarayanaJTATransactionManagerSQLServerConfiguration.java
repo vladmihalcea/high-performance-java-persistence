@@ -144,7 +144,7 @@ public class NarayanaJTATransactionManagerSQLServerConfiguration {
             AvailableSettings.JTA_PLATFORM,
             JBossStandAloneJtaPlatform.class
         );
-        properties.setProperty("hibernate.hbm2ddl.auto", "update");
+        properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         properties.put(
             "hibernate.session_factory.statement_inspector",
             new LoggingStatementInspector("com.vladmihalcea.hpjp.hibernate.transaction")

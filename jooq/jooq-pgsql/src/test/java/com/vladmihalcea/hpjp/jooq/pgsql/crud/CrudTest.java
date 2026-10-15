@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import static com.vladmihalcea.hpjp.jooq.pgsql.schema.crud.Tables.POST;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

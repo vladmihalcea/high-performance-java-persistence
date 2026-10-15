@@ -11,7 +11,7 @@ import org.jooq.impl.DSL;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea

@@ -17,7 +17,7 @@ import static com.vladmihalcea.hpjp.jooq.mysql.schema.crud.Tables.POST;
 import static com.vladmihalcea.hpjp.jooq.mysql.schema.crud.tables.PostDetails.POST_DETAILS;
 import static org.jooq.impl.DSL.val;
 import static org.jooq.impl.DSL.field;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea

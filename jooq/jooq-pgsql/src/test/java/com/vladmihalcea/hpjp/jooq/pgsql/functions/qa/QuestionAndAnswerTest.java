@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 import static com.vladmihalcea.hpjp.jooq.pgsql.schema.crud.Tables.ANSWER;
 import static com.vladmihalcea.hpjp.jooq.pgsql.schema.crud.Tables.QUESTION;
 import static com.vladmihalcea.hpjp.jooq.pgsql.schema.crud.tables.GetUpdatedQuestionsAndAnswers.GET_UPDATED_QUESTIONS_AND_ANSWERS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Vlad Mihalcea

@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.LongStream;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -83,63 +82,68 @@ public class FailOnPaginationWithCollectionFetchTest extends AbstractTest {
         });
     }
 
+    /**
+     * Since Hibernate 7.4, the pagination is pushed down into a derived table
+     * when the database supports OFFSET in subqueries, so no in-memory pagination
+     * is needed and the fail_on_pagination_over_collection_fetch setting no longer throws.
+     */
     @Test
     public void testFetchAndPaginate() {
         doInJPA(entityManager -> {
-            try {
-                List<Post> posts  = entityManager.createQuery("""
-                    select p
-                    from Post p
-                    left join fetch p.comments
-                    where p.title like :titlePattern
-                    order by p.createdOn
-                    """, Post.class)
-                .setParameter("titlePattern", "High-Performance Java Persistence %")
-                .setMaxResults(5)
-                .getResultList();
+            List<Post> posts  = entityManager.createQuery("""
+                select p
+                from Post p
+                left join fetch p.comments
+                where p.title like :titlePattern
+                order by p.createdOn
+                """, Post.class)
+            .setParameter("titlePattern", "High-Performance Java Persistence %")
+            .setMaxResults(5)
+            .getResultList();
 
-                fail("Should have thrown Exception");
-            } catch (Exception e) {
-                LOGGER.debug("Expected", e);
-                assertTrue(e.getMessage().contains("in-memory pagination"));
-            }
+            assertPostsWithComments(posts);
         });
     }
 
     @Test
     public void testFetchAndPaginateWithCriteriaApi() {
         doInJPA(entityManager -> {
-            try {
-                CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-                CriteriaQuery<Post> criteria = builder.createQuery(Post.class);
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Post> criteria = builder.createQuery(Post.class);
 
-                Root<Post> post = criteria.from(Post.class);
-                post.fetch("comments");
+            Root<Post> post = criteria.from(Post.class);
+            post.fetch("comments");
 
-                ParameterExpression<String> parameterExpression = builder.parameter(String.class);
+            ParameterExpression<String> parameterExpression = builder.parameter(String.class);
 
-                criteria.where(
-                    builder.like(
-                        post.get("title"),
-                        parameterExpression
-                    )
+            criteria.where(
+                builder.like(
+                    post.get("title"),
+                    parameterExpression
                 )
-                .orderBy(
-                    builder.asc(
-                        post.get("createdOn")
-                    )
-                );
+            )
+            .orderBy(
+                builder.asc(
+                    post.get("createdOn")
+                )
+            );
 
-                entityManager
-                .createQuery(criteria)
-                .setParameter(parameterExpression, "High-Performance Java Persistence %")
-                .setMaxResults(5)
-                .getResultList();
+            List<Post> posts = entityManager
+            .createQuery(criteria)
+            .setParameter(parameterExpression, "High-Performance Java Persistence %")
+            .setMaxResults(5)
+            .getResultList();
 
-                fail("Should have thrown Exception");
-            } catch (Exception e) {
-                assertTrue(e.getMessage().contains("in-memory pagination"));
-            }
+            assertPostsWithComments(posts);
         });
+    }
+
+    private void assertPostsWithComments(List<Post> posts) {
+        assertEquals(5, posts.size());
+        for (int i = 0; i < posts.size(); i++) {
+            Post post = posts.get(i);
+            assertEquals(i + 1L, post.getId());
+            assertEquals(COMMENT_COUNT, post.getComments().size());
+        }
     }
 }

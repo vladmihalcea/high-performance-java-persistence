@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
@@ -105,13 +106,12 @@ public class LockModePessimisticReadWriteTest extends AbstractTest {
         Post post = doInJPA(entityManager -> {
             return entityManager.find(Post.class, 1L);
         });
-        try {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> {
             doInJPA(entityManager -> {
                 entityManager.lock(post, LockModeType.PESSIMISTIC_WRITE);
             });
-        } catch (IllegalArgumentException e) {
-            assertEquals("entity not in the persistence context", e.getMessage());
-        }
+        });
+        assertTrue(e.getMessage().contains("Given entity is not associated with the persistence context"));
     }
 
     @Test

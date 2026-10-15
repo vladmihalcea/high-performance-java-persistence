@@ -8,7 +8,7 @@ import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -18,7 +18,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 
 /**
@@ -60,7 +60,7 @@ public abstract class AbstractJOOQIntegrationTest extends AbstractTest {
                 }
             }
         } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         }
     }
 

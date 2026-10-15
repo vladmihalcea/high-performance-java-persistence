@@ -8,6 +8,7 @@ import org.hibernate.query.NativeQuery;
 import org.jooq.CommonTableExpression;
 import org.jooq.DSLContext;
 import org.jooq.Record7;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import jakarta.persistence.*;
@@ -18,7 +19,7 @@ import java.util.List;
 
 import static com.vladmihalcea.hpjp.jooq.pgsql.schema.score.Tables.POST_COMMENT;
 import static org.jooq.impl.DSL.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vlad Mihalcea
@@ -39,6 +40,7 @@ public class PostCommentFingerprintTest extends AbstractJOOQPostgreSQLIntegratio
     }
 
     @Override
+    @BeforeEach
     public void init() {
         super.init();
         initData();
@@ -303,7 +305,7 @@ public class PostCommentFingerprintTest extends AbstractJOOQPostgreSQLIntegratio
                             @ColumnResult(name = "id"),
                             @ColumnResult(name = "parent_id"),
                             @ColumnResult(name = "review"),
-                            @ColumnResult(name = "created_on"),
+                            @ColumnResult(name = "created_on", type = Date.class),
                             @ColumnResult(name = "score")
                     }
             )
